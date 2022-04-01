@@ -6,7 +6,6 @@
 #include "core/time.h"
 #include "game/settings.h"
 
-#define MAX_WARNINGS 5
 #define MAX_TEXT 100
 #define TIMEOUT_MS 15000
 

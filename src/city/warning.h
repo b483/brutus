@@ -1,5 +1,6 @@
 #ifndef CITY_WARNING_H
 #define CITY_WARNING_H
+#define MAX_WARNINGS 5
 
 #include <stdint.h>
 
