@@ -1,3 +1,6 @@
+Fork of (knife in?) Julius that makes the game harder in ways I enjoy.
+-------------------------------------------------------------------------------------------------------------------------------------
+
 # Julius ![](res/julius_48.png)
 
 [![Github Actions](https://github.com/bvschaik/julius/workflows/Build%20Julius/badge.svg)](https://github.com/bvschaik/julius/actions)
