@@ -212,7 +212,7 @@ static void init_scenario_data(void)
     state->elevation = create_scenario_piece(26244);
     state->random_iv = create_scenario_piece(8);
     state->camera = create_scenario_piece(8);
-    state->scenario = create_scenario_piece(1720);
+    state->scenario = create_scenario_piece(1759);
     state->end_marker = create_scenario_piece(4);
 }
 
@@ -265,7 +265,7 @@ static void init_savegame_data(void)
     state->trade_prices = create_savegame_piece(128, 0);
     state->figure_names = create_savegame_piece(84, 0);
     state->culture_coverage = create_savegame_piece(60, 0);
-    state->scenario = create_savegame_piece(1720, 0);
+    state->scenario = create_savegame_piece(1759, 0);
     state->max_game_year = create_savegame_piece(4, 0);
     state->earthquake = create_savegame_piece(60, 0);
     state->emperor_change_state = create_savegame_piece(4, 0);

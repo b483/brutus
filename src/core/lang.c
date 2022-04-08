@@ -3,7 +3,9 @@
 #include "core/buffer.h"
 #include "core/file.h"
 #include "core/io.h"
+#include "core/log.h"
 #include "core/string.h"
+#include "translation/translation.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -123,6 +125,46 @@ static void parse_message(buffer *buf)
     }
     buffer_read_raw(buf, &data.message_data, MAX_MESSAGE_DATA);
 }
+
+static void set_message_parameters(lang_message *m, int title, int text, int urgent, int message_type)
+{
+    m->type = TYPE_MESSAGE;
+    m->message_type = message_type;
+    m->x = 0;
+    m->y = 0;
+    m->width_blocks = 30;
+    m->height_blocks = 20;
+    m->title.x = 0;
+    m->title.y = 0;
+    m->urgent = urgent;
+
+    m->title.text = translation_for(title);
+    m->content.text = translation_for(text);
+}
+
+void load_custom_messages(void)
+{
+    int i = 321;
+    while (i < MAX_MESSAGE_ENTRIES) {
+        if (!data.message_entries[i].content.text) {
+            break;
+        }
+        i++;
+    }
+
+    if (i >= MAX_MESSAGE_ENTRIES) {
+        log_error("Message entry max exceeded", "", 0);
+        return;
+    }
+
+    // distant battle won but triumphal arch disabled from the editor
+    lang_message *m = &data.message_entries[i];
+    set_message_parameters(m, TR_CITY_MESSAGE_TITLE_DISTANT_BATTLE_WON_TRIUMPHAL_ARCH_DISABLED, TR_CITY_MESSAGE_TEXT_DISTANT_BATTLE_WON_TRIUMPHAL_ARCH_DISABLED, 0,
+        MESSAGE_TYPE_GENERAL);
+    m->video.text = (uint8_t *) "smk/army_win.smk";
+    i += 1;
+}
+
 
 static int load_message(const char *filename, int localizable, uint8_t *data_buffer)
 {

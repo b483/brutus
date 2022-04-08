@@ -1,9 +1,8 @@
-#include "menu.h"
-
 #include "city/buildings.h"
 #include "core/config.h"
 #include "empire/city.h"
 #include "game/tutorial.h"
+#include "menu.h"
 #include "scenario/building.h"
 
 #define BUILD_MENU_ITEM_MAX 30
@@ -42,11 +41,11 @@ static int menu_enabled[BUILD_MENU_MAX][BUILD_MENU_ITEM_MAX];
 
 static int changed = 1;
 
-void building_menu_enable_all(void)
+void building_menu_disable_all(void)
 {
     for (int sub = 0; sub < BUILD_MENU_MAX; sub++) {
         for (int item = 0; item < BUILD_MENU_ITEM_MAX; item++) {
-            menu_enabled[sub][item] = 1;
+            menu_enabled[sub][item] = 0;
         }
     }
 }
@@ -97,8 +96,20 @@ static void disable_finished(int *enabled, building_type menu_building_type, bui
 
 static void enable_normal(int *enabled, building_type type)
 {
-    enable_house(enabled, type);
-    enable_clear(enabled, type);
+    // submenus with items should always be enabled, they won't appear if all their buildings are disabled (logic handled elsewhere)
+    if (
+        (type == BUILDING_MENU_SMALL_TEMPLES)
+    || (type == BUILDING_MENU_LARGE_TEMPLES)
+    || (type == BUILDING_FORT)
+    || (type == BUILDING_MENU_FARMS)
+    || (type == BUILDING_MENU_RAW_MATERIALS)
+    || (type == BUILDING_MENU_WORKSHOPS)
+    ) {
+        *enabled = 1;
+    }
+
+    enable_if_allowed(enabled, type, BUILDING_HOUSE_VACANT_LOT);
+    enable_if_allowed(enabled, type, BUILDING_CLEAR_LAND);
     enable_if_allowed(enabled, type, BUILDING_ROAD);
     enable_if_allowed(enabled, type, BUILDING_DRAGGABLE_RESERVOIR);
     enable_if_allowed(enabled, type, BUILDING_AQUEDUCT);
@@ -108,12 +119,21 @@ static void enable_normal(int *enabled, building_type type)
     enable_if_allowed(enabled, type, BUILDING_BATHHOUSE);
     enable_if_allowed(enabled, type, BUILDING_DOCTOR);
     enable_if_allowed(enabled, type, BUILDING_HOSPITAL);
-    enable_if_allowed(enabled, type, BUILDING_MENU_SMALL_TEMPLES);
-    enable_if_allowed(enabled, type, BUILDING_MENU_LARGE_TEMPLES);
+    enable_if_allowed(enabled, type, BUILDING_SMALL_TEMPLE_CERES);
+    enable_if_allowed(enabled, type, BUILDING_SMALL_TEMPLE_NEPTUNE);
+    enable_if_allowed(enabled, type, BUILDING_SMALL_TEMPLE_MERCURY);
+    enable_if_allowed(enabled, type, BUILDING_SMALL_TEMPLE_MARS);
+    enable_if_allowed(enabled, type, BUILDING_SMALL_TEMPLE_VENUS);
+    enable_if_allowed(enabled, type, BUILDING_LARGE_TEMPLE_CERES);
+    enable_if_allowed(enabled, type, BUILDING_LARGE_TEMPLE_NEPTUNE);
+    enable_if_allowed(enabled, type, BUILDING_LARGE_TEMPLE_MERCURY);
+    enable_if_allowed(enabled, type, BUILDING_LARGE_TEMPLE_MARS);
+    enable_if_allowed(enabled, type, BUILDING_LARGE_TEMPLE_VENUS);
     enable_if_allowed(enabled, type, BUILDING_ORACLE);
     enable_if_allowed(enabled, type, BUILDING_SCHOOL);
     enable_if_allowed(enabled, type, BUILDING_ACADEMY);
     enable_if_allowed(enabled, type, BUILDING_LIBRARY);
+    enable_if_allowed(enabled, type, BUILDING_MISSION_POST);
     enable_if_allowed(enabled, type, BUILDING_THEATER);
     enable_if_allowed(enabled, type, BUILDING_AMPHITHEATER);
     enable_if_allowed(enabled, type, BUILDING_COLOSSEUM);
@@ -130,10 +150,16 @@ static void enable_normal(int *enabled, building_type type)
     enable_if_allowed(enabled, type, BUILDING_SMALL_STATUE);
     enable_if_allowed(enabled, type, BUILDING_MEDIUM_STATUE);
     enable_if_allowed(enabled, type, BUILDING_LARGE_STATUE);
+    if (type == BUILDING_TRIUMPHAL_ARCH) {
+        if (city_buildings_triumphal_arch_available()) {
+            enable_if_allowed(enabled, type, BUILDING_TRIUMPHAL_ARCH);
+        }
+    }
     enable_if_allowed(enabled, type, BUILDING_GARDENS);
     enable_if_allowed(enabled, type, BUILDING_PLAZA);
     enable_if_allowed(enabled, type, BUILDING_ENGINEERS_POST);
-    enable_if_allowed(enabled, type, BUILDING_MISSION_POST);
+    enable_if_allowed(enabled, type, BUILDING_LOW_BRIDGE);
+    enable_if_allowed(enabled, type, BUILDING_SHIP_BRIDGE);
     enable_if_allowed(enabled, type, BUILDING_SHIPYARD);
     enable_if_allowed(enabled, type, BUILDING_WHARF);
     enable_if_allowed(enabled, type, BUILDING_DOCK);
@@ -141,23 +167,29 @@ static void enable_normal(int *enabled, building_type type)
     enable_if_allowed(enabled, type, BUILDING_TOWER);
     enable_if_allowed(enabled, type, BUILDING_GATEHOUSE);
     enable_if_allowed(enabled, type, BUILDING_PREFECTURE);
-    enable_if_allowed(enabled, type, BUILDING_FORT);
+    enable_if_allowed(enabled, type, BUILDING_FORT_LEGIONARIES);
+    enable_if_allowed(enabled, type, BUILDING_FORT_JAVELIN);
+    enable_if_allowed(enabled, type, BUILDING_FORT_MOUNTED);
     enable_if_allowed(enabled, type, BUILDING_MILITARY_ACADEMY);
     enable_if_allowed(enabled, type, BUILDING_BARRACKS);
-    enable_if_allowed(enabled, type, BUILDING_DISTRIBUTION_CENTER_UNUSED);
-    enable_if_allowed(enabled, type, BUILDING_MENU_FARMS);
-    enable_if_allowed(enabled, type, BUILDING_MENU_RAW_MATERIALS);
-    enable_if_allowed(enabled, type, BUILDING_MENU_WORKSHOPS);
+    enable_if_allowed(enabled, type, BUILDING_WHEAT_FARM);
+    enable_if_allowed(enabled, type, BUILDING_VEGETABLE_FARM);
+    enable_if_allowed(enabled, type, BUILDING_FRUIT_FARM);
+    enable_if_allowed(enabled, type, BUILDING_OLIVE_FARM);
+    enable_if_allowed(enabled, type, BUILDING_VINES_FARM);
+    enable_if_allowed(enabled, type, BUILDING_PIG_FARM);
+    enable_if_allowed(enabled, type, BUILDING_CLAY_PIT);
+    enable_if_allowed(enabled, type, BUILDING_MARBLE_QUARRY);
+    enable_if_allowed(enabled, type, BUILDING_IRON_MINE);
+    enable_if_allowed(enabled, type, BUILDING_TIMBER_YARD);
+    enable_if_allowed(enabled, type, BUILDING_WINE_WORKSHOP);
+    enable_if_allowed(enabled, type, BUILDING_OIL_WORKSHOP);
+    enable_if_allowed(enabled, type, BUILDING_WEAPONS_WORKSHOP);
+    enable_if_allowed(enabled, type, BUILDING_FURNITURE_WORKSHOP);
+    enable_if_allowed(enabled, type, BUILDING_POTTERY_WORKSHOP);
     enable_if_allowed(enabled, type, BUILDING_MARKET);
     enable_if_allowed(enabled, type, BUILDING_GRANARY);
     enable_if_allowed(enabled, type, BUILDING_WAREHOUSE);
-    enable_if_allowed(enabled, type, BUILDING_LOW_BRIDGE);
-    enable_if_allowed(enabled, type, BUILDING_SHIP_BRIDGE);
-    if (type == BUILDING_TRIUMPHAL_ARCH) {
-        if (city_buildings_triumphal_arch_available()) {
-            *enabled = 1;
-        }
-    }
 }
 
 static void enable_tutorial1_start(int *enabled, building_type type)
@@ -247,17 +279,12 @@ static void disable_resources(int *enabled, building_type type)
 
 void building_menu_update(void)
 {
+    building_menu_disable_all();
     tutorial_build_buttons tutorial_buttons = tutorial_get_build_buttons();
     for (int sub = 0; sub < BUILD_MENU_MAX; sub++) {
         for (int item = 0; item < BUILD_MENU_ITEM_MAX; item++) {
             int building_type = MENU_BUILDING_TYPE[sub][item];
             int *menu_item = &menu_enabled[sub][item];
-            // first 12 items always disabled
-            if (sub < 12) {
-                *menu_item = 0;
-            } else {
-                *menu_item = 1;
-            }
             switch (tutorial_buttons) {
                 case TUT1_BUILD_START:
                     enable_tutorial1_start(menu_item, building_type);

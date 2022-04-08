@@ -6,12 +6,18 @@
 int scenario_building_allowed(int building_type)
 {
     switch (building_type) {
+        case BUILDING_HOUSE_VACANT_LOT:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_HOUSE_VACANT_LOT];
+        case BUILDING_CLEAR_LAND:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_CLEAR_LAND];
         case BUILDING_ROAD:
             return scenario.allowed_buildings[ALLOWED_BUILDING_ROAD];
         case BUILDING_DRAGGABLE_RESERVOIR:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_DRAGGABLE_RESERVOIR];
         case BUILDING_AQUEDUCT:
-        case BUILDING_FOUNTAIN:
             return scenario.allowed_buildings[ALLOWED_BUILDING_AQUEDUCT];
+        case BUILDING_FOUNTAIN:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_FOUNTAIN];
         case BUILDING_WELL:
             return scenario.allowed_buildings[ALLOWED_BUILDING_WELL];
         case BUILDING_BARBER:
@@ -22,10 +28,26 @@ int scenario_building_allowed(int building_type)
             return scenario.allowed_buildings[ALLOWED_BUILDING_DOCTOR];
         case BUILDING_HOSPITAL:
             return scenario.allowed_buildings[ALLOWED_BUILDING_HOSPITAL];
-        case BUILDING_MENU_SMALL_TEMPLES:
-            return scenario.allowed_buildings[ALLOWED_BUILDING_SMALL_TEMPLES];
-        case BUILDING_MENU_LARGE_TEMPLES:
-            return scenario.allowed_buildings[ALLOWED_BUILDING_LARGE_TEMPLES];
+        case BUILDING_SMALL_TEMPLE_CERES:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_SMALL_TEMPLE_CERES];
+        case BUILDING_SMALL_TEMPLE_NEPTUNE:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_SMALL_TEMPLE_NEPTUNE];
+        case BUILDING_SMALL_TEMPLE_MERCURY:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_SMALL_TEMPLE_MERCURY];
+        case BUILDING_SMALL_TEMPLE_MARS:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_SMALL_TEMPLE_MARS];
+        case BUILDING_SMALL_TEMPLE_VENUS:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_SMALL_TEMPLE_VENUS];
+        case BUILDING_LARGE_TEMPLE_CERES:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_LARGE_TEMPLE_CERES];
+        case BUILDING_LARGE_TEMPLE_NEPTUNE:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_LARGE_TEMPLE_NEPTUNE];
+        case BUILDING_LARGE_TEMPLE_MERCURY:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_LARGE_TEMPLE_MERCURY];
+        case BUILDING_LARGE_TEMPLE_MARS:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_LARGE_TEMPLE_MARS];
+        case BUILDING_LARGE_TEMPLE_VENUS:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_LARGE_TEMPLE_VENUS];
         case BUILDING_ORACLE:
             return scenario.allowed_buildings[ALLOWED_BUILDING_ORACLE];
         case BUILDING_SCHOOL:
@@ -34,6 +56,8 @@ int scenario_building_allowed(int building_type)
             return scenario.allowed_buildings[ALLOWED_BUILDING_ACADEMY];
         case BUILDING_LIBRARY:
             return scenario.allowed_buildings[ALLOWED_BUILDING_LIBRARY];
+        case BUILDING_MISSION_POST:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_MISSION_POST];
         case BUILDING_THEATER:
             return scenario.allowed_buildings[ALLOWED_BUILDING_THEATER];
         case BUILDING_AMPHITHEATER:
@@ -53,24 +77,33 @@ int scenario_building_allowed(int building_type)
         case BUILDING_FORUM:
             return scenario.allowed_buildings[ALLOWED_BUILDING_FORUM];
         case BUILDING_SENATE_UPGRADED:
-            return scenario.allowed_buildings[ALLOWED_BUILDING_SENATE];
+            return scenario.allowed_buildings[ALLOWED_BUILDING_SENATE_UPGRADED];
         case BUILDING_GOVERNORS_HOUSE:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_GOVERNORS_HOUSE];
         case BUILDING_GOVERNORS_VILLA:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_GOVERNORS_VILLA];
         case BUILDING_GOVERNORS_PALACE:
-            return scenario.allowed_buildings[ALLOWED_BUILDING_GOVERNOR_HOME];
+            return scenario.allowed_buildings[ALLOWED_BUILDING_GOVERNORS_PALACE];
         case BUILDING_SMALL_STATUE:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_SMALL_STATUE];
         case BUILDING_MEDIUM_STATUE:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_MEDIUM_STATUE];
         case BUILDING_LARGE_STATUE:
-            return scenario.allowed_buildings[ALLOWED_BUILDING_STATUES];
+            return scenario.allowed_buildings[ALLOWED_BUILDING_LARGE_STATUE];
+        case BUILDING_TRIUMPHAL_ARCH:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_TRIUMPHAL_ARCH];
         case BUILDING_GARDENS:
             return scenario.allowed_buildings[ALLOWED_BUILDING_GARDENS];
         case BUILDING_PLAZA:
             return scenario.allowed_buildings[ALLOWED_BUILDING_PLAZA];
         case BUILDING_ENGINEERS_POST:
             return scenario.allowed_buildings[ALLOWED_BUILDING_ENGINEERS_POST];
-        case BUILDING_MISSION_POST:
-            return scenario.allowed_buildings[ALLOWED_BUILDING_MISSION_POST];
+        case BUILDING_LOW_BRIDGE:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_LOW_BRIDGE];
+        case BUILDING_SHIP_BRIDGE:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_SHIP_BRIDGE];
         case BUILDING_SHIPYARD:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_SHIPYARD];
         case BUILDING_WHARF:
             return scenario.allowed_buildings[ALLOWED_BUILDING_WHARF];
         case BUILDING_DOCK:
@@ -83,29 +116,52 @@ int scenario_building_allowed(int building_type)
             return scenario.allowed_buildings[ALLOWED_BUILDING_GATEHOUSE];
         case BUILDING_PREFECTURE:
             return scenario.allowed_buildings[ALLOWED_BUILDING_PREFECTURE];
-        case BUILDING_FORT:
-            return scenario.allowed_buildings[ALLOWED_BUILDING_FORT];
+        case BUILDING_FORT_LEGIONARIES:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_FORT_LEGIONARIES];
+        case BUILDING_FORT_JAVELIN:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_FORT_JAVELIN];
+        case BUILDING_FORT_MOUNTED:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_FORT_MOUNTED];
         case BUILDING_MILITARY_ACADEMY:
             return scenario.allowed_buildings[ALLOWED_BUILDING_MILITARY_ACADEMY];
         case BUILDING_BARRACKS:
             return scenario.allowed_buildings[ALLOWED_BUILDING_BARRACKS];
-        case BUILDING_DISTRIBUTION_CENTER_UNUSED:
-            return scenario.allowed_buildings[ALLOWED_BUILDING_DISTRIBUTION_CENTER];
-        case BUILDING_MENU_FARMS:
-            return scenario.allowed_buildings[ALLOWED_BUILDING_FARMS];
-        case BUILDING_MENU_RAW_MATERIALS:
-            return scenario.allowed_buildings[ALLOWED_BUILDING_RAW_MATERIALS];
-        case BUILDING_MENU_WORKSHOPS:
-            return scenario.allowed_buildings[ALLOWED_BUILDING_WORKSHOPS];
+        case BUILDING_WHEAT_FARM:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_WHEAT_FARM];
+        case BUILDING_VEGETABLE_FARM:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_VEGETABLE_FARM];
+        case BUILDING_FRUIT_FARM:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_FRUIT_FARM];
+        case BUILDING_OLIVE_FARM:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_OLIVE_FARM];
+        case BUILDING_VINES_FARM:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_VINES_FARM];
+        case BUILDING_PIG_FARM:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_PIG_FARM];
+        case BUILDING_CLAY_PIT:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_CLAY_PIT];
+        case BUILDING_MARBLE_QUARRY:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_MARBLE_QUARRY];
+        case BUILDING_IRON_MINE:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_IRON_MINE];
+        case BUILDING_TIMBER_YARD:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_TIMBER_YARD];
+        case BUILDING_WINE_WORKSHOP:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_WINE_WORKSHOP];
+        case BUILDING_OIL_WORKSHOP:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_OIL_WORKSHOP];
+        case BUILDING_WEAPONS_WORKSHOP:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_WEAPONS_WORKSHOP];
+        case BUILDING_FURNITURE_WORKSHOP:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_FURNITURE_WORKSHOP];
+        case BUILDING_POTTERY_WORKSHOP:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_POTTERY_WORKSHOP];
         case BUILDING_MARKET:
             return scenario.allowed_buildings[ALLOWED_BUILDING_MARKET];
         case BUILDING_GRANARY:
             return scenario.allowed_buildings[ALLOWED_BUILDING_GRANARY];
         case BUILDING_WAREHOUSE:
             return scenario.allowed_buildings[ALLOWED_BUILDING_WAREHOUSE];
-        case BUILDING_LOW_BRIDGE:
-        case BUILDING_SHIP_BRIDGE:
-            return scenario.allowed_buildings[ALLOWED_BUILDING_BRIDGE];
     }
     return 1;
 }

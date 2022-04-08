@@ -21,6 +21,9 @@ const lang_message *lang_get_message(int id)
     return &msg;
 }
 
+void load_custom_messages(void)
+{}
+
 void font_set_encoding(encoding_type encoding)
 {}
 

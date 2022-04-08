@@ -25,7 +25,7 @@ typedef enum {
     BUILD_MENU_MAX = 18
 } build_menu_group;
 
-void building_menu_enable_all(void);
+void building_menu_disable_all(void);
 
 void building_menu_update(void);
 

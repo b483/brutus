@@ -103,6 +103,7 @@ int game_init(void)
         return 0;
     }
 
+    load_custom_messages();
     sound_system_init();
     game_state_init();
     window_logo_show(missing_fonts ? MESSAGE_MISSING_FONTS : (is_unpatched() ? MESSAGE_MISSING_PATCH : MESSAGE_NONE));
@@ -121,12 +122,15 @@ static int reload_language(int is_editor, int reload_images)
         return 0;
     }
     encoding_type encoding = update_encoding();
+    if (!is_editor) {
+        load_custom_messages();
+    }
 
     if (!image_load_fonts(encoding)) {
         errlog("unable to load font graphics");
         return 0;
     }
-    if (!image_load_climate(CLIMATE_CENTRAL, is_editor, reload_images)) {
+    if (!image_load_climate(scenario_property_climate(), is_editor, reload_images)) {
         errlog("unable to load main graphics");
         return 0;
     }

@@ -33,16 +33,14 @@ static void set_strings(const translation_string *strings, int num_strings, int 
 
 void translation_load(language_type language)
 {
-    const translation_string *strings = 0;
+    const translation_string *strings = NULL;
     int num_strings = 0;
-    const translation_string *default_strings;
-    int num_default_strings;
+    const translation_string *default_strings = NULL;
+    int num_default_strings = 0;
     translation_english(&default_strings, &num_default_strings);
 
     switch (language) {
         case LANGUAGE_ENGLISH:
-        case LANGUAGE_UNKNOWN:
-        default:
             translation_english(&strings, &num_strings);
             break;
         case LANGUAGE_FRENCH:
@@ -81,6 +79,8 @@ void translation_load(language_type language)
         case LANGUAGE_TRADITIONAL_CHINESE:
             translation_traditional_chinese(&strings, &num_strings);
             break;
+        default:
+            log_error("Invalid translation selected", 0, 0);
     }
 
     memset(data.strings, 0, sizeof(data.strings));
@@ -89,7 +89,7 @@ void translation_load(language_type language)
     set_strings(default_strings, num_default_strings, 1);
 }
 
-const uint8_t *translation_for(translation_key key)
+uint8_t *translation_for(translation_key key)
 {
     return data.strings[key];
 }

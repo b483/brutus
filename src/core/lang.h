@@ -83,6 +83,11 @@ int lang_dir_is_valid(const char *dir);
 int lang_load(int is_editor);
 
 /**
+ * Loads messages that are strings in the codebase
+ */
+void load_custom_messages(void);
+
+/**
  * Gets a localized string
  * @param group Text group
  * @param index Index within the group

@@ -74,7 +74,7 @@ static struct {
     int y_offset;
 
     int focus_button_id;
-} data = {SUBMENU_NONE};
+} data = { SUBMENU_NONE };
 
 static int init(build_menu_group submenu)
 {
@@ -164,7 +164,7 @@ static int get_sidebar_x_offset(void)
 static int is_all_button(building_type type)
 {
     return (type == BUILDING_MENU_SMALL_TEMPLES && data.selected_submenu == BUILD_MENU_SMALL_TEMPLES) ||
-           (type == BUILDING_MENU_LARGE_TEMPLES && data.selected_submenu == BUILD_MENU_LARGE_TEMPLES);
+        (type == BUILDING_MENU_LARGE_TEMPLES && data.selected_submenu == BUILD_MENU_LARGE_TEMPLES);
 }
 
 static void draw_menu_buttons(void)
@@ -174,9 +174,50 @@ static void draw_menu_buttons(void)
     int item_x_align = x_offset - MENU_X_OFFSET - 8;
     for (int i = 0; i < data.num_items; i++) {
         item_index = building_menu_next_index(data.selected_submenu, item_index);
+        int type = building_menu_type(data.selected_submenu, item_index);
+        // don't show the submenu button if all items within it are disabled
+        if (
+            (type == BUILDING_MENU_SMALL_TEMPLES
+                && (!building_menu_is_enabled(BUILDING_SMALL_TEMPLE_CERES)
+                    && !building_menu_is_enabled(BUILDING_SMALL_TEMPLE_NEPTUNE)
+                    && !building_menu_is_enabled(BUILDING_SMALL_TEMPLE_MERCURY)
+                    && !building_menu_is_enabled(BUILDING_SMALL_TEMPLE_MARS)
+                    && !building_menu_is_enabled(BUILDING_SMALL_TEMPLE_VENUS))
+                )
+            || (type == BUILDING_MENU_LARGE_TEMPLES
+                && (!building_menu_is_enabled(BUILDING_LARGE_TEMPLE_CERES)
+                    && !building_menu_is_enabled(BUILDING_LARGE_TEMPLE_NEPTUNE)
+                    && !building_menu_is_enabled(BUILDING_LARGE_TEMPLE_MERCURY)
+                    && !building_menu_is_enabled(BUILDING_LARGE_TEMPLE_MARS)
+                    && !building_menu_is_enabled(BUILDING_LARGE_TEMPLE_VENUS))
+                )
+                || (type == BUILDING_FORT
+                    && !building_menu_is_enabled(BUILDING_FORT_LEGIONARIES)
+                    && !building_menu_is_enabled(BUILDING_FORT_JAVELIN)
+                    && !building_menu_is_enabled(BUILDING_FORT_MOUNTED))
+                || (type == BUILDING_MENU_FARMS
+                    && !building_menu_is_enabled(BUILDING_WHEAT_FARM)
+                    && !building_menu_is_enabled(BUILDING_VEGETABLE_FARM)
+                    && !building_menu_is_enabled(BUILDING_FRUIT_FARM)
+                    && !building_menu_is_enabled(BUILDING_OLIVE_FARM)
+                    && !building_menu_is_enabled(BUILDING_VINES_FARM)
+                    && !building_menu_is_enabled(BUILDING_PIG_FARM))
+                || (type == BUILDING_MENU_RAW_MATERIALS
+                    && !building_menu_is_enabled(BUILDING_CLAY_PIT)
+                    && !building_menu_is_enabled(BUILDING_MARBLE_QUARRY)
+                    && !building_menu_is_enabled(BUILDING_IRON_MINE)
+                    && !building_menu_is_enabled(BUILDING_TIMBER_YARD))
+                || (type == BUILDING_MENU_WORKSHOPS
+                    && !building_menu_is_enabled(BUILDING_WINE_WORKSHOP)
+                    && !building_menu_is_enabled(BUILDING_OIL_WORKSHOP)
+                    && !building_menu_is_enabled(BUILDING_WEAPONS_WORKSHOP)
+                    && !building_menu_is_enabled(BUILDING_FURNITURE_WORKSHOP)
+                    && !building_menu_is_enabled(BUILDING_POTTERY_WORKSHOP))
+                ) {
+            continue;
+        }
         label_draw(item_x_align, data.y_offset + MENU_Y_OFFSET + MENU_ITEM_HEIGHT * i, 16,
             data.focus_button_id == i + 1 ? 1 : 2);
-        int type = building_menu_type(data.selected_submenu, item_index);
         if (is_all_button(type)) {
             text_draw_centered(translation_for(TR_BUILD_ALL_TEMPLES),
                 item_x_align, data.y_offset + MENU_Y_OFFSET + 3 + MENU_ITEM_HEIGHT * i,
@@ -214,10 +255,10 @@ static void draw_foreground(void)
 static int click_outside_menu(const mouse *m, int x_offset)
 {
     return m->left.went_up &&
-          (m->x < x_offset - MENU_X_OFFSET - MENU_CLICK_MARGIN ||
-           m->x > x_offset + MENU_CLICK_MARGIN ||
-           m->y < data.y_offset + MENU_Y_OFFSET - MENU_CLICK_MARGIN ||
-           m->y > data.y_offset + MENU_Y_OFFSET + MENU_CLICK_MARGIN + MENU_ITEM_HEIGHT * data.num_items);
+        (m->x < x_offset - MENU_X_OFFSET - MENU_CLICK_MARGIN ||
+         m->x > x_offset + MENU_CLICK_MARGIN ||
+         m->y < data.y_offset + MENU_Y_OFFSET - MENU_CLICK_MARGIN ||
+         m->y > data.y_offset + MENU_Y_OFFSET + MENU_CLICK_MARGIN + MENU_ITEM_HEIGHT * data.num_items);
 }
 
 static int handle_build_submenu(const mouse *m)

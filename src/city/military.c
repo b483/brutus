@@ -9,6 +9,7 @@
 #include "empire/city.h"
 #include "figure/formation.h"
 #include "figure/formation_legion.h"
+#include "scenario/building.h"
 #include "scenario/distant_battle.h"
 
 void city_military_clear_legionary_legions(void)
@@ -109,7 +110,7 @@ void city_military_dispatch_to_distant_battle(int roman_strength)
 int city_military_distant_battle_roman_army_is_traveling(void)
 {
     return city_data.distant_battle.roman_months_to_travel_forth > 0 ||
-           city_data.distant_battle.roman_months_to_travel_back > 0;
+        city_data.distant_battle.roman_months_to_travel_back > 0;
 }
 
 int city_military_distant_battle_roman_army_is_traveling_forth(void)
@@ -135,9 +136,9 @@ int city_military_distant_battle_roman_months_traveled(void)
 int city_military_has_distant_battle(void)
 {
     return city_data.distant_battle.months_until_battle > 0 ||
-           city_data.distant_battle.roman_months_to_travel_back > 0 ||
-           city_data.distant_battle.roman_months_to_travel_forth > 0 ||
-           city_data.distant_battle.city_foreign_months_left > 0;
+        city_data.distant_battle.roman_months_to_travel_back > 0 ||
+        city_data.distant_battle.roman_months_to_travel_forth > 0 ||
+        city_data.distant_battle.city_foreign_months_left > 0;
 }
 
 int city_military_months_until_distant_battle(void)
@@ -252,9 +253,13 @@ static void fight_distant_battle(void)
         city_data.distant_battle.roman_months_traveled = 0;
         // no return: all soldiers killed
     } else {
-        city_message_post(1, MESSAGE_DISTANT_BATTLE_WON, 0, 0);
+        if (scenario_building_allowed(BUILDING_TRIUMPHAL_ARCH)) {
+            city_message_post(1, MESSAGE_DISTANT_BATTLE_WON, 0, 0);
+            city_buildings_earn_triumphal_arch();
+        } else {
+            city_message_post(1, MESSAGE_DISTANT_BATTLE_WON_TRIUMPHAL_ARCH_DISABLED, 0, 0);
+        }
         city_ratings_change_favor(25);
-        city_buildings_earn_triumphal_arch();
         building_menu_update();
         city_data.distant_battle.won_count++;
         city_data.distant_battle.city_foreign_months_left = 0;

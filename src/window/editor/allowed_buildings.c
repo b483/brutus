@@ -1,68 +1,100 @@
 #include "allowed_buildings.h"
-
 #include "graphics/button.h"
 #include "graphics/color.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
+#include "graphics/text.h"
 #include "graphics/window.h"
 #include "input/input.h"
+#include "scenario/data.h"
 #include "scenario/editor.h"
+#include "translation/translation.h"
 #include "window/editor/attributes.h"
 #include "window/editor/map.h"
 
 static void toggle_building(int id, int param2);
 
 static generic_button buttons[] = {
-    {25, 82, 190, 18, toggle_building, button_none, 1, 0},
-    {25, 102, 190, 18, toggle_building, button_none, 2, 0},
-    {25, 122, 190, 18, toggle_building, button_none, 3, 0},
-    {25, 142, 190, 18, toggle_building, button_none, 4, 0},
-    {25, 162, 190, 18, toggle_building, button_none, 5, 0},
-    {25, 182, 190, 18, toggle_building, button_none, 6, 0},
-    {25, 202, 190, 18, toggle_building, button_none, 7, 0},
-    {25, 222, 190, 18, toggle_building, button_none, 8, 0},
-    {25, 242, 190, 18, toggle_building, button_none, 9, 0},
-    {25, 262, 190, 18, toggle_building, button_none, 10, 0},
-    {25, 282, 190, 18, toggle_building, button_none, 11, 0},
-    {25, 302, 190, 18, toggle_building, button_none, 12, 0},
-    {25, 322, 190, 18, toggle_building, button_none, 13, 0},
-    {25, 342, 190, 18, toggle_building, button_none, 14, 0},
-    {25, 362, 190, 18, toggle_building, button_none, 15, 0},
-    {25, 382, 190, 18, toggle_building, button_none, 16, 0},
-    {224, 82, 190, 18, toggle_building, button_none, 17, 0},
-    {224, 102, 190, 18, toggle_building, button_none, 18, 0},
-    {224, 122, 190, 18, toggle_building, button_none, 19, 0},
-    {224, 142, 190, 18, toggle_building, button_none, 20, 0},
-    {224, 162, 190, 18, toggle_building, button_none, 21, 0},
-    {224, 182, 190, 18, toggle_building, button_none, 22, 0},
-    {224, 202, 190, 18, toggle_building, button_none, 23, 0},
-    {224, 222, 190, 18, toggle_building, button_none, 24, 0},
-    {224, 242, 190, 18, toggle_building, button_none, 25, 0},
-    {224, 262, 190, 18, toggle_building, button_none, 26, 0},
-    {224, 282, 190, 18, toggle_building, button_none, 27, 0},
-    {224, 302, 190, 18, toggle_building, button_none, 28, 0},
-    {224, 322, 190, 18, toggle_building, button_none, 29, 0},
-    {224, 342, 190, 18, toggle_building, button_none, 30, 0},
-    {224, 362, 190, 18, toggle_building, button_none, 31, 0},
-    {224, 382, 190, 18, toggle_building, button_none, 32, 0},
-    {423, 82, 190, 18, toggle_building, button_none, 33, 0},
-    {423, 102, 190, 18, toggle_building, button_none, 34, 0},
-    {423, 122, 190, 18, toggle_building, button_none, 35, 0},
-    {423, 142, 190, 18, toggle_building, button_none, 36, 0},
-    {423, 162, 190, 18, toggle_building, button_none, 37, 0},
-    {423, 182, 190, 18, toggle_building, button_none, 38, 0},
-    {423, 202, 190, 18, toggle_building, button_none, 39, 0},
-    {423, 222, 190, 18, toggle_building, button_none, 40, 0},
-    {423, 242, 190, 18, toggle_building, button_none, 41, 0},
-    {423, 262, 190, 18, toggle_building, button_none, 42, 0},
-    {423, 282, 190, 18, toggle_building, button_none, 43, 0},
-    {423, 302, 190, 18, toggle_building, button_none, 44, 0},
-    {423, 322, 190, 18, toggle_building, button_none, 45, 0},
-    {423, 342, 190, 18, toggle_building, button_none, 46, 0},
-    {423, 362, 190, 18, toggle_building, button_none, 47, 0},
-    {423, 382, 190, 18, toggle_building, button_none, 48, 0},
+    {-138, 50, 190, 20, toggle_building, button_none, 0, 0},
+    {-138, 70, 190, 20, toggle_building, button_none, 1, 0},
+    {-138, 90, 190, 20, toggle_building, button_none, 2, 0},
+    {-138, 110, 190, 20, toggle_building, button_none, 3, 0},
+    {-138, 130, 190, 20, toggle_building, button_none, 4, 0},
+    {-138, 150, 190, 20, toggle_building, button_none, 5, 0},
+    {-138, 170, 190, 20, toggle_building, button_none, 6, 0},
+    {-138, 190, 190, 20, toggle_building, button_none, 7, 0},
+    {-138, 210, 190, 20, toggle_building, button_none, 8, 0},
+    {-138, 230, 190, 20, toggle_building, button_none, 9, 0},
+    {-138, 250, 190, 20, toggle_building, button_none, 10, 0},
+    {-138, 270, 190, 20, toggle_building, button_none, 11, 0},
+    {-138, 290, 190, 20, toggle_building, button_none, 12, 0},
+    {-138, 310, 190, 20, toggle_building, button_none, 13, 0},
+    {-138, 330, 190, 20, toggle_building, button_none, 14, 0},
+    {-138, 350, 190, 20, toggle_building, button_none, 15, 0},
+    {-138, 370, 190, 20, toggle_building, button_none, 16, 0},
+    {-138, 390, 190, 20, toggle_building, button_none, 17, 0},
+    {-138, 410, 190, 20, toggle_building, button_none, 18, 0},
+    {-138, 430, 190, 20, toggle_building, button_none, 19, 0},
+    {61, 50, 190, 20, toggle_building, button_none, 20, 0},
+    {61, 70, 190, 20, toggle_building, button_none, 21, 0},
+    {61, 90, 190, 20, toggle_building, button_none, 22, 0},
+    {61, 110, 190, 20, toggle_building, button_none, 23, 0},
+    {61, 130, 190, 20, toggle_building, button_none, 24, 0},
+    {61, 150, 190, 20, toggle_building, button_none, 25, 0},
+    {61, 170, 190, 20, toggle_building, button_none, 26, 0},
+    {61, 190, 190, 20, toggle_building, button_none, 27, 0},
+    {61, 210, 190, 20, toggle_building, button_none, 28, 0},
+    {61, 230, 190, 20, toggle_building, button_none, 29, 0},
+    {61, 250, 190, 20, toggle_building, button_none, 30, 0},
+    {61, 270, 190, 20, toggle_building, button_none, 31, 0},
+    {61, 290, 190, 20, toggle_building, button_none, 32, 0},
+    {61, 310, 190, 20, toggle_building, button_none, 33, 0},
+    {61, 330, 190, 20, toggle_building, button_none, 34, 0},
+    {61, 350, 190, 20, toggle_building, button_none, 35, 0},
+    {61, 370, 190, 20, toggle_building, button_none, 36, 0},
+    {61, 390, 190, 20, toggle_building, button_none, 37, 0},
+    {61, 410, 190, 20, toggle_building, button_none, 38, 0},
+    {61, 430, 190, 20, toggle_building, button_none, 39, 0},
+    {260, 50, 190, 20, toggle_building, button_none, 40, 0},
+    {260, 70, 190, 20, toggle_building, button_none, 41, 0},
+    {260, 90, 190, 20, toggle_building, button_none, 42, 0},
+    {260, 110, 190, 20, toggle_building, button_none, 43, 0},
+    {260, 130, 190, 20, toggle_building, button_none, 44, 0},
+    {260, 150, 190, 20, toggle_building, button_none, 45, 0},
+    {260, 170, 190, 20, toggle_building, button_none, 46, 0},
+    {260, 190, 190, 20, toggle_building, button_none, 47, 0},
+    {260, 210, 190, 20, toggle_building, button_none, 48, 0},
+    {260, 230, 190, 20, toggle_building, button_none, 49, 0},
+    {260, 250, 190, 20, toggle_building, button_none, 50, 0},
+    {260, 270, 190, 20, toggle_building, button_none, 51, 0},
+    {260, 290, 190, 20, toggle_building, button_none, 52, 0},
+    {260, 310, 190, 20, toggle_building, button_none, 53, 0},
+    {260, 330, 190, 20, toggle_building, button_none, 54, 0},
+    {260, 350, 190, 20, toggle_building, button_none, 55, 0},
+    {260, 370, 190, 20, toggle_building, button_none, 56, 0},
+    {260, 390, 190, 20, toggle_building, button_none, 57, 0},
+    {260, 410, 190, 20, toggle_building, button_none, 58, 0},
+    {260, 430, 190, 20, toggle_building, button_none, 59, 0},
+    {459, 50, 190, 20, toggle_building, button_none, 60, 0},
+    {459, 70, 190, 20, toggle_building, button_none, 61, 0},
+    {459, 90, 190, 20, toggle_building, button_none, 62, 0},
+    {459, 110, 190, 20, toggle_building, button_none, 63, 0},
+    {459, 130, 190, 20, toggle_building, button_none, 64, 0},
+    {459, 150, 190, 20, toggle_building, button_none, 65, 0},
+    {459, 170, 190, 20, toggle_building, button_none, 66, 0},
+    {459, 190, 190, 20, toggle_building, button_none, 67, 0},
+    {459, 210, 190, 20, toggle_building, button_none, 68, 0},
+    {459, 230, 190, 20, toggle_building, button_none, 69, 0},
+    {459, 250, 190, 20, toggle_building, button_none, 70, 0},
+    {459, 270, 190, 20, toggle_building, button_none, 71, 0},
+    {459, 290, 190, 20, toggle_building, button_none, 72, 0},
+    {459, 310, 190, 20, toggle_building, button_none, 73, 0},
+    {459, 330, 190, 20, toggle_building, button_none, 74, 0},
+    {459, 350, 190, 20, toggle_building, button_none, 75, 0},
+    {459, 370, 190, 20, toggle_building, button_none, 76, 0},
+    {459, 390, 190, 20, toggle_building, button_none, 77, 0},
 };
 
 static int focus_button_id;
@@ -76,28 +108,33 @@ static void draw_foreground(void)
 {
     graphics_in_dialog();
 
-    outer_panel_draw(16, 32, 38, 26);
+    outer_panel_draw(-160, 0, 52, 32);
 
-    lang_text_draw(44, 47, 26, 42, FONT_LARGE_BLACK);
-    lang_text_draw_centered(13, 3, 16, 424, 608, FONT_NORMAL_BLACK);
-    for (int i = 1; i <= 47; i++) {
+    lang_text_draw_centered(44, 47, -160, 12, 832, FONT_LARGE_BLACK);
+    lang_text_draw_centered(13, 3, -160, 480, 832, FONT_NORMAL_BLACK);
+
+    for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
         int x, y;
-        if (i <= 16) {
-            x = 25;
-            y = 82 + 20 * (i - 1);
-        } else if (i <= 32) {
-            x = 224;
-            y = 82 + 20 * (i - 17);
+        if (i < 20) {
+            x = -138;
+            y = 50 + 20 * (i);
+        } else if (i < 40) {
+            x = 61;
+            y = 50 + 20 * (i - 20);
+        } else if (i < 60) {
+            x = 260;
+            y = 50 + 20 * (i - 40);
         } else {
-            x = 423;
-            y = 82 + 20 * (i - 33);
+            x = 459;
+            y = 50 + 20 * (i - 60);
         }
-        button_border_draw(x, y, 190, 18, focus_button_id == i);
+        button_border_draw(x, y, 190, 20, focus_button_id == i + 1);
         if (scenario_editor_is_building_allowed(i)) {
-            lang_text_draw_centered(67, i, x, y + 4, 190, FONT_NORMAL_BLACK);
+            text_draw_centered(translation_for(i + 95), x, y + 5, 190, FONT_NORMAL_BLACK, 0);
         } else {
-            lang_text_draw_centered_colored(67, i, x, y + 4, 190, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
+            text_draw_centered(translation_for(i + 95), x, y + 5, 190, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
         }
+
     }
 
     graphics_reset_dialog();
@@ -105,7 +142,7 @@ static void draw_foreground(void)
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, 47, &focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, MAX_ALLOWED_BUILDINGS, &focus_button_id)) {
         return;
     }
     if (input_go_back_requested(m, h)) {
