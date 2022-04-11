@@ -8,9 +8,9 @@
  * Language functions for localizable strings and messages
  */
 
-/**
- * Type
- */
+ /**
+  * Type
+  */
 typedef enum {
     TYPE_MANUAL = 0,
     TYPE_ABOUT = 1,
@@ -26,7 +26,6 @@ typedef enum {
     MESSAGE_TYPE_DISASTER = 1,
     MESSAGE_TYPE_IMPERIAL = 2,
     MESSAGE_TYPE_EMIGRATION = 3,
-    MESSAGE_TYPE_TUTORIAL = 4,
     MESSAGE_TYPE_TRADE_CHANGE = 5,
     MESSAGE_TYPE_PRICE_CHANGE = 6,
     MESSAGE_TYPE_INVASION = 7

@@ -13,7 +13,6 @@
 #include "core/calc.h"
 #include "core/random.h"
 #include "figuretype/migrant.h"
-#include "game/tutorial.h"
 #include "game/undo.h"
 #include "map/building.h"
 #include "map/building_tiles.h"
@@ -138,10 +137,7 @@ int building_maintenance_get_closest_burning_ruin(int x, int y, int *distance)
 static void collapse_building(building *b)
 {
     city_message_apply_sound_interval(MESSAGE_CAT_COLLAPSE);
-    if (!tutorial_handle_collapse()) {
-        city_message_post_with_popup_delay(MESSAGE_CAT_COLLAPSE, MESSAGE_COLLAPSED_BUILDING, b->type, b->grid_offset);
-    }
-
+    city_message_post_with_popup_delay(MESSAGE_CAT_COLLAPSE, MESSAGE_COLLAPSED_BUILDING, b->type, b->grid_offset);
     game_undo_disable();
     building_destroy_by_collapse(b);
 }
@@ -149,10 +145,7 @@ static void collapse_building(building *b)
 static void fire_building(building *b)
 {
     city_message_apply_sound_interval(MESSAGE_CAT_FIRE);
-    if (!tutorial_handle_fire()) {
-        city_message_post_with_popup_delay(MESSAGE_CAT_FIRE, MESSAGE_FIRE, b->type, b->grid_offset);
-    }
-
+    city_message_post_with_popup_delay(MESSAGE_CAT_FIRE, MESSAGE_FIRE, b->type, b->grid_offset);
     building_destroy_by_fire(b);
     sound_effect_play(SOUND_EFFECT_EXPLOSION);
 }
@@ -176,9 +169,6 @@ void building_maintenance_check_fire_collapse(void)
         int random_building = (i + map_random_get(b->grid_offset)) & 7;
         // damage
         b->damage_risk += random_building == random_global ? 3 : 1;
-        if (tutorial_extra_damage_risk()) {
-            b->damage_risk += 5;
-        }
         if (b->house_size && b->subtype.house_level <= HOUSE_LARGE_TENT) {
             b->damage_risk = 0;
         }
@@ -199,9 +189,6 @@ void building_maintenance_check_fire_collapse(void)
                 b->fire_risk += 5;
             } else {
                 b->fire_risk += 2;
-            }
-            if (tutorial_extra_fire_risk()) {
-                b->fire_risk += 5;
             }
             if (climate == CLIMATE_NORTHERN) {
                 b->fire_risk = 0;

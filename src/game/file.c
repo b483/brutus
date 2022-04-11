@@ -34,7 +34,6 @@
 #include "game/settings.h"
 #include "game/state.h"
 #include "game/time.h"
-#include "game/tutorial.h"
 #include "game/undo.h"
 #include "map/aqueduct.h"
 #include "map/bookmark.h"
@@ -231,9 +230,6 @@ static void initialize_saved_game(void)
     game_undo_disable();
     game_state_reset_overlay();
 
-    city_mission_tutorial_set_fire_message_shown(1);
-    city_mission_tutorial_set_disease_message_shown(1);
-
     image_load_climate(scenario_property_climate(), 0, 0);
     image_load_enemy(scenario_property_enemy());
     city_military_determine_distant_battle_city();
@@ -275,6 +271,7 @@ static int load_campaign_mission(int mission_id)
     return 1;
 }
 
+
 static int start_scenario(const uint8_t *scenario_name, const char *scenario_file)
 {
     int mission = scenario_campaign_mission();
@@ -293,15 +290,9 @@ static int start_scenario(const uint8_t *scenario_name, const char *scenario_fil
     scenario_set_campaign_mission(mission);
     scenario_set_campaign_rank(rank);
 
-    if (scenario_is_tutorial_1()) {
-        setting_set_personal_savings_for_mission(0, 0);
-    }
-
     scenario_settings_init_mission();
 
     city_emperor_init_scenario(rank);
-
-    tutorial_init();
 
     building_menu_update();
     city_message_init_scenario();

@@ -7,6 +7,7 @@
 #include "core/lang.h"
 #include "core/string.h"
 #include "game/game.h"
+#include "game/settings.h"
 #include "game/system.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
@@ -17,6 +18,7 @@
 #include "graphics/scrollbar.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
+#include "widget/input_box.h"
 #include "window/hotkey_config.h"
 #include "window/main_menu.h"
 #include "window/numeric_input.h"
@@ -27,10 +29,10 @@
 
 #define MAX_WIDGETS 26
 
-#define NUM_VISIBLE_ITEMS 15
+#define NUM_VISIBLE_ITEMS 17
 
-#define NUM_BOTTOM_BUTTONS 4
 #define MAX_LANGUAGE_DIRS 20
+#define NUM_BOTTOM_BUTTONS 4
 
 #define ITEM_Y_OFFSET 60
 #define ITEM_HEIGHT 24
@@ -57,12 +59,13 @@ static const uint8_t *display_text_language(void);
 static const uint8_t *display_text_display_scale(void);
 static const uint8_t *display_text_cursor_scale(void);
 
-static scrollbar_type scrollbar = {580, ITEM_Y_OFFSET, ITEM_HEIGHT * NUM_VISIBLE_ITEMS, on_scroll, 4};
+static scrollbar_type scrollbar = { 580, ITEM_Y_OFFSET, ITEM_HEIGHT * NUM_VISIBLE_ITEMS, on_scroll, 4 };
 
 enum {
     TYPE_NONE,
     TYPE_SPACE,
     TYPE_HEADER,
+    TYPE_INPUT_BOX,
     TYPE_CHECKBOX,
     TYPE_SELECT,
     TYPE_NUMERICAL_DESC,
@@ -90,11 +93,13 @@ typedef struct {
     int type;
     int subtype;
     translation_key description;
-    const uint8_t* (*get_display_text)(void);
+    const uint8_t *(*get_display_text)(void);
     int enabled;
 } config_widget;
 
 static config_widget all_widgets[MAX_WIDGETS] = {
+    {TYPE_INPUT_BOX, 0, TR_CONFIG_PLAYER_NAME_LABEL},
+    {TYPE_SPACE},
     {TYPE_SELECT, SELECT_LANGUAGE, TR_CONFIG_LANGUAGE_LABEL, display_text_language},
     {TYPE_NUMERICAL_DESC, RANGE_DISPLAY_SCALE, TR_CONFIG_DISPLAY_SCALE},
     {TYPE_NUMERICAL_RANGE, RANGE_DISPLAY_SCALE, 0, display_text_display_scale},
@@ -120,7 +125,7 @@ static config_widget all_widgets[MAX_WIDGETS] = {
 };
 
 static generic_button select_buttons[] = {
-    {150, 0, 200, 24, button_language_select, button_none},
+    {105, 0, 200, 24, button_language_select, button_none},
 };
 
 static numerical_range_widget scale_ranges[] = {
@@ -129,10 +134,10 @@ static numerical_range_widget scale_ranges[] = {
 };
 
 static generic_button bottom_buttons[NUM_BOTTOM_BUTTONS] = {
-    {20, 430, 180, 30, button_hotkeys, button_none},
-    {230, 430, 180, 30, button_reset_defaults, button_none},
-    {415, 430, 100, 30, button_close, button_none, 0},
-    {520, 430, 100, 30, button_close, button_none, 1},
+    {20, 480, 180, 30, button_hotkeys, button_none},
+    {230, 480, 180, 30, button_reset_defaults, button_none},
+    {415, 480, 100, 30, button_close, button_none, 0},
+    {520, 480, 100, 30, button_close, button_none, 1},
 };
 
 static translation_key bottom_button_texts[] = {
@@ -164,6 +169,8 @@ static struct {
     int selected_language_option;
     int active_numerical_range;
 } data;
+
+static input_box player_name_input = { 125, 50, 20, 2, FONT_NORMAL_WHITE, 1, (uint8_t *) data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value, MAX_PLAYER_NAME_LENGTH };
 
 static int config_change_basic(config_key key);
 static int config_change_display_scale(config_key key);
@@ -327,7 +334,7 @@ static void draw_background(void)
     image_draw_fullscreen_background(image_group(GROUP_CONFIG));
 
     graphics_in_dialog();
-    outer_panel_draw(0, 0, 40, 30);
+    outer_panel_draw(0, 0, 40, 33);
 
     text_draw_centered(translation_for(TR_CONFIG_TITLE), 16, 16, 608, FONT_LARGE_BLACK, 0);
 
@@ -342,6 +349,9 @@ static void draw_background(void)
             text_draw(translation_for(w->description), 20, y + 6, FONT_NORMAL_BLACK, 0);
             const generic_button *btn = &select_buttons[w->subtype];
             text_draw_centered(w->get_display_text(), btn->x, y + btn->y + 6, btn->width, FONT_NORMAL_BLACK, 0);
+        } else if (w->type == TYPE_INPUT_BOX) {
+            text_draw(translation_for(w->description), 20, y + 6, FONT_NORMAL_BLACK, 0);
+            input_box_start(&player_name_input);
         } else if (w->type == TYPE_NUMERICAL_RANGE) {
             numerical_range_draw(&scale_ranges[w->subtype], NUMERICAL_RANGE_X, y, w->get_display_text());
         } else if (w->type == TYPE_NUMERICAL_DESC) {
@@ -370,6 +380,8 @@ static void draw_foreground(void)
             const generic_button *btn = &select_buttons[w->subtype];
             button_border_draw(btn->x, y + btn->y,
                 btn->width, btn->height, data.focus_button == i + 1);
+        } else if (w->type == TYPE_INPUT_BOX) {
+            input_box_draw(&player_name_input);
         }
     }
 
@@ -462,7 +474,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
     int handled = 0;
     data.focus_button = 0;
-    
+
     for (int i = 0; i < NUM_VISIBLE_ITEMS && i < data.num_widgets; i++) {
         config_widget *w = data.widgets[i + scrollbar.scroll_position];
         int y = ITEM_Y_OFFSET + ITEM_HEIGHT * i;
@@ -632,9 +644,11 @@ static void button_close(int save, int param2)
         return;
     }
     if (apply_changed_configs()) {
-        config_save();
-        window_main_menu_show(0);
+        input_box_stop(&player_name_input);
+        setting_set_player_name((const uint8_t *) data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value);
     }
+    config_save();
+    window_main_menu_show(0);
 }
 
 void window_config_show(void)

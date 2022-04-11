@@ -6,7 +6,6 @@
 #include "city/message.h"
 #include "core/calc.h"
 #include "core/random.h"
-#include "game/tutorial.h"
 #include "scenario/property.h"
 
 int city_health(void)
@@ -49,7 +48,7 @@ static void cause_disease(int total_people)
     } else {
         city_message_post(1, MESSAGE_HEALTH_PESTILENCE, 0, 0);
     }
-    tutorial_on_disease();
+
     // kill people who don't have access to a doctor
     for (int i = 1; i < MAX_BUILDINGS; i++) {
         building *b = building_get(i);
@@ -89,9 +88,10 @@ static void cause_disease(int total_people)
     }
 }
 
+
 void city_health_update(void)
 {
-    if (city_data.population.population < 200 || scenario_is_tutorial_1() || scenario_is_tutorial_2()) {
+    if (city_data.population.population < 200) {
         city_data.health.value = 50;
         city_data.health.target_value = 50;
         return;

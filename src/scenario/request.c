@@ -9,7 +9,6 @@
 #include "core/random.h"
 #include "game/resource.h"
 #include "game/time.h"
-#include "game/tutorial.h"
 #include "scenario/data.h"
 
 void scenario_request_init(void)
@@ -73,9 +72,6 @@ void scenario_request_process(void)
             } else {
                 // request is not visible
                 int year = scenario.start_year;
-                if (!tutorial_adjust_request_year(&year)) {
-                    return;
-                }
                 if (game_time_year() == year + scenario.requests[i].year &&
                     game_time_month() == scenario.requests[i].month) {
                     scenario.requests[i].visible = 1;

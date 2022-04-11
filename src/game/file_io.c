@@ -23,7 +23,6 @@
 #include "figure/route.h"
 #include "figure/trader.h"
 #include "game/time.h"
-#include "game/tutorial.h"
 #include "map/aqueduct.h"
 #include "map/bookmark.h"
 #include "map/building.h"
@@ -142,13 +141,11 @@ typedef struct {
     buffer *building_list_burning;
     buffer *building_list_small;
     buffer *building_list_large;
-    buffer *tutorial_part1;
     buffer *building_count_military;
     buffer *enemy_army_totals;
     buffer *building_storages;
     buffer *building_count_culture2;
     buffer *building_count_support;
-    buffer *tutorial_part2;
     buffer *gladiator_revolt;
     buffer *trade_route_limit;
     buffer *trade_route_traded;
@@ -162,7 +159,6 @@ typedef struct {
     buffer *building_extra_corrupt_houses;
     buffer *scenario_name;
     buffer *bookmarks;
-    buffer *tutorial_part3;
     buffer *city_entry_exit_grid_offset;
     buffer *end_marker;
 } savegame_state;
@@ -285,13 +281,11 @@ static void init_savegame_data(void)
     state->building_list_burning = create_savegame_piece(1000, 1);
     state->building_list_small = create_savegame_piece(1000, 1);
     state->building_list_large = create_savegame_piece(4000, 1);
-    state->tutorial_part1 = create_savegame_piece(32, 0);
     state->building_count_military = create_savegame_piece(16, 0);
     state->enemy_army_totals = create_savegame_piece(20, 0);
     state->building_storages = create_savegame_piece(6400, 0);
     state->building_count_culture2 = create_savegame_piece(32, 0);
     state->building_count_support = create_savegame_piece(24, 0);
-    state->tutorial_part2 = create_savegame_piece(4, 0);
     state->gladiator_revolt = create_savegame_piece(16, 0);
     state->trade_route_limit = create_savegame_piece(1280, 1);
     state->trade_route_traded = create_savegame_piece(1280, 1);
@@ -305,7 +299,6 @@ static void init_savegame_data(void)
     state->building_extra_corrupt_houses = create_savegame_piece(8, 0);
     state->scenario_name = create_savegame_piece(65, 0);
     state->bookmarks = create_savegame_piece(32, 0);
-    state->tutorial_part3 = create_savegame_piece(4, 0);
     state->city_entry_exit_grid_offset = create_savegame_piece(8, 0);
     state->end_marker = create_savegame_piece(284, 0); // 71x 4-bytes emptiness
 }
@@ -410,8 +403,6 @@ static void savegame_load_from_state(savegame_state *state)
     building_list_load_state(state->building_list_small, state->building_list_large,
                              state->building_list_burning, state->building_list_burning_totals);
 
-    tutorial_load_state(state->tutorial_part1, state->tutorial_part2, state->tutorial_part3);
-
     building_storage_load_state(state->building_storages);
     scenario_gladiator_revolt_load_state(state->gladiator_revolt);
     trade_routes_load_state(state->trade_route_limit, state->trade_route_traded);
@@ -490,8 +481,6 @@ static void savegame_save_to_state(savegame_state *state)
 
     building_list_save_state(state->building_list_small, state->building_list_large,
                              state->building_list_burning, state->building_list_burning_totals);
-
-    tutorial_save_state(state->tutorial_part1, state->tutorial_part2, state->tutorial_part3);
 
     building_storage_save_state(state->building_storages);
     scenario_gladiator_revolt_save_state(state->gladiator_revolt);

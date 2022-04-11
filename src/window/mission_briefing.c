@@ -5,7 +5,6 @@
 #include "core/lang.h"
 #include "game/file.h"
 #include "game/mission.h"
-#include "game/tutorial.h"
 #include "graphics/graphics.h"
 #include "graphics/image_button.h"
 #include "graphics/lang_text.h"
@@ -24,8 +23,8 @@
 static void button_back(int param1, int param2);
 static void button_start_mission(int param1, int param2);
 
-static const int GOAL_OFFSETS_X[] = {32, 288, 32, 288, 288, 288};
-static const int GOAL_OFFSETS_Y[] = {95, 95, 117, 117, 73, 135};
+static const int GOAL_OFFSETS_X[] = { 32, 288, 32, 288, 288, 288 };
+static const int GOAL_OFFSETS_Y[] = { 95, 95, 117, 117, 73, 135 };
 
 static image_button image_button_back = {
     0, 0, 31, 20, IB_NORMAL, GROUP_ARROW_MESSAGE_PROBLEMS, 8, button_back, button_none, 0, 0, 1
@@ -113,13 +112,6 @@ static void draw_background(void)
         label_draw(16 + x, 32 + y, 15, 1);
         int width = lang_text_draw(62, 15, 16 + x + 8, 32 + y + 3, FONT_NORMAL_RED);
         text_draw_number(scenario_criteria_favor(), '@', " ", 16 + x + 8 + width, 32 + y + 3, FONT_NORMAL_RED);
-    }
-    int immediate_goal_text = tutorial_get_immediate_goal_text();
-    if (immediate_goal_text) {
-        int x = GOAL_OFFSETS_X[2];
-        int y = GOAL_OFFSETS_Y[2];
-        label_draw(16 + x, 32 + y, 31, 1);
-        lang_text_draw(62, immediate_goal_text, 16 + x + 8, 32 + y + 3, FONT_NORMAL_RED);
     }
 
     inner_panel_draw(32, 184, 33, 15);

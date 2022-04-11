@@ -10,7 +10,6 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "empire/trade_prices.h"
-#include "game/tutorial.h"
 #include "map/image.h"
 #include "map/road_access.h"
 #include "scenario/property.h"
@@ -93,7 +92,6 @@ int building_warehouse_add_resource(building *b, int resource)
     city_resource_add_to_warehouse(resource, 1);
     b->subtype.warehouse_resource_id = resource;
     b->loads_stored++;
-    tutorial_on_add_to_warehouse();
     building_warehouse_space_set_image(b, resource);
     return 1;
 }

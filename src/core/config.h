@@ -2,6 +2,7 @@
 #define CORE_CONFIG_H
 
 #define CONFIG_STRING_VALUE_MAX 64
+#define MAX_PLAYER_NAME_LENGTH 24
 
 typedef enum {
     CONFIG_GP_FIX_IMMIGRATION_BUG,
@@ -23,6 +24,7 @@ typedef enum {
 } config_key;
 
 typedef enum {
+    CONFIG_STRING_PLAYER_NAME,
     CONFIG_STRING_UI_LANGUAGE_DIR,
     CONFIG_STRING_MAX_ENTRIES
 } config_string_key;

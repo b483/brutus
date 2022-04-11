@@ -6,6 +6,7 @@
 #include "city/warning.h"
 #include "core/direction.h"
 #include "game/orientation.h"
+#include "game/settings.h"
 #include "game/state.h"
 #include "game/undo.h"
 #include "graphics/graphics.h"
@@ -324,12 +325,12 @@ static void button_go_to_problem(int param1, int param2)
 
 static void button_advisors(int param1, int param2)
 {
-    window_advisors_show_checked();
+    window_advisors_show_advisor(setting_last_advisor());
 }
 
 static void button_empire(int param1, int param2)
 {
-    window_empire_show_checked();
+    window_empire_show();
 }
 
 static void button_mission_briefing(int param1, int param2)

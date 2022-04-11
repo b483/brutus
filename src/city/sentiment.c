@@ -9,7 +9,6 @@
 #include "core/calc.h"
 #include "core/config.h"
 #include "game/difficulty.h"
-#include "game/tutorial.h"
 
 static const int SENTIMENT_PER_TAX_RATE[26] = {
     3, 2, 2, 2, 1, 1, 1, 0, 0, -1,

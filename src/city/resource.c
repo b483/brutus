@@ -6,7 +6,6 @@
 #include "city/data_private.h"
 #include "core/calc.h"
 #include "empire/city.h"
-#include "game/tutorial.h"
 #include "map/road_access.h"
 #include "scenario/building.h"
 #include "scenario/property.h"
@@ -266,9 +265,6 @@ static void calculate_available_food(void)
                 city_data.resource.granaries.operating++;
                 for (int r = 0; r < RESOURCE_MAX_FOOD; r++) {
                     city_data.resource.granary_food_stored[r] += b->data.granary.resource_stored[r];
-                }
-                if (amount_stored > 400) {
-                    tutorial_on_filled_granary();
                 }
             }
         }

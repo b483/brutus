@@ -122,7 +122,7 @@ static void init(int text_id, void (*background_callback)(void))
     const lang_message *msg = lang_get_message(text_id);
     if (player_message.use_popup != 1) {
         data.show_video = 0;
-    } else if (msg->video.text && video_start((char*)msg->video.text)) {
+    } else if (msg->video.text && video_start((char *) msg->video.text)) {
         data.show_video = 1;
     } else {
         data.show_video = 0;
@@ -147,22 +147,20 @@ static int is_problem_message(const lang_message *msg)
 
 static void draw_city_message_text(const lang_message *msg)
 {
-    if (msg->message_type != MESSAGE_TYPE_TUTORIAL) {
-        int width = lang_text_draw(25, player_message.month, data.x_text + 10, data.y_text + 6, FONT_NORMAL_WHITE);
-        width += lang_text_draw_year(player_message.year,
-            data.x_text + 12 + width, data.y_text + 6, FONT_NORMAL_WHITE);
-        if (msg->message_type == MESSAGE_TYPE_DISASTER && player_message.param1) {
-            if (data.text_id == MESSAGE_DIALOG_THEFT) {
-                // param1 = denarii
-                lang_text_draw_amount(8, 0, player_message.param1, data.x + 240, data.y_text + 6, FONT_NORMAL_WHITE);
-            } else {
-                // param1 = building type
-                lang_text_draw(41, player_message.param1, data.x + 240, data.y_text + 6, FONT_NORMAL_WHITE);
-            }
+    int width = lang_text_draw(25, player_message.month, data.x_text + 10, data.y_text + 6, FONT_NORMAL_WHITE);
+    width += lang_text_draw_year(player_message.year,
+        data.x_text + 12 + width, data.y_text + 6, FONT_NORMAL_WHITE);
+    if (msg->message_type == MESSAGE_TYPE_DISASTER && player_message.param1) {
+        if (data.text_id == MESSAGE_DIALOG_THEFT) {
+            // param1 = denarii
+            lang_text_draw_amount(8, 0, player_message.param1, data.x + 240, data.y_text + 6, FONT_NORMAL_WHITE);
         } else {
-            width += lang_text_draw(63, 5, data.x_text + width + 60, data.y_text + 6, FONT_NORMAL_WHITE);
-            text_draw(scenario_player_name(), data.x_text + width + 60, data.y_text + 6, FONT_NORMAL_WHITE, 0);
+            // param1 = building type
+            lang_text_draw(41, player_message.param1, data.x + 240, data.y_text + 6, FONT_NORMAL_WHITE);
         }
+    } else {
+        width += lang_text_draw(63, 5, data.x_text + width + 60, data.y_text + 6, FONT_NORMAL_WHITE);
+        text_draw(scenario_player_name(), data.x_text + width + 60, data.y_text + 6, FONT_NORMAL_WHITE, 0);
     }
     switch (msg->message_type) {
         case MESSAGE_TYPE_DISASTER:
@@ -172,7 +170,8 @@ static void draw_city_message_text(const lang_message *msg)
                 BLOCK_SIZE * data.text_width_blocks, data.text_height_blocks - 1, 0);
             break;
 
-        case MESSAGE_TYPE_EMIGRATION: {
+        case MESSAGE_TYPE_EMIGRATION:
+        {
             int low_mood_cause = city_sentiment_low_mood_cause();
             if (low_mood_cause >= 1 && low_mood_cause <= 5) {
                 int max_width = BLOCK_SIZE * (data.text_width_blocks - 1) - 64;
@@ -184,12 +183,6 @@ static void draw_city_message_text(const lang_message *msg)
                 data.text_height_blocks - 1, 0);
             break;
         }
-        case MESSAGE_TYPE_TUTORIAL:
-            rich_text_draw(msg->content.text,
-                data.x_text + 8, data.y_text + 6, BLOCK_SIZE * (data.text_width_blocks - 1),
-                data.text_height_blocks - 1, 0);
-            break;
-
         case MESSAGE_TYPE_TRADE_CHANGE:
             image_draw(resource_image(player_message.param2), data.x + 64, data.y_text + 40);
             lang_text_draw(21, empire_city_get(player_message.param1)->name_id,
@@ -207,7 +200,8 @@ static void draw_city_message_text(const lang_message *msg)
                 data.text_height_blocks - 1, 0);
             break;
 
-        default: {
+        default:
+        {
             int lines = rich_text_draw(msg->content.text,
                 data.x_text + 8, data.y_text + 56, BLOCK_SIZE * (data.text_width_blocks - 1),
                 data.text_height_blocks - 1, 0);
@@ -249,16 +243,12 @@ static void draw_title(const lang_message *msg)
     int image_id = get_message_image_id(msg);
     const image *img = image_id ? image_get(image_id) : 0;
     // title
-    if (msg->message_type == MESSAGE_TYPE_TUTORIAL) {
-        text_draw_centered(msg->title.text,
-            data.x, data.y + msg->title.y, BLOCK_SIZE * msg->width_blocks, FONT_LARGE_BLACK, 0);
-    } else {
-        // Center title in the dialog but ensure it does not overlap with the
-        // image: if the title is too long, it will start 8px from the image.
-        int title_x_offset = img ? img->width + msg->image.x + 8 : 0;
-        text_draw_centered(msg->title.text, data.x + title_x_offset, data.y + 14,
-            BLOCK_SIZE * msg->width_blocks - 2 * title_x_offset, FONT_LARGE_BLACK, 0);
-    }
+    // Center title in the dialog but ensure it does not overlap with the
+    // image: if the title is too long, it will start 8px from the image.
+    int title_x_offset = img ? img->width + msg->image.x + 8 : 0;
+    text_draw_centered(msg->title.text, data.x + title_x_offset, data.y + 14,
+        BLOCK_SIZE * msg->width_blocks - 2 * title_x_offset, FONT_LARGE_BLACK, 0);
+
     data.y_text = data.y + 48;
 
     // picture
@@ -509,7 +499,7 @@ static int handle_input_video(const mouse *m_dialog, const lang_message *msg)
 static int handle_input_normal(const mouse *m_dialog, const lang_message *msg)
 {
     if (msg->type == TYPE_MANUAL && image_buttons_handle_mouse(
-                m_dialog, data.x + 16, data.y + BLOCK_SIZE * msg->height_blocks - 36, &image_button_back, 1, 0)) {
+        m_dialog, data.x + 16, data.y + BLOCK_SIZE * msg->height_blocks - 36, &image_button_back, 1, 0)) {
         return 1;
     }
     if (msg->type == TYPE_MESSAGE) {
@@ -598,9 +588,7 @@ static void button_help(int param1, int param2)
 static void button_advisor(int advisor, int param2)
 {
     cleanup();
-    if (!window_advisors_show_advisor(advisor)) {
-        window_city_show();
-    }
+    window_advisors_show_advisor(advisor);
 }
 
 static void button_go_to_problem(int param1, int param2)

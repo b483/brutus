@@ -15,7 +15,6 @@
 #include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
-#include "game/tutorial.h"
 #include "map/building.h"
 #include "map/grid.h"
 #include "map/road_access.h"
@@ -65,7 +64,6 @@ static void generate_rioter(building *b)
     building_destroy_by_rioter(b);
     city_ratings_peace_record_rioter();
     city_sentiment_change_happiness(20);
-    tutorial_on_crime();
     city_message_apply_sound_interval(MESSAGE_CAT_RIOT);
     city_message_post_with_popup_delay(MESSAGE_CAT_RIOT, MESSAGE_RIOT, b->type, map_grid_offset(x_road, y_road));
 }
@@ -124,9 +122,6 @@ void figure_generate_criminals(void)
         }
     }
     if (min_building) {
-        if (scenario_is_tutorial_1() || scenario_is_tutorial_2()) {
-            return;
-        }
         int sentiment = city_sentiment();
         if (sentiment < 30) {
             if (random_byte() >= sentiment + 50) {

@@ -28,6 +28,7 @@ static translation_string all_strings[] = {
     {TR_BUTTON_RESET_DEFAULTS, "Reset defaults"},
     {TR_BUTTON_CONFIGURE_HOTKEYS, "Configure hotkeys"},
     {TR_CONFIG_TITLE, "Julius configuration options"},
+    {TR_CONFIG_PLAYER_NAME_LABEL, "Player name:"},
     {TR_CONFIG_LANGUAGE_LABEL, "Language:"},
     {TR_CONFIG_LANGUAGE_DEFAULT, "(default)"},
     {TR_CONFIG_DISPLAY_SCALE, "Display scale:"},

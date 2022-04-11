@@ -16,9 +16,6 @@ int scenario_campaign_rank(void);
 void scenario_set_campaign_rank(int rank);
 int scenario_campaign_mission(void);
 void scenario_set_campaign_mission(int mission);
-int scenario_is_tutorial_1(void);
-int scenario_is_tutorial_2(void);
-int scenario_is_tutorial_3(void);
 
 int scenario_starting_favor(void);
 int scenario_starting_personal_savings(void);

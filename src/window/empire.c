@@ -9,7 +9,6 @@
 #include "empire/object.h"
 #include "empire/trade_route.h"
 #include "empire/type.h"
-#include "game/tutorial.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
@@ -77,7 +76,7 @@ static struct {
     int is_scrolling;
     int finished_scroll;
     int focus_resource;
-} data = {0, 1};
+} data = { 0, 1 };
 
 static void init(void)
 {
@@ -567,7 +566,7 @@ static int get_tooltip_resource(tooltip_context *c)
     int object_id = empire_selected_object() - 1;
     int x_offset = (data.x_min + data.x_max - 500) / 2;
     int y_offset = data.y_max - 113;
-    
+
     int item_offset = lang_text_get_width(47, 5, FONT_NORMAL_GREEN);
     for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
         if (empire_object_city_sells_resource(object_id, r)) {
@@ -677,14 +676,4 @@ void window_empire_show(void)
     };
     init();
     window_show(&window);
-}
-
-void window_empire_show_checked(void)
-{
-    tutorial_availability avail = tutorial_advisor_empire_availability();
-    if (avail == AVAILABLE) {
-        window_empire_show();
-    } else {
-        city_warning_show(avail == NOT_AVAILABLE ? WARNING_NOT_AVAILABLE : WARNING_NOT_AVAILABLE_YET);
-    }
 }

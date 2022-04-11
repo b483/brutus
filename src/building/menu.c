@@ -1,7 +1,6 @@
 #include "city/buildings.h"
 #include "core/config.h"
 #include "empire/city.h"
-#include "game/tutorial.h"
 #include "menu.h"
 #include "scenario/building.h"
 
@@ -41,6 +40,7 @@ static int menu_enabled[BUILD_MENU_MAX][BUILD_MENU_ITEM_MAX];
 
 static int changed = 1;
 
+
 void building_menu_disable_all(void)
 {
     for (int sub = 0; sub < BUILD_MENU_MAX; sub++) {
@@ -50,19 +50,6 @@ void building_menu_disable_all(void)
     }
 }
 
-static void enable_house(int *enabled, building_type menu_building_type)
-{
-    if (menu_building_type >= BUILDING_HOUSE_VACANT_LOT && menu_building_type <= BUILDING_HOUSE_LUXURY_PALACE) {
-        *enabled = 1;
-    }
-}
-
-static void enable_clear(int *enabled, building_type menu_building_type)
-{
-    if (menu_building_type == BUILDING_CLEAR_LAND) {
-        *enabled = 1;
-    }
-}
 
 static void enable_cycling_temples_if_allowed(building_type type)
 {
@@ -80,6 +67,7 @@ static void enable_if_allowed(int *enabled, building_type menu_building_type, bu
     }
 }
 
+
 static void disable_raw(int *enabled, building_type menu_building_type, building_type type, int resource)
 {
     if (type == menu_building_type && !empire_can_produce_resource(resource)) {
@@ -87,12 +75,14 @@ static void disable_raw(int *enabled, building_type menu_building_type, building
     }
 }
 
+
 static void disable_finished(int *enabled, building_type menu_building_type, building_type type, int resource)
 {
     if (type == menu_building_type && !empire_can_produce_resource_potentially(resource)) {
         *enabled = 0;
     }
 }
+
 
 static void enable_normal(int *enabled, building_type type)
 {
@@ -192,71 +182,6 @@ static void enable_normal(int *enabled, building_type type)
     enable_if_allowed(enabled, type, BUILDING_WAREHOUSE);
 }
 
-static void enable_tutorial1_start(int *enabled, building_type type)
-{
-    enable_house(enabled, type);
-    enable_clear(enabled, type);
-    enable_if_allowed(enabled, type, BUILDING_WELL);
-    enable_if_allowed(enabled, type, BUILDING_ROAD);
-}
-
-static void enable_tutorial1_after_fire(int *enabled, building_type type)
-{
-    enable_tutorial1_start(enabled, type);
-    enable_if_allowed(enabled, type, BUILDING_PREFECTURE);
-    enable_if_allowed(enabled, type, BUILDING_MARKET);
-}
-
-static void enable_tutorial1_after_collapse(int *enabled, building_type type)
-{
-    enable_tutorial1_after_fire(enabled, type);
-    enable_if_allowed(enabled, type, BUILDING_ENGINEERS_POST);
-    enable_if_allowed(enabled, type, BUILDING_SENATE_UPGRADED);
-}
-
-static void enable_tutorial2_start(int *enabled, building_type type)
-{
-    enable_house(enabled, type);
-    enable_clear(enabled, type);
-    enable_if_allowed(enabled, type, BUILDING_WELL);
-    enable_if_allowed(enabled, type, BUILDING_ROAD);
-    enable_if_allowed(enabled, type, BUILDING_PREFECTURE);
-    enable_if_allowed(enabled, type, BUILDING_ENGINEERS_POST);
-    enable_if_allowed(enabled, type, BUILDING_SENATE_UPGRADED);
-    enable_if_allowed(enabled, type, BUILDING_MARKET);
-    enable_if_allowed(enabled, type, BUILDING_GRANARY);
-    enable_if_allowed(enabled, type, BUILDING_MENU_FARMS);
-    enable_if_allowed(enabled, type, BUILDING_MENU_SMALL_TEMPLES);
-}
-
-static void enable_tutorial2_up_to_250(int *enabled, building_type type)
-{
-    enable_tutorial2_start(enabled, type);
-    enable_if_allowed(enabled, type, BUILDING_DRAGGABLE_RESERVOIR);
-    enable_if_allowed(enabled, type, BUILDING_AQUEDUCT);
-    enable_if_allowed(enabled, type, BUILDING_FOUNTAIN);
-}
-
-static void enable_tutorial2_up_to_450(int *enabled, building_type type)
-{
-    enable_tutorial2_up_to_250(enabled, type);
-    enable_if_allowed(enabled, type, BUILDING_GARDENS);
-    enable_if_allowed(enabled, type, BUILDING_ACTOR_COLONY);
-    enable_if_allowed(enabled, type, BUILDING_THEATER);
-    enable_if_allowed(enabled, type, BUILDING_BATHHOUSE);
-    enable_if_allowed(enabled, type, BUILDING_SCHOOL);
-}
-
-static void enable_tutorial2_after_450(int *enabled, building_type type)
-{
-    enable_tutorial2_up_to_450(enabled, type);
-    enable_if_allowed(enabled, type, BUILDING_MENU_RAW_MATERIALS);
-    enable_if_allowed(enabled, type, BUILDING_MENU_WORKSHOPS);
-    enable_if_allowed(enabled, type, BUILDING_WAREHOUSE);
-    enable_if_allowed(enabled, type, BUILDING_FORUM);
-    enable_if_allowed(enabled, type, BUILDING_AMPHITHEATER);
-    enable_if_allowed(enabled, type, BUILDING_GLADIATOR_SCHOOL);
-}
 
 static void disable_resources(int *enabled, building_type type)
 {
@@ -277,46 +202,21 @@ static void disable_resources(int *enabled, building_type type)
     disable_finished(enabled, type, BUILDING_WEAPONS_WORKSHOP, RESOURCE_WEAPONS);
 }
 
+
 void building_menu_update(void)
 {
     building_menu_disable_all();
-    tutorial_build_buttons tutorial_buttons = tutorial_get_build_buttons();
     for (int sub = 0; sub < BUILD_MENU_MAX; sub++) {
         for (int item = 0; item < BUILD_MENU_ITEM_MAX; item++) {
             int building_type = MENU_BUILDING_TYPE[sub][item];
             int *menu_item = &menu_enabled[sub][item];
-            switch (tutorial_buttons) {
-                case TUT1_BUILD_START:
-                    enable_tutorial1_start(menu_item, building_type);
-                    break;
-                case TUT1_BUILD_AFTER_FIRE:
-                    enable_tutorial1_after_fire(menu_item, building_type);
-                    break;
-                case TUT1_BUILD_AFTER_COLLAPSE:
-                    enable_tutorial1_after_collapse(menu_item, building_type);
-                    break;
-                case TUT2_BUILD_START:
-                    enable_tutorial2_start(menu_item, building_type);
-                    break;
-                case TUT2_BUILD_UP_TO_250:
-                    enable_tutorial2_up_to_250(menu_item, building_type);
-                    break;
-                case TUT2_BUILD_UP_TO_450:
-                    enable_tutorial2_up_to_450(menu_item, building_type);
-                    break;
-                case TUT2_BUILD_AFTER_450:
-                    enable_tutorial2_after_450(menu_item, building_type);
-                    break;
-                default:
-                    enable_normal(menu_item, building_type);
-                    break;
-            }
-
+            enable_normal(menu_item, building_type);
             disable_resources(menu_item, building_type);
         }
     }
     changed = 1;
 }
+
 
 int building_menu_count_items(int submenu)
 {
@@ -328,6 +228,7 @@ int building_menu_count_items(int submenu)
     }
     return count;
 }
+
 
 int building_menu_next_index(int submenu, int current_index)
 {
@@ -342,10 +243,12 @@ int building_menu_next_index(int submenu, int current_index)
     return 0;
 }
 
+
 building_type building_menu_type(int submenu, int item)
 {
     return MENU_BUILDING_TYPE[submenu][item];
 }
+
 
 build_menu_group building_menu_for_type(building_type type)
 {
@@ -359,6 +262,7 @@ build_menu_group building_menu_for_type(building_type type)
     return -1;
 }
 
+
 int building_menu_is_enabled(building_type type)
 {
     for (int sub = 0; sub < BUILD_MENU_MAX; sub++) {
@@ -370,6 +274,7 @@ int building_menu_is_enabled(building_type type)
     }
     return 0;
 }
+
 
 int building_menu_has_changed(void)
 {

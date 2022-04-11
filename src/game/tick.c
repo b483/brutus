@@ -34,7 +34,6 @@
 #include "game/file.h"
 #include "game/settings.h"
 #include "game/time.h"
-#include "game/tutorial.h"
 #include "game/undo.h"
 #include "map/desirability.h"
 #include "map/natives.h"
@@ -97,7 +96,6 @@ static void advance_month(void)
 
     city_population_record_monthly();
     city_festival_update();
-    tutorial_on_month_tick();
     if (setting_monthly_autosave()) {
         game_file_write_saved_game("autosave.sav");
     }
@@ -111,7 +109,6 @@ static void advance_day(void)
     if (game_time_day() == 0 || game_time_day() == 8) {
         city_sentiment_update();
     }
-    tutorial_on_day_tick();
 }
 
 static void advance_tick(void)

@@ -186,13 +186,11 @@ static void show_intermezzo(void)
     window_intermezzo_show(INTERMEZZO_WON, show_end_dialog);
 }
 
+
 void window_mission_end_show_won(void)
 {
     mouse_reset_up_state();
-    if (scenario_is_tutorial_1() || scenario_is_tutorial_2()) {
-        // tutorials: immediately go to next mission
-        show_intermezzo();
-    } else if (!scenario_is_custom() && scenario_campaign_rank() >= 10) {
+    if (!scenario_is_custom() && scenario_campaign_rank() >= 10) {
         // Won campaign
         window_victory_video_show("smk/win_game.smk", 400, 292, show_intermezzo);
     } else {

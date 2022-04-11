@@ -494,6 +494,7 @@ static void update_peace_rating(void)
     update_peace_explanation();
 }
 
+
 static void update_favor_rating(int is_yearly_update)
 {
     if (scenario_is_open_play()) {
@@ -508,9 +509,7 @@ static void update_favor_rating(int is_yearly_update)
         city_data.ratings.favor_salary_penalty = 0;
         city_data.ratings.favor_milestone_penalty = 0;
         city_data.ratings.favor_ignored_request_penalty = 0;
-        if (!scenario_is_tutorial_1() && !scenario_is_tutorial_2()) {
-            city_data.ratings.favor -= 2;
-        }
+        city_data.ratings.favor -= 2;
         // tribute penalty
         if (city_data.finance.tribute_not_paid_last_year) {
             if (city_data.finance.tribute_not_paid_total_years <= 1) {

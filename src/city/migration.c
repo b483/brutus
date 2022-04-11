@@ -5,7 +5,6 @@
 #include "city/figures.h"
 #include "city/message.h"
 #include "core/calc.h"
-#include "game/tutorial.h"
 
 static void update_status(void)
 {
@@ -28,7 +27,7 @@ static void update_status(void)
     city_data.migration.immigration_amount_per_batch = 0;
     city_data.migration.emigration_amount_per_batch = 0;
 
-    int population_cap = tutorial_get_population_cap(200000);
+    int population_cap = 200000;
     if (city_data.population.population >= population_cap) {
         city_data.migration.percentage = 0;
         return;

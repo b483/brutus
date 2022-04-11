@@ -363,7 +363,6 @@ set(GAME_FILES
     ${PROJECT_SOURCE_DIR}/src/game/state.c
     ${PROJECT_SOURCE_DIR}/src/game/tick.c
     ${PROJECT_SOURCE_DIR}/src/game/time.c
-    ${PROJECT_SOURCE_DIR}/src/game/tutorial.c
     ${PROJECT_SOURCE_DIR}/src/game/undo.c
 )
 set(INPUT_FILES
