@@ -1067,12 +1067,6 @@ static int get_access_ramp_image_offset(int x, int y)
     return image_offset;
 }
 
-static void set_elevation_aqueduct_image(int grid_offset)
-{
-    if (map_aqueduct_at(grid_offset) <= 15 && !map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
-        set_aqueduct(grid_offset);
-    }
-}
 
 static void set_elevation_image(int x, int y, int grid_offset)
 {
@@ -1099,23 +1093,7 @@ static void set_elevation_image(int x, int y, int grid_offset)
         const terrain_image *img = map_image_context_get_elevation(grid_offset, map_elevation_at(grid_offset));
         if (img->group_offset == 44) {
             map_terrain_remove(grid_offset, TERRAIN_ELEVATION);
-            int terrain = map_terrain_get(grid_offset);
-            if (!(terrain & TERRAIN_BUILDING)) {
-                map_property_set_multi_tile_xy(grid_offset, 0, 0, 1);
-                if (terrain & TERRAIN_SHRUB) {
-                    map_image_set(grid_offset, image_group(GROUP_TERRAIN_SHRUB) + (map_random_get(grid_offset) & 7));
-                } else if (terrain & TERRAIN_TREE) {
-                    map_image_set(grid_offset, image_group(GROUP_TERRAIN_TREE) + (map_random_get(grid_offset) & 7));
-                } else if (terrain & TERRAIN_ROAD) {
-                    map_tiles_set_road(x, y);
-                } else if (terrain & TERRAIN_AQUEDUCT) {
-                    set_elevation_aqueduct_image(grid_offset);
-                } else if (terrain & TERRAIN_MEADOW) {
-                    map_image_set(grid_offset, image_group(GROUP_TERRAIN_MEADOW) + (map_random_get(grid_offset) & 3));
-                } else {
-                    map_image_set(grid_offset, image_group(GROUP_TERRAIN_GRASS_1) + (map_random_get(grid_offset) & 7));
-                }
-            }
+            map_property_set_multi_tile_xy(grid_offset, 0, 0, 1);
         } else {
             map_property_set_multi_tile_xy(grid_offset, 0, 0, 1);
             map_terrain_add(grid_offset, TERRAIN_ELEVATION);
