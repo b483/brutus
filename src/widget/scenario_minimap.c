@@ -116,7 +116,7 @@ static void draw_minimap_tile(int x_view, int y_view, int grid_offset)
         const tile_color_set *set = &MINIMAP_COLOR_SETS[scenario_property_climate()];
         if (terrain & TERRAIN_WATER) {
             color = &set->water[rand & 3];
-        } else if (terrain & (TERRAIN_SHRUB | TERRAIN_TREE)) {
+        } else if (terrain & (TERRAIN_TREE | TERRAIN_SHRUB)) {
             color = &set->tree[rand & 3];
         } else if (terrain & (TERRAIN_ROCK | TERRAIN_ELEVATION)) {
             color = &set->rock[rand & 3];

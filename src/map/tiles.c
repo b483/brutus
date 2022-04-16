@@ -100,8 +100,8 @@ static int is_all_terrain_in_area(int x, int y, int size, int terrain)
 static int is_updatable_rock(int grid_offset)
 {
     return map_terrain_is(grid_offset, TERRAIN_ROCK) &&
-           !map_property_is_plaza_or_earthquake(grid_offset) &&
-           !map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP);
+        !map_property_is_plaza_or_earthquake(grid_offset) &&
+        !map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP);
 }
 
 static void clear_rock_image(int x, int y, int grid_offset)
@@ -152,11 +152,11 @@ void map_tiles_update_all_rocks(void)
     foreach_map_tile(set_rock_image);
 }
 
-static void update_tree_image(int x, int y, int grid_offset)
+static void update_shrub_image(int x, int y, int grid_offset)
 {
-    if (map_terrain_is(grid_offset, TERRAIN_TREE) &&
-        !map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP)) {
-        int image_id = image_group(GROUP_TERRAIN_TREE) + (map_random_get(grid_offset) & 7);
+    if (map_terrain_is(grid_offset, TERRAIN_SHRUB)
+        && !map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP)) {
+        int image_id = image_group(GROUP_TERRAIN_SHRUB) + (map_random_get(grid_offset) & 7);
         if (map_terrain_has_only_rocks_trees_in_ring(x, y, 3)) {
             map_image_set(grid_offset, image_id + 24);
         } else if (map_terrain_has_only_rocks_trees_in_ring(x, y, 2)) {
@@ -172,32 +172,32 @@ static void update_tree_image(int x, int y, int grid_offset)
     }
 }
 
-static void set_tree_image(int x, int y, int grid_offset)
-{
-    if (map_terrain_is(grid_offset, TERRAIN_TREE) &&
-        !map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP)) {
-        foreach_region_tile(x - 1, y - 1, x + 1, y + 1, update_tree_image);
-    }
-}
-
-void map_tiles_update_region_trees(int x_min, int y_min, int x_max, int y_max)
-{
-    foreach_region_tile(x_min, y_min, x_max, y_max, set_tree_image);
-}
-
 static void set_shrub_image(int x, int y, int grid_offset)
 {
-    if (map_terrain_is(grid_offset, TERRAIN_SHRUB) &&
-        !map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP)) {
-        map_image_set(grid_offset, image_group(GROUP_TERRAIN_SHRUB) + (map_random_get(grid_offset) & 7));
-        map_property_set_multi_tile_size(grid_offset, 1);
-        map_property_mark_draw_tile(grid_offset);
+    if (map_terrain_is(grid_offset, TERRAIN_SHRUB)
+        && !map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP)) {
+        foreach_region_tile(x - 1, y - 1, x + 1, y + 1, update_shrub_image);
     }
 }
 
 void map_tiles_update_region_shrub(int x_min, int y_min, int x_max, int y_max)
 {
     foreach_region_tile(x_min, y_min, x_max, y_max, set_shrub_image);
+}
+
+static void set_tree_image(int x, int y, int grid_offset)
+{
+    if (map_terrain_is(grid_offset, TERRAIN_TREE) &&
+        !map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP)) {
+        map_image_set(grid_offset, image_group(GROUP_TERRAIN_TREE) + (map_random_get(grid_offset) & 7));
+        map_property_set_multi_tile_size(grid_offset, 1);
+        map_property_mark_draw_tile(grid_offset);
+    }
+}
+
+void map_tiles_update_region_trees(int x_min, int y_min, int x_max, int y_max)
+{
+    foreach_region_tile(x_min, y_min, x_max, y_max, set_tree_image);
 }
 
 static void clear_garden_image(int x, int y, int grid_offset)
@@ -1165,7 +1165,7 @@ void map_tiles_add_entry_exit_flags(void)
         int x_tile, y_tile;
         for (int i = 1; i < 10; i++) {
             if (map_terrain_exists_clear_tile_in_radius(entry_point.x, entry_point.y,
-                    1, i, grid_offset, &x_tile, &y_tile)) {
+                1, i, grid_offset, &x_tile, &y_tile)) {
                 break;
             }
         }
@@ -1179,7 +1179,7 @@ void map_tiles_add_entry_exit_flags(void)
         int x_tile, y_tile;
         for (int i = 1; i < 10; i++) {
             if (map_terrain_exists_clear_tile_in_radius(exit_point.x, exit_point.y,
-                    1, i, grid_offset, &x_tile, &y_tile)) {
+                1, i, grid_offset, &x_tile, &y_tile)) {
                 break;
             }
         }

@@ -189,7 +189,7 @@ static void init(int grid_offset)
         if (map_terrain_is(grid_offset, TERRAIN_ROCK)) {
             context.terrain_type = TERRAIN_INFO_EARTHQUAKE;
         }
-    } else if (map_terrain_is(grid_offset, TERRAIN_TREE)) {
+    } else if (map_terrain_is(grid_offset, TERRAIN_SHRUB)) {
         context.terrain_type = TERRAIN_INFO_TREE;
     } else if (map_terrain_is(grid_offset, TERRAIN_ROCK)) {
         if (grid_offset == city_map_entry_flag()->grid_offset) {
@@ -201,7 +201,7 @@ static void init(int grid_offset)
         }
     } else if ((map_terrain_get(grid_offset) & (TERRAIN_WATER|TERRAIN_BUILDING)) == TERRAIN_WATER) {
         context.terrain_type = TERRAIN_INFO_WATER;
-    } else if (map_terrain_is(grid_offset, TERRAIN_SHRUB)) {
+    } else if (map_terrain_is(grid_offset, TERRAIN_TREE)) {
         context.terrain_type = TERRAIN_INFO_SHRUB;
     } else if (map_terrain_is(grid_offset, TERRAIN_GARDEN)) {
         context.terrain_type = TERRAIN_INFO_GARDEN;

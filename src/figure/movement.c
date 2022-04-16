@@ -625,7 +625,7 @@ int figure_movement_can_launch_cross_country_missile(int x_src, int y_src, int x
             height--;
         } else {
             int grid_offset = map_grid_offset(f->x, f->y);
-            if (map_terrain_is(grid_offset, TERRAIN_WALL | TERRAIN_GATEHOUSE | TERRAIN_TREE)) {
+            if (map_terrain_is(grid_offset, TERRAIN_WALL | TERRAIN_GATEHOUSE | TERRAIN_SHRUB)) {
                 break;
             }
             if (map_terrain_is(grid_offset, TERRAIN_BUILDING) && map_property_multi_tile_size(grid_offset) > 1) {

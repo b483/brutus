@@ -275,7 +275,7 @@ static int start_invasion(int enemy_type, int amount, int invasion_point, int at
     }
     // check terrain
     int grid_offset = map_grid_offset(x, y);
-    if (map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ROCK | TERRAIN_TREE)) {
+    if (map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ROCK | TERRAIN_SHRUB)) {
         return -1;
     }
     if (map_terrain_is(grid_offset, TERRAIN_WATER)) {

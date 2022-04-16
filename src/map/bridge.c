@@ -65,7 +65,7 @@ int map_bridge_calculate_length_direction(int x, int y, int *length, int *direct
         grid_offset += bridge.direction_grid_delta;
         bridge.length++;
         int next_offset = grid_offset + bridge.direction_grid_delta;
-        if (map_terrain_is(next_offset, TERRAIN_TREE)) {
+        if (map_terrain_is(next_offset, TERRAIN_SHRUB)) {
             break;
         }
         if (!map_terrain_is(next_offset, TERRAIN_WATER)) {

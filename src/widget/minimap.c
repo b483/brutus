@@ -186,7 +186,7 @@ static void draw_minimap_tile(int x_view, int y_view, int grid_offset)
             image_id = image_group(GROUP_MINIMAP_ROAD);
         } else if (terrain & TERRAIN_WATER) {
             image_id = image_group(GROUP_MINIMAP_WATER) + (rand & 3);
-        } else if (terrain & (TERRAIN_SHRUB | TERRAIN_TREE)) {
+        } else if (terrain & (TERRAIN_TREE | TERRAIN_SHRUB)) {
             image_id = image_group(GROUP_MINIMAP_TREE) + (rand & 3);
         } else if (terrain & (TERRAIN_ROCK | TERRAIN_ELEVATION)) {
             image_id = image_group(GROUP_MINIMAP_ROCK) + (rand & 3);

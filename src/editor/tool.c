@@ -20,8 +20,8 @@
 #include "city/warning.h"
 #include "widget/minimap.h"
 
-#define TERRAIN_PAINT_MASK ~(TERRAIN_TREE | TERRAIN_ROCK | TERRAIN_WATER | TERRAIN_BUILDING |\
-                            TERRAIN_SHRUB | TERRAIN_GARDEN | TERRAIN_ROAD | TERRAIN_MEADOW)
+#define TERRAIN_PAINT_MASK ~(TERRAIN_SHRUB | TERRAIN_ROCK | TERRAIN_WATER | TERRAIN_BUILDING |\
+                            TERRAIN_TREE | TERRAIN_GARDEN | TERRAIN_ROAD | TERRAIN_MEADOW)
 
 static struct {
     int active;
@@ -31,7 +31,7 @@ static struct {
     int build_in_progress;
     int start_elevation;
     map_tile start_tile;
-} data = {0, TOOL_GRASS, 0, 3, 0};
+} data = { 0, TOOL_GRASS, 0, 3, 0 };
 
 tool_type editor_tool_type(void)
 {
@@ -123,9 +123,9 @@ int editor_tool_is_brush(void)
 {
     switch (data.type) {
         case TOOL_GRASS:
-        case TOOL_TREES:
-        case TOOL_WATER:
         case TOOL_SHRUB:
+        case TOOL_WATER:
+        case TOOL_TREES:
         case TOOL_ROCKS:
         case TOOL_MEADOW:
         case TOOL_RAISE_LAND:
@@ -185,10 +185,10 @@ static void add_terrain(const void *tile_data, int dx, int dy)
         case TOOL_GRASS:
             terrain &= TERRAIN_PAINT_MASK;
             break;
-        case TOOL_TREES:
-            if (!(terrain & TERRAIN_TREE)) {
+        case TOOL_SHRUB:
+            if (!(terrain & TERRAIN_SHRUB)) {
                 terrain &= TERRAIN_PAINT_MASK;
-                terrain |= TERRAIN_TREE;
+                terrain |= TERRAIN_SHRUB;
             }
             break;
         case TOOL_ROCKS:
@@ -203,10 +203,10 @@ static void add_terrain(const void *tile_data, int dx, int dy)
                 terrain |= TERRAIN_WATER;
             }
             break;
-        case TOOL_SHRUB:
-            if (!(terrain & TERRAIN_SHRUB)) {
+        case TOOL_TREES:
+            if (!(terrain & TERRAIN_TREE)) {
                 terrain &= TERRAIN_PAINT_MASK;
-                terrain |= TERRAIN_SHRUB;
+                terrain |= TERRAIN_TREE;
             }
             break;
         case TOOL_MEADOW:
@@ -254,11 +254,11 @@ void editor_tool_update_use(const map_tile *tile)
             map_tiles_update_region_empty_land(x_min, y_min, x_max, y_max);
             map_tiles_update_region_meadow(x_min, y_min, x_max, y_max);
             break;
-        case TOOL_TREES:
+        case TOOL_SHRUB:
             map_image_context_reset_water();
             map_tiles_update_region_water(x_min, y_min, x_max, y_max);
             map_tiles_update_all_rocks();
-            map_tiles_update_region_trees(x_min, y_min, x_max, y_max);
+            map_tiles_update_region_shrub(x_min, y_min, x_max, y_max);
             break;
         case TOOL_WATER:
         case TOOL_ROCKS:
@@ -266,11 +266,11 @@ void editor_tool_update_use(const map_tile *tile)
             map_tiles_update_all_rocks();
             map_tiles_update_region_water(x_min, y_min, x_max, y_max);
             break;
-        case TOOL_SHRUB:
+        case TOOL_TREES:
             map_image_context_reset_water();
             map_tiles_update_region_water(x_min, y_min, x_max, y_max);
             map_tiles_update_all_rocks();
-            map_tiles_update_region_shrub(x_min, y_min, x_max, y_max);
+            map_tiles_update_region_trees(x_min, y_min, x_max, y_max);
             break;
         case TOOL_MEADOW:
             map_image_context_reset_water();
@@ -284,8 +284,8 @@ void editor_tool_update_use(const map_tile *tile)
             map_image_context_reset_elevation();
             map_tiles_update_all_elevation();
             map_tiles_update_region_water(x_min, y_min, x_max, y_max);
-            map_tiles_update_region_trees(x_min, y_min, x_max, y_max);
             map_tiles_update_region_shrub(x_min, y_min, x_max, y_max);
+            map_tiles_update_region_trees(x_min, y_min, x_max, y_max);
             map_tiles_update_all_rocks();
             map_tiles_update_region_empty_land(x_min, y_min, x_max, y_max);
             map_tiles_update_region_meadow(x_min, y_min, x_max, y_max);
