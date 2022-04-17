@@ -68,22 +68,6 @@ static void enable_if_allowed(int *enabled, building_type menu_building_type, bu
 }
 
 
-static void disable_raw(int *enabled, building_type menu_building_type, building_type type, int resource)
-{
-    if (type == menu_building_type && !empire_can_produce_resource(resource)) {
-        *enabled = 0;
-    }
-}
-
-
-static void disable_finished(int *enabled, building_type menu_building_type, building_type type, int resource)
-{
-    if (type == menu_building_type && !empire_can_produce_resource_potentially(resource)) {
-        *enabled = 0;
-    }
-}
-
-
 static void enable_normal(int *enabled, building_type type)
 {
     // submenus with items should always be enabled, they won't appear if all their buildings are disabled (logic handled elsewhere)
@@ -183,26 +167,6 @@ static void enable_normal(int *enabled, building_type type)
 }
 
 
-static void disable_resources(int *enabled, building_type type)
-{
-    disable_raw(enabled, type, BUILDING_WHEAT_FARM, RESOURCE_WHEAT);
-    disable_raw(enabled, type, BUILDING_VEGETABLE_FARM, RESOURCE_VEGETABLES);
-    disable_raw(enabled, type, BUILDING_FRUIT_FARM, RESOURCE_FRUIT);
-    disable_raw(enabled, type, BUILDING_PIG_FARM, RESOURCE_MEAT);
-    disable_raw(enabled, type, BUILDING_OLIVE_FARM, RESOURCE_OLIVES);
-    disable_raw(enabled, type, BUILDING_VINES_FARM, RESOURCE_VINES);
-    disable_raw(enabled, type, BUILDING_CLAY_PIT, RESOURCE_CLAY);
-    disable_raw(enabled, type, BUILDING_TIMBER_YARD, RESOURCE_TIMBER);
-    disable_raw(enabled, type, BUILDING_IRON_MINE, RESOURCE_IRON);
-    disable_raw(enabled, type, BUILDING_MARBLE_QUARRY, RESOURCE_MARBLE);
-    disable_finished(enabled, type, BUILDING_POTTERY_WORKSHOP, RESOURCE_POTTERY);
-    disable_finished(enabled, type, BUILDING_FURNITURE_WORKSHOP, RESOURCE_FURNITURE);
-    disable_finished(enabled, type, BUILDING_OIL_WORKSHOP, RESOURCE_OIL);
-    disable_finished(enabled, type, BUILDING_WINE_WORKSHOP, RESOURCE_WINE);
-    disable_finished(enabled, type, BUILDING_WEAPONS_WORKSHOP, RESOURCE_WEAPONS);
-}
-
-
 void building_menu_update(void)
 {
     building_menu_disable_all();
@@ -211,7 +175,6 @@ void building_menu_update(void)
             int building_type = MENU_BUILDING_TYPE[sub][item];
             int *menu_item = &menu_enabled[sub][item];
             enable_normal(menu_item, building_type);
-            disable_resources(menu_item, building_type);
         }
     }
     changed = 1;

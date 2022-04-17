@@ -16,6 +16,7 @@
 #include "graphics/window.h"
 #include "input/input.h"
 #include "input/scroll.h"
+#include "scenario/data.h"
 #include "scenario/editor.h"
 #include "scenario/empire.h"
 #include "window/editor/map.h"
@@ -215,18 +216,28 @@ static void draw_city_info(const empire_city *city)
         case EMPIRE_CITY_FUTURE_ROMAN:
             lang_text_draw(47, 0, x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN);
             break;
-        case EMPIRE_CITY_OURS: {
+        case EMPIRE_CITY_OURS:
+        {
+            // draw "Our city!"
             width += lang_text_draw(47, 1, x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN);
+            // draw icons for available resources based on the "Buildings allowed" menu
             int resource_x_offset = x_offset + 30 + width;
-            for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-                if (empire_object_city_sells_resource(city->empire_object_id, r)) {
-                    draw_resource(r, 0, resource_x_offset, y_offset - 9);
+            for (int r = ALLOWED_BUILDING_WHEAT_FARM; r <= ALLOWED_BUILDING_POTTERY_WORKSHOP; r++) {
+                if (r == ALLOWED_BUILDING_PIG_FARM) {
+                    if (scenario.allowed_buildings[ALLOWED_BUILDING_WHARF]
+                    || scenario.allowed_buildings[r]) {
+                        draw_resource(r - ALLOWED_BUILDING_WHEAT_FARM + 1, 0, resource_x_offset, y_offset - 9);
+                        resource_x_offset += 32;
+                    }
+                } else if (scenario.allowed_buildings[r]) {
+                    draw_resource(r - ALLOWED_BUILDING_WHEAT_FARM + 1, 0, resource_x_offset, y_offset - 9);
                     resource_x_offset += 32;
                 }
             }
             break;
         }
-        case EMPIRE_CITY_TRADE: {
+        case EMPIRE_CITY_TRADE:
+        {
             width += lang_text_draw(47, 5, x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN);
             int resource_x_offset = x_offset + 30 + width;
             for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
@@ -259,7 +270,6 @@ static void draw_panel_buttons(const empire_city *city)
         lang_text_draw_centered(150, scenario_empire_id(),
             data.x_min, data.y_max - 85, data.x_max - data.x_min, FONT_NORMAL_GREEN);
     }
-    lang_text_draw(151, scenario_empire_id(), data.x_min + 220, data.y_max - 45, FONT_NORMAL_GREEN);
 
     button_border_draw(data.x_min + 104, data.y_max - 52, 100, 24, data.focus_button_id == 1);
     lang_text_draw_centered(44, 7, data.x_min + 104, data.y_max - 45, 100, FONT_NORMAL_GREEN);
