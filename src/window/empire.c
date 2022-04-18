@@ -227,27 +227,27 @@ static void draw_trade_city_info(const empire_object *object, const empire_city 
 static void draw_city_info(const empire_object *object)
 {
     int x_offset = (data.x_min + data.x_max - 240) / 2;
-    int y_offset = data.y_max - 88;
+    int y_offset = data.y_max - 66;
 
     const empire_city *city = empire_city_get(data.selected_city);
     switch (city->type) {
         case EMPIRE_CITY_DISTANT_ROMAN:
-            lang_text_draw_centered(47, 12, x_offset, y_offset + 42, 240, FONT_NORMAL_GREEN);
+            lang_text_draw_centered(47, 12, x_offset, y_offset, 240, FONT_NORMAL_GREEN);
             break;
         case EMPIRE_CITY_VULNERABLE_ROMAN:
             if (city_military_distant_battle_city_is_roman()) {
-                lang_text_draw_centered(47, 12, x_offset, y_offset + 42, 240, FONT_NORMAL_GREEN);
+                lang_text_draw_centered(47, 12, x_offset, y_offset, 240, FONT_NORMAL_GREEN);
             } else {
-                lang_text_draw_centered(47, 13, x_offset, y_offset + 42, 240, FONT_NORMAL_GREEN);
+                lang_text_draw_centered(47, 13, x_offset, y_offset, 240, FONT_NORMAL_GREEN);
             }
             break;
         case EMPIRE_CITY_FUTURE_TRADE:
         case EMPIRE_CITY_DISTANT_FOREIGN:
         case EMPIRE_CITY_FUTURE_ROMAN:
-            lang_text_draw_centered(47, 0, x_offset, y_offset + 42, 240, FONT_NORMAL_GREEN);
+            lang_text_draw_centered(47, 0, x_offset, y_offset, 240, FONT_NORMAL_GREEN);
             break;
         case EMPIRE_CITY_OURS:
-            lang_text_draw_centered(47, 1, x_offset, y_offset + 42, 240, FONT_NORMAL_GREEN);
+            lang_text_draw_centered(47, 1, x_offset, y_offset, 240, FONT_NORMAL_GREEN);
             break;
         case EMPIRE_CITY_TRADE:
             draw_trade_city_info(object, city);
