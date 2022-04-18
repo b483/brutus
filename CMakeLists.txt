@@ -874,9 +874,4 @@ else()
         install(FILES "res/julius_512.png" DESTINATION "share/icons/hicolor/512x512/apps" RENAME "com.github.bvschaik.julius.png")
     endif()
 
-    # Unit tests
-    if(${TARGET_PLATFORM} STREQUAL "default")
-        enable_testing()
-        add_subdirectory(test)
-    endif()
 endif()
