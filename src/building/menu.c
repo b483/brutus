@@ -40,6 +40,8 @@ static int menu_enabled[BUILD_MENU_MAX][BUILD_MENU_ITEM_MAX];
 
 static int changed = 1;
 
+static int get_building_menu_item_for_type(building_type type);
+
 
 void building_menu_disable_all(void)
 {
@@ -51,37 +53,83 @@ void building_menu_disable_all(void)
 }
 
 
-static void enable_cycling_temples_if_allowed(building_type type)
+static void enable_cycling_temples_if_configured(building_type type)
 {
     int sub = (type == BUILDING_MENU_SMALL_TEMPLES) ? BUILD_MENU_SMALL_TEMPLES : BUILD_MENU_LARGE_TEMPLES;
     menu_enabled[sub][0] = config_get(CONFIG_UI_ALLOW_CYCLING_TEMPLES);
 }
 
+
 static void enable_if_allowed(int *enabled, building_type menu_building_type, building_type type)
 {
     if (menu_building_type == type && scenario_building_allowed(type)) {
         *enabled = 1;
-        if (type == BUILDING_MENU_SMALL_TEMPLES || type == BUILDING_MENU_LARGE_TEMPLES) {
-            enable_cycling_temples_if_allowed(type);
-        }
+    }
+}
+
+/**
+ * Only submenus with 1 or more enabled items are shown as buttons
+ */
+static void enable_building_group_menu_items(void)
+{
+    if (building_menu_is_enabled(BUILDING_SMALL_TEMPLE_CERES)
+        || building_menu_is_enabled(BUILDING_SMALL_TEMPLE_NEPTUNE)
+        || building_menu_is_enabled(BUILDING_SMALL_TEMPLE_MERCURY)
+        || building_menu_is_enabled(BUILDING_SMALL_TEMPLE_MARS)
+        || building_menu_is_enabled(BUILDING_SMALL_TEMPLE_VENUS)
+    ) {
+        menu_enabled[get_building_menu_for_type(BUILDING_MENU_SMALL_TEMPLES)][get_building_menu_item_for_type(BUILDING_MENU_SMALL_TEMPLES)] = 1;
+        enable_cycling_temples_if_configured(BUILDING_MENU_SMALL_TEMPLES);
+    }
+
+    if (building_menu_is_enabled(BUILDING_LARGE_TEMPLE_CERES)
+        || building_menu_is_enabled(BUILDING_LARGE_TEMPLE_NEPTUNE)
+        || building_menu_is_enabled(BUILDING_LARGE_TEMPLE_MERCURY)
+        || building_menu_is_enabled(BUILDING_LARGE_TEMPLE_MARS)
+        || building_menu_is_enabled(BUILDING_LARGE_TEMPLE_VENUS)
+    ) {
+        menu_enabled[get_building_menu_for_type(BUILDING_MENU_LARGE_TEMPLES)][get_building_menu_item_for_type(BUILDING_MENU_LARGE_TEMPLES)] = 1;
+        enable_cycling_temples_if_configured(BUILDING_MENU_LARGE_TEMPLES);
+    }
+
+    if (building_menu_is_enabled(BUILDING_FORT_LEGIONARIES)
+        || building_menu_is_enabled(BUILDING_FORT_JAVELIN)
+        || building_menu_is_enabled(BUILDING_FORT_MOUNTED)
+    ) {
+        menu_enabled[get_building_menu_for_type(BUILDING_FORT)][get_building_menu_item_for_type(BUILDING_FORT)] = 1;
+    }
+
+    if (building_menu_is_enabled(BUILDING_WHEAT_FARM)
+        || building_menu_is_enabled(BUILDING_VEGETABLE_FARM)
+        || building_menu_is_enabled(BUILDING_FRUIT_FARM)
+        || building_menu_is_enabled(BUILDING_OLIVE_FARM)
+        || building_menu_is_enabled(BUILDING_VINES_FARM)
+        || building_menu_is_enabled(BUILDING_PIG_FARM)
+    ) {
+        menu_enabled[get_building_menu_for_type(BUILDING_MENU_FARMS)][get_building_menu_item_for_type(BUILDING_MENU_FARMS)] = 1;
+    }
+
+    if (building_menu_is_enabled(BUILDING_CLAY_PIT)
+        || building_menu_is_enabled(BUILDING_MARBLE_QUARRY)
+        || building_menu_is_enabled(BUILDING_IRON_MINE)
+        || building_menu_is_enabled(BUILDING_TIMBER_YARD)
+    ) {
+        menu_enabled[get_building_menu_for_type(BUILDING_MENU_RAW_MATERIALS)][get_building_menu_item_for_type(BUILDING_MENU_RAW_MATERIALS)] = 1;
+    }
+
+    if (building_menu_is_enabled(BUILDING_WINE_WORKSHOP)
+       || building_menu_is_enabled(BUILDING_OIL_WORKSHOP)
+       || building_menu_is_enabled(BUILDING_WEAPONS_WORKSHOP)
+       || building_menu_is_enabled(BUILDING_FURNITURE_WORKSHOP)
+       || building_menu_is_enabled(BUILDING_POTTERY_WORKSHOP)
+    ) {
+        menu_enabled[get_building_menu_for_type(BUILDING_MENU_WORKSHOPS)][get_building_menu_item_for_type(BUILDING_MENU_WORKSHOPS)] = 1;
     }
 }
 
 
 static void enable_normal(int *enabled, building_type type)
 {
-    // submenus with items should always be enabled, they won't appear if all their buildings are disabled (logic handled elsewhere)
-    if (
-        (type == BUILDING_MENU_SMALL_TEMPLES)
-    || (type == BUILDING_MENU_LARGE_TEMPLES)
-    || (type == BUILDING_FORT)
-    || (type == BUILDING_MENU_FARMS)
-    || (type == BUILDING_MENU_RAW_MATERIALS)
-    || (type == BUILDING_MENU_WORKSHOPS)
-    ) {
-        *enabled = 1;
-    }
-
     enable_if_allowed(enabled, type, BUILDING_HOUSE_VACANT_LOT);
     enable_if_allowed(enabled, type, BUILDING_CLEAR_LAND);
     enable_if_allowed(enabled, type, BUILDING_ROAD);
@@ -177,6 +225,7 @@ void building_menu_update(void)
             enable_normal(menu_item, building_type);
         }
     }
+    enable_building_group_menu_items();
     changed = 1;
 }
 
@@ -213,7 +262,20 @@ building_type building_menu_type(int submenu, int item)
 }
 
 
-build_menu_group building_menu_for_type(building_type type)
+static int get_building_menu_item_for_type(building_type type)
+{
+    for (int sub = 0; sub < BUILD_MENU_MAX; sub++) {
+        for (int item = 0; item < BUILD_MENU_ITEM_MAX && MENU_BUILDING_TYPE[sub][item]; item++) {
+            if (MENU_BUILDING_TYPE[sub][item] == type) {
+                return item;
+            }
+        }
+    }
+    return -1;
+}
+
+
+build_menu_group get_building_menu_for_type(building_type type)
 {
     for (int sub = 0; sub < BUILD_MENU_MAX; sub++) {
         for (int item = 0; item < BUILD_MENU_ITEM_MAX && MENU_BUILDING_TYPE[sub][item]; item++) {

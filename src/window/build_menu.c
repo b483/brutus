@@ -98,7 +98,7 @@ int window_build_menu_image(void)
     if (type == BUILDING_NONE) {
         return image_base + 12;
     }
-    switch (building_menu_for_type(type)) {
+    switch (get_building_menu_for_type(type)) {
         default:
         case BUILD_MENU_VACANT_HOUSE:
             return image_base;
@@ -175,47 +175,6 @@ static void draw_menu_buttons(void)
     for (int i = 0; i < data.num_items; i++) {
         item_index = building_menu_next_index(data.selected_submenu, item_index);
         int type = building_menu_type(data.selected_submenu, item_index);
-        // don't show the submenu button if all items within it are disabled
-        if (
-            (type == BUILDING_MENU_SMALL_TEMPLES
-                && (!building_menu_is_enabled(BUILDING_SMALL_TEMPLE_CERES)
-                    && !building_menu_is_enabled(BUILDING_SMALL_TEMPLE_NEPTUNE)
-                    && !building_menu_is_enabled(BUILDING_SMALL_TEMPLE_MERCURY)
-                    && !building_menu_is_enabled(BUILDING_SMALL_TEMPLE_MARS)
-                    && !building_menu_is_enabled(BUILDING_SMALL_TEMPLE_VENUS))
-                )
-            || (type == BUILDING_MENU_LARGE_TEMPLES
-                && (!building_menu_is_enabled(BUILDING_LARGE_TEMPLE_CERES)
-                    && !building_menu_is_enabled(BUILDING_LARGE_TEMPLE_NEPTUNE)
-                    && !building_menu_is_enabled(BUILDING_LARGE_TEMPLE_MERCURY)
-                    && !building_menu_is_enabled(BUILDING_LARGE_TEMPLE_MARS)
-                    && !building_menu_is_enabled(BUILDING_LARGE_TEMPLE_VENUS))
-                )
-                || (type == BUILDING_FORT
-                    && !building_menu_is_enabled(BUILDING_FORT_LEGIONARIES)
-                    && !building_menu_is_enabled(BUILDING_FORT_JAVELIN)
-                    && !building_menu_is_enabled(BUILDING_FORT_MOUNTED))
-                || (type == BUILDING_MENU_FARMS
-                    && !building_menu_is_enabled(BUILDING_WHEAT_FARM)
-                    && !building_menu_is_enabled(BUILDING_VEGETABLE_FARM)
-                    && !building_menu_is_enabled(BUILDING_FRUIT_FARM)
-                    && !building_menu_is_enabled(BUILDING_OLIVE_FARM)
-                    && !building_menu_is_enabled(BUILDING_VINES_FARM)
-                    && !building_menu_is_enabled(BUILDING_PIG_FARM))
-                || (type == BUILDING_MENU_RAW_MATERIALS
-                    && !building_menu_is_enabled(BUILDING_CLAY_PIT)
-                    && !building_menu_is_enabled(BUILDING_MARBLE_QUARRY)
-                    && !building_menu_is_enabled(BUILDING_IRON_MINE)
-                    && !building_menu_is_enabled(BUILDING_TIMBER_YARD))
-                || (type == BUILDING_MENU_WORKSHOPS
-                    && !building_menu_is_enabled(BUILDING_WINE_WORKSHOP)
-                    && !building_menu_is_enabled(BUILDING_OIL_WORKSHOP)
-                    && !building_menu_is_enabled(BUILDING_WEAPONS_WORKSHOP)
-                    && !building_menu_is_enabled(BUILDING_FURNITURE_WORKSHOP)
-                    && !building_menu_is_enabled(BUILDING_POTTERY_WORKSHOP))
-                ) {
-            continue;
-        }
         label_draw(item_x_align, data.y_offset + MENU_Y_OFFSET + MENU_ITEM_HEIGHT * i, 16,
             data.focus_button_id == i + 1 ? 1 : 2);
         if (is_all_button(type)) {
