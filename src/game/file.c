@@ -199,16 +199,11 @@ static int load_custom_scenario(const uint8_t *scenario_name, const char *scenar
     return 1;
 }
 
-static void load_empire_data(int is_custom_scenario, int empire_id)
-{
-    empire_load(is_custom_scenario, empire_id);
-    scenario_distant_battle_set_roman_travel_months();
-    scenario_distant_battle_set_enemy_travel_months();
-}
 
 static void initialize_saved_game(void)
 {
-    load_empire_data(scenario_is_custom(), scenario_empire_id());
+    scenario_distant_battle_set_roman_travel_months();
+    scenario_distant_battle_set_enemy_travel_months();
 
     scenario_map_init();
 
@@ -333,7 +328,6 @@ int game_file_load_scenario_data(const char *scenario_file)
     }
 
     trade_prices_reset();
-    load_empire_data(1, scenario_empire_id());
     city_view_reset_orientation();
     return 1;
 }

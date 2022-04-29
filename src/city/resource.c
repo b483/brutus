@@ -211,8 +211,7 @@ void city_resource_determine_available(void)
     available.food_list.size = 0;
 
     for (int i = RESOURCE_MIN; i < RESOURCE_MAX; i++) {
-        if (empire_can_produce_resource(i) || empire_can_import_resource(i) ||
-            (i == RESOURCE_MEAT && scenario_building_allowed(BUILDING_WHARF))) {
+        if (empire_can_produce_resource(i) || empire_can_import_resource(i)) {
             available.resource_list.items[available.resource_list.size++] = i;
         }
     }
@@ -220,8 +219,7 @@ void city_resource_determine_available(void)
         if (i == RESOURCE_OLIVES || i == RESOURCE_VINES) {
             continue;
         }
-        if (empire_can_produce_resource(i) || empire_can_import_resource(i) ||
-            (i == RESOURCE_MEAT && scenario_building_allowed(BUILDING_WHARF))) {
+        if (empire_can_produce_resource(i) || empire_can_import_resource(i)) {
             available.food_list.items[available.food_list.size++] = i;
         }
     }

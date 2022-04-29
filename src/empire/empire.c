@@ -17,7 +17,7 @@ enum {
     EMPIRE_WIDTH = 2000,
     EMPIRE_HEIGHT = 1000,
     EMPIRE_HEADER_SIZE = 1280,
-    EMPIRE_DATA_SIZE = 12800
+    EMPIRE_DATA_SIZE = 13200
 };
 
 static struct {
@@ -30,22 +30,15 @@ static struct {
     int viewport_height;
 } data;
 
-void empire_load(int is_custom_scenario, int empire_id)
-{
-    char raw_data[EMPIRE_DATA_SIZE];
-    const char *filename = is_custom_scenario ? "c32.emp" : "c3.emp";
 
-    // read header with scroll positions
-    if (!io_read_file_part_into_buffer(filename, NOT_LOCALIZED, raw_data, 4, 32 * empire_id)) {
-        memset(raw_data, 0, 4);
-    }
+void empire_load(int empire_id)
+{
+    const char *filename = "empire_data";
+    char raw_data[EMPIRE_DATA_SIZE];
     buffer buf;
-    buffer_init(&buf, raw_data, 4);
-    data.initial_scroll_x = buffer_read_i16(&buf);
-    data.initial_scroll_y = buffer_read_i16(&buf);
 
     // read data section with objects
-    int offset = EMPIRE_HEADER_SIZE + EMPIRE_DATA_SIZE * empire_id;
+    int offset = EMPIRE_DATA_SIZE * empire_id;
     int read_size = io_read_file_part_into_buffer(filename, NOT_LOCALIZED, raw_data, EMPIRE_DATA_SIZE, offset);
     if (read_size != EMPIRE_DATA_SIZE) {
         // load empty empire when loading fails
@@ -53,7 +46,7 @@ void empire_load(int is_custom_scenario, int empire_id)
         memset(raw_data, 0, EMPIRE_DATA_SIZE);
     }
     buffer_init(&buf, raw_data, EMPIRE_DATA_SIZE);
-    empire_object_load(&buf);
+    empire_object_load_state(&buf);
 }
 
 static void check_scroll_boundaries(void)
@@ -67,16 +60,17 @@ static void check_scroll_boundaries(void)
 
 void empire_load_editor(int empire_id, int viewport_width, int viewport_height)
 {
-    empire_load(1, empire_id);
+    empire_load(empire_id);
     empire_object_init_cities();
+    empire_object_our_city_set_resources_sell();
 
-    const empire_object *our_city = empire_object_get_our_city();
+    full_empire_object *our_city = empire_object_get_our_city();
 
     data.viewport_width = viewport_width;
     data.viewport_height = viewport_height;
     if (our_city) {
-        data.scroll_x = our_city->x - data.viewport_width / 2;
-        data.scroll_y = our_city->y - data.viewport_height / 2;
+        data.scroll_x = our_city->obj.x - data.viewport_width / 2;
+        data.scroll_y = our_city->obj.y - data.viewport_height / 2;
     } else {
         data.scroll_x = data.initial_scroll_x;
         data.scroll_y = data.initial_scroll_y;

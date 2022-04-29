@@ -1,4 +1,5 @@
 #include "allowed_buildings.h"
+#include "empire/object.h"
 #include "graphics/button.h"
 #include "graphics/color.h"
 #include "graphics/generic_button.h"
@@ -146,6 +147,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     if (input_go_back_requested(m, h)) {
+        empire_object_our_city_set_resources_sell();
         window_editor_attributes_show();
     }
 }

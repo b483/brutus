@@ -15,6 +15,7 @@
 #include "core/zip.h"
 #include "empire/city.h"
 #include "empire/empire.h"
+#include "empire/object.h"
 #include "empire/trade_prices.h"
 #include "empire/trade_route.h"
 #include "figure/enemy_army.h"
@@ -71,14 +72,15 @@ typedef struct {
     buffer *random_iv;
     buffer *camera;
     buffer *scenario;
+    buffer *empire_object;
     buffer *end_marker;
 } scenario_state;
 
 static struct {
     int num_pieces;
-    file_piece pieces[10];
+    file_piece pieces[11];
     scenario_state state;
-} scenario_data = {0};
+} scenario_data = { 0 };
 
 typedef struct {
     buffer *scenario_campaign_mission;
@@ -167,7 +169,7 @@ static struct {
     int num_pieces;
     file_piece pieces[100];
     savegame_state state;
-} savegame_data = {0};
+} savegame_data = { 0 };
 
 static void init_file_piece(file_piece *piece, int size, int compressed)
 {
@@ -208,7 +210,8 @@ static void init_scenario_data(void)
     state->elevation = create_scenario_piece(26244);
     state->random_iv = create_scenario_piece(8);
     state->camera = create_scenario_piece(8);
-    state->scenario = create_scenario_piece(1759);
+    state->scenario = create_scenario_piece(1755);
+    state->empire_object = create_scenario_piece(13200);
     state->end_marker = create_scenario_piece(4);
 }
 
@@ -261,7 +264,7 @@ static void init_savegame_data(void)
     state->trade_prices = create_savegame_piece(128, 0);
     state->figure_names = create_savegame_piece(84, 0);
     state->culture_coverage = create_savegame_piece(60, 0);
-    state->scenario = create_savegame_piece(1759, 0);
+    state->scenario = create_savegame_piece(1755, 0);
     state->max_game_year = create_savegame_piece(4, 0);
     state->earthquake = create_savegame_piece(60, 0);
     state->emperor_change_state = create_savegame_piece(4, 0);
@@ -315,7 +318,7 @@ static void scenario_load_from_state(scenario_state *file)
     random_load_state(file->random_iv);
 
     scenario_load_state(file->scenario);
-
+    empire_object_load_state(file->empire_object);
     buffer_skip(file->end_marker, 4);
 }
 
@@ -331,7 +334,7 @@ static void scenario_save_to_state(scenario_state *file)
     random_save_state(file->random_iv);
 
     scenario_save_state(file->scenario);
-
+    empire_object_save_state(file->empire_object);
     buffer_skip(file->end_marker, 4);
 }
 

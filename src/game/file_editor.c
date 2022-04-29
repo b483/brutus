@@ -102,11 +102,15 @@ static void create_blank_map(int size)
     city_view_reset_orientation();
 }
 
-static void prepare_map_for_editing(void)
+static void prepare_map_for_editing(int map_is_new)
 {
     image_load_climate(scenario_property_climate(), 1, 0);
 
-    empire_load(1, scenario_empire_id());
+    if (map_is_new) {
+        empire_load(0);
+        empire_object_our_city_set_resources_sell();
+    }
+
     empire_object_init_cities();
 
     figure_init_scenario();
@@ -133,7 +137,7 @@ static void prepare_map_for_editing(void)
 void game_file_editor_create_scenario(int size)
 {
     create_blank_map(size);
-    prepare_map_for_editing();
+    prepare_map_for_editing(1);
 }
 
 int game_file_editor_load_scenario(const char *scenario_file)
@@ -144,7 +148,7 @@ int game_file_editor_load_scenario(const char *scenario_file)
     }
     scenario_map_init();
 
-    prepare_map_for_editing();
+    prepare_map_for_editing(0);
     return 1;
 }
 

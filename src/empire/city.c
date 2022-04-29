@@ -49,17 +49,6 @@ int empire_can_import_resource(int resource)
     return 0;
 }
 
-int empire_can_import_resource_potentially(int resource)
-{
-    for (int i = 0; i < MAX_CITIES; i++) {
-        if (cities[i].in_use &&
-            cities[i].type == EMPIRE_CITY_TRADE &&
-            cities[i].sells_resource[resource] == 1) {
-            return 1;
-        }
-    }
-    return 0;
-}
 
 int empire_can_export_resource(int resource)
 {
@@ -107,24 +96,20 @@ static int get_raw_resource(int resource)
 int empire_can_produce_resource(int resource)
 {
     int raw_resource = get_raw_resource(resource);
-    // finished goods: check imports of raw materials
-    if (raw_resource != resource && empire_can_import_resource(raw_resource)) {
-        return 1;
+
+    // if raw resource, available if we can either produce or import it
+    if (resource == raw_resource) {
+        return (can_produce_resource(resource) || empire_can_import_resource(resource));
     }
-    // check if we can produce the raw materials
-    return can_produce_resource(raw_resource);
+    // if finished resource, available if we can either produce the raw material or import it, and we can produce the finished material (workshop is allowed)
+    else {
+        return (
+            (can_produce_resource(raw_resource) || empire_can_import_resource(raw_resource))
+            && can_produce_resource(resource)
+        );
+    }
 }
 
-int empire_can_produce_resource_potentially(int resource)
-{
-    int raw_resource = get_raw_resource(resource);
-    // finished goods: check imports of raw materials
-    if (raw_resource != resource && empire_can_import_resource_potentially(raw_resource)) {
-        return 1;
-    }
-    // check if we can produce the raw materials
-    return can_produce_resource(raw_resource);
-}
 
 int empire_city_get_for_object(int empire_object_id)
 {

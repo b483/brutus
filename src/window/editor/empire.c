@@ -222,15 +222,9 @@ static void draw_city_info(const empire_city *city)
             width += lang_text_draw(47, 1, x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN);
             // draw icons for available resources based on the "Buildings allowed" menu
             int resource_x_offset = x_offset + 30 + width;
-            for (int r = ALLOWED_BUILDING_WHEAT_FARM; r <= ALLOWED_BUILDING_POTTERY_WORKSHOP; r++) {
-                if (r == ALLOWED_BUILDING_PIG_FARM) {
-                    if (scenario.allowed_buildings[ALLOWED_BUILDING_WHARF]
-                    || scenario.allowed_buildings[r]) {
-                        draw_resource(r - ALLOWED_BUILDING_WHEAT_FARM + 1, 0, resource_x_offset, y_offset - 9);
-                        resource_x_offset += 32;
-                    }
-                } else if (scenario.allowed_buildings[r]) {
-                    draw_resource(r - ALLOWED_BUILDING_WHEAT_FARM + 1, 0, resource_x_offset, y_offset - 9);
+            for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+                if (empire_object_city_sells_resource(city->empire_object_id, r)) {
+                    draw_resource(r, 0, resource_x_offset, y_offset - 9);
                     resource_x_offset += 32;
                 }
             }
