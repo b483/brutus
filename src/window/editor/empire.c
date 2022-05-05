@@ -26,6 +26,10 @@
 
 static void button_change_empire(int is_up, int param2);
 static void button_ok(int param1, int param2);
+static void toggle_sell_resource(int resource, int param2);
+static void set_resource_sell_limit(int resource, int param2);
+static void toggle_buy_resource(int resource, int param2);
+static void set_resource_buy_limit(int resource, int param2);
 
 static arrow_button arrow_buttons_empire[] = {
     {8, 48, 17, 24, button_change_empire, 1, 0},
@@ -34,13 +38,83 @@ static arrow_button arrow_buttons_empire[] = {
 static generic_button generic_button_ok[] = {
     {84, 48, 100, 24, button_ok, button_none, 0, 0}
 };
+static generic_button button_toggle_sell_resource[] = {
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
+};
+static generic_button button_toggle_sell_resource_limit[] = {
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
+};
+static generic_button button_toggle_buy_resource[] = {
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+};
+static generic_button button_toggle_buy_resource_limit[] = {
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+};
 
 static struct {
     int selected_button;
     int selected_city;
     int x_min, x_max, y_min, y_max;
     int x_draw_offset, y_draw_offset;
-    int focus_button_id;
+    int focus_ok_button_id;
     int is_scrolling;
     int finished_scroll;
     int show_battle_objects;
@@ -55,7 +129,7 @@ static void init(void)
     } else {
         data.selected_city = 0;
     }
-    data.focus_button_id = 0;
+    data.focus_ok_button_id = 0;
 }
 
 static int map_viewport_width(void)
@@ -180,24 +254,28 @@ static void draw_map(void)
     graphics_reset_clip_rectangle();
 }
 
-static void draw_resource(resource_type resource, int trade_max, int x_offset, int y_offset)
+static void draw_resource_trade_city(resource_type resource, int trade_max, int x_offset, int y_offset)
 {
-    graphics_draw_inset_rect(x_offset, y_offset, 26, 26);
     int image_id = resource + image_group(GROUP_EDITOR_EMPIRE_RESOURCES);
     int resource_offset = resource_image_offset(resource, RESOURCE_IMAGE_ICON);
-    image_draw(image_id + resource_offset, x_offset + 1, y_offset + 1);
     switch (trade_max) {
         case 15:
-            image_draw(image_group(GROUP_EDITOR_TRADE_AMOUNT), x_offset + 21, y_offset - 1);
+            image_draw(image_id + resource_offset, x_offset, y_offset);
+            image_draw(image_group(GROUP_EDITOR_TRADE_AMOUNT), x_offset + 17, y_offset);
             break;
         case 25:
-            image_draw(image_group(GROUP_EDITOR_TRADE_AMOUNT) + 1, x_offset + 17, y_offset - 1);
+            image_draw(image_id + resource_offset, x_offset, y_offset);
+            image_draw(image_group(GROUP_EDITOR_TRADE_AMOUNT) + 1, x_offset + 13, y_offset);
             break;
         case 40:
-            image_draw(image_group(GROUP_EDITOR_TRADE_AMOUNT) + 2, x_offset + 13, y_offset - 1);
+            image_draw(image_id + resource_offset, x_offset, y_offset);
+            image_draw(image_group(GROUP_EDITOR_TRADE_AMOUNT) + 2, x_offset + 11, y_offset);
             break;
+        default:
+            image_draw(image_id + resource_offset, x_offset, y_offset);
     }
 }
+
 
 static void draw_city_info(const empire_city *city)
 {
@@ -224,7 +302,10 @@ static void draw_city_info(const empire_city *city)
             int resource_x_offset = x_offset + 30 + width;
             for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
                 if (empire_object_city_sells_resource(city->empire_object_id, r)) {
-                    draw_resource(r, 0, resource_x_offset, y_offset - 9);
+                    graphics_draw_inset_rect(resource_x_offset, y_offset - 9, 26, 26);
+                    int image_id = r + image_group(GROUP_EDITOR_EMPIRE_RESOURCES);
+                    int resource_offset = resource_image_offset(r, RESOURCE_IMAGE_ICON);
+                    image_draw(image_id + resource_offset, resource_x_offset + 1, y_offset - 8);
                     resource_x_offset += 32;
                 }
             }
@@ -235,19 +316,35 @@ static void draw_city_info(const empire_city *city)
             width += lang_text_draw(47, 5, x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN);
             int resource_x_offset = x_offset + 30 + width;
             for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+                button_toggle_sell_resource[r - 1].x = resource_x_offset;
+                button_toggle_sell_resource[r - 1].y = y_offset - 9;
+                button_toggle_sell_resource[r - 1].parameter1 = r;
+                button_toggle_sell_resource_limit[r - 1].x = resource_x_offset + 12;
+                button_toggle_sell_resource_limit[r - 1].y = y_offset - 12;
+                button_toggle_sell_resource_limit[r - 1].parameter1 = r;
                 if (empire_object_city_sells_resource(city->empire_object_id, r)) {
-                    draw_resource(r, trade_route_limit(city->route_id, r), resource_x_offset, y_offset - 9);
-                    resource_x_offset += 32;
+                    draw_resource_trade_city(r, trade_route_limit(city->route_id, r), resource_x_offset + 1, y_offset - 8);
+                } else {
+                    image_draw_blend(871, resource_x_offset + 1, y_offset - 8, COLOR_MOUSE_DARK_GRAY);
                 }
+                resource_x_offset += 32;
             }
             resource_x_offset += 50;
             resource_x_offset += lang_text_draw(47, 4, resource_x_offset, y_offset, FONT_NORMAL_GREEN);
             resource_x_offset += 10;
             for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+                button_toggle_buy_resource[r - 1].x = resource_x_offset;
+                button_toggle_buy_resource[r - 1].y = y_offset - 9;
+                button_toggle_buy_resource[r - 1].parameter1 = r;
+                button_toggle_buy_resource_limit[r - 1].x = resource_x_offset + 12;
+                button_toggle_buy_resource_limit[r - 1].y = y_offset - 12;
+                button_toggle_buy_resource_limit[r - 1].parameter1 = r;
                 if (empire_object_city_buys_resource(city->empire_object_id, r)) {
-                    draw_resource(r, trade_route_limit(city->route_id, r), resource_x_offset, y_offset - 9);
-                    resource_x_offset += 32;
+                    draw_resource_trade_city(r, trade_route_limit(city->route_id, r), resource_x_offset + 1, y_offset - 8);
+                } else {
+                    image_draw_blend(871, resource_x_offset + 1, y_offset - 8, COLOR_MOUSE_DARK_GRAY);
                 }
+                resource_x_offset += 32;
             }
             break;
         }
@@ -265,7 +362,7 @@ static void draw_panel_buttons(const empire_city *city)
             data.x_min, data.y_max - 85, data.x_max - data.x_min, FONT_NORMAL_GREEN);
     }
 
-    button_border_draw(data.x_min + 104, data.y_max - 52, 100, 24, data.focus_button_id == 1);
+    button_border_draw(data.x_min + 104, data.y_max - 52, 100, 24, data.focus_ok_button_id == 1);
     lang_text_draw_centered(44, 7, data.x_min + 104, data.y_max - 45, 100, FONT_NORMAL_GREEN);
 }
 
@@ -324,15 +421,23 @@ static void handle_input(const mouse *m, const hotkeys *h)
             scroll_drag_end();
         }
     }
-    data.focus_button_id = 0;
+    data.focus_ok_button_id = 0;
     if (!arrow_buttons_handle_mouse(m, data.x_min + 20, data.y_max - 100, arrow_buttons_empire, 2, 0)) {
         if (!generic_buttons_handle_mouse(m, data.x_min + 20, data.y_max - 100,
-            generic_button_ok, 1, &data.focus_button_id)) {
+            generic_button_ok, 1, &data.focus_ok_button_id)) {
             determine_selected_object(m);
             int selected_object = empire_selected_object();
             if (selected_object) {
                 if (empire_object_get(selected_object - 1)->type == EMPIRE_OBJECT_CITY) {
                     data.selected_city = empire_city_get_for_object(selected_object - 1);
+                    if (empire_city_get(data.selected_city)->type == EMPIRE_CITY_TRADE) {
+                        if (!generic_buttons_handle_mouse(m, 0, 0, button_toggle_sell_resource_limit, RESOURCE_MAX - 1, 0)) {
+                            generic_buttons_handle_mouse(m, 0, 0, button_toggle_sell_resource, RESOURCE_MAX - 1, 0);
+                        }
+                        if (!generic_buttons_handle_mouse(m, 0, 0, button_toggle_buy_resource_limit, RESOURCE_MAX - 1, 0)) {
+                            generic_buttons_handle_mouse(m, 0, 0, button_toggle_buy_resource, RESOURCE_MAX - 1, 0);
+                        }
+                    }
                 }
             } else if (input_go_back_requested(m, h)) {
                 window_editor_map_show();
@@ -352,6 +457,37 @@ static void button_ok(int param1, int param2)
 {
     window_editor_map_show();
 }
+
+
+static void toggle_sell_resource(int resource, int param2)
+{
+    empire_city *city = empire_city_get(data.selected_city);
+    empire_object_city_toggle_resource(city->empire_object_id, resource, 1);
+}
+
+
+static void set_resource_sell_limit(int resource, int param2)
+{
+    empire_city *city = empire_city_get(data.selected_city);
+    int resource_limit = trade_route_cycle_limit(city->route_id, resource);
+    empire_object_city_set_resource_limit(city->empire_object_id, resource, resource_limit, 1);
+}
+
+
+static void toggle_buy_resource(int resource, int param2)
+{
+    empire_city *city = empire_city_get(data.selected_city);
+    empire_object_city_toggle_resource(city->empire_object_id, resource, 0);
+}
+
+
+static void set_resource_buy_limit(int resource, int param2)
+{
+    empire_city *city = empire_city_get(data.selected_city);
+    int resource_limit = trade_route_cycle_limit(city->route_id, resource);
+    empire_object_city_set_resource_limit(city->empire_object_id, resource, resource_limit, 0);
+}
+
 
 void window_editor_empire_show(void)
 {

@@ -211,7 +211,7 @@ static void init_scenario_data(void)
     state->random_iv = create_scenario_piece(8);
     state->camera = create_scenario_piece(8);
     state->scenario = create_scenario_piece(1755);
-    state->empire_object = create_scenario_piece(13200);
+    state->empire_object = create_scenario_piece(18400);
     state->end_marker = create_scenario_piece(4);
 }
 

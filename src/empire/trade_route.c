@@ -25,6 +25,23 @@ int trade_route_traded(int route_id, resource_type resource)
     return data[route_id][resource].traded;
 }
 
+
+int trade_route_cycle_limit(int route_id, resource_type resource)
+{
+    switch (data[route_id][resource].limit) {
+        case 0: data[route_id][resource].limit = 15;
+            break;
+        case 15: data[route_id][resource].limit = 25;
+            break;
+        case 25: data[route_id][resource].limit = 40;
+            break;
+        default:
+            data[route_id][resource].limit = 0;
+    }
+    return data[route_id][resource].limit;
+}
+
+
 int trade_route_increase_limit(int route_id, resource_type resource)
 {
     switch (data[route_id][resource].limit) {

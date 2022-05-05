@@ -11,6 +11,14 @@ int trade_route_limit(int route_id, resource_type resource);
 int trade_route_traded(int route_id, resource_type resource);
 
 /**
+ * Cycles the trade limit of the resource (zero if max, else increase)
+ * @param route_id identifier for empire city
+ * @param resource resource to cycle trade limit for
+ * @return the new trade limit amount
+ */
+int trade_route_cycle_limit(int route_id, resource_type resource);
+
+/**
  * Increases the trade limit of the resource
  * @param route_id Trade route
  * @param resource Resource

@@ -17,7 +17,7 @@ enum {
     EMPIRE_WIDTH = 2000,
     EMPIRE_HEIGHT = 1000,
     EMPIRE_HEADER_SIZE = 1280,
-    EMPIRE_DATA_SIZE = 13200
+    EMPIRE_DATA_SIZE = 12800
 };
 
 static struct {
@@ -33,12 +33,20 @@ static struct {
 
 void empire_load(int empire_id)
 {
-    const char *filename = "empire_data";
     char raw_data[EMPIRE_DATA_SIZE];
+    const char *filename = "c32.emp";
+
+    // read header with scroll positions
+    if (!io_read_file_part_into_buffer(filename, NOT_LOCALIZED, raw_data, 4, 32 * empire_id)) {
+        memset(raw_data, 0, 4);
+    }
     buffer buf;
+    buffer_init(&buf, raw_data, 4);
+    data.initial_scroll_x = buffer_read_i16(&buf);
+    data.initial_scroll_y = buffer_read_i16(&buf);
 
     // read data section with objects
-    int offset = EMPIRE_DATA_SIZE * empire_id;
+    int offset = EMPIRE_HEADER_SIZE + EMPIRE_DATA_SIZE * empire_id;
     int read_size = io_read_file_part_into_buffer(filename, NOT_LOCALIZED, raw_data, EMPIRE_DATA_SIZE, offset);
     if (read_size != EMPIRE_DATA_SIZE) {
         // load empty empire when loading fails
@@ -46,7 +54,7 @@ void empire_load(int empire_id)
         memset(raw_data, 0, EMPIRE_DATA_SIZE);
     }
     buffer_init(&buf, raw_data, EMPIRE_DATA_SIZE);
-    empire_object_load_state(&buf);
+    empire_object_load_initial(&buf);
 }
 
 static void check_scroll_boundaries(void)
@@ -63,6 +71,7 @@ void empire_load_editor(int empire_id, int viewport_width, int viewport_height)
     empire_load(empire_id);
     empire_object_init_cities();
     empire_object_our_city_set_resources_sell();
+    empire_object_trade_cities_disable_default_resources();
 
     full_empire_object *our_city = empire_object_get_our_city();
 
