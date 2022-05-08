@@ -19,7 +19,9 @@
 #include "scenario/data.h"
 #include "scenario/editor.h"
 #include "scenario/empire.h"
+#include "translation/translation.h"
 #include "window/editor/map.h"
+#include "window/numeric_input.h"
 
 #define MAX_WIDTH 2032
 #define MAX_HEIGHT 1136
@@ -30,6 +32,7 @@ static void toggle_sell_resource(int resource, int param2);
 static void set_resource_sell_limit(int resource, int param2);
 static void toggle_buy_resource(int resource, int param2);
 static void set_resource_buy_limit(int resource, int param2);
+static void set_trade_route_cost(int param1, int param2);
 
 static arrow_button arrow_buttons_empire[] = {
     {8, 48, 17, 24, button_change_empire, 1, 0},
@@ -108,6 +111,9 @@ static generic_button button_toggle_buy_resource_limit[] = {
     {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
     {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
 };
+static generic_button button_set_trade_route_cost[] = {
+    {0, 0, 65, 26, set_trade_route_cost, button_none, 0, 0},
+};
 
 static struct {
     int selected_button;
@@ -115,6 +121,7 @@ static struct {
     int x_min, x_max, y_min, y_max;
     int x_draw_offset, y_draw_offset;
     int focus_ok_button_id;
+    int focus_trade_route_cost_button_id;
     int is_scrolling;
     int finished_scroll;
     int show_battle_objects;
@@ -130,6 +137,7 @@ static void init(void)
         data.selected_city = 0;
     }
     data.focus_ok_button_id = 0;
+    data.focus_trade_route_cost_button_id = 0;
 }
 
 static int map_viewport_width(void)
@@ -346,6 +354,11 @@ static void draw_city_info(const empire_city *city)
                 }
                 resource_x_offset += 32;
             }
+            button_set_trade_route_cost->x = resource_x_offset + 255;
+            button_set_trade_route_cost->y = y_offset - 8;
+            text_draw(translation_for(TR_COST_OPEN_TRADE_ROUTE), resource_x_offset + 50, y_offset, FONT_NORMAL_GREEN, 0);
+            button_border_draw(button_set_trade_route_cost->x, button_set_trade_route_cost->y, button_set_trade_route_cost->width, 24, data.focus_trade_route_cost_button_id == 1);
+            text_draw_number_centered(city->cost_to_open, button_set_trade_route_cost->x, y_offset, button_set_trade_route_cost->width, FONT_NORMAL_GREEN);
             break;
         }
     }
@@ -437,7 +450,12 @@ static void handle_input(const mouse *m, const hotkeys *h)
                         if (!generic_buttons_handle_mouse(m, 0, 0, button_toggle_buy_resource_limit, RESOURCE_MAX - 1, 0)) {
                             generic_buttons_handle_mouse(m, 0, 0, button_toggle_buy_resource, RESOURCE_MAX - 1, 0);
                         }
+                        generic_buttons_handle_mouse(m, 0, 0, button_set_trade_route_cost, 1, &data.focus_trade_route_cost_button_id);
                     }
+                }
+                if (input_go_back_requested(m, h)) {
+                    empire_clear_selected_object();
+                    window_invalidate();
                 }
             } else if (input_go_back_requested(m, h)) {
                 window_editor_map_show();
@@ -486,6 +504,20 @@ static void set_resource_buy_limit(int resource, int param2)
     empire_city *city = empire_city_get(data.selected_city);
     int resource_limit = trade_route_cycle_limit(city->route_id, resource);
     empire_object_city_set_resource_limit(city->empire_object_id, resource, resource_limit, 0);
+}
+
+
+static void set_trade_route_cost_callback(int value)
+{
+    empire_city *city = empire_city_get(data.selected_city);
+    city->cost_to_open = value;
+    empire_object_city_set_trade_route_cost(city->empire_object_id, value);
+}
+
+
+static void set_trade_route_cost(int param1, int param2)
+{
+    window_numeric_input_show(button_set_trade_route_cost->x - 150, button_set_trade_route_cost->y - 150, 5, 99999, set_trade_route_cost_callback);
 }
 
 

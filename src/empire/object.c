@@ -117,7 +117,7 @@ void empire_object_load_state(buffer *buf)
         full->city_type = buffer_read_u8(buf);
         full->city_name_id = buffer_read_u8(buf);
         full->trade_route_open = buffer_read_u8(buf);
-        full->trade_route_cost = buffer_read_i16(buf);
+        full->trade_route_cost = buffer_read_u32(buf);
         for (int r = 0; r < RESOURCE_MAX; r++) {
             full->city_sells_resource.resource_sell[r] = buffer_read_u8(buf);
             full->city_sells_resource.resource_sell_limit[r] = buffer_read_u8(buf);
@@ -154,7 +154,7 @@ void empire_object_save_state(buffer *buf)
         buffer_write_u8(buf, full->city_type);
         buffer_write_u8(buf, full->city_name_id);
         buffer_write_u8(buf, full->trade_route_open);
-        buffer_write_i16(buf, full->trade_route_cost);
+        buffer_write_u32(buf, full->trade_route_cost);
         for (int r = 0; r < RESOURCE_MAX; r++) {
             buffer_write_u8(buf, full->city_sells_resource.resource_sell[r]);
             buffer_write_u8(buf, full->city_sells_resource.resource_sell_limit[r]);
@@ -436,6 +436,13 @@ void empire_object_city_set_resource_limit(int object_id, int resource, int reso
     } else {
         object->city_buys_resource.resource_buy_limit[resource] = resource_limit;
     }
+}
+
+
+void empire_object_city_set_trade_route_cost(int object_id, int trade_route_cost)
+{
+    full_empire_object *object = &objects[object_id];
+    object->trade_route_cost = trade_route_cost;
 }
 
 

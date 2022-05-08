@@ -211,6 +211,7 @@ static translation_string all_strings[] = {
     {TR_EDITOR_SIDEBAR_BUTTON_NATIVE_FIELD_TOOLTIP, "Native field"},
     {TR_EDITOR_SIDEBAR_BUTTON_FISHING_POINT_TOOLTIP, "Fishing waters"},
     {TR_EDITOR_SIDEBAR_BUTTON_HERD_POINT_TOOLTIP, "Herd point"},
+    {TR_COST_OPEN_TRADE_ROUTE, "Cost to open trade route: "},
 };
 
 void translation_english(const translation_string **strings, int *num_strings)

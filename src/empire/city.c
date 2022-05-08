@@ -327,7 +327,6 @@ void empire_city_save_state(buffer *buf)
     for (int i = 0; i < MAX_CITIES; i++) {
         empire_city *city = &cities[i];
         buffer_write_u8(buf, city->in_use);
-        buffer_write_u8(buf, 0);
         buffer_write_u8(buf, city->type);
         buffer_write_u8(buf, city->name_id);
         buffer_write_u8(buf, city->route_id);
@@ -338,18 +337,12 @@ void empire_city_save_state(buffer *buf)
         for (int r = 0; r < RESOURCE_MAX; r++) {
             buffer_write_u8(buf, city->sells_resource[r]);
         }
-        buffer_write_i16(buf, city->cost_to_open);
-        buffer_skip(buf, 2);
+        buffer_write_u32(buf, city->cost_to_open);
         buffer_write_i16(buf, city->trader_entry_delay);
-        buffer_write_i16(buf, 0);
         buffer_write_i16(buf, city->empire_object_id);
         buffer_write_u8(buf, city->is_sea_trade);
-        buffer_write_u8(buf, 0);
         for (int f = 0; f < 3; f++) {
             buffer_write_i16(buf, city->trader_figure_ids[f]);
-        }
-        for (int p = 0; p < 10; p++) {
-            buffer_write_u8(buf, 0);
         }
     }
 }
@@ -359,7 +352,6 @@ void empire_city_load_state(buffer *buf)
     for (int i = 0; i < MAX_CITIES; i++) {
         empire_city *city = &cities[i];
         city->in_use = buffer_read_u8(buf);
-        buffer_skip(buf, 1);
         city->type = buffer_read_u8(buf);
         city->name_id = buffer_read_u8(buf);
         city->route_id = buffer_read_u8(buf);
@@ -370,16 +362,12 @@ void empire_city_load_state(buffer *buf)
         for (int r = 0; r < RESOURCE_MAX; r++) {
             city->sells_resource[r] = buffer_read_u8(buf);
         }
-        city->cost_to_open = buffer_read_i16(buf);
-        buffer_skip(buf, 2);
+        city->cost_to_open = buffer_read_u32(buf);
         city->trader_entry_delay = buffer_read_i16(buf);
-        buffer_skip(buf, 2);
         city->empire_object_id = buffer_read_i16(buf);
         city->is_sea_trade = buffer_read_u8(buf);
-        buffer_skip(buf, 1);
         for (int f = 0; f < 3; f++) {
             city->trader_figure_ids[f] = buffer_read_i16(buf);
         }
-        buffer_skip(buf, 10);
     }
 }

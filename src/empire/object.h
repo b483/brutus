@@ -99,6 +99,13 @@ void empire_object_city_toggle_resource(int object_id, int resource, int selling
  */
 void empire_object_city_set_resource_limit(int object_id, int resource, int resource_limit, int selling);
 
+/**
+ * Sets the cost to open trade route with city
+ * @param object_id id for empire object
+ * @param trade_route_cost cost to open trade route
+ */
+void empire_object_city_set_trade_route_cost(int object_id, int trade_route_cost);
+
 int empire_object_update_animation(const empire_object *obj, int image_id);
 
 #endif // EMPIRE_OBJECT_H
