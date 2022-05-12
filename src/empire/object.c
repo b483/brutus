@@ -384,6 +384,29 @@ void empire_object_our_city_set_resources_sell(void)
 }
 
 
+void empire_object_disable_postpone_trade_city(int object_id, int is_down)
+{
+    full_empire_object *object = &objects[object_id];
+    object->city_type += is_down ? -1 : 1;
+    if (object->city_type < EMPIRE_CITY_DISTANT_ROMAN) {
+        object->city_type = EMPIRE_CITY_FUTURE_TRADE;
+    } else if (object->city_type == EMPIRE_CITY_OURS) {
+        is_down ? object->city_type-- : object->city_type++;
+    } else if (object->city_type > EMPIRE_CITY_FUTURE_TRADE) {
+        object->city_type = EMPIRE_CITY_DISTANT_ROMAN;
+    }
+
+    // fix graphics for city sprite and flag color when changing city types
+    if (object->city_type == EMPIRE_CITY_TRADE || object->city_type == EMPIRE_CITY_FUTURE_TRADE) {
+        object->obj.image_id = image_group(GROUP_EMPIRE_CITY_TRADE);
+        object->obj.expanded.image_id = image_group(GROUP_EMPIRE_CITY_TRADE);
+    } else if (object->city_type == EMPIRE_CITY_DISTANT_ROMAN) {
+        object->obj.image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
+        object->obj.expanded.image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
+    }
+}
+
+
 void empire_object_trade_cities_disable_default_resources(void)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {

@@ -231,6 +231,7 @@ static void draw_city_info(const empire_object *object)
 
     const empire_city *city = empire_city_get(data.selected_city);
     switch (city->type) {
+        case EMPIRE_CITY_FUTURE_TRADE:
         case EMPIRE_CITY_DISTANT_ROMAN:
             lang_text_draw_centered(47, 12, x_offset, y_offset, 240, FONT_NORMAL_GREEN);
             break;
@@ -241,7 +242,6 @@ static void draw_city_info(const empire_object *object)
                 lang_text_draw_centered(47, 13, x_offset, y_offset, 240, FONT_NORMAL_GREEN);
             }
             break;
-        case EMPIRE_CITY_FUTURE_TRADE:
         case EMPIRE_CITY_DISTANT_FOREIGN:
         case EMPIRE_CITY_FUTURE_ROMAN:
             lang_text_draw_centered(47, 0, x_offset, y_offset, 240, FONT_NORMAL_GREEN);
@@ -346,6 +346,9 @@ static void draw_empire_object(const empire_object *obj)
             // Fix cases where empire map still gives a blue flag for new trade cities
             // (e.g. Massilia in campaign Lugdunum)
             image_id = image_group(GROUP_EMPIRE_CITY_TRADE);
+        } else if (city->type == EMPIRE_CITY_FUTURE_TRADE) {
+            // Fix case where future trade city (as specified in the editor) is drawn as a trade city before expansion
+            image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
         }
     }
     if (obj->type == EMPIRE_OBJECT_BATTLE_ICON) {

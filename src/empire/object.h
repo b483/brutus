@@ -84,6 +84,9 @@ int empire_object_city_sells_resource(int object_id, int resource);
 // sets all of full_empire_object->city_sells_resource for our city based on allowed buildings in the editor
 void empire_object_our_city_set_resources_sell(void);
 
+// changes city type to disable trade with city or postpone it (via empire expansion)
+void empire_object_disable_postpone_trade_city(int object_id, int is_down);
+
 // disables default resources that trade cities sell/buy
 void empire_object_trade_cities_disable_default_resources(void);
 

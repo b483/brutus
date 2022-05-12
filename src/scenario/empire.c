@@ -10,6 +10,19 @@ int scenario_empire_id(void)
     return scenario.empire.id;
 }
 
+
+void scenario_empire_set_expansion_year_offset(int expansion_year)
+{
+    scenario.empire.expansion_year = expansion_year;
+}
+
+
+int scenario_empire_get_expansion_year_offset(void)
+{
+    return scenario.empire.expansion_year;
+}
+
+
 int scenario_empire_is_expanded(void)
 {
     return scenario.empire.is_expanded;

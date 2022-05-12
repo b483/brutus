@@ -31,6 +31,13 @@ empire_city *empire_city_get(int city_id)
     }
 }
 
+
+int empire_city_get_type(int city_id)
+{
+    return cities[city_id].type;
+}
+
+
 int empire_city_get_route_id(int city_id)
 {
     return cities[city_id].route_id;
