@@ -32,12 +32,6 @@ empire_city *empire_city_get(int city_id)
 }
 
 
-int empire_city_get_type(int city_id)
-{
-    return cities[city_id].type;
-}
-
-
 int empire_city_get_route_id(int city_id)
 {
     return cities[city_id].route_id;
@@ -49,7 +43,7 @@ int empire_can_import_resource(int resource)
         if (cities[i].in_use &&
             cities[i].type == EMPIRE_CITY_TRADE &&
             cities[i].is_open &&
-            cities[i].sells_resource[resource] == 1) {
+            cities[i].sells_resource[resource]) {
             return 1;
         }
     }
@@ -63,7 +57,7 @@ int empire_can_export_resource(int resource)
         if (cities[i].in_use &&
             cities[i].type == EMPIRE_CITY_TRADE &&
             cities[i].is_open &&
-            cities[i].buys_resource[resource] == 1) {
+            cities[i].buys_resource[resource]) {
             return 1;
         }
     }
@@ -73,12 +67,16 @@ int empire_can_export_resource(int resource)
 static int can_produce_resource(int resource)
 {
     for (int i = 0; i < MAX_CITIES; i++) {
-        if (cities[i].in_use &&
-            cities[i].type == EMPIRE_CITY_OURS &&
-            cities[i].sells_resource[resource] == 1) {
-            return 1;
+        if (cities[i].in_use && cities[i].type == EMPIRE_CITY_OURS) {
+            if (cities[i].sells_resource[resource]) {
+                return 1;
+            } else {
+                // there's only one of our city, no need to search the rest of the list
+                return 0;
+            }
         }
     }
+    // our city wasn't found or not in use (shouldn't happen)
     return 0;
 }
 

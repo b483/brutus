@@ -7,39 +7,35 @@
 typedef struct {
     int id;
     int type;
-    int animation_index;
     int x;
     int y;
-    int width;
-    int height;
     int image_id;
     struct {
         int x;
         int y;
         int image_id;
     } expanded;
-    int distant_battle_travel_months;
-    int trade_route_id;
-    int invasion_path_id;
-    int invasion_years;
-} empire_object;
-
-typedef struct {
+    int width;
+    int height;
+    int animation_index;
     int in_use;
     int city_type;
     int city_name_id;
+    int trade_route_id;
     int trade_route_open;
     int trade_route_cost;
     struct {
-        int resource_sell[RESOURCE_MAX];
-        int resource_sell_limit[RESOURCE_MAX];
-    } city_sells_resource;
+        int resource[RESOURCE_MAX];
+        int resource_limit[RESOURCE_MAX];
+    } resource_sell;
     struct {
-        int resource_buy[RESOURCE_MAX];
-        int resource_buy_limit[RESOURCE_MAX];
-    } city_buys_resource;
-    empire_object obj;
-} full_empire_object;
+        int resource[RESOURCE_MAX];
+        int resource_limit[RESOURCE_MAX];
+    } resource_buy;
+    int invasion_path_id;
+    int invasion_years;
+    int distant_battle_travel_months;
+} empire_object;
 
 // loads empire for new maps and on empire state change
 void empire_object_load_initial(buffer *buf);
@@ -53,9 +49,11 @@ void empire_object_init_cities(void);
 
 int empire_object_init_distant_battle_travel_months(int object_type);
 
-const empire_object *empire_object_get(int object_id);
+empire_object *empire_object_get(int object_id);
 
-full_empire_object *empire_object_get_our_city(void);
+empire_object *empire_object_get_for_trade_route(int trade_route_id);
+
+empire_object *empire_object_get_our_city(void);
 
 void empire_object_foreach(void (*callback)(const empire_object *));
 
@@ -67,31 +65,19 @@ int empire_object_get_closest(int x, int y);
 
 void empire_object_set_expanded(int object_id, int new_city_type);
 
-/**
- * @param object_id id for empire object
- * @param resource resource type to check for
- * @return the resource id if enabled, else 0
- */
-int empire_object_city_buys_resource(int object_id, int resource);
-
-/**
- * @param object_id id for empire object
- * @param resource resource type to check for
- * @return the resource id if enabled, else 0
- */
-int empire_object_city_sells_resource(int object_id, int resource);
-
-// sets all of full_empire_object->city_sells_resource for our city based on allowed buildings in the editor
+// sets all resources to sell for our city based on allowed buildings in the editor
 void empire_object_our_city_set_resources_sell(void);
 
+void empire_object_open_trade(empire_object *object);
+
 // changes city type to disable trade with city or postpone it (via empire expansion)
-void empire_object_disable_postpone_trade_city(int object_id, int is_down);
+void empire_object_disable_postpone_trade_city(empire_object *object, int is_down);
 
 // disables default resources that trade cities sell/buy
 void empire_object_trade_cities_disable_default_resources(void);
 
 // toggle resource sell/buy status for empire city trade
-void empire_object_city_toggle_resource(int object_id, int resource, int selling);
+void empire_object_city_toggle_resource(empire_object *object, int resource, int selling);
 
 /**
  * Sets sell/buy limit (amount) for given resource
@@ -100,14 +86,16 @@ void empire_object_city_toggle_resource(int object_id, int resource, int selling
  * @param resource_limit trade limit to set for given resource type
  * @param selling whether it's a resource to sell (1) or buy (0) from the trade city perspective
  */
-void empire_object_city_set_resource_limit(int object_id, int resource, int resource_limit, int selling);
+void empire_object_city_set_resource_limit(empire_object *object, int resource, int resource_limit, int selling);
 
 /**
  * Sets the cost to open trade route with city
  * @param object_id id for empire object
  * @param trade_route_cost cost to open trade route
  */
-void empire_object_city_set_trade_route_cost(int object_id, int trade_route_cost);
+void empire_object_city_set_trade_route_cost(empire_object *object, int trade_route_cost);
+
+int empire_object_is_sea_trade_route(int route_id);
 
 int empire_object_update_animation(const empire_object *obj, int image_id);
 

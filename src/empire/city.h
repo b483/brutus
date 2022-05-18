@@ -23,8 +23,6 @@ void empire_city_clear_all(void);
 
 empire_city *empire_city_get(int city_id);
 
-int empire_city_get_type(int city_id);
-
 int empire_city_get_route_id(int city_id);
 
 int empire_can_import_resource(int resource);

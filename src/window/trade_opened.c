@@ -1,7 +1,7 @@
 #include "trade_opened.h"
 
 #include "core/image_group.h"
-#include "empire/city.h"
+#include "empire/object.h"
 #include "graphics/graphics.h"
 #include "graphics/image_button.h"
 #include "graphics/lang_text.h"
@@ -19,7 +19,7 @@ static image_button image_buttons[] = {
     {522, 252, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1},
 };
 
-static int selected_city;
+empire_object *selected_trade_city = 0;
 
 static void draw_background(void)
 {
@@ -27,7 +27,7 @@ static void draw_background(void)
 
     outer_panel_draw(80, 64, 30, 14);
     lang_text_draw_centered(142, 0, 80, 80, 480, FONT_LARGE_BLACK);
-    if (empire_city_get(selected_city)->is_sea_trade) {
+    if (empire_object_is_sea_trade_route(selected_trade_city->trade_route_id)) {
         lang_text_draw_multiline(142, 1, 112, 120, 416, FONT_NORMAL_BLACK);
         lang_text_draw_multiline(142, 3, 112, 184, 416, FONT_NORMAL_BLACK);
     } else {
@@ -65,7 +65,7 @@ static void button_close(int param1, int param2)
     window_empire_show();
 }
 
-void window_trade_opened_show(int city)
+void window_trade_opened_show(empire_object *trade_city)
 {
     window_type window = {
         WINDOW_TRADE_OPENED,
@@ -73,6 +73,6 @@ void window_trade_opened_show(int city)
         draw_foreground,
         handle_input
     };
-    selected_city = city;
+    selected_trade_city = trade_city;
     window_show(&window);
 }
