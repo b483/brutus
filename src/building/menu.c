@@ -1,6 +1,5 @@
 #include "city/buildings.h"
 #include "core/config.h"
-#include "empire/city.h"
 #include "menu.h"
 #include "scenario/building.h"
 

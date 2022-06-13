@@ -1,20 +1,27 @@
 #include "object.h"
 
+#include "city/buildings.h"
 #include "city/finance.h"
+#include "city/map.h"
+#include "city/message.h"
+#include "city/trade.h"
 #include "core/calc.h"
 #include "core/image.h"
-#include "empire/city.h"
 #include "empire/trade_route.h"
 #include "empire/type.h"
+#include "figuretype/trader.h"
 #include "game/animation.h"
 #include "scenario/data.h"
 #include "scenario/editor.h"
 #include "scenario/empire.h"
+#include "scenario/map.h"
 
 #define MAX_OBJECTS 200
 
 static empire_object objects[MAX_OBJECTS];
 
+static int get_raw_resource(int resource);
+static int generate_trader(empire_object *city);
 
 static void fix_image_ids(void)
 {
@@ -110,6 +117,11 @@ void empire_object_load_state(buffer *buf)
         obj->trade_route_id = buffer_read_u8(buf);
         obj->trade_route_open = buffer_read_u8(buf);
         obj->trade_route_cost = buffer_read_u32(buf);
+        obj->trader_entry_delay = buffer_read_i16(buf);
+        obj->is_sea_trade = buffer_read_u8(buf);
+        for (int f = 0; f < 3; f++) {
+            obj->trader_figure_ids[f] = buffer_read_i16(buf);
+        }
         for (int r = 0; r < RESOURCE_MAX; r++) {
             obj->resource_sell.resource[r] = buffer_read_u8(buf);
             obj->resource_sell.resource_limit[r] = buffer_read_u8(buf);
@@ -146,6 +158,11 @@ void empire_object_save_state(buffer *buf)
         buffer_write_u8(buf, obj->trade_route_id);
         buffer_write_u8(buf, obj->trade_route_open);
         buffer_write_u32(buf, obj->trade_route_cost);
+        buffer_write_i16(buf, obj->trader_entry_delay);
+        buffer_write_u8(buf, obj->is_sea_trade);
+        for (int f = 0; f < 3; f++) {
+            buffer_write_i16(buf, obj->trader_figure_ids[f]);
+        }
         for (int r = 0; r < RESOURCE_MAX; r++) {
             buffer_write_u8(buf, obj->resource_sell.resource[r]);
             buffer_write_u8(buf, obj->resource_sell.resource_limit[r]);
@@ -163,48 +180,34 @@ void empire_object_save_state(buffer *buf)
 
 void empire_object_init_cities(void)
 {
-    empire_city_clear_all();
-    int route_index = 1;
     for (int i = 0; i < MAX_OBJECTS; i++) {
         if (!objects[i].in_use || objects[i].type != EMPIRE_OBJECT_CITY) {
             continue;
         }
         empire_object *obj = &objects[i];
-        empire_city *city = empire_city_get(route_index++);
-        city->in_use = 1;
-        city->type = obj->city_type;
-        city->name_id = obj->city_name_id;
         if (obj->trade_route_id < 0) {
             obj->trade_route_id = 0;
         }
         if (obj->trade_route_id >= 20) {
             obj->trade_route_id = 19;
         }
-        city->route_id = obj->trade_route_id;
-        city->is_open = obj->trade_route_open;
-        city->cost_to_open = obj->trade_route_cost;
-        city->is_sea_trade = empire_object_is_sea_trade_route(obj->trade_route_id);
+        obj->is_sea_trade = empire_object_is_sea_trade_route(obj->trade_route_id);
 
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            city->sells_resource[r] = 0;
-            city->buys_resource[r] = 0;
-            if (city->type != EMPIRE_CITY_OURS && city->type != EMPIRE_CITY_TRADE && city->type != EMPIRE_CITY_FUTURE_TRADE) {
+            if (obj->city_type != EMPIRE_CITY_OURS && obj->city_type != EMPIRE_CITY_TRADE && obj->city_type != EMPIRE_CITY_FUTURE_TRADE) {
                 continue;
             }
             if (obj->resource_sell.resource[r]) {
-                city->sells_resource[r] = 1;
-                trade_route_init(city->route_id, r, obj->resource_sell.resource_limit[r]);
+                trade_route_init(obj->trade_route_id, r, obj->resource_sell.resource_limit[r]);
             }
             if (obj->resource_buy.resource[r]) {
-                city->buys_resource[r] = 1;
-                trade_route_init(city->route_id, r, obj->resource_buy.resource_limit[r]);
+                trade_route_init(obj->trade_route_id, r, obj->resource_buy.resource_limit[r]);
             }
         }
-        city->trader_entry_delay = 4;
-        city->trader_figure_ids[0] = 0;
-        city->trader_figure_ids[1] = 0;
-        city->trader_figure_ids[2] = 0;
-        city->empire_object_id = i;
+        obj->trader_entry_delay = 4;
+        obj->trader_figure_ids[0] = 0;
+        obj->trader_figure_ids[1] = 0;
+        obj->trader_figure_ids[2] = 0;
     }
 }
 
@@ -228,35 +231,20 @@ empire_object *empire_object_get(int object_id)
 }
 
 
+int empire_object_get_trade_route_id(int object_id)
+{
+    return objects[object_id].trade_route_id;
+}
+
+
 empire_object *empire_object_get_for_trade_route(int trade_route_id)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
-        if (objects[i].trade_route_id == trade_route_id) {
+        if (objects[i].in_use && objects[i].type == EMPIRE_OBJECT_CITY && objects[i].trade_route_id == trade_route_id) {
             return &objects[i];
         }
     }
     return 0;
-}
-
-
-empire_object *empire_object_get_our_city(void)
-{
-    for (int i = 0; i < MAX_OBJECTS; i++) {
-        if (objects[i].in_use && objects[i].type == EMPIRE_OBJECT_CITY && objects[i].city_type == EMPIRE_CITY_OURS) {
-            return &objects[i];
-        }
-    }
-    return 0;
-}
-
-
-void empire_object_foreach(void (*callback)(const empire_object *))
-{
-    for (int i = 0; i < MAX_OBJECTS; i++) {
-        if (objects[i].in_use) {
-            callback(&objects[i]);
-        }
-    }
 }
 
 
@@ -318,14 +306,92 @@ int empire_object_get_closest(int x, int y)
 }
 
 
-void empire_object_set_expanded(int object_id, int new_city_type)
+empire_object *empire_object_get_our_city(void)
 {
-    objects[object_id].city_type = new_city_type;
-    if (new_city_type == EMPIRE_CITY_TRADE) {
-        objects[object_id].expanded.image_id = image_group(GROUP_EMPIRE_CITY_TRADE);
-    } else if (new_city_type == EMPIRE_CITY_DISTANT_ROMAN) {
-        objects[object_id].expanded.image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (objects[i].in_use && objects[i].type == EMPIRE_OBJECT_CITY && objects[i].city_type == EMPIRE_CITY_OURS) {
+            return &objects[i];
+        }
     }
+    return 0;
+}
+
+
+void empire_object_foreach(void (*callback)(const empire_object *))
+{
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (objects[i].in_use) {
+            callback(&objects[i]);
+        }
+    }
+}
+
+
+void empire_object_set_expanded(void)
+{
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (!objects[i].in_use || objects[i].type != EMPIRE_OBJECT_CITY) {
+            continue;
+        }
+        if (objects[i].city_type == EMPIRE_CITY_FUTURE_TRADE) {
+            objects[i].city_type = EMPIRE_CITY_TRADE;
+            objects[i].expanded.image_id = image_group(GROUP_EMPIRE_CITY_TRADE);
+        } else if (objects[i].city_type == EMPIRE_CITY_FUTURE_ROMAN) {
+            objects[i].city_type = EMPIRE_CITY_DISTANT_ROMAN;
+            objects[i].expanded.image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
+        } else {
+            continue;
+        }
+    }
+}
+
+
+static int get_animation_offset(int image_id, int current_index)
+{
+    if (current_index <= 0) {
+        current_index = 1;
+    }
+    const image *img = image_get(image_id);
+    int animation_speed = img->animation_speed_id;
+    if (!game_animation_should_advance(animation_speed)) {
+        return current_index;
+    }
+    if (img->animation_can_reverse) {
+        int is_reverse = 0;
+        if (current_index & 0x80) {
+            is_reverse = 1;
+        }
+        int current_sprite = current_index & 0x7f;
+        if (is_reverse) {
+            current_index = current_sprite - 1;
+            if (current_index < 1) {
+                current_index = 1;
+                is_reverse = 0;
+            }
+        } else {
+            current_index = current_sprite + 1;
+            if (current_index > img->num_animation_sprites) {
+                current_index = img->num_animation_sprites;
+                is_reverse = 1;
+            }
+        }
+        if (is_reverse) {
+            current_index = current_index | 0x80;
+        }
+    } else {
+        // Absolutely normal case
+        current_index++;
+        if (current_index > img->num_animation_sprites) {
+            current_index = 1;
+        }
+    }
+    return current_index;
+}
+
+
+int empire_object_update_animation(const empire_object *obj, int image_id)
+{
+    return objects[obj->id].animation_index = get_animation_offset(image_id, obj->animation_index);
 }
 
 
@@ -382,10 +448,19 @@ void empire_object_our_city_set_resources_sell(void)
 }
 
 
-void empire_object_open_trade(empire_object *object)
+void empire_object_trade_cities_disable_default_resources(void)
 {
-    city_finance_process_construction(object->trade_route_cost);
-    object->trade_route_open = 1;
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (!objects[i].in_use || objects[i].city_type != EMPIRE_CITY_TRADE) {
+            continue;
+        }
+        for (int r = 0; r < RESOURCE_MAX; r++) {
+            objects[i].resource_sell.resource[r] = 0;
+            objects[i].resource_sell.resource_limit[r] = 0;
+            objects[i].resource_buy.resource[r] = 0;
+            objects[i].resource_buy.resource_limit[r] = 0;
+        }
+    }
 }
 
 
@@ -407,22 +482,6 @@ void empire_object_disable_postpone_trade_city(empire_object *object, int is_dow
     } else if (object->city_type == EMPIRE_CITY_DISTANT_ROMAN) {
         object->image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
         object->expanded.image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
-    }
-}
-
-
-void empire_object_trade_cities_disable_default_resources(void)
-{
-    for (int i = 0; i < MAX_OBJECTS; i++) {
-        if (!objects[i].in_use || objects[i].city_type != EMPIRE_CITY_TRADE) {
-            continue;
-        }
-        for (int r = 0; r < RESOURCE_MAX; r++) {
-            objects[i].resource_sell.resource[r] = 0;
-            objects[i].resource_sell.resource_limit[r] = 0;
-            objects[i].resource_buy.resource[r] = 0;
-            objects[i].resource_buy.resource_limit[r] = 0;
-        }
     }
 }
 
@@ -473,6 +532,24 @@ void empire_object_city_set_trade_route_cost(empire_object *object, int trade_ro
 }
 
 
+void empire_object_open_trade(empire_object *object)
+{
+    city_finance_process_construction(object->trade_route_cost);
+    object->trade_route_open = 1;
+}
+
+
+int empire_object_trade_route_is_open(int trade_route_id)
+{
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (objects[i].in_use && objects[i].trade_route_id == trade_route_id) {
+            return objects[i].trade_route_open ? 1 : 0;
+        }
+    }
+    return 0;
+}
+
+
 int empire_object_is_sea_trade_route(int route_id)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
@@ -488,49 +565,246 @@ int empire_object_is_sea_trade_route(int route_id)
     return 0;
 }
 
-static int get_animation_offset(int image_id, int current_index)
+
+void empire_object_city_reset_yearly_trade_amounts(void)
 {
-    if (current_index <= 0) {
-        current_index = 1;
-    }
-    const image *img = image_get(image_id);
-    int animation_speed = img->animation_speed_id;
-    if (!game_animation_should_advance(animation_speed)) {
-        return current_index;
-    }
-    if (img->animation_can_reverse) {
-        int is_reverse = 0;
-        if (current_index & 0x80) {
-            is_reverse = 1;
-        }
-        int current_sprite = current_index & 0x7f;
-        if (is_reverse) {
-            current_index = current_sprite - 1;
-            if (current_index < 1) {
-                current_index = 1;
-                is_reverse = 0;
-            }
-        } else {
-            current_index = current_sprite + 1;
-            if (current_index > img->num_animation_sprites) {
-                current_index = img->num_animation_sprites;
-                is_reverse = 1;
-            }
-        }
-        if (is_reverse) {
-            current_index = current_index | 0x80;
-        }
-    } else {
-        // Absolutely normal case
-        current_index++;
-        if (current_index > img->num_animation_sprites) {
-            current_index = 1;
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (objects[i].in_use && objects[i].trade_route_open) {
+            trade_route_reset_traded(objects[i].trade_route_id);
         }
     }
-    return current_index;
 }
 
-int empire_object_update_animation(const empire_object *obj, int image_id)
+
+int empire_object_city_count_wine_sources(void)
 {
-    return objects[obj->id].animation_index = get_animation_offset(image_id, obj->animation_index);
+    int sources = 0;
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (objects[i].in_use
+            && objects[i].trade_route_open
+            && objects[i].resource_sell.resource[RESOURCE_WINE]) {
+            sources++;
+        }
+    }
+    return sources;
+}
+
+
+int empire_can_import_resource(int resource)
+{
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (objects[i].in_use
+            && objects[i].city_type == EMPIRE_CITY_TRADE
+            && objects[i].trade_route_open
+            && objects[i].resource_sell.resource[resource]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+int empire_can_export_resource(int resource)
+{
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (objects[i].in_use
+            && objects[i].city_type == EMPIRE_CITY_TRADE
+            && objects[i].trade_route_open
+            && objects[i].resource_buy.resource[resource]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+static int get_raw_resource(int resource)
+{
+    switch (resource) {
+        case RESOURCE_POTTERY:
+            return RESOURCE_CLAY;
+        case RESOURCE_FURNITURE:
+            return RESOURCE_TIMBER;
+        case RESOURCE_OIL:
+            return RESOURCE_OLIVES;
+        case RESOURCE_WINE:
+            return RESOURCE_VINES;
+        case RESOURCE_WEAPONS:
+            return RESOURCE_IRON;
+        default:
+            return resource;
+    }
+}
+
+
+int empire_object_our_city_can_produce_resource(int resource)
+{
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (objects[i].in_use && objects[i].city_type == EMPIRE_CITY_OURS) {
+            if (objects[i].resource_sell.resource[resource]) {
+                return 1;
+            } else {
+                // there's only one of our city per empire state, no need to search the rest of the list
+                return 0;
+            }
+        }
+    }
+    // our city wasn't found or not in use (shouldn't happen)
+    return 0;
+}
+
+
+int empire_can_produce_resource(int resource)
+{
+    int raw_resource = get_raw_resource(resource);
+
+    // if raw resource, available if we can either produce or import it
+    if (resource == raw_resource) {
+        return (empire_object_our_city_can_produce_resource(resource) || empire_can_import_resource(resource));
+    }
+    // if finished resource, available if we can either produce the raw material or import it, and we can produce the finished material (workshop is allowed)
+    else {
+        return (
+            (empire_object_our_city_can_produce_resource(raw_resource) || empire_can_import_resource(raw_resource))
+            && empire_object_our_city_can_produce_resource(resource)
+        );
+    }
+}
+
+
+static int generate_trader(empire_object *city)
+{
+    int max_traders = 0;
+    int num_resources = 0;
+    for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+        if (city->resource_buy.resource[r] || city->resource_sell.resource[r]) {
+            ++num_resources;
+            switch (trade_route_limit(city->trade_route_id, r)) {
+                case 15: max_traders += 1; break;
+                case 25: max_traders += 2; break;
+                case 40: max_traders += 3; break;
+            }
+        }
+    }
+    if (num_resources > 1) {
+        if (max_traders % num_resources) {
+            max_traders = max_traders / num_resources + 1;
+        } else {
+            max_traders = max_traders / num_resources;
+        }
+    }
+    if (max_traders <= 0) {
+        return 0;
+    }
+
+    int index;
+    if (max_traders == 1) {
+        if (!city->trader_figure_ids[0]) {
+            index = 0;
+        } else {
+            return 0;
+        }
+    } else if (max_traders == 2) {
+        if (!city->trader_figure_ids[0]) {
+            index = 0;
+        } else if (!city->trader_figure_ids[1]) {
+            index = 1;
+        } else {
+            return 0;
+        }
+    } else { // 3
+        if (!city->trader_figure_ids[0]) {
+            index = 0;
+        } else if (!city->trader_figure_ids[1]) {
+            index = 1;
+        } else if (!city->trader_figure_ids[2]) {
+            index = 2;
+        } else {
+            return 0;
+        }
+    }
+
+    if (city->trader_entry_delay > 0) {
+        city->trader_entry_delay--;
+        return 0;
+    }
+    city->trader_entry_delay = city->is_sea_trade ? 30 : 4;
+
+    if (city->is_sea_trade) {
+        // generate ship
+        if (city_buildings_has_working_dock() && scenario_map_has_river_entry()
+            && !city_trade_has_sea_trade_problems()) {
+            map_point river_entry = scenario_map_river_entry();
+            city->trader_figure_ids[index] = figure_create_trade_ship(river_entry.x, river_entry.y, city->id);
+            return 1;
+        }
+    } else {
+        // generate caravan and donkeys
+        if (!city_trade_has_land_trade_problems()) {
+            // caravan head
+            const map_tile *entry = city_map_entry_point();
+            city->trader_figure_ids[index] = figure_create_trade_caravan(entry->x, entry->y, city->id);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+void empire_object_city_generate_trader(void)
+{
+    for (int i = 1; i < MAX_OBJECTS; i++) {
+        if (!objects[i].in_use || !objects[i].trade_route_open) {
+            continue;
+        }
+        if (objects[i].is_sea_trade) {
+            if (!city_buildings_has_working_dock()) {
+                // delay of 384 = 1 year
+                city_message_post_with_message_delay(MESSAGE_CAT_NO_WORKING_DOCK, 1, MESSAGE_NO_WORKING_DOCK, 384);
+                continue;
+            }
+            if (!scenario_map_has_river_entry()) {
+                continue;
+            }
+            city_trade_add_sea_trade_route();
+        } else {
+            city_trade_add_land_trade_route();
+        }
+        if (generate_trader(&objects[i])) {
+            break;
+        }
+    }
+}
+
+
+void empire_object_city_remove_trader(int city_id, int figure_id)
+{
+    for (int i = 0; i < 3; i++) {
+        if (objects[city_id].trader_figure_ids[i] == figure_id) {
+            objects[city_id].trader_figure_ids[i] = 0;
+        }
+    }
+}
+
+
+int empire_object_get_vulnerable_roman_city(void)
+{
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (objects[i].in_use && objects[i].city_type == EMPIRE_CITY_VULNERABLE_ROMAN) {
+            return i;
+        }
+    }
+    return 0;
+}
+
+
+void empire_object_city_set_vulnerable(int object_id)
+{
+    objects[object_id].city_type = EMPIRE_CITY_VULNERABLE_ROMAN;
+}
+
+
+void empire_object_city_set_foreign(int object_id)
+{
+    objects[object_id].city_type = EMPIRE_CITY_DISTANT_FOREIGN;
 }

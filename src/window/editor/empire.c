@@ -1,7 +1,6 @@
 #include "empire.h"
 
 #include "core/image_group_editor.h"
-#include "empire/city.h"
 #include "empire/empire.h"
 #include "empire/object.h"
 #include "empire/trade_route.h"
@@ -232,9 +231,8 @@ static void draw_empire_object(const empire_object *obj)
     }
 
     if (obj->type == EMPIRE_OBJECT_CITY) {
-        const empire_city *city = empire_city_get(empire_city_get_for_object(obj->id));
-        if (city->type == EMPIRE_CITY_DISTANT_FOREIGN ||
-            city->type == EMPIRE_CITY_FUTURE_ROMAN) {
+        if (obj->city_type == EMPIRE_CITY_DISTANT_FOREIGN ||
+            obj->city_type == EMPIRE_CITY_FUTURE_ROMAN) {
             image_id = image_group(GROUP_EDITOR_EMPIRE_FOREIGN_CITY);
         }
     } else if (obj->type == EMPIRE_OBJECT_BATTLE_ICON) {
@@ -441,7 +439,7 @@ static void determine_selected_object(const mouse *m)
         data.finished_scroll = 0;
         return;
     }
-    empire_select_object(m->x - data.x_min - 16, m->y - data.y_min - 16);
+    data.selected_object = empire_select_object(m->x - data.x_min - 16, m->y - data.y_min - 16);
     window_invalidate();
 }
 
@@ -473,7 +471,6 @@ static void handle_input(const mouse *m, const hotkeys *h)
         if (!generic_buttons_handle_mouse(m, data.x_min + 20, data.y_max - 100,
             generic_button_ok, 1, &data.focus_ok_button_id)) {
             determine_selected_object(m);
-            data.selected_object = empire_selected_object();
             if (data.selected_object && data.selected_object->type == EMPIRE_OBJECT_CITY) {
                 if (data.selected_object->trade_route_id) {
                     arrow_buttons_handle_mouse(m, 0, 0, arrow_buttons_set_city_type, 2, 0);
@@ -489,8 +486,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
                     }
                 }
                 if (input_go_back_requested(m, h)) {
-                    empire_clear_selected_object();
-                    data.selected_object = empire_selected_object();
+                    data.selected_object = 0;
                     window_invalidate();
                 }
             } else if (input_go_back_requested(m, h)) {

@@ -3,7 +3,7 @@
 #include "building/building.h"
 #include "city/emperor.h"
 #include "core/random.h"
-#include "empire/city.h"
+#include "empire/object.h"
 #include "figure/name.h"
 #include "figure/route.h"
 #include "figure/trader.h"
@@ -101,7 +101,7 @@ void figure_delete(figure *f)
             break;
     }
     if (f->empire_city_id) {
-        empire_city_remove_trader(f->empire_city_id, f->id);
+        empire_object_city_remove_trader(f->empire_city_id, f->id);
     }
     if (f->immigrant_building_id) {
         b->immigrant_figure_id = 0;

@@ -5,7 +5,7 @@
 #include "building/model.h"
 #include "city/data_private.h"
 #include "core/calc.h"
-#include "empire/city.h"
+#include "empire/object.h"
 #include "map/road_access.h"
 #include "scenario/building.h"
 #include "scenario/property.h"

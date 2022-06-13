@@ -7,7 +7,6 @@
 #include "city/military.h"
 #include "city/ratings.h"
 #include "core/calc.h"
-#include "empire/city.h"
 #include "empire/object.h"
 #include "empire/type.h"
 #include "figure/formation_legion.h"

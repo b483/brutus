@@ -28,7 +28,7 @@
 #include "city/victory.h"
 #include "core/random.h"
 #include "editor/editor.h"
-#include "empire/city.h"
+#include "empire/object.h"
 #include "figure/formation.h"
 #include "figuretype/crime.h"
 #include "game/file.h"
@@ -61,7 +61,7 @@ static void advance_year(void)
     scenario_empire_process_expansion();
     city_population_request_yearly_update();
     city_finance_handle_year_change();
-    empire_city_reset_yearly_trade_amounts();
+    empire_object_city_reset_yearly_trade_amounts();
     building_maintenance_update_fire_direction();
     city_ratings_update(1);
     city_gods_reset_neptune_blessing();

@@ -2,7 +2,7 @@
 
 #include "building/building.h"
 #include "city/view.h"
-#include "empire/city.h"
+#include "empire/object.h"
 #include "figure/figure.h"
 #include "figure/formation.h"
 #include "figure/phrase.h"
@@ -41,7 +41,7 @@ static generic_button figure_buttons[] = {
 };
 
 static struct {
-    color_t figure_images[7][48*48];
+    color_t figure_images[7][48 * 48];
     int focus_button_id;
     building_info_context *context_for_callback;
 } data;
@@ -77,9 +77,9 @@ static figure *get_head_of_caravan(figure *f)
 static void draw_trader(building_info_context *c, figure *f)
 {
     f = get_head_of_caravan(f);
-    const empire_city *city = empire_city_get(f->empire_city_id);
+    const empire_object *city = empire_object_get(f->empire_city_id);
     int width = lang_text_draw(64, f->type, c->x_offset + 40, c->y_offset + 110, FONT_NORMAL_BROWN);
-    lang_text_draw(21, city->name_id, c->x_offset + 40 + width, c->y_offset + 110, FONT_NORMAL_BROWN);
+    lang_text_draw(21, city->city_name_id, c->x_offset + 40 + width, c->y_offset + 110, FONT_NORMAL_BROWN);
 
     width = lang_text_draw(129, 1, c->x_offset + 40, c->y_offset + 132, FONT_NORMAL_BROWN);
     lang_text_draw_amount(8, 10, f->type == FIGURE_TRADE_SHIP ? 12 : 8,
@@ -147,7 +147,7 @@ static void draw_trader(building_info_context *c, figure *f)
         int y_base = c->y_offset + 180;
         width = lang_text_draw(129, 2, c->x_offset + 40, y_base, FONT_NORMAL_BROWN);
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            if (city->buys_resource[r]) {
+            if (city->resource_buy.resource[r]) {
                 int image_id = image_group(GROUP_RESOURCE_ICONS) + r + resource_image_offset(r, RESOURCE_IMAGE_ICON);
                 image_draw(image_id, c->x_offset + 40 + width, y_base - 3);
                 width += 25;
@@ -157,7 +157,7 @@ static void draw_trader(building_info_context *c, figure *f)
         y_base = c->y_offset + 210;
         width = lang_text_draw(129, 3, c->x_offset + 40, y_base, FONT_NORMAL_BROWN);
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            if (city->sells_resource[r]) {
+            if (city->resource_sell.resource[r]) {
                 int image_id = image_group(GROUP_RESOURCE_ICONS) + r + resource_image_offset(r, RESOURCE_IMAGE_ICON);
                 image_draw(image_id, c->x_offset + 40 + width, y_base - 3);
                 width += 25;
@@ -376,7 +376,7 @@ static void draw_figure_in_city(int figure_id, pixel_coordinate *coord)
 void window_building_prepare_figure_list(building_info_context *c)
 {
     if (c->figure.count > 0) {
-        pixel_coordinate coord = {0, 0};
+        pixel_coordinate coord = { 0, 0 };
         for (int i = 0; i < c->figure.count; i++) {
             draw_figure_in_city(c->figure.figure_ids[i], &coord);
             graphics_save_to_buffer(coord.x, coord.y, 48, 48, data.figure_images[i]);

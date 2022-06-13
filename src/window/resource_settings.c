@@ -4,7 +4,7 @@
 #include "city/resource.h"
 #include "core/calc.h"
 #include "core/image_group.h"
-#include "empire/city.h"
+#include "empire/object.h"
 #include "graphics/arrow_button.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"

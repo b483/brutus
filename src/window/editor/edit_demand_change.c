@@ -2,7 +2,7 @@
 
 #include "core/lang.h"
 #include "core/string.h"
-#include "empire/city.h"
+#include "empire/object.h"
 #include "empire/type.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
@@ -39,7 +39,7 @@ static generic_button buttons[] = {
     {320, 230, 100, 25, button_save, button_none}
 };
 
-static const uint8_t UNKNOWN[4] = {'?', '?', '?', 0};
+static const uint8_t UNKNOWN[4] = { '?', '?', '?', 0 };
 static uint8_t route_display_names[MAX_ROUTES][NAME_LENGTH];
 
 static struct {
@@ -68,9 +68,9 @@ static void init(int id)
 
     data.num_routes = 0;
     for (int i = 1; i < MAX_ROUTES; i++) {
-        empire_city *city = empire_city_get(empire_city_get_for_trade_route(i));
-        if (city && (city->type == EMPIRE_CITY_TRADE || city->type == EMPIRE_CITY_FUTURE_TRADE)) {
-            create_display_name(i, lang_get_string(21, city->name_id));
+        empire_object *object = empire_object_get_for_trade_route(i);
+        if (object && (object->city_type == EMPIRE_CITY_TRADE || object->city_type == EMPIRE_CITY_FUTURE_TRADE)) {
+            create_display_name(i, lang_get_string(21, object->city_name_id));
 
             data.route_ids[data.num_routes] = i;
             data.route_names[data.num_routes] = route_display_names[i];

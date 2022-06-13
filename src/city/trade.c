@@ -3,7 +3,7 @@
 #include "building/count.h"
 #include "city/constants.h"
 #include "city/data_private.h"
-#include "empire/city.h"
+#include "empire/object.h"
 
 void city_trade_update(void)
 {
@@ -12,7 +12,7 @@ void city_trade_update(void)
     // Wine types
     city_data.resource.wine_types_available = building_count_industry_total(RESOURCE_WINE) > 0 ? 1 : 0;
     if (city_data.resource.trade_status[RESOURCE_WINE] == TRADE_STATUS_IMPORT) {
-        city_data.resource.wine_types_available += empire_city_count_wine_sources();
+        city_data.resource.wine_types_available += empire_object_city_count_wine_sources();
     }
     // Update trade problems
     if (city_data.trade.land_trade_problem_duration > 0) {
@@ -25,7 +25,7 @@ void city_trade_update(void)
     } else {
         city_data.trade.sea_trade_problem_duration = 0;
     }
-    empire_city_generate_trader();
+    empire_object_city_generate_trader();
 }
 
 void city_trade_add_land_trade_route(void)

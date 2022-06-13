@@ -2,7 +2,7 @@
 
 #include "city/message.h"
 #include "core/random.h"
-#include "empire/city.h"
+#include "empire/object.h"
 #include "empire/trade_route.h"
 #include "game/time.h"
 #include "scenario/data.h"
@@ -29,18 +29,17 @@ void scenario_demand_change_process(void)
         }
         int route = scenario.demand_changes[i].route_id;
         int resource = scenario.demand_changes[i].resource;
-        int city_id = empire_city_get_for_trade_route(route);
-        if (city_id < 0) city_id = 0;
+        empire_object *object = empire_object_get_for_trade_route(route);
         if (scenario.demand_changes[i].is_rise) {
-            if (trade_route_increase_limit(route, resource) && empire_city_is_trade_route_open(route)) {
-                city_message_post(1, MESSAGE_INCREASED_TRADING, city_id, resource);
+            if (trade_route_increase_limit(route, resource) && empire_object_trade_route_is_open(route)) {
+                city_message_post(1, MESSAGE_INCREASED_TRADING, object->id, resource);
             }
         } else {
-            if (trade_route_decrease_limit(route, resource) && empire_city_is_trade_route_open(route)) {
+            if (trade_route_decrease_limit(route, resource) && empire_object_trade_route_is_open(route)) {
                 if (trade_route_limit(route, resource) > 0) {
-                    city_message_post(1, MESSAGE_DECREASED_TRADING, city_id, resource);
+                    city_message_post(1, MESSAGE_DECREASED_TRADING, object->id, resource);
                 } else {
-                    city_message_post(1, MESSAGE_TRADE_STOPPED, city_id, resource);
+                    city_message_post(1, MESSAGE_TRADE_STOPPED, object->id, resource);
                 }
             }
         }

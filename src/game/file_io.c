@@ -13,7 +13,6 @@
 #include "core/dir.h"
 #include "core/random.h"
 #include "core/zip.h"
-#include "empire/city.h"
 #include "empire/empire.h"
 #include "empire/object.h"
 #include "empire/trade_prices.h"
@@ -118,7 +117,7 @@ typedef struct {
     buffer *city_graph_order;
     buffer *emperor_change_time;
     buffer *empire;
-    buffer *empire_cities;
+    buffer *empire_objects;
     buffer *building_count_industry;
     buffer *trade_prices;
     buffer *figure_names;
@@ -258,8 +257,8 @@ static void init_savegame_data(void)
     state->building_count_culture1 = create_savegame_piece(132, 0);
     state->city_graph_order = create_savegame_piece(8, 0);
     state->emperor_change_time = create_savegame_piece(8, 0);
-    state->empire = create_savegame_piece(12, 0);
-    state->empire_cities = create_savegame_piece(2706, 1);
+    state->empire = create_savegame_piece(8, 0);
+    state->empire_objects = create_savegame_piece(18400, 1);
     state->building_count_industry = create_savegame_piece(128, 0);
     state->trade_prices = create_savegame_piece(128, 0);
     state->figure_names = create_savegame_piece(84, 0);
@@ -389,7 +388,7 @@ static void savegame_load_from_state(savegame_state *state)
     scenario_emperor_change_load_state(state->emperor_change_time, state->emperor_change_state);
 
     empire_load_state(state->empire);
-    empire_city_load_state(state->empire_cities);
+    empire_object_load_state(state->empire_objects);
     trade_prices_load_state(state->trade_prices);
     figure_name_load_state(state->figure_names);
     city_culture_load_state(state->culture_coverage);
@@ -467,7 +466,7 @@ static void savegame_save_to_state(savegame_state *state)
 
     scenario_emperor_change_save_state(state->emperor_change_time, state->emperor_change_state);
     empire_save_state(state->empire);
-    empire_city_save_state(state->empire_cities);
+    empire_object_save_state(state->empire_objects);
     trade_prices_save_state(state->trade_prices);
     figure_name_save_state(state->figure_names);
     city_culture_save_state(state->culture_coverage);

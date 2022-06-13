@@ -9,7 +9,7 @@
 #include "city/resource.h"
 #include "city/warning.h"
 #include "core/calc.h"
-#include "empire/city.h"
+#include "empire/object.h"
 #include "map/grid.h"
 #include "map/road_access.h"
 #include "map/terrain.h"
@@ -169,7 +169,7 @@ static void check_iron_access(int type)
         building_count_industry_active(RESOURCE_IRON) <= 0) {
         if (city_resource_count(RESOURCE_WEAPONS) <= 0 && city_resource_count(RESOURCE_IRON) <= 0) {
             show(WARNING_IRON_NEEDED);
-            if (empire_can_produce_resource(RESOURCE_IRON)) {
+            if (empire_object_our_city_can_produce_resource(RESOURCE_IRON)) {
                 show(WARNING_BUILD_IRON_MINE);
             } else if (!empire_can_import_resource(RESOURCE_IRON)) {
                 show(WARNING_OPEN_TRADE_TO_IMPORT);
@@ -186,7 +186,7 @@ static void check_vines_access(int type)
         building_count_industry_active(RESOURCE_VINES) <= 0) {
         if (city_resource_count(RESOURCE_WINE) <= 0 && city_resource_count(RESOURCE_VINES) <= 0) {
             show(WARNING_VINES_NEEDED);
-            if (empire_can_produce_resource(RESOURCE_VINES)) {
+            if (empire_object_our_city_can_produce_resource(RESOURCE_VINES)) {
                 show(WARNING_BUILD_VINES_FARM);
             } else if (!empire_can_import_resource(RESOURCE_VINES)) {
                 show(WARNING_OPEN_TRADE_TO_IMPORT);
@@ -203,7 +203,7 @@ static void check_olives_access(int type)
         building_count_industry_active(RESOURCE_OLIVES) <= 0) {
         if (city_resource_count(RESOURCE_OIL) <= 0 && city_resource_count(RESOURCE_OLIVES) <= 0) {
             show(WARNING_OLIVES_NEEDED);
-            if (empire_can_produce_resource(RESOURCE_OLIVES)) {
+            if (empire_object_our_city_can_produce_resource(RESOURCE_OLIVES)) {
                 show(WARNING_BUILD_OLIVE_FARM);
             } else if (!empire_can_import_resource(RESOURCE_OLIVES)) {
                 show(WARNING_OPEN_TRADE_TO_IMPORT);
@@ -220,7 +220,7 @@ static void check_timber_access(int type)
         building_count_industry_active(RESOURCE_TIMBER) <= 0) {
         if (city_resource_count(RESOURCE_FURNITURE) <= 0 && city_resource_count(RESOURCE_TIMBER) <= 0) {
             show(WARNING_TIMBER_NEEDED);
-            if (empire_can_produce_resource(RESOURCE_TIMBER)) {
+            if (empire_object_our_city_can_produce_resource(RESOURCE_TIMBER)) {
                 show(WARNING_BUILD_TIMBER_YARD);
             } else if (!empire_can_import_resource(RESOURCE_TIMBER)) {
                 show(WARNING_OPEN_TRADE_TO_IMPORT);
@@ -237,7 +237,7 @@ static void check_clay_access(int type)
         building_count_industry_active(RESOURCE_CLAY) <= 0) {
         if (city_resource_count(RESOURCE_POTTERY) <= 0 && city_resource_count(RESOURCE_CLAY) <= 0) {
             show(WARNING_CLAY_NEEDED);
-            if (empire_can_produce_resource(RESOURCE_CLAY)) {
+            if (empire_object_our_city_can_produce_resource(RESOURCE_CLAY)) {
                 show(WARNING_BUILD_CLAY_PIT);
             } else if (!empire_can_import_resource(RESOURCE_CLAY)) {
                 show(WARNING_OPEN_TRADE_TO_IMPORT);

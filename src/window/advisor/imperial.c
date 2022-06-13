@@ -5,7 +5,7 @@
 #include "city/military.h"
 #include "city/ratings.h"
 #include "city/resource.h"
-#include "empire/city.h"
+#include "empire/object.h"
 #include "figure/formation_legion.h"
 #include "graphics/generic_button.h"
 #include "graphics/image.h"
@@ -110,7 +110,7 @@ static int draw_background(void)
         button_border_draw(38, 96, 560, 40, 0);
         image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_WEAPONS, 50, 106);
         width = lang_text_draw(52, 72, 80, 102, FONT_NORMAL_WHITE);
-        lang_text_draw(21, empire_city_get(city_military_distant_battle_city())->name_id,
+        lang_text_draw(21, empire_object_get(city_military_distant_battle_city())->city_name_id,
             80 + width, 102, FONT_NORMAL_WHITE);
         int strength_text_id;
         int enemy_strength = city_military_distant_battle_enemy_strength();
@@ -224,8 +224,7 @@ static void button_gift_to_emperor(int param1, int param2)
 }
 
 static void confirm_nothing(int accepted)
-{
-}
+{}
 
 static void confirm_send_troops(int accepted)
 {

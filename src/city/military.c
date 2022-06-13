@@ -6,7 +6,7 @@
 #include "city/message.h"
 #include "city/ratings.h"
 #include "core/calc.h"
-#include "empire/city.h"
+#include "empire/object.h"
 #include "figure/formation.h"
 #include "figure/formation_legion.h"
 #include "scenario/building.h"
@@ -83,7 +83,7 @@ void city_military_decrease_native_attack_duration(void)
 
 void city_military_determine_distant_battle_city(void)
 {
-    city_data.distant_battle.city = empire_city_get_vulnerable_roman();
+    city_data.distant_battle.city = empire_object_get_vulnerable_roman_city();
 }
 
 int city_military_distant_battle_city(void)
@@ -191,14 +191,14 @@ static void update_time_traveled(void)
 static void set_city_vulnerable(void)
 {
     if (city_data.distant_battle.city) {
-        empire_city_set_vulnerable(city_data.distant_battle.city);
+        empire_object_city_set_vulnerable(city_data.distant_battle.city);
     }
 }
 
 static void set_city_foreign(void)
 {
     if (city_data.distant_battle.city) {
-        empire_city_set_foreign(city_data.distant_battle.city);
+        empire_object_city_set_foreign(city_data.distant_battle.city);
     }
     city_data.distant_battle.city_foreign_months_left = 24;
 }

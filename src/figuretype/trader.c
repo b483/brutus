@@ -12,7 +12,7 @@
 #include "city/trade.h"
 #include "core/calc.h"
 #include "core/image.h"
-#include "empire/city.h"
+#include "empire/object.h"
 #include "empire/empire.h"
 #include "empire/trade_prices.h"
 #include "empire/trade_route.h"
@@ -381,7 +381,7 @@ void figure_trade_caravan_action(figure *f)
                 if (figure_trade_caravan_can_buy(f, f->destination_building_id, f->empire_city_id)) {
                     int resource = trader_get_buy_resource(f->destination_building_id, f->empire_city_id);
                     if (resource) {
-                        trade_route_increase_traded(empire_city_get_route_id(f->empire_city_id), resource);
+                        trade_route_increase_traded(empire_object_get_trade_route_id(f->empire_city_id), resource);
                         trader_record_bought_resource(f->trader_id, resource);
                         f->trader_amount_bought++;
                     } else {
@@ -393,7 +393,7 @@ void figure_trade_caravan_action(figure *f)
                 if (figure_trade_caravan_can_sell(f, f->destination_building_id, f->empire_city_id)) {
                     int resource = trader_get_sell_resource(f->destination_building_id, f->empire_city_id);
                     if (resource) {
-                        trade_route_increase_traded(empire_city_get_route_id(f->empire_city_id), resource);
+                        trade_route_increase_traded(empire_object_get_trade_route_id(f->empire_city_id), resource);
                         trader_record_sold_resource(f->trader_id, resource);
                         f->loads_sold_or_carrying++;
                     } else {

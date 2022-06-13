@@ -7,7 +7,7 @@
 #include "city/trade.h"
 #include "core/calc.h"
 #include "core/image.h"
-#include "empire/city.h"
+#include "empire/object.h"
 #include "empire/empire.h"
 #include "empire/trade_route.h"
 #include "figure/combat.h"
@@ -24,7 +24,7 @@ static int try_import_resource(int building_id, int resource, int city_id)
         return 0;
     }
 
-    int route_id = empire_city_get_route_id(city_id);
+    int route_id = empire_object_get_trade_route_id(city_id);
     // try existing storage bay with the same resource
     building *space = warehouse;
     for (int i = 0; i < 8; i++) {
@@ -64,7 +64,7 @@ static int try_export_resource(int building_id, int resource, int city_id)
         space = building_next(space);
         if (space->id > 0) {
             if (space->loads_stored && space->subtype.warehouse_resource_id == resource) {
-                trade_route_increase_traded(empire_city_get_route_id(city_id), resource);
+                trade_route_increase_traded(empire_object_get_trade_route_id(city_id), resource);
                 building_warehouse_space_remove_export(space, resource);
                 return 1;
             }

@@ -1,7 +1,7 @@
 #include "empire.h"
 
 #include "city/message.h"
-#include "empire/city.h"
+#include "empire/object.h"
 #include "game/time.h"
 #include "scenario/data.h"
 
@@ -37,7 +37,7 @@ void scenario_empire_process_expansion(void)
         return;
     }
 
-    empire_city_expand_empire();
+    empire_object_set_expanded();
 
     scenario.empire.is_expanded = 1;
     city_message_post(1, MESSAGE_EMPIRE_HAS_EXPANDED, 0, 0);

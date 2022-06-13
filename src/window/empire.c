@@ -4,7 +4,6 @@
 #include "city/military.h"
 #include "city/warning.h"
 #include "core/image_group.h"
-#include "empire/city.h"
 #include "empire/empire.h"
 #include "empire/object.h"
 #include "empire/trade_route.h"
@@ -81,7 +80,7 @@ static struct {
 static void init(void)
 {
     data.selected_button = 0;
-    data.selected_object = empire_object_get(0);
+    data.selected_object = 0;
     data.focus_button_id = 0;
 }
 
@@ -219,6 +218,17 @@ static void draw_trade_city_info(void)
     }
 }
 
+static void draw_city_name(void)
+{
+    int image_base = image_group(GROUP_EMPIRE_PANELS);
+    image_draw(image_base + 6, data.x_min + 2, data.y_max - 199);
+    image_draw(image_base + 7, data.x_max - 84, data.y_max - 199);
+    image_draw(image_base + 8, (data.x_min + data.x_max - 332) / 2, data.y_max - 181);
+    lang_text_draw_centered(21, data.selected_object->city_name_id,
+        (data.x_min + data.x_max - 332) / 2 + 64, data.y_max - 118, 268, FONT_LARGE_BLACK);
+
+}
+
 static void draw_city_info(void)
 {
     int x_offset = (data.x_min + data.x_max - 240) / 2;
@@ -251,31 +261,24 @@ static void draw_city_info(void)
 
 static void draw_roman_army_info(void)
 {
-    if (city_military_distant_battle_roman_army_is_traveling()) {
-        if (city_military_distant_battle_roman_months_traveled() == data.selected_object->distant_battle_travel_months) {
-            int x_offset = (data.x_min + data.x_max - 240) / 2;
-            int y_offset = data.y_max - 68;
-            int text_id;
-            if (city_military_distant_battle_roman_army_is_traveling_forth()) {
-                text_id = 15;
-            } else {
-                text_id = 16;
-            }
-            lang_text_draw_multiline(47, text_id, x_offset, y_offset, 240, FONT_NORMAL_GREEN);
-        }
+    int x_offset = (data.x_min + data.x_max - 240) / 2;
+    int y_offset = data.y_max - 68;
+    int text_id;
+    if (city_military_distant_battle_roman_army_is_traveling_forth()) {
+        text_id = 15;
+    } else {
+        text_id = 16;
     }
+    lang_text_draw_multiline(47, text_id, x_offset, y_offset, 240, FONT_NORMAL_GREEN);
+
 }
 
 static void draw_enemy_army_info(void)
 {
-    if (city_military_months_until_distant_battle() > 0) {
-        if (city_military_distant_battle_enemy_months_traveled() == data.selected_object->distant_battle_travel_months) {
-            lang_text_draw_multiline(47, 14,
-                (data.x_min + data.x_max - 240) / 2,
-                data.y_max - 68,
-                240, FONT_NORMAL_GREEN);
-        }
-    }
+    lang_text_draw_multiline(47, 14,
+        (data.x_min + data.x_max - 240) / 2,
+        data.y_max - 68,
+        240, FONT_NORMAL_GREEN);
 }
 
 static void draw_object_info(void)
@@ -283,17 +286,28 @@ static void draw_object_info(void)
     if (data.selected_object) {
         switch (data.selected_object->type) {
             case EMPIRE_OBJECT_CITY:
+                draw_city_name();
                 draw_city_info();
                 break;
             case EMPIRE_OBJECT_ROMAN_ARMY:
-                draw_roman_army_info();
-                break;
+                if (city_military_distant_battle_roman_army_is_traveling()) {
+                    if (city_military_distant_battle_roman_months_traveled() == data.selected_object->distant_battle_travel_months) {
+                        draw_roman_army_info();
+                        break;
+                    }
+                }
             case EMPIRE_OBJECT_ENEMY_ARMY:
-                draw_enemy_army_info();
-                break;
+                if (city_military_months_until_distant_battle() > 0) {
+                    if (city_military_distant_battle_enemy_months_traveled() == data.selected_object->distant_battle_travel_months) {
+                        draw_enemy_army_info();
+                        break;
+                    }
+                }
+            default:
+                lang_text_draw_centered(47, 8, data.x_min, data.y_max - 65, data.x_max - data.x_min, FONT_NORMAL_GREEN);
         }
     } else {
-        lang_text_draw_centered(47, 8, data.x_min, data.y_max - 48, data.x_max - data.x_min, FONT_NORMAL_GREEN);
+        lang_text_draw_centered(47, 8, data.x_min, data.y_max - 65, data.x_max - data.x_min, FONT_NORMAL_GREEN);
     }
 }
 
@@ -314,7 +328,7 @@ static void draw_background(void)
 static void draw_empire_object(const empire_object *obj)
 {
     if (obj->type == EMPIRE_OBJECT_LAND_TRADE_ROUTE || obj->type == EMPIRE_OBJECT_SEA_TRADE_ROUTE) {
-        if (!empire_city_is_trade_route_open(obj->trade_route_id)) {
+        if (!empire_object_trade_route_is_open(obj->trade_route_id)) {
             return;
         }
     }
@@ -330,15 +344,14 @@ static void draw_empire_object(const empire_object *obj)
     }
 
     if (obj->type == EMPIRE_OBJECT_CITY) {
-        const empire_city *city = empire_city_get(empire_city_get_for_object(obj->id));
-        if (city->type == EMPIRE_CITY_DISTANT_FOREIGN ||
-            city->type == EMPIRE_CITY_FUTURE_ROMAN) {
+        if (obj->city_type == EMPIRE_CITY_DISTANT_FOREIGN ||
+            obj->city_type == EMPIRE_CITY_FUTURE_ROMAN) {
             image_id = image_group(GROUP_EMPIRE_FOREIGN_CITY);
-        } else if (city->type == EMPIRE_CITY_TRADE) {
+        } else if (obj->city_type == EMPIRE_CITY_TRADE) {
             // Fix cases where empire map still gives a blue flag for new trade cities
             // (e.g. Massilia in campaign Lugdunum)
             image_id = image_group(GROUP_EMPIRE_CITY_TRADE);
-        } else if (city->type == EMPIRE_CITY_FUTURE_TRADE) {
+        } else if (obj->city_type == EMPIRE_CITY_FUTURE_TRADE) {
             // Fix case where future trade city (as specified in the editor) is drawn as a trade city before expansion
             image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
         }
@@ -397,18 +410,6 @@ static void draw_map(void)
     graphics_reset_clip_rectangle();
 }
 
-static void draw_city_name(void)
-{
-    int image_base = image_group(GROUP_EMPIRE_PANELS);
-    image_draw(image_base + 6, data.x_min + 2, data.y_max - 199);
-    image_draw(image_base + 7, data.x_max - 84, data.y_max - 199);
-    image_draw(image_base + 8, (data.x_min + data.x_max - 332) / 2, data.y_max - 181);
-    if (data.selected_object) {
-        lang_text_draw_centered(21, data.selected_object->city_name_id,
-            (data.x_min + data.x_max - 332) / 2 + 64, data.y_max - 118, 268, FONT_LARGE_BLACK);
-    }
-}
-
 static void draw_panel_buttons(void)
 {
     image_buttons_draw(data.x_min + 20, data.y_max - 44, image_button_help, 1);
@@ -426,7 +427,6 @@ static void draw_foreground(void)
 {
     draw_map();
     draw_paneling();
-    draw_city_name();
     draw_panel_buttons();
     draw_object_info();
 }
@@ -443,7 +443,7 @@ static void determine_selected_object(const mouse *m)
         data.finished_scroll = 0;
         return;
     }
-    empire_select_object(m->x - data.x_min - 16, m->y - data.y_min - 16);
+    data.selected_object = empire_select_object(m->x - data.x_min - 16, m->y - data.y_min - 16);
     window_invalidate();
 }
 
@@ -484,7 +484,6 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
     button_id = 0;
     determine_selected_object(m);
-    data.selected_object = empire_selected_object();
     if (data.selected_object && data.selected_object->type == EMPIRE_OBJECT_CITY) {
         if (data.selected_object->city_type == EMPIRE_CITY_TRADE) {
             if (data.selected_object->trade_route_open) {
@@ -496,11 +495,11 @@ static void handle_input(const mouse *m, const hotkeys *h)
                 // we only want to handle resource buttons that the selected city trades
                 for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
                     if (data.selected_object->resource_sell.resource[r]) {
-                        generic_buttons_handle_mouse(m, x_offset + 120 + 104 * index_sell, y_offset + 31,
+                        generic_buttons_handle_mouse(m, x_offset + 75 + 104 * index_sell, y_offset + 31,
                             generic_button_trade_resource + r - 1, 1, &button_id);
                         index_sell++;
                     } else if (data.selected_object->resource_buy.resource[r]) {
-                        generic_buttons_handle_mouse(m, x_offset + 120 + 104 * index_buy, y_offset + 62,
+                        generic_buttons_handle_mouse(m, x_offset + 75 + 104 * index_buy, y_offset + 62,
                             generic_button_trade_resource + r - 1, 1, &button_id);
                         index_buy++;
                     }
@@ -518,14 +517,11 @@ static void handle_input(const mouse *m, const hotkeys *h)
             }
         }
         if (input_go_back_requested(m, h)) {
-            empire_clear_selected_object();
-            data.selected_object = empire_selected_object();
+            data.selected_object = 0;
             window_invalidate();
         }
-    } else {
-        if (input_go_back_requested(m, h)) {
-            window_city_show();
-        }
+    } else if (input_go_back_requested(m, h)) {
+        window_city_show();
     }
 }
 
@@ -549,7 +545,7 @@ static int get_tooltip_resource(tooltip_context *c)
     int item_offset = lang_text_get_width(47, 5, FONT_NORMAL_GREEN);
     for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
         if (data.selected_object->resource_sell.resource[r]) {
-            if (is_mouse_hit(c, x_offset + 60 + item_offset, y_offset + 33, 26)) {
+            if (is_mouse_hit(c, x_offset + 45 + item_offset, y_offset + 33, 26)) {
                 return r;
             }
             item_offset += 32;
@@ -558,7 +554,7 @@ static int get_tooltip_resource(tooltip_context *c)
     item_offset += lang_text_get_width(47, 4, FONT_NORMAL_GREEN);
     for (int r = RESOURCE_MIN; r <= RESOURCE_MAX; r++) {
         if (data.selected_object->resource_buy.resource[r]) {
-            if (is_mouse_hit(c, x_offset + 110 + item_offset, y_offset + 33, 26)) {
+            if (is_mouse_hit(c, x_offset + 95 + item_offset, y_offset + 33, 26)) {
                 return r;
             }
             item_offset += 32;
@@ -634,7 +630,6 @@ static void confirmed_open_trade(int accepted)
 {
     if (accepted) {
         empire_object_open_trade(data.selected_object);
-        empire_city_open_trade(data.selected_object->id + 1);
         building_menu_update();
         window_trade_opened_show(data.selected_object);
     }
