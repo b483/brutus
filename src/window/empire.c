@@ -484,7 +484,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
     button_id = 0;
     determine_selected_object(m);
-    if (data.selected_object && data.selected_object->type == EMPIRE_OBJECT_CITY) {
+    if (data.selected_object) {
         if (data.selected_object->city_type == EMPIRE_CITY_TRADE) {
             if (data.selected_object->trade_route_open) {
                 int x_offset = (data.x_min + data.x_max - 500) / 2;
@@ -516,9 +516,32 @@ static void handle_input(const mouse *m, const hotkeys *h)
                     generic_button_open_trade, 1, &data.selected_button);
             }
         }
+        // allow de-selection only for objects that are currently selected/drawn
         if (input_go_back_requested(m, h)) {
-            data.selected_object = 0;
-            window_invalidate();
+            switch (data.selected_object->type) {
+                case EMPIRE_OBJECT_CITY:
+                    data.selected_object = 0;
+                    window_invalidate();
+                    break;
+                case EMPIRE_OBJECT_ROMAN_ARMY:
+                    if (city_military_distant_battle_roman_army_is_traveling()) {
+                        if (city_military_distant_battle_roman_months_traveled() == data.selected_object->distant_battle_travel_months) {
+                            data.selected_object = 0;
+                            window_invalidate();
+                            break;
+                        }
+                    }
+                case EMPIRE_OBJECT_ENEMY_ARMY:
+                    if (city_military_months_until_distant_battle() > 0) {
+                        if (city_military_distant_battle_enemy_months_traveled() == data.selected_object->distant_battle_travel_months) {
+                            data.selected_object = 0;
+                            window_invalidate();
+                            break;
+                        }
+                    }
+                default:
+                    window_city_show();
+            }
         }
     } else if (input_go_back_requested(m, h)) {
         window_city_show();
