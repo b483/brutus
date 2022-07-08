@@ -11,23 +11,14 @@
 #include "scenario/property.h"
 #include "scenario/invasion.h"
 
-const int SALARY_FOR_RANK[11] = {0, 2, 5, 8, 12, 20, 30, 40, 60, 80, 100};
+const int SALARY_FOR_RANK[11] = { 0, 2, 5, 8, 12, 20, 30, 40, 60, 80, 100 };
 
-void city_emperor_init_scenario(int rank)
+void city_emperor_init_scenario(void)
 {
     city_data.ratings.favor = scenario_starting_favor();
     city_data.emperor.personal_savings = scenario_starting_personal_savings();
-    city_data.emperor.player_rank = rank;
-    int salary_rank = rank;
-    if (scenario_is_custom()) {
-        city_data.emperor.personal_savings = 0;
-        city_data.emperor.player_rank = scenario_property_player_rank();
-        salary_rank = scenario_property_player_rank();
-    }
-    if (salary_rank > 10) {
-        salary_rank = 10;
-    }
-    city_emperor_set_salary_rank(salary_rank);
+    city_data.emperor.player_rank = scenario_property_player_rank();
+    city_emperor_set_salary_rank();
 }
 
 static void update_debt_state(void)
@@ -272,10 +263,11 @@ int city_emperor_salary_for_rank(int rank)
     return SALARY_FOR_RANK[rank];
 }
 
-void city_emperor_set_salary_rank(int rank)
+void city_emperor_set_salary_rank(void)
 {
-    city_data.emperor.salary_rank = rank;
-    city_data.emperor.salary_amount = SALARY_FOR_RANK[rank];
+    int salary_rank = scenario_property_player_rank();
+    city_data.emperor.salary_rank = salary_rank;
+    city_data.emperor.salary_amount = SALARY_FOR_RANK[salary_rank];
 }
 
 int city_emperor_salary_rank(void)

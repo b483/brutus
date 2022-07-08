@@ -3,36 +3,6 @@
 #include "core/string.h"
 #include "scenario/data.h"
 
-int scenario_is_custom(void)
-{
-    return scenario.settings.is_custom;
-}
-
-void scenario_set_custom(int custom)
-{
-    scenario.settings.is_custom = custom;
-}
-
-int scenario_campaign_rank(void)
-{
-    return scenario.settings.campaign_rank;
-}
-
-void scenario_set_campaign_rank(int rank)
-{
-    scenario.settings.campaign_rank = rank;
-}
-
-int scenario_campaign_mission(void)
-{
-    return scenario.settings.campaign_mission;
-}
-
-void scenario_set_campaign_mission(int mission)
-{
-    scenario.settings.campaign_mission = mission;
-}
-
 
 int scenario_starting_favor(void)
 {
@@ -62,16 +32,6 @@ const uint8_t *scenario_player_name(void)
 void scenario_set_player_name(const uint8_t *name)
 {
     string_copy(name, scenario.settings.player_name, MAX_PLAYER_NAME);
-}
-
-void scenario_save_campaign_player_name(void)
-{
-    string_copy(scenario.settings.player_name, scenario.settings.campaign_player_name, MAX_PLAYER_NAME);
-}
-
-void scenario_restore_campaign_player_name(void)
-{
-    string_copy(scenario.settings.campaign_player_name, scenario.settings.player_name, MAX_PLAYER_NAME);
 }
 
 int scenario_is_open_play(void)

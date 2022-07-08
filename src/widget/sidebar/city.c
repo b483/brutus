@@ -335,9 +335,8 @@ static void button_empire(int param1, int param2)
 
 static void button_mission_briefing(int param1, int param2)
 {
-    if (!scenario_is_custom()) {
-        window_mission_briefing_show_review();
-    }
+    // adapt for custom maps
+    // window_mission_briefing_show_review();
 }
 
 static void button_rotate_north(int param1, int param2)

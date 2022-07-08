@@ -17,28 +17,26 @@
 #include "window/cck_selection.h"
 #include "window/config.h"
 #include "window/file_dialog.h"
-#include "window/new_career.h"
 #include "window/plain_message_dialog.h"
 #include "window/popup_dialog.h"
 
-#define MAX_BUTTONS 6
+#define MAX_BUTTONS 5
 
 static void button_click(int type, int param2);
 
 static int focus_button_id;
 
 static generic_button buttons[] = {
-    {192, 100, 256, 25, button_click, button_none, 1, 0},
-    {192, 140, 256, 25, button_click, button_none, 2, 0},
-    {192, 180, 256, 25, button_click, button_none, 3, 0},
-    {192, 220, 256, 25, button_click, button_none, 4, 0},
-    {192, 260, 256, 25, button_click, button_none, 5, 0},
-    {192, 300, 256, 25, button_click, button_none, 6, 0},
+    {192, 140, 256, 25, button_click, button_none, 1, 0},
+    {192, 180, 256, 25, button_click, button_none, 2, 0},
+    {192, 220, 256, 25, button_click, button_none, 3, 0},
+    {192, 260, 256, 25, button_click, button_none, 4, 0},
+    {192, 300, 256, 25, button_click, button_none, 5, 0},
 };
 
 static void draw_version_string(void)
 {
-    uint8_t version_string[100] = "Julius v";
+    uint8_t version_string[100] = "Brutus v";
     int version_prefix_length = string_length(version_string);
     int text_y = screen_height() - 30;
 
@@ -74,9 +72,8 @@ static void draw_foreground(void)
         large_label_draw(buttons[i].x, buttons[i].y, buttons[i].width / BLOCK_SIZE, focus_button_id == i + 1 ? 1 : 0);
     }
 
-    lang_text_draw_centered(30, 1, 192, 106, 256, FONT_NORMAL_GREEN);
-    lang_text_draw_centered(30, 2, 192, 146, 256, FONT_NORMAL_GREEN);
-    lang_text_draw_centered(30, 3, 192, 186, 256, FONT_NORMAL_GREEN);
+    lang_text_draw_centered(30, 3, 192, 146, 256, FONT_NORMAL_GREEN);
+    lang_text_draw_centered(30, 2, 192, 186, 256, FONT_NORMAL_GREEN);
     lang_text_draw_centered(9, 8, 192, 226, 256, FONT_NORMAL_GREEN);
     lang_text_draw_centered(2, 0, 192, 266, 256, FONT_NORMAL_GREEN);
     lang_text_draw_centered(30, 5, 192, 306, 256, FONT_NORMAL_GREEN);
@@ -98,32 +95,23 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void confirm_exit(int accepted)
-{
-    if (accepted) {
-        system_exit();
-    }
-}
-
 static void button_click(int type, int param2)
 {
     if (type == 1) {
-        window_new_career_show();
+        window_cck_selection_show();
     } else if (type == 2) {
         window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_LOAD);
     } else if (type == 3) {
-        window_cck_selection_show();
-    } else if (type == 4) {
         if (!editor_is_present() || !game_init_editor()) {
             window_plain_message_dialog_show(
                 TR_NO_EDITOR_TITLE, TR_NO_EDITOR_MESSAGE);
         } else {
             sound_music_play_editor();
         }
-    } else if (type == 5) {
+    } else if (type == 4) {
         window_config_show();
-    } else if (type == 6) {
-        window_popup_dialog_show(POPUP_DIALOG_QUIT, confirm_exit, 1);
+    } else if (type == 5) {
+        system_exit();
     }
 }
 

@@ -39,9 +39,9 @@ int difficulty_adjust_enemies(int enemies)
 int difficulty_adjust_wolf_attack(int attack)
 {
     switch (setting_difficulty()) {
-    case DIFFICULTY_VERY_EASY: return 2;
-    case DIFFICULTY_EASY: return 4;
-    case DIFFICULTY_NORMAL: return 6;
-    default: return attack;
+        case DIFFICULTY_VERY_EASY: return 2;
+        case DIFFICULTY_EASY: return 4;
+        case DIFFICULTY_NORMAL: return 6;
+        default: return attack;
     }
 }

@@ -255,14 +255,9 @@ extern struct scenario_t {
     } native_images;
 
     struct { // used to be stored in the settings file
-        int campaign_rank;
-        int campaign_mission;
-        int is_custom;
         int starting_favor;
         int starting_personal_savings;
         uint8_t player_name[MAX_PLAYER_NAME];
-        /** Temp storage for carrying over player name to next campaign mission */
-        uint8_t campaign_player_name[MAX_PLAYER_NAME];
     } settings;
 
     int is_saved;

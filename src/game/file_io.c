@@ -82,7 +82,6 @@ static struct {
 } scenario_data = { 0 };
 
 typedef struct {
-    buffer *scenario_campaign_mission;
     buffer *file_version;
     buffer *image_grid;
     buffer *edge_grid;
@@ -135,7 +134,6 @@ typedef struct {
     buffer *figure_sequence;
     buffer *scenario_settings;
     buffer *invasion_warnings;
-    buffer *scenario_is_custom;
     buffer *city_sounds;
     buffer *building_extra_highest_id;
     buffer *figure_traders;
@@ -223,7 +221,6 @@ static void init_savegame_data(void)
         return;
     }
     savegame_state *state = &savegame_data.state;
-    state->scenario_campaign_mission = create_savegame_piece(4, 0);
     state->file_version = create_savegame_piece(4, 0);
     state->image_grid = create_savegame_piece(52488, 1);
     state->edge_grid = create_savegame_piece(26244, 1);
@@ -274,9 +271,8 @@ static void init_savegame_data(void)
     state->message_delays = create_savegame_piece(80, 0);
     state->building_list_burning_totals = create_savegame_piece(8, 0);
     state->figure_sequence = create_savegame_piece(4, 0);
-    state->scenario_settings = create_savegame_piece(12, 0);
+    state->scenario_settings = create_savegame_piece(8, 0);
     state->invasion_warnings = create_savegame_piece(3232, 1);
-    state->scenario_is_custom = create_savegame_piece(4, 0);
     state->city_sounds = create_savegame_piece(8960, 0);
     state->building_extra_highest_id = create_savegame_piece(4, 0);
     state->figure_traders = create_savegame_piece(4804, 0);
@@ -341,9 +337,7 @@ static void savegame_load_from_state(savegame_state *state)
 {
     savegame_version = buffer_read_i32(state->file_version);
 
-    scenario_settings_load_state(state->scenario_campaign_mission,
-                                 state->scenario_settings,
-                                 state->scenario_is_custom,
+    scenario_settings_load_state(state->scenario_settings,
                                  state->player_name,
                                  state->scenario_name);
 
@@ -420,9 +414,7 @@ static void savegame_save_to_state(savegame_state *state)
 {
     buffer_write_i32(state->file_version, savegame_version);
 
-    scenario_settings_save_state(state->scenario_campaign_mission,
-                                 state->scenario_settings,
-                                 state->scenario_is_custom,
+    scenario_settings_save_state(state->scenario_settings,
                                  state->player_name,
                                  state->scenario_name);
 

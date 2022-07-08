@@ -43,9 +43,6 @@ static const int ENEMY_ID_TO_ENEMY_TYPE[20] = {
     ENEMY_6_SELEUCID
 };
 
-static const int LOCAL_UPRISING_NUM_ENEMIES[20] = {
-    0, 0, 0, 0, 0, 3, 3, 3, 0, 6, 6, 6, 6, 6, 9, 9, 9, 9, 9, 9
-};
 
 static const struct {
     int pct_type1;
@@ -395,21 +392,13 @@ void scenario_invasion_process(void)
     }
 }
 
-int scenario_invasion_start_from_mars(void)
+void scenario_invasion_start_from_mars(void)
 {
-    int mission = scenario_campaign_mission();
-    if (mission < 0 || mission > 19) {
-        return 0;
-    }
-    int amount = LOCAL_UPRISING_NUM_ENEMIES[mission];
-    if (amount <= 0) {
-        return 0;
-    }
+    int amount = difficulty_adjust_enemies(50); // amount resolves to 16, 24, 32, 40, 48
     int grid_offset = start_invasion(ENEMY_0_BARBARIAN, amount, 8, FORMATION_ATTACK_FOOD_CHAIN, 23);
     if (grid_offset) {
         city_message_post(1, MESSAGE_LOCAL_UPRISING_MARS, data.last_internal_invasion_id, grid_offset);
     }
-    return 1;
 }
 
 int scenario_invasion_start_from_caesar(int size)

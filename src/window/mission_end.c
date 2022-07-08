@@ -5,7 +5,6 @@
 #include "city/population.h"
 #include "city/ratings.h"
 #include "city/victory.h"
-#include "game/mission.h"
 #include "game/settings.h"
 #include "game/state.h"
 #include "game/undo.h"
@@ -22,7 +21,6 @@
 #include "sound/speech.h"
 #include "window/intermezzo.h"
 #include "window/main_menu.h"
-#include "window/mission_selection.h"
 #include "window/victory_video.h"
 
 static void button_fired(int param1, int param2);
@@ -59,11 +57,7 @@ static void draw_won(void)
 
     inner_panel_draw(64, 184, 32, 7);
 
-    if (scenario_is_custom()) {
-        lang_text_draw_multiline(147, 20, 80, 192, 488, FONT_NORMAL_WHITE);
-    } else {
-        lang_text_draw_multiline(147, scenario_campaign_mission(), 80, 192, 488, FONT_NORMAL_WHITE);
-    }
+    lang_text_draw_multiline(147, 20, 80, 192, 488, FONT_NORMAL_WHITE);
 
     int left_width = get_max(
         lang_text_get_width(148, 0, FONT_NORMAL_BLACK),
@@ -119,37 +113,16 @@ static void draw_foreground(void)
     }
 }
 
-static void advance_to_next_mission(void)
-{
-    setting_set_personal_savings_for_mission(scenario_campaign_rank() + 1, city_emperor_personal_savings());
-    scenario_set_campaign_rank(scenario_campaign_rank() + 1);
-    scenario_save_campaign_player_name();
-
-    city_victory_stop_governing();
-
-    game_undo_disable();
-    game_state_reset_overlay();
-
-    if (scenario_campaign_rank() >= 11 || scenario_is_custom()) {
-        window_main_menu_show(1);
-        if (!scenario_is_custom()) {
-            setting_clear_personal_savings();
-            scenario_settings_init();
-            scenario_set_campaign_rank(2);
-        }
-    } else {
-        scenario_set_campaign_mission(game_mission_peaceful());
-        window_mission_selection_show();
-    }
-}
-
 static void handle_input(const mouse *m, const hotkeys *h)
 {
     if (city_victory_state() == VICTORY_STATE_WON) {
         if (input_go_back_requested(m, h)) {
             sound_music_stop();
             sound_speech_stop();
-            advance_to_next_mission();
+            city_victory_stop_governing();
+            game_undo_disable();
+            game_state_reset_overlay();
+            window_main_menu_show(1);
         }
     } else {
         generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0,
@@ -163,11 +136,7 @@ static void button_fired(int param1, int param2)
     sound_speech_stop();
     city_victory_stop_governing();
     game_undo_disable();
-    if (scenario_is_custom()) {
-        window_main_menu_show(1);
-    } else {
-        window_mission_selection_show();
-    }
+    window_main_menu_show(1);
 }
 
 static void show_end_dialog(void)
@@ -190,15 +159,10 @@ static void show_intermezzo(void)
 void window_mission_end_show_won(void)
 {
     mouse_reset_up_state();
-    if (!scenario_is_custom() && scenario_campaign_rank() >= 10) {
-        // Won campaign
-        window_victory_video_show("smk/win_game.smk", 400, 292, show_intermezzo);
+    if (setting_victory_video()) {
+        window_victory_video_show("smk/victory_balcony.smk", 400, 292, show_intermezzo);
     } else {
-        if (setting_victory_video()) {
-            window_victory_video_show("smk/victory_balcony.smk", 400, 292, show_intermezzo);
-        } else {
-            window_victory_video_show("smk/victory_senate.smk", 400, 292, show_intermezzo);
-        }
+        window_victory_video_show("smk/victory_senate.smk", 400, 292, show_intermezzo);
     }
 }
 

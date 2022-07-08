@@ -12,7 +12,7 @@ typedef struct {
     int cost;
 } emperor_gift;
 
-void city_emperor_init_scenario(int rank);
+void city_emperor_init_scenario(void);
 
 void city_emperor_update(void);
 
@@ -34,7 +34,7 @@ int city_emperor_months_since_gift(void);
 
 int city_emperor_salary_for_rank(int rank);
 
-void city_emperor_set_salary_rank(int rank);
+void city_emperor_set_salary_rank(void);
 
 int city_emperor_salary_rank(void);
 int city_emperor_salary_amount(void);

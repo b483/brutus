@@ -354,7 +354,6 @@ set(GAME_FILES
     ${PROJECT_SOURCE_DIR}/src/game/file_editor.c
     ${PROJECT_SOURCE_DIR}/src/game/file_io.c
     ${PROJECT_SOURCE_DIR}/src/game/game.c
-    ${PROJECT_SOURCE_DIR}/src/game/mission.c
     ${PROJECT_SOURCE_DIR}/src/game/orientation.c
     ${PROJECT_SOURCE_DIR}/src/game/resource.c
     ${PROJECT_SOURCE_DIR}/src/game/settings.c
@@ -546,8 +545,6 @@ set(WINDOW_FILES
     ${PROJECT_SOURCE_DIR}/src/window/military_menu.c
     ${PROJECT_SOURCE_DIR}/src/window/mission_briefing.c
     ${PROJECT_SOURCE_DIR}/src/window/mission_end.c
-    ${PROJECT_SOURCE_DIR}/src/window/mission_selection.c
-    ${PROJECT_SOURCE_DIR}/src/window/new_career.c
     ${PROJECT_SOURCE_DIR}/src/window/numeric_input.c
     ${PROJECT_SOURCE_DIR}/src/window/overlay_menu.c
     ${PROJECT_SOURCE_DIR}/src/window/plain_message_dialog.c

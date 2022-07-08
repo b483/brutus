@@ -50,7 +50,6 @@ int game_pre_init(void)
     settings_load();
     config_load();
     hotkey_config_load();
-    scenario_settings_init();
     game_state_unpause();
 
     if (!lang_load(0)) {
@@ -175,7 +174,6 @@ void game_run(void)
     int num_ticks = game_speed_get_elapsed_ticks();
     for (int i = 0; i < num_ticks; i++) {
         game_tick_run();
-        game_file_write_mission_saved_game();
 
         if (window_is_invalid()) {
             break;

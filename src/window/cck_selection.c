@@ -71,7 +71,6 @@ static struct {
 
 static void init(void)
 {
-    scenario_set_custom(2);
     data.scenarios = dir_find_files_with_extension("map");
     data.focus_button_id = 0;
     data.focus_toggle_button = 0;

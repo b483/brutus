@@ -85,11 +85,8 @@ static void perform_small_curse(god_type god)
             building_granary_warehouse_curse(0);
             break;
         case GOD_MARS:
-            if (scenario_invasion_start_from_mars()) {
-                city_message_post(1, MESSAGE_MARS_IS_UPSET, 0, 0);
-            } else {
-                city_message_post(1, MESSAGE_WRATH_OF_MARS_NO_MILITARY, 0, 0);
-            }
+            city_message_post(1, MESSAGE_MARS_IS_UPSET, 0, 0);
+            scenario_invasion_start_from_mars();
             break;
         case GOD_VENUS:
             city_message_post(1, MESSAGE_VENUS_IS_UPSET, 0, 0);
@@ -211,11 +208,6 @@ static void update_god_moods(void)
             god->happiness += 12;
             perform_small_curse(god_id);
         } else if (god->wrath_bolts >= 50 && god->months_since_festival > 3) {
-            if (scenario_campaign_rank() < 4 && !scenario_is_custom()) {
-                // no large curses in early scenarios
-                god->small_curse_done = 0;
-                return;
-            }
             god->wrath_bolts = 0;
             god->happiness += 30;
             if (!perform_large_curse(god_id)) {

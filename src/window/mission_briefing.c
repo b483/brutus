@@ -4,7 +4,6 @@
 #include "core/image_group.h"
 #include "core/lang.h"
 #include "game/file.h"
-#include "game/mission.h"
 #include "graphics/graphics.h"
 #include "graphics/image_button.h"
 #include "graphics/lang_text.h"
@@ -18,7 +17,6 @@
 #include "sound/speech.h"
 #include "window/city.h"
 #include "window/intermezzo.h"
-#include "window/mission_selection.h"
 
 static void button_back(int param1, int param2);
 static void button_start_mission(int param1, int param2);
@@ -58,7 +56,7 @@ static void draw_background(void)
     window_draw_underlying_window();
 
     graphics_in_dialog();
-    int text_id = 200 + scenario_campaign_mission();
+    int text_id = 200;
     const lang_message *msg = lang_get_message(text_id);
 
     outer_panel_draw(16, 32, 38, 27);
@@ -66,7 +64,7 @@ static void draw_background(void)
     text_draw(msg->subtitle.text, 32, 78, FONT_NORMAL_BLACK, 0);
 
     lang_text_draw(62, 7, 376, 433, FONT_NORMAL_BLACK);
-    if (!data.is_review && game_mission_has_choice()) {
+    if (!data.is_review) {
         lang_text_draw(13, 4, 66, 435, FONT_NORMAL_BLACK);
     }
 
@@ -132,7 +130,7 @@ static void draw_foreground(void)
 
     rich_text_draw_scrollbar();
     image_buttons_draw(516, 426, &image_button_start_mission, 1);
-    if (!data.is_review && game_mission_has_choice()) {
+    if (!data.is_review) {
         image_buttons_draw(26, 428, &image_button_back, 1);
     }
 
@@ -146,7 +144,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (image_buttons_handle_mouse(m_dialog, 516, 426, &image_button_start_mission, 1, 0)) {
         return;
     }
-    if (!data.is_review && game_mission_has_choice()) {
+    if (!data.is_review) {
         if (image_buttons_handle_mouse(m_dialog, 26, 428, &image_button_back, 1, 0)) {
             return;
         }
@@ -158,7 +156,6 @@ static void button_back(int param1, int param2)
 {
     if (!data.is_review) {
         sound_speech_stop();
-        window_mission_selection_show();
     }
 }
 
