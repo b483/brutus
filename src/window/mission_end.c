@@ -23,13 +23,6 @@
 #include "window/main_menu.h"
 #include "window/victory_video.h"
 
-static void button_fired(int param1, int param2);
-
-static generic_button fired_buttons[] = {
-    {80, 224, 480, 25, button_fired, button_none, 0, 0},
-};
-
-static int focus_button_id;
 
 static void draw_lost(void)
 {
@@ -107,36 +100,21 @@ static void draw_foreground(void)
 {
     if (city_victory_state() != VICTORY_STATE_WON) {
         graphics_in_dialog();
-        large_label_draw(80, 224, 30, focus_button_id == 1);
-        lang_text_draw_centered(62, 6, 80, 230, 480, FONT_NORMAL_GREEN);
+        lang_text_draw_centered(13, 1, 80, 230, 480, FONT_NORMAL_BLACK);
         graphics_reset_dialog();
     }
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (city_victory_state() == VICTORY_STATE_WON) {
-        if (input_go_back_requested(m, h)) {
-            sound_music_stop();
-            sound_speech_stop();
-            city_victory_stop_governing();
-            game_undo_disable();
-            game_state_reset_overlay();
-            window_main_menu_show(1);
-        }
-    } else {
-        generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0,
-                                     fired_buttons, 1, &focus_button_id);
+    if (input_go_back_requested(m, h)) {
+        sound_music_stop();
+        sound_speech_stop();
+        city_victory_stop_governing();
+        game_undo_disable();
+        game_state_reset_overlay();
+        window_main_menu_show(1);
     }
-}
-
-static void button_fired(int param1, int param2)
-{
-    sound_music_stop();
-    sound_speech_stop();
-    city_victory_stop_governing();
-    game_undo_disable();
-    window_main_menu_show(1);
 }
 
 static void show_end_dialog(void)

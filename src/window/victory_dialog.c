@@ -36,21 +36,16 @@ static void draw_foreground(void)
 {
     graphics_in_dialog();
 
-    if (city_victory_state() == VICTORY_STATE_WON) {
-        // Accept promotion
-        large_label_draw(80, 240, 30, focus_button_id == 1);
-        lang_text_draw_centered(62, 3, 80, 246, 480, FONT_NORMAL_GREEN);
-        // Continue for 2 years
-        large_label_draw(80, 272, 30, focus_button_id == 2);
-        lang_text_draw_centered(62, 4, 80, 278, 480, FONT_NORMAL_GREEN);
-        // Continue for 5 years
-        large_label_draw(80, 304, 30, focus_button_id == 3);
-        lang_text_draw_centered(62, 5, 80, 310, 480, FONT_NORMAL_GREEN);
-    } else {
-        // lost
-        large_label_draw(80, 224, 30, focus_button_id == 1);
-        lang_text_draw_centered(62, 6, 80, 230, 480, FONT_NORMAL_GREEN);
-    }
+    // Accept promotion
+    large_label_draw(80, 240, 30, focus_button_id == 1);
+    lang_text_draw_centered(62, 3, 80, 246, 480, FONT_NORMAL_GREEN);
+    // Continue for 2 years
+    large_label_draw(80, 272, 30, focus_button_id == 2);
+    lang_text_draw_centered(62, 4, 80, 278, 480, FONT_NORMAL_GREEN);
+    // Continue for 5 years
+    large_label_draw(80, 304, 30, focus_button_id == 3);
+    lang_text_draw_centered(62, 5, 80, 310, 480, FONT_NORMAL_GREEN);
+    
     graphics_reset_dialog();
 }
 
