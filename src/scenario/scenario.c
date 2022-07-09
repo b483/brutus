@@ -117,8 +117,6 @@ void scenario_save_state(buffer *buf)
     buffer_write_i32(buf, scenario.random_events.raise_wages);
     buffer_write_i32(buf, scenario.random_events.lower_wages);
     buffer_write_i32(buf, scenario.random_events.contaminated_water);
-    buffer_write_i32(buf, scenario.random_events.iron_mine_collapse);
-    buffer_write_i32(buf, scenario.random_events.clay_pit_flooded);
 
     for (int i = 0; i < MAX_FISH_POINTS; i++) {
         buffer_write_i16(buf, scenario.fishing_points[i].x);
@@ -322,8 +320,6 @@ void scenario_load_state(buffer *buf)
     scenario.random_events.raise_wages = buffer_read_i32(buf);
     scenario.random_events.lower_wages = buffer_read_i32(buf);
     scenario.random_events.contaminated_water = buffer_read_i32(buf);
-    scenario.random_events.iron_mine_collapse = buffer_read_i32(buf);
-    scenario.random_events.clay_pit_flooded = buffer_read_i32(buf);
 
     for (int i = 0; i < MAX_FISH_POINTS; i++) {
         scenario.fishing_points[i].x = buffer_read_i16(buf);

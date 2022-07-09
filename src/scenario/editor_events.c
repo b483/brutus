@@ -125,25 +125,3 @@ void scenario_editor_contaminated_water_toggle_enabled(void)
     scenario.random_events.contaminated_water = !scenario.random_events.contaminated_water;
     scenario.is_saved = 0;
 }
-
-int scenario_editor_iron_mine_collapse_enabled(void)
-{
-    return scenario.random_events.iron_mine_collapse;
-}
-
-void scenario_editor_iron_mine_collapse_toggle_enabled(void)
-{
-    scenario.random_events.iron_mine_collapse = !scenario.random_events.iron_mine_collapse;
-    scenario.is_saved = 0;
-}
-
-int scenario_editor_clay_pit_flooded_enabled(void)
-{
-    return scenario.random_events.clay_pit_flooded;
-}
-
-void scenario_editor_clay_pit_flooded_toggle_enabled(void)
-{
-    scenario.random_events.clay_pit_flooded = !scenario.random_events.clay_pit_flooded;
-    scenario.is_saved = 0;
-}

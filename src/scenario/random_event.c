@@ -15,20 +15,18 @@ enum {
     EVENT_ROME_LOWERS_WAGES = 2,
     EVENT_LAND_TRADE_DISRUPTED = 3,
     EVENT_LAND_SEA_DISRUPTED = 4,
-    EVENT_CONTAMINATED_WATER = 5,
-    EVENT_IRON_MINE_COLLAPSED = 6,
-    EVENT_CLAY_PIT_FLOODED = 7
+    EVENT_CONTAMINATED_WATER = 5
 };
 
 static const int RANDOM_EVENT_PROBABILITY[128] = {
     0, 0, 1, 0, 0, 0, 4, 0, 0, 0, 0, 3, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 6,
-    0, 0, 2, 0, 0, 0, 7, 0, 5, 0, 0, 7, 0, 0, 0, 0,
-    0, 7, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
-    6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 6, 0, 0,
-    0, 7, 0, 1, 6, 0, 0, 0, 0, 0, 2, 0, 0, 4, 0, 0,
-    0, 0, 3, 0, 7, 4, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0
+    0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 2, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0,
+    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 4, 0, 0,
+    0, 0, 3, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0
 };
 
 static void raise_wages(void)
@@ -92,26 +90,6 @@ static void contaminate_water(void)
     }
 }
 
-static void destroy_iron_mine(void)
-{
-    if (scenario.random_events.iron_mine_collapse) {
-        int grid_offset = building_destroy_first_of_type(BUILDING_IRON_MINE);
-        if (grid_offset) {
-            city_message_post(1, MESSAGE_IRON_MINE_COLLAPED, 0, grid_offset);
-        }
-    }
-}
-
-static void destroy_clay_pit(void)
-{
-    if (scenario.random_events.clay_pit_flooded) {
-        int grid_offset = building_destroy_first_of_type(BUILDING_CLAY_PIT);
-        if (grid_offset) {
-            city_message_post(1, MESSAGE_CLAY_PIT_FLOODED, 0, grid_offset);
-        }
-    }
-}
-
 void scenario_random_event_process(void)
 {
     int event = RANDOM_EVENT_PROBABILITY[random_byte()];
@@ -130,12 +108,6 @@ void scenario_random_event_process(void)
             break;
         case EVENT_CONTAMINATED_WATER:
             contaminate_water();
-            break;
-        case EVENT_IRON_MINE_COLLAPSED:
-            destroy_iron_mine();
-            break;
-        case EVENT_CLAY_PIT_FLOODED:
-            destroy_clay_pit();
             break;
     }
 }

@@ -160,23 +160,6 @@ void building_destroy_by_rioter(building *b)
     destroy_on_fire(b, 0);
 }
 
-int building_destroy_first_of_type(building_type type)
-{
-    for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
-        if (b->state == BUILDING_STATE_IN_USE && b->type == type) {
-            int grid_offset = b->grid_offset;
-            game_undo_disable();
-            b->state = BUILDING_STATE_RUBBLE;
-            map_building_tiles_set_rubble(i, b->x, b->y, b->size);
-            sound_effect_play(SOUND_EFFECT_EXPLOSION);
-            map_routing_update_land();
-            return grid_offset;
-        }
-    }
-    return 0;
-}
-
 void building_destroy_last_placed(void)
 {
     int highest_sequence = 0;

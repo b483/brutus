@@ -226,8 +226,6 @@ extern struct scenario_t {
         int raise_wages;
         int lower_wages;
         int contaminated_water;
-        int iron_mine_collapse;
-        int clay_pit_flooded;
     } random_events;
 
     struct {
