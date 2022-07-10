@@ -1089,7 +1089,10 @@ static void set_elevation_image(int x, int y, int grid_offset)
                 image_group(GROUP_TERRAIN_ACCESS_RAMP) + image_offset, TERRAIN_ACCESS_RAMP);
         }
     }
-    if (map_elevation_at(grid_offset) && !map_terrain_is(grid_offset, TERRAIN_ACCESS_RAMP)) {
+    if (map_elevation_at(grid_offset)
+    && !map_terrain_is(grid_offset, TERRAIN_ACCESS_RAMP)
+    && !map_terrain_is(grid_offset, TERRAIN_WATER)
+    && !map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
         const terrain_image *img = map_image_context_get_elevation(grid_offset, map_elevation_at(grid_offset));
         if (img->group_offset == 44) {
             map_terrain_remove(grid_offset, TERRAIN_ELEVATION);

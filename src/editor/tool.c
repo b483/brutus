@@ -161,8 +161,8 @@ static int lower_land_tile(int x, int y, int grid_offset, int terrain)
     if (elevation <= 0) {
         terrain &= ~(TERRAIN_ELEVATION);
     } else if (elevation == data.start_elevation) {
-        terrain &= ~(TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP);
         map_elevation_set(grid_offset, elevation - 1);
+        terrain &= ~(TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP | TERRAIN_WATER | TERRAIN_ROAD);
     }
     return terrain;
 }
@@ -198,7 +198,7 @@ static void add_terrain(const void *tile_data, int dx, int dy)
             }
             break;
         case TOOL_WATER:
-            if (!map_elevation_at(grid_offset) && !(terrain & TERRAIN_WATER)) {
+            if (!(terrain & (TERRAIN_WATER | TERRAIN_ELEVATION))) {
                 terrain &= TERRAIN_PAINT_MASK;
                 terrain |= TERRAIN_WATER;
             }
