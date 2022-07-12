@@ -228,7 +228,6 @@ static int start_scenario(const uint8_t *scenario_name, const char *scenario_fil
     }
     scenario_set_player_name(setting_player_name());
 
-    scenario_settings_init_mission();
     city_emperor_init_scenario();
     building_menu_update();
     city_message_init_scenario();

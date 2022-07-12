@@ -4,16 +4,6 @@
 #include "scenario/data.h"
 
 
-int scenario_starting_favor(void)
-{
-    return scenario.settings.starting_favor;
-}
-
-int scenario_starting_personal_savings(void)
-{
-    return scenario.settings.starting_personal_savings;
-}
-
 const uint8_t *scenario_name(void)
 {
     return scenario.scenario_name;
@@ -79,6 +69,11 @@ const uint8_t *scenario_brief_description(void)
     return scenario.brief_description;
 }
 
+int scenario_initial_favor(void)
+{
+    return scenario.initial_favor;
+}
+
 int scenario_initial_funds(void)
 {
     return scenario.initial_funds;
@@ -87,4 +82,9 @@ int scenario_initial_funds(void)
 int scenario_rescue_loan(void)
 {
     return scenario.rescue_loan;
+}
+
+int scenario_initial_personal_savings(void)
+{
+    return scenario.initial_personal_savings;
 }

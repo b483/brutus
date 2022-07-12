@@ -7,7 +7,6 @@
 #include "core/string.h"
 
 #define INF_SIZE 560
-#define MAX_PERSONAL_SAVINGS 100
 #define MAX_PLAYER_NAME 32
 
 static struct {
@@ -33,8 +32,6 @@ static struct {
     // persistent game state
     int last_advisor;
     uint8_t player_name[MAX_PLAYER_NAME];
-    // personal savings
-    int personal_savings[MAX_PERSONAL_SAVINGS];
     // file data
     uint8_t inf_file[INF_SIZE];
 } data;
@@ -63,8 +60,6 @@ static void load_default_settings(void)
     data.gods_enabled = 1;
     data.victory_video = 0;
     data.last_advisor = ADVISOR_LABOR;
-
-    setting_clear_personal_savings();
 }
 
 static void load_settings(buffer *buf)
@@ -83,10 +78,6 @@ static void load_settings(buffer *buf)
     data.last_advisor = buffer_read_i32(buf);
     buffer_skip(buf, 4); //int save_game_mission_id;
     data.tooltips = buffer_read_i32(buf);
-    buffer_skip(buf, 4); //int starting_favor;
-    buffer_skip(buf, 4); //int personal_savings_last_mission;
-    buffer_skip(buf, 4); //int current_mission_id;
-    buffer_skip(buf, 4); //int is_custom_scenario;
     data.sound_city.enabled = buffer_read_u8(buf);
     data.warnings = buffer_read_u8(buf);
     data.monthly_autosave = buffer_read_u8(buf);
@@ -99,9 +90,6 @@ static void load_settings(buffer *buf)
     data.window_width = buffer_read_i32(buf);
     data.window_height = buffer_read_i32(buf);
     buffer_skip(buf, 8); //int max_confirmed_resolution;
-    for (int i = 0; i < MAX_PERSONAL_SAVINGS; i++) {
-        data.personal_savings[i] = buffer_read_i32(buf);
-    }
     data.victory_video = buffer_read_i32(buf);
 
     if (buffer_at_end(buf)) {
@@ -157,10 +145,6 @@ void settings_save(void)
     buffer_write_i32(buf, data.last_advisor);
     buffer_skip(buf, 4); //int save_game_mission_id;
     buffer_write_i32(buf, data.tooltips);
-    buffer_skip(buf, 4); //int starting_favor;
-    buffer_skip(buf, 4); //int personal_savings_last_mission;
-    buffer_skip(buf, 4); //int current_mission_id;
-    buffer_skip(buf, 4); //int is_custom_scenario;
     buffer_write_u8(buf, data.sound_city.enabled);
     buffer_write_u8(buf, data.warnings);
     buffer_write_u8(buf, data.monthly_autosave);
@@ -173,9 +157,6 @@ void settings_save(void)
     buffer_write_i32(buf, data.window_width);
     buffer_write_i32(buf, data.window_height);
     buffer_skip(buf, 8); //int max_confirmed_resolution;
-    for (int i = 0; i < MAX_PERSONAL_SAVINGS; i++) {
-        buffer_write_i32(buf, data.personal_savings[i]);
-    }
     buffer_write_i32(buf, data.victory_video);
     buffer_write_i32(buf, data.difficulty);
     buffer_write_i32(buf, data.gods_enabled);
@@ -206,11 +187,11 @@ void setting_set_display(int fullscreen, int width, int height)
 static set_sound *get_sound(set_sound_type type)
 {
     switch (type) {
-    case SOUND_MUSIC: return &data.sound_music;
-    case SOUND_EFFECTS: return &data.sound_effects;
-    case SOUND_SPEECH: return &data.sound_speech;
-    case SOUND_CITY: return &data.sound_city;
-    default: return 0;
+        case SOUND_MUSIC: return &data.sound_music;
+        case SOUND_EFFECTS: return &data.sound_effects;
+        case SOUND_SPEECH: return &data.sound_speech;
+        case SOUND_CITY: return &data.sound_city;
+        default: return 0;
     }
 }
 
@@ -303,9 +284,9 @@ set_tooltips setting_tooltips(void)
 void setting_cycle_tooltips(void)
 {
     switch (data.tooltips) {
-    case TOOLTIPS_NONE: data.tooltips = TOOLTIPS_SOME; break;
-    case TOOLTIPS_SOME: data.tooltips = TOOLTIPS_FULL; break;
-    default: data.tooltips = TOOLTIPS_NONE; break;
+        case TOOLTIPS_NONE: data.tooltips = TOOLTIPS_SOME; break;
+        case TOOLTIPS_SOME: data.tooltips = TOOLTIPS_FULL; break;
+        default: data.tooltips = TOOLTIPS_NONE; break;
     }
 }
 
@@ -386,21 +367,4 @@ const uint8_t *setting_player_name(void)
 void setting_set_player_name(const uint8_t *player_name)
 {
     string_copy(player_name, data.player_name, MAX_PLAYER_NAME);
-}
-
-int setting_personal_savings_for_mission(int mission_id)
-{
-    return data.personal_savings[mission_id];
-}
-
-void setting_set_personal_savings_for_mission(int mission_id, int savings)
-{
-    data.personal_savings[mission_id] = savings;
-}
-
-void setting_clear_personal_savings(void)
-{
-    for (int i = 0; i < MAX_PERSONAL_SAVINGS; i++) {
-        data.personal_savings[i] = 0;
-    }
 }

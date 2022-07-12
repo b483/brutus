@@ -132,7 +132,6 @@ typedef struct {
     buffer *message_delays;
     buffer *building_list_burning_totals;
     buffer *figure_sequence;
-    buffer *scenario_settings;
     buffer *invasion_warnings;
     buffer *city_sounds;
     buffer *building_extra_highest_id;
@@ -271,7 +270,6 @@ static void init_savegame_data(void)
     state->message_delays = create_savegame_piece(80, 0);
     state->building_list_burning_totals = create_savegame_piece(8, 0);
     state->figure_sequence = create_savegame_piece(4, 0);
-    state->scenario_settings = create_savegame_piece(8, 0);
     state->invasion_warnings = create_savegame_piece(3232, 1);
     state->city_sounds = create_savegame_piece(8960, 0);
     state->building_extra_highest_id = create_savegame_piece(4, 0);
@@ -337,9 +335,7 @@ static void savegame_load_from_state(savegame_state *state)
 {
     savegame_version = buffer_read_i32(state->file_version);
 
-    scenario_settings_load_state(state->scenario_settings,
-                                 state->player_name,
-                                 state->scenario_name);
+    scenario_settings_load_state(state->player_name, state->scenario_name);
 
     map_image_load_state(state->image_grid);
     map_building_load_state(state->building_grid, state->building_damage_grid);
@@ -414,9 +410,7 @@ static void savegame_save_to_state(savegame_state *state)
 {
     buffer_write_i32(state->file_version, savegame_version);
 
-    scenario_settings_save_state(state->scenario_settings,
-                                 state->player_name,
-                                 state->scenario_name);
+    scenario_settings_save_state(state->player_name, state->scenario_name);
 
     map_image_save_state(state->image_grid);
     map_building_save_state(state->building_grid, state->building_damage_grid);

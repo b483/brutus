@@ -15,8 +15,8 @@ const int SALARY_FOR_RANK[11] = { 0, 2, 5, 8, 12, 20, 30, 40, 60, 80, 100 };
 
 void city_emperor_init_scenario(void)
 {
-    city_data.ratings.favor = scenario_starting_favor();
-    city_data.emperor.personal_savings = scenario_starting_personal_savings();
+    city_data.ratings.favor = scenario_initial_favor();
+    city_data.emperor.personal_savings = scenario_initial_personal_savings();
     city_data.emperor.player_rank = scenario_property_player_rank();
     city_emperor_set_salary_rank();
 }

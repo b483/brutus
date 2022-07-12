@@ -116,21 +116,21 @@ struct win_criteria_t {
 
 typedef struct {
     int year;
-    int resource;
     int amount;
+    int resource;
     int deadline_years;
-    int can_comply_dialog_shown;
     int favor;
     int month;
     int state;
     int visible;
     int months_to_comply;
+    int can_comply_dialog_shown;
 } request_t;
 
 typedef struct {
     int year;
-    int type;
     int amount;
+    int type;
     int from;
     int attack_type;
     int month;
@@ -138,37 +138,37 @@ typedef struct {
 
 typedef struct {
     int year;
-    int month;
     int resource;
-    int amount;
     int is_rise;
+    int amount;
+    int month;
 } price_change_t;
 
 typedef struct {
     int year;
-    int month;
     int resource;
     int route_id;
     int is_rise;
+    int month;
 } demand_change_t;
 
 extern struct scenario_t {
     uint8_t scenario_name[MAX_SCENARIO_NAME];
-
-    int start_year;
-    int climate;
-    int player_rank;
-
-    int initial_funds;
-    int rescue_loan;
-
-    int rome_supplies_wheat;
-    int image_id;
     uint8_t brief_description[MAX_BRIEF_DESCRIPTION];
     uint8_t briefing[MAX_BRIEFING];
-    int enemy_id;
     int is_open_play;
     int open_play_scenario_id;
+    int player_rank;
+    int start_year;
+    int initial_favor;
+    int initial_funds;
+    int rescue_loan;
+    int initial_personal_savings;
+    int rome_supplies_wheat;
+    int flotsam_enabled;
+    int climate;
+    int image_id;
+    int enemy_id;
 
     struct {
         struct win_criteria_t population;
@@ -198,12 +198,11 @@ extern struct scenario_t {
     } empire;
 
     request_t requests[MAX_REQUESTS];
-
+    invasion_t invasions[MAX_INVASIONS];
+    price_change_t price_changes[MAX_DEMAND_CHANGES];
     demand_change_t demand_changes[MAX_DEMAND_CHANGES];
 
-    price_change_t price_changes[MAX_DEMAND_CHANGES];
-
-    invasion_t invasions[MAX_INVASIONS];
+    short allowed_buildings[MAX_ALLOWED_BUILDINGS];
 
     struct {
         int severity;
@@ -234,17 +233,15 @@ extern struct scenario_t {
         int grid_start;
         int grid_border_size;
     } map;
-    int flotsam_enabled;
+
+    map_point earthquake_point;
+    map_point invasion_points[MAX_INVASION_POINTS];
     map_point entry_point;
     map_point exit_point;
     map_point river_entry_point;
     map_point river_exit_point;
-    map_point earthquake_point;
     map_point herd_points[MAX_HERD_POINTS];
     map_point fishing_points[MAX_FISH_POINTS];
-    map_point invasion_points[MAX_INVASION_POINTS];
-
-    short allowed_buildings[MAX_ALLOWED_BUILDINGS];
 
     struct {
         int hut;
@@ -253,8 +250,6 @@ extern struct scenario_t {
     } native_images;
 
     struct { // used to be stored in the settings file
-        int starting_favor;
-        int starting_personal_savings;
         uint8_t player_name[MAX_PLAYER_NAME];
     } settings;
 

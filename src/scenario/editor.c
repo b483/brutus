@@ -35,62 +35,71 @@ void scenario_editor_create(int map_size)
     scenario.map.grid_border_size = GRID_SIZE - scenario.map.width;
     scenario.map.grid_start = (GRID_SIZE - scenario.map.height) / 2 * GRID_SIZE + (GRID_SIZE - scenario.map.width) / 2;
 
-    string_copy(lang_get_string(44, 37), scenario.brief_description, MAX_BRIEF_DESCRIPTION);
+    // Map description
     string_copy(lang_get_string(44, 38), scenario.briefing, MAX_BRIEFING);
 
+    // Brief description
+    string_copy(lang_get_string(44, 37), scenario.brief_description, MAX_BRIEF_DESCRIPTION);
+
+    // Starting conditions
+    scenario.start_year = -500;
+    scenario.initial_favor = 40;
     scenario.initial_funds = 1000;
     scenario.rescue_loan = 500;
-    scenario.start_year = -500;
-
+    scenario.initial_personal_savings = 0;
+    scenario.rome_supplies_wheat = 0;
     scenario.win_criteria.milestone25_year = 10;
     scenario.win_criteria.milestone50_year = 20;
     scenario.win_criteria.milestone75_year = 30;
 
+    // Requests
+    for (int i = 0; i < MAX_REQUESTS; i++) {
+        scenario.requests[i].deadline_years = 5;
+        scenario.requests[i].favor = 8;
+    }
+
+    // Invasions
+    for (int i = 0; i < MAX_INVASIONS; i++) {
+        scenario.invasions[i].from = 8;
+    }
+
+    // Buildings allowed
     for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
         scenario.allowed_buildings[i] = 1;
     }
-    scenario.rome_supplies_wheat = 0;
 
-    scenario.win_criteria.culture.goal = 10;
+    // Win criteria
     scenario.win_criteria.culture.enabled = 1;
-    scenario.win_criteria.prosperity.goal = 10;
+    scenario.win_criteria.culture.goal = 10;
     scenario.win_criteria.prosperity.enabled = 1;
-    scenario.win_criteria.peace.goal = 10;
+    scenario.win_criteria.prosperity.goal = 10;
     scenario.win_criteria.peace.enabled = 1;
-    scenario.win_criteria.favor.goal = 10;
+    scenario.win_criteria.peace.goal = 10;
     scenario.win_criteria.favor.enabled = 1;
-    scenario.win_criteria.population.goal = 0;
+    scenario.win_criteria.favor.goal = 10;
     scenario.win_criteria.population.enabled = 0;
-
-    scenario.win_criteria.time_limit.years = 0;
+    scenario.win_criteria.population.goal = 0;
     scenario.win_criteria.time_limit.enabled = 0;
-    scenario.win_criteria.survival_time.years = 0;
+    scenario.win_criteria.time_limit.years = 0;
     scenario.win_criteria.survival_time.enabled = 0;
+    scenario.win_criteria.survival_time.years = 0;
 
     scenario.earthquake.severity = 0;
     scenario.earthquake.year = 0;
 
     init_point(&scenario.earthquake_point);
+    for (int i = 0; i < MAX_INVASION_POINTS; i++) {
+        init_point(&scenario.invasion_points[i]);
+    }
     init_point(&scenario.entry_point);
     init_point(&scenario.exit_point);
     init_point(&scenario.river_entry_point);
     init_point(&scenario.river_exit_point);
-    for (int i = 0; i < MAX_INVASION_POINTS; i++) {
-        init_point(&scenario.invasion_points[i]);
-    }
     for (int i = 0; i < MAX_FISH_POINTS; i++) {
         init_point(&scenario.fishing_points[i]);
     }
     for (int i = 0; i < MAX_HERD_POINTS; i++) {
         init_point(&scenario.herd_points[i]);
-    }
-
-    for (int i = 0; i < MAX_REQUESTS; i++) {
-        scenario.requests[i].deadline_years = 5;
-        scenario.requests[i].favor = 8;
-    }
-    for (int i = 0; i < MAX_INVASIONS; i++) {
-        scenario.invasions[i].from = 8;
     }
 
     scenario.is_saved = 1;
@@ -117,7 +126,7 @@ static void sort_requests(void)
     for (int i = 0; i < MAX_REQUESTS; i++) {
         for (int j = MAX_REQUESTS - 1; j > 0; j--) {
             request_t *current = &scenario.requests[j];
-            request_t *prev = &scenario.requests[j-1];
+            request_t *prev = &scenario.requests[j - 1];
             if (current->resource && (!prev->resource || prev->year > current->year)) {
                 request_t tmp = *current;
                 *current = *prev;
@@ -163,7 +172,7 @@ static void sort_invasions(void)
     for (int i = 0; i < MAX_INVASIONS; i++) {
         for (int j = MAX_INVASIONS - 1; j > 0; j--) {
             invasion_t *current = &scenario.invasions[j];
-            invasion_t *prev = &scenario.invasions[j-1];
+            invasion_t *prev = &scenario.invasions[j - 1];
             if (current->type && (!prev->type || prev->year > current->year)) {
                 invasion_t tmp = *current;
                 *current = *prev;
@@ -213,7 +222,7 @@ static void sort_price_changes(void)
     for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
         for (int j = MAX_PRICE_CHANGES - 1; j > 0; j--) {
             price_change_t *current = &scenario.price_changes[j];
-            price_change_t *prev = &scenario.price_changes[j-1];
+            price_change_t *prev = &scenario.price_changes[j - 1];
             if (current->year && (!prev->year || prev->year > current->year)) {
                 price_change_t tmp = *current;
                 *current = *prev;
@@ -261,7 +270,7 @@ static void sort_demand_changes(void)
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
         for (int j = MAX_DEMAND_CHANGES - 1; j > 0; j--) {
             demand_change_t *current = &scenario.demand_changes[j];
-            demand_change_t *prev = &scenario.demand_changes[j-1];
+            demand_change_t *prev = &scenario.demand_changes[j - 1];
             if (current->year && (!prev->year || prev->year > current->year)) {
                 demand_change_t tmp = *current;
                 *current = *prev;
@@ -366,6 +375,12 @@ void scenario_editor_set_player_rank(int rank)
     scenario.is_saved = 0;
 }
 
+void scenario_editor_set_initial_favor(int amount)
+{
+    scenario.initial_favor = amount;
+    scenario.is_saved = 0;
+}
+
 void scenario_editor_set_initial_funds(int amount)
 {
     scenario.initial_funds = amount;
@@ -375,6 +390,12 @@ void scenario_editor_set_initial_funds(int amount)
 void scenario_editor_set_rescue_loan(int amount)
 {
     scenario.rescue_loan = amount;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_initial_personal_savings(int amount)
+{
+    scenario.initial_personal_savings = amount;
     scenario.is_saved = 0;
 }
 

@@ -78,8 +78,4 @@ void setting_set_last_advisor(int advisor);
 const uint8_t *setting_player_name(void);
 void setting_set_player_name(const uint8_t *player_name);
 
-int setting_personal_savings_for_mission(int mission_id);
-void setting_set_personal_savings_for_mission(int mission_id, int savings);
-void setting_clear_personal_savings(void);
-
 #endif // GAME_SETTINGS_H

@@ -10,9 +10,6 @@ typedef enum {
 } scenario_climate;
 
 
-int scenario_starting_favor(void);
-int scenario_starting_personal_savings(void);
-
 const uint8_t *scenario_name(void);
 void scenario_set_name(const uint8_t *name);
 
@@ -37,8 +34,12 @@ int scenario_image_id(void);
 
 const uint8_t *scenario_brief_description(void);
 
+int scenario_initial_favor(void);
+
 int scenario_initial_funds(void);
 
 int scenario_rescue_loan(void);
+
+int scenario_initial_personal_savings(void);
 
 #endif // SCENARIO_PROPERTY_H
