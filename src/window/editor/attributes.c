@@ -31,7 +31,7 @@
 #include "window/editor/win_criteria.h"
 #include "window/select_list.h"
 
-#define BRIEF_DESC_LENGTH 64
+#define BRIEF_DESC_LENGTH 32
 
 static void button_starting_conditions(int param1, int param2);
 static void button_requests(int param1, int param2);
