@@ -1,7 +1,7 @@
 #ifndef CORE_CONFIG_H
 #define CORE_CONFIG_H
 
-#define CONFIG_STRING_VALUE_MAX 64
+#define CONFIG_STRING_VALUE_MAX 32
 #define MAX_PLAYER_NAME_LENGTH 24
 
 typedef enum {
@@ -25,7 +25,6 @@ typedef enum {
 
 typedef enum {
     CONFIG_STRING_PLAYER_NAME,
-    CONFIG_STRING_UI_LANGUAGE_DIR,
     CONFIG_STRING_MAX_ENTRIES
 } config_string_key;
 

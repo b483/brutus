@@ -434,16 +434,12 @@ void scenario_load_state(buffer *buf)
 
 void scenario_settings_save_state(buffer *player_name, buffer *scenario_name)
 {
-    for (int i = 0; i < MAX_PLAYER_NAME; i++) {
-        buffer_write_u8(player_name, 0);
-    }
     buffer_write_raw(player_name, scenario.settings.player_name, MAX_PLAYER_NAME);
     buffer_write_raw(scenario_name, scenario.scenario_name, MAX_SCENARIO_NAME);
 }
 
 void scenario_settings_load_state(buffer *player_name, buffer *scenario_name)
 {
-    buffer_skip(player_name, MAX_PLAYER_NAME);
     buffer_read_raw(player_name, scenario.settings.player_name, MAX_PLAYER_NAME);
     buffer_read_raw(scenario_name, scenario.scenario_name, MAX_SCENARIO_NAME);
 }

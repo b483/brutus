@@ -242,7 +242,7 @@ static void init_savegame_data(void)
     state->formation_totals = create_savegame_piece(12, 0);
     state->city_data = create_savegame_piece(36136, 1);
     state->city_faction_unknown = create_savegame_piece(2, 0);
-    state->player_name = create_savegame_piece(64, 0);
+    state->player_name = create_savegame_piece(32, 0);
     state->city_faction = create_savegame_piece(4, 0);
     state->buildings = create_savegame_piece(256000, 1);
     state->city_view_orientation = create_savegame_piece(4, 0);
