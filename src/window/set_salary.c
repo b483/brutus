@@ -99,7 +99,7 @@ static void button_cancel(int param1, int param2)
 static void button_set_salary(int rank, int param2)
 {
     if (!city_victory_has_won()) {
-        city_emperor_set_salary_rank();
+        city_emperor_set_salary_rank(rank);
         city_finance_update_salary();
         city_ratings_update_favor_explanation();
         window_advisors_show();

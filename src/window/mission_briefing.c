@@ -1,6 +1,5 @@
 #include "mission_briefing.h"
 
-#include "city/mission.h"
 #include "core/image_group.h"
 #include "core/lang.h"
 #include "game/file.h"
@@ -15,6 +14,7 @@
 #include "scenario/property.h"
 #include "sound/music.h"
 #include "sound/speech.h"
+#include "window/cck_selection.h"
 #include "window/city.h"
 #include "window/intermezzo.h"
 
@@ -34,7 +34,6 @@ static image_button image_button_start_mission = {
 static struct {
     int is_review;
     int focus_button;
-    int campaign_mission_loaded;
 } data;
 
 static void init(void)
@@ -45,29 +44,19 @@ static void init(void)
 
 static void draw_background(void)
 {
-    if (!data.campaign_mission_loaded) {
-        data.campaign_mission_loaded = 1;
-        if (!game_file_start_scenario_by_name(scenario_name())) {
-            window_city_show();
-            return;
-        }
-    }
-
     window_draw_underlying_window();
 
     graphics_in_dialog();
-    int text_id = 200;
-    const lang_message *msg = lang_get_message(text_id);
 
     outer_panel_draw(16, 32, 38, 27);
-    text_draw(msg->title.text, 32, 48, FONT_LARGE_BLACK, 0);
-    text_draw(msg->subtitle.text, 32, 78, FONT_NORMAL_BLACK, 0);
 
-    lang_text_draw(62, 7, 376, 433, FONT_NORMAL_BLACK);
-    if (!data.is_review) {
-        lang_text_draw(13, 4, 66, 435, FONT_NORMAL_BLACK);
-    }
+    // Player name
+    text_draw(scenario_player_name(), 50, 48, FONT_LARGE_BLACK, 0);
 
+    // Scenario name
+    text_draw(scenario_name(), 50, 78, FONT_NORMAL_BLACK, 0);
+
+    // Objectives
     inner_panel_draw(32, 96, 33, 5);
     lang_text_draw(62, 10, 48, 104, FONT_NORMAL_WHITE);
     int goal_index = 0;
@@ -113,13 +102,18 @@ static void draw_background(void)
     }
 
     inner_panel_draw(32, 184, 33, 15);
-
+    // Text body (map description)
     rich_text_set_fonts(FONT_NORMAL_WHITE, FONT_NORMAL_RED, 5);
-    rich_text_init(msg->content.text, 64, 184, 31, 15, 0);
-
+    rich_text_init(scenario_briefing(), 64, 184, 31, 15, 0);
     graphics_set_clip_rectangle(35, 187, 522, 234);
-    rich_text_draw(msg->content.text, 48, 196, 496, 14, 0);
+    rich_text_draw(scenario_briefing(), 48, 196, 496, 14, 0);
     graphics_reset_clip_rectangle();
+
+    // To the city / cancel
+    lang_text_draw(62, 7, 376, 433, FONT_NORMAL_BLACK);
+    if (!data.is_review) {
+        lang_text_draw(13, 4, 66, 435, FONT_NORMAL_BLACK);
+    }
 
     graphics_reset_dialog();
 }
@@ -155,16 +149,18 @@ static void handle_input(const mouse *m, const hotkeys *h)
 static void button_back(int param1, int param2)
 {
     if (!data.is_review) {
-        sound_speech_stop();
+        rich_text_reset(0);
+        window_cck_selection_show();
+        sound_music_play_intro();
     }
 }
 
 static void button_start_mission(int param1, int param2)
 {
+    rich_text_reset(0);
     sound_speech_stop();
     sound_music_update(1);
     window_city_show();
-    city_mission_reset_save_start();
 }
 
 static void show(void)
@@ -182,13 +178,11 @@ static void show(void)
 void window_mission_briefing_show(void)
 {
     data.is_review = 0;
-    data.campaign_mission_loaded = 0;
     window_intermezzo_show(INTERMEZZO_MISSION_BRIEFING, show);
 }
 
 void window_mission_briefing_show_review(void)
 {
     data.is_review = 1;
-    data.campaign_mission_loaded = 1;
     window_intermezzo_show(INTERMEZZO_MISSION_BRIEFING, show);
 }

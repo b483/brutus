@@ -216,7 +216,8 @@ static translation_string all_strings[] = {
     {TR_FUTURE_TRADE_CITY_TYPE, "A future trade city"},
     {TR_EMPIRE_EXPANSION_YEAR, "Year offset for empire expansion: "},
     {TR_EDITOR_INITIAL_FAVOR, "Initial favor"},
-    {TR_EDITOR_INITIAL_PERSONAL_SAVINGS, "Initial personal savings"}
+    {TR_EDITOR_INITIAL_PERSONAL_SAVINGS, "Initial personal savings"},
+    {TR_EDITOR_MAP_BRIEFING_HINT, "Hint: 'atL' for new line, 'atP' for new paragraph (replace 'at' with the symbol - will be hidden)"}
 };
 
 void translation_english(const translation_string **strings, int *num_strings)

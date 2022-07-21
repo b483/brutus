@@ -290,7 +290,6 @@ set(CITY_FILES
     ${PROJECT_SOURCE_DIR}/src/city/message.c
     ${PROJECT_SOURCE_DIR}/src/city/migration.c
     ${PROJECT_SOURCE_DIR}/src/city/military.c
-    ${PROJECT_SOURCE_DIR}/src/city/mission.c
     ${PROJECT_SOURCE_DIR}/src/city/population.c
     ${PROJECT_SOURCE_DIR}/src/city/ratings.c
     ${PROJECT_SOURCE_DIR}/src/city/resource.c
@@ -508,6 +507,7 @@ set(WINDOW_FILES
     ${PROJECT_SOURCE_DIR}/src/window/building/utility.c
     ${PROJECT_SOURCE_DIR}/src/window/editor/allowed_buildings.c
     ${PROJECT_SOURCE_DIR}/src/window/editor/attributes.c
+    ${PROJECT_SOURCE_DIR}/src/window/editor/briefing.c
     ${PROJECT_SOURCE_DIR}/src/window/editor/build_menu.c
     ${PROJECT_SOURCE_DIR}/src/window/editor/demand_changes.c
     ${PROJECT_SOURCE_DIR}/src/window/editor/edit_demand_change.c

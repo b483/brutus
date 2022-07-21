@@ -32,6 +32,11 @@ void rich_text_set_fonts(font_t normal_font, font_t link_font, int line_spacing)
 void rich_text_reset(int scroll_position);
 
 /**
+ * Forces recalculation of lines only
+ */
+void rich_text_reset_lines_only(void);
+
+/**
  * Clear the links table
  */
 void rich_text_clear_links(void);

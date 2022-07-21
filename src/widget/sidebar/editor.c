@@ -19,6 +19,7 @@
 #include "widget/minimap.h"
 #include "widget/sidebar/common.h"
 #include "window/editor/attributes.h"
+#include "window/editor/briefing.h"
 #include "window/editor/build_menu.h"
 #include "window/editor/map.h"
 
@@ -27,10 +28,11 @@
 static void button_build_tool(int tool, int param2);
 static void button_build_menu(int submenu, int param2);
 
+static void button_briefing(int show, int param2);
 static void button_attributes(int show, int param2);
 
 static image_button buttons_build[] = {
-    {7, 123, 71, 23, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 45, button_attributes, button_none, 0, 0, 1},
+    {7, 123, 71, 23, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 45, button_briefing, button_none, 1, 0, 1},
     {84, 123, 71, 23, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 48, button_attributes, button_none, 1, 0, 1},
     {13, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 0, button_build_tool, button_none, TOOL_GRASS, 0, 1},
     {63, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 3, button_build_tool, button_none, TOOL_SHRUB, 0, 1},
@@ -166,6 +168,20 @@ int widget_sidebar_editor_handle_mouse_build_menu(const mouse *m)
 int widget_sidebar_editor_handle_mouse_attributes(const mouse *m)
 {
     return image_buttons_handle_mouse(m, sidebar_common_get_x_offset_expanded(), 24, buttons_build, 2, 0);
+}
+
+static void button_briefing(int show, int param2)
+{
+    window_editor_build_menu_hide();
+    if (show) {
+        if (!window_is(WINDOW_EDITOR_BRIEFING)) {
+            window_editor_briefing_show();
+        }
+    } else {
+        if (!window_is(WINDOW_EDITOR_MAP)) {
+            window_editor_map_show();
+        }
+    }
 }
 
 static void button_attributes(int show, int param2)

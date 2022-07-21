@@ -374,7 +374,6 @@ extern struct city_data_t {
         int32_t continue_months_chosen;
         int32_t fired_message_shown;
         int32_t victory_message_shown;
-        int32_t start_saved_game_written;
     } mission;
     struct {
         int8_t other_player[18068];

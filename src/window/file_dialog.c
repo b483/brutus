@@ -4,7 +4,6 @@
 #include "core/dir.h"
 #include "core/encoding.h"
 #include "core/file.h"
-#include "core/image_group.h"
 #include "core/lang.h"
 #include "core/string.h"
 #include "core/time.h"

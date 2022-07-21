@@ -22,6 +22,8 @@
 #include "sound/music.h"
 #include "widget/scenario_minimap.h"
 #include "window/city.h"
+#include "window/main_menu.h"
+#include "window/mission_briefing.h"
 
 #include <string.h>
 
@@ -33,10 +35,10 @@ static void button_toggle_minimap(int param1, int param2);
 static void on_scroll(void);
 
 static image_button start_button =
-    {600, 440, 27, 27, IB_NORMAL, GROUP_SIDEBAR_BUTTONS, 56, button_start_scenario, button_none, 1, 0, 1};
+{ 600, 440, 27, 27, IB_NORMAL, GROUP_SIDEBAR_BUTTONS, 56, button_start_scenario, button_none, 1, 0, 1 };
 
 static generic_button toggle_minimap_button =
-    {570, 87, 39, 28, button_toggle_minimap, button_none, 0, 0};
+{ 570, 87, 39, 28, button_toggle_minimap, button_none, 0, 0 };
 
 static generic_button file_buttons[] = {
     {18, 220, 252, 16, button_select_item, button_none, 0, 0},
@@ -56,7 +58,7 @@ static generic_button file_buttons[] = {
     {18, 444, 252, 16, button_select_item, button_none, 14, 0},
 };
 
-static scrollbar_type scrollbar = {276, 210, 256, on_scroll, 8, 1};
+static scrollbar_type scrollbar = { 276, 210, 256, on_scroll, 8, 1 };
 
 static struct {
     int focus_button_id;
@@ -248,7 +250,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     if (input_go_back_requested(m, h)) {
-        window_go_back();
+        window_main_menu_show(0);
     }
 }
 
@@ -269,7 +271,7 @@ static void button_start_scenario(int param1, int param2)
 {
     if (game_file_start_scenario(data.selected_scenario_filename)) {
         sound_music_update(1);
-        window_city_show();
+        window_mission_briefing_show();
     }
 }
 

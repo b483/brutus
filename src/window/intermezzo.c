@@ -25,11 +25,12 @@ static void init(intermezzo_type type, void (*callback)(void))
     data.type = type;
     data.callback = callback;
     data.start_time = time_get_millis();
-    sound_music_stop();
     sound_speech_stop();
     if (data.type == INTERMEZZO_FIRED) {
+        sound_music_stop();
         sound_speech_play_file(SOUND_FILE_LOSE);
     } else if (data.type == INTERMEZZO_WON) {
+        sound_music_stop();
         sound_speech_play_file(SOUND_FILE_WIN);
     }
 }

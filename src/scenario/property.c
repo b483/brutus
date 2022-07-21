@@ -64,6 +64,11 @@ int scenario_image_id(void)
     return scenario.image_id;
 }
 
+const uint8_t *scenario_briefing(void)
+{
+    return scenario.briefing;
+}
+
 const uint8_t *scenario_brief_description(void)
 {
     return scenario.brief_description;

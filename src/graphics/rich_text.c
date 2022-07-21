@@ -15,7 +15,7 @@
 
 static void on_scroll(void);
 
-static scrollbar_type scrollbar = {0, 0, 0, on_scroll};
+static scrollbar_type scrollbar = { 0, 0, 0, on_scroll };
 
 static struct {
     int message_id;
@@ -83,6 +83,11 @@ void rich_text_reset(int scroll_position)
     rich_text_clear_links();
 }
 
+void rich_text_reset_lines_only(void)
+{
+    data.num_lines = 0;
+}
+
 void rich_text_clear_links(void)
 {
     for (int i = 0; i < MAX_LINKS; i++) {
@@ -128,33 +133,6 @@ static int get_word_width(const uint8_t *str, int in_link, int *num_chars)
     int start_link = 0;
     *num_chars = 0;
     while (*str && ++guard < 2000) {
-        if (*str == '@') {
-            str++;
-            if (!word_char_seen) {
-                if (*str == 'P' || *str == 'L') {
-                    *num_chars += 2;
-                    width = 0;
-                    break;
-                } else if (*str == 'G') {
-                    // skip graphic
-                    *num_chars += 2;
-                    while (*str >= '0' && *str <= '9') {
-                        str++;
-                        (*num_chars)++;
-                    }
-                    width = 0;
-                    break;
-                } else {
-                    (*num_chars)++;
-                    while (*str >= '0' && *str <= '9') {
-                        str++;
-                        (*num_chars)++;
-                    }
-                    in_link = 1;
-                    start_link = 1;
-                }
-            }
-        }
         int num_bytes = 1;
         if (*str == ' ') {
             if (word_char_seen) {

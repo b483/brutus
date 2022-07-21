@@ -333,6 +333,14 @@ void scenario_editor_cycle_climate(void)
     scenario.is_saved = 0;
 }
 
+void scenario_editor_update_briefing(const uint8_t *new_briefing)
+{
+    if (!string_equals(scenario.briefing, new_briefing)) {
+        string_copy(new_briefing, scenario.briefing, MAX_BRIEFING);
+        scenario.is_saved = 0;
+    }
+}
+
 void scenario_editor_update_brief_description(const uint8_t *new_description)
 {
     if (!string_equals(scenario.brief_description, new_description)) {

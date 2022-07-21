@@ -20,7 +20,7 @@
 #define MAX_PLAYER_NAME 32
 #define MAX_SCENARIO_NAME 65
 #define MAX_BRIEF_DESCRIPTION 32
-#define MAX_BRIEFING 522
+#define MAX_BRIEFING 2302
 
 enum {
     EVENT_NOT_STARTED = 0,
@@ -154,8 +154,8 @@ typedef struct {
 
 extern struct scenario_t {
     uint8_t scenario_name[MAX_SCENARIO_NAME];
-    uint8_t brief_description[MAX_BRIEF_DESCRIPTION];
     uint8_t briefing[MAX_BRIEFING];
+    uint8_t brief_description[MAX_BRIEF_DESCRIPTION];
     int is_open_play;
     int open_play_scenario_id;
     int player_rank;

@@ -57,6 +57,8 @@ void scenario_editor_cycle_image(int forward);
 
 void scenario_editor_cycle_climate(void);
 
+void scenario_editor_update_briefing(const uint8_t *new_briefing);
+
 void scenario_editor_update_brief_description(const uint8_t *new_description);
 
 void scenario_editor_set_enemy(int enemy_id);

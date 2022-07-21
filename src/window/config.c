@@ -155,7 +155,7 @@ static struct {
     int active_numerical_range;
 } data;
 
-static input_box player_name_input = { 125, 50, 20, 2, FONT_NORMAL_WHITE, 1, (uint8_t *) data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value, MAX_PLAYER_NAME_LENGTH };
+static input_box player_name_input = { 125, 50, 20, 2, FONT_NORMAL_WHITE, 0, (uint8_t *) data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value, MAX_PLAYER_NAME_LENGTH };
 
 static int config_change_basic(config_key key);
 static int config_change_string_basic(config_string_key key);

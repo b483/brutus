@@ -516,7 +516,6 @@ static void save_main_data(buffer *main)
     buffer_write_i32(main, city_data.migration.emigration_message_shown);
     buffer_write_i32(main, city_data.mission.fired_message_shown);
     buffer_write_i32(main, city_data.mission.victory_message_shown);
-    buffer_write_i32(main, city_data.mission.start_saved_game_written);
     buffer_write_i32(main, city_data.figure.attacking_natives);
     for (int i = 0; i < 232; i++) {
         buffer_write_i8(main, city_data.unused.unknown_464c[i]);
@@ -990,7 +989,6 @@ static void load_main_data(buffer *main)
     city_data.migration.emigration_message_shown = buffer_read_i32(main);
     city_data.mission.fired_message_shown = buffer_read_i32(main);
     city_data.mission.victory_message_shown = buffer_read_i32(main);
-    city_data.mission.start_saved_game_written = buffer_read_i32(main);
     city_data.figure.attacking_natives = buffer_read_i32(main);
     for (int i = 0; i < 232; i++) {
         city_data.unused.unknown_464c[i] = buffer_read_i8(main);

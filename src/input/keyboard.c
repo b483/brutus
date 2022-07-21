@@ -346,7 +346,7 @@ static int keyboard_character(uint8_t *text)
         add = 1;
     } else if (c >= 'A' && c <= 'Z') {
         add = 1;
-    } else if (c == ',' || c == '.' || c == '?' || c == '!') {
+    } else if (c == ',' || c == '.' || c == '?' || c == '!' || c == '@' || c == '%' || c == '\'') {
         add = data.allow_punctuation;
     } else if (c >= 0x80) { // do not check non-ascii for valid characters
         add = 1;

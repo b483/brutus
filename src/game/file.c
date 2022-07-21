@@ -10,7 +10,6 @@
 #include "city/map.h"
 #include "city/message.h"
 #include "city/military.h"
-#include "city/mission.h"
 #include "city/victory.h"
 #include "city/view.h"
 #include "core/encoding.h"

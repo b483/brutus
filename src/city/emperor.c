@@ -18,7 +18,7 @@ void city_emperor_init_scenario(void)
     city_data.ratings.favor = scenario_initial_favor();
     city_data.emperor.personal_savings = scenario_initial_personal_savings();
     city_data.emperor.player_rank = scenario_property_player_rank();
-    city_emperor_set_salary_rank();
+    city_emperor_set_salary_rank(city_data.emperor.player_rank);
 }
 
 static void update_debt_state(void)
@@ -263,11 +263,10 @@ int city_emperor_salary_for_rank(int rank)
     return SALARY_FOR_RANK[rank];
 }
 
-void city_emperor_set_salary_rank(void)
+void city_emperor_set_salary_rank(int player_rank)
 {
-    int salary_rank = scenario_property_player_rank();
-    city_data.emperor.salary_rank = salary_rank;
-    city_data.emperor.salary_amount = SALARY_FOR_RANK[salary_rank];
+    city_data.emperor.salary_rank = player_rank;
+    city_data.emperor.salary_amount = SALARY_FOR_RANK[player_rank];
 }
 
 int city_emperor_salary_rank(void)
