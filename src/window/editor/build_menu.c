@@ -5,8 +5,11 @@
 #include "graphics/generic_button.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
+#include "graphics/text.h"
 #include "graphics/window.h"
 #include "input/input.h"
+#include "scenario/data.h"
+#include "translation/translation.h"
 #include "widget/map_editor.h"
 #include "widget/sidebar/editor.h"
 #include "window/editor/map.h"
@@ -34,15 +37,11 @@ static generic_button build_menu_buttons[] = {
     {0, 264, 160, 20, button_menu_item, button_none, 11, 0},
     {0, 288, 160, 20, button_menu_item, button_none, 12, 0},
     {0, 312, 160, 20, button_menu_item, button_none, 13, 0},
-    {0, 336, 160, 20, button_menu_item, button_none, 14, 0}
+    {0, 336, 160, 20, button_menu_item, button_none, 14, 0},
+    {0, 360, 160, 20, button_menu_item, button_none, 15, 0}
 };
 
-static const int Y_MENU_OFFSETS[16] = {
-    0, 322, 306, 274, 258, 226, 210, 178,
-    162, 130, 114, 82, 66, 34, 18, -30,
-};
-
-#define MAX_ITEMS_PER_MENU 15
+#define MAX_ITEMS_PER_MENU 16
 static const int MENU_TYPES[MENU_NUM_ITEMS][MAX_ITEMS_PER_MENU] = {
     {0, 1, 2, 3, 4, -1},
     {5, 6, -1},
@@ -50,16 +49,15 @@ static const int MENU_TYPES[MENU_NUM_ITEMS][MAX_ITEMS_PER_MENU] = {
     {10, 11, 12, 13, 14, 15, 16, 17, -1},
     {18, 19, -1},
     {20, 21, 22, -1},
-    {23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, -1},
+    {23, 24, 25, 26, 27, 28, 29, 30, -1},
 };
 
 static struct {
     int selected_submenu;
     int num_items;
     int y_offset;
-
     int focus_button_id;
-} data = {MENU_NONE};
+} data = { MENU_NONE };
 
 static int count_items(int submenu)
 {
@@ -74,7 +72,7 @@ static void init(int submenu)
 {
     data.selected_submenu = submenu;
     data.num_items = count_items(submenu);
-    data.y_offset = Y_MENU_OFFSETS[data.num_items];
+    data.y_offset = 180;
 }
 
 static void draw_background(void)
@@ -98,6 +96,14 @@ static void draw_menu_buttons(void)
         lang_text_draw_centered(48, MENU_TYPES[data.selected_submenu][i], x_offset - MENU_X_OFFSET,
             data.y_offset + MENU_Y_OFFSET + 3 + MENU_ITEM_HEIGHT * i,
             MENU_ITEM_WIDTH, FONT_NORMAL_GREEN);
+    }
+    if (data.selected_submenu == 6) {
+        data.num_items = MAX_FISH_POINTS + MAX_HERD_POINTS;
+        for (int i = MAX_FISH_POINTS; i < MAX_ITEMS_PER_MENU; i++) {
+            label_draw(x_offset - MENU_X_OFFSET, data.y_offset + MENU_Y_OFFSET + MENU_ITEM_HEIGHT * i, 10, data.focus_button_id == i + 1 ? 1 : 2);
+            text_draw_centered(translation_for(TR_EDITOR_HERD_POINT_1 + i - MAX_FISH_POINTS), x_offset - MENU_X_OFFSET,
+            data.y_offset + MENU_Y_OFFSET + 3 + MENU_ITEM_HEIGHT * i, MENU_ITEM_WIDTH, FONT_NORMAL_GREEN, COLOR_BLACK);
+        }
     }
 }
 
@@ -173,10 +179,10 @@ static void button_menu_item(int index, int param2)
             editor_tool_set_with_id(TOOL_INVASION_POINT, index);
             break;
         case MENU_ANIMAL_POINTS:
-            if (index < 8) {
+            if (index < MAX_FISH_POINTS) {
                 editor_tool_set_with_id(TOOL_FISHING_POINT, index);
             } else {
-                editor_tool_set_with_id(TOOL_HERD_POINT, index - 8);
+                editor_tool_set_with_id(TOOL_HERD_POINT, index - MAX_FISH_POINTS);
             }
             break;
     }

@@ -217,7 +217,15 @@ static translation_string all_strings[] = {
     {TR_EMPIRE_EXPANSION_YEAR, "Year offset for empire expansion: "},
     {TR_EDITOR_INITIAL_FAVOR, "Initial favor"},
     {TR_EDITOR_INITIAL_PERSONAL_SAVINGS, "Initial personal savings"},
-    {TR_EDITOR_MAP_BRIEFING_HINT, "Hint: 'atL' for new line, 'atP' for new paragraph (replace 'at' with the symbol - will be hidden)"}
+    {TR_EDITOR_MAP_BRIEFING_HINT, "Hint: 'atL' for new line, 'atP' for new paragraph (replace 'at' with the symbol - will be hidden)"},
+    {TR_EDITOR_HERD_POINT_1, "Herd point 1"},
+    {TR_EDITOR_HERD_POINT_2, "Herd point 2"},
+    {TR_EDITOR_HERD_POINT_3, "Herd point 3"},
+    {TR_EDITOR_HERD_POINT_4, "Herd point 4"},
+    {TR_EDITOR_HERD_POINT_5, "Herd point 5"},
+    {TR_EDITOR_HERD_POINT_6, "Herd point 6"},
+    {TR_EDITOR_HERD_POINT_7, "Herd point 7"},
+    {TR_EDITOR_HERD_POINT_8, "Herd point 8"},
 };
 
 void translation_english(const translation_string **strings, int *num_strings)

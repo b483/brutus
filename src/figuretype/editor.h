@@ -14,10 +14,10 @@ enum {
     MAP_FLAG_FISHING_MIN = 14,
     MAP_FLAG_FISHING_MAX = 22,
     MAP_FLAG_HERD_MIN = 22,
-    MAP_FLAG_HERD_MAX = 26,
+    MAP_FLAG_HERD_MAX = 30,
 
     MAP_FLAG_MIN = 1,
-    MAP_FLAG_MAX = 26,
+    MAP_FLAG_MAX = 30,
 };
 
 void figure_create_editor_flags(void);
