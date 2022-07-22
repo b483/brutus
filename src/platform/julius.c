@@ -97,8 +97,8 @@ static void write_log(void *userdata, int category, SDL_LogPriority priority, co
 static void setup_logging(void)
 {
     // On some platforms (vita, android), not removing the file will not empty it when reopening for writing
-    file_remove("julius-log.txt");
-    log_file = file_open("julius-log.txt", "wt");
+    file_remove("brutus-log.txt");
+    log_file = file_open("brutus-log.txt", "wt");
     SDL_LogSetOutputFunction(write_log, NULL);
 }
 
@@ -526,7 +526,7 @@ static void setup(const julius_args *args)
     signal(SIGSEGV, handler);
     setup_logging();
 
-    SDL_Log("Julius version %s", system_version());
+    SDL_Log("Brutus version %s", system_version());
 
     if (!init_sdl()) {
         SDL_Log("Exiting: SDL init failed");
