@@ -132,9 +132,13 @@ void figure_delete(figure *f);
 
 int figure_is_dead(const figure *f);
 
+int figure_is_legion(const figure *f);
+
 int figure_is_enemy(const figure *f);
 
-int figure_is_legion(const figure *f);
+int figure_is_caesar_legion(const figure *f);
+
+int figure_is_native(const figure *f);
 
 int figure_is_herd(const figure *f);
 

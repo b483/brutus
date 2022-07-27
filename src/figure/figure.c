@@ -15,7 +15,7 @@
 static struct {
     int created_sequence;
     figure figures[MAX_FIGURES];
-} data = {0};
+} data = { 0 };
 
 figure *figure_get(int id)
 {
@@ -119,14 +119,24 @@ int figure_is_dead(const figure *f)
     return f->state != FIGURE_STATE_ALIVE || f->action_state == FIGURE_ACTION_149_CORPSE;
 }
 
+int figure_is_legion(const figure *f)
+{
+    return f->type >= FIGURE_FORT_JAVELIN && f->type <= FIGURE_FORT_LEGIONARY;
+}
+
 int figure_is_enemy(const figure *f)
 {
     return f->type >= FIGURE_ENEMY43_SPEAR && f->type <= FIGURE_ENEMY_CAESAR_LEGIONARY;
 }
 
-int figure_is_legion(const figure *f)
+int figure_is_caesar_legion(const figure *f)
 {
-    return f->type >= FIGURE_FORT_JAVELIN && f->type <= FIGURE_FORT_LEGIONARY;
+    return f->type >= FIGURE_ENEMY_CAESAR_JAVELIN && f->type <= FIGURE_ENEMY_CAESAR_LEGIONARY;
+}
+
+int figure_is_native(const figure *f)
+{
+    return f->type == FIGURE_INDIGENOUS_NATIVE || f->type == FIGURE_NATIVE_TRADER;
 }
 
 int figure_is_herd(const figure *f)

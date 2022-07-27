@@ -86,7 +86,7 @@ static void hit_opponent(figure *f)
     // defense modifiers
     if (opponent_formation->is_halted &&
             (opponent_formation->figure_type == FIGURE_FORT_LEGIONARY ||
-             opponent_formation->figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY)) {
+                opponent_formation->figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY)) {
         if (!attack_is_same_direction(opponent->attack_direction, opponent_formation->direction)) {
             opponent_defense -= 4; // opponent not attacking in coordinated formation
         } else if (opponent_formation->layout == FORMATION_COLUMN) {
@@ -202,9 +202,7 @@ int figure_combat_get_target_for_wolf(int x, int y, int max_distance)
             case FIGURE_MAP_FLAG:
             case FIGURE_FLOTSAM:
             case FIGURE_SHIPWRECK:
-            case FIGURE_INDIGENOUS_NATIVE:
             case FIGURE_TOWER_SENTRY:
-            case FIGURE_NATIVE_TRADER:
             case FIGURE_ARROW:
             case FIGURE_JAVELIN:
             case FIGURE_BOLT:
@@ -212,7 +210,7 @@ int figure_combat_get_target_for_wolf(int x, int y, int max_distance)
             case FIGURE_CREATURE:
                 continue;
         }
-        if (figure_is_enemy(f) || figure_is_herd(f)) {
+        if (f->type == FIGURE_WOLF) {
             continue;
         }
         if (figure_is_legion(f) && f->action_state == FIGURE_ACTION_80_SOLDIER_AT_REST) {
@@ -242,7 +240,10 @@ int figure_combat_get_target_for_enemy(int x, int y)
         if (figure_is_dead(f)) {
             continue;
         }
-        if (!f->targeted_by_figure_id && figure_is_legion(f)) {
+        if (!f->targeted_by_figure_id
+            && (figure_is_legion(f)
+                || (figure_is_native(f) && !is_attacking_native(f))
+                || f->type == FIGURE_WOLF)) {
             int distance = calc_maximum_distance(x, y, f->x, f->y);
             if (distance < min_distance) {
                 min_distance = distance;
@@ -312,7 +313,6 @@ int figure_combat_get_missile_target_for_enemy(figure *enemy, int max_distance, 
             case FIGURE_MAP_FLAG:
             case FIGURE_FLOTSAM:
             case FIGURE_INDIGENOUS_NATIVE:
-            case FIGURE_NATIVE_TRADER:
             case FIGURE_ARROW:
             case FIGURE_JAVELIN:
             case FIGURE_BOLT:
@@ -321,13 +321,15 @@ int figure_combat_get_missile_target_for_enemy(figure *enemy, int max_distance, 
             case FIGURE_FISH_GULLS:
             case FIGURE_SHIPWRECK:
             case FIGURE_SHEEP:
-            case FIGURE_WOLF:
             case FIGURE_ZEBRA:
             case FIGURE_SPEAR:
                 continue;
         }
         int distance;
-        if (figure_is_legion(f)) {
+        if (figure_is_legion(f)
+        // target only trader natives so as to not get stuck in place shooting while they respawn
+        || f->type == FIGURE_NATIVE_TRADER
+        || f->type == FIGURE_WOLF) {
             distance = calc_maximum_distance(x, y, f->x, f->y);
         } else if (attack_citizens && f->is_friendly) {
             distance = calc_maximum_distance(x, y, f->x, f->y) + 5;
@@ -371,25 +373,45 @@ void figure_combat_attack_figure_at(figure *f, int grid_offset)
             attack = 0;
         } else if (opponent->action_state == FIGURE_ACTION_149_CORPSE) {
             attack = 0;
+        } else if (figure_category == FIGURE_CATEGORY_ARMED && opponent_category == FIGURE_CATEGORY_HOSTILE) {
+            attack = 1;
+        } else if (figure_category == FIGURE_CATEGORY_ARMED && opponent_category == FIGURE_CATEGORY_CRIMINAL) {
+            attack = 1;
+        } else if (figure_category == FIGURE_CATEGORY_ARMED && opponent_category == FIGURE_CATEGORY_ANIMAL) {
+            attack = 1;
         } else if (figure_category == FIGURE_CATEGORY_ARMED && opponent_category == FIGURE_CATEGORY_NATIVE) {
             if (opponent->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING) {
                 attack = 1;
             }
-        } else if (figure_category == FIGURE_CATEGORY_ARMED && opponent_category == FIGURE_CATEGORY_CRIMINAL) {
-            attack = 1;
-        } else if (figure_category == FIGURE_CATEGORY_ARMED && opponent_category == FIGURE_CATEGORY_HOSTILE) {
-            attack = 1;
         } else if (figure_category == FIGURE_CATEGORY_HOSTILE && opponent_category == FIGURE_CATEGORY_CITIZEN) {
             attack = 1;
         } else if (figure_category == FIGURE_CATEGORY_HOSTILE && opponent_category == FIGURE_CATEGORY_ARMED) {
             attack = 1;
         } else if (figure_category == FIGURE_CATEGORY_HOSTILE && opponent_category == FIGURE_CATEGORY_CRIMINAL) {
             attack = 1;
-        } else if (figure_category == FIGURE_CATEGORY_ARMED && opponent_category == FIGURE_CATEGORY_ANIMAL) {
-            attack = 1;
+        } else if (figure_category == FIGURE_CATEGORY_HOSTILE && opponent_category == FIGURE_CATEGORY_NATIVE) {
+            // wolves attack natives
+            if (f->type == FIGURE_WOLF) {
+                attack = 1;
+            }
+            // other hostiles (i.e. invaders) only fight with natives that aren't attacking the player
+            else if (opponent->action_state != FIGURE_ACTION_159_NATIVE_ATTACKING) {
+                attack = 1;
+            }
         } else if (figure_category == FIGURE_CATEGORY_HOSTILE && opponent_category == FIGURE_CATEGORY_ANIMAL) {
             attack = 1;
+        } else if (figure_category == FIGURE_CATEGORY_HOSTILE && opponent_category == FIGURE_CATEGORY_HOSTILE) {
+            // wolves attack every hostile unit not a wolf
+            if (f->type == FIGURE_WOLF && opponent->type != FIGURE_WOLF) {
+                attack = 1;
+            } else if
+                // invaders and caesar's legions attack each other
+                ((!figure_is_caesar_legion(f) && figure_is_caesar_legion(opponent))
+                || (figure_is_caesar_legion(f) && !figure_is_caesar_legion(opponent))) {
+                attack = 1;
+            }
         }
+
         if (attack && opponent->action_state == FIGURE_ACTION_150_ATTACK && opponent->num_attackers >= 2) {
             attack = 0;
         }
