@@ -17,6 +17,7 @@ void widget_city_draw_construction_cost_and_size(void);
 void widget_city_draw_touch_buttons(void);
 
 int widget_city_has_input(void);
+void request_exit_scenario(void);
 void widget_city_handle_input(const mouse *m, const hotkeys *h);
 void widget_city_handle_input_military(const mouse *m, const hotkeys *h, int legion_formation_id);
 

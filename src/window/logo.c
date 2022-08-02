@@ -1,6 +1,7 @@
 #include "logo.h"
 
 #include "core/config.h"
+#include "game/system.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
 #include "graphics/lang_text.h"
@@ -32,7 +33,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     if (h->escape_pressed) {
-        hotkey_handle_escape();
+        system_exit();
     }
 }
 

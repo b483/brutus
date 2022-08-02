@@ -10,7 +10,6 @@
 #include "graphics/window.h"
 #include "input/scroll.h"
 #include "window/hotkey_editor.h"
-#include "window/popup_dialog.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -429,19 +428,6 @@ void hotkey_key_released(key_type key, key_modifier_type modifiers)
             arrow->action(0);
         }
     }
-}
-
-static void confirm_exit(int accepted)
-{
-    if (accepted) {
-        system_exit();
-    }
-}
-
-void hotkey_handle_escape(void)
-{
-    video_stop();
-    window_popup_dialog_show(POPUP_DIALOG_QUIT, confirm_exit, 1);
 }
 
 void hotkey_handle_global_keys(void)

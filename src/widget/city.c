@@ -10,6 +10,7 @@
 #include "figure/formation_legion.h"
 #include "game/settings.h"
 #include "game/state.h"
+#include "game/undo.h"
 #include "graphics/button.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
@@ -29,6 +30,8 @@
 #include "widget/minimap.h"
 #include "window/building_info.h"
 #include "window/city.h"
+#include "window/main_menu.h"
+#include "window/popup_dialog.h"
 
 static struct {
     map_tile current_tile;
@@ -291,7 +294,7 @@ static int input_coords_in_city(int x, int y)
     x -= x_offset;
     y -= y_offset;
 
-    return (x >= 0 && x < width && y >= 0 && y < height);
+    return (x >= 0 && x < width &&y >= 0 && y < height);
 }
 
 static void handle_touch_scroll(const touch *t)
@@ -495,6 +498,24 @@ static void handle_mouse(const mouse *m)
     }
 }
 
+
+static void confirm_exit_to_main_menu(int accepted)
+{
+    if (accepted) {
+        building_construction_clear_type();
+        game_undo_disable();
+        game_state_reset_overlay();
+        window_main_menu_show(1);
+    } else {
+        window_city_return();
+    }
+}
+
+void request_exit_scenario(void)
+{
+    window_popup_dialog_show(POPUP_DIALOG_QUIT, confirm_exit_to_main_menu, 1);
+}
+
 void widget_city_handle_input(const mouse *m, const hotkeys *h)
 {
     scroll_map(m);
@@ -510,7 +531,7 @@ void widget_city_handle_input(const mouse *m, const hotkeys *h)
             building_construction_cancel();
             window_request_refresh();
         } else {
-            hotkey_handle_escape();
+            request_exit_scenario();
         }
     }
 }

@@ -18,7 +18,6 @@
 #include "window/config.h"
 #include "window/file_dialog.h"
 #include "window/plain_message_dialog.h"
-#include "window/popup_dialog.h"
 
 #define MAX_BUTTONS 5
 
@@ -88,7 +87,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     if (h->escape_pressed) {
-        hotkey_handle_escape();
+        system_exit();
     }
     if (h->load_file) {
         window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_LOAD);

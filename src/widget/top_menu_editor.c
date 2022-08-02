@@ -8,7 +8,7 @@
 #include "graphics/screen.h"
 #include "graphics/window.h"
 #include "scenario/editor_map.h"
-#include "scenario/scenario.h"
+#include "widget/map_editor.h"
 #include "window/display_options.h"
 #include "window/file_dialog.h"
 #include "window/message_dialog.h"
@@ -98,7 +98,7 @@ static void draw_foreground(void)
     if (!data.open_sub_menu) {
         return;
     }
-    menu_draw(&menu[data.open_sub_menu -1], data.focus_sub_menu_id);
+    menu_draw(&menu[data.open_sub_menu - 1], data.focus_sub_menu_id);
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)
@@ -201,23 +201,10 @@ static void menu_file_save_map(int param)
     window_file_dialog_show(FILE_TYPE_SCENARIO, FILE_DIALOG_SAVE);
 }
 
-static void menu_file_confirm_exit(int accepted)
-{
-    if (accepted) {
-        game_exit_editor();
-    } else {
-        window_editor_map_show();
-    }
-}
-
 static void menu_file_exit_editor(int param)
 {
     clear_state();
-    if (scenario_is_saved()) {
-        game_exit_editor();
-    } else {
-        window_popup_dialog_show(POPUP_DIALOG_EDITOR_QUIT_WITHOUT_SAVING, menu_file_confirm_exit, 1);
-    }
+    request_exit_editor();
 }
 
 static void menu_options_display(int param)

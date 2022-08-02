@@ -36,7 +36,6 @@ enum {
     INFO_DATE = 3
 };
 
-static void menu_file_new_game(int param);
 static void menu_file_replay_map(int param);
 static void menu_file_load_game(int param);
 static void menu_file_save_game(int param);
@@ -57,7 +56,6 @@ static void menu_help_about(int param);
 static void menu_advisors_go_to(int advisor);
 
 static menu_item menu_file[] = {
-    {1, 1, menu_file_new_game, 0},
     {1, 2, menu_file_replay_map, 0},
     {1, 3, menu_file_load_game, 0},
     {1, 4, menu_file_save_game, 0},
@@ -96,7 +94,7 @@ static menu_item menu_advisors[] = {
 };
 
 static menu_bar_item menu[] = {
-    {1, menu_file, 6},
+    {1, menu_file, 5},
     {2, menu_options, 5},
     {3, menu_help, 4},
     {4, menu_advisors, 12},
@@ -371,15 +369,6 @@ int widget_top_menu_get_tooltip_text(tooltip_context *c)
     return 0;
 }
 
-static void menu_file_new_game(int param)
-{
-    clear_state();
-    building_construction_clear_type();
-    game_undo_disable();
-    game_state_reset_overlay();
-    window_main_menu_show(1);
-}
-
 static void replay_map_confirmed(int confirmed)
 {
     if (!confirmed) {
@@ -419,19 +408,10 @@ static void menu_file_delete_game(int param)
     window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_DELETE);
 }
 
-static void menu_file_confirm_exit(int accepted)
-{
-    if (accepted) {
-        system_exit();
-    } else {
-        window_city_return();
-    }
-}
-
 static void menu_file_exit_game(int param)
 {
     clear_state();
-    window_popup_dialog_show(POPUP_DIALOG_QUIT, menu_file_confirm_exit, 1);
+    request_exit_scenario();
 }
 
 static void menu_options_display(int param)

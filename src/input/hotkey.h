@@ -37,8 +37,6 @@ void hotkey_key_released(key_type key, key_modifier_type modifiers);
 
 void hotkey_set_value_for_action(hotkey_action action, int value);
 
-void hotkey_handle_escape(void);
-
 void hotkey_handle_global_keys(void);
 
 #endif // INPUT_HOTKEY_H
