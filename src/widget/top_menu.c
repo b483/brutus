@@ -3,29 +3,23 @@
 #include "building/construction.h"
 #include "city/finance.h"
 #include "city/population.h"
-#include "game/file.h"
 #include "game/settings.h"
 #include "game/state.h"
 #include "game/system.h"
 #include "game/time.h"
-#include "game/undo.h"
 #include "graphics/image.h"
 #include "graphics/lang_text.h"
 #include "graphics/menu.h"
 #include "graphics/screen.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/property.h"
 #include "widget/city.h"
 #include "window/advisors.h"
 #include "window/city.h"
 #include "window/difficulty_options.h"
 #include "window/display_options.h"
 #include "window/file_dialog.h"
-#include "window/main_menu.h"
 #include "window/message_dialog.h"
-#include "window/mission_briefing.h"
-#include "window/popup_dialog.h"
 #include "window/sound_options.h"
 #include "window/speed_options.h"
 
@@ -369,21 +363,10 @@ int widget_top_menu_get_tooltip_text(tooltip_context *c)
     return 0;
 }
 
-static void replay_map_confirmed(int confirmed)
-{
-    if (!confirmed) {
-        window_city_show();
-        return;
-    }
-    game_file_start_scenario_by_name(scenario_name());
-    window_city_show();
-}
-
 static void menu_file_replay_map(int param)
 {
     clear_state();
-    building_construction_clear_type();
-    window_popup_dialog_show_confirmation(1, 2, replay_map_confirmed);
+    replay_map();
 }
 
 static void menu_file_load_game(int param)

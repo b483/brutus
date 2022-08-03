@@ -10,6 +10,7 @@
 #include "core/config.h"
 #include "figure/formation.h"
 #include "figure/formation_legion.h"
+#include "game/file.h"
 #include "game/orientation.h"
 #include "game/settings.h"
 #include "game/state.h"
@@ -24,6 +25,7 @@
 #include "map/grid.h"
 #include "scenario/building.h"
 #include "scenario/criteria.h"
+#include "scenario/property.h"
 #include "widget/city.h"
 #include "widget/city_with_overlay.h"
 #include "widget/top_menu.h"
@@ -31,6 +33,7 @@
 #include "widget/sidebar/military.h"
 #include "window/advisors.h"
 #include "window/file_dialog.h"
+#include "window/popup_dialog.h"
 
 static void draw_background(void)
 {
@@ -178,6 +181,17 @@ static void cycle_legion(void)
     }
 }
 
+static void return_legions_to_fort(void)
+{
+    int n_legions = formation_get_num_legions_cached();
+    for (int i = 0; i < n_legions; i++) {
+        formation *m = formation_get(formation_for_legion(i + 1));
+        if (!m->in_distant_battle && !m->is_at_fort) {
+            formation_legion_return_home(m);
+        }
+    }
+}
+
 static void toggle_pause(void)
 {
     game_state_toggle_paused();
@@ -191,6 +205,22 @@ static void set_construction_building_type(building_type type)
         building_construction_set_type(type);
         window_request_refresh();
     }
+}
+
+static void replay_map_confirmed(int confirmed)
+{
+    if (!confirmed) {
+        window_city_show();
+        return;
+    }
+    game_file_start_scenario_by_name(scenario_name());
+    window_city_show();
+}
+
+void replay_map(void)
+{
+    building_construction_clear_type();
+    window_popup_dialog_show_confirmation(1, 2, replay_map_confirmed);
 }
 
 static void handle_hotkeys(const hotkeys *h)
@@ -219,6 +249,9 @@ static void handle_hotkeys(const hotkeys *h)
     if (h->cycle_legion) {
         cycle_legion();
     }
+    if (h->return_legions_to_fort) {
+        return_legions_to_fort();
+    }
     if (h->rotate_map_left) {
         game_orientation_rotate_left();
         window_invalidate();
@@ -226,6 +259,9 @@ static void handle_hotkeys(const hotkeys *h)
     if (h->rotate_map_right) {
         game_orientation_rotate_right();
         window_invalidate();
+    }
+    if (h->replay_map) {
+        replay_map();
     }
     if (h->go_to_bookmark) {
         if (map_bookmark_go_to(h->go_to_bookmark - 1)) {

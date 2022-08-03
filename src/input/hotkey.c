@@ -38,7 +38,6 @@ typedef struct {
 static struct {
     global_hotkeys global_hotkey_state;
     hotkeys hotkey_state;
-
     hotkey_definition *definitions;
     int num_definitions;
     arrow_definition *arrows;
@@ -59,6 +58,9 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
         case HOTKEY_CYCLE_LEGION:
             def->action = &data.hotkey_state.cycle_legion;
             break;
+        case HOTKEY_RETURN_LEGIONS_TO_FORT:
+            def->action = &data.hotkey_state.return_legions_to_fort;
+            break;
         case HOTKEY_INCREASE_GAME_SPEED:
             def->action = &data.hotkey_state.increase_game_speed;
             def->repeatable = 1;
@@ -66,6 +68,9 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
         case HOTKEY_DECREASE_GAME_SPEED:
             def->action = &data.hotkey_state.decrease_game_speed;
             def->repeatable = 1;
+            break;
+        case HOTKEY_REPLAY_MAP:
+            def->action = &data.hotkey_state.replay_map;
             break;
         case HOTKEY_ROTATE_MAP_LEFT:
             def->action = &data.hotkey_state.rotate_map_left;

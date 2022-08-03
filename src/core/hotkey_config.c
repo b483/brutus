@@ -11,7 +11,7 @@
 #define MAX_LINE 100
 #define MAX_MAPPINGS HOTKEY_MAX_ITEMS * 2
 
-static const char *INI_FILENAME = "julius-hotkeys.ini";
+static const char *INI_FILENAME = "brutus-hotkeys.ini";
 
 // Keep this in the same order as the actions in hotkey_config.h
 static const char *ini_keys[] = {
@@ -22,10 +22,12 @@ static const char *ini_keys[] = {
     "toggle_pause",
     "toggle_overlay",
     "cycle_legion",
+    "return_legions_to_fort",
     "increase_game_speed",
     "decrease_game_speed",
     "rotate_map_left",
     "rotate_map_right",
+    "replay_map"
     "build_vacant_house",
     "build_clear_land",
     "build_road",
@@ -121,12 +123,14 @@ static void init_defaults(void)
     set_layout_mapping("P", KEY_TYPE_P, KEY_MOD_NONE, HOTKEY_TOGGLE_PAUSE);
     set_mapping(KEY_TYPE_SPACE, KEY_MOD_NONE, HOTKEY_TOGGLE_OVERLAY);
     set_layout_mapping("L", KEY_TYPE_L, KEY_MOD_NONE, HOTKEY_CYCLE_LEGION);
+    set_layout_mapping("B", KEY_TYPE_B, KEY_MOD_NONE, HOTKEY_RETURN_LEGIONS_TO_FORT);
     set_layout_mapping("[", KEY_TYPE_LEFTBRACKET, KEY_MOD_NONE, HOTKEY_DECREASE_GAME_SPEED);
     set_layout_mapping("]", KEY_TYPE_RIGHTBRACKET, KEY_MOD_NONE, HOTKEY_INCREASE_GAME_SPEED);
     set_mapping(KEY_TYPE_PAGEDOWN, KEY_MOD_NONE, HOTKEY_DECREASE_GAME_SPEED);
     set_mapping(KEY_TYPE_PAGEUP, KEY_MOD_NONE, HOTKEY_INCREASE_GAME_SPEED);
     set_mapping(KEY_TYPE_HOME, KEY_MOD_NONE, HOTKEY_ROTATE_MAP_LEFT);
     set_mapping(KEY_TYPE_END, KEY_MOD_NONE, HOTKEY_ROTATE_MAP_RIGHT);
+    set_layout_mapping("R", KEY_TYPE_R, KEY_MOD_CTRL, HOTKEY_REPLAY_MAP);
     set_mapping(KEY_TYPE_1, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_LABOR);
     set_mapping(KEY_TYPE_2, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_MILITARY);
     set_mapping(KEY_TYPE_3, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_IMPERIAL);
@@ -239,7 +243,7 @@ static void load_file(void)
     while ((line = fgets(line_buffer, MAX_LINE, fp))) {
         // Remove newline from string
         size_t size = strlen(line);
-        while (size > 0 && (line[size-1] == '\n' || line[size-1] == '\r')) {
+        while (size > 0 && (line[size - 1] == '\n' || line[size - 1] == '\r')) {
             line[--size] = 0;
         }
         char *equals = strchr(line, '=');

@@ -10,10 +10,12 @@ typedef struct {
     int escape_pressed;
     // keys with specific function
     int cycle_legion;
+    int return_legions_to_fort;
     int decrease_game_speed;
     int increase_game_speed;
     int rotate_map_left;
     int rotate_map_right;
+    int replay_map;
     int show_advisor;
     int show_overlay;
     int toggle_overlay;

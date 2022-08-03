@@ -599,7 +599,7 @@ static void button_go_to_legion(int param1, int param2)
 static void button_return_to_fort(int param1, int param2)
 {
     formation *m = formation_get(data.active_legion.formation_id);
-    if (!m->in_distant_battle) {
+    if (!m->in_distant_battle && !m->is_at_fort) {
         formation_legion_return_home(m);
     }
 }

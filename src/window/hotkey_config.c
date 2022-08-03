@@ -31,7 +31,7 @@ static void button_hotkey(int row, int is_alternative);
 static void button_reset_defaults(int param1, int param2);
 static void button_close(int save, int param2);
 
-static scrollbar_type scrollbar = {580, 72, 352, on_scroll};
+static scrollbar_type scrollbar = { 580, 72, 352, on_scroll };
 
 typedef struct {
     int action;
@@ -61,12 +61,14 @@ static hotkey_widget hotkey_widgets[] = {
     {HOTKEY_DECREASE_GAME_SPEED, TR_HOTKEY_DECREASE_GAME_SPEED},
     {HOTKEY_TOGGLE_PAUSE, TR_HOTKEY_TOGGLE_PAUSE},
     {HOTKEY_CYCLE_LEGION, TR_HOTKEY_CYCLE_LEGION},
+    {HOTKEY_RETURN_LEGIONS_TO_FORT, TR_HOTKEY_RETURN_LEGIONS_TO_FORT},
     {HOTKEY_ROTATE_MAP_LEFT, TR_HOTKEY_ROTATE_MAP_LEFT},
     {HOTKEY_ROTATE_MAP_RIGHT, TR_HOTKEY_ROTATE_MAP_RIGHT},
+    {HOTKEY_REPLAY_MAP, TR_HOTKEY_REPLAY_MAP},
     {HOTKEY_HEADER, TR_HOTKEY_HEADER_BUILD},
     {HOTKEY_BUILD_CLONE, TR_HOTKEY_BUILD_CLONE},
-    {HOTKEY_BUILD_CLEAR_LAND, TR_NONE, 68, 21},
     {HOTKEY_BUILD_VACANT_HOUSE, TR_NONE, 67, 7},
+    {HOTKEY_BUILD_CLEAR_LAND, TR_NONE, 68, 21},
     {HOTKEY_BUILD_ROAD, TR_NONE, GROUP_BUILDINGS, BUILDING_ROAD},
     {HOTKEY_BUILD_PLAZA, TR_NONE, GROUP_BUILDINGS, BUILDING_PLAZA},
     {HOTKEY_BUILD_GARDENS, TR_NONE, GROUP_BUILDINGS, BUILDING_GARDENS},
@@ -173,7 +175,7 @@ static void init(void)
     scrollbar_init(&scrollbar, 0, sizeof(hotkey_widgets) / sizeof(hotkey_widget) - NUM_VISIBLE_OPTIONS);
 
     for (int i = 0; i < HOTKEY_MAX_ITEMS; i++) {
-        hotkey_mapping empty = {KEY_TYPE_NONE, KEY_MOD_NONE, i};
+        hotkey_mapping empty = { KEY_TYPE_NONE, KEY_MOD_NONE, i };
 
         const hotkey_mapping *mapping = hotkey_for_action(i, 0);
         data.mappings[i][0] = mapping ? *mapping : empty;

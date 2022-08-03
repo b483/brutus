@@ -390,7 +390,7 @@ int window_building_get_legion_info_tooltip_text(building_info_context *c)
 static void button_return_to_fort(int param1, int param2)
 {
     formation *m = formation_get(data.context_for_callback->formation_id);
-    if (!m->in_distant_battle && m->is_at_fort != 1) {
+    if (!m->in_distant_battle && !m->is_at_fort) {
         formation_legion_return_home(m);
         window_city_show();
     }
