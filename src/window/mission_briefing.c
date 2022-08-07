@@ -10,6 +10,7 @@
 #include "graphics/rich_text.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
+#include "input/input.h"
 #include "scenario/criteria.h"
 #include "scenario/property.h"
 #include "sound/music.h"
@@ -134,7 +135,7 @@ static void draw_foreground(void)
 static void handle_input(const mouse *m, const hotkeys *h)
 {
     const mouse *m_dialog = mouse_in_dialog(m);
-
+    rich_text_handle_mouse(m_dialog);
     if (image_buttons_handle_mouse(m_dialog, 516, 426, &image_button_start_mission, 1, 0)) {
         return;
     }
@@ -143,7 +144,10 @@ static void handle_input(const mouse *m, const hotkeys *h)
             return;
         }
     }
-    rich_text_handle_mouse(m_dialog);
+    if (input_go_back_requested(m, h)) {
+        button_start_mission(0, 0);
+        return;
+    }
 }
 
 static void button_back(int param1, int param2)
