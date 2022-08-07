@@ -88,6 +88,9 @@ void scenario_save_state(buffer *buf)
         buffer_write_i16(buf, scenario.invasions[i].year);
     }
     for (int i = 0; i < MAX_INVASIONS; i++) {
+        buffer_write_u8(buf, scenario.invasions[i].month);
+    }
+    for (int i = 0; i < MAX_INVASIONS; i++) {
         buffer_write_i16(buf, scenario.invasions[i].amount);
     }
     for (int i = 0; i < MAX_INVASIONS; i++) {
@@ -98,9 +101,6 @@ void scenario_save_state(buffer *buf)
     }
     for (int i = 0; i < MAX_INVASIONS; i++) {
         buffer_write_i16(buf, scenario.invasions[i].attack_type);
-    }
-    for (int i = 0; i < MAX_INVASIONS; i++) {
-        buffer_write_u8(buf, scenario.invasions[i].month);
     }
 
     // Buildings allowed
@@ -299,6 +299,9 @@ void scenario_load_state(buffer *buf)
         scenario.invasions[i].year = buffer_read_i16(buf);
     }
     for (int i = 0; i < MAX_INVASIONS; i++) {
+        scenario.invasions[i].month = buffer_read_u8(buf);
+    }
+    for (int i = 0; i < MAX_INVASIONS; i++) {
         scenario.invasions[i].amount = buffer_read_i16(buf);
     }
     for (int i = 0; i < MAX_INVASIONS; i++) {
@@ -309,9 +312,6 @@ void scenario_load_state(buffer *buf)
     }
     for (int i = 0; i < MAX_INVASIONS; i++) {
         scenario.invasions[i].attack_type = buffer_read_i16(buf);
-    }
-    for (int i = 0; i < MAX_INVASIONS; i++) {
-        scenario.invasions[i].month = buffer_read_u8(buf);
     }
 
     // Buildings allowed

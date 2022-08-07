@@ -129,11 +129,11 @@ typedef struct {
 
 typedef struct {
     int year;
+    int month;
     int amount;
     int type;
     int from;
     int attack_type;
-    int month;
 } invasion_t;
 
 typedef struct {

@@ -104,7 +104,6 @@ void scenario_invasion_init(void)
         if (!scenario.invasions[i].type) {
             continue;
         }
-        scenario.invasions[i].month = 2 + (random_byte() & 7);
         if (scenario.invasions[i].type == INVASION_TYPE_LOCAL_UPRISING ||
             scenario.invasions[i].type == INVASION_TYPE_DISTANT_BATTLE) {
             continue;

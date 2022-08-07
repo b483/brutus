@@ -228,6 +228,13 @@ static translation_string all_strings[] = {
     {TR_EDITOR_HERD_POINT_6, "Herd point 6"},
     {TR_EDITOR_HERD_POINT_7, "Herd point 7"},
     {TR_EDITOR_HERD_POINT_8, "Herd point 8"},
+    {TR_EDITOR_INVASION_YEAR, "Year offset:"},
+    {TR_EDITOR_INVASION_MONTH, "Month:"},
+    {TR_EDITOR_INVASION_AMOUNT, "Amount:"},
+    {TR_EDITOR_INVASION_TYPE, "Type:"},
+    {TR_EDITOR_INVASION_FROM, "From:"},
+    {TR_EDITOR_INVASION_ATTACK_TYPE, "Attack type:"},
+    {TR_EDITOR_INVASION_INVALID_MONTH, "Jan year 0 invalid"}
 };
 
 void translation_english(const translation_string **strings, int *num_strings)

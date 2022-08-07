@@ -13,6 +13,7 @@ typedef struct {
 
 typedef struct {
     int year;
+    int month;
     int type;
     int amount;
     int from;

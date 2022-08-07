@@ -7,6 +7,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "input/input.h"
+#include "scenario/data.h"
 #include "scenario/editor.h"
 #include "scenario/property.h"
 #include "window/editor/attributes.h"
@@ -54,7 +55,7 @@ static void draw_foreground(void)
     lang_text_draw_centered(13, 3, 0, 456, 640, FONT_NORMAL_BLACK);
     lang_text_draw_multiline(152, 2, 32, 376, 576, FONT_NORMAL_BLACK);
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < MAX_INVASIONS; i++) {
         int x, y;
         if (i < 10) {
             x = 20;
@@ -67,10 +68,10 @@ static void draw_foreground(void)
         editor_invasion invasion;
         scenario_editor_invasion_get(i, &invasion);
         if (invasion.type) {
-            text_draw_number(invasion.year, '+', " ", x + 6, y + 6, FONT_NORMAL_BLACK);
-            lang_text_draw_year(scenario_property_start_year() + invasion.year, x + 60, y + 6, FONT_NORMAL_BLACK);
-            int width = text_draw_number(invasion.amount, '@', " ", x + 120, y + 6, FONT_NORMAL_BLACK);
-            lang_text_draw(34, invasion.type, x + 115 + width, y + 6, FONT_NORMAL_BLACK);
+            int width = lang_text_draw(25, invasion.month, x + 6, y + 6, FONT_NORMAL_BLACK);
+            width += lang_text_draw_year(scenario_property_start_year() + invasion.year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
+            width += text_draw_number(invasion.amount, ' ', " ", x + 20 + width, y + 6, FONT_NORMAL_BLACK);
+            lang_text_draw(34, invasion.type, x + 20 + width, y + 6, FONT_NORMAL_BLACK);
         } else {
             lang_text_draw_centered(44, 23, x, y + 6, 290, FONT_NORMAL_BLACK);
         }
@@ -81,7 +82,7 @@ static void draw_foreground(void)
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, 20, &focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, sizeof(buttons) / sizeof(generic_button), &focus_button_id)) {
         return;
     }
     if (input_go_back_requested(m, h)) {

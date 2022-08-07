@@ -60,6 +60,7 @@ void scenario_editor_create(int map_size)
 
     // Invasions
     for (int i = 0; i < MAX_INVASIONS; i++) {
+        scenario.invasions[i].month = 1;
         scenario.invasions[i].from = 8;
     }
 
@@ -161,6 +162,7 @@ void scenario_editor_request_save(int index, editor_request *request)
 void scenario_editor_invasion_get(int index, editor_invasion *invasion)
 {
     invasion->year = scenario.invasions[index].year;
+    invasion->month = scenario.invasions[index].month;
     invasion->type = scenario.invasions[index].type;
     invasion->amount = scenario.invasions[index].amount;
     invasion->from = scenario.invasions[index].from;
@@ -173,10 +175,13 @@ static void sort_invasions(void)
         for (int j = MAX_INVASIONS - 1; j > 0; j--) {
             invasion_t *current = &scenario.invasions[j];
             invasion_t *prev = &scenario.invasions[j - 1];
-            if (current->type && (!prev->type || prev->year > current->year)) {
-                invasion_t tmp = *current;
-                *current = *prev;
-                *prev = tmp;
+            if (current->type) {
+                // if no previous invasion scheduled, move current back until first; if previous invasion is later than current, swap
+                if (!prev->type || prev->year > current->year || (prev->year == current->year && prev->month > current->month)) {
+                    invasion_t tmp = *current;
+                    *current = *prev;
+                    *prev = tmp;
+                }
             }
         }
     }
@@ -185,6 +190,7 @@ static void sort_invasions(void)
 void scenario_editor_invasion_delete(int index)
 {
     scenario.invasions[index].year = 0;
+    scenario.invasions[index].month = 1;
     scenario.invasions[index].amount = 0;
     scenario.invasions[index].type = 0;
     scenario.invasions[index].from = 8;
@@ -196,6 +202,7 @@ void scenario_editor_invasion_delete(int index)
 void scenario_editor_invasion_save(int index, editor_invasion *invasion)
 {
     scenario.invasions[index].year = invasion->type ? invasion->year : 0;
+    scenario.invasions[index].month = invasion->type ? invasion->month : 1;
     scenario.invasions[index].amount = invasion->type ? invasion->amount : 0;
     scenario.invasions[index].type = invasion->type;
     scenario.invasions[index].from = invasion->from;
