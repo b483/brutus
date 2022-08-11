@@ -83,6 +83,7 @@ extern struct city_data_t {
             int32_t days_until_invasion;
             int32_t duration_day_countdown;
             int32_t retreat_message_shown;
+            int16_t from_editor;
         } invasion;
     } emperor;
     struct {

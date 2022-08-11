@@ -78,7 +78,7 @@ static void update_debt_state(void)
 
 static void process_caesar_invasion(void)
 {
-    if (city_data.figure.imperial_soldiers) {
+    if (city_data.figure.imperial_soldiers && !city_data.emperor.invasion.from_editor) {
         // caesar invasion in progress
         city_data.emperor.invasion.duration_day_countdown--;
         if (city_data.ratings.favor >= 35 && city_data.emperor.invasion.duration_day_countdown < 176) {
@@ -100,15 +100,20 @@ static void process_caesar_invasion(void)
         // player defeated caesar army
         city_data.emperor.invasion.size = 0;
         city_data.emperor.invasion.soldiers_killed = 0;
-        if (city_data.ratings.favor < 35) {
-            city_ratings_change_favor(10);
-            if (city_data.emperor.invasion.count < 2) {
-                city_message_post(1, MESSAGE_CAESAR_RESPECT_1, 0, 0);
-            } else if (city_data.emperor.invasion.count < 3) {
-                city_message_post(1, MESSAGE_CAESAR_RESPECT_2, 0, 0);
-            } else {
-                city_message_post(1, MESSAGE_CAESAR_RESPECT_3, 0, 0);
+        if (!city_data.emperor.invasion.from_editor) {
+            if (city_data.ratings.favor < 35) {
+                city_ratings_change_favor(10);
+                if (city_data.emperor.invasion.count < 2) {
+                    city_message_post(1, MESSAGE_CAESAR_RESPECT_1, 0, 0);
+                } else if (city_data.emperor.invasion.count < 3) {
+                    city_message_post(1, MESSAGE_CAESAR_RESPECT_2, 0, 0);
+                } else {
+                    city_message_post(1, MESSAGE_CAESAR_RESPECT_3, 0, 0);
+                }
             }
+        }
+        if (city_data.emperor.invasion.from_editor) {
+            city_data.emperor.invasion.from_editor = 0;
         }
     } else if (city_data.emperor.invasion.days_until_invasion <= 0) {
         if (city_data.ratings.favor <= 10) {

@@ -1,6 +1,7 @@
 #include "invasion.h"
 
 #include "building/destruction.h"
+#include "city/data_private.h"
 #include "city/message.h"
 #include "core/calc.h"
 #include "core/random.h"
@@ -359,6 +360,7 @@ void scenario_invasion_process(void)
                     }
                 }
             }
+            // editor scheduled invasion by Caesar
             if (scenario.invasions[warning->invasion_id].type == INVASION_TYPE_CAESAR) {
                 int grid_offset = start_invasion(
                     ENEMY_11_CAESAR,
@@ -369,6 +371,8 @@ void scenario_invasion_process(void)
                 if (grid_offset > 0) {
                     city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, data.last_internal_invasion_id, grid_offset);
                 }
+                city_data.emperor.invasion.from_editor = 1;
+                city_data.emperor.invasion.size = scenario.invasions[warning->invasion_id].amount;
             }
         }
     }

@@ -18,6 +18,8 @@
 #include "window/numeric_input.h"
 #include "window/select_list.h"
 
+#define INVASION_TYPE_MAX_COUNT 5
+
 static void button_year(int param1, int param2);
 static void button_month(int param1, int param2);
 static void button_amount(int param1, int param2);
@@ -41,15 +43,21 @@ static generic_button buttons[] = {
 static struct {
     int id;
     editor_invasion invasion;
+    const uint8_t *invasion_type_names[INVASION_TYPE_MAX_COUNT];
     int focus_button_id;
 } data;
 
 static void init(int id)
 {
     data.id = id;
+
     scenario_editor_invasion_get(id, &data.invasion);
     // Jan is 1 for input/draw purposes
     data.invasion.month += 1;
+
+    for (int i = TR_EDITOR_INVASION_TYPE_NO_INVADERS; i <= TR_EDITOR_INVASION_TYPE_DISTANT_BATTLE; i++) {
+        data.invasion_type_names[i - TR_EDITOR_INVASION_TYPE_NO_INVADERS] = translation_for(i);
+    }
 }
 
 static void draw_background(void)
@@ -89,14 +97,15 @@ static void draw_foreground(void)
     // Type
     text_draw(translation_for(TR_EDITOR_INVASION_TYPE), 30, 248, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(145, 242, 200, 25, data.focus_button_id == 4);
-    lang_text_draw_centered(34, data.invasion.type, 145, 248, 200, FONT_NORMAL_BLACK);
+    text_draw_centered(translation_for(TR_EDITOR_INVASION_TYPE_NO_INVADERS + data.invasion.type), 145, 248, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
 
     if (data.invasion.type != INVASION_TYPE_DISTANT_BATTLE) {
-        // From
-        text_draw(translation_for(TR_EDITOR_INVASION_FROM), 30, 278, FONT_NORMAL_BLACK, COLOR_BLACK);
-        button_border_draw(145, 272, 200, 25, data.focus_button_id == 5);
-        lang_text_draw_centered(35, data.invasion.from, 145, 278, 200, FONT_NORMAL_BLACK);
-
+        if (data.invasion.type != INVASION_TYPE_CAESAR) {
+            // From
+            text_draw(translation_for(TR_EDITOR_INVASION_FROM), 30, 278, FONT_NORMAL_BLACK, COLOR_BLACK);
+            button_border_draw(145, 272, 200, 25, data.focus_button_id == 5);
+            lang_text_draw_centered(35, data.invasion.from, 145, 278, 200, FONT_NORMAL_BLACK);
+        }
         // Attack type
         text_draw(translation_for(TR_EDITOR_INVASION_ATTACK_TYPE), 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
         button_border_draw(145, 302, 200, 25, data.focus_button_id == 6);
@@ -161,12 +170,12 @@ static void button_amount(int param1, int param2)
 
 static void set_type(int value)
 {
-    data.invasion.type = value == 3 ? 4 : value;
+    data.invasion.type = value;
 }
 
 static void button_type(int param1, int param2)
 {
-    window_select_list_show(screen_dialog_offset_x() + 350, screen_dialog_offset_y() + 240, 34, 4, set_type);
+    window_select_list_show_text(screen_dialog_offset_x() + 350, screen_dialog_offset_y() + 240, data.invasion_type_names, INVASION_TYPE_MAX_COUNT, set_type);
 }
 
 static void set_from(int value)

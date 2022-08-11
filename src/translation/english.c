@@ -234,7 +234,13 @@ static translation_string all_strings[] = {
     {TR_EDITOR_INVASION_TYPE, "Type:"},
     {TR_EDITOR_INVASION_FROM, "From:"},
     {TR_EDITOR_INVASION_ATTACK_TYPE, "Attack type:"},
-    {TR_EDITOR_INVASION_INVALID_MONTH, "Jan year 0 invalid"}
+    {TR_EDITOR_INVASION_INVALID_MONTH, "Jan year 0 invalid"},
+    {TR_EDITOR_INVASION_TYPE_NO_INVADERS, "No invaders"},
+    {TR_EDITOR_INVASION_TYPE_LOCAL_RAIDERS, "Local raiders"},
+    {TR_EDITOR_INVASION_TYPE_ENEMY_ARMY, "Enemy army"},
+    {TR_EDITOR_INVASION_TYPE_CAESAR, "Caesar's legions"},
+    {TR_EDITOR_INVASION_TYPE_DISTANT_BATTLE, "Distant battle"},
+    {TR_EDITOR_INVASION_SCHEDULED, "Invasions scheduled"}
 };
 
 void translation_english(const translation_string **strings, int *num_strings)

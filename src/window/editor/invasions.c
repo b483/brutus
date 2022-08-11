@@ -10,6 +10,7 @@
 #include "scenario/data.h"
 #include "scenario/editor.h"
 #include "scenario/property.h"
+#include "translation/translation.h"
 #include "window/editor/attributes.h"
 #include "window/editor/edit_invasion.h"
 #include "window/editor/map.h"
@@ -64,16 +65,18 @@ static void draw_foreground(void)
             x = 320;
             y = 42 + 30 * (i - 10);
         }
-        button_border_draw(x, y, 290, 25, focus_button_id == i + 1);
+        int invasions_box_width = 290;
+        button_border_draw(x, y, invasions_box_width, 25, focus_button_id == i + 1);
         editor_invasion invasion;
         scenario_editor_invasion_get(i, &invasion);
         if (invasion.type) {
-            int width = lang_text_draw(25, invasion.month, x + 6, y + 6, FONT_NORMAL_BLACK);
+            int width = lang_text_draw(25, invasion.month, x + 12, y + 6, FONT_NORMAL_BLACK);
             width += lang_text_draw_year(scenario_property_start_year() + invasion.year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
-            width += text_draw_number(invasion.amount, ' ', " ", x + 20 + width, y + 6, FONT_NORMAL_BLACK);
-            lang_text_draw(34, invasion.type, x + 20 + width, y + 6, FONT_NORMAL_BLACK);
+            width += text_draw_number(invasion.amount, ' ', "", x + 6 + width, y + 6, FONT_NORMAL_BLACK);
+            uint8_t *invasions_type_text = translation_for(TR_EDITOR_INVASION_TYPE_NO_INVADERS + invasion.type);
+            text_draw(invasions_type_text, x + 6 + width + (invasions_box_width - x - width - text_get_width(invasions_type_text, FONT_NORMAL_BLACK)), y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
         } else {
-            lang_text_draw_centered(44, 23, x, y + 6, 290, FONT_NORMAL_BLACK);
+            lang_text_draw_centered(44, 23, x, y + 6, invasions_box_width, FONT_NORMAL_BLACK);
         }
     }
 

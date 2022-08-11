@@ -459,6 +459,7 @@ static void save_main_data(buffer *main)
     buffer_write_i32(main, city_data.emperor.invasion.warnings_given);
     buffer_write_i32(main, city_data.emperor.invasion.days_until_invasion);
     buffer_write_i32(main, city_data.emperor.invasion.retreat_message_shown);
+    buffer_write_i16(main, city_data.emperor.invasion.from_editor);
     buffer_write_i32(main, city_data.ratings.peace_destroyed_buildings);
     buffer_write_i32(main, city_data.ratings.peace_years_of_peace);
     buffer_write_u8(main, city_data.distant_battle.city);
@@ -932,6 +933,7 @@ static void load_main_data(buffer *main)
     city_data.emperor.invasion.warnings_given = buffer_read_i32(main);
     city_data.emperor.invasion.days_until_invasion = buffer_read_i32(main);
     city_data.emperor.invasion.retreat_message_shown = buffer_read_i32(main);
+    city_data.emperor.invasion.from_editor = buffer_read_i16(main);
     city_data.ratings.peace_destroyed_buildings = buffer_read_i32(main);
     city_data.ratings.peace_years_of_peace = buffer_read_i32(main);
     city_data.distant_battle.city = buffer_read_u8(main);

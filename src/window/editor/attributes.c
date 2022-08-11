@@ -17,6 +17,7 @@
 #include "input/input.h"
 #include "scenario/editor.h"
 #include "scenario/property.h"
+#include "translation/translation.h"
 #include "widget/input_box.h"
 #include "widget/minimap.h"
 #include "widget/sidebar/editor.h"
@@ -146,9 +147,7 @@ static void draw_foreground(void)
     editor_invasion invasion;
     scenario_editor_invasion_get(0, &invasion);
     if (invasion.type) {
-        lang_text_draw_year(scenario_property_start_year() + invasion.year, 222, 245, FONT_NORMAL_BLACK);
-        int width = text_draw_number(invasion.amount, '@', " ", 302, 245, FONT_NORMAL_BLACK);
-        lang_text_draw(34, invasion.type, 302 + width, 245, FONT_NORMAL_BLACK);
+        text_draw_centered(translation_for(TR_EDITOR_INVASION_SCHEDULED), 212, 245, 250, FONT_NORMAL_BLACK, COLOR_BLACK);
     } else {
         lang_text_draw_centered(44, 20, 212, 245, 250, FONT_NORMAL_BLACK);
     }
