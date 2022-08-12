@@ -114,6 +114,16 @@ void scenario_invasion_init(void)
             if (!obj) {
                 continue;
             }
+            // don't overlap messages if enemy is near enough from the beginning
+            if (scenario.invasions[i].year) {
+                if (obj->invasion_years > scenario.invasions[i].year) {
+                    continue;
+                }
+            } else { // handles first year (year 0) invasions
+                if (obj->invasion_path_id == (warning - 1)->invasion_path_id) {
+                    continue;
+                }
+            }
             warning->in_use = 1;
             warning->invasion_path_id = obj->invasion_path_id;
             warning->warning_years = obj->invasion_years;
