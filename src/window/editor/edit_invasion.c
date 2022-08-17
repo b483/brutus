@@ -9,9 +9,9 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "input/input.h"
+#include "scenario/data.h"
 #include "scenario/editor.h"
 #include "scenario/property.h"
-#include "scenario/types.h"
 #include "translation/translation.h"
 #include "window/editor/invasions.h"
 #include "window/editor/map.h"
@@ -25,7 +25,7 @@ static void button_month(int param1, int param2);
 static void button_amount(int param1, int param2);
 static void button_type(int param1, int param2);
 static void button_from(int param1, int param2);
-static void button_attack(int param1, int param2);
+static void button_attack_type(int param1, int param2);
 static void button_delete(int param1, int param2);
 static void button_save(int param1, int param2);
 
@@ -35,14 +35,13 @@ static generic_button buttons[] = {
     {145, 212, 60, 25, button_amount, button_none},
     {145, 242, 200, 25, button_type, button_none},
     {145, 272, 200, 25, button_from, button_none},
-    {145, 302, 200, 25, button_attack, button_none},
+    {145, 302, 200, 25, button_attack_type, button_none},
     {30, 342, 200, 25, button_delete, button_none},
     {270, 342, 80, 25, button_save, button_none},
 };
 
 static struct {
     int id;
-    editor_invasion invasion;
     const uint8_t *invasion_type_names[INVASION_TYPE_MAX_COUNT];
     int focus_button_id;
 } data;
@@ -50,11 +49,6 @@ static struct {
 static void init(int id)
 {
     data.id = id;
-
-    scenario_editor_invasion_get(id, &data.invasion);
-    // Jan is 1 for input/draw purposes
-    data.invasion.month += 1;
-
     for (int i = TR_EDITOR_INVASION_TYPE_NO_INVADERS; i <= TR_EDITOR_INVASION_TYPE_DISTANT_BATTLE; i++) {
         data.invasion_type_names[i - TR_EDITOR_INVASION_TYPE_NO_INVADERS] = translation_for(i);
     }
@@ -76,40 +70,40 @@ static void draw_foreground(void)
     // Year offset
     text_draw(translation_for(TR_EDITOR_INVASION_YEAR), 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(145, 152, 60, 25, data.focus_button_id == 1);
-    text_draw_number_centered_prefix(data.invasion.year, '+', 145, 158, 60, FONT_NORMAL_BLACK);
-    lang_text_draw_year(scenario_property_start_year() + data.invasion.year, 215, 158, FONT_NORMAL_BLACK);
+    text_draw_number_centered_prefix(scenario.invasions[data.id].year, '+', 145, 158, 60, FONT_NORMAL_BLACK);
+    lang_text_draw_year(scenario_property_start_year() + scenario.invasions[data.id].year, 215, 158, FONT_NORMAL_BLACK);
 
     // Month
     text_draw(translation_for(TR_EDITOR_INVASION_MONTH), 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(145, 182, 60, 25, data.focus_button_id == 2);
-    text_draw_number_centered(data.invasion.month, 145, 188, 60, FONT_NORMAL_BLACK);
+    text_draw_number_centered(scenario.invasions[data.id].month + 1, 145, 188, 60, FONT_NORMAL_BLACK);
 
     // Invalid year/month combination
-    if (data.invasion.year == 0 && data.invasion.month == 1) {
+    if (scenario.invasions[data.id].year == 0 && scenario.invasions[data.id].month == 0) {
         text_draw(translation_for(TR_EDITOR_INVASION_INVALID_MONTH), 220, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
     }
 
     // Amount
     text_draw(translation_for(TR_EDITOR_INVASION_AMOUNT), 30, 218, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(145, 212, 60, 25, data.focus_button_id == 3);
-    text_draw_number_centered(data.invasion.amount, 145, 218, 60, FONT_NORMAL_BLACK);
+    text_draw_number_centered(scenario.invasions[data.id].amount, 145, 218, 60, FONT_NORMAL_BLACK);
 
     // Type
     text_draw(translation_for(TR_EDITOR_INVASION_TYPE), 30, 248, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(145, 242, 200, 25, data.focus_button_id == 4);
-    text_draw_centered(translation_for(TR_EDITOR_INVASION_TYPE_NO_INVADERS + data.invasion.type), 145, 248, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw_centered(translation_for(TR_EDITOR_INVASION_TYPE_NO_INVADERS + scenario.invasions[data.id].type), 145, 248, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
 
-    if (data.invasion.type != INVASION_TYPE_DISTANT_BATTLE) {
-        if (data.invasion.type != INVASION_TYPE_CAESAR) {
+    if (scenario.invasions[data.id].type != INVASION_TYPE_DISTANT_BATTLE) {
+        if (scenario.invasions[data.id].type != INVASION_TYPE_CAESAR) {
             // From
             text_draw(translation_for(TR_EDITOR_INVASION_FROM), 30, 278, FONT_NORMAL_BLACK, COLOR_BLACK);
             button_border_draw(145, 272, 200, 25, data.focus_button_id == 5);
-            lang_text_draw_centered(35, data.invasion.from, 145, 278, 200, FONT_NORMAL_BLACK);
+            lang_text_draw_centered(35, scenario.invasions[data.id].from, 145, 278, 200, FONT_NORMAL_BLACK);
         }
         // Attack type
         text_draw(translation_for(TR_EDITOR_INVASION_ATTACK_TYPE), 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
         button_border_draw(145, 302, 200, 25, data.focus_button_id == 6);
-        lang_text_draw_centered(36, data.invasion.attack_type, 145, 308, 200, FONT_NORMAL_BLACK);
+        lang_text_draw_centered(36, scenario.invasions[data.id].attack_type, 145, 308, 200, FONT_NORMAL_BLACK);
     }
 
     // Unschedule invasion
@@ -135,7 +129,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 static void set_year(int value)
 {
-    data.invasion.year = value;
+    scenario.invasions[data.id].year = value;
 }
 
 static void button_year(int param1, int param2)
@@ -149,7 +143,8 @@ static void set_month(int value)
     if (value == 0) {
         value = 1;
     }
-    data.invasion.month = value;
+    // change month back to 0 indexed before saving
+    scenario.invasions[data.id].month = value - 1;
 }
 
 static void button_month(int param1, int param2)
@@ -159,7 +154,7 @@ static void button_month(int param1, int param2)
 
 static void set_amount(int value)
 {
-    data.invasion.amount = value;
+    scenario.invasions[data.id].amount = value;
 }
 
 static void button_amount(int param1, int param2)
@@ -170,7 +165,7 @@ static void button_amount(int param1, int param2)
 
 static void set_type(int value)
 {
-    data.invasion.type = value;
+    scenario.invasions[data.id].type = value;
 }
 
 static void button_type(int param1, int param2)
@@ -180,39 +175,43 @@ static void button_type(int param1, int param2)
 
 static void set_from(int value)
 {
-    data.invasion.from = value;
+    scenario.invasions[data.id].from = value;
 }
 
 static void button_from(int param1, int param2)
 {
-    if (data.invasion.type != INVASION_TYPE_DISTANT_BATTLE) {
+    if (scenario.invasions[data.id].type != INVASION_TYPE_DISTANT_BATTLE && scenario.invasions[data.id].type != INVASION_TYPE_CAESAR) {
         window_select_list_show(screen_dialog_offset_x() + 350, screen_dialog_offset_y() + 195, 35, 9, set_from);
     }
 }
 
 static void set_attack(int value)
 {
-    data.invasion.attack_type = value;
+    scenario.invasions[data.id].attack_type = value;
 }
 
-static void button_attack(int param1, int param2)
+static void button_attack_type(int param1, int param2)
 {
-    if (data.invasion.type != INVASION_TYPE_DISTANT_BATTLE) {
+    if (scenario.invasions[data.id].type != INVASION_TYPE_DISTANT_BATTLE) {
         window_select_list_show(screen_dialog_offset_x() + 350, screen_dialog_offset_y() + 215, 36, 5, set_attack);
     }
 }
 
 static void button_delete(int param1, int param2)
 {
-    scenario_editor_invasion_delete(data.id);
+    scenario.invasions[data.id].year = 0;
+    scenario.invasions[data.id].month = 1;
+    scenario.invasions[data.id].amount = 0;
+    scenario.invasions[data.id].type = 0;
+    scenario.invasions[data.id].from = 8;
+    scenario.invasions[data.id].attack_type = 0;
+    scenario_editor_sort_invasions();
     window_editor_invasions_show();
 }
 
 static void button_save(int param1, int param2)
 {
-    // change month back to 0 indexed before saving
-    data.invasion.month -= 1;
-    scenario_editor_invasion_save(data.id, &data.invasion);
+    scenario_editor_sort_invasions();
     window_editor_invasions_show();
 }
 

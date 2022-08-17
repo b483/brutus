@@ -15,6 +15,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "input/input.h"
+#include "scenario/data.h"
 #include "scenario/editor.h"
 #include "scenario/property.h"
 #include "translation/translation.h"
@@ -144,9 +145,7 @@ static void draw_foreground(void)
     lang_text_draw(44, 42, 32, 245, FONT_NORMAL_BLACK);
     button_border_draw(212, 236, 250, 30, data.focus_button_id == 5);
 
-    editor_invasion invasion;
-    scenario_editor_invasion_get(0, &invasion);
-    if (invasion.type) {
+    if (scenario.invasions[0].type) {
         text_draw_centered(translation_for(TR_EDITOR_INVASION_SCHEDULED), 212, 245, 250, FONT_NORMAL_BLACK, COLOR_BLACK);
     } else {
         lang_text_draw_centered(44, 20, 212, 245, 250, FONT_NORMAL_BLACK);

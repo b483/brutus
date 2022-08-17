@@ -13,15 +13,6 @@ typedef struct {
 
 typedef struct {
     int year;
-    int month;
-    int type;
-    int amount;
-    int from;
-    int attack_type;
-} editor_invasion;
-
-typedef struct {
-    int year;
     int resource;
     int amount;
     int is_rise;
@@ -41,10 +32,7 @@ void scenario_editor_set_native_images(int image_hut, int image_meeting, int ima
 void scenario_editor_request_get(int index, editor_request *request);
 void scenario_editor_request_delete(int index);
 void scenario_editor_request_save(int index, editor_request *request);
-
-void scenario_editor_invasion_get(int index, editor_invasion *invasion);
-void scenario_editor_invasion_delete(int index);
-void scenario_editor_invasion_save(int index, editor_invasion *invasion);
+void scenario_editor_sort_invasions(void);
 
 void scenario_editor_price_change_get(int index, editor_price_change *price_change);
 void scenario_editor_price_change_delete(int index);
