@@ -611,6 +611,9 @@ void formation_update_all(int second_time)
 
 void formations_save_state(buffer *buf, buffer *totals)
 {
+    buffer_write_i32(totals, data.id_last_in_use);
+    buffer_write_i32(totals, data.id_last_legion);
+    buffer_write_i32(totals, data.num_legions);
     for (int i = 0; i < MAX_FORMATIONS; i++) {
         formation *f = &formations[i];
         buffer_write_u8(buf, f->in_use);
@@ -637,7 +640,6 @@ void formations_save_state(buffer *buf, buffer *totals)
         buffer_write_i16(buf, f->destination_building_id);
         buffer_write_i16(buf, f->standard_figure_id);
         buffer_write_u8(buf, f->is_legion);
-        buffer_skip(buf, 1);
         buffer_write_i16(buf, f->attack_type);
         buffer_write_i16(buf, f->legion_recruit_type);
         buffer_write_i16(buf, f->has_military_training);
@@ -670,12 +672,8 @@ void formations_save_state(buffer *buf, buffer *totals)
         buffer_write_u8(buf, f->invasion_id);
         buffer_write_u8(buf, f->herd_wolf_spawn_delay);
         buffer_write_u8(buf, f->herd_direction);
-        buffer_skip(buf, 17);
         buffer_write_i16(buf, f->invasion_sequence);
     }
-    buffer_write_i32(totals, data.id_last_in_use);
-    buffer_write_i32(totals, data.id_last_legion);
-    buffer_write_i32(totals, data.num_legions);
 }
 
 void formations_load_state(buffer *buf, buffer *totals)
@@ -711,7 +709,6 @@ void formations_load_state(buffer *buf, buffer *totals)
         f->destination_building_id = buffer_read_i16(buf);
         f->standard_figure_id = buffer_read_i16(buf);
         f->is_legion = buffer_read_u8(buf);
-        buffer_skip(buf, 1);
         f->attack_type = buffer_read_i16(buf);
         f->legion_recruit_type = buffer_read_i16(buf);
         f->has_military_training = buffer_read_i16(buf);
@@ -744,7 +741,6 @@ void formations_load_state(buffer *buf, buffer *totals)
         f->invasion_id = buffer_read_u8(buf);
         f->herd_wolf_spawn_delay = buffer_read_u8(buf);
         f->herd_direction = buffer_read_u8(buf);
-        buffer_skip(buf, 17);
         f->invasion_sequence = buffer_read_i16(buf);
     }
 }

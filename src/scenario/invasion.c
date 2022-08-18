@@ -455,9 +455,6 @@ void scenario_invasion_save_state(buffer *invasion_id, buffer *warnings)
         buffer_write_i16(warnings, w->year_notified);
         buffer_write_i32(warnings, w->months_to_go);
         buffer_write_u8(warnings, w->invasion_id);
-        for (int x = 0; x < 11; x++) {
-            buffer_write_u8(warnings, 0);
-        }
     }
 }
 
@@ -479,6 +476,5 @@ void scenario_invasion_load_state(buffer *invasion_id, buffer *warnings)
         w->year_notified = buffer_read_i16(warnings);
         w->months_to_go = buffer_read_i32(warnings);
         w->invasion_id = buffer_read_u8(warnings);
-        buffer_skip(warnings, 11);
     }
 }

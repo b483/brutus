@@ -38,23 +38,23 @@ static struct {
 
 static void load_default_settings(void)
 {
-    data.fullscreen = 1;
-    data.window_width = 800;
-    data.window_height = 600;
+    data.fullscreen = 0;
+    data.window_width = 1280;
+    data.window_height = 720;
 
     data.sound_effects.enabled = 1;
-    data.sound_effects.volume = 100;
+    data.sound_effects.volume = 50;
     data.sound_music.enabled = 1;
-    data.sound_music.volume = 80;
+    data.sound_music.volume = 50;
     data.sound_speech.enabled = 1;
-    data.sound_speech.volume = 100;
+    data.sound_speech.volume = 50;
     data.sound_city.enabled = 1;
-    data.sound_city.volume = 100;
+    data.sound_city.volume = 50;
 
-    data.game_speed = 90;
+    data.game_speed = 80;
     data.scroll_speed = 70;
 
-    data.difficulty = DIFFICULTY_HARD;
+    data.difficulty = DIFFICULTY_VERY_HARD;
     data.tooltips = TOOLTIPS_FULL;
     data.warnings = 1;
     data.gods_enabled = 1;
@@ -64,32 +64,24 @@ static void load_default_settings(void)
 
 static void load_settings(buffer *buf)
 {
-    buffer_skip(buf, 4);
     data.fullscreen = buffer_read_i32(buf);
-    buffer_skip(buf, 3);
     data.sound_effects.enabled = buffer_read_u8(buf);
     data.sound_music.enabled = buffer_read_u8(buf);
     data.sound_speech.enabled = buffer_read_u8(buf);
-    buffer_skip(buf, 6);
     data.game_speed = buffer_read_i32(buf);
     data.scroll_speed = buffer_read_i32(buf);
     buffer_read_raw(buf, data.player_name, MAX_PLAYER_NAME);
-    buffer_skip(buf, 16);
     data.last_advisor = buffer_read_i32(buf);
-    buffer_skip(buf, 4); //int save_game_mission_id;
     data.tooltips = buffer_read_i32(buf);
     data.sound_city.enabled = buffer_read_u8(buf);
     data.warnings = buffer_read_u8(buf);
     data.monthly_autosave = buffer_read_u8(buf);
-    buffer_skip(buf, 1); //unsigned char autoclear_enabled;
     data.sound_effects.volume = buffer_read_i32(buf);
     data.sound_music.volume = buffer_read_i32(buf);
     data.sound_speech.volume = buffer_read_i32(buf);
     data.sound_city.volume = buffer_read_i32(buf);
-    buffer_skip(buf, 8); // ram
     data.window_width = buffer_read_i32(buf);
     data.window_height = buffer_read_i32(buf);
-    buffer_skip(buf, 8); //int max_confirmed_resolution;
     data.victory_video = buffer_read_i32(buf);
 
     if (buffer_at_end(buf)) {
@@ -106,7 +98,7 @@ void settings_load(void)
 {
     load_default_settings();
 
-    int size = io_read_file_into_buffer("c3.inf", NOT_LOCALIZED, data.inf_file, INF_SIZE);
+    int size = io_read_file_into_buffer("brutus.inf", NOT_LOCALIZED, data.inf_file, INF_SIZE);
     if (!size) {
         return;
     }
@@ -131,37 +123,29 @@ void settings_save(void)
     buffer *buf = &b;
     buffer_init(buf, data.inf_file, INF_SIZE);
 
-    buffer_skip(buf, 4);
     buffer_write_i32(buf, data.fullscreen);
-    buffer_skip(buf, 3);
     buffer_write_u8(buf, data.sound_effects.enabled);
     buffer_write_u8(buf, data.sound_music.enabled);
     buffer_write_u8(buf, data.sound_speech.enabled);
-    buffer_skip(buf, 6);
     buffer_write_i32(buf, data.game_speed);
     buffer_write_i32(buf, data.scroll_speed);
     buffer_write_raw(buf, data.player_name, MAX_PLAYER_NAME);
-    buffer_skip(buf, 16);
     buffer_write_i32(buf, data.last_advisor);
-    buffer_skip(buf, 4); //int save_game_mission_id;
     buffer_write_i32(buf, data.tooltips);
     buffer_write_u8(buf, data.sound_city.enabled);
     buffer_write_u8(buf, data.warnings);
     buffer_write_u8(buf, data.monthly_autosave);
-    buffer_skip(buf, 1); //unsigned char autoclear_enabled;
     buffer_write_i32(buf, data.sound_effects.volume);
     buffer_write_i32(buf, data.sound_music.volume);
     buffer_write_i32(buf, data.sound_speech.volume);
     buffer_write_i32(buf, data.sound_city.volume);
-    buffer_skip(buf, 8); // ram
     buffer_write_i32(buf, data.window_width);
     buffer_write_i32(buf, data.window_height);
-    buffer_skip(buf, 8); //int max_confirmed_resolution;
     buffer_write_i32(buf, data.victory_video);
     buffer_write_i32(buf, data.difficulty);
     buffer_write_i32(buf, data.gods_enabled);
 
-    io_write_buffer_to_file("c3.inf", data.inf_file, INF_SIZE);
+    io_write_buffer_to_file("brutus.inf", data.inf_file, INF_SIZE);
 }
 
 int setting_fullscreen(void)

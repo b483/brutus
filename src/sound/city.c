@@ -332,20 +332,12 @@ void sound_city_save_state(buffer *buf)
         for (int d = 0; d < 5; d++) {
             buffer_write_i32(buf, ch->direction_views[d]);
         }
-        buffer_write_i32(buf, 0); // current channel, always 0
-        buffer_write_i32(buf, ch->in_use ? 1 : 0); // num channels, max 1
         buffer_write_i32(buf, ch->channel);
-        for (int c = 1; c < 8; c++) {
-            buffer_write_i32(buf, 0); // channels 1-7: never used
-        }
         buffer_write_i32(buf, ch->in_use);
         buffer_write_i32(buf, ch->times_played);
         buffer_write_u32(buf, ch->last_played_time);
         buffer_write_u32(buf, ch->delay_millis);
         buffer_write_i32(buf, ch->should_play);
-        for (int x = 0; x < 9; x++) {
-            buffer_write_i32(buf, 0);
-        }
     }
 }
 
@@ -359,15 +351,11 @@ void sound_city_load_state(buffer *buf)
         for (int d = 0; d < 5; d++) {
             ch->direction_views[d] = buffer_read_i32(buf);
         }
-        buffer_skip(buf, 4); // current channel
-        buffer_skip(buf, 4); // num channels
         ch->channel = buffer_read_i32(buf);
-        buffer_skip(buf, 28);
         ch->in_use = buffer_read_i32(buf);
         ch->times_played = buffer_read_i32(buf);
         ch->last_played_time = buffer_read_u32(buf);
         ch->delay_millis = buffer_read_u32(buf);
         ch->should_play = buffer_read_i32(buf);
-        buffer_skip(buf, 36);
     }
 }

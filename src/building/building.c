@@ -332,7 +332,6 @@ void building_save_state(buffer *buf, buffer *highest_id, buffer *highest_id_eve
     }
     buffer_write_i32(highest_id, extra.highest_id_in_use);
     buffer_write_i32(highest_id_ever, extra.highest_id_ever);
-    buffer_skip(highest_id_ever, 4);
     buffer_write_i32(sequence, extra.created_sequence);
 
     buffer_write_i32(corrupt_houses, extra.incorrect_houses);
@@ -348,7 +347,6 @@ void building_load_state(buffer *buf, buffer *highest_id, buffer *highest_id_eve
     }
     extra.highest_id_in_use = buffer_read_i32(highest_id);
     extra.highest_id_ever = buffer_read_i32(highest_id_ever);
-    buffer_skip(highest_id_ever, 4);
     extra.created_sequence = buffer_read_i32(sequence);
 
     extra.incorrect_houses = buffer_read_i32(corrupt_houses);

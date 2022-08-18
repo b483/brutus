@@ -104,15 +104,11 @@ void building_storage_accept_none(int storage_id)
 void building_storage_save_state(buffer *buf)
 {
     for (int i = 0; i < MAX_STORAGES; i++) {
-        buffer_write_i32(buf, 0); // unused integer
         buffer_write_i32(buf, data.storages[i].building_id);
         buffer_write_u8(buf, (uint8_t) data.storages[i].in_use);
         buffer_write_u8(buf, (uint8_t) data.storages[i].storage.empty_all);
         for (int r = 0; r < RESOURCE_MAX; r++) {
             buffer_write_u8(buf, data.storages[i].storage.resource_state[r]);
-        }
-        for (int r = 0; r < 6; r++) {
-            buffer_write_u8(buf, 0); // unused resource states
         }
     }
 }
@@ -120,13 +116,11 @@ void building_storage_save_state(buffer *buf)
 void building_storage_load_state(buffer *buf)
 {
     for (int i = 0; i < MAX_STORAGES; i++) {
-        buffer_skip(buf, 4); // unused integer
         data.storages[i].building_id = buffer_read_i32(buf);
         data.storages[i].in_use = buffer_read_u8(buf);
         data.storages[i].storage.empty_all = buffer_read_u8(buf);
         for (int r = 0; r < RESOURCE_MAX; r++) {
             data.storages[i].storage.resource_state[r] = buffer_read_u8(buf);
         }
-        buffer_skip(buf, 6); // unused resource states
     }
 }

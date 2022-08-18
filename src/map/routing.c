@@ -503,16 +503,12 @@ int map_routing_distance(int grid_offset)
 
 void map_routing_save_state(buffer *buf)
 {
-    buffer_write_i32(buf, 0); // unused counter
     buffer_write_i32(buf, stats.enemy_routes_calculated);
     buffer_write_i32(buf, stats.total_routes_calculated);
-    buffer_write_i32(buf, 0); // unused counter
 }
 
 void map_routing_load_state(buffer *buf)
 {
-    buffer_skip(buf, 4); // unused counter
     stats.enemy_routes_calculated = buffer_read_i32(buf);
     stats.total_routes_calculated = buffer_read_i32(buf);
-    buffer_skip(buf, 4); // unused counter
 }

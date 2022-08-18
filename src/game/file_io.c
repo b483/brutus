@@ -72,7 +72,6 @@ typedef struct {
     buffer *camera;
     buffer *scenario;
     buffer *empire_object;
-    buffer *end_marker;
 } scenario_state;
 
 static struct {
@@ -158,7 +157,6 @@ typedef struct {
     buffer *scenario_name;
     buffer *bookmarks;
     buffer *city_entry_exit_grid_offset;
-    buffer *end_marker;
 } savegame_state;
 
 static struct {
@@ -208,7 +206,6 @@ static void init_scenario_data(void)
     state->camera = create_scenario_piece(8);
     state->scenario = create_scenario_piece(3516);
     state->empire_object = create_scenario_piece(18400);
-    state->end_marker = create_scenario_piece(4);
 }
 
 static void init_savegame_data(void)
@@ -238,16 +235,16 @@ static void init_savegame_data(void)
     state->figures = create_savegame_piece(128000, 1);
     state->route_figures = create_savegame_piece(1200, 1);
     state->route_paths = create_savegame_piece(300000, 1);
-    state->formations = create_savegame_piece(6400, 1);
+    state->formations = create_savegame_piece(5500, 1);
     state->formation_totals = create_savegame_piece(12, 0);
     state->city_data = create_savegame_piece(36136, 1);
     state->city_faction_unknown = create_savegame_piece(2, 0);
     state->player_name = create_savegame_piece(32, 0);
     state->city_faction = create_savegame_piece(4, 0);
-    state->buildings = create_savegame_piece(256000, 1);
+    state->buildings = create_savegame_piece(244000, 1);
     state->city_view_orientation = create_savegame_piece(4, 0);
     state->game_time = create_savegame_piece(20, 0);
-    state->building_extra_highest_id_ever = create_savegame_piece(8, 0);
+    state->building_extra_highest_id_ever = create_savegame_piece(4, 0);
     state->random_iv = create_savegame_piece(8, 0);
     state->city_view_camera = create_savegame_piece(8, 0);
     state->building_count_culture1 = create_savegame_piece(132, 0);
@@ -263,15 +260,15 @@ static void init_savegame_data(void)
     state->max_game_year = create_savegame_piece(4, 0);
     state->earthquake = create_savegame_piece(60, 0);
     state->emperor_change_state = create_savegame_piece(4, 0);
-    state->messages = create_savegame_piece(16000, 1);
+    state->messages = create_savegame_piece(14000, 1);
     state->message_extra = create_savegame_piece(12, 0);
-    state->population_messages = create_savegame_piece(10, 0);
+    state->population_messages = create_savegame_piece(9, 0);
     state->message_counts = create_savegame_piece(80, 0);
     state->message_delays = create_savegame_piece(80, 0);
     state->building_list_burning_totals = create_savegame_piece(8, 0);
     state->figure_sequence = create_savegame_piece(4, 0);
-    state->invasion_warnings = create_savegame_piece(3232, 1);
-    state->city_sounds = create_savegame_piece(8960, 0);
+    state->invasion_warnings = create_savegame_piece(2121, 1);
+    state->city_sounds = create_savegame_piece(3920, 0);
     state->building_extra_highest_id = create_savegame_piece(4, 0);
     state->figure_traders = create_savegame_piece(4804, 0);
     state->building_list_burning = create_savegame_piece(1000, 1);
@@ -279,7 +276,7 @@ static void init_savegame_data(void)
     state->building_list_large = create_savegame_piece(4000, 1);
     state->building_count_military = create_savegame_piece(16, 0);
     state->enemy_army_totals = create_savegame_piece(20, 0);
-    state->building_storages = create_savegame_piece(6400, 0);
+    state->building_storages = create_savegame_piece(4400, 0);
     state->building_count_culture2 = create_savegame_piece(32, 0);
     state->building_count_support = create_savegame_piece(24, 0);
     state->gladiator_revolt = create_savegame_piece(16, 0);
@@ -287,7 +284,7 @@ static void init_savegame_data(void)
     state->trade_route_traded = create_savegame_piece(1280, 1);
     state->building_barracks_tower_sentry = create_savegame_piece(4, 0);
     state->building_extra_sequence = create_savegame_piece(4, 0);
-    state->routing_counters = create_savegame_piece(16, 0);
+    state->routing_counters = create_savegame_piece(8, 0);
     state->building_count_culture3 = create_savegame_piece(40, 0);
     state->enemy_armies = create_savegame_piece(900, 0);
     state->city_entry_exit_xy = create_savegame_piece(16, 0);
@@ -296,7 +293,6 @@ static void init_savegame_data(void)
     state->scenario_name = create_savegame_piece(65, 0);
     state->bookmarks = create_savegame_piece(32, 0);
     state->city_entry_exit_grid_offset = create_savegame_piece(8, 0);
-    state->end_marker = create_savegame_piece(284, 0); // 71x 4-bytes emptiness
 }
 
 static void scenario_load_from_state(scenario_state *file)
@@ -312,7 +308,6 @@ static void scenario_load_from_state(scenario_state *file)
 
     scenario_load_state(file->scenario);
     empire_object_load_state(file->empire_object);
-    buffer_skip(file->end_marker, 4);
 }
 
 static void scenario_save_to_state(scenario_state *file)
@@ -328,7 +323,6 @@ static void scenario_save_to_state(scenario_state *file)
 
     scenario_save_state(file->scenario);
     empire_object_save_state(file->empire_object);
-    buffer_skip(file->end_marker, 4);
 }
 
 static void savegame_load_from_state(savegame_state *state)
@@ -402,8 +396,6 @@ static void savegame_load_from_state(savegame_state *state)
     enemy_armies_load_state(state->enemy_armies, state->enemy_army_totals);
     scenario_invasion_load_state(state->last_invasion_id, state->invasion_warnings);
     map_bookmark_load_state(state->bookmarks);
-
-    buffer_skip(state->end_marker, 284);
 }
 
 static void savegame_save_to_state(savegame_state *state)
@@ -477,8 +469,6 @@ static void savegame_save_to_state(savegame_state *state)
     enemy_armies_save_state(state->enemy_armies, state->enemy_army_totals);
     scenario_invasion_save_state(state->last_invasion_id, state->invasion_warnings);
     map_bookmark_save_state(state->bookmarks);
-
-    buffer_skip(state->end_marker, 284);
 }
 
 int game_file_io_read_scenario(const char *filename)

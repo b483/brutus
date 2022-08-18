@@ -576,7 +576,6 @@ void city_message_save_state(buffer *messages, buffer *extra, buffer *counts, bu
         buffer_write_i16(messages, msg->sequence);
         buffer_write_u8(messages, msg->is_read);
         buffer_write_u8(messages, msg->month);
-        buffer_write_i16(messages, 0);
     }
 
     buffer_write_i32(extra, data.next_message_sequence);
@@ -588,7 +587,6 @@ void city_message_save_state(buffer *messages, buffer *extra, buffer *counts, bu
         buffer_write_i32(delays, data.message_delay[i]);
     }
     // population
-    buffer_write_u8(population, 0);
     buffer_write_u8(population, data.population_shown.pop500);
     buffer_write_u8(population, data.population_shown.pop1000);
     buffer_write_u8(population, data.population_shown.pop2000);
@@ -611,7 +609,6 @@ void city_message_load_state(buffer *messages, buffer *extra, buffer *counts, bu
         msg->sequence = buffer_read_i16(messages);
         msg->is_read = buffer_read_u8(messages);
         msg->month = buffer_read_u8(messages);
-        buffer_skip(messages, 2);
     }
 
     data.next_message_sequence = buffer_read_i32(extra);
@@ -623,7 +620,6 @@ void city_message_load_state(buffer *messages, buffer *extra, buffer *counts, bu
         data.message_delay[i] = buffer_read_i32(delays);
     }
     // population
-    buffer_skip(population, 1);
     data.population_shown.pop500 = buffer_read_u8(population);
     data.population_shown.pop1000 = buffer_read_u8(population);
     data.population_shown.pop2000 = buffer_read_u8(population);
