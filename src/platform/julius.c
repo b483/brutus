@@ -17,7 +17,6 @@
 #include "platform/joystick.h"
 #include "platform/keyboard_input.h"
 #include "platform/platform.h"
-#include "platform/prefs.h"
 #include "platform/screen.h"
 #include "platform/touch.h"
 
@@ -59,7 +58,7 @@ enum {
 static struct {
     int active;
     int quit;
-} data = {1, 0};
+} data = { 1, 0 };
 
 static void exit_with_status(int status)
 {
@@ -437,7 +436,7 @@ static const char *ask_for_data_dir(int again)
 #else
     if (again) {
         int result = tinyfd_messageBox("Wrong folder selected",
-            "Julius requires the original files from Caesar 3 to run.\n\n"
+            "Brutus requires the original files from Caesar 3 to run.\n\n"
             "The selected folder is not a proper Caesar 3 folder.\n\n"
             "Press OK to select another folder or Cancel to exit.",
             "okcancel", "warning", 1);
@@ -450,8 +449,57 @@ static const char *ask_for_data_dir(int again)
 }
 #endif
 
+
+int load_data_dir(void)
+{
+    FILE *fp = fopen(DATA_TEXT_FILE_PATH, "r");
+    if (fp) {
+        size_t length = fread(GAME_DATA_PATH, 1, 1000, fp);
+        fclose(fp);
+        if (length > 0) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    return 0;
+}
+
+static void save_data_dir(const char *data_dir)
+{
+    FILE *fp = fopen(DATA_TEXT_FILE_PATH, "w");
+    if (fp) {
+        fwrite(data_dir, 1, strlen(data_dir), fp);
+        fclose(fp);
+    }
+    strcpy(GAME_DATA_PATH, data_dir);
+}
+
+
 static int pre_init(const char *custom_data_dir)
 {
+    char *executable_path = SDL_GetBasePath();
+    if (executable_path) {
+        if (strlen(executable_path) < FILE_NAME_MAX - 15) {
+            strcpy(EXECUTABLE_DIR_PATH, executable_path);
+
+            strcpy(DATA_TEXT_FILE_PATH, executable_path);
+            strcat(DATA_TEXT_FILE_PATH, "data_dir.txt");
+
+            strcpy(MAPS_DIR_PATH, executable_path);
+            strcat(MAPS_DIR_PATH, "maps\\");
+            strcpy(SAVES_DIR_PATH, executable_path);
+            strcat(SAVES_DIR_PATH, "saves\\");
+        } else {
+            SDL_Log("Brutus directory path too long, exiting");
+            return 0;
+        }
+    } else {
+        SDL_Log("Brutus directory not found, exiting");
+        return 0;
+    }
+    SDL_free(executable_path);
+
     if (custom_data_dir) {
         SDL_Log("Loading game from %s", custom_data_dir);
         if (!platform_file_manager_set_base_path(custom_data_dir)) {
@@ -461,48 +509,26 @@ static int pre_init(const char *custom_data_dir)
         return game_pre_init();
     }
 
-    SDL_Log("Loading game from working directory");
-    if (game_pre_init()) {
-        return 1;
-    }
-
-#if SDL_VERSION_ATLEAST(2, 0, 1)
-    if (platform_sdl_version_at_least(2, 0, 1)) {
-        char *base_path = SDL_GetBasePath();
-        if (base_path) {
-            if (platform_file_manager_set_base_path(base_path)) {
-                SDL_Log("Loading game from base path %s", base_path);
-                if (game_pre_init()) {
-                    SDL_free(base_path);
-                    return 1;
-                }
-            }
-            SDL_free(base_path);
-        }
-    }
-#endif
-
 #ifdef SHOW_FOLDER_SELECT_DIALOG
-    const char *user_dir = pref_data_dir();
-    if (user_dir) {
-        SDL_Log("Loading game from user pref %s", user_dir);
-        if (platform_file_manager_set_base_path(user_dir) && game_pre_init()) {
+    if (load_data_dir()) {
+        SDL_Log("Loading game from user pref %s", GAME_DATA_PATH);
+        if (platform_file_manager_set_base_path(GAME_DATA_PATH) && game_pre_init()) {
             return 1;
+        } else {
+            SDL_Log("Incorrect game path specified in data_dir.txt: %s", GAME_DATA_PATH);
+        }
+    } else {
+        const char *user_dir = ask_for_data_dir(0);
+        while (user_dir) {
+            SDL_Log("Loading game from user-selected dir %s", user_dir);
+            if (platform_file_manager_set_base_path(user_dir) && game_pre_init()) {
+                save_data_dir(user_dir);
+                return 1;
+            }
+            user_dir = ask_for_data_dir(1);
         }
     }
 
-    user_dir = ask_for_data_dir(0);
-    while (user_dir) {
-        SDL_Log("Loading game from user-selected dir %s", user_dir);
-        if (platform_file_manager_set_base_path(user_dir) && game_pre_init()) {
-            pref_save_data_dir(user_dir);
-#ifdef __ANDROID__
-            SDL_AndroidShowToast("C3 files found. Path saved.", 0, 0, 0, 0);
-#endif
-            return 1;
-        }
-        user_dir = ask_for_data_dir(1);
-    }
 #elif defined(__vita__)
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
         "Error",

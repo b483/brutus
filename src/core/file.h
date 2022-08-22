@@ -18,6 +18,21 @@
 
 #define FILE_NAME_MAX 300
 
+// the path to the folder where brutus.exe is located
+char EXECUTABLE_DIR_PATH[FILE_NAME_MAX];
+
+// the path to "data_dir.txt" within the Brutus directory
+char DATA_TEXT_FILE_PATH[FILE_NAME_MAX];
+
+// the path to the /maps folder in the Brutus directory
+char MAPS_DIR_PATH[FILE_NAME_MAX + 5];
+
+// the path to the /saves folder in the Brutus directory
+char SAVES_DIR_PATH[FILE_NAME_MAX + 6];
+
+// the path to the folder where c3.exe is located
+char GAME_DATA_PATH[FILE_NAME_MAX];
+
 /**
  * Wrapper for fopen converting filename to path in current working directory
  * @param filename Filename
