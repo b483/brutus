@@ -52,7 +52,7 @@
 # is #include "SDL.h", not <SDL2/SDL.h>. This is done for portability
 # reasons because not all systems place things in SDL2/ (see FreeBSD).
 
-#=============================================================================
+# =============================================================================
 # Copyright 2003-2009 Kitware, Inc.
 #
 # Distributed under the OSI-approved BSD License (the "License");
@@ -61,86 +61,78 @@
 # This software is distributed WITHOUT ANY WARRANTY; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # See the License for more information.
-#=============================================================================
+# =============================================================================
 # (To distribute this file outside of CMake, substitute the full
-#  License text for the above reference.)
+# License text for the above reference.)
 
 GET_SDL_EXT_DIR(SDL_EXT_DIR "")
 
-IF(${TARGET_PLATFORM} STREQUAL "android")
-    find_package(SDL2 REQUIRED CONFIG)
-    STRING(TOLOWER ${CMAKE_BUILD_TYPE} ANDROID_BUILD_DIR)
-    SET(SDL2_LIBRARY SDL2::SDL2)
-    SET(SDL2_ANDROID_HOOK ${SDL_EXT_DIR}/src/main/android/SDL_android_main.c)
-ELSE()
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        set(SDL2_ARCH_64 TRUE)
-        set(SDL2_PROCESSOR_ARCH "x64")
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(SDL2_ARCH_64 TRUE)
+    set(SDL2_PROCESSOR_ARCH "x64")
+else()
+    set(SDL2_ARCH_64 FALSE)
+    set(SDL2_PROCESSOR_ARCH "x86")
+endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+
+if(MINGW AND DEFINED SDL_EXT_DIR)
+    if(SDL2_ARCH_64)
+        set(SDL_MINGW_EXT_DIR "${SDL_EXT_DIR}/x86_64-w64-mingw32")
     else()
-        set(SDL2_ARCH_64 FALSE)
-        set(SDL2_PROCESSOR_ARCH "x86")
-    endif(CMAKE_SIZEOF_VOID_P EQUAL 8)
-
-    if(MINGW AND DEFINED SDL_EXT_DIR)
-        if(SDL2_ARCH_64)
-            set(SDL_MINGW_EXT_DIR "${SDL_EXT_DIR}/x86_64-w64-mingw32")
-        else()
-            set(SDL_MINGW_EXT_DIR "${SDL_EXT_DIR}/i686-w64-mingw32")
-        endif()
+        set(SDL_MINGW_EXT_DIR "${SDL_EXT_DIR}/i686-w64-mingw32")
     endif()
+endif()
 
-    SET(SDL2_SEARCH_PATHS
-        ${SDL_EXT_DIR}
-        ${SDL_MINGW_EXT_DIR}
-        ~/Library/Frameworks
-        /Library/Frameworks
-        /sw # Fink
-        /opt/local # DarwinPorts
-        /opt/csw # Blastwave
-        /opt
-        /boot/system/develop/headers/SDL2 # Haiku
-        ${CMAKE_FIND_ROOT_PATH}
-    )
+SET(SDL2_SEARCH_PATHS
+    ${SDL_EXT_DIR}
+    ${SDL_MINGW_EXT_DIR}
+    ~/Library/Frameworks
+    /Library/Frameworks
+    /sw # Fink
+    /opt/local # DarwinPorts
+    /opt/csw # Blastwave
+    /opt
+    ${CMAKE_FIND_ROOT_PATH}
+)
 
-    FIND_PATH(SDL2_INCLUDE_DIR SDL_log.h
-        HINTS
-        $ENV{SDL2DIR}
-        PATH_SUFFIXES include/SDL2 include
-        PATHS ${SDL2_SEARCH_PATHS}
-        NO_CMAKE_FIND_ROOT_PATH
-    )
+FIND_PATH(SDL2_INCLUDE_DIR SDL_log.h
+    HINTS
+    $ENV{SDL2DIR}
+    PATH_SUFFIXES include/SDL2 include
+    PATHS ${SDL2_SEARCH_PATHS}
+    NO_CMAKE_FIND_ROOT_PATH
+)
 
-    FIND_LIBRARY(SDL2_LIBRARY_TEMP
-        NAMES SDL2
-        HINTS
-        $ENV{SDL2DIR}
-        PATH_SUFFIXES lib64 lib lib/${SDL2_PROCESSOR_ARCH}
-        PATHS ${SDL2_SEARCH_PATHS}
-        NO_CMAKE_FIND_ROOT_PATH
-    )
+FIND_LIBRARY(SDL2_LIBRARY_TEMP
+    NAMES SDL2
+    HINTS
+    $ENV{SDL2DIR}
+    PATH_SUFFIXES lib64 lib lib/${SDL2_PROCESSOR_ARCH}
+    PATHS ${SDL2_SEARCH_PATHS}
+    NO_CMAKE_FIND_ROOT_PATH
+)
 
-    IF(NOT SDL2_BUILDING_LIBRARY)
-        IF(NOT ${SDL2_INCLUDE_DIR} MATCHES ".framework")
-            # Non-OS X framework versions expect you to also dynamically link to
-            # SDL2main. This is mainly for Windows and OS X. Other (Unix) platforms
-            # seem to provide SDL2main for compatibility even though they don't
-            # necessarily need it.
-            FIND_LIBRARY(SDL2MAIN_LIBRARY
-                NAMES SDL2main
-                HINTS
-                $ENV{SDL2DIR}
-                PATH_SUFFIXES lib64 lib lib/${SDL2_PROCESSOR_ARCH}
-                PATHS ${SDL2_SEARCH_PATHS}
-            )
-        ENDIF(NOT ${SDL2_INCLUDE_DIR} MATCHES ".framework")
-    ENDIF(NOT SDL2_BUILDING_LIBRARY)
-ENDIF()
+IF(NOT SDL2_BUILDING_LIBRARY)
+    IF(NOT ${SDL2_INCLUDE_DIR} MATCHES ".framework")
+        # Non-OS X framework versions expect you to also dynamically link to
+        # SDL2main. This is mainly for Windows and OS X. Other (Unix) platforms
+        # seem to provide SDL2main for compatibility even though they don't
+        # necessarily need it.
+        FIND_LIBRARY(SDL2MAIN_LIBRARY
+            NAMES SDL2main
+            HINTS
+            $ENV{SDL2DIR}
+            PATH_SUFFIXES lib64 lib lib/${SDL2_PROCESSOR_ARCH}
+            PATHS ${SDL2_SEARCH_PATHS}
+        )
+    ENDIF(NOT ${SDL2_INCLUDE_DIR} MATCHES ".framework")
+ENDIF(NOT SDL2_BUILDING_LIBRARY)
 
 # SDL2 may require threads on your system.
 # The Apple build may not need an explicit flag because one of the
 # frameworks may already provide it.
 # But for non-OSX systems, I will use the CMake Threads package.
-IF(NOT APPLE AND NOT EMSCRIPTEN)
+IF(NOT APPLE)
     FIND_PACKAGE(Threads)
 ENDIF()
 
@@ -183,6 +175,7 @@ IF(SDL2_LIBRARY_TEMP)
 
     # Set the final string here so the GUI reflects the final state.
     SET(SDL2_LIBRARY ${SDL2_LIBRARY_TEMP} CACHE STRING "Where the SDL2 Library can be found")
+
     # Set the temp variable to INTERNAL so it is not seen in the CMake GUI
     SET(SDL2_LIBRARY_TEMP "${SDL2_LIBRARY_TEMP}" CACHE INTERNAL "")
 ENDIF(SDL2_LIBRARY_TEMP)
@@ -203,9 +196,8 @@ if(SDL2_INCLUDE_DIR AND EXISTS "${SDL2_INCLUDE_DIR}/SDL_version.h")
     unset(SDL2_VERSION_PATCH)
 endif()
 
-
 INCLUDE(FindPackageHandleStandardArgs)
 
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(SDL2
-                                  REQUIRED_VARS SDL2_LIBRARY
-                                  VERSION_VAR SDL2_VERSION_STRING)
+    REQUIRED_VARS SDL2_LIBRARY
+    VERSION_VAR SDL2_VERSION_STRING)

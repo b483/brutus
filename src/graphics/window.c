@@ -3,9 +3,7 @@
 #include "graphics/warning.h"
 #include "input/cursor.h"
 #include "input/hotkey.h"
-#include "input/joystick.h"
 #include "input/scroll.h"
-#include "input/touch.h"
 #include "window/city.h"
 
 #define MAX_QUEUE 3
@@ -20,11 +18,9 @@ static struct {
 } data;
 
 static void noop(void)
-{
-}
+{}
 static void noop_input(const mouse *m, const hotkeys *h)
-{
-}
+{}
 
 static void increase_queue_index(void)
 {
@@ -45,7 +41,6 @@ static void decrease_queue_index(void)
 static void reset_input(void)
 {
     mouse_reset_button_state();
-    reset_touches(1);
     scroll_stop();
 }
 
@@ -103,17 +98,12 @@ void window_go_back(void)
 
 static void update_input_before(void)
 {
-    int handled = touch_to_mouse();
-    handled |= joystick_to_mouse_and_keyboard();
-    if (!handled) {
-        mouse_determine_button_state();  // touch and joystick override mouse
-    }
+    mouse_determine_button_state();
     hotkey_handle_global_keys();
 }
 
 static void update_input_after(void)
 {
-    reset_touches(0);
     mouse_reset_scroll();
     input_cursor_update(data.current_window->id);
     hotkey_reset_state();

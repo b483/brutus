@@ -98,19 +98,6 @@ function install_sdl_macos {
   hdiutil detach "$VOLUME"
 }
 
-function install_sdl_android {
-  local MODULE=$1
-  local VERSION=$2
-  local DIRNAME=deps/$MODULE-$VERSION
-  local FILENAME=$DIRNAME.tar.gz
-  if [ ! -f "$FILENAME" ]
-  then
-    get_sdl_lib_url $MODULE $VERSION "tar.gz"
-    curl -o "$FILENAME" "$SDL_LIB_URL"
-  fi
-  tar -zxf $FILENAME -C ext/SDL2
-}
-
 mkdir -p deps
 if [ "$BUILD_TARGET" == "appimage" ]
 then
@@ -121,32 +108,7 @@ then
   then
     install_sdl_macos "SDL2" $SDL_VERSION
     install_sdl_macos "SDL2_mixer" $SDL_MIXER_VERSION
-  elif [ "$BUILD_TARGET" == "android" ]
-  then
-    install_sdl_android "SDL2" $SDL_VERSION
-    install_sdl_android "SDL2_mixer" $SDL_MIXER_VERSION
   else
-    if [ "$BUILD_TARGET" == "emscripten" ]
-    then
-      source ${PWD}/emsdk/emsdk_env.sh
-      CONFIGURE_PREFIX="emconfigure"
-      MAKE_PREFIX="emmake"
-      MPG123_CONFIGURE_OPTIONS="\
-        --with-cpu=generic_fpu \
-        --disable-fifo \
-        --disable-network \
-        --disable-shared \
-        --enable-static \
-        --disable-ntom \
-        --disable-downsample \
-        --disable-icy \
-        --disable-messages \
-        --disable-feature-report \
-        --disable-equalizer \
-        --disable-buffer"
-      SDL_CONFIGURE_OPTIONS="--host=wasm32-unknown-emscripten --disable-assembly --disable-threads --disable-cpuinfo"
-      SDL_MIXER_CONFIGURE_OPTIONS="--host=wasm32-unknown-emscripten --enable-music-mp3-mpg123-shared=no"
-    fi
     install_sdl_lib "SDL2" $SDL_VERSION "$SDL_CONFIGURE_OPTIONS"
     if [ ! -z "$MPG123_VERSION" ]
     then

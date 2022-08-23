@@ -7,11 +7,7 @@
 #include "graphics/graphics.h"
 #include "graphics/screen.h"
 #include "input/cursor.h"
-#include "platform/android/android.h"
 #include "platform/cursor.h"
-#include "platform/haiku/haiku.h"
-#include "platform/switch/switch.h"
-#include "platform/vita/vita.h"
 
 #include "SDL.h"
 
@@ -28,12 +24,12 @@ static struct {
     int x;
     int y;
     int centered;
-} window_pos = {0, 0, 1};
+} window_pos = { 0, 0, 1 };
 
 static struct {
     const int WIDTH;
     const int HEIGHT;
-} MINIMUM = {640, 480};
+} MINIMUM = { 640, 480 };
 
 static int scale_percentage = 100;
 static color_t *framebuffer;
@@ -57,11 +53,7 @@ static int get_max_scale_percentage(int pixel_width, int pixel_height)
 
 static void set_scale_percentage(int new_scale, int pixel_width, int pixel_height)
 {
-#ifdef __vita__
-    scale_percentage = 100;
-#else
     scale_percentage = calc_bound(new_scale, 50, 500);
-#endif
 
     if (!pixel_width || !pixel_height) {
         return;
@@ -87,24 +79,12 @@ static void set_scale_percentage(int new_scale, int pixel_width, int pixel_heigh
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, scale_quality);
 }
 
-#ifdef __ANDROID__
-static void set_scale_for_screen(int pixel_width, int pixel_height)
-{
-    set_scale_percentage(android_get_screen_density() * 100, pixel_width, pixel_height);
-    config_set(CONFIG_SCREEN_CURSOR_SCALE, scale_percentage);
-    if (SDL.texture) {
-        system_init_cursors(scale_percentage);
-    }
-    SDL_Log("Auto-setting scale to %i", scale_percentage);
-}
-#endif
-
 int platform_screen_create(const char *title, int display_scale_percentage)
 {
     set_scale_percentage(display_scale_percentage, 0, 0);
 
     int width, height;
-    int fullscreen = system_is_fullscreen_only() ? 1 : setting_fullscreen();
+    int fullscreen = setting_fullscreen();
     if (fullscreen) {
         SDL_DisplayMode mode;
         SDL_GetDesktopDisplayMode(0, &mode);
@@ -117,13 +97,6 @@ int platform_screen_create(const char *title, int display_scale_percentage)
     }
 
     platform_screen_destroy();
-
-#ifdef __ANDROID__
-    // Fix for wrong colors on some android devices
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-#endif
 
     SDL_Log("Creating screen %d x %d, %s, driver: %s", width, height,
         fullscreen ? "fullscreen" : "windowed", SDL_GetCurrentVideoDriver());
@@ -143,10 +116,6 @@ int platform_screen_create(const char *title, int display_scale_percentage)
     if (!SDL.window) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to create window: %s", SDL_GetError());
         return 0;
-    }
-
-    if (system_is_fullscreen_only()) {
-        SDL_GetWindowSize(SDL.window, &width, &height);
     }
 
     SDL_Log("Creating renderer");
@@ -193,10 +162,6 @@ void platform_screen_destroy(void)
 
 int platform_screen_resize(int pixel_width, int pixel_height)
 {
-#ifdef __ANDROID__
-    set_scale_for_screen(pixel_width, pixel_height);
-#endif
-
     int logical_width = scale_pixels_to_logical(pixel_width);
     int logical_height = scale_pixels_to_logical(pixel_height);
 
@@ -272,9 +237,6 @@ void platform_screen_set_fullscreen(void)
 
 void platform_screen_set_windowed(void)
 {
-    if (system_is_fullscreen_only()) {
-        return;
-    }
     int logical_width, logical_height;
     setting_window(&logical_width, &logical_height);
     int pixel_width = scale_logical_to_pixels(logical_width);
@@ -294,9 +256,6 @@ void platform_screen_set_windowed(void)
 
 void platform_screen_set_window_size(int logical_width, int logical_height)
 {
-    if (system_is_fullscreen_only()) {
-        return;
-    }
     int pixel_width = scale_logical_to_pixels(logical_width);
     int pixel_height = scale_logical_to_pixels(logical_height);
     int display = SDL_GetWindowDisplayIndex(SDL.window);
@@ -327,27 +286,6 @@ void platform_screen_center_window(void)
     window_pos.centered = 1;
 }
 
-#ifdef PLATFORM_USE_SOFTWARE_CURSOR
-static void draw_software_mouse_cursor(void)
-{
-    const mouse *mouse = mouse_get();
-    if (!mouse->is_touch) {
-        cursor_shape current_cursor_shape = platform_cursor_get_current_shape();
-        const cursor *c = input_cursor_data(current_cursor_shape, platform_cursor_get_current_scale());
-        if (c) {
-            int size = platform_cursor_get_texture_size(c->width, c->height);
-            size = calc_adjust_with_percentage(size, calc_percentage(100, scale_percentage));
-            SDL_Rect dst;
-            dst.x = mouse->x - c->hotspot_x;
-            dst.y = mouse->y - c->hotspot_y;
-            dst.w = size;
-            dst.h = size;
-            SDL_RenderCopy(SDL.renderer, SDL.cursors[current_cursor_shape], NULL, &dst);
-        }
-    }
-}
-#endif
-
 #ifdef _WIN32
 void platform_screen_recreate_texture(void)
 {
@@ -373,13 +311,8 @@ void platform_screen_clear(void)
 void platform_screen_update(void)
 {
     SDL_RenderClear(SDL.renderer);
-#ifndef __vita__
     SDL_UpdateTexture(SDL.texture, NULL, graphics_canvas(), screen_width() * 4);
-#endif
     SDL_RenderCopy(SDL.renderer, SDL.texture, NULL, NULL);
-#ifdef PLATFORM_USE_SOFTWARE_CURSOR
-    draw_software_mouse_cursor();
-#endif
 }
 
 void platform_screen_render(void)
@@ -412,24 +345,9 @@ void system_set_mouse_position(int *x, int *y)
     SDL_WarpMouseInWindow(SDL.window, scale_logical_to_pixels(*x), scale_logical_to_pixels(*y));
 }
 
-int system_is_fullscreen_only(void)
-{
-#if defined(__ANDROID__) || defined(__SWITCH__) || defined(__vita__)
-    return 1;
-#else
-    return 0;
-#endif
-}
-
 color_t *system_create_framebuffer(int width, int height)
 {
-#ifdef __vita__
-    int pitch;
-    SDL_LockTexture(SDL.texture, NULL, (void **) &framebuffer, &pitch);
-    SDL_UnlockTexture(SDL.texture);
-#else
     free(framebuffer);
     framebuffer = (color_t *) malloc((size_t) width * height * sizeof(color_t));
-#endif
     return framebuffer;
 }

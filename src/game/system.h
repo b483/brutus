@@ -28,12 +28,6 @@ void system_resize(int width, int height);
 void system_center(void);
 
 /**
- * Returns whether the window must always be fullscreen
- * @return true when only fullscreen can be used, false otherwise
- */
-int system_is_fullscreen_only(void);
-
-/**
  * Set fullscreen on/off
  */
 void system_set_fullscreen(int fullscreen);
@@ -92,26 +86,6 @@ const char *system_keyboard_key_modifier_name(key_modifier_type modifier);
  * @param height Height of the box
  */
 void system_keyboard_set_input_rect(int x, int y, int width, int height);
-
-/**
- * Show the virtual keyboard
- */
-void system_keyboard_show(void);
-
-/**
- * Hide the virtual keyboard
- */
-void system_keyboard_hide(void);
-
-/**
- * Enable text input events
- */
-void system_start_text_input(void);
-
-/**
- * Disable text input events
- */
-void system_stop_text_input(void);
 
 /**
  * Sets mouse to relative mode, where moving the mouse

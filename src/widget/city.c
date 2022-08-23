@@ -18,7 +18,6 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "input/scroll.h"
-#include "input/touch.h"
 #include "map/building.h"
 #include "map/grid.h"
 #include "scenario/property.h"
@@ -102,53 +101,6 @@ void widget_city_draw_construction_cost_and_size(void)
         text_draw_number_colored(size_y, '@', " ", x - 15 + width, y + 25, FONT_SMALL_PLAIN, COLOR_FONT_YELLOW);
     }
     graphics_reset_clip_rectangle();
-}
-
-static void draw_pause_icon(int x_offset, int y_offset)
-{
-    graphics_draw_horizontal_line(x_offset + 3, x_offset + 11, y_offset + 3, COLOR_BLACK);
-    graphics_draw_vertical_line(x_offset + 3, y_offset + 4, y_offset + 16, COLOR_BLACK);
-    graphics_fill_rect(x_offset + 4, y_offset + 4, 8, 13, COLOR_WHITE);
-
-    x_offset += 13;
-
-    graphics_draw_horizontal_line(x_offset + 3, x_offset + 11, y_offset + 3, COLOR_BLACK);
-    graphics_draw_vertical_line(x_offset + 3, y_offset + 4, y_offset + 16, COLOR_BLACK);
-    graphics_fill_rect(x_offset + 4, y_offset + 4, 8, 13, COLOR_WHITE);
-}
-
-static void draw_pause_button(void)
-{
-    inner_panel_draw(16, 40, 3, 2);
-    button_border_draw(16, 40, 3 * BLOCK_SIZE, 2 * BLOCK_SIZE, 0);
-    if (game_state_is_paused()) {
-        image_draw(image_group(GROUP_ARROW_MESSAGE_PROBLEMS), 26, 46);
-    } else {
-        draw_pause_icon(26, 46);
-    }
-}
-
-static void draw_cancel_construction_button(void)
-{
-    if (!building_construction_type()) {
-        return;
-    }
-    int city_x, city_y, width, height;
-    city_view_get_viewport(&city_x, &city_y, &width, &height);
-    int x_offset = width - 4 * BLOCK_SIZE;
-    int y_offset = 40;
-    inner_panel_draw(x_offset, y_offset, 3, 2);
-    button_border_draw(x_offset, y_offset, 3 * BLOCK_SIZE, 2 * BLOCK_SIZE, 0);
-    // Use clip rectangle to remove the border of the "X" image
-    graphics_set_clip_rectangle(x_offset + 5, y_offset + 5, 37, 24);
-    image_draw(image_group(GROUP_OK_CANCEL_SCROLL_BUTTONS) + 4, x_offset + 4, y_offset + 4);
-    graphics_reset_clip_rectangle();
-}
-
-void widget_city_draw_touch_buttons(void)
-{
-    draw_pause_button();
-    draw_cancel_construction_button();
 }
 
 static int is_pause_button(int x, int y)
@@ -251,38 +203,6 @@ static void scroll_map(const mouse *m)
     }
 }
 
-static int adjust_offset_for_orientation(int grid_offset, int size)
-{
-    switch (city_view_orientation()) {
-        case DIR_0_TOP:
-            return map_grid_add_delta(grid_offset, -size + 1, -size + 1);
-        case DIR_2_RIGHT:
-            return map_grid_add_delta(grid_offset, 0, -size + 1);
-        case DIR_6_LEFT:
-            return map_grid_add_delta(grid_offset, -size + 1, 0);
-        default:
-            return grid_offset;
-    }
-}
-
-static int has_confirmed_construction(int ghost_offset, int tile_offset, int range_size)
-{
-    tile_offset = adjust_offset_for_orientation(tile_offset, range_size);
-    int x = map_grid_offset_to_x(tile_offset);
-    int y = map_grid_offset_to_y(tile_offset);
-    if (ghost_offset <= 0 || !map_grid_is_inside(x, y, range_size)) {
-        return 0;
-    }
-    for (int dy = 0; dy < range_size; dy++) {
-        for (int dx = 0; dx < range_size; dx++) {
-            if (ghost_offset == tile_offset + map_grid_delta(dx, dy)) {
-                return 1;
-            }
-        }
-    }
-    return 0;
-}
-
 static int input_coords_in_city(int x, int y)
 {
     if (is_pause_button(x, y) || is_cancel_construction_button(x, y)) {
@@ -295,167 +215,6 @@ static int input_coords_in_city(int x, int y)
     y -= y_offset;
 
     return (x >= 0 && x < width &&y >= 0 && y < height);
-}
-
-static void handle_touch_scroll(const touch *t)
-{
-    if (building_construction_type()) {
-        if (t->has_started) {
-            int x_offset, y_offset, width, height;
-            city_view_get_viewport(&x_offset, &y_offset, &width, &height);
-            scroll_set_custom_margins(x_offset, y_offset, width, height);
-        }
-        if (t->has_ended) {
-            scroll_restore_margins();
-        }
-        return;
-    }
-    scroll_restore_margins();
-
-    if (!data.capture_input) {
-        return;
-    }
-    int was_click = touch_was_click(touch_get_latest());
-    if (t->has_started || was_click) {
-        scroll_drag_start(1);
-        return;
-    }
-    if (!touch_not_click(t)) {
-        return;
-    }
-    if (t->has_ended) {
-        scroll_drag_end();
-    }
-}
-
-static void handle_last_touch(void)
-{
-    const touch *last = touch_get_latest();
-    if (last->in_use && touch_was_click(last)) {
-        building_construction_cancel();
-        window_request_refresh();
-    }
-}
-
-static int handle_play_pause_button(const touch *t)
-{
-    if (is_pause_button(t->current_point.x, t->current_point.y)) {
-        game_state_toggle_paused();
-        return 1;
-    }
-    return 0;
-}
-
-static int handle_cancel_construction_button(const touch *t)
-{
-    if (is_cancel_construction_button(t->current_point.x, t->current_point.y)) {
-        building_construction_cancel();
-        window_request_refresh();
-        return 1;
-    }
-    return 0;
-}
-
-static void handle_first_touch(map_tile *tile)
-{
-    const touch *first = touch_get_earliest();
-    building_type type = building_construction_type();
-
-    if (touch_was_click(first)) {
-        if (handle_play_pause_button(first) || handle_cancel_construction_button(first) || handle_legion_click(tile)) {
-            return;
-        }
-        if (type == BUILDING_NONE && handle_right_click_allow_building_info(tile)) {
-            scroll_drag_end();
-            data.capture_input = 0;
-            window_building_info_show(tile->grid_offset);
-            return;
-        }
-    }
-
-    handle_touch_scroll(first);
-
-    if (!input_coords_in_city(first->current_point.x, first->current_point.y) || type == BUILDING_NONE) {
-        return;
-    }
-
-    if (building_construction_is_updatable()) {
-        if (!building_construction_in_progress()) {
-            if (first->has_started) {
-                build_start(tile);
-                data.new_start_grid_offset = 0;
-            }
-        } else {
-            if (first->has_started) {
-                if (data.selected_tile.grid_offset != tile->grid_offset) {
-                    data.new_start_grid_offset = tile->grid_offset;
-                }
-            }
-            if (touch_not_click(first) && data.new_start_grid_offset) {
-                data.new_start_grid_offset = 0;
-                data.selected_tile.grid_offset = 0;
-                building_construction_cancel();
-                build_start(tile);
-            }
-            build_move(tile);
-            if (data.selected_tile.grid_offset != tile->grid_offset) {
-                data.selected_tile.grid_offset = 0;
-            }
-            if (first->has_ended) {
-                if (data.selected_tile.grid_offset == tile->grid_offset) {
-                    build_end();
-                    widget_city_clear_current_tile();
-                    data.new_start_grid_offset = 0;
-                } else {
-                    data.selected_tile.grid_offset = tile->grid_offset;
-                }
-            }
-        }
-        return;
-    }
-
-    int size = building_properties_for_type(type)->size;
-    if (type == BUILDING_WAREHOUSE) {
-        size = 3;
-    }
-
-    if (touch_was_click(first) && first->has_ended && data.capture_input &&
-        has_confirmed_construction(data.selected_tile.grid_offset, tile->grid_offset, size)) {
-        build_start(&data.selected_tile);
-        build_move(&data.selected_tile);
-        build_end();
-        widget_city_clear_current_tile();
-    } else if (first->has_ended) {
-        data.selected_tile = *tile;
-    }
-}
-
-static void handle_touch(void)
-{
-    const touch *first = touch_get_earliest();
-    if (!first->in_use) {
-        scroll_restore_margins();
-        return;
-    }
-
-    map_tile *tile = &data.current_tile;
-    if (!building_construction_in_progress() || input_coords_in_city(first->current_point.x, first->current_point.y)) {
-        update_city_view_coords(first->current_point.x, first->current_point.y, tile);
-    }
-
-    if (first->has_started && input_coords_in_city(first->current_point.x, first->current_point.y)) {
-        data.capture_input = 1;
-        scroll_restore_margins();
-    }
-
-    handle_last_touch();
-    handle_first_touch(tile);
-
-    if (first->has_ended) {
-        data.capture_input = 0;
-    }
-
-    building_construction_reset_draw_as_constructing();
 }
 
 int widget_city_has_input(void)
@@ -483,7 +242,7 @@ static void handle_mouse(const mouse *m)
         build_end();
     }
     if (m->right.went_down && input_coords_in_city(m->x, m->y) && !building_construction_type()) {
-        scroll_drag_start(0);
+        scroll_drag_start();
     }
     if (m->right.went_up) {
         if (!building_construction_type()) {
@@ -520,11 +279,7 @@ void widget_city_handle_input(const mouse *m, const hotkeys *h)
 {
     scroll_map(m);
 
-    if (m->is_touch) {
-        handle_touch();
-    } else {
-        handle_mouse(m);
-    }
+    handle_mouse(m);
 
     if (h->escape_pressed) {
         if (building_construction_type()) {
@@ -562,22 +317,6 @@ void widget_city_handle_input_military(const mouse *m, const hotkeys *h, int leg
     if (!city_view_is_sidebar_collapsed() && widget_minimap_handle_mouse(m)) {
         return;
     }
-    if (m->is_touch) {
-        const touch *t = touch_get_earliest();
-        if (!t->in_use) {
-            return;
-        }
-        if (touch_was_click(t) && handle_play_pause_button(t)) {
-            return;
-        }
-        if (t->has_started) {
-            data.capture_input = 1;
-        }
-        handle_touch_scroll(t);
-        if (t->has_ended) {
-            data.capture_input = 0;
-        }
-    }
     scroll_map(m);
     if (m->right.went_up || h->escape_pressed) {
         data.capture_input = 0;
@@ -585,8 +324,7 @@ void widget_city_handle_input_military(const mouse *m, const hotkeys *h, int leg
         window_city_show();
     } else {
         update_city_view_coords(m->x, m->y, tile);
-        if ((!m->is_touch && m->left.went_down)
-            || (m->is_touch && m->left.went_up && touch_was_click(touch_get_earliest()))) {
+        if (m->left.went_down) {
             military_map_click(legion_formation_id, tile);
         }
     }

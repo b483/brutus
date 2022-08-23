@@ -308,10 +308,6 @@ void tooltip_invalidate(void)
 
 void tooltip_handle(const mouse *m, void (*func)(tooltip_context *))
 {
-    if (m->is_touch && !m->left.is_down) {
-        reset_timer();
-        return;
-    }
     tooltip_context context = {m->x, m->y};
     context.text_group = DEFAULT_TEXT_GROUP;
     if (setting_tooltips() && func) {

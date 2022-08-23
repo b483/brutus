@@ -3,7 +3,6 @@
 #include "sound/device.h"
 #include "game/settings.h"
 #include "platform/platform.h"
-#include "platform/vita/vita.h"
 
 #include "SDL.h"
 #include "SDL_mixer.h"
@@ -11,9 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef __vita__
-#include <psp2/io/fcntl.h>
-#endif
 
 #define AUDIO_RATE 22050
 #define AUDIO_FORMAT AUDIO_S16
@@ -26,14 +22,6 @@
 #define USE_SDL_AUDIOSTREAM
 #endif
 #define HAS_AUDIOSTREAM() (platform_sdl_version_at_least(2, 0, 7))
-
-#ifdef __vita__
-static struct {
-    char filename[FILE_NAME_MAX];
-    char *buffer;
-    int size;
-} vita_music_data;
-#endif
 
 typedef struct {
     const char *filename;
@@ -121,16 +109,7 @@ void sound_device_close(void)
 static Mix_Chunk *load_chunk(const char *filename)
 {
     if (filename[0]) {
-#if defined(__vita__) || defined(__ANDROID__)
-        FILE *fp = file_open(filename, "rb");
-        if (!fp) {
-            return NULL;
-        }
-        SDL_RWops *sdl_fp = SDL_RWFromFP(fp, SDL_TRUE);
-        return Mix_LoadWAV_RW(sdl_fp, 1);
-#else
         return Mix_LoadWAV(filename);
-#endif
     } else {
         return NULL;
     }
@@ -176,29 +155,6 @@ void sound_device_set_channel_volume(int channel, int volume_pct)
     }
 }
 
-#ifdef __vita__
-static void load_music_for_vita(const char *filename)
-{
-    if (vita_music_data.buffer) {
-        if (strcmp(filename, vita_music_data.filename) == 0) {
-            return;
-        }
-        free(vita_music_data.buffer);
-        vita_music_data.buffer = 0;
-    }
-    strncpy(vita_music_data.filename, filename, FILE_NAME_MAX - 1);
-    SceUID fd = sceIoOpen(vita_prepend_path(filename), SCE_O_RDONLY, 0777);
-    if (fd < 0) {
-        return;
-    }
-    vita_music_data.size = sceIoLseek(fd, 0, SCE_SEEK_END);
-    sceIoLseek(fd, 0, SCE_SEEK_SET);
-    vita_music_data.buffer = malloc(sizeof(char) * vita_music_data.size);
-    sceIoRead(fd, vita_music_data.buffer, vita_music_data.size);
-    sceIoClose(fd);
-}
-#endif
-
 int sound_device_play_music(const char *filename, int volume_pct)
 {
     if (data.initialized) {
@@ -206,23 +162,7 @@ int sound_device_play_music(const char *filename, int volume_pct)
         if (!filename) {
             return 0;
         }
-#ifdef __vita__
-        load_music_for_vita(filename);
-        if (!vita_music_data.buffer) {
-            return 0;
-        }
-        SDL_RWops *sdl_music = SDL_RWFromMem(vita_music_data.buffer, vita_music_data.size);
-        data.music = Mix_LoadMUSType_RW(sdl_music, file_has_extension(filename, "mp3") ? MUS_MP3 : MUS_WAV, SDL_TRUE);
-#elif defined(__ANDROID__)
-        FILE *fp = file_open(filename, "rb");
-        if (!fp) {
-            return 0;
-        }
-        SDL_RWops *sdl_fp = SDL_RWFromFP(fp, SDL_TRUE);
-        data.music = Mix_LoadMUSType_RW(sdl_fp, file_has_extension(filename, "mp3") ? MUS_MP3 : MUS_WAV, SDL_TRUE);
-#else
         data.music = Mix_LoadMUS(filename);
-#endif
         if (!data.music) {
             SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
                 "Error opening music file '%s'. Reason: %s", filename, Mix_GetError());
@@ -375,7 +315,7 @@ static int put_custom_audio_stream(const Uint8 *audio_data, int len)
 #endif
 
     // Convert audio to SDL format
-    custom_music.cvt.buf = (Uint8 *)malloc((size_t)(len * custom_music.cvt.len_mult));
+    custom_music.cvt.buf = (Uint8 *) malloc((size_t) (len * custom_music.cvt.len_mult));
     if (!custom_music.cvt.buf) {
         return 0;
     }

@@ -3,7 +3,6 @@
 
 #include "city/view.h"
 #include "input/mouse.h"
-#include "input/touch.h"
 
 typedef enum {
     SCROLL_TYPE_CITY = 0,
@@ -19,7 +18,7 @@ void scroll_restore_margins(void);
 
 int scroll_get_delta(const mouse *m, pixel_offset *delta, scroll_type type);
 
-void scroll_drag_start(int is_touch);
+void scroll_drag_start(void);
 int scroll_drag_end(void);
 
 void scroll_stop(void);

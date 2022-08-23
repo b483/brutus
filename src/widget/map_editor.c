@@ -1,6 +1,7 @@
 #include "map_editor.h"
 
 #include "city/view.h"
+#include "core/time.h"
 #include "editor/tool.h"
 #include "game/game.h"
 #include "graphics/graphics.h"
@@ -143,164 +144,6 @@ static int input_coords_in_map(int x, int y)
     return (x >= 0 && x < width &&y >= 0 && y < height);
 }
 
-static void handle_touch_scroll(const touch *t)
-{
-    if (editor_tool_is_active()) {
-        if (t->has_started) {
-            int x_offset, y_offset, width, height;
-            city_view_get_viewport(&x_offset, &y_offset, &width, &height);
-            scroll_set_custom_margins(x_offset, y_offset, width, height);
-        }
-        if (t->has_ended) {
-            scroll_restore_margins();
-        }
-        return;
-    }
-    scroll_restore_margins();
-
-    if (!data.capture_input) {
-        return;
-    }
-    int was_click = touch_was_click(touch_get_latest());
-    if (t->has_started || was_click) {
-        scroll_drag_start(1);
-        return;
-    }
-
-    if (!touch_not_click(t)) {
-        return;
-    }
-
-    if (t->has_ended) {
-        scroll_drag_end();
-    }
-}
-
-static void handle_last_touch(void)
-{
-    const touch *last = touch_get_latest();
-    if (last->in_use && touch_was_click(last)) {
-        editor_tool_deactivate();
-    }
-}
-
-static int handle_cancel_construction_button(const touch *t)
-{
-    if (!editor_tool_is_active()) {
-        return 0;
-    }
-    int x, y, width, height;
-    city_view_get_viewport(&x, &y, &width, &height);
-    int box_size = 5 * BLOCK_SIZE;
-    width -= box_size;
-
-    if (t->current_point.x < width || t->current_point.x >= width + box_size ||
-        t->current_point.y < 24 || t->current_point.y >= 40 + box_size) {
-        return 0;
-    }
-    editor_tool_deactivate();
-    return 1;
-}
-
-static void handle_first_touch(map_tile *tile)
-{
-    const touch *first = touch_get_earliest();
-
-    if (touch_was_click(first)) {
-        if (handle_cancel_construction_button(first)) {
-            return;
-        }
-    }
-
-    handle_touch_scroll(first);
-
-    if (!input_coords_in_map(first->current_point.x, first->current_point.y)) {
-        return;
-    }
-
-    if (editor_tool_is_updatable()) {
-        if (!editor_tool_is_in_use()) {
-            if (first->has_started) {
-                editor_tool_start_use(tile);
-                data.new_start_grid_offset = 0;
-            }
-        } else {
-            if (first->has_started) {
-                if (data.selected_grid_offset != tile->grid_offset) {
-                    data.new_start_grid_offset = tile->grid_offset;
-                }
-            }
-            if (touch_not_click(first) && data.new_start_grid_offset) {
-                data.new_start_grid_offset = 0;
-                data.selected_grid_offset = 0;
-                editor_tool_deactivate();
-                editor_tool_start_use(tile);
-            }
-            editor_tool_update_use(tile);
-            if (data.selected_grid_offset != tile->grid_offset) {
-                data.selected_grid_offset = 0;
-            }
-            if (first->has_ended) {
-                if (data.selected_grid_offset == tile->grid_offset) {
-                    editor_tool_end_use(tile);
-                    widget_map_editor_clear_current_tile();
-                    data.new_start_grid_offset = 0;
-                } else {
-                    data.selected_grid_offset = tile->grid_offset;
-                }
-            }
-        }
-        return;
-    }
-
-    if (editor_tool_is_brush()) {
-        if (first->has_started) {
-            editor_tool_start_use(tile);
-        }
-        editor_tool_update_use(tile);
-        if (first->has_ended) {
-            editor_tool_end_use(tile);
-        }
-        return;
-    }
-
-    if (touch_was_click(first) && first->has_ended && data.capture_input &&
-        data.selected_grid_offset == tile->grid_offset) {
-        editor_tool_start_use(tile);
-        editor_tool_update_use(tile);
-        editor_tool_end_use(tile);
-        widget_map_editor_clear_current_tile();
-    } else if (first->has_ended) {
-        data.selected_grid_offset = tile->grid_offset;
-    }
-}
-
-static void handle_touch(void)
-{
-    const touch *first = touch_get_earliest();
-    if (!first->in_use) {
-        scroll_restore_margins();
-        return;
-    }
-
-    map_tile *tile = &data.current_tile;
-    if (!editor_tool_is_in_use() || input_coords_in_map(first->current_point.x, first->current_point.y)) {
-        update_city_view_coords(first->current_point.x, first->current_point.y, tile);
-    }
-
-    if (first->has_started && input_coords_in_map(first->current_point.x, first->current_point.y)) {
-        data.capture_input = 1;
-        scroll_restore_margins();
-    }
-
-    handle_last_touch();
-    handle_first_touch(tile);
-
-    if (first->has_ended) {
-        data.capture_input = 0;
-    }
-}
-
 static void confirm_editor_exit_to_main_menu(int accepted)
 {
     if (accepted) {
@@ -323,21 +166,17 @@ void widget_map_editor_handle_input(const mouse *m, const hotkeys *h)
 {
     scroll_map(m);
 
-    if (m->is_touch) {
-        handle_touch();
-    } else {
-        if (m->right.went_down && input_coords_in_map(m->x, m->y) && !editor_tool_is_active()) {
-            scroll_drag_start(0);
-        }
-        if (m->right.went_up) {
-            if (!editor_tool_is_active()) {
-                int has_scrolled = scroll_drag_end();
-                if (!has_scrolled) {
-                    editor_tool_deactivate();
-                }
-            } else {
+    if (m->right.went_down && input_coords_in_map(m->x, m->y) && !editor_tool_is_active()) {
+        scroll_drag_start();
+    }
+    if (m->right.went_up) {
+        if (!editor_tool_is_active()) {
+            int has_scrolled = scroll_drag_end();
+            if (!has_scrolled) {
                 editor_tool_deactivate();
             }
+        } else {
+            editor_tool_deactivate();
         }
     }
 

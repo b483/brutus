@@ -11,14 +11,11 @@
 #include "game/system.h"
 #include "graphics/screen.h"
 #include "input/mouse.h"
-#include "input/touch.h"
 #include "platform/arguments.h"
 #include "platform/file_manager.h"
-#include "platform/joystick.h"
 #include "platform/keyboard_input.h"
 #include "platform/platform.h"
 #include "platform/screen.h"
-#include "platform/touch.h"
 
 #include "tinyfiledialogs/tinyfiledialogs.h"
 
@@ -26,16 +23,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "platform/android/android.h"
-#include "platform/emscripten/emscripten.h"
-#include "platform/switch/switch.h"
-#include "platform/vita/vita.h"
 
 #if defined(_WIN32)
 #include <string.h>
 #endif
 
-#if defined(USE_TINYFILEDIALOGS) || defined(__ANDROID__)
+#if defined(USE_TINYFILEDIALOGS)
 #define SHOW_FOLDER_SELECT_DIALOG
 #endif
 
@@ -62,9 +55,6 @@ static struct {
 
 static void exit_with_status(int status)
 {
-#ifdef __EMSCRIPTEN__
-    EM_ASM(Module.quitGame($0), status);
-#endif
     exit(status);
 }
 
@@ -75,7 +65,7 @@ static void handler(int sig)
     exit_with_status(1);
 }
 
-#if defined(_WIN32) || defined(__vita__) || defined(__SWITCH__) || defined(__ANDROID__)
+#if defined(_WIN32)
 /* Log to separate file on windows, since we don't have a console there */
 static FILE *log_file = 0;
 
@@ -95,7 +85,7 @@ static void write_log(void *userdata, int category, SDL_LogPriority priority, co
 
 static void setup_logging(void)
 {
-    // On some platforms (vita, android), not removing the file will not empty it when reopening for writing
+    // On some platforms, not removing the file will not empty it when reopening for writing
     file_remove("brutus-log.txt");
     log_file = file_open("brutus-log.txt", "wt");
     SDL_LogSetOutputFunction(write_log, NULL);
@@ -289,38 +279,6 @@ static void handle_event(SDL_Event *event)
             }
             break;
 
-        case SDL_FINGERDOWN:
-            platform_touch_start(&event->tfinger);
-            break;
-        case SDL_FINGERMOTION:
-            platform_touch_move(&event->tfinger);
-            break;
-        case SDL_FINGERUP:
-            platform_touch_end(&event->tfinger);
-            break;
-
-        case SDL_JOYAXISMOTION:
-            platform_joystick_handle_axis(&event->jaxis);
-            break;
-        case SDL_JOYBALLMOTION:
-            platform_joystick_handle_trackball(&event->jball);
-            break;
-        case SDL_JOYHATMOTION:
-            platform_joystick_handle_hat(&event->jhat);
-            break;
-        case SDL_JOYBUTTONDOWN:
-            platform_joystick_handle_button(&event->jbutton, 1);
-            break;
-        case SDL_JOYBUTTONUP:
-            platform_joystick_handle_button(&event->jbutton, 0);
-            break;
-        case SDL_JOYDEVICEADDED:
-            platform_joystick_device_changed(event->jdevice.which, 1);
-            break;
-        case SDL_JOYDEVICEREMOVED:
-            platform_joystick_device_changed(event->jdevice.which, 0);
-            break;
-
         case SDL_QUIT:
             data.quit = 1;
             break;
@@ -364,15 +322,7 @@ static void main_loop(void)
         handle_event(&event);
     }
     if (data.quit) {
-#ifdef __EMSCRIPTEN__
-        emscripten_cancel_main_loop();
-#endif
         teardown();
-#ifdef __EMSCRIPTEN__
-        EM_ASM(
-            Module.quitGame();
-        );
-#endif
         return;
     }
     if (data.active) {
@@ -395,15 +345,9 @@ static int init_sdl(void)
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize SDL: %s", SDL_GetError());
         return 0;
     }
-    platform_joystick_init();
 #if SDL_VERSION_ATLEAST(2, 0, 10)
     SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
     SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
-#elif SDL_VERSION_ATLEAST(2, 0, 4)
-    SDL_SetHint(SDL_HINT_ANDROID_SEPARATE_MOUSE_AND_TOUCH, "1");
-#endif
-#ifdef __ANDROID__
-    SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
 #endif
     SDL_Log("SDL initialized");
     return 1;
@@ -412,28 +356,6 @@ static int init_sdl(void)
 #ifdef SHOW_FOLDER_SELECT_DIALOG
 static const char *ask_for_data_dir(int again)
 {
-#ifdef __ANDROID__
-    if (again) {
-        const SDL_MessageBoxButtonData buttons[] = {
-           {SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "OK"},
-           {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "Cancel"}
-        };
-        const SDL_MessageBoxData messageboxdata = {
-            SDL_MESSAGEBOX_WARNING, NULL, "Wrong folder selected",
-            "The selected folder is not a proper Caesar 3 folder.\n\n"
-            "Please select a path directly from either the internal storage "
-            "or the SD card, otherwise the path may not be recognised.\n\n"
-            "Press OK to select another folder or Cancel to exit.",
-            SDL_arraysize(buttons), buttons, NULL
-        };
-        int result;
-        SDL_ShowMessageBox(&messageboxdata, &result);
-        if (!result) {
-            return NULL;
-        }
-    }
-    return android_show_c3_path_dialog(again);
-#else
     if (again) {
         int result = tinyfd_messageBox("Wrong folder selected",
             "Brutus requires the original files from Caesar 3 to run.\n\n"
@@ -445,7 +367,6 @@ static const char *ask_for_data_dir(int again)
         }
     }
     return tinyfd_selectFolderDialog("Please select your Caesar 3 folder", NULL);
-#endif
 }
 #endif
 
@@ -528,14 +449,6 @@ static int pre_init(const char *custom_data_dir)
             user_dir = ask_for_data_dir(1);
         }
     }
-
-#elif defined(__vita__)
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-        "Error",
-        "Julius requires the original files from Caesar 3.\n\n"
-        "Please add the files to:\n\n"
-        VITA_PATH_PREFIX,
-        NULL);
 #else
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
         "Julius requires the original files from Caesar 3 to run.",
@@ -613,13 +526,9 @@ int main(int argc, char **argv)
     mouse_set_inside_window(1);
     run_and_draw();
 
-#ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop(main_loop, 0, 1);
-#else
     while (!data.quit) {
         main_loop();
     }
-#endif
 
     return 0;
 }

@@ -43,34 +43,6 @@ case "$DEPLOY" in
   DEPLOY_FILE=julius-$VERSION-mac.dmg
   cp "${build_dir}/julius.dmg" "deploy/$DEPLOY_FILE"
   ;;
-"vita")
-  ls -l "${build_dir}"
-  whoami
-  PACKAGE=vita
-  DEPLOY_FILE=julius-$VERSION-vita.vpk
-  cp "${build_dir}/julius.vpk" "deploy/$DEPLOY_FILE"
-  ;;
-"switch")
-  PACKAGE=switch
-  DEPLOY_FILE=julius-$VERSION-switch.zip
-  cp "release/julius_switch.zip" "deploy/$DEPLOY_FILE"
-  ;;
-"android")
-  PACKAGE=android
-  if [ -f "${build_dir}/julius.apk" ]
-  then
-    DEPLOY_FILE=julius-$VERSION-android.apk
-    cp "${build_dir}/julius.apk" "deploy/$DEPLOY_FILE"
-  fi
-  ;;
-"emscripten")
-  PACKAGE=emscripten
-  if [ -f "${build_dir}/julius.zip" ]
-  then
-    DEPLOY_FILE=julius-$VERSION-emscripten.zip
-    cp "${build_dir}/julius.zip" "deploy/$DEPLOY_FILE"
-  fi
-  ;;
 *)
   echo "Unknown deploy type $DEPLOY - skipping upload"
   exit

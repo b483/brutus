@@ -187,15 +187,6 @@ static void enable_all_widgets(void)
     }
 }
 
-static void disable_widget(int type, int subtype)
-{
-    for (int i = 0; i < MAX_WIDGETS; i++) {
-        if (all_widgets[i].type == type && all_widgets[i].subtype == subtype) {
-            all_widgets[i].enabled = 0;
-        }
-    }
-}
-
 static void install_widgets(void)
 {
     data.num_widgets = 0;
@@ -222,12 +213,6 @@ static void init(void)
     }
 
     enable_all_widgets();
-    if (system_is_fullscreen_only()) {
-        disable_widget(TYPE_NUMERICAL_DESC, RANGE_DISPLAY_SCALE);
-        disable_widget(TYPE_NUMERICAL_RANGE, RANGE_DISPLAY_SCALE);
-        disable_widget(TYPE_NUMERICAL_DESC, RANGE_CURSOR_SCALE);
-        disable_widget(TYPE_NUMERICAL_RANGE, RANGE_CURSOR_SCALE);
-    }
     install_widgets();
 
     scrollbar_init(&scrollbar, 0, data.num_widgets - NUM_VISIBLE_ITEMS);

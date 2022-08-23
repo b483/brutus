@@ -1,5 +1,7 @@
 #include "input_box.h"
 
+#include "SDL.h"
+
 #include "game/system.h"
 #include "graphics/panel.h"
 #include "graphics/text.h"
@@ -9,9 +11,8 @@ void input_box_start(input_box *box)
 {
     int text_width = (box->width_blocks - 2) * BLOCK_SIZE;
     keyboard_start_capture(box->text, box->text_length, box->allow_punctuation, text_width, box->font);
-    system_keyboard_set_input_rect(box->x, box->y,
-            box->width_blocks * BLOCK_SIZE,
-            box->height_blocks * BLOCK_SIZE);
+    SDL_Rect rect = { box->x, box->y, box->width_blocks * BLOCK_SIZE, box->height_blocks * BLOCK_SIZE };
+    SDL_SetTextInputRect(&rect);
 }
 
 void input_box_pause(input_box *box)
@@ -27,7 +28,8 @@ void input_box_resume(input_box *box)
 void input_box_stop(input_box *box)
 {
     keyboard_stop_capture();
-    system_keyboard_set_input_rect(0, 0, 0, 0);
+    SDL_Rect rect = {0, 0, 0, 0};
+    SDL_SetTextInputRect(&rect);
 }
 
 void input_box_refresh_text(input_box *box)
@@ -42,8 +44,8 @@ int input_box_is_accepted(input_box *box)
 
 static int is_mouse_inside_input(const mouse *m, const input_box *box)
 {
-    return m->x >= box->x && m->x < box->x + box->width_blocks  * BLOCK_SIZE &&
-           m->y >= box->y && m->y < box->y + box->height_blocks * BLOCK_SIZE;
+    return m->x >= box->x && m->x < box->x + box->width_blocks * BLOCK_SIZE &&
+        m->y >= box->y && m->y < box->y + box->height_blocks * BLOCK_SIZE;
 }
 
 void input_box_draw(const input_box *box)
@@ -62,10 +64,5 @@ int input_box_handle_mouse(const mouse *m, const input_box *box)
         return 0;
     }
     int selected = is_mouse_inside_input(m, box);
-    if (selected) {
-        system_keyboard_show();
-    } else {
-        system_keyboard_hide();
-    }
     return selected;
 }

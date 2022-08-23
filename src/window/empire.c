@@ -453,20 +453,6 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (scroll_get_delta(m, &position, SCROLL_TYPE_EMPIRE)) {
         empire_scroll_map(position.x, position.y);
     }
-    if (m->is_touch) {
-        const touch *t = touch_get_earliest();
-        if (!is_outside_map(t->current_point.x, t->current_point.y)) {
-            if (t->has_started) {
-                data.is_scrolling = 1;
-                scroll_drag_start(1);
-            }
-        }
-        if (t->has_ended) {
-            data.is_scrolling = 0;
-            data.finished_scroll = !touch_was_click(t);
-            scroll_drag_end();
-        }
-    }
     data.focus_button_id = 0;
     data.focus_resource = 0;
     int button_id;

@@ -90,7 +90,7 @@ static void clear_state(void)
 
 static void init(void)
 {
-    menu[INDEX_OPTIONS].items[0].hidden = system_is_fullscreen_only();
+    menu[INDEX_OPTIONS].items[0].hidden = 0;
 }
 
 static void draw_foreground(void)

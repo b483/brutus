@@ -4,9 +4,6 @@
 #include "graphics/color.h"
 #include "input/cursor.h"
 #include "platform/screen.h"
-#include "platform/haiku/haiku.h"
-#include "platform/switch/switch.h"
-#include "platform/vita/vita.h"
 
 #include "SDL.h"
 
@@ -66,12 +63,7 @@ void system_init_cursors(int scale_percentage)
             SDL_FreeCursor(data.cursors[i]);
         }
         data.surfaces[i] = generate_cursor_surface(c);
-#ifndef PLATFORM_USE_SOFTWARE_CURSOR
         data.cursors[i] = SDL_CreateColorCursor(data.surfaces[i], c->hotspot_x, c->hotspot_y);
-#else
-        SDL_ShowCursor(SDL_DISABLE);
-        platform_screen_generate_mouse_cursor_texture(i, data.current_scale, data.surfaces[i]->pixels);
-#endif
     }
     system_set_cursor(data.current_shape);
 }
@@ -79,9 +71,7 @@ void system_init_cursors(int scale_percentage)
 void system_set_cursor(int cursor_id)
 {
     data.current_shape = cursor_id;
-#ifndef PLATFORM_USE_SOFTWARE_CURSOR
     SDL_SetCursor(data.cursors[cursor_id]);
-#endif
 }
 
 cursor_shape platform_cursor_get_current_shape(void)

@@ -151,7 +151,7 @@ static void set_text_for_warnings(void)
 
 static void init(void)
 {
-    menu[INDEX_OPTIONS].items[0].hidden = system_is_fullscreen_only();
+    menu[INDEX_OPTIONS].items[0].hidden = 0;
     set_text_for_autosave();
     set_text_for_tooltips();
     set_text_for_warnings();

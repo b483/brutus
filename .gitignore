@@ -22,19 +22,3 @@ cmake-build-debug
 /data
 ext/SDL2/*/
 ext/mpg123*
-
-# Android
-*.iml
-.gradle
-local.properties
-.DS_Store
-/captures
-.externalNativeBuild
-.idea
-.cxx/
-*.log
-/android/build/
-/android/*/build/
-/android/julius.keystore
-/android/play-publisher.json
-/android/julius/src/main/play

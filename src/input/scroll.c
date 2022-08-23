@@ -8,7 +8,6 @@
 #include "game/settings.h"
 #include "game/system.h"
 #include "graphics/screen.h"
-#include "input/touch.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -24,8 +23,8 @@
 #define TILE_X_PIXELS 60
 #define TILE_Y_PIXELS 30
 
-static const int DIRECTION_X[] = { 0,  1,  1,  1,  0, -1, -1, -1, 0};
-static const int DIRECTION_Y[] = {-1, -1,  0,  1,  1,  1,  0, -1, 0};
+static const int DIRECTION_X[] = { 0,  1,  1,  1,  0, -1, -1, -1, 0 };
+static const int DIRECTION_Y[] = { -1, -1,  0,  1,  1,  1,  0, -1, 0 };
 static const int SCROLL_STEP[SCROLL_TYPE_MAX][11] = {
     {60, 44, 30, 20, 16, 12, 10, 8, 6, 4, 2},
     {20, 15, 10,  7,  5,  4,  3, 3, 2, 2, 1}
@@ -55,7 +54,6 @@ static struct {
     } arrow_key;
     struct {
         int active;
-        int is_touch;
         int has_started;
         pixel_offset delta;
     } drag;
@@ -240,18 +238,15 @@ void scroll_restore_margins(void)
     data.limits.active = 0;
 }
 
-void scroll_drag_start(int is_touch)
+void scroll_drag_start(void)
 {
-    if (data.drag.active || (!is_touch && config_get(CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG))) {
+    if (data.drag.active || config_get(CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG)) {
         return;
     }
     data.drag.active = 1;
-    data.drag.is_touch = is_touch;
     data.drag.delta.x = 0;
     data.drag.delta.y = 0;
-    if (!is_touch) {
-        system_mouse_get_relative_state(0, 0);
-    }
+    system_mouse_get_relative_state(0, 0);
     clear_scroll_speed();
 }
 
@@ -263,20 +258,12 @@ static int set_scroll_speed_from_drag(void)
 
     int delta_x = 0;
     int delta_y = 0;
-    if (!data.drag.is_touch) {
-        system_mouse_get_relative_state(&delta_x, &delta_y);
-    } else {
-        const touch *t = touch_get_earliest();
-        delta_x = -t->frame_movement.x;
-        delta_y = -t->frame_movement.y;
-    }
+    system_mouse_get_relative_state(&delta_x, &delta_y);
 
     data.drag.delta.x += delta_x;
     data.drag.delta.y += delta_y;
     if ((delta_x != 0 || delta_y != 0)) {
-        if (!data.drag.is_touch) {
-            system_mouse_set_relative_mode(1);
-        }
+        system_mouse_set_relative_mode(1);
         // Store tiny movements until we decide that it's enough to move into scroll mode
         if (!data.drag.has_started) {
             data.drag.has_started = abs(data.drag.delta.x) > SCROLL_DRAG_MIN_DELTA
@@ -303,13 +290,7 @@ int scroll_drag_end(void)
     data.drag.active = 0;
     data.drag.has_started = 0;
 
-    if (!data.drag.is_touch) {
-        system_mouse_set_relative_mode(0);
-    } else if (has_scrolled) {
-        const touch *t = touch_get_earliest();
-        speed_set_target(&data.speed.x, -t->frame_movement.x, SPEED_CHANGE_IMMEDIATE, 1);
-        speed_set_target(&data.speed.y, -t->frame_movement.y, SPEED_CHANGE_IMMEDIATE, 1);
-    }
+    system_mouse_set_relative_mode(0);
     data.x_align_direction = speed_get_current_direction(&data.speed.x);
     data.y_align_direction = speed_get_current_direction(&data.speed.y);
     speed_set_target(&data.speed.x, 0, SCROLL_DRAG_DECAY_TIME, 1);
@@ -340,7 +321,7 @@ static int get_direction(const mouse *m)
         // to get scrolling to work
         is_inside_window = 1;
     }
-    if (!is_inside_window && !m->is_touch) {
+    if (!is_inside_window) {
         return DIR_8_NONE;
     }
     int top = 0;
@@ -365,7 +346,7 @@ static int get_direction(const mouse *m)
     // NOTE: using <= width/height (instead of <) to compensate for rounding
     // errors caused by scaling the display. SDL adds a 1px border to either
     // the right or the bottom when the aspect ratio does not match exactly.
-    if (((!m->is_touch && !config_get(CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING)) || data.limits.active) &&
+    if (((!config_get(CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING)) || data.limits.active) &&
         (x >= 0 && x <= width && y >= 0 && y <= height)) {
         if (x < border) {
             left = 1;

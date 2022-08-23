@@ -54,8 +54,7 @@ static void draw_background(void)
 static void handle_input(const mouse *m, const hotkeys *h)
 {
     time_millis current_time = time_get_millis();
-    if (m->right.went_up || (m->is_touch && m->left.double_click)
-        || current_time - data.start_time > (data.type ? DISPLAY_TIME_MILLIS : 300)) {
+    if (m->right.went_up || current_time - data.start_time > (data.type ? DISPLAY_TIME_MILLIS : 300)) {
         data.callback();
     }
 }

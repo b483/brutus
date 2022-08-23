@@ -25,25 +25,10 @@ static void draw_background(void)
     widget_top_menu_editor_draw();
 }
 
-static void draw_cancel_construction(void)
-{
-    if (!mouse_get()->is_touch || !editor_tool_is_active()) {
-        return;
-    }
-    int x, y, width, height;
-    city_view_get_viewport(&x, &y, &width, &height);
-    width -= 4 * BLOCK_SIZE;
-    inner_panel_draw(width - 4, 40, 3, 2);
-    image_draw(image_group(GROUP_OK_CANCEL_SCROLL_BUTTONS) + 4, width, 44);
-}
-
 static void draw_foreground(void)
 {
     widget_sidebar_editor_draw_foreground();
     widget_map_editor_draw();
-    if (window_is(WINDOW_EDITOR_MAP)) {
-        draw_cancel_construction();
-    }
 }
 
 static void handle_hotkeys(const hotkeys *h)

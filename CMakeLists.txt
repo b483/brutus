@@ -1,70 +1,39 @@
 cmake_minimum_required(VERSION 3.1)
 include(CMakeDependentOption)
 
-set(TARGET_PLATFORM "default" CACHE STRING "Platform to cross-compile for. Options: vita switch android emscripten. Leave blank for no cross compilation")
-set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS default vita switch android emscripten)
+set(TARGET_PLATFORM "default" CACHE STRING "Platform to cross-compile for. Options: default. Leave blank for no cross compilation")
+set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS default)
 
 string(TOLOWER ${TARGET_PLATFORM} TARGET_PLATFORM)
 
 option(DRAW_FPS "Draw FPS on the top left corner of the window." OFF)
 option(SYSTEM_LIBS "Use system libraries when available." ON)
-option(EMSCRIPTEN_LOAD_SDL_PORTS "Load SDL and SDL_mixer emscripten ports instead of compiling them" OFF)
 option(LINK_MPG123 "Link mpg123 statically to Julius instead of relying on a library." OFF)
-
-if(${TARGET_PLATFORM} STREQUAL "vita" AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    if(DEFINED ENV{VITASDK})
-        set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
-    else()
-        message(FATAL_ERROR "Please define VITASDK to point to your SDK path!")
-    endif()
-endif()
-
-if(${TARGET_PLATFORM} STREQUAL "switch" AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    if(DEFINED ENV{DEVKITPRO})
-        set(DEVKITPRO $ENV{DEVKITPRO})
-        set(CMAKE_TOOLCHAIN_FILE "./cmake/switch.cmake" CACHE PATH "toolchain file")
-    else()
-        message(FATAL_ERROR "Please define DEVKITPRO to point to your SDK path!")
-    endif()
-endif()
-
-if(${TARGET_PLATFORM} STREQUAL "emscripten" AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-    if(DEFINED ENV{EMSDK})
-        set(EMSDK $ENV{EMSDK})
-        set(CMAKE_TOOLCHAIN_FILE "$ENV{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake" CACHE PATH "toolchain file")
-    else()
-        message(FATAL_ERROR "Please define EMSDK to point to your Emscripten SDK path!")
-    endif()
-endif()
 
 set(SHORT_NAME julius)
 set(USER_FRIENDLY_NAME Julius)
 project(${SHORT_NAME} C)
 
-if (${TARGET_PLATFORM} STREQUAL "vita")
-    include("${VITASDK}/share/vita.cmake" REQUIRED)
-    set(VITA_TITLEID  "JULIUS001")
-endif()
-
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/cmake/")
 
-if (CMAKE_VERSION VERSION_LESS 3.1)
-    if (CMAKE_COMPILER_IS_GNUCC)
+if(CMAKE_VERSION VERSION_LESS 3.1)
+    if(CMAKE_COMPILER_IS_GNUCC)
         set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
     endif()
 else()
     set(CMAKE_C_STANDARD 99)
 endif()
 
-if (CMAKE_COMPILER_IS_GNUCC)
+if(CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror=implicit-function-declaration")
+
     if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 5.0)
         set(CMAKE_C_FLAGS "-Werror=incompatible-pointer-types -Werror=int-conversion -Wstrict-prototypes ${CMAKE_C_FLAGS}")
     endif()
 endif()
 
 # Fix bug in cmake that expects the resource compiler for mingw to have the toolchain prefix in the name
-if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.24.0 AND MINGW)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24.0 AND MINGW)
     set(CMAKE_RC_COMPILER "windres")
 endif()
 
@@ -76,8 +45,9 @@ set(IS_RELEASE_VERSION FALSE)
 if(IS_RELEASE_VERSION)
     set(PROJECT_VERSION_TWEAK 0)
     set(VERSION_REVISION "")
-elseif (EXISTS "${CMAKE_SOURCE_DIR}/.git")
+elseif(EXISTS "${CMAKE_SOURCE_DIR}/.git")
     find_package(Git)
+
     if(Git_FOUND)
         execute_process(
             COMMAND git rev-list --count HEAD ^tags/v${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}
@@ -97,11 +67,13 @@ elseif (EXISTS "${CMAKE_SOURCE_DIR}/.git")
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             RESULT_VARIABLE VERSION_COMMIT_DIRTY
         )
+
         if(VERSION_COMMIT_DIRTY)
             set(DIRTY_POSTFIX "-dirty")
         else()
             set(DIRTY_POSTFIX "")
         endif()
+
         if(NOT TWEAK_RESULT EQUAL 0)
             # Happens on a shallow git clone, like Travis does. Append date to version ref.
             set(PROJECT_VERSION_TWEAK 0)
@@ -119,42 +91,12 @@ else()
     set(VERSION_REVISION " unknown development version")
 endif()
 
-if(${TARGET_PLATFORM} STREQUAL "vita")
-    string(LENGTH "${PROJECT_VERSION_MAJOR}" NUM_DIGITS)
-    if(NUM_DIGITS EQUAL 1)
-        set(VITA_VERSION_MAJOR "0${PROJECT_VERSION_MAJOR}")
-    elseif(NUM_DIGITS EQUAL 2)
-        set(VITA_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
-    else()
-        message(FATAL_ERROR "On Vita, major version number can only have one or two digits, found ${NUM_DIGITS} digits instead")
-    endif()
-
-    string(LENGTH "${PROJECT_VERSION_MINOR}" NUM_DIGITS)
-    if(NUM_DIGITS EQUAL 1)
-        set(VITA_VERSION_MINOR "0${PROJECT_VERSION_MINOR}")
-    elseif(NUM_DIGITS EQUAL 2)
-        set(VITA_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
-    else()
-        message(FATAL_ERROR "On Vita, minor version number can only have one or two digits, found ${NUM_DIGITS} digits instead")
-    endif()
-
-    set(VITA_VERSION "${VITA_VERSION_MAJOR}.${VITA_VERSION_MINOR}")
-endif()
-
-if (${TARGET_PLATFORM} STREQUAL "switch")
-    string(SUBSTRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}${VERSION_REVISION}" 0 15 SWITCH_VERSION)
-endif()
-
 configure_file(${PROJECT_SOURCE_DIR}/gen/version.c.in ${PROJECT_SOURCE_DIR}/src/platform/version.c)
 configure_file(${PROJECT_SOURCE_DIR}/gen/version.rc.in ${PROJECT_SOURCE_DIR}/res/version.rc)
 configure_file(${PROJECT_SOURCE_DIR}/gen/version.txt.in ${PROJECT_SOURCE_DIR}/res/version.txt)
 
-if(${TARGET_PLATFORM} STREQUAL "emscripten")
-    configure_file(${PROJECT_SOURCE_DIR}/gen/shell.html.in ${PROJECT_SOURCE_DIR}/res/shell.html)
-endif()
-
 if(DRAW_FPS)
-  add_definitions(-DDRAW_FPS)
+    add_definitions(-DDRAW_FPS)
 endif()
 
 set(TINYFD_FILES
@@ -183,8 +125,6 @@ set(PLATFORM_FILES
     ${PROJECT_SOURCE_DIR}/src/platform/arguments.c
     ${PROJECT_SOURCE_DIR}/src/platform/cursor.c
     ${PROJECT_SOURCE_DIR}/src/platform/file_manager.c
-    ${PROJECT_SOURCE_DIR}/src/platform/file_manager_cache.c
-    ${PROJECT_SOURCE_DIR}/src/platform/joystick.c
     ${PROJECT_SOURCE_DIR}/src/platform/julius.c
     ${PROJECT_SOURCE_DIR}/src/platform/keyboard_input.c
     ${PROJECT_SOURCE_DIR}/src/platform/log.c
@@ -192,28 +132,8 @@ set(PLATFORM_FILES
     ${PROJECT_SOURCE_DIR}/src/platform/platform.c
     ${PROJECT_SOURCE_DIR}/src/platform/screen.c
     ${PROJECT_SOURCE_DIR}/src/platform/sound_device.c
-    ${PROJECT_SOURCE_DIR}/src/platform/touch.c
     ${PROJECT_SOURCE_DIR}/src/platform/version.c
-    ${PROJECT_SOURCE_DIR}/src/platform/virtual_keyboard.c
 )
-
-if (${TARGET_PLATFORM} STREQUAL "vita")
-    set(PLATFORM_FILES
-        ${PLATFORM_FILES}
-        ${PROJECT_SOURCE_DIR}/src/platform/vita/vita.c
-        ${PROJECT_SOURCE_DIR}/src/platform/vita/vita_keyboard.c
-    )
-elseif (${TARGET_PLATFORM} STREQUAL "switch")
-    set(PLATFORM_FILES
-        ${PLATFORM_FILES}
-        ${PROJECT_SOURCE_DIR}/src/platform/switch/switch.c
-    )
-elseif (${TARGET_PLATFORM} STREQUAL "android")
-    set(PLATFORM_FILES
-        ${PLATFORM_FILES}
-        ${PROJECT_SOURCE_DIR}/src/platform/android/android.c
-    )
-endif()
 
 set(CORE_FILES
     ${PROJECT_SOURCE_DIR}/src/core/backtrace.c
@@ -365,12 +285,10 @@ set(INPUT_FILES
     ${PROJECT_SOURCE_DIR}/src/input/cursor.c
     ${PROJECT_SOURCE_DIR}/src/input/hotkey.c
     ${PROJECT_SOURCE_DIR}/src/input/input.c
-    ${PROJECT_SOURCE_DIR}/src/input/joystick.c
     ${PROJECT_SOURCE_DIR}/src/input/keyboard.c
     ${PROJECT_SOURCE_DIR}/src/input/keys.c
     ${PROJECT_SOURCE_DIR}/src/input/mouse.c
     ${PROJECT_SOURCE_DIR}/src/input/scroll.c
-    ${PROJECT_SOURCE_DIR}/src/input/touch.c
 )
 set(MAP_FILES
     ${PROJECT_SOURCE_DIR}/src/map/aqueduct.c
@@ -581,13 +499,9 @@ set(TRANSLATION_FILES
 )
 
 set(MACOSX_FILES "")
+
 if(APPLE)
     set(MACOSX_FILES ${PROJECT_SOURCE_DIR}/res/julius.icns)
-endif()
-
-set(EMSCRIPTEN_FILES "")
-if(${TARGET_PLATFORM} STREQUAL "emscripten")
-    set(EMSCRIPTEN_FILES ${PROJECT_SOURCE_DIR}/res/shell.html)
 endif()
 
 set(SOURCE_FILES
@@ -611,56 +525,39 @@ set(SOURCE_FILES
     ${TINYFD_FILES}
     ${PROJECT_SOURCE_DIR}/res/julius.rc
     ${MACOSX_FILES}
-    ${EMSCRIPTEN_FILES}
 )
 
-if(${TARGET_PLATFORM} STREQUAL "emscripten" AND EMSCRIPTEN_LOAD_SDL_PORTS)
-    set(USE_FLAGS "-s USE_SDL=2 -s USE_SDL_MIXER=2 -s SDL2_MIXER_FORMATS=[\"mp3\"] -s USE_MPG123=1")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${USE_FLAGS}")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${USE_FLAGS}")
-else()
-    function(GET_SDL_EXT_DIR result module)
-        if(NOT module STREQUAL "")
-            set(module "_${module}")
-        endif()
-        set(SDL_LOCATION ${PROJECT_SOURCE_DIR}/ext/SDL2)
-        file(GLOB children
-            RELATIVE ${SDL_LOCATION}
-            CONFIGURE_DEPENDS
-            ${SDL_LOCATION}/SDL${module}
-            ${SDL_LOCATION}/SDL2${module}
-            ${SDL_LOCATION}/SDL${module}-*
-            ${SDL_LOCATION}/SDL2${module}-*
-        )
-        foreach(child ${children})
-            if(IS_DIRECTORY "${SDL_LOCATION}/${child}")
-                set(${result} "${SDL_LOCATION}/${child}" PARENT_SCOPE)
-                break()
-            endif()
-        endforeach()
-    endfunction()
-
-    find_package(SDL2 REQUIRED)
-    find_package(SDL2_mixer REQUIRED)
-    if(${TARGET_PLATFORM} STREQUAL "emscripten")
-        set(LINK_MPG123 true)
+function(GET_SDL_EXT_DIR result module)
+    if(NOT module STREQUAL "")
+        set(module "_${module}")
     endif()
-endif()
+
+    set(SDL_LOCATION ${PROJECT_SOURCE_DIR}/ext/SDL2)
+    file(GLOB children
+        RELATIVE ${SDL_LOCATION}
+        CONFIGURE_DEPENDS
+        ${SDL_LOCATION}/SDL${module}
+        ${SDL_LOCATION}/SDL2${module}
+        ${SDL_LOCATION}/SDL${module}-*
+        ${SDL_LOCATION}/SDL2${module}-*
+    )
+
+    foreach(child ${children})
+        if(IS_DIRECTORY "${SDL_LOCATION}/${child}")
+            set(${result} "${SDL_LOCATION}/${child}" PARENT_SCOPE)
+            break()
+        endif()
+    endforeach()
+endfunction()
+
+find_package(SDL2 REQUIRED)
+find_package(SDL2_mixer REQUIRED)
 
 if(LINK_MPG123)
     find_package(MPG123 REQUIRED)
 endif()
 
-if(${TARGET_PLATFORM} STREQUAL "android")
-    add_library(${SHORT_NAME} SHARED ${SDL2_ANDROID_HOOK} ${SOURCE_FILES})
-else()
-    add_executable(${SHORT_NAME} WIN32 ${SOURCE_FILES})
-endif()
-
-if(${TARGET_PLATFORM} STREQUAL "emscripten")
-    set(CMAKE_EXECUTABLE_SUFFIX .html)
-    set_target_properties(${SHORT_NAME} PROPERTIES LINK_FLAGS "-lidbfs.js -s SINGLE_FILE=1 -s DEMANGLE_SUPPORT=1 -s DYNCALLS=1 --shell-file ${PROJECT_SOURCE_DIR}/res/shell.html -s INITIAL_MEMORY=268435456 -s ALLOW_MEMORY_GROWTH=1 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0 -s SAFE_HEAP=1 -s INVOKE_RUN=0 -s 'EXPORTED_FUNCTIONS=[\"_main\"]' -s 'EXPORTED_RUNTIME_METHODS=[\"callMain\",\"FS\"]'  --bind")
-endif()
+add_executable(${SHORT_NAME} WIN32 ${SOURCE_FILES})
 
 if(MSVC)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
@@ -670,14 +567,14 @@ if(APPLE)
     # generating a macOS icns file (see https://stackoverflow.com/a/20703594)
     add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/res/julius.icns
         COMMAND mkdir -p julius.iconset
-        COMMAND sips -z 16 16    julius_256.png --out julius.iconset/icon_16x16.png
-        COMMAND sips -z 32 32    julius_256.png --out julius.iconset/icon_16x16@2x.png
-        COMMAND sips -z 32 32    julius_256.png --out julius.iconset/icon_32x32.png
-        COMMAND sips -z 64 64    julius_256.png --out julius.iconset/icon_32x32@2x.png
-        COMMAND sips -z 128 128  julius_256.png --out julius.iconset/icon_128x128.png
-        COMMAND sips -z 256 256  julius_256.png --out julius.iconset/icon_128x128@2x.png
-        COMMAND sips -z 256 256  julius_256.png --out julius.iconset/icon_256x256.png
-        COMMAND sips -z 512 512  julius_512.png --out julius.iconset/icon_256x256@2x.png
+        COMMAND sips -z 16 16 julius_256.png --out julius.iconset/icon_16x16.png
+        COMMAND sips -z 32 32 julius_256.png --out julius.iconset/icon_16x16@2x.png
+        COMMAND sips -z 32 32 julius_256.png --out julius.iconset/icon_32x32.png
+        COMMAND sips -z 64 64 julius_256.png --out julius.iconset/icon_32x32@2x.png
+        COMMAND sips -z 128 128 julius_256.png --out julius.iconset/icon_128x128.png
+        COMMAND sips -z 256 256 julius_256.png --out julius.iconset/icon_128x128@2x.png
+        COMMAND sips -z 256 256 julius_256.png --out julius.iconset/icon_256x256.png
+        COMMAND sips -z 512 512 julius_512.png --out julius.iconset/icon_256x256@2x.png
         COMMAND iconutil -c icns julius.iconset
         COMMAND rm -R julius.iconset
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/res)
@@ -706,6 +603,7 @@ if(APPLE)
     # Example: /Library/Frameworks/SDL2.framework;-framework Cocoa
     # So strip out everything after the ';'
     string(REGEX REPLACE ";.*$" "" SDL2_LIB_DIR "${SDL2_LIBRARY}")
+
     if(EXISTS "${SDL2_LIB_DIR}/Versions/A/Frameworks")
         list(APPEND DIRS "${SDL2_LIB_DIR}/Versions/A/Frameworks")
     endif()
@@ -727,6 +625,7 @@ endif()
 if(SDL2_INCLUDE_DIR)
     include_directories(${SDL2_INCLUDE_DIR})
 endif()
+
 if(SDL2_MIXER_INCLUDE_DIR)
     include_directories(${SDL2_MIXER_INCLUDE_DIR})
 endif()
@@ -734,6 +633,7 @@ endif()
 if(SYSTEM_LIBS)
     find_package(PNG)
 endif()
+
 if(PNG_FOUND)
     include_directories(${PNG_INCLUDE_DIRS})
     target_link_libraries(${SHORT_NAME} ${PNG_LIBRARIES})
@@ -741,132 +641,37 @@ else()
     if(SYSTEM_LIBS)
         message(STATUS "PNG was not found but that's ok: falling back to internal version")
     endif()
+
     include_directories("ext/png")
     target_sources(${SHORT_NAME} PRIVATE "${PNG_FILES}" "${ZLIB_FILES}")
 endif()
 
-if(${TARGET_PLATFORM} STREQUAL "vita")
-    include_directories(
-        $ENV{VITASDK}/arm-vita-eabi/include
-        ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-elseif (${TARGET_PLATFORM} STREQUAL "switch")
-    include_directories(
-        ${DEVKITPRO}/portlibs/switch/include/SDL2
-        ${DEVKITPRO}/libnx/include
-        ${DEVKITPRO}/portlibs/switch/include
-        ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-endif()
-
 include_directories(ext)
 include_directories(src)
+
 if(MSVC)
     include_directories(ext/dirent)
 endif()
 
-if (${TARGET_PLATFORM} STREQUAL "vita")
-    target_link_libraries (${SHORT_NAME}
-        ${SDL2_MIXER_LIBRARY}
-        ${SDL2_LIBRARY}
-        vorbisfile
-        vorbis
-        mikmod
-        mpg123
-        FLAC
-        ogg
-        m
-        SceAppUtil_stub
-        SceAudio_stub
-        SceCommonDialog_stub
-        SceCtrl_stub
-        SceDisplay_stub
-        SceGxm_stub
-        SceHid_stub
-        SceMotion_stub
-        SceIofilemgr_stub
-        SceMotion_stub
-        SceSysmodule_stub
-        SceTouch_stub
-        ScePower_stub
-        ScePgf_stub
-        SceAppMgr_stub
-    )
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D__vita__")
-    # this setting enables larger heap memory sizes on Vita, up to ~330 MB
-    # useful for pre-loading videos into memory
-    set(VITA_MKSFOEX_FLAGS "${VITA_MKSFOEX_FLAGS} -d ATTRIBUTE2=12")
-    vita_create_self(${SHORT_NAME}.self ${SHORT_NAME} UNSAFE UNCOMPRESSED)
-    vita_create_vpk(${SHORT_NAME}.vpk ${VITA_TITLEID} ${SHORT_NAME}.self
-        VERSION ${VITA_VERSION}
-        NAME ${SHORT_NAME}
-        FILE res/vita/icon0.png sce_sys/icon0.png
-        FILE res/vita/bg.png sce_sys/livearea/contents/bg.png
-        FILE res/vita/startup.png sce_sys/livearea/contents/startup.png
-        FILE res/vita/template.xml sce_sys/livearea/contents/template.xml
-    )
-elseif(${TARGET_PLATFORM} STREQUAL "switch")
-    target_link_libraries (${SHORT_NAME}
-        SDL2_mixer
-        SDL2
-        EGL
-        GLESv2
-        glapi
-        drm_nouveau
-        vorbisidec
-        modplug
-        mpg123
-        FLAC
-        opusfile
-        opus
-        ogg
-        m
-        z
-        nx
-        stdc++
-    )
+if(UNIX AND NOT APPLE AND(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+    target_link_libraries(${SHORT_NAME} m)
+endif()
 
-    set(FLAGS
-        -fPIE
-        -L${DEVKITPRO}/portlibs/switch/lib
-        -L${DEVKITPRO}/libnx/lib
-    )
+if(LINK_MPG123)
+    target_link_libraries(${SHORT_NAME} ${MPG123_LIBRARY})
+endif()
 
-    foreach(flag ${FLAGS})
-        set(FLAGS_GENERAL "${FLAGS_GENERAL} ${flag}")
-    endforeach(flag ${FLAGS})
+target_link_libraries(${SHORT_NAME} ${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARY})
 
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${FLAGS_GENERAL}")
+if(NOT APPLE)
+    install(TARGETS ${SHORT_NAME} RUNTIME DESTINATION bin)
+endif()
 
-    target_compile_options(${SHORT_NAME} PRIVATE ${FLAGS})
-    add_custom_command(TARGET ${SHORT_NAME}
-        POST_BUILD
-        COMMAND ${DEVKITPRO}/tools/bin/nacptool --create "${SHORT_NAME}" "rsn8887" ${SWITCH_VERSION} ${SHORT_NAME}.nacp
-        COMMAND ${DEVKITPRO}/tools/bin/elf2nro ${SHORT_NAME} ${SHORT_NAME}.nro --icon=${CMAKE_SOURCE_DIR}/res/switch/icon0.jpg --nacp=${SHORT_NAME}.nacp
-    )
-else()
-    if (UNIX AND NOT APPLE AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-        target_link_libraries(${SHORT_NAME} m)
-    endif()
-    if(${TARGET_PLATFORM} STREQUAL "android")
-        find_library(LOG_LIB log)
-        target_link_libraries(${SHORT_NAME} ${LOG_LIB})
-    endif()
-    if(LINK_MPG123)
-        target_link_libraries(${SHORT_NAME} ${MPG123_LIBRARY})
-    endif()
-    target_link_libraries(${SHORT_NAME} ${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARY})
-    if(NOT APPLE AND NOT ${TARGET_PLATFORM} STREQUAL "android")
-        install(TARGETS ${SHORT_NAME} RUNTIME DESTINATION bin)
-    endif()
-
-    if(UNIX AND NOT APPLE)
-        install(FILES "res/julius.desktop" DESTINATION "share/applications" RENAME "com.github.bvschaik.julius.desktop")
-        install(FILES "res/julius.metainfo.xml" DESTINATION "share/metainfo" RENAME "com.github.bvschaik.julius.metainfo.xml")
-        install(FILES "res/julius_32.png" DESTINATION "share/icons/hicolor/32x32/apps" RENAME "com.github.bvschaik.julius.png")
-        install(FILES "res/julius_48.png" DESTINATION "share/icons/hicolor/48x48/apps" RENAME "com.github.bvschaik.julius.png")
-        install(FILES "res/julius_256.png" DESTINATION "share/icons/hicolor/256x256/apps" RENAME "com.github.bvschaik.julius.png")
-        install(FILES "res/julius_512.png" DESTINATION "share/icons/hicolor/512x512/apps" RENAME "com.github.bvschaik.julius.png")
-    endif()
-
+if(UNIX AND NOT APPLE)
+    install(FILES "res/julius.desktop" DESTINATION "share/applications" RENAME "com.github.bvschaik.julius.desktop")
+    install(FILES "res/julius.metainfo.xml" DESTINATION "share/metainfo" RENAME "com.github.bvschaik.julius.metainfo.xml")
+    install(FILES "res/julius_32.png" DESTINATION "share/icons/hicolor/32x32/apps" RENAME "com.github.bvschaik.julius.png")
+    install(FILES "res/julius_48.png" DESTINATION "share/icons/hicolor/48x48/apps" RENAME "com.github.bvschaik.julius.png")
+    install(FILES "res/julius_256.png" DESTINATION "share/icons/hicolor/256x256/apps" RENAME "com.github.bvschaik.julius.png")
+    install(FILES "res/julius_512.png" DESTINATION "share/icons/hicolor/512x512/apps" RENAME "com.github.bvschaik.julius.png")
 endif()
