@@ -7,7 +7,6 @@
 #include "core/lang.h"
 #include "core/string.h"
 #include "game/game.h"
-#include "game/settings.h"
 #include "game/system.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
@@ -18,6 +17,7 @@
 #include "graphics/scrollbar.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
+#include "scenario/property.h"
 #include "widget/input_box.h"
 #include "window/hotkey_config.h"
 #include "window/main_menu.h"
@@ -557,7 +557,7 @@ static void button_close(int save, int param2)
     }
     if (apply_changed_configs()) {
         input_box_stop(&player_name_input);
-        setting_set_player_name((const uint8_t *) data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value);
+        scenario_set_player_name((const uint8_t *) data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value);
     }
     config_save();
     window_main_menu_show(0);

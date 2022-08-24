@@ -2,13 +2,12 @@
 
 #include "core/file.h"
 #include "core/log.h"
+#include "scenario/property.h"
 
 #include <stdio.h>
 #include <string.h>
 
 #define MAX_LINE 100
-
-static const char *INI_FILENAME = "brutus.ini";
 
 // Keep this in the same order as the config_keys in config.h
 static const char *ini_keys[] = {
@@ -82,12 +81,13 @@ static void set_defaults(void)
         values[i] = default_values[i];
     }
     strncpy(string_values[CONFIG_STRING_PLAYER_NAME], "BRUTUS", CONFIG_STRING_VALUE_MAX);
+    scenario_set_player_name((const uint8_t *) string_values[CONFIG_STRING_PLAYER_NAME]);
 }
 
 void config_load(void)
 {
     set_defaults();
-    FILE *fp = file_open(INI_FILENAME, "rt");
+    FILE *fp = file_open(CONFIGS_FILE_PATH, "rt");
     if (!fp) {
         return;
     }
@@ -122,13 +122,15 @@ void config_load(void)
         }
     }
     file_close(fp);
+
+    scenario_set_player_name((const uint8_t *) string_values[CONFIG_STRING_PLAYER_NAME]);
 }
 
 void config_save(void)
 {
-    FILE *fp = file_open(INI_FILENAME, "wt");
+    FILE *fp = file_open(CONFIGS_FILE_PATH, "wt");
     if (!fp) {
-        log_error("Unable to write configuration file", INI_FILENAME, 0);
+        log_error("Unable to write configuration file", CONFIGS_FILE_PATH, 0);
         return;
     }
     for (int i = 0; i < CONFIG_MAX_ENTRIES; i++) {

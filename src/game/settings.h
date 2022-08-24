@@ -75,7 +75,4 @@ int setting_victory_video(void);
 int setting_last_advisor(void);
 void setting_set_last_advisor(int advisor);
 
-const uint8_t *setting_player_name(void);
-void setting_set_player_name(const uint8_t *player_name);
-
 #endif // GAME_SETTINGS_H

@@ -36,7 +36,7 @@ void empire_load(int empire_id)
     const char *filename = "c32.emp";
 
     // read header with scroll positions
-    if (!io_read_file_part_into_buffer(filename, NOT_LOCALIZED, raw_data, 4, 32 * empire_id)) {
+    if (!io_read_file_part_into_buffer(filename, raw_data, 4, 32 * empire_id)) {
         memset(raw_data, 0, 4);
     }
     buffer buf;
@@ -46,7 +46,7 @@ void empire_load(int empire_id)
 
     // read data section with objects
     int offset = EMPIRE_HEADER_SIZE + EMPIRE_DATA_SIZE * empire_id;
-    int read_size = io_read_file_part_into_buffer(filename, NOT_LOCALIZED, raw_data, EMPIRE_DATA_SIZE, offset);
+    int read_size = io_read_file_part_into_buffer(filename, raw_data, EMPIRE_DATA_SIZE, offset);
     if (read_size != EMPIRE_DATA_SIZE) {
         // load empty empire when loading fails
         log_error("Unable to load empire data from file", filename, 0);

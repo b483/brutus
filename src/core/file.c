@@ -75,9 +75,9 @@ void file_remove_extension(uint8_t *filename)
     }
 }
 
-int file_exists(const char *filename, int localizable)
+int file_exists(const char *filename)
 {
-    return NULL != dir_get_file(filename, localizable);
+    return NULL != dir_get_file(filename);
 }
 
 int file_remove(const char *filename)

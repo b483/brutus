@@ -157,7 +157,7 @@ static const char *get_case_corrected_file(const char *dir, const char *filepath
     return 0;
 }
 
-const char *dir_get_file(const char *filepath, int localizable)
+const char *dir_get_file(const char *filepath)
 {
     return get_case_corrected_file(0, filepath);
 }

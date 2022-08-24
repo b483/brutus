@@ -4,10 +4,10 @@
 #include "core/buffer.h"
 #include "core/calc.h"
 #include "core/io.h"
+#include "core/file.h"
 #include "core/string.h"
 
-#define INF_SIZE 560
-#define MAX_PLAYER_NAME 32
+#define INF_SIZE 62
 
 static struct {
     // display settings
@@ -22,16 +22,16 @@ static struct {
     // speed settings
     int game_speed;
     int scroll_speed;
-    // misc settings
+    // difficulty settings
     set_difficulty difficulty;
-    set_tooltips tooltips;
-    int monthly_autosave;
-    int warnings;
     int gods_enabled;
+    // misc settings
+    int monthly_autosave;
+    set_tooltips tooltips;
+    int warnings;
     int victory_video;
     // persistent game state
     int last_advisor;
-    uint8_t player_name[MAX_PLAYER_NAME];
     // file data
     uint8_t inf_file[INF_SIZE];
 } data;
@@ -55,9 +55,11 @@ static void load_default_settings(void)
     data.scroll_speed = 70;
 
     data.difficulty = DIFFICULTY_VERY_HARD;
+    data.gods_enabled = 1;
+
+    data.monthly_autosave = 0;
     data.tooltips = TOOLTIPS_FULL;
     data.warnings = 1;
-    data.gods_enabled = 1;
     data.victory_video = 0;
     data.last_advisor = ADVISOR_LABOR;
 }
@@ -65,40 +67,36 @@ static void load_default_settings(void)
 static void load_settings(buffer *buf)
 {
     data.fullscreen = buffer_read_i32(buf);
-    data.sound_effects.enabled = buffer_read_u8(buf);
-    data.sound_music.enabled = buffer_read_u8(buf);
-    data.sound_speech.enabled = buffer_read_u8(buf);
-    data.game_speed = buffer_read_i32(buf);
-    data.scroll_speed = buffer_read_i32(buf);
-    buffer_read_raw(buf, data.player_name, MAX_PLAYER_NAME);
-    data.last_advisor = buffer_read_i32(buf);
-    data.tooltips = buffer_read_i32(buf);
-    data.sound_city.enabled = buffer_read_u8(buf);
-    data.warnings = buffer_read_u8(buf);
-    data.monthly_autosave = buffer_read_u8(buf);
-    data.sound_effects.volume = buffer_read_i32(buf);
-    data.sound_music.volume = buffer_read_i32(buf);
-    data.sound_speech.volume = buffer_read_i32(buf);
-    data.sound_city.volume = buffer_read_i32(buf);
     data.window_width = buffer_read_i32(buf);
     data.window_height = buffer_read_i32(buf);
-    data.victory_video = buffer_read_i32(buf);
 
-    if (buffer_at_end(buf)) {
-        // Settings file is from unpatched C3, use default values
-        data.difficulty = DIFFICULTY_HARD;
-        data.gods_enabled = 1;
-    } else {
-        data.difficulty = buffer_read_i32(buf);
-        data.gods_enabled = buffer_read_i32(buf);
-    }
+    data.sound_effects.enabled = buffer_read_u8(buf);
+    data.sound_effects.volume = buffer_read_i32(buf);
+    data.sound_music.enabled = buffer_read_u8(buf);
+    data.sound_music.volume = buffer_read_i32(buf);
+    data.sound_speech.enabled = buffer_read_u8(buf);
+    data.sound_speech.volume = buffer_read_i32(buf);
+    data.sound_city.enabled = buffer_read_u8(buf);
+    data.sound_city.volume = buffer_read_i32(buf);
+
+    data.game_speed = buffer_read_i32(buf);
+    data.scroll_speed = buffer_read_i32(buf);
+
+    data.difficulty = buffer_read_i32(buf);
+    data.gods_enabled = buffer_read_i32(buf);
+
+    data.monthly_autosave = buffer_read_u8(buf);
+    data.tooltips = buffer_read_i32(buf);
+    data.warnings = buffer_read_u8(buf);
+    data.victory_video = buffer_read_i32(buf);
+    data.last_advisor = buffer_read_i32(buf);
 }
 
 void settings_load(void)
 {
     load_default_settings();
 
-    int size = io_read_file_into_buffer("brutus.inf", NOT_LOCALIZED, data.inf_file, INF_SIZE);
+    int size = io_read_file_into_buffer(SETTINGS_FILE_PATH, data.inf_file, INF_SIZE);
     if (!size) {
         return;
     }
@@ -124,28 +122,31 @@ void settings_save(void)
     buffer_init(buf, data.inf_file, INF_SIZE);
 
     buffer_write_i32(buf, data.fullscreen);
-    buffer_write_u8(buf, data.sound_effects.enabled);
-    buffer_write_u8(buf, data.sound_music.enabled);
-    buffer_write_u8(buf, data.sound_speech.enabled);
-    buffer_write_i32(buf, data.game_speed);
-    buffer_write_i32(buf, data.scroll_speed);
-    buffer_write_raw(buf, data.player_name, MAX_PLAYER_NAME);
-    buffer_write_i32(buf, data.last_advisor);
-    buffer_write_i32(buf, data.tooltips);
-    buffer_write_u8(buf, data.sound_city.enabled);
-    buffer_write_u8(buf, data.warnings);
-    buffer_write_u8(buf, data.monthly_autosave);
-    buffer_write_i32(buf, data.sound_effects.volume);
-    buffer_write_i32(buf, data.sound_music.volume);
-    buffer_write_i32(buf, data.sound_speech.volume);
-    buffer_write_i32(buf, data.sound_city.volume);
     buffer_write_i32(buf, data.window_width);
     buffer_write_i32(buf, data.window_height);
-    buffer_write_i32(buf, data.victory_video);
+
+    buffer_write_u8(buf, data.sound_effects.enabled);
+    buffer_write_i32(buf, data.sound_effects.volume);
+    buffer_write_u8(buf, data.sound_music.enabled);
+    buffer_write_i32(buf, data.sound_music.volume);
+    buffer_write_u8(buf, data.sound_speech.enabled);
+    buffer_write_i32(buf, data.sound_speech.volume);
+    buffer_write_u8(buf, data.sound_city.enabled);
+    buffer_write_i32(buf, data.sound_city.volume);
+
+    buffer_write_i32(buf, data.game_speed);
+    buffer_write_i32(buf, data.scroll_speed);
+
     buffer_write_i32(buf, data.difficulty);
     buffer_write_i32(buf, data.gods_enabled);
 
-    io_write_buffer_to_file("brutus.inf", data.inf_file, INF_SIZE);
+    buffer_write_u8(buf, data.monthly_autosave);
+    buffer_write_i32(buf, data.tooltips);
+    buffer_write_u8(buf, data.warnings);
+    buffer_write_i32(buf, data.victory_video);
+    buffer_write_i32(buf, data.last_advisor);
+
+    io_write_buffer_to_file(SETTINGS_FILE_PATH, data.inf_file, INF_SIZE);
 }
 
 int setting_fullscreen(void)
@@ -341,14 +342,4 @@ int setting_last_advisor(void)
 void setting_set_last_advisor(int advisor)
 {
     data.last_advisor = advisor;
-}
-
-const uint8_t *setting_player_name(void)
-{
-    return data.player_name;
-}
-
-void setting_set_player_name(const uint8_t *player_name)
-{
-    string_copy(player_name, data.player_name, MAX_PLAYER_NAME);
 }

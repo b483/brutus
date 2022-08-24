@@ -24,6 +24,15 @@ char EXECUTABLE_DIR_PATH[FILE_NAME_MAX];
 // the path to "data_dir.txt" within the Brutus directory
 char DATA_TEXT_FILE_PATH[FILE_NAME_MAX];
 
+// the path to "brutus.settings" within the Brutus directory
+char SETTINGS_FILE_PATH[FILE_NAME_MAX];
+
+// the path to "brutus.configs" within the Brutus directory
+char CONFIGS_FILE_PATH[FILE_NAME_MAX];
+
+// the path to "brutus.hconfigs" within the Brutus directory
+char HOTKEY_CONFIGS_FILE_PATH[FILE_NAME_MAX];
+
 // the path to the /maps folder in the Brutus directory
 char MAPS_DIR_PATH[FILE_NAME_MAX + 5];
 
@@ -80,10 +89,9 @@ void file_remove_extension(uint8_t *filename);
 /**
  * Check if file exists
  * @param filename Filename to check
- * @param localizable Whether the file may be localized (see core/dir.h)
  * @return boolean true if the file exists, false otherwise
  */
-int file_exists(const char *filename, int localizable);
+int file_exists(const char *filename);
 
 /**
  * Remove a file

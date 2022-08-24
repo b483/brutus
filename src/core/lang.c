@@ -24,8 +24,6 @@
 
 #define FILE_TEXT_ENG "c3.eng"
 #define FILE_MM_ENG "c3_mm.eng"
-#define FILE_TEXT_RUS "c3.rus"
-#define FILE_MM_RUS "c3_mm.rus"
 #define FILE_EDITOR_TEXT_ENG "c3_map.eng"
 #define FILE_EDITOR_MM_ENG "c3_map_mm.eng"
 
@@ -40,27 +38,6 @@ static struct {
     uint8_t message_data[MAX_MESSAGE_DATA];
 } data;
 
-static int file_exists_in_dir(const char *dir, const char *file)
-{
-    char path[2 * FILE_NAME_MAX];
-    path[2 * FILE_NAME_MAX - 1] = 0;
-    strncpy(path, dir, 2 * FILE_NAME_MAX - 1);
-    strncat(path, "/", 2 * FILE_NAME_MAX - 1);
-    strncat(path, file, 2 * FILE_NAME_MAX - 1);
-    return file_exists(path, NOT_LOCALIZED);
-}
-
-int lang_dir_is_valid(const char *dir)
-{
-    if (file_exists_in_dir(dir, FILE_TEXT_ENG) && file_exists_in_dir(dir, FILE_MM_ENG)) {
-        return 1;
-    }
-    if (file_exists_in_dir(dir, FILE_TEXT_RUS) && file_exists_in_dir(dir, FILE_MM_RUS)) {
-        return 1;
-    }
-    return 0;
-}
-
 static void parse_text(buffer *buf)
 {
     buffer_skip(buf, 28); // header
@@ -71,10 +48,10 @@ static void parse_text(buffer *buf)
     buffer_read_raw(buf, data.text_data, MAX_TEXT_DATA);
 }
 
-static int load_text(const char *filename, int localizable, uint8_t *buf_data)
+static int load_text(const char *filename, uint8_t *buf_data)
 {
     buffer buf;
-    int filesize = io_read_file_into_buffer(filename, localizable, buf_data, BUFFER_SIZE);
+    int filesize = io_read_file_into_buffer(filename, buf_data, BUFFER_SIZE);
     if (filesize < MIN_TEXT_SIZE || filesize > MAX_TEXT_SIZE) {
         return 0;
     }
@@ -166,10 +143,10 @@ void load_custom_messages(void)
 }
 
 
-static int load_message(const char *filename, int localizable, uint8_t *data_buffer)
+static int load_message(const char *filename, uint8_t *data_buffer)
 {
     buffer buf;
-    int filesize = io_read_file_into_buffer(filename, localizable, data_buffer, BUFFER_SIZE);
+    int filesize = io_read_file_into_buffer(filename, data_buffer, BUFFER_SIZE);
     if (filesize < MIN_MESSAGE_SIZE || filesize > MAX_MESSAGE_SIZE) {
         return 0;
     }
@@ -178,13 +155,13 @@ static int load_message(const char *filename, int localizable, uint8_t *data_buf
     return 1;
 }
 
-static int load_files(const char *text_filename, const char *message_filename, int localizable)
+static int load_files(const char *text_filename, const char *message_filename)
 {
     uint8_t *buffer = (uint8_t *) malloc(BUFFER_SIZE);
     if (!buffer) {
         return 0;
     }
-    int success = load_text(text_filename, localizable, buffer) && load_message(message_filename, localizable, buffer);
+    int success = load_text(text_filename, buffer) && load_message(message_filename, buffer);
     free(buffer);
     return success;
 }
@@ -192,14 +169,11 @@ static int load_files(const char *text_filename, const char *message_filename, i
 int lang_load(int is_editor)
 {
     if (is_editor) {
-        return load_files(FILE_EDITOR_TEXT_ENG, FILE_EDITOR_MM_ENG, MAY_BE_LOCALIZED);
+        return load_files(FILE_EDITOR_TEXT_ENG, FILE_EDITOR_MM_ENG);
     }
-    // Prefer language files from localized dir, fall back to main dir
     return
-        load_files(FILE_TEXT_ENG, FILE_MM_ENG, MUST_BE_LOCALIZED) ||
-        load_files(FILE_TEXT_RUS, FILE_MM_RUS, MUST_BE_LOCALIZED) ||
-        load_files(FILE_TEXT_ENG, FILE_MM_ENG, NOT_LOCALIZED) ||
-        load_files(FILE_TEXT_RUS, FILE_MM_RUS, NOT_LOCALIZED);
+        load_files(FILE_TEXT_ENG, FILE_MM_ENG) ||
+        load_files(FILE_TEXT_ENG, FILE_MM_ENG);
 }
 
 const uint8_t *lang_get_string(int group, int index)

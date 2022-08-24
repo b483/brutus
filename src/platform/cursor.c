@@ -74,16 +74,6 @@ void system_set_cursor(int cursor_id)
     SDL_SetCursor(data.cursors[cursor_id]);
 }
 
-cursor_shape platform_cursor_get_current_shape(void)
-{
-    return data.current_shape;
-}
-
-cursor_scale platform_cursor_get_current_scale(void)
-{
-    return data.current_scale;
-}
-
 int platform_cursor_get_texture_size(int width, int height)
 {
     int size = 32;

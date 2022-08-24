@@ -172,7 +172,7 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
 
 static int load_custom_scenario(const uint8_t *scenario_name, const char *scenario_file)
 {
-    if (!file_exists(scenario_file, NOT_LOCALIZED)) {
+    if (!file_exists(scenario_file)) {
         return 0;
     }
 
@@ -225,7 +225,6 @@ static int start_scenario(const uint8_t *scenario_name, const char *scenario_fil
     if (!load_custom_scenario(scenario_name, scenario_file)) {
         return 0;
     }
-    scenario_set_player_name(setting_player_name());
 
     city_emperor_init_scenario();
     building_menu_update();

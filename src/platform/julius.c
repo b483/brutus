@@ -336,18 +336,12 @@ static int init_sdl(void)
 {
     SDL_Log("Initializing SDL");
 
-    // This hint must be set before initializing SDL, otherwise it won't work
-#if SDL_VERSION_ATLEAST(2, 0, 2)
-    SDL_SetHint(SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
-#endif
-
     if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize SDL: %s", SDL_GetError());
         return 0;
     }
 #if SDL_VERSION_ATLEAST(2, 0, 10)
     SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
-    SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 #endif
     SDL_Log("SDL initialized");
     return 1;
@@ -379,8 +373,6 @@ int load_data_dir(void)
         fclose(fp);
         if (length > 0) {
             return 1;
-        } else {
-            return 0;
         }
     }
     return 0;
@@ -406,6 +398,15 @@ static int pre_init(const char *custom_data_dir)
 
             strcpy(DATA_TEXT_FILE_PATH, executable_path);
             strcat(DATA_TEXT_FILE_PATH, "data_dir.txt");
+
+            strcpy(SETTINGS_FILE_PATH, executable_path);
+            strcat(SETTINGS_FILE_PATH, "brutus.settings");
+
+            strcpy(CONFIGS_FILE_PATH, executable_path);
+            strcat(CONFIGS_FILE_PATH, "brutus.configs");
+
+            strcpy(HOTKEY_CONFIGS_FILE_PATH, executable_path);
+            strcat(HOTKEY_CONFIGS_FILE_PATH, "brutus.hconfigs");
 
             strcpy(MAPS_DIR_PATH, executable_path);
             strcat(MAPS_DIR_PATH, "maps\\");
