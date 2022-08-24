@@ -13,28 +13,15 @@
 
 #define MAIN_ENTRIES 10000
 #define ENEMY_ENTRIES 801
-#define CYRILLIC_FONT_ENTRIES 2000
-#define TRAD_CHINESE_FONT_ENTRIES (3 * IMAGE_FONT_MULTIBYTE_TRAD_CHINESE_MAX_CHARS)
-#define SIMP_CHINESE_FONT_ENTRIES (3 * IMAGE_FONT_MULTIBYTE_SIMP_CHINESE_MAX_CHARS)
-#define KOREAN_FONT_ENTRIES (3 * IMAGE_FONT_MULTIBYTE_KOREAN_MAX_CHARS)
-#define JAPANESE_FONT_ENTRIES (3 * IMAGE_FONT_MULTIBYTE_JAPANESE_MAX_CHARS)
 
 #define MAIN_INDEX_SIZE 660680
 #define ENEMY_INDEX_OFFSET HEADER_SIZE
 #define ENEMY_INDEX_SIZE ENTRY_SIZE * ENEMY_ENTRIES
-#define CYRILLIC_FONT_INDEX_OFFSET HEADER_SIZE
-#define CYRILLIC_FONT_INDEX_SIZE ENTRY_SIZE * CYRILLIC_FONT_ENTRIES
 
 #define MAIN_DATA_SIZE 30000000
 #define EMPIRE_DATA_SIZE (2000*1000*4)
 #define ENEMY_DATA_SIZE 2400000
-#define CYRILLIC_FONT_DATA_SIZE 1500000
-#define TRAD_CHINESE_FONT_DATA_SIZE 7200000
-#define KOREAN_FONT_DATA_SIZE 7500000
-#define JAPANESE_FONT_DATA_SIZE 11000000
 #define SCRATCH_DATA_SIZE 12100000
-
-#define CYRILLIC_FONT_BASE_OFFSET 201
 
 #define NAME_SIZE 32
 
@@ -65,14 +52,6 @@ static const char EDITOR_GRAPHICS_555[][NAME_SIZE] = {
     "c3map_south.555"
 };
 static const char EMPIRE_555[NAME_SIZE] = "The_empire.555";
-
-static const char CYRILLIC_FONTS_SG2[NAME_SIZE] = "C3_fonts.sg2";
-static const char CYRILLIC_FONTS_555[NAME_SIZE] = "C3_fonts.555";
-static const char CHINESE_FONTS_555[NAME_SIZE] = "rome.555";
-static const char CHINESE_FONTS_555_V2[NAME_SIZE] = "rome-v2.555";
-static const char KOREAN_FONTS_555[NAME_SIZE] = "korean.555";
-static const char KOREAN_FONTS_555_V2[NAME_SIZE] = "korean-v2.555";
-static const char JAPANESE_FONTS_555[NAME_SIZE] = "japanese-v2.555";
 
 static const char ENEMY_GRAPHICS_SG2[][NAME_SIZE] = {
     "goths.sg2",
@@ -137,7 +116,7 @@ static struct {
     color_t *enemy_data;
     color_t *font_data;
     uint8_t *tmp_data;
-} data = {.current_climate = -1};
+} data = { .current_climate = -1 };
 
 int image_init(void)
 {
@@ -218,8 +197,8 @@ static void read_header(buffer *buf)
 static color_t to_32_bit(uint16_t c)
 {
     return ((c & 0x7c00) << 9) | ((c & 0x7000) << 4) |
-           ((c & 0x3e0) << 6)  | ((c & 0x380) << 1) |
-           ((c & 0x1f) << 3)   | ((c & 0x1c) >> 2);
+        ((c & 0x3e0) << 6) | ((c & 0x380) << 1) |
+        ((c & 0x1f) << 3) | ((c & 0x1c) >> 2);
 }
 
 static int convert_uncompressed(buffer *buf, int buf_length, color_t *dst)
@@ -323,344 +302,6 @@ int image_load_climate(int climate_id, int is_editor, int force_reload)
     return 1;
 }
 
-static void free_font_memory(void)
-{
-    free(data.font);
-    free(data.font_data);
-    data.font = 0;
-    data.font_data = 0;
-    data.fonts_enabled = NO_EXTRA_FONT;
-}
-
-static int alloc_font_memory(int font_entries, int font_data_size)
-{
-    free_font_memory();
-    data.font = (image*) malloc(font_entries * sizeof(image));
-    data.font_data = (color_t *) malloc(font_data_size);
-    if (!data.font || !data.font_data) {
-        free(data.font);
-        free(data.font_data);
-        return 0;
-    }
-    memset(data.font, 0, font_entries * sizeof(image));
-    return 1;
-}
-
-static int load_cyrillic_fonts(void)
-{
-    if (!alloc_font_memory(CYRILLIC_FONT_ENTRIES, CYRILLIC_FONT_DATA_SIZE)) {
-        return 0;
-    }
-    if (CYRILLIC_FONT_INDEX_SIZE != io_read_file_part_into_buffer(CYRILLIC_FONTS_SG2, MAY_BE_LOCALIZED,
-        data.tmp_data, CYRILLIC_FONT_INDEX_SIZE, CYRILLIC_FONT_INDEX_OFFSET)) {
-        return 0;
-    }
-    buffer buf;
-    buffer_init(&buf, data.tmp_data, CYRILLIC_FONT_INDEX_SIZE);
-    read_index(&buf, data.font, CYRILLIC_FONT_ENTRIES);
-
-    int data_size = io_read_file_into_buffer(CYRILLIC_FONTS_555, MAY_BE_LOCALIZED, data.tmp_data, SCRATCH_DATA_SIZE);
-    if (!data_size) {
-        return 0;
-    }
-    buffer_init(&buf, data.tmp_data, data_size);
-    convert_images(data.font, CYRILLIC_FONT_ENTRIES, &buf, data.font_data);
-
-    data.fonts_enabled = FULL_CHARSET_IN_FONT;
-    data.font_base_offset = CYRILLIC_FONT_BASE_OFFSET;
-    return 1;
-}
-
-static int parse_multibyte_font(
-    int num_chars, buffer *input, color_t *pixels, int pixel_offset,
-    int char_size, int letter_spacing, int index_offset)
-{
-    for (int i = 0; i < num_chars; i++) {
-        image *img = &data.font[index_offset + i];
-        img->width = char_size + letter_spacing;
-        img->height = char_size;
-        img->draw.bitmap_id = 0;
-        img->draw.offset = pixel_offset;
-        img->draw.uncompressed_length = img->draw.data_length = img->width * img->height;
-        for (int row = 0; row < char_size; row++) {
-            uint8_t bits = 0;
-            for (int col = 0; col < char_size; col++) {
-                if (col % 2 == 0) {
-                    bits = buffer_read_u8(input);
-                }
-                if (col < img->width) {
-                    uint8_t value = bits & 0xf;
-                    if (value == 0) {
-                        *pixels = COLOR_SG2_TRANSPARENT;
-                    } else {
-                        uint32_t color_value = (value * 16 + value);
-                        *pixels = color_value << 24;
-                    }
-                    pixels++;
-                    pixel_offset++;
-                }
-                bits >>= 4;
-            }
-            for (int s = 0; s < letter_spacing; s++) {
-                *pixels = COLOR_SG2_TRANSPARENT;
-                pixels++;
-                pixel_offset++;
-            }
-        }
-    }
-    return pixel_offset;
-}
-
-static int parse_chinese_font(
-    int num_chars, buffer *input, color_t *pixels, int pixel_offset, int char_size, int index_offset)
-{
-    int bytes_per_row = char_size <= 16 ? 2 : 3;
-    for (int i = 0; i < num_chars; i++) {
-        image *img = &data.font[index_offset + i];
-        img->width = char_size + 1;
-        img->height = char_size - 1;
-        img->draw.bitmap_id = 0;
-        img->draw.offset = pixel_offset;
-        img->draw.uncompressed_length = img->draw.data_length = img->width * img->height;
-        for (int row = 0; row < img->height; row++) {
-            unsigned int bits = buffer_read_u16(input);
-            if (bytes_per_row == 3) {
-                bits += buffer_read_u8(input) << 16;
-            }
-            int prev_set = 0;
-            for (int col = 0; col < img->width; col++) {
-                int set = bits & 1;
-                if (set) {
-                    *pixels = ALPHA_OPAQUE;
-                } else if (prev_set) {
-                    *pixels = ALPHA_FONT_SEMI_TRANSPARENT;
-                } else {
-                    *pixels = COLOR_SG2_TRANSPARENT;
-                }
-                pixels++;
-                pixel_offset++;
-                bits >>= 1;
-                prev_set = set;
-            }
-        }
-    }
-    return pixel_offset;
-}
-
-static int load_traditional_chinese_fonts(void)
-{
-    if (!alloc_font_memory(TRAD_CHINESE_FONT_ENTRIES, TRAD_CHINESE_FONT_DATA_SIZE)) {
-        return 0;
-    }
-
-    int file_version = 2;
-    int data_size = io_read_file_into_buffer(CHINESE_FONTS_555_V2, MAY_BE_LOCALIZED, data.tmp_data, SCRATCH_DATA_SIZE);
-    if (!data_size) {
-        file_version = 1;
-        data_size = io_read_file_into_buffer(CHINESE_FONTS_555, MAY_BE_LOCALIZED, data.tmp_data, SCRATCH_DATA_SIZE);
-        if (!data_size) {
-            log_error("Julius requires extra files for Chinese characters:", CHINESE_FONTS_555_V2, 0);
-            return 0;
-        }
-    }
-
-    buffer input;
-    buffer_init(&input, data.tmp_data, data_size);
-    color_t *pixels = data.font_data;
-    int offset = 0;
-    int num_chars = IMAGE_FONT_MULTIBYTE_TRAD_CHINESE_MAX_CHARS;
-
-    log_info("Parsing Traditional Chinese font", 0, 0);
-    if (file_version == 2) {
-        // 4-bit font file
-        offset = parse_multibyte_font(num_chars, &input, &pixels[offset], offset, 12, 1, 0);
-        offset = parse_multibyte_font(num_chars, &input, &pixels[offset], offset, 15, 1, num_chars);
-        offset = parse_multibyte_font(num_chars, &input, &pixels[offset], offset, 20, 1, num_chars*2);
-    } else if (file_version == 1) {
-        // Old 1-bit font file
-        offset = parse_chinese_font(num_chars, &input, &pixels[offset], offset, 12, 0);
-        offset = parse_chinese_font(num_chars, &input, &pixels[offset], offset, 16, num_chars);
-        offset = parse_chinese_font(num_chars, &input, &pixels[offset], offset, 20, num_chars * 2);
-    }
-    log_info("Done parsing Traditional Chinese font", 0, 0);
-
-    data.fonts_enabled = MULTIBYTE_IN_FONT;
-    data.font_base_offset = 0;
-    return 1;
-}
-
-static int load_simplified_chinese_fonts(void)
-{
-    if (!alloc_font_memory(TRAD_CHINESE_FONT_ENTRIES, TRAD_CHINESE_FONT_DATA_SIZE)) {
-        return 0;
-    }
-
-    int file_version = 2;
-    int data_size = io_read_file_into_buffer(CHINESE_FONTS_555_V2, MAY_BE_LOCALIZED, data.tmp_data, SCRATCH_DATA_SIZE);
-    if (!data_size) {
-        file_version = 1;
-        data_size = io_read_file_into_buffer(CHINESE_FONTS_555, MAY_BE_LOCALIZED, data.tmp_data, SCRATCH_DATA_SIZE);
-        if (!data_size) {
-            log_error("Julius requires extra files for Chinese characters:", CHINESE_FONTS_555_V2, 0);
-            return 0;
-        }
-    }
-
-    buffer input;
-    buffer_init(&input, data.tmp_data, data_size);
-    color_t *pixels = data.font_data;
-    int offset = 0;
-    int num_chars = IMAGE_FONT_MULTIBYTE_SIMP_CHINESE_MAX_CHARS;
-
-    log_info("Parsing Simplified Chinese font", 0, 0);
-    if (file_version == 2) {
-        // 4-bit font file
-        offset = parse_multibyte_font(num_chars, &input, &pixels[offset], offset, 12, 1, 0);
-        offset = parse_multibyte_font(num_chars, &input, &pixels[offset], offset, 15, 1, num_chars);
-        offset = parse_multibyte_font(num_chars, &input, &pixels[offset], offset, 20, 1, num_chars*2);
-    } else if (file_version == 1) {
-        // Old 1-bit font file
-        offset = parse_chinese_font(num_chars, &input, &pixels[offset], offset, 12, 0);
-        offset = parse_chinese_font(num_chars, &input, &pixels[offset], offset, 16, num_chars);
-        offset = parse_chinese_font(num_chars, &input, &pixels[offset], offset, 19, num_chars * 2);
-    }
-    log_info("Done parsing Simplified Chinese font", 0, 0);
-
-    data.fonts_enabled = MULTIBYTE_IN_FONT;
-    data.font_base_offset = 0;
-    return 1;
-}
-
-static int parse_korean_font(buffer *input, color_t *pixels, int pixel_offset, int char_size, int index_offset)
-{
-    int bytes_per_row = char_size <= 16 ? 2 : 3;
-    for (int i = 0; i < IMAGE_FONT_MULTIBYTE_KOREAN_MAX_CHARS; i++) {
-        image *img = &data.font[index_offset + i];
-        img->width = char_size;
-        img->height = char_size;
-        img->draw.bitmap_id = 0;
-        img->draw.offset = pixel_offset;
-        img->draw.uncompressed_length = img->draw.data_length = img->width * img->height;
-        for (int row = 0; row < char_size; row++) {
-            unsigned int bits = buffer_read_u16(input);
-            if (bytes_per_row == 3) {
-                bits += buffer_read_u8(input) << 16;
-            }
-            int prev_set = 0;
-            for (int col = 0; col < char_size; col++) {
-                int set = bits & 1;
-                if (set) {
-                    *pixels = ALPHA_OPAQUE;
-                } else if (prev_set) {
-                    *pixels = ALPHA_FONT_SEMI_TRANSPARENT;
-                } else {
-                    *pixels = COLOR_SG2_TRANSPARENT;
-                }
-                pixels++;
-                pixel_offset++;
-                bits >>= 1;
-                prev_set = set;
-            }
-        }
-    }
-    return pixel_offset;
-}
-
-static int load_korean_fonts(void)
-{
-    if (!alloc_font_memory(KOREAN_FONT_ENTRIES, KOREAN_FONT_DATA_SIZE)) {
-        return 0;
-    }
-
-    int file_version = 2;
-    int data_size = io_read_file_into_buffer(KOREAN_FONTS_555_V2, MAY_BE_LOCALIZED, data.tmp_data, SCRATCH_DATA_SIZE);
-    if (!data_size) {
-        file_version = 1;
-        data_size = io_read_file_into_buffer(KOREAN_FONTS_555, MAY_BE_LOCALIZED, data.tmp_data, SCRATCH_DATA_SIZE);
-        if (!data_size) {
-            log_error("Julius requires extra files for Korean characters:", KOREAN_FONTS_555, 0);
-            return 0;
-        }
-    }
-
-    buffer input;
-    buffer_init(&input, data.tmp_data, data_size);
-    color_t *pixels = data.font_data;
-    int offset = 0;
-    int num_chars = IMAGE_FONT_MULTIBYTE_KOREAN_MAX_CHARS;
-
-    log_info("Parsing Korean font", 0, 0);
-    if (file_version == 2) {
-        // 4-bit font file
-        offset = parse_multibyte_font(num_chars, &input, &pixels[offset], offset, 12, 0, 0);
-        offset = parse_multibyte_font(num_chars, &input, &pixels[offset], offset, 15, 0, num_chars);
-        offset = parse_multibyte_font(num_chars, &input, &pixels[offset], offset, 20, 0, num_chars*2);
-    } else if (file_version == 1) {
-        // Old 1-bit font file
-        offset = parse_korean_font(&input, &pixels[offset], offset, 12, 0);
-        offset = parse_korean_font(&input, &pixels[offset], offset, 15, num_chars);
-        offset = parse_korean_font(&input, &pixels[offset], offset, 20, num_chars * 2);
-    }
-    log_info("Done parsing Korean font", 0, 0);
-
-    data.fonts_enabled = MULTIBYTE_IN_FONT;
-    data.font_base_offset = 0;
-    return 1;
-}
-
-static int load_japanese_fonts(void)
-{
-    if (!alloc_font_memory(JAPANESE_FONT_ENTRIES, JAPANESE_FONT_DATA_SIZE)) {
-        return 0;
-    }
-
-    int data_size = io_read_file_into_buffer(JAPANESE_FONTS_555, MAY_BE_LOCALIZED, data.tmp_data, SCRATCH_DATA_SIZE);
-    if (!data_size) {
-        log_error("Julius requires extra files for Japanese characters:", JAPANESE_FONTS_555, 0);
-        return 0;
-    }
-
-    buffer input;
-    buffer_init(&input, data.tmp_data, data_size);
-    color_t *pixels = data.font_data;
-    int offset = 0;
-    int num_chars = IMAGE_FONT_MULTIBYTE_JAPANESE_MAX_CHARS;
-    int num_half_width = 63;
-    int num_full_width = num_chars - num_half_width;
-
-    log_info("Parsing Japanese font", 0, 0);
-    // 4-bit font file
-    offset = parse_multibyte_font(num_half_width, &input, &pixels[offset], offset, 12, -5, 0);
-    offset = parse_multibyte_font(num_full_width, &input, &pixels[offset], offset, 12, 1, num_half_width);
-    offset = parse_multibyte_font(num_half_width, &input, &pixels[offset], offset, 15, -6, num_chars);
-    offset = parse_multibyte_font(num_full_width, &input, &pixels[offset], offset, 15, 1, num_chars + num_half_width);
-    offset = parse_multibyte_font(num_half_width, &input, &pixels[offset], offset, 20, -9, num_chars*2);
-    offset = parse_multibyte_font(num_full_width, &input, &pixels[offset], offset, 20, 1, num_chars*2 + num_half_width);
-    log_info("Done parsing Japanese font", 0, offset);
-
-    data.fonts_enabled = MULTIBYTE_IN_FONT;
-    data.font_base_offset = 0;
-    return 1;
-}
-
-int image_load_fonts(encoding_type encoding)
-{
-    if (encoding == ENCODING_CYRILLIC) {
-        return load_cyrillic_fonts();
-    } else if (encoding == ENCODING_TRADITIONAL_CHINESE) {
-        return load_traditional_chinese_fonts();
-    } else if (encoding == ENCODING_SIMPLIFIED_CHINESE) {
-        return load_simplified_chinese_fonts();
-    } else if (encoding == ENCODING_KOREAN) {
-        return load_korean_fonts();
-    } else if (encoding == ENCODING_JAPANESE) {
-        return load_japanese_fonts();
-    } else {
-        free_font_memory();
-        return 1;
-    }
-}
-
 int image_load_enemy(int enemy_id)
 {
     const char *filename_bmp = ENEMY_GRAPHICS_555[enemy_id];
@@ -708,7 +349,7 @@ static const color_t *load_external_data(int image_id)
     }
     buffer buf;
     buffer_init(&buf, data.tmp_data, size);
-    color_t *dst = (color_t*) &data.tmp_data[4000000];
+    color_t *dst = (color_t *) &data.tmp_data[4000000];
     // NB: isometric images are never external
     if (img->draw.is_fully_compressed) {
         convert_compressed(&buf, img->draw.data_length, dst);

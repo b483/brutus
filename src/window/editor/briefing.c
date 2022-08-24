@@ -1,6 +1,7 @@
 #include "briefing.h"
 
 #include "core/string.h"
+#include "game/custom_strings.h"
 #include "graphics/graphics.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
@@ -10,7 +11,6 @@
 #include "input/input.h"
 #include "scenario/editor.h"
 #include "scenario/property.h"
-#include "translation/translation.h"
 #include "widget/input_box.h"
 #include "widget/sidebar/editor.h"
 #include "window/editor/map.h"
@@ -52,7 +52,7 @@ static void draw_foreground(void)
     rich_text_draw_scrollbar();
 
     // @L, @P hint
-    text_draw(translation_for(TR_EDITOR_MAP_BRIEFING_HINT), -190, 550, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
+    text_draw(get_custom_string(TR_EDITOR_MAP_BRIEFING_HINT), -190, 550, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
 
     // Right-click to continue
     lang_text_draw_centered(13, 3, -305, 585, 960, FONT_NORMAL_BLACK);

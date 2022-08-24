@@ -149,7 +149,7 @@ static int update_extra_info(int is_background)
         changed |= update_extra_info_value(
                        city_labor_workers_unemployed() - city_labor_workers_needed(),
                        &data.unemployment_amount
-                   );
+        );
     }
     if (data.info_to_display & SIDEBAR_EXTRA_DISPLAY_RATINGS) {
         if (is_background) {
@@ -165,23 +165,9 @@ static int update_extra_info(int is_background)
 }
 
 static int draw_extra_info_objective(
-    int x_offset, int y_offset, int text_group, int text_id, objective *obj, int cut_off_at_parenthesis)
+    int x_offset, int y_offset, int text_group, int text_id, objective *obj)
 {
-    if (cut_off_at_parenthesis) {
-        // Exception for Chinese: the string for "population" includes the hotkey " (6)"
-        // To fix that: cut the string off at the '('
-        uint8_t tmp[100];
-        string_copy(lang_get_string(text_group, text_id), tmp, 100);
-        for (int i = 0; i < 100 && tmp[i]; i++) {
-            if (tmp[i] == '(') {
-                tmp[i] = 0;
-                break;
-            }
-        }
-        text_draw(tmp, x_offset + 11, y_offset, FONT_NORMAL_WHITE, 0);
-    } else {
-        lang_text_draw(text_group, text_id, x_offset + 11, y_offset, FONT_NORMAL_WHITE);
-    }
+    lang_text_draw(text_group, text_id, x_offset + 11, y_offset, FONT_NORMAL_WHITE);
     font_t font = obj->value >= obj->target ? FONT_NORMAL_GREEN : FONT_NORMAL_RED;
     int width = text_draw_number(obj->value, '@', "", x_offset + 11, y_offset + EXTRA_INFO_LINE_SPACE, font);
     text_draw_number(obj->target, '(', ")", x_offset + 11 + width, y_offset + EXTRA_INFO_LINE_SPACE, font);
@@ -226,11 +212,11 @@ static void draw_extra_info_panel(void)
     if (data.info_to_display & SIDEBAR_EXTRA_DISPLAY_RATINGS) {
         y_current_line += EXTRA_INFO_VERTICAL_PADDING;
 
-        y_current_line += draw_extra_info_objective(data.x_offset, y_current_line, 53, 1, &data.culture, 0);
-        y_current_line += draw_extra_info_objective(data.x_offset, y_current_line, 53, 2, &data.prosperity, 0);
-        y_current_line += draw_extra_info_objective(data.x_offset, y_current_line, 53, 3, &data.peace, 0);
-        y_current_line += draw_extra_info_objective(data.x_offset, y_current_line, 53, 4, &data.favor, 0);
-        y_current_line += draw_extra_info_objective(data.x_offset, y_current_line, 4, 6, &data.population, 1);
+        y_current_line += draw_extra_info_objective(data.x_offset, y_current_line, 53, 1, &data.culture);
+        y_current_line += draw_extra_info_objective(data.x_offset, y_current_line, 53, 2, &data.prosperity);
+        y_current_line += draw_extra_info_objective(data.x_offset, y_current_line, 53, 3, &data.peace);
+        y_current_line += draw_extra_info_objective(data.x_offset, y_current_line, 53, 4, &data.favor);
+        y_current_line += draw_extra_info_objective(data.x_offset, y_current_line, 4, 6, &data.population);
     }
 }
 

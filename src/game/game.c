@@ -6,12 +6,12 @@
 #include "core/hotkey_config.h"
 #include "core/image.h"
 #include "core/lang.h"
-#include "core/locale.h"
 #include "core/log.h"
 #include "core/random.h"
 #include "editor/editor.h"
 #include "figure/type.h"
 #include "game/animation.h"
+#include "game/custom_strings.h"
 #include "game/file.h"
 #include "game/file_editor.h"
 #include "game/settings.h"
@@ -25,7 +25,6 @@
 #include "scenario/scenario.h"
 #include "sound/city.h"
 #include "sound/system.h"
-#include "translation/translation.h"
 #include "window/editor/map.h"
 #include "window/logo.h"
 #include "window/main_menu.h"
@@ -37,11 +36,10 @@ static void errlog(const char *msg)
 
 static encoding_type update_encoding(void)
 {
-    language_type language = locale_determine_language();
-    encoding_type encoding = encoding_determine(language);
+    encoding_type encoding = encoding_determine();
     log_info("Detected encoding:", 0, encoding);
     font_set_encoding(encoding);
-    translation_load(language);
+    custom_strings_load();
     return encoding;
 }
 
@@ -87,15 +85,6 @@ int game_init(void)
         errlog("unable to load enemy graphics");
         return 0;
     }
-    int missing_fonts = 0;
-    if (!image_load_fonts(encoding_get())) {
-        errlog("unable to load font graphics");
-        if (encoding_get() == ENCODING_KOREAN || encoding_get() == ENCODING_JAPANESE) {
-            missing_fonts = 1;
-        } else {
-            return 0;
-        }
-    }
 
     if (!model_load()) {
         errlog("unable to load c3_model.txt");
@@ -105,7 +94,7 @@ int game_init(void)
     load_custom_messages();
     sound_system_init();
     game_state_init();
-    window_logo_show(missing_fonts ? MESSAGE_MISSING_FONTS : (is_unpatched() ? MESSAGE_MISSING_PATCH : MESSAGE_NONE));
+    window_logo_show((is_unpatched() ? MESSAGE_MISSING_PATCH : MESSAGE_NONE));
 
     return 1;
 }
@@ -120,15 +109,10 @@ static int reload_language(int is_editor, int reload_images)
         }
         return 0;
     }
-    encoding_type encoding = update_encoding();
     if (!is_editor) {
         load_custom_messages();
     }
 
-    if (!image_load_fonts(encoding)) {
-        errlog("unable to load font graphics");
-        return 0;
-    }
     if (!image_load_climate(scenario_property_climate(), is_editor, reload_images)) {
         errlog("unable to load main graphics");
         return 0;

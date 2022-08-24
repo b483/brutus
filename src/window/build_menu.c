@@ -5,6 +5,7 @@
 #include "building/model.h"
 #include "city/view.h"
 #include "graphics/generic_button.h"
+#include "game/custom_strings.h"
 #include "graphics/image.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
@@ -12,7 +13,6 @@
 #include "graphics/window.h"
 #include "input/input.h"
 #include "scenario/property.h"
-#include "translation/translation.h"
 #include "widget/city.h"
 #include "widget/sidebar/city.h"
 #include "window/city.h"
@@ -178,7 +178,7 @@ static void draw_menu_buttons(void)
         label_draw(item_x_align, data.y_offset + MENU_Y_OFFSET + MENU_ITEM_HEIGHT * i, 16,
             data.focus_button_id == i + 1 ? 1 : 2);
         if (is_all_button(type)) {
-            text_draw_centered(translation_for(TR_BUILD_ALL_TEMPLES),
+            text_draw_centered(get_custom_string(TR_BUILD_ALL_TEMPLES),
                 item_x_align, data.y_offset + MENU_Y_OFFSET + 3 + MENU_ITEM_HEIGHT * i,
                 MENU_ITEM_WIDTH, FONT_NORMAL_GREEN, 0);
         } else {

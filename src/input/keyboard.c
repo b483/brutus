@@ -223,17 +223,7 @@ static void move_right(const uint8_t *start, uint8_t *end)
 
 static void move_cursor_left(void)
 {
-    if (encoding_is_multibyte()) {
-        int i = 0;
-        int bytes = 0;
-        while (i + bytes < data.cursor_position) {
-            i += bytes;
-            bytes = data.text[i] >= 0x80 ? 2 : 1;
-        }
-        data.cursor_position = i;
-    } else {
-        data.cursor_position--;
-    }
+    data.cursor_position--;
 }
 
 static void move_cursor_right(void)

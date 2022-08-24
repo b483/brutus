@@ -2,6 +2,7 @@
 
 #include "city/view.h"
 #include "editor/tool.h"
+#include "game/custom_strings.h"
 #include "graphics/generic_button.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
@@ -9,7 +10,6 @@
 #include "graphics/window.h"
 #include "input/input.h"
 #include "scenario/data.h"
-#include "translation/translation.h"
 #include "widget/map_editor.h"
 #include "widget/sidebar/editor.h"
 #include "window/editor/map.h"
@@ -101,7 +101,7 @@ static void draw_menu_buttons(void)
         data.num_items = MAX_FISH_POINTS + MAX_HERD_POINTS;
         for (int i = MAX_FISH_POINTS; i < MAX_ITEMS_PER_MENU; i++) {
             label_draw(x_offset - MENU_X_OFFSET, data.y_offset + MENU_Y_OFFSET + MENU_ITEM_HEIGHT * i, 10, data.focus_button_id == i + 1 ? 1 : 2);
-            text_draw_centered(translation_for(TR_EDITOR_HERD_POINT_1 + i - MAX_FISH_POINTS), x_offset - MENU_X_OFFSET,
+            text_draw_centered(get_custom_string(TR_EDITOR_HERD_POINT_1 + i - MAX_FISH_POINTS), x_offset - MENU_X_OFFSET,
             data.y_offset + MENU_Y_OFFSET + 3 + MENU_ITEM_HEIGHT * i, MENU_ITEM_WIDTH, FONT_NORMAL_GREEN, COLOR_BLACK);
         }
     }

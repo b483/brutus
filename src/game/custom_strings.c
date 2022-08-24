@@ -1,18 +1,28 @@
-#include "translation/common.h"
-#include "translation/translation.h"
+#include "custom_strings.h"
 
-static translation_string all_strings[] = {
+#include "core/encoding.h"
+#include "core/log.h"
+#include "core/string.h"
+
+#include <string.h>
+
+#define URL_PATCHES "https://github.com/bvschaik/julius/wiki/Patches"
+#define URL_EDITOR "https://github.com/bvschaik/julius/wiki/Editor"
+#define BUFFER_SIZE 100000
+
+static struct {
+    uint8_t *strings[TRANSLATION_MAX_KEY];
+    uint8_t buffer[BUFFER_SIZE];
+    int buf_index;
+} data;
+
+static custom_string all_strings[] = {
     {TR_NO_PATCH_TITLE, "Patch 1.0.1.0 not installed"},
     {TR_NO_PATCH_MESSAGE,
         "Your Caesar 3 installation does not have the 1.0.1.0 patch installed. "
         "You can download the patch from:\n"
         URL_PATCHES "\n"
         "Continue at your own risk."},
-    {TR_MISSING_FONTS_TITLE, "Missing fonts"},
-    {TR_MISSING_FONTS_MESSAGE,
-        "Your Caesar 3 installation requires extra font files. "
-        "You can download them for your language from:\n"
-        URL_PATCHES},
     {TR_NO_EDITOR_TITLE, "Editor not installed"},
     {TR_NO_EDITOR_MESSAGE,
         "Your Caesar 3 installation does not contain the editor files. "
@@ -243,8 +253,31 @@ static translation_string all_strings[] = {
     {TR_EDITOR_INVASION_SCHEDULED, "Invasions scheduled"}
 };
 
-void translation_english(const translation_string **strings, int *num_strings)
+static void set_strings(const custom_string *strings, int num_strings)
 {
-    *strings = all_strings;
-    *num_strings = sizeof(all_strings) / sizeof(translation_string);
+    for (int i = 0; i < num_strings; i++) {
+        const custom_string *string = &strings[i];
+        if (data.strings[string->key]) {
+            continue;
+        }
+        int length_left = BUFFER_SIZE - data.buf_index;
+        encoding_from_utf8(string->string, &data.buffer[data.buf_index], length_left);
+        data.strings[string->key] = &data.buffer[data.buf_index];
+        data.buf_index += 1 + string_length(&data.buffer[data.buf_index]);
+    }
+}
+
+void custom_strings_load(void)
+{
+    const custom_string *strings = all_strings;
+    int num_strings = sizeof(all_strings) / sizeof(custom_string);
+
+    memset(data.strings, 0, sizeof(data.strings));
+    data.buf_index = 0;
+    set_strings(strings, num_strings);
+}
+
+uint8_t *get_custom_string(custom_string_key key)
+{
+    return data.strings[key];
 }

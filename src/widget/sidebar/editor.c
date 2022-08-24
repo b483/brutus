@@ -2,6 +2,7 @@
 
 #include "core/image_group_editor.h"
 #include "editor/tool.h"
+#include "game/custom_strings.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
 #include "graphics/image_button.h"
@@ -14,7 +15,6 @@
 #include "scenario/editor_events.h"
 #include "scenario/editor_map.h"
 #include "scenario/map.h"
-#include "translation/translation.h"
 #include "widget/map_editor.h"
 #include "widget/minimap.h"
 #include "widget/sidebar/common.h"
@@ -64,7 +64,7 @@ static void draw_status(void)
 
     int selected_tool = editor_tool_type();
     int brush_size = editor_tool_brush_size() - 1;
-    text_draw(translation_for(selected_tool + TR_EDITOR_SIDEBAR_BUTTON_GRASS_TOOLTIP), text_offset, 178, FONT_NORMAL_WHITE, 0);
+    text_draw(get_custom_string(selected_tool + TR_EDITOR_SIDEBAR_BUTTON_GRASS_TOOLTIP), text_offset, 178, FONT_NORMAL_WHITE, 0);
     switch (selected_tool) {
         case TOOL_GRASS:
         case TOOL_SHRUB:

@@ -1,7 +1,6 @@
 #include "text.h"
 
 #include "core/lang.h"
-#include "core/locale.h"
 #include "core/string.h"
 #include "core/time.h"
 #include "graphics/graphics.h"
@@ -31,7 +30,7 @@ static struct {
 static struct {
     const uint8_t string[ELLIPSIS_LENGTH];
     int width[FONT_TYPES_MAX];
-} ellipsis = {{'.', '.', '.', 0}};
+} ellipsis = { {'.', '.', '.', 0} };
 
 static int get_ellipsis_width(font_t font)
 {
@@ -73,10 +72,10 @@ void text_draw_cursor(int x_offset, int y_offset, int is_insert)
                 x_offset + input_cursor.x_offset - 3, x_offset + input_cursor.x_offset + 1,
                 y_offset + input_cursor.y_offset - 3, COLOR_WHITE);
             graphics_draw_vertical_line(
-                x_offset + input_cursor.x_offset - 1,  y_offset + input_cursor.y_offset - 3,
+                x_offset + input_cursor.x_offset - 1, y_offset + input_cursor.y_offset - 3,
                 y_offset + input_cursor.y_offset + 13, COLOR_WHITE);
             graphics_draw_horizontal_line(
-                x_offset + input_cursor.x_offset - 3,  x_offset + input_cursor.x_offset + 1,
+                x_offset + input_cursor.x_offset - 3, x_offset + input_cursor.x_offset + 1,
                 y_offset + input_cursor.y_offset + 14, COLOR_WHITE);
         } else {
             graphics_fill_rect(
@@ -332,11 +331,7 @@ int text_draw_money(int value, int x_offset, int y_offset, font_t font)
     uint8_t str[NUMBER_BUFFER_LENGTH];
     int money_len = number_to_string(str, value, '@', " ");
     const uint8_t *postfix;
-    if (locale_translate_money_dn()) {
-        postfix = lang_get_string(6, 0);
-    } else {
-        postfix = string_from_ascii("Dn");
-    }
+    postfix = lang_get_string(6, 0);
     string_copy(postfix, str + money_len, NUMBER_BUFFER_LENGTH - money_len - 1);
     return text_draw(str, x_offset, y_offset, font, 0);
 }

@@ -1,15 +1,8 @@
-#ifndef TRANSLATION_TRANSLATION_H
-#define TRANSLATION_TRANSLATION_H
-
-#include "core/locale.h"
-
 #include <stdint.h>
 
 typedef enum {
     TR_NO_PATCH_TITLE,
     TR_NO_PATCH_MESSAGE,
-    TR_MISSING_FONTS_TITLE,
-    TR_MISSING_FONTS_MESSAGE,
     TR_NO_EDITOR_TITLE,
     TR_NO_EDITOR_MESSAGE,
     TR_INVALID_LANGUAGE_TITLE,
@@ -234,29 +227,13 @@ typedef enum {
     TR_EDITOR_INVASION_TYPE_DISTANT_BATTLE,
     TR_EDITOR_INVASION_SCHEDULED,
     TRANSLATION_MAX_KEY
-} translation_key;
+} custom_string_key;
 
 typedef struct {
-    translation_key key;
+    custom_string_key key;
     const char *string;
-} translation_string;
+} custom_string;
 
-void translation_load(language_type language);
+void custom_strings_load(void);
 
-uint8_t *translation_for(translation_key key);
-
-void translation_english(const translation_string **strings, int *num_strings);
-void translation_french(const translation_string **strings, int *num_strings);
-void translation_german(const translation_string **strings, int *num_strings);
-void translation_italian(const translation_string **strings, int *num_strings);
-void translation_japanese(const translation_string **strings, int *num_strings);
-void translation_korean(const translation_string **strings, int *num_strings);
-void translation_polish(const translation_string **strings, int *num_strings);
-void translation_portuguese(const translation_string **strings, int *num_strings);
-void translation_russian(const translation_string **strings, int *num_strings);
-void translation_spanish(const translation_string **strings, int *num_strings);
-void translation_swedish(const translation_string **strings, int *num_strings);
-void translation_simplified_chinese(const translation_string **strings, int *num_strings);
-void translation_traditional_chinese(const translation_string **strings, int *num_strings);
-
-#endif // TRANSLATION_TRANSLATION_H
+uint8_t *get_custom_string(custom_string_key key);

@@ -5,7 +5,7 @@
 #include "core/io.h"
 #include "core/log.h"
 #include "core/string.h"
-#include "translation/translation.h"
+#include "game/custom_strings.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -138,8 +138,8 @@ static void set_message_parameters(lang_message *m, int title, int text, int urg
     m->title.y = 0;
     m->urgent = urgent;
 
-    m->title.text = translation_for(title);
-    m->content.text = translation_for(text);
+    m->title.text = get_custom_string(title);
+    m->content.text = get_custom_string(text);
 }
 
 void load_custom_messages(void)

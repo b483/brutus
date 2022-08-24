@@ -142,16 +142,11 @@ set(CORE_FILES
     ${PROJECT_SOURCE_DIR}/src/core/config.c
     ${PROJECT_SOURCE_DIR}/src/core/dir.c
     ${PROJECT_SOURCE_DIR}/src/core/encoding.c
-    ${PROJECT_SOURCE_DIR}/src/core/encoding_japanese.c
-    ${PROJECT_SOURCE_DIR}/src/core/encoding_korean.c
-    ${PROJECT_SOURCE_DIR}/src/core/encoding_simp_chinese.c
-    ${PROJECT_SOURCE_DIR}/src/core/encoding_trad_chinese.c
     ${PROJECT_SOURCE_DIR}/src/core/file.c
     ${PROJECT_SOURCE_DIR}/src/core/hotkey_config.c
     ${PROJECT_SOURCE_DIR}/src/core/image.c
     ${PROJECT_SOURCE_DIR}/src/core/io.c
     ${PROJECT_SOURCE_DIR}/src/core/lang.c
-    ${PROJECT_SOURCE_DIR}/src/core/locale.c
     ${PROJECT_SOURCE_DIR}/src/core/random.c
     ${PROJECT_SOURCE_DIR}/src/core/smacker.c
     ${PROJECT_SOURCE_DIR}/src/core/speed.c
@@ -267,6 +262,7 @@ set(FIGURETYPE_FILES
 set(GAME_FILES
     ${PROJECT_SOURCE_DIR}/src/game/animation.c
     ${PROJECT_SOURCE_DIR}/src/game/cheats.c
+    ${PROJECT_SOURCE_DIR}/src/game/custom_strings.c
     ${PROJECT_SOURCE_DIR}/src/game/difficulty.c
     ${PROJECT_SOURCE_DIR}/src/game/file.c
     ${PROJECT_SOURCE_DIR}/src/game/file_editor.c
@@ -481,22 +477,6 @@ set(EDITOR_FILES
     ${PROJECT_SOURCE_DIR}/src/editor/tool.c
     ${PROJECT_SOURCE_DIR}/src/editor/tool_restriction.c
 )
-set(TRANSLATION_FILES
-    ${PROJECT_SOURCE_DIR}/src/translation/english.c
-    ${PROJECT_SOURCE_DIR}/src/translation/french.c
-    ${PROJECT_SOURCE_DIR}/src/translation/german.c
-    ${PROJECT_SOURCE_DIR}/src/translation/italian.c
-    ${PROJECT_SOURCE_DIR}/src/translation/japanese.c
-    ${PROJECT_SOURCE_DIR}/src/translation/korean.c
-    ${PROJECT_SOURCE_DIR}/src/translation/polish.c
-    ${PROJECT_SOURCE_DIR}/src/translation/portuguese.c
-    ${PROJECT_SOURCE_DIR}/src/translation/russian.c
-    ${PROJECT_SOURCE_DIR}/src/translation/simplified_chinese.c
-    ${PROJECT_SOURCE_DIR}/src/translation/spanish.c
-    ${PROJECT_SOURCE_DIR}/src/translation/swedish.c
-    ${PROJECT_SOURCE_DIR}/src/translation/traditional_chinese.c
-    ${PROJECT_SOURCE_DIR}/src/translation/translation.c
-)
 
 set(MACOSX_FILES "")
 
@@ -521,7 +501,6 @@ set(SOURCE_FILES
     ${WIDGET_FILES}
     ${WINDOW_FILES}
     ${EDITOR_FILES}
-    ${TRANSLATION_FILES}
     ${TINYFD_FILES}
     ${PROJECT_SOURCE_DIR}/res/julius.rc
     ${MACOSX_FILES}

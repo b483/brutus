@@ -3,7 +3,6 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "core/image_group.h"
-#include "core/locale.h"
 #include "core/string.h"
 #include "graphics/image.h"
 #include "graphics/image_button.h"
@@ -73,7 +72,7 @@ void rich_text_set_fonts(font_t normal_font, font_t link_font, int line_spacing)
     data.normal_font = font_definition_for(normal_font);
     data.link_font = font_definition_for(link_font);
     data.line_height = data.normal_font->line_height + line_spacing;
-    data.paragraph_indent = locale_paragraph_indent();
+    data.paragraph_indent = 50;
 }
 
 void rich_text_reset(int scroll_position)

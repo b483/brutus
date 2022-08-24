@@ -13,7 +13,6 @@
 #include "graphics/scrollbar.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "translation/translation.h"
 #include "window/config.h"
 #include "window/hotkey_editor.h"
 #include "window/plain_message_dialog.h"
@@ -158,7 +157,7 @@ static generic_button bottom_buttons[] = {
     {520, 430, 100, 30, button_close, button_none, 1},
 };
 
-static translation_key bottom_button_texts[] = {
+static custom_string_key bottom_button_texts[] = {
     TR_BUTTON_RESET_DEFAULTS,
     TR_BUTTON_CANCEL,
     TR_BUTTON_OK
@@ -194,11 +193,11 @@ static void draw_background(void)
     graphics_in_dialog();
     outer_panel_draw(0, 0, 40, 30);
 
-    text_draw_centered(translation_for(TR_HOTKEY_TITLE), 16, 16, 608, FONT_LARGE_BLACK, 0);
+    text_draw_centered(get_custom_string(TR_HOTKEY_TITLE), 16, 16, 608, FONT_LARGE_BLACK, 0);
 
-    text_draw_centered(translation_for(TR_HOTKEY_LABEL), HOTKEY_X_OFFSET_1, 55,
+    text_draw_centered(get_custom_string(TR_HOTKEY_LABEL), HOTKEY_X_OFFSET_1, 55,
         HOTKEY_BTN_WIDTH, FONT_NORMAL_BLACK, 0);
-    text_draw_centered(translation_for(TR_HOTKEY_ALTERNATIVE_LABEL), HOTKEY_X_OFFSET_2, 55,
+    text_draw_centered(get_custom_string(TR_HOTKEY_ALTERNATIVE_LABEL), HOTKEY_X_OFFSET_2, 55,
         HOTKEY_BTN_WIDTH, FONT_NORMAL_BLACK, 0);
 
     inner_panel_draw(20, 72, 35, 22);
@@ -207,10 +206,10 @@ static void draw_background(void)
         hotkey_widget *widget = &hotkey_widgets[i + scrollbar.scroll_position];
         int text_offset = y_base + 6 + 24 * i;
         if (widget->action == HOTKEY_HEADER) {
-            text_draw(translation_for(widget->name_translation), 32, text_offset, FONT_NORMAL_WHITE, 0);
+            text_draw(get_custom_string(widget->name_translation), 32, text_offset, FONT_NORMAL_WHITE, 0);
         } else {
             if (widget->name_translation != TR_NONE) {
-                text_draw(translation_for(widget->name_translation),
+                text_draw(get_custom_string(widget->name_translation),
                     32, text_offset, FONT_NORMAL_GREEN, 0);
             } else {
                 lang_text_draw(widget->name_text_group, widget->name_text_id,
@@ -238,7 +237,7 @@ static void draw_background(void)
     }
 
     for (int i = 0; i < NUM_BOTTOM_BUTTONS; i++) {
-        text_draw_centered(translation_for(bottom_button_texts[i]),
+        text_draw_centered(get_custom_string(bottom_button_texts[i]),
             bottom_buttons[i].x, bottom_buttons[i].y + 9,
             bottom_buttons[i].width, FONT_NORMAL_BLACK, 0);
     }
@@ -294,7 +293,7 @@ static const uint8_t *hotkey_action_name_for(hotkey_action action)
         hotkey_widget *widget = &hotkey_widgets[i];
         if (widget->action == action) {
             if (widget->name_translation != TR_NONE) {
-                name = translation_for(widget->name_translation);
+                name = get_custom_string(widget->name_translation);
             } else {
                 name = lang_get_string(widget->name_text_group, widget->name_text_id);
             }

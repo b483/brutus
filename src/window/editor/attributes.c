@@ -3,6 +3,7 @@
 #include "core/image.h"
 #include "core/image_group_editor.h"
 #include "core/string.h"
+#include "game/custom_strings.h"
 #include "game/resource.h"
 #include "graphics/arrow_button.h"
 #include "graphics/button.h"
@@ -18,7 +19,6 @@
 #include "scenario/data.h"
 #include "scenario/editor.h"
 #include "scenario/property.h"
-#include "translation/translation.h"
 #include "widget/input_box.h"
 #include "widget/minimap.h"
 #include "widget/sidebar/editor.h"
@@ -146,7 +146,7 @@ static void draw_foreground(void)
     button_border_draw(212, 236, 250, 30, data.focus_button_id == 5);
 
     if (scenario.invasions[0].type) {
-        text_draw_centered(translation_for(TR_EDITOR_INVASION_SCHEDULED), 212, 245, 250, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw_centered(get_custom_string(TR_EDITOR_INVASION_SCHEDULED), 212, 245, 250, FONT_NORMAL_BLACK, COLOR_BLACK);
     } else {
         lang_text_draw_centered(44, 20, 212, 245, 250, FONT_NORMAL_BLACK);
     }

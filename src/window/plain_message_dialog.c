@@ -21,14 +21,14 @@ static struct {
     const uint8_t *extra;
 } data;
 
-static int init(translation_key title, translation_key message, const uint8_t *extra)
+static int init(custom_string_key title, custom_string_key message, const uint8_t *extra)
 {
     if (window_is(WINDOW_PLAIN_MESSAGE_DIALOG)) {
         // don't show popup over popup
         return 0;
     }
-    data.title = translation_for(title);
-    data.message = translation_for(message);
+    data.title = get_custom_string(title);
+    data.message = get_custom_string(message);
     data.extra = extra;
     return 1;
 }
@@ -72,7 +72,7 @@ static void button_ok(int param1, int param2)
     close();
 }
 
-void window_plain_message_dialog_show(translation_key title, translation_key message)
+void window_plain_message_dialog_show(custom_string_key title, custom_string_key message)
 {
     if (init(title, message, 0)) {
         window_type window = {
@@ -85,7 +85,7 @@ void window_plain_message_dialog_show(translation_key title, translation_key mes
     }
 }
 
-void window_plain_message_dialog_show_with_extra(translation_key title, translation_key message, const uint8_t *extra)
+void window_plain_message_dialog_show_with_extra(custom_string_key title, custom_string_key message, const uint8_t *extra)
 {
     if (init(title, message, extra)) {
         window_type window = {

@@ -1,5 +1,6 @@
 #include "starting_conditions.h"
 
+#include "game/custom_strings.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -12,7 +13,6 @@
 #include "scenario/editor.h"
 #include "scenario/map.h"
 #include "scenario/property.h"
-#include "translation/translation.h"
 #include "window/editor/attributes.h"
 #include "window/editor/map.h"
 #include "window/editor/start_year.h"
@@ -69,7 +69,7 @@ static void draw_foreground(void)
     lang_text_draw_year(scenario_property_start_year(), 330, 125, FONT_NORMAL_BLACK);
 
     // Initial favor
-    text_draw(translation_for(TR_EDITOR_INITIAL_FAVOR), 32, 165, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(get_custom_string(TR_EDITOR_INITIAL_FAVOR), 32, 165, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(262, 156, 200, 30, focus_button_id == 3);
     text_draw_number_centered(scenario_initial_favor(), 262, 165, 200, FONT_NORMAL_BLACK);
 
@@ -84,7 +84,7 @@ static void draw_foreground(void)
     text_draw_number_centered(scenario_rescue_loan(), 262, 245, 200, FONT_NORMAL_BLACK);
 
     // Initial personal savings
-    text_draw(translation_for(TR_EDITOR_INITIAL_PERSONAL_SAVINGS), 32, 285, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(get_custom_string(TR_EDITOR_INITIAL_PERSONAL_SAVINGS), 32, 285, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(262, 276, 200, 30, focus_button_id == 6);
     text_draw_number_centered(scenario_initial_personal_savings(), 262, 285, 200, FONT_NORMAL_BLACK);
 

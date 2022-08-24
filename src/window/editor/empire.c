@@ -5,6 +5,7 @@
 #include "empire/object.h"
 #include "empire/trade_route.h"
 #include "empire/type.h"
+#include "game/custom_strings.h"
 #include "graphics/arrow_button.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -18,7 +19,6 @@
 #include "scenario/data.h"
 #include "scenario/editor.h"
 #include "scenario/empire.h"
-#include "translation/translation.h"
 #include "window/editor/map.h"
 #include "window/numeric_input.h"
 
@@ -343,7 +343,7 @@ static void draw_trade_city_info(int x_offset, int y_offset, int width)
     // draw the trade route cost
     button_set_trade_route_cost->x = resource_x_offset + 255;
     button_set_trade_route_cost->y = y_offset - 8;
-    text_draw(translation_for(TR_COST_OPEN_TRADE_ROUTE), resource_x_offset + 50, y_offset, FONT_NORMAL_GREEN, 0);
+    text_draw(get_custom_string(TR_COST_OPEN_TRADE_ROUTE), resource_x_offset + 50, y_offset, FONT_NORMAL_GREEN, 0);
     button_border_draw(button_set_trade_route_cost->x, button_set_trade_route_cost->y, button_set_trade_route_cost->width, 24, data.focus_trade_route_cost_button_id == 1);
     text_draw_number_centered(data.selected_object->trade_route_cost, button_set_trade_route_cost->x, y_offset, button_set_trade_route_cost->width, FONT_NORMAL_GREEN);
 }
@@ -369,10 +369,10 @@ static void draw_city_info(void)
             }
             break;
         case EMPIRE_CITY_FUTURE_TRADE:
-            width += text_draw(translation_for(TR_FUTURE_TRADE_CITY_TYPE), x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN, 0);
+            width += text_draw(get_custom_string(TR_FUTURE_TRADE_CITY_TYPE), x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN, 0);
             draw_trade_city_info(x_offset, y_offset, width);
             // draw empire expansion year (offset from scenario start year)
-            text_draw(translation_for(TR_EMPIRE_EXPANSION_YEAR), x_offset + 350, y_offset + 40, FONT_NORMAL_GREEN, 0);
+            text_draw(get_custom_string(TR_EMPIRE_EXPANSION_YEAR), x_offset + 350, y_offset + 40, FONT_NORMAL_GREEN, 0);
             button_border_draw(x_offset + 620, y_offset + 32, button_set_expansion_year->width, button_set_expansion_year->height, data.focus_expansion_year_button_id == 1);
             text_draw_number_centered(scenario_empire_get_expansion_year_offset(), x_offset + 620, y_offset + 40, button_set_expansion_year->width, FONT_NORMAL_GREEN);
             break;
@@ -399,7 +399,7 @@ static void draw_city_info(void)
         }
         case EMPIRE_CITY_TRADE:
         {
-            width += text_draw(translation_for(TR_TRADE_CITY_TYPE), x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN, 0);
+            width += text_draw(get_custom_string(TR_TRADE_CITY_TYPE), x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN, 0);
             draw_trade_city_info(x_offset, y_offset, width);
             break;
         }

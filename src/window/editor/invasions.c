@@ -1,5 +1,6 @@
 #include "invasions.h"
 
+#include "game/custom_strings.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/lang_text.h"
@@ -9,7 +10,6 @@
 #include "input/input.h"
 #include "scenario/data.h"
 #include "scenario/property.h"
-#include "translation/translation.h"
 #include "window/editor/attributes.h"
 #include "window/editor/edit_invasion.h"
 #include "window/editor/map.h"
@@ -70,7 +70,7 @@ static void draw_foreground(void)
             int width = lang_text_draw(25, scenario.invasions[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
             width += lang_text_draw_year(scenario_property_start_year() + scenario.invasions[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
             width += text_draw_number(scenario.invasions[i].amount, ' ', "", x + 6 + width, y + 6, FONT_NORMAL_BLACK);
-            uint8_t *invasions_type_text = translation_for(TR_EDITOR_INVASION_TYPE_NO_INVADERS + scenario.invasions[i].type);
+            uint8_t *invasions_type_text = get_custom_string(TR_EDITOR_INVASION_TYPE_NO_INVADERS + scenario.invasions[i].type);
             text_draw(invasions_type_text, x - 12 + width + (invasions_box_width - width - text_get_width(invasions_type_text, FONT_NORMAL_BLACK)), y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
         } else {
             lang_text_draw_centered(44, 23, x, y + 6, invasions_box_width, FONT_NORMAL_BLACK);

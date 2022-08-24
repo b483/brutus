@@ -1,5 +1,6 @@
 #include "allowed_buildings.h"
 #include "empire/object.h"
+#include "game/custom_strings.h"
 #include "graphics/button.h"
 #include "graphics/color.h"
 #include "graphics/generic_button.h"
@@ -11,7 +12,6 @@
 #include "input/input.h"
 #include "scenario/data.h"
 #include "scenario/editor.h"
-#include "translation/translation.h"
 #include "window/editor/attributes.h"
 #include "window/editor/map.h"
 
@@ -131,9 +131,9 @@ static void draw_foreground(void)
         }
         button_border_draw(x, y, 190, 20, focus_button_id == i + 1);
         if (scenario_editor_is_building_allowed(i)) {
-            text_draw_centered(translation_for(i + TR_ALLOWED_BUILDING_HOUSE_VACANT_LOT), x, y + 5, 190, FONT_NORMAL_BLACK, 0);
+            text_draw_centered(get_custom_string(i + TR_ALLOWED_BUILDING_HOUSE_VACANT_LOT), x, y + 5, 190, FONT_NORMAL_BLACK, 0);
         } else {
-            text_draw_centered(translation_for(i + TR_ALLOWED_BUILDING_HOUSE_VACANT_LOT), x, y + 5, 190, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
+            text_draw_centered(get_custom_string(i + TR_ALLOWED_BUILDING_HOUSE_VACANT_LOT), x, y + 5, 190, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
         }
 
     }

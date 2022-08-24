@@ -85,7 +85,7 @@ typedef struct {
 typedef struct {
     int type;
     int subtype;
-    translation_key description;
+    custom_string_key description;
     const uint8_t *(*get_display_text)(void);
     int enabled;
 } config_widget;
@@ -130,7 +130,7 @@ static generic_button bottom_buttons[NUM_BOTTOM_BUTTONS] = {
     {520, 480, 100, 30, button_close, button_none, 1},
 };
 
-static translation_key bottom_button_texts[] = {
+static custom_string_key bottom_button_texts[] = {
     TR_BUTTON_CONFIGURE_HOTKEYS,
     TR_BUTTON_RESET_DEFAULTS,
     TR_BUTTON_CANCEL,
@@ -218,12 +218,12 @@ static void init(void)
     scrollbar_init(&scrollbar, 0, data.num_widgets - NUM_VISIBLE_ITEMS);
 }
 
-static void checkbox_draw_text(int x, int y, int value_key, translation_key description)
+static void checkbox_draw_text(int x, int y, int value_key, custom_string_key description)
 {
     if (data.config_values[value_key].new_value) {
         text_draw(string_from_ascii("x"), x + 6, y + 3, FONT_NORMAL_BLACK, 0);
     }
-    text_draw_ellipsized(translation_for(description), x + 30, y + 5, CHECKBOX_TEXT_WIDTH, FONT_NORMAL_BLACK, 0);
+    text_draw_ellipsized(get_custom_string(description), x + 30, y + 5, CHECKBOX_TEXT_WIDTH, FONT_NORMAL_BLACK, 0);
 }
 
 static void checkbox_draw(int x, int y, int has_focus)
@@ -282,31 +282,31 @@ static void draw_background(void)
     graphics_in_dialog();
     outer_panel_draw(0, 0, 40, 33);
 
-    text_draw_centered(translation_for(TR_CONFIG_TITLE), 16, 16, 608, FONT_LARGE_BLACK, 0);
+    text_draw_centered(get_custom_string(TR_CONFIG_TITLE), 16, 16, 608, FONT_LARGE_BLACK, 0);
 
     for (int i = 0; i < NUM_VISIBLE_ITEMS && i < data.num_widgets; i++) {
         config_widget *w = data.widgets[i + scrollbar.scroll_position];
         int y = ITEM_Y_OFFSET + ITEM_HEIGHT * i;
         if (w->type == TYPE_HEADER) {
-            text_draw(translation_for(w->description), 20, y, FONT_NORMAL_BLACK, 0);
+            text_draw(get_custom_string(w->description), 20, y, FONT_NORMAL_BLACK, 0);
         } else if (w->type == TYPE_CHECKBOX) {
             checkbox_draw_text(20, y, w->subtype, w->description);
         } else if (w->type == TYPE_SELECT) {
-            text_draw(translation_for(w->description), 20, y + 6, FONT_NORMAL_BLACK, 0);
+            text_draw(get_custom_string(w->description), 20, y + 6, FONT_NORMAL_BLACK, 0);
             const generic_button *btn = &select_buttons[w->subtype];
             text_draw_centered(w->get_display_text(), btn->x, y + btn->y + 6, btn->width, FONT_NORMAL_BLACK, 0);
         } else if (w->type == TYPE_INPUT_BOX) {
-            text_draw(translation_for(w->description), 20, y + 6, FONT_NORMAL_BLACK, 0);
+            text_draw(get_custom_string(w->description), 20, y + 6, FONT_NORMAL_BLACK, 0);
             input_box_start(&player_name_input);
         } else if (w->type == TYPE_NUMERICAL_RANGE) {
             numerical_range_draw(&scale_ranges[w->subtype], NUMERICAL_RANGE_X, y, w->get_display_text());
         } else if (w->type == TYPE_NUMERICAL_DESC) {
-            text_draw(translation_for(w->description), 20, y + 10, FONT_NORMAL_BLACK, 0);
+            text_draw(get_custom_string(w->description), 20, y + 10, FONT_NORMAL_BLACK, 0);
         }
     }
 
     for (int i = 0; i < NUM_BOTTOM_BUTTONS; i++) {
-        text_draw_centered(translation_for(bottom_button_texts[i]),
+        text_draw_centered(get_custom_string(bottom_button_texts[i]),
             bottom_buttons[i].x, bottom_buttons[i].y + 9, bottom_buttons[i].width, FONT_NORMAL_BLACK, 0);
     }
 

@@ -6,10 +6,6 @@
 #include "graphics/color.h"
 
 #define IMAGE_FONT_MULTIBYTE_OFFSET 10000
-#define IMAGE_FONT_MULTIBYTE_TRAD_CHINESE_MAX_CHARS 2188
-#define IMAGE_FONT_MULTIBYTE_SIMP_CHINESE_MAX_CHARS 2130
-#define IMAGE_FONT_MULTIBYTE_KOREAN_MAX_CHARS 2350
-#define IMAGE_FONT_MULTIBYTE_JAPANESE_MAX_CHARS 3321
 
 enum {
     IMAGE_TYPE_WITH_TRANSPARENCY = 0,
@@ -57,12 +53,6 @@ int image_init(void);
  * @return boolean true on success, false on failure
  */
 int image_load_climate(int climate_id, int is_editor, int force_reload);
-
-/**
- * Loads external fonts file (Cyrillic and Traditional Chinese)
- * @return boolean true on success, false on failure
- */
-int image_load_fonts(encoding_type encoding);
 
 /**
  * Loads the image collection for the specified enemy

@@ -1,7 +1,6 @@
 #include "lang_text.h"
 
 #include "core/lang.h"
-#include "core/locale.h"
 #include "core/string.h"
 #include "graphics/text.h"
 
@@ -64,14 +63,8 @@ int lang_text_draw_year(int year, int x_offset, int y_offset, font_t font)
 {
     int width = 0;
     if (year >= 0) {
-        int use_year_ad = locale_year_before_ad();
-        if (use_year_ad) {
-            width += text_draw_number(year, ' ', " ", x_offset + width, y_offset, font);
-            width += lang_text_draw(20, 1, x_offset + width, y_offset, font);
-        } else {
-            width += lang_text_draw(20, 1, x_offset + width, y_offset, font);
-            width += text_draw_number(year, ' ', " ", x_offset + width, y_offset, font);
-        }
+        width += text_draw_number(year, ' ', " ", x_offset + width, y_offset, font);
+        width += lang_text_draw(20, 1, x_offset + width, y_offset, font);
     } else {
         width += text_draw_number(-year, ' ', " ", x_offset + width, y_offset, font);
         width += lang_text_draw(20, 0, x_offset + width, y_offset, font);
@@ -99,15 +92,9 @@ void lang_text_draw_month_year_max_width(
 
     int width = negative_padding + lang_text_draw_colored(25, month, x_offset, y_offset, font, color);
     if (year >= 0) {
-        int use_year_ad = locale_year_before_ad();
-        if (use_year_ad) {
-            width += negative_padding +
-                text_draw_number_colored(year, ' ', " ", x_offset + width, y_offset, font, color);
-            lang_text_draw_colored(20, 1, x_offset + width, y_offset, font, color);
-        } else {
-            width += negative_padding + lang_text_draw_colored(20, 1, x_offset + width, y_offset, font, color);
+        width += negative_padding +
             text_draw_number_colored(year, ' ', " ", x_offset + width, y_offset, font, color);
-        }
+        lang_text_draw_colored(20, 1, x_offset + width, y_offset, font, color);
     } else {
         width += negative_padding + text_draw_number_colored(-year, ' ', " ", x_offset + width, y_offset, font, color);
         lang_text_draw_colored(20, 0, x_offset + width, y_offset, font, color);
