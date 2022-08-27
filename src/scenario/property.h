@@ -10,11 +10,11 @@ typedef enum {
 } scenario_climate;
 
 
-const uint8_t *scenario_name(void);
+const uint8_t *scenario_get_name(void);
 void scenario_set_name(const uint8_t *name);
 
-const uint8_t *scenario_player_name(void);
-void scenario_set_player_name(const uint8_t *name);
+const uint8_t *scenario_settings_player_name(void);
+void scenario_settings_set_player_name(const uint8_t *name);
 
 int scenario_is_open_play(void);
 

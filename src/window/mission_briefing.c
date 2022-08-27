@@ -2,7 +2,6 @@
 
 #include "core/image_group.h"
 #include "core/lang.h"
-#include "game/file.h"
 #include "graphics/graphics.h"
 #include "graphics/image_button.h"
 #include "graphics/lang_text.h"
@@ -52,10 +51,10 @@ static void draw_background(void)
     outer_panel_draw(16, 32, 38, 27);
 
     // Player name
-    text_draw(scenario_player_name(), 50, 48, FONT_LARGE_BLACK, 0);
+    text_draw(scenario_settings_player_name(), 50, 48, FONT_LARGE_BLACK, 0);
 
     // Scenario name
-    text_draw(scenario_name(), 50, 78, FONT_NORMAL_BLACK, 0);
+    text_draw(scenario_get_name(), 50, 78, FONT_NORMAL_BLACK, 0);
 
     // Objectives
     inner_panel_draw(32, 96, 33, 5);

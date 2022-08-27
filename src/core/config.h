@@ -70,6 +70,8 @@ int config_get_default_value(config_key key);
  */
 const char *config_get_default_string_value(config_string_key key);
 
+void set_player_name_from_config(void);
+
 /**
  * Load config from file
  */

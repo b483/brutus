@@ -12,7 +12,6 @@
 #include "figure/type.h"
 #include "game/animation.h"
 #include "game/custom_strings.h"
-#include "game/file.h"
 #include "game/file_editor.h"
 #include "game/settings.h"
 #include "game/speed.h"

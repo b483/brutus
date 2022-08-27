@@ -17,7 +17,7 @@
 
 #define MAX_ALLOWED_BUILDINGS 78
 
-#define MAX_PLAYER_NAME 32
+#define MAX_PLAYER_NAME 24
 #define MAX_SCENARIO_NAME 65
 #define MAX_BRIEF_DESCRIPTION 32
 #define MAX_BRIEFING 2302
@@ -249,11 +249,11 @@ extern struct scenario_t {
         int crops;
     } native_images;
 
-    struct { // used to be stored in the settings file
-        uint8_t player_name[MAX_PLAYER_NAME];
-    } settings;
-
     int is_saved;
 } scenario;
+
+extern struct scenario_settings {
+    uint8_t player_name[MAX_PLAYER_NAME];
+} scenario_settings;
 
 #endif // SCENARIO_DATA_H

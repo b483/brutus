@@ -67,7 +67,12 @@ static int add_to_listing(const char *filename)
 const dir_listing *dir_find_files_with_extension(const char *extension)
 {
     clear_dir_listing();
-    platform_file_manager_list_directory_contents(0, TYPE_FILE, extension, add_to_listing);
+    if (strcmp(extension, "map") == 0) {
+        platform_file_manager_list_directory_contents(MAPS_DIR_PATH, TYPE_FILE, extension, add_to_listing);
+    } else if (strcmp(extension, "sav") == 0) {
+        platform_file_manager_list_directory_contents(SAVES_DIR_PATH, TYPE_FILE, extension, add_to_listing);
+    }
+
     qsort(data.listing.files, data.listing.num_files, sizeof(char *), compare_lower);
     return &data.listing;
 }
@@ -104,21 +109,30 @@ static void move_left(char *str)
     *str = 0;
 }
 
-static const char *get_case_corrected_file(const char *dir, const char *filepath)
+void prepend_dir_to_path(const char *dir_to_prepend, const char *filepath, char *resulting_string)
+{
+    size_t dir_len = strlen(dir_to_prepend) + 1;
+    strncpy(resulting_string, dir_to_prepend, 2 * FILE_NAME_MAX - 1);
+#ifdef _WIN32
+    resulting_string[dir_len - 1] = '\\';
+#else
+    resulting_string[dir_len - 1] = '/';
+#endif
+    strncpy(&resulting_string[dir_len], filepath, 2 * FILE_NAME_MAX - dir_len - 1);
+}
+
+const char *get_case_corrected_file(const char *dir, const char *filepath)
 {
     static char corrected_filename[2 * FILE_NAME_MAX];
     corrected_filename[2 * FILE_NAME_MAX - 1] = 0;
 
     size_t dir_len = 0;
     if (dir) {
-        dir_len = strlen(dir) + 1;
-        strncpy(corrected_filename, dir, 2 * FILE_NAME_MAX - 1);
-        corrected_filename[dir_len - 1] = '/';
+        prepend_dir_to_path(dir, filepath, corrected_filename);
     } else {
         dir = ".";
+        strncpy(&corrected_filename[dir_len], filepath, 2 * FILE_NAME_MAX - dir_len - 1);
     }
-
-    strncpy(&corrected_filename[dir_len], filepath, 2 * FILE_NAME_MAX - dir_len - 1);
 
     FILE *fp = file_open(corrected_filename, "rb");
     if (fp) {
@@ -155,9 +169,4 @@ static const char *get_case_corrected_file(const char *dir, const char *filepath
         }
     }
     return 0;
-}
-
-const char *dir_get_file(const char *filepath)
-{
-    return get_case_corrected_file(0, filepath);
 }

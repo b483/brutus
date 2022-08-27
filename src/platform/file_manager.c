@@ -194,9 +194,18 @@ FILE *platform_file_manager_open_file(const char *filename, const char *mode)
     return fp;
 }
 
-int platform_file_manager_remove_file(const char *filename)
+int platform_file_manager_remove_file(const char *dir, const char *filename)
 {
-    wchar_t *wfile = utf8_to_wchar(filename);
+    static char filepath_to_remove[2 * FILE_NAME_MAX];
+    filepath_to_remove[2 * FILE_NAME_MAX - 1] = 0;
+
+    if (dir) {
+        prepend_dir_to_path(dir, filename, filepath_to_remove);
+    } else {
+        strncpy(&filepath_to_remove[0], filename, 2 * FILE_NAME_MAX - 1);
+    }
+
+    wchar_t *wfile = utf8_to_wchar(filepath_to_remove);
     int result = _wremove(wfile);
     free(wfile);
     return result == 0;

@@ -206,7 +206,7 @@ static void replay_map_confirmed(int confirmed)
         window_city_show();
         return;
     }
-    game_file_start_scenario_by_name(scenario_name());
+    game_file_start_scenario_by_name(scenario_get_name());
     window_city_show();
 }
 

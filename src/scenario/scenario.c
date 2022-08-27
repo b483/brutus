@@ -4,6 +4,7 @@
 #include "scenario/data.h"
 
 struct scenario_t scenario;
+struct scenario_settings scenario_settings;
 
 int scenario_is_saved(void)
 {
@@ -25,6 +26,9 @@ void scenario_save_state(buffer *buf)
     buffer_write_i32(buf, scenario.empire.expansion_year);
     buffer_write_u8(buf, scenario.empire.distant_battle_roman_travel_months);
     buffer_write_u8(buf, scenario.empire.distant_battle_enemy_travel_months);
+
+    // Map name
+    buffer_write_raw(buf, scenario.scenario_name, MAX_SCENARIO_NAME);
 
     // Map description
     buffer_write_raw(buf, scenario.briefing, MAX_BRIEFING);
@@ -237,6 +241,9 @@ void scenario_load_state(buffer *buf)
     scenario.empire.distant_battle_roman_travel_months = buffer_read_u8(buf);
     scenario.empire.distant_battle_enemy_travel_months = buffer_read_u8(buf);
 
+    // Map name
+    buffer_read_raw(buf, scenario.scenario_name, MAX_SCENARIO_NAME);
+
     // Map description
     buffer_read_raw(buf, scenario.briefing, MAX_BRIEFING);
 
@@ -432,14 +439,12 @@ void scenario_load_state(buffer *buf)
     scenario.is_saved = 1;
 }
 
-void scenario_settings_save_state(buffer *player_name, buffer *scenario_name)
+void scenario_settings_save_state(buffer *player_name)
 {
-    buffer_write_raw(player_name, scenario.settings.player_name, MAX_PLAYER_NAME);
-    buffer_write_raw(scenario_name, scenario.scenario_name, MAX_SCENARIO_NAME);
+    buffer_write_raw(player_name, scenario_settings.player_name, MAX_PLAYER_NAME);
 }
 
-void scenario_settings_load_state(buffer *player_name, buffer *scenario_name)
+void scenario_settings_load_state(buffer *player_name)
 {
-    buffer_read_raw(player_name, scenario.settings.player_name, MAX_PLAYER_NAME);
-    buffer_read_raw(scenario_name, scenario.scenario_name, MAX_SCENARIO_NAME);
+    buffer_read_raw(player_name, scenario_settings.player_name, MAX_PLAYER_NAME);
 }

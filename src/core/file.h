@@ -88,16 +88,10 @@ void file_remove_extension(uint8_t *filename);
 
 /**
  * Check if file exists
+ * @param dir Directory to check in
  * @param filename Filename to check
  * @return boolean true if the file exists, false otherwise
  */
-int file_exists(const char *filename);
-
-/**
- * Remove a file
- * @param filename Filename to remove
- * @return boolean true if the file removal was successful, false otherwise
- */
-int file_remove(const char *filename);
+int file_exists(const char *dir, const char *filename);
 
 #endif // CORE_FILE_H

@@ -86,7 +86,7 @@ static void write_log(void *userdata, int category, SDL_LogPriority priority, co
 static void setup_logging(void)
 {
     // On some platforms, not removing the file will not empty it when reopening for writing
-    file_remove("brutus-log.txt");
+    platform_file_manager_remove_file(0, DATA_TEXT_FILE_PATH);
     log_file = file_open("brutus-log.txt", "wt");
     SDL_LogSetOutputFunction(write_log, NULL);
 }
@@ -409,9 +409,9 @@ static int pre_init(const char *custom_data_dir)
             strcat(HOTKEY_CONFIGS_FILE_PATH, "brutus.hconfigs");
 
             strcpy(MAPS_DIR_PATH, executable_path);
-            strcat(MAPS_DIR_PATH, "maps\\");
+            strcat(MAPS_DIR_PATH, "maps");
             strcpy(SAVES_DIR_PATH, executable_path);
-            strcat(SAVES_DIR_PATH, "saves\\");
+            strcat(SAVES_DIR_PATH, "saves");
         } else {
             SDL_Log("Brutus directory path too long, exiting");
             return 0;

@@ -21,7 +21,7 @@ static int is_active;
 int editor_is_present(void)
 {
     for (int i = 0; i < MAX_EDITOR_FILES; i++) {
-        if (!file_exists(EDITOR_FILES[i])) {
+        if (!file_exists(0, EDITOR_FILES[i])) {
             return 0;
         }
     }

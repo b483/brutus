@@ -76,9 +76,10 @@ int platform_file_manager_close_file(FILE *stream);
 
 /**
  * Removes a file
+ * @param dir The directory to look in
  * @param filename The file to remove
  * @return true if removal was successful, false otherwise
  */
-int platform_file_manager_remove_file(const char *filename);
+int platform_file_manager_remove_file(const char *dir, const char *filename);
 
 #endif // PLATFORM_FILE_MANAGER_H

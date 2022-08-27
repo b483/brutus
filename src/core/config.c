@@ -75,13 +75,18 @@ const char *config_get_default_string_value(config_string_key key)
     return default_string_values[key];
 }
 
+void set_player_name_from_config(void)
+{
+    scenario_settings_set_player_name((const uint8_t *) string_values[CONFIG_STRING_PLAYER_NAME]);
+}
+
 static void set_defaults(void)
 {
     for (int i = 0; i < CONFIG_MAX_ENTRIES; ++i) {
         values[i] = default_values[i];
     }
     strncpy(string_values[CONFIG_STRING_PLAYER_NAME], "BRUTUS", CONFIG_STRING_VALUE_MAX);
-    scenario_set_player_name((const uint8_t *) string_values[CONFIG_STRING_PLAYER_NAME]);
+    set_player_name_from_config();
 }
 
 void config_load(void)
@@ -123,7 +128,7 @@ void config_load(void)
     }
     file_close(fp);
 
-    scenario_set_player_name((const uint8_t *) string_values[CONFIG_STRING_PLAYER_NAME]);
+    set_player_name_from_config();
 }
 
 void config_save(void)

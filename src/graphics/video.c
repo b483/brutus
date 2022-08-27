@@ -44,7 +44,7 @@ static void close_smk(void)
 
 static int load_smk(const char *filename)
 {
-    const char *path = dir_get_file(filename);
+    const char *path = get_case_corrected_file(0, filename);
     if (!path) {
         return 0;
     }

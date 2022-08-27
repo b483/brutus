@@ -557,7 +557,7 @@ static void button_close(int save, int param2)
     }
     if (apply_changed_configs()) {
         input_box_stop(&player_name_input);
-        scenario_set_player_name((const uint8_t *) data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value);
+        scenario_settings_set_player_name((const uint8_t *) data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value);
     }
     config_save();
     window_main_menu_show(0);

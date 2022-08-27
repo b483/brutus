@@ -8,6 +8,7 @@
 #include "core/string.h"
 #include "core/time.h"
 #include "game/file.h"
+#include "game/file_io.h"
 #include "game/file_editor.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -54,7 +55,7 @@ static generic_button file_buttons[] = {
     {160, 304, 288, 16, button_select_file, button_none, 11, 0},
 };
 
-static scrollbar_type scrollbar = {464, 120, 206, on_scroll};
+static scrollbar_type scrollbar = { 464, 120, 206, on_scroll };
 
 typedef struct {
     char extension[4];
@@ -75,10 +76,10 @@ static struct {
     char selected_file[FILE_NAME_MAX];
 } data;
 
-static input_box file_name_input = {144, 80, 20, 2, FONT_NORMAL_WHITE, 0, data.typed_name, FILE_NAME_MAX};
+static input_box file_name_input = { 144, 80, 20, 2, FONT_NORMAL_WHITE, 0, data.typed_name, FILE_NAME_MAX };
 
-static file_type_data saved_game_data = {"sav"};
-static file_type_data scenario_data = {"map"};
+static file_type_data saved_game_data = { "sav" };
+static file_type_data scenario_data = { "map" };
 
 static int find_first_file_with_prefix(const char *prefix)
 {
@@ -254,45 +255,52 @@ static void button_ok_cancel(int is_ok, int param2)
 
     const char *filename = get_chosen_filename();
 
-    if (data.dialog_type != FILE_DIALOG_SAVE && !file_exists(filename)) {
-        data.message_not_exist_start_time = time_get_millis();
-        return;
-    }
-    if (data.dialog_type == FILE_DIALOG_LOAD) {
-        if (data.type == FILE_TYPE_SAVED_GAME) {
-            if (game_file_load_saved_game(filename)) {
+    if (data.type == FILE_TYPE_SAVED_GAME) {
+        if (data.dialog_type != FILE_DIALOG_SAVE && !file_exists(SAVES_DIR_PATH, filename)) {
+            data.message_not_exist_start_time = time_get_millis();
+            return;
+        }
+
+        if (data.dialog_type == FILE_DIALOG_SAVE) {
+            input_box_stop(&file_name_input);
+            game_file_io_write_saved_game(SAVES_DIR_PATH, filename);
+            window_city_show();
+        } else if (data.dialog_type == FILE_DIALOG_LOAD) {
+            if (game_file_load_saved_game(SAVES_DIR_PATH, filename)) {
                 input_box_stop(&file_name_input);
                 window_city_show();
             } else {
                 data.message_not_exist_start_time = time_get_millis();
                 return;
             }
-        } else if (data.type == FILE_TYPE_SCENARIO) {
-            if (game_file_editor_load_scenario(filename)) {
+        } else if (data.dialog_type == FILE_DIALOG_DELETE) {
+            if (game_file_io_delete_saved_game(SAVES_DIR_PATH, filename)) {
+                dir_find_files_with_extension(data.file_data->extension);
+                if (scrollbar.scroll_position + NUM_FILES_IN_VIEW >= data.file_list->num_files) {
+                    --scrollbar.scroll_position;
+                }
+                if (scrollbar.scroll_position < 0) {
+                    scrollbar.scroll_position = 0;
+                }
+            }
+        }
+    } else if (data.type == FILE_TYPE_SCENARIO) {
+        if (data.dialog_type != FILE_DIALOG_SAVE && !file_exists(MAPS_DIR_PATH, filename)) {
+            data.message_not_exist_start_time = time_get_millis();
+            return;
+        }
+
+        if (data.dialog_type == FILE_DIALOG_SAVE) {
+            input_box_stop(&file_name_input);
+            game_file_editor_write_scenario(MAPS_DIR_PATH, filename);
+            window_editor_map_show();
+        } else if (data.dialog_type == FILE_DIALOG_LOAD) {
+            if (game_file_editor_load_scenario(MAPS_DIR_PATH, filename)) {
                 input_box_stop(&file_name_input);
                 window_editor_map_show();
             } else {
                 data.message_not_exist_start_time = time_get_millis();
                 return;
-            }
-        }
-    } else if (data.dialog_type == FILE_DIALOG_SAVE) {
-        input_box_stop(&file_name_input);
-        if (data.type == FILE_TYPE_SAVED_GAME) {
-            game_file_write_saved_game(filename);
-            window_city_show();
-        } else if (data.type == FILE_TYPE_SCENARIO) {
-            game_file_editor_write_scenario(filename);
-            window_editor_map_show();
-        }
-    } else if (data.dialog_type == FILE_DIALOG_DELETE) {
-        if (game_file_delete_saved_game(filename)) {
-            dir_find_files_with_extension(data.file_data->extension);
-            if (scrollbar.scroll_position + NUM_FILES_IN_VIEW >= data.file_list->num_files) {
-                --scrollbar.scroll_position;
-            }
-            if (scrollbar.scroll_position < 0) {
-                scrollbar.scroll_position = 0;
             }
         }
     }

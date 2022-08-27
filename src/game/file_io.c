@@ -35,6 +35,7 @@
 #include "map/routing.h"
 #include "map/sprite.h"
 #include "map/terrain.h"
+#include "platform/file_manager.h"
 #include "scenario/criteria.h"
 #include "scenario/earthquake.h"
 #include "scenario/emperor_change.h"
@@ -154,7 +155,6 @@ typedef struct {
     buffer *city_entry_exit_xy;
     buffer *last_invasion_id;
     buffer *building_extra_corrupt_houses;
-    buffer *scenario_name;
     buffer *bookmarks;
     buffer *city_entry_exit_grid_offset;
 } savegame_state;
@@ -204,7 +204,7 @@ static void init_scenario_data(void)
     state->elevation = create_scenario_piece(26244);
     state->random_iv = create_scenario_piece(8);
     state->camera = create_scenario_piece(8);
-    state->scenario = create_scenario_piece(3516);
+    state->scenario = create_scenario_piece(3581);
     state->empire_object = create_scenario_piece(18400);
 }
 
@@ -239,7 +239,7 @@ static void init_savegame_data(void)
     state->formation_totals = create_savegame_piece(12, 0);
     state->city_data = create_savegame_piece(36136, 1);
     state->city_faction_unknown = create_savegame_piece(2, 0);
-    state->player_name = create_savegame_piece(32, 0);
+    state->player_name = create_savegame_piece(24, 0);
     state->city_faction = create_savegame_piece(4, 0);
     state->buildings = create_savegame_piece(244000, 1);
     state->city_view_orientation = create_savegame_piece(4, 0);
@@ -256,7 +256,7 @@ static void init_savegame_data(void)
     state->trade_prices = create_savegame_piece(128, 0);
     state->figure_names = create_savegame_piece(84, 0);
     state->culture_coverage = create_savegame_piece(60, 0);
-    state->scenario = create_savegame_piece(3516, 0);
+    state->scenario = create_savegame_piece(3581, 0);
     state->max_game_year = create_savegame_piece(4, 0);
     state->earthquake = create_savegame_piece(60, 0);
     state->emperor_change_state = create_savegame_piece(4, 0);
@@ -290,7 +290,6 @@ static void init_savegame_data(void)
     state->city_entry_exit_xy = create_savegame_piece(16, 0);
     state->last_invasion_id = create_savegame_piece(2, 0);
     state->building_extra_corrupt_houses = create_savegame_piece(8, 0);
-    state->scenario_name = create_savegame_piece(65, 0);
     state->bookmarks = create_savegame_piece(32, 0);
     state->city_entry_exit_grid_offset = create_savegame_piece(8, 0);
 }
@@ -329,7 +328,7 @@ static void savegame_load_from_state(savegame_state *state)
 {
     savegame_version = buffer_read_i32(state->file_version);
 
-    scenario_settings_load_state(state->player_name, state->scenario_name);
+    scenario_settings_load_state(state->player_name);
 
     map_image_load_state(state->image_grid);
     map_building_load_state(state->building_grid, state->building_damage_grid);
@@ -402,7 +401,7 @@ static void savegame_save_to_state(savegame_state *state)
 {
     buffer_write_i32(state->file_version, savegame_version);
 
-    scenario_settings_save_state(state->player_name, state->scenario_name);
+    scenario_settings_save_state(state->player_name);
 
     map_image_save_state(state->image_grid);
     map_building_save_state(state->building_grid, state->building_damage_grid);
@@ -471,11 +470,12 @@ static void savegame_save_to_state(savegame_state *state)
     map_bookmark_save_state(state->bookmarks);
 }
 
-int game_file_io_read_scenario(const char *filename)
+int game_file_io_read_scenario(const char *dir, const char *filename)
 {
     log_info("Loading scenario", filename, 0);
     init_scenario_data();
-    FILE *fp = file_open(dir_get_file(filename), "rb");
+
+    FILE *fp = file_open(get_case_corrected_file(dir, filename), "rb");
     if (!fp) {
         return 0;
     }
@@ -493,13 +493,17 @@ int game_file_io_read_scenario(const char *filename)
     return 1;
 }
 
-int game_file_io_write_scenario(const char *filename)
+int game_file_io_write_scenario(const char *dir, const char *filename)
 {
     log_info("Saving scenario", filename, 0);
     init_scenario_data();
     scenario_save_to_state(&scenario_data.state);
 
-    FILE *fp = file_open(filename, "wb");
+    static char filepath_to_save[2 * FILE_NAME_MAX];
+    filepath_to_save[2 * FILE_NAME_MAX - 1] = 0;
+    prepend_dir_to_path(dir, filename, filepath_to_save);
+
+    FILE *fp = file_open(filepath_to_save, "wb");
     if (!fp) {
         log_error("Unable to save scenario", 0, 0);
         return 0;
@@ -597,12 +601,12 @@ static void savegame_write_to_file(FILE *fp)
     }
 }
 
-int game_file_io_read_saved_game(const char *filename, int offset)
+int game_file_io_read_saved_game(const char *dir, const char *filename, int offset)
 {
     init_savegame_data();
 
     log_info("Loading saved game", filename, 0);
-    FILE *fp = file_open(dir_get_file(filename), "rb");
+    FILE *fp = file_open(get_case_corrected_file(dir, filename), "rb");
     if (!fp) {
         log_error("Unable to load game", 0, 0);
         return 0;
@@ -620,7 +624,7 @@ int game_file_io_read_saved_game(const char *filename, int offset)
     return 1;
 }
 
-int game_file_io_write_saved_game(const char *filename)
+int game_file_io_write_saved_game(const char *dir, const char *filename)
 {
     init_savegame_data();
 
@@ -628,7 +632,11 @@ int game_file_io_write_saved_game(const char *filename)
     savegame_version = SAVE_GAME_VERSION;
     savegame_save_to_state(&savegame_data.state);
 
-    FILE *fp = file_open(filename, "wb");
+    static char filepath_to_save[2 * FILE_NAME_MAX];
+    filepath_to_save[2 * FILE_NAME_MAX - 1] = 0;
+    prepend_dir_to_path(dir, filename, filepath_to_save);
+
+    FILE *fp = file_open(filepath_to_save, "wb");
     if (!fp) {
         log_error("Unable to save game", 0, 0);
         return 0;
@@ -638,10 +646,10 @@ int game_file_io_write_saved_game(const char *filename)
     return 1;
 }
 
-int game_file_io_delete_saved_game(const char *filename)
+int game_file_io_delete_saved_game(const char *dir, const char *filename)
 {
     log_info("Deleting game", filename, 0);
-    int result = file_remove(filename);
+    int result = platform_file_manager_remove_file(dir, filename);
     if (!result) {
         log_error("Unable to delete game", 0, 0);
     }

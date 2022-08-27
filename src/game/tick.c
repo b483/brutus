@@ -26,12 +26,13 @@
 #include "city/sentiment.h"
 #include "city/trade.h"
 #include "city/victory.h"
+#include "core/file.h"
 #include "core/random.h"
 #include "editor/editor.h"
 #include "empire/object.h"
 #include "figure/formation.h"
 #include "figuretype/crime.h"
-#include "game/file.h"
+#include "game/file_io.h"
 #include "game/settings.h"
 #include "game/time.h"
 #include "game/undo.h"
@@ -97,7 +98,7 @@ static void advance_month(void)
     city_population_record_monthly();
     city_festival_update();
     if (setting_monthly_autosave()) {
-        game_file_write_saved_game("autosave.sav");
+        game_file_io_write_saved_game(SAVES_DIR_PATH, "autosave.sav");
     }
 }
 

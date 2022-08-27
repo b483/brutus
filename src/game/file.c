@@ -12,6 +12,7 @@
 #include "city/military.h"
 #include "city/victory.h"
 #include "city/view.h"
+#include "core/config.h"
 #include "core/encoding.h"
 #include "core/file.h"
 #include "core/image.h"
@@ -172,7 +173,7 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
 
 static int load_custom_scenario(const uint8_t *scenario_name, const char *scenario_file)
 {
-    if (!file_exists(scenario_file)) {
+    if (!file_exists(MAPS_DIR_PATH, scenario_file)) {
         return 0;
     }
 
@@ -225,7 +226,7 @@ static int start_scenario(const uint8_t *scenario_name, const char *scenario_fil
     if (!load_custom_scenario(scenario_name, scenario_file)) {
         return 0;
     }
-
+    set_player_name_from_config();
     city_emperor_init_scenario();
     building_menu_update();
     city_message_init_scenario();
@@ -261,7 +262,7 @@ int game_file_start_scenario(const char *scenario_file)
 
 int game_file_load_scenario_data(const char *scenario_file)
 {
-    if (!game_file_io_read_scenario(scenario_file)) {
+    if (!game_file_io_read_scenario(MAPS_DIR_PATH, scenario_file)) {
         return 0;
     }
 
@@ -270,9 +271,9 @@ int game_file_load_scenario_data(const char *scenario_file)
     return 1;
 }
 
-int game_file_load_saved_game(const char *filename)
+int game_file_load_saved_game(const char *dir, const char *filename)
 {
-    if (!game_file_io_read_saved_game(filename, 0)) {
+    if (!game_file_io_read_saved_game(dir, filename, 0)) {
         return 0;
     }
     initialize_saved_game();
@@ -280,15 +281,5 @@ int game_file_load_saved_game(const char *filename)
 
     sound_music_update(1);
     return 1;
-}
-
-int game_file_write_saved_game(const char *filename)
-{
-    return game_file_io_write_saved_game(filename);
-}
-
-int game_file_delete_saved_game(const char *filename)
-{
-    return game_file_io_delete_saved_game(filename);
 }
 

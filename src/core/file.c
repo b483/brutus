@@ -75,12 +75,7 @@ void file_remove_extension(uint8_t *filename)
     }
 }
 
-int file_exists(const char *filename)
+int file_exists(const char *dir, const char *filename)
 {
-    return NULL != dir_get_file(filename);
-}
-
-int file_remove(const char *filename)
-{
-    return platform_file_manager_remove_file(filename);
+    return NULL != get_case_corrected_file(dir, filename);
 }

@@ -28,7 +28,7 @@ static void draw_background(void)
 
     outer_panel_draw(48, 128, 34, 15);
     lang_text_draw_centered(62, 0, 48, 144, 544, FONT_LARGE_BLACK);
-    text_draw_centered(scenario_player_name(), 48, 194, 544, FONT_LARGE_BLACK, 0);
+    text_draw_centered(scenario_settings_player_name(), 48, 194, 544, FONT_LARGE_BLACK, 0);
     graphics_reset_dialog();
 }
 

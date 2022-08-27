@@ -4,7 +4,7 @@
 #include "scenario/data.h"
 
 
-const uint8_t *scenario_name(void)
+const uint8_t *scenario_get_name(void)
 {
     return scenario.scenario_name;
 }
@@ -14,14 +14,14 @@ void scenario_set_name(const uint8_t *name)
     string_copy(name, scenario.scenario_name, MAX_SCENARIO_NAME);
 }
 
-const uint8_t *scenario_player_name(void)
+const uint8_t *scenario_settings_player_name(void)
 {
-    return scenario.settings.player_name;
+    return scenario_settings.player_name;
 }
 
-void scenario_set_player_name(const uint8_t *name)
+void scenario_settings_set_player_name(const uint8_t *name)
 {
-    string_copy(name, scenario.settings.player_name, MAX_PLAYER_NAME);
+    string_copy(name, scenario_settings.player_name, MAX_PLAYER_NAME);
 }
 
 int scenario_is_open_play(void)
