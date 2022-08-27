@@ -14,7 +14,6 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "widget/city.h"
-#include "window/advisors.h"
 #include "window/city.h"
 #include "window/difficulty_options.h"
 #include "window/display_options.h"
@@ -47,8 +46,6 @@ static void menu_help_mouse_help(int param);
 static void menu_help_warnings(int param);
 static void menu_help_about(int param);
 
-static void menu_advisors_go_to(int advisor);
-
 static menu_item menu_file[] = {
     {1, 2, menu_file_replay_map, 0},
     {1, 3, menu_file_load_game, 0},
@@ -72,26 +69,10 @@ static menu_item menu_help[] = {
     {3, 7, menu_help_about, 0},
 };
 
-static menu_item menu_advisors[] = {
-    {4, 1, menu_advisors_go_to, 1},
-    {4, 2, menu_advisors_go_to, 2},
-    {4, 3, menu_advisors_go_to, 3},
-    {4, 4, menu_advisors_go_to, 4},
-    {4, 5, menu_advisors_go_to, 5},
-    {4, 6, menu_advisors_go_to, 6},
-    {4, 7, menu_advisors_go_to, 7},
-    {4, 8, menu_advisors_go_to, 8},
-    {4, 9, menu_advisors_go_to, 9},
-    {4, 10, menu_advisors_go_to, 10},
-    {4, 11, menu_advisors_go_to, 11},
-    {4, 12, menu_advisors_go_to, 12},
-};
-
 static menu_bar_item menu[] = {
     {1, menu_file, 5},
     {2, menu_options, 5},
     {3, menu_help, 4},
-    {4, menu_advisors, 12},
 };
 
 static const int INDEX_OPTIONS = 1;
@@ -220,7 +201,7 @@ void widget_top_menu_draw(int force)
     int s_width = screen_width();
 
     refresh_background();
-    menu_bar_draw(menu, 4, s_width < 1024 ? 338 : 493);
+    menu_bar_draw(menu, sizeof(menu) / sizeof(menu_bar_item), s_width < 1024 ? 338 : 493);
 
     color_t treasure_color = COLOR_WHITE;
     int treasury = city_finance_treasury();
@@ -451,11 +432,4 @@ static void menu_help_about(int param)
     clear_state();
     window_go_back();
     window_message_dialog_show(MESSAGE_DIALOG_ABOUT, window_city_draw_all);
-}
-
-static void menu_advisors_go_to(int advisor)
-{
-    clear_state();
-    window_go_back();
-    window_advisors_show_advisor(advisor);
 }
