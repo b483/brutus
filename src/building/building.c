@@ -1,6 +1,7 @@
 #include "building.h"
 
 #include "building/building_state.h"
+#include "building/destruction.h"
 #include "building/properties.h"
 #include "building/storage.h"
 #include "city/buildings.h"
@@ -28,7 +29,7 @@ static struct {
     int created_sequence;
     int incorrect_houses;
     int unfixable_houses;
-} extra = {0, 0, 0, 0};
+} extra = { 0, 0, 0, 0 };
 
 building *building_get(int id)
 {
@@ -235,6 +236,9 @@ void building_update_state(void)
             } else if (b->state == BUILDING_STATE_DELETED_BY_GAME) {
                 building_delete(b);
             }
+        }
+        if (b->type == BUILDING_TIMBER_YARD && !map_terrain_exist_multiple_tiles_in_radius_with_type(b->x, b->y, 2, 1, TERRAIN_TREE | TERRAIN_SHRUB, 3)) {
+            building_destroy_by_plague(b);
         }
     }
     if (wall_recalc) {

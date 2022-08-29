@@ -714,7 +714,7 @@ int building_construction_can_place_on_terrain(int x, int y, int *warning_id)
             return 0;
         }
     } else if (data.required_terrain.tree) {
-        if (!map_terrain_exists_tile_in_radius_with_type(x, y, 2, 1, TERRAIN_TREE | TERRAIN_SHRUB)) {
+        if (!map_terrain_exist_multiple_tiles_in_radius_with_type(x, y, 2, 1, TERRAIN_TREE | TERRAIN_SHRUB, 3)) {
             set_warning(warning_id, WARNING_TREE_NEEDED);
             return 0;
         }

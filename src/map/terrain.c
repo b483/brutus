@@ -142,6 +142,26 @@ int map_terrain_exists_tile_in_radius_with_type(int x, int y, int size, int radi
     return 0;
 }
 
+int map_terrain_exist_multiple_tiles_in_radius_with_type(int x, int y, int size, int radius, int terrain, int count)
+{
+    int x_min, y_min, x_max, y_max;
+    map_grid_get_area(x, y, size, radius, &x_min, &y_min, &x_max, &y_max);
+
+    int tiles_found = 0;
+    for (int yy = y_min; yy <= y_max; yy++) {
+        for (int xx = x_min; xx <= x_max; xx++) {
+            if (map_terrain_is(map_grid_offset(xx, yy), terrain)) {
+                tiles_found++;
+                if (tiles_found >= count) {
+                    return 1;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
 int map_terrain_exists_clear_tile_in_radius(int x, int y, int size, int radius, int except_grid_offset,
                                             int *x_tile, int *y_tile)
 {
@@ -269,22 +289,22 @@ static void add_road(int grid_offset)
 void map_terrain_add_gatehouse_roads(int x, int y, int orientation)
 {
     // roads under gatehouse
-    map_terrain_add(map_grid_offset(x,y), TERRAIN_ROAD);
-    map_terrain_add(map_grid_offset(x+1,y), TERRAIN_ROAD);
-    map_terrain_add(map_grid_offset(x,y+1), TERRAIN_ROAD);
-    map_terrain_add(map_grid_offset(x+1,y+1), TERRAIN_ROAD);
+    map_terrain_add(map_grid_offset(x, y), TERRAIN_ROAD);
+    map_terrain_add(map_grid_offset(x + 1, y), TERRAIN_ROAD);
+    map_terrain_add(map_grid_offset(x, y + 1), TERRAIN_ROAD);
+    map_terrain_add(map_grid_offset(x + 1, y + 1), TERRAIN_ROAD);
 
     // free roads before/after gate
     if (orientation == 1) {
-        add_road(map_grid_offset(x, y-1));
-        add_road(map_grid_offset(x+1, y-1));
-        add_road(map_grid_offset(x, y+2));
-        add_road(map_grid_offset(x+1, y+2));
+        add_road(map_grid_offset(x, y - 1));
+        add_road(map_grid_offset(x + 1, y - 1));
+        add_road(map_grid_offset(x, y + 2));
+        add_road(map_grid_offset(x + 1, y + 2));
     } else if (orientation == 2) {
-        add_road(map_grid_offset(x-1, y));
-        add_road(map_grid_offset(x-1, y+1));
-        add_road(map_grid_offset(x+2, y));
-        add_road(map_grid_offset(x+2, y+1));
+        add_road(map_grid_offset(x - 1, y));
+        add_road(map_grid_offset(x - 1, y + 1));
+        add_road(map_grid_offset(x + 2, y));
+        add_road(map_grid_offset(x + 2, y + 1));
     }
 }
 
@@ -292,28 +312,28 @@ void map_terrain_add_triumphal_arch_roads(int x, int y, int orientation)
 {
     if (orientation == 1) {
         // road in the middle
-        map_terrain_add(map_grid_offset(x+1,y), TERRAIN_ROAD);
-        map_terrain_add(map_grid_offset(x+1,y+1), TERRAIN_ROAD);
-        map_terrain_add(map_grid_offset(x+1,y+2), TERRAIN_ROAD);
+        map_terrain_add(map_grid_offset(x + 1, y), TERRAIN_ROAD);
+        map_terrain_add(map_grid_offset(x + 1, y + 1), TERRAIN_ROAD);
+        map_terrain_add(map_grid_offset(x + 1, y + 2), TERRAIN_ROAD);
         // no roads on other tiles
-        map_terrain_remove(map_grid_offset(x,y), TERRAIN_ROAD);
-        map_terrain_remove(map_grid_offset(x,y+1), TERRAIN_ROAD);
-        map_terrain_remove(map_grid_offset(x,y+2), TERRAIN_ROAD);
-        map_terrain_remove(map_grid_offset(x+2,y), TERRAIN_ROAD);
-        map_terrain_remove(map_grid_offset(x+2,y+1), TERRAIN_ROAD);
-        map_terrain_remove(map_grid_offset(x+2,y+2), TERRAIN_ROAD);
+        map_terrain_remove(map_grid_offset(x, y), TERRAIN_ROAD);
+        map_terrain_remove(map_grid_offset(x, y + 1), TERRAIN_ROAD);
+        map_terrain_remove(map_grid_offset(x, y + 2), TERRAIN_ROAD);
+        map_terrain_remove(map_grid_offset(x + 2, y), TERRAIN_ROAD);
+        map_terrain_remove(map_grid_offset(x + 2, y + 1), TERRAIN_ROAD);
+        map_terrain_remove(map_grid_offset(x + 2, y + 2), TERRAIN_ROAD);
     } else if (orientation == 2) {
         // road in the middle
-        map_terrain_add(map_grid_offset(x,y+1), TERRAIN_ROAD);
-        map_terrain_add(map_grid_offset(x+1,y+1), TERRAIN_ROAD);
-        map_terrain_add(map_grid_offset(x+2,y+1), TERRAIN_ROAD);
+        map_terrain_add(map_grid_offset(x, y + 1), TERRAIN_ROAD);
+        map_terrain_add(map_grid_offset(x + 1, y + 1), TERRAIN_ROAD);
+        map_terrain_add(map_grid_offset(x + 2, y + 1), TERRAIN_ROAD);
         // no roads on other tiles
-        map_terrain_remove(map_grid_offset(x,y), TERRAIN_ROAD);
-        map_terrain_remove(map_grid_offset(x+1,y), TERRAIN_ROAD);
-        map_terrain_remove(map_grid_offset(x+2,y), TERRAIN_ROAD);
-        map_terrain_remove(map_grid_offset(x,y+2), TERRAIN_ROAD);
-        map_terrain_remove(map_grid_offset(x+1,y+2), TERRAIN_ROAD);
-        map_terrain_remove(map_grid_offset(x+2,y+2), TERRAIN_ROAD);
+        map_terrain_remove(map_grid_offset(x, y), TERRAIN_ROAD);
+        map_terrain_remove(map_grid_offset(x + 1, y), TERRAIN_ROAD);
+        map_terrain_remove(map_grid_offset(x + 2, y), TERRAIN_ROAD);
+        map_terrain_remove(map_grid_offset(x, y + 2), TERRAIN_ROAD);
+        map_terrain_remove(map_grid_offset(x + 1, y + 2), TERRAIN_ROAD);
+        map_terrain_remove(map_grid_offset(x + 2, y + 2), TERRAIN_ROAD);
     }
 }
 
