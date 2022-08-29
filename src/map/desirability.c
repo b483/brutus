@@ -50,13 +50,12 @@ static void add_desirability_at_distance(int x, int y, int size, int distance, i
 static void add_to_terrain(int x, int y, int size, int desirability, int step, int step_size, int range)
 {
     if (size > 0) {
-        if (range > 6) range = 6;
+        if (range > 6) {
+            range = 6;
+        }
         int tiles_within_step = 0;
-        int distance = 1;
-        while (range > 0) {
+        for (int distance = 1; distance <= range; distance++) {
             add_desirability_at_distance(x, y, size, distance, desirability);
-            distance++;
-            range--;
             tiles_within_step++;
             if (tiles_within_step >= step) {
                 desirability += step_size;
@@ -116,6 +115,12 @@ static void update_terrain(void)
                     model->desirability_range);
             } else if (terrain & TERRAIN_RUBBLE) {
                 add_to_terrain(x, y, 1, -2, 1, 1, 2);
+            } else if (terrain & TERRAIN_WATER) {
+                add_to_terrain(x, y, 1, 1, 1, 0, 3);
+            } else if (terrain & TERRAIN_SHRUB) {
+                add_to_terrain(x, y, 1, 1, 1, 0, 1);
+            } else if (terrain & TERRAIN_TREE) {
+                add_to_terrain(x, y, 1, 1, 1, 0, 3);
             }
         }
     }

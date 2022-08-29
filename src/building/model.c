@@ -12,8 +12,8 @@
 #define NUM_BUILDINGS 130
 #define NUM_HOUSES 20
 
-static const uint8_t ALL_BUILDINGS[] = {'A', 'L', 'L', ' ', 'B', 'U', 'I', 'L', 'D', 'I', 'N', 'G', 'S', 0};
-static const uint8_t ALL_HOUSES[] = {'A', 'L', 'L', ' ', 'H', 'O', 'U', 'S', 'E', 'S', 0};
+static const uint8_t ALL_BUILDINGS[] = { 'A', 'L', 'L', ' ', 'B', 'U', 'I', 'L', 'D', 'I', 'N', 'G', 'S', 0 };
+static const uint8_t ALL_HOUSES[] = { 'A', 'L', 'L', ' ', 'H', 'O', 'U', 'S', 'E', 'S', 0 };
 
 static model_building buildings[NUM_BUILDINGS];
 static model_house houses[NUM_HOUSES];
@@ -148,6 +148,21 @@ int model_load(void)
         ptr = get_value(ptr, end_ptr, &houses[i].max_people);
         ptr = get_value(ptr, end_ptr, &houses[i].tax_multiplier);
     }
+
+    // custom values
+    buildings[BUILDING_SENATE_UPGRADED].desirability_value = 14;
+
+    buildings[BUILDING_WELL].desirability_value = 0;
+    buildings[BUILDING_WELL].desirability_step = 0;
+    buildings[BUILDING_WELL].desirability_step_size = 0;
+    buildings[BUILDING_WELL].desirability_range = 0;
+
+    buildings[BUILDING_GATEHOUSE].laborers = 0;
+    buildings[BUILDING_WELL].laborers = 0;
+    buildings[BUILDING_FORT_LEGIONARIES].laborers = 0;
+    buildings[BUILDING_FORT_JAVELIN].laborers = 0;
+    buildings[BUILDING_FORT_MOUNTED].laborers = 0;
+    buildings[BUILDING_FORT].laborers = 0;
 
     log_info("Model loaded", 0, 0);
     free(buffer);
