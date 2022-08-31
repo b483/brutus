@@ -208,22 +208,22 @@ static int handle_mouse(const mouse *m)
     return generic_buttons_handle_mouse(m, 0, 0, imperial_buttons, 8, &focus_button_id);
 }
 
-static void button_donate_to_city(int param1, int param2)
+static void button_donate_to_city(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_donate_to_city_show();
 }
 
-static void button_set_salary(int param1, int param2)
+static void button_set_salary(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_set_salary_show();
 }
 
-static void button_gift_to_emperor(int param1, int param2)
+static void button_gift_to_emperor(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_gift_to_emperor_show();
 }
 
-static void confirm_nothing(int accepted)
+static void confirm_nothing(__attribute__((unused)) int accepted)
 {}
 
 static void confirm_send_troops(int accepted)
@@ -241,7 +241,7 @@ static void confirm_send_goods(int accepted)
     }
 }
 
-static void button_request(int index, int param2)
+static void button_request(int index, __attribute__((unused)) int param2)
 {
     int status = get_request_status(index);
     if (status) {

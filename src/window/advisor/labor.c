@@ -30,8 +30,8 @@ static generic_button category_buttons[] = {
 };
 
 static arrow_button wage_buttons[] = {
-    {158, 354, 17, 24, arrow_button_wages, 1, 0},
-    {182, 354, 15, 24, arrow_button_wages, 0, 0}
+    {158, 354, 17, 24, arrow_button_wages, 1, 0, 0, 0},
+    {182, 354, 15, 24, arrow_button_wages, 0, 0, 0, 0}
 };
 
 static int focus_button_id;
@@ -105,7 +105,7 @@ static int handle_mouse(const mouse *m)
     return arrow_buttons_handle_mouse(m, 0, 0, wage_buttons, 2, &arrow_button_focus);
 }
 
-static void arrow_button_wages(int is_down, int param2)
+static void arrow_button_wages(int is_down, __attribute__((unused)) int param2)
 {
     city_labor_change_wages(is_down ? -1 : 1);
     city_finance_estimate_wages();
@@ -113,7 +113,7 @@ static void arrow_button_wages(int is_down, int param2)
     window_invalidate();
 }
 
-static void button_priority(int category, int param2)
+static void button_priority(int category, __attribute__((unused)) int param2)
 {
     window_labor_priority_show(category);
 }

@@ -101,17 +101,17 @@ static int handle_mouse(const mouse *m)
     return generic_buttons_handle_mouse(m, 0, 0, resource_buttons, num_resources + 2, &focus_button_id);
 }
 
-static void button_prices(int param1, int param2)
+static void button_prices(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_trade_prices_show();
 }
 
-static void button_empire(int param1, int param2)
+static void button_empire(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_empire_show();
 }
 
-static void button_resource(int resource_index, int param2)
+static void button_resource(int resource_index, __attribute__((unused)) int param2)
 {
     window_resource_settings_show(city_resource_get_available()->items[resource_index]);
 }

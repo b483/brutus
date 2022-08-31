@@ -43,7 +43,8 @@ void window_logo_show(int show_patch_message)
         WINDOW_LOGO,
         draw_background,
         0,
-        handle_input
+        handle_input,
+        0
     };
     init();
     window_show(&window);

@@ -3,7 +3,7 @@
 #include "graphics/image.h"
 #include "graphics/panel.h"
 
-void button_none(int param1, int param2)
+void button_none(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
 }
 

@@ -451,8 +451,8 @@ static int read_frame_info(smacker s)
         return 0;
     }
 
-    if (fread(s->frame_sizes, 1, sizes_length, s->fp) != sizes_length ||
-        fread(s->frame_types, 1, types_length, s->fp) != types_length) {
+    if (fread(s->frame_sizes, 1, sizes_length, s->fp) != (unsigned) sizes_length ||
+        fread(s->frame_types, 1, types_length, s->fp) != (unsigned) types_length) {
         log_error("SMK: unable to read frame info from file", 0, 0);
         free(s->frame_sizes);
         free(s->frame_offsets);
@@ -478,7 +478,7 @@ static int read_trees_data(smacker s)
         log_error("SMK: no memory for tree input data", 0, 0);
         return 0;
     }
-    if (fread(trees_data, 1, s->trees_size, s->fp) != s->trees_size) {
+    if (fread(trees_data, 1, s->trees_size, s->fp) != (unsigned) s->trees_size) {
         log_error("SMK: unable to read tree data from file", 0, 0);
         free(trees_data);
         return 0;
@@ -816,7 +816,7 @@ static uint8_t *read_frame_data(smacker s, int frame_id)
         log_error("SMK: no memory for frame data", 0, frame_id);
         return NULL;
     }
-    if (fread(frame_data, 1, frame_size, s->fp) != frame_size) {
+    if (fread(frame_data, 1, frame_size, s->fp) != (unsigned) frame_size) {
         log_error("SMK: unable to read data for frame", 0, frame_id);
         free(frame_data);
         return NULL;
@@ -824,7 +824,7 @@ static uint8_t *read_frame_data(smacker s, int frame_id)
     return frame_data;
 }
 
-static void free_frame_data(const smacker s, uint8_t *frame_data)
+static void free_frame_data(__attribute__((unused)) const smacker s, uint8_t *frame_data)
 {
     free(frame_data);
 }

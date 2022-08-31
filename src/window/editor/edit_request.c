@@ -26,13 +26,13 @@ static void button_delete(int param1, int param2);
 static void button_save(int param1, int param2);
 
 static generic_button buttons[] = {
-    {30, 152, 60, 25, button_year, button_none},
-    {330, 152, 80, 25, button_amount, button_none},
-    {430, 152, 100, 25, button_resource, button_none},
-    {70, 190, 140, 25, button_deadline_years, button_none},
-    {400, 190, 80, 25, button_favor, button_none},
-    {10, 234, 250, 25, button_delete, button_none},
-    {300, 234, 100, 25, button_save, button_none}
+    {30, 152, 60, 25, button_year, button_none, 0, 0},
+    {330, 152, 80, 25, button_amount, button_none, 0, 0},
+    {430, 152, 100, 25, button_resource, button_none, 0, 0},
+    {70, 190, 140, 25, button_deadline_years, button_none, 0, 0},
+    {400, 190, 80, 25, button_favor, button_none, 0, 0},
+    {10, 234, 250, 25, button_delete, button_none, 0, 0},
+    {300, 234, 100, 25, button_save, button_none, 0, 0}
 };
 
 static struct {
@@ -102,7 +102,7 @@ static void set_year(int value)
     data.request.year = value;
 }
 
-static void button_year(int param1, int param2)
+static void button_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 100, screen_dialog_offset_y() + 50, 3, 999, set_year);
 }
@@ -112,7 +112,7 @@ static void set_amount(int value)
     data.request.amount = value;
 }
 
-static void button_amount(int param1, int param2)
+static void button_amount(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     int max_amount = 999;
     int max_digits = 3;
@@ -134,7 +134,7 @@ static void set_resource(int value)
     }
 }
 
-static void button_resource(int param1, int param2)
+static void button_resource(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_select_list_show(screen_dialog_offset_x() + 210, screen_dialog_offset_y() + 40, 23, 17, set_resource);
 }
@@ -144,7 +144,7 @@ static void set_deadline_years(int value)
     data.request.deadline_years = value;
 }
 
-static void button_deadline_years(int param1, int param2)
+static void button_deadline_years(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 220, screen_dialog_offset_y() + 100,
         3, 999, set_deadline_years);
@@ -155,18 +155,18 @@ static void set_favor(int value)
     data.request.favor = value;
 }
 
-static void button_favor(int param1, int param2)
+static void button_favor(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 260, screen_dialog_offset_y() + 100, 3, 100, set_favor);
 }
 
-static void button_delete(int param1, int param2)
+static void button_delete(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_request_delete(data.id);
     window_editor_requests_show();
 }
 
-static void button_save(int param1, int param2)
+static void button_save(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_request_save(data.id, &data.request);
     window_editor_requests_show();
@@ -178,7 +178,8 @@ void window_editor_edit_request_show(int id)
         WINDOW_EDITOR_EDIT_REQUEST,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init(id);
     window_show(&window);

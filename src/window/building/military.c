@@ -382,12 +382,12 @@ int window_building_handle_mouse_legion_info(const mouse *m, building_info_conte
     return handled;
 }
 
-int window_building_get_legion_info_tooltip_text(building_info_context *c)
+int window_building_get_legion_info_tooltip_text(void)
 {
     return data.focus_button_id ? 147 : 0;
 }
 
-static void button_return_to_fort(int param1, int param2)
+static void button_return_to_fort(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     formation *m = formation_get(data.context_for_callback->formation_id);
     if (!m->in_distant_battle && !m->is_at_fort) {
@@ -396,7 +396,7 @@ static void button_return_to_fort(int param1, int param2)
     }
 }
 
-static void button_layout(int index, int param2)
+static void button_layout(int index, __attribute__((unused)) int param2)
 {
     formation *m = formation_get(data.context_for_callback->formation_id);
     if (m->in_distant_battle) {

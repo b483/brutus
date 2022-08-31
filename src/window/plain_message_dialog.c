@@ -12,7 +12,7 @@
 static void button_ok(int param1, int param2);
 
 static image_button buttons[] = {
-    {223, 140, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 0, button_ok, button_none, 1, 0, 1},
+    {223, 140, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 0, button_ok, button_none, 1, 0, 1, 0, 0, 0},
 };
 
 static struct {
@@ -67,7 +67,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_ok(int param1, int param2)
+static void button_ok(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     close();
 }
@@ -79,7 +79,8 @@ void window_plain_message_dialog_show(custom_string_key title, custom_string_key
             WINDOW_PLAIN_MESSAGE_DIALOG,
             draw_background,
             draw_foreground,
-            handle_input
+            handle_input,
+            0
         };
         window_show(&window);
     }
@@ -92,7 +93,8 @@ void window_plain_message_dialog_show_with_extra(custom_string_key title, custom
             WINDOW_PLAIN_MESSAGE_DIALOG,
             draw_background,
             draw_foreground,
-            handle_input
+            handle_input,
+            0
         };
         window_show(&window);
     }

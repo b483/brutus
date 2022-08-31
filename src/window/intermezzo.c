@@ -51,7 +51,7 @@ static void draw_background(void)
     }
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const mouse *m, __attribute__((unused)) const hotkeys *h)
 {
     time_millis current_time = time_get_millis();
     if (m->right.went_up || current_time - data.start_time > (data.type ? DISPLAY_TIME_MILLIS : 300)) {
@@ -65,7 +65,8 @@ void window_intermezzo_show(intermezzo_type type, void (*callback)(void))
         WINDOW_INTERMEZZO,
         draw_background,
         0,
-        handle_input
+        handle_input,
+        0
     };
     init(type, callback);
     window_show(&window);

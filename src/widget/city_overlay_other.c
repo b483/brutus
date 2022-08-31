@@ -41,7 +41,7 @@ static int show_building_water(const building *b)
     return b->type == BUILDING_WELL || b->type == BUILDING_FOUNTAIN || b->type == BUILDING_RESERVOIR;
 }
 
-static int show_building_desirability(const building *b)
+static int show_building_desirability(__attribute__((unused)) const building *b)
 {
     return 0;
 }
@@ -67,7 +67,7 @@ static int show_figure_tax_income(const figure *f)
     return f->type == FIGURE_TAX_COLLECTOR;
 }
 
-static int show_figure_none(const figure *f)
+static int show_figure_none(__attribute__((unused)) const figure *f)
 {
     return 0;
 }
@@ -108,7 +108,7 @@ static int get_column_height_tax_income(const building *b)
     return NO_COLUMN;
 }
 
-static int get_column_height_none(const building *b)
+static int get_column_height_none(__attribute__((unused)) const building *b)
 {
     return NO_COLUMN;
 }
@@ -157,7 +157,7 @@ static int get_tooltip_religion(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_food_stocks(tooltip_context *c, const building *b)
+static int get_tooltip_food_stocks(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
 {
     if (b->house_population <= 0) {
         return 0;
@@ -196,7 +196,7 @@ static int get_tooltip_tax_income(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_water(tooltip_context *c, int grid_offset)
+static int get_tooltip_water(__attribute__((unused)) tooltip_context *c, int grid_offset)
 {
     if (map_terrain_is(grid_offset, TERRAIN_RESERVOIR_RANGE)) {
         if (map_terrain_is(grid_offset, TERRAIN_FOUNTAIN_RANGE)) {
@@ -210,7 +210,7 @@ static int get_tooltip_water(tooltip_context *c, int grid_offset)
     return 0;
 }
 
-static int get_tooltip_desirability(tooltip_context *c, int grid_offset)
+static int get_tooltip_desirability(__attribute__((unused)) tooltip_context *c, int grid_offset)
 {
     int desirability = map_desirability_get(grid_offset);
     if (desirability < 0) {

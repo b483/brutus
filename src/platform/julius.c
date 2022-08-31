@@ -69,7 +69,7 @@ static void handler(int sig)
 /* Log to separate file on windows, since we don't have a console there */
 static FILE *log_file = 0;
 
-static void write_log(void *userdata, int category, SDL_LogPriority priority, const char *message)
+static void write_log(__attribute__((unused)) void *userdata, __attribute__((unused)) int category, SDL_LogPriority priority, const char *message)
 {
     if (log_file) {
         if (priority == SDL_LOG_PRIORITY_ERROR) {

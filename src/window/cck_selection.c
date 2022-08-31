@@ -35,7 +35,7 @@ static void button_toggle_minimap(int param1, int param2);
 static void on_scroll(void);
 
 static image_button start_button =
-{ 600, 440, 27, 27, IB_NORMAL, GROUP_SIDEBAR_BUTTONS, 56, button_start_scenario, button_none, 1, 0, 1 };
+{ 600, 440, 27, 27, IB_NORMAL, GROUP_SIDEBAR_BUTTONS, 56, button_start_scenario, button_none, 1, 0, 1, 0, 0, 0 };
 
 static generic_button toggle_minimap_button =
 { 570, 87, 39, 28, button_toggle_minimap, button_none, 0, 0 };
@@ -58,7 +58,7 @@ static generic_button file_buttons[] = {
     {18, 444, 252, 16, button_select_item, button_none, 14, 0},
 };
 
-static scrollbar_type scrollbar = { 276, 210, 256, on_scroll, 8, 1 };
+static scrollbar_type scrollbar = { 276, 210, 256, on_scroll, 8, 1, 0, 0, 0, 0 };
 
 static struct {
     int focus_button_id;
@@ -254,7 +254,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_select_item(int index, int param2)
+static void button_select_item(int index, __attribute__((unused)) int param2)
 {
     if (index >= data.scenarios->num_files) {
         return;
@@ -267,7 +267,7 @@ static void button_select_item(int index, int param2)
     window_invalidate();
 }
 
-static void button_start_scenario(int param1, int param2)
+static void button_start_scenario(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (game_file_start_scenario(data.selected_scenario_filename)) {
         sound_music_update(1);
@@ -275,7 +275,7 @@ static void button_start_scenario(int param1, int param2)
     }
 }
 
-static void button_toggle_minimap(int param1, int param2)
+static void button_toggle_minimap(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     data.show_minimap = !data.show_minimap;
     window_invalidate();
@@ -292,7 +292,8 @@ void window_cck_selection_show(void)
         WINDOW_CCK_SELECTION,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init();
     window_show(&window);

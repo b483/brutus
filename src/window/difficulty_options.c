@@ -12,9 +12,9 @@ static void arrow_button_difficulty(int is_down, int param2);
 static void arrow_button_gods(int param1, int param2);
 
 static arrow_button arrow_buttons[] = {
-    {0, 54, 15, 24, arrow_button_difficulty, 0, 0},
-    {24, 54, 17, 24, arrow_button_difficulty, 1, 0},
-    {24, 102, 21, 24, arrow_button_gods, 2, 0}
+    {0, 54, 15, 24, arrow_button_difficulty, 0, 0, 0, 0},
+    {24, 54, 17, 24, arrow_button_difficulty, 1, 0, 0, 0},
+    {24, 102, 21, 24, arrow_button_gods, 2, 0, 0, 0}
 };
 
 static struct {
@@ -47,7 +47,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void arrow_button_difficulty(int is_down, int param2)
+static void arrow_button_difficulty(int is_down, __attribute__((unused)) int param2)
 {
     if (is_down) {
         setting_decrease_difficulty();
@@ -56,7 +56,7 @@ static void arrow_button_difficulty(int is_down, int param2)
     }
 }
 
-static void arrow_button_gods(int param1, int param2)
+static void arrow_button_gods(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     setting_toggle_gods_enabled();
 }
@@ -67,7 +67,8 @@ void window_difficulty_options_show(void (*close_callback)(void))
         WINDOW_DIFFICULTY_OPTIONS,
         window_draw_underlying_window,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     data.close_callback = close_callback;
     window_show(&window);

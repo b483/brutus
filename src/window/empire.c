@@ -37,13 +37,13 @@ static void button_open_trade(int param1, int param2);
 static void button_show_resource_window(int resource, int param2);
 
 static image_button image_button_help[] = {
-    {0, 0, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1}
+    {0, 0, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1, 0, 0, 0}
 };
 static image_button image_button_return_to_city[] = {
-    {0, 0, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_return_to_city, button_none, 0, 0, 1}
+    {0, 0, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_return_to_city, button_none, 0, 0, 1, 0, 0, 0}
 };
 static image_button image_button_advisor[] = {
-    {-4, 0, 24, 24, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 12, button_advisor, button_none, ADVISOR_TRADE, 0, 1}
+    {-4, 0, 24, 24, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 12, button_advisor, button_none, ADVISOR_TRADE, 0, 1, 0, 0, 0}
 };
 static generic_button generic_button_trade_resource[] = {
     {0, 0, 101, 27, button_show_resource_window, button_none, RESOURCE_WHEAT, 0},
@@ -127,7 +127,7 @@ static void draw_trade_resource(resource_type resource, int trade_max, int x_off
     int resource_offset = resource_image_offset(resource, RESOURCE_IMAGE_ICON);
     image_draw(image_id + resource_offset, x_offset + 1, y_offset + 1);
 
-    if (data.focus_resource == resource) {
+    if ((unsigned) data.focus_resource == resource) {
         button_border_draw(x_offset - 2, y_offset - 2, 101 + 4, 30, 1);
     }
 
@@ -296,6 +296,7 @@ static void draw_object_info(void)
                         break;
                     }
                 }
+                /* fall through */
             case EMPIRE_OBJECT_ENEMY_ARMY:
                 if (city_military_months_until_distant_battle() > 0) {
                     if (city_military_distant_battle_enemy_months_traveled() == data.selected_object->distant_battle_travel_months) {
@@ -303,6 +304,7 @@ static void draw_object_info(void)
                         break;
                     }
                 }
+                /* fall through */
             default:
                 lang_text_draw_centered(47, 8, data.x_min, data.y_max - 65, data.x_max - data.x_min, FONT_NORMAL_GREEN);
         }
@@ -517,6 +519,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
                             break;
                         }
                     }
+                    /* fall through */
                 case EMPIRE_OBJECT_ENEMY_ARMY:
                     if (city_military_months_until_distant_battle() > 0) {
                         if (city_military_distant_battle_enemy_months_traveled() == data.selected_object->distant_battle_travel_months) {
@@ -525,6 +528,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
                             break;
                         }
                     }
+                    /* fall through */
                 default:
                     window_city_show();
             }
@@ -615,22 +619,22 @@ static void get_tooltip(tooltip_context *c)
     }
 }
 
-static void button_help(int param1, int param2)
+static void button_help(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_message_dialog_show(MESSAGE_DIALOG_EMPIRE_MAP, 0);
 }
 
-static void button_return_to_city(int param1, int param2)
+static void button_return_to_city(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_city_show();
 }
 
-static void button_advisor(int advisor, int param2)
+static void button_advisor(int advisor, __attribute__((unused)) int param2)
 {
     window_advisors_show_advisor(advisor);
 }
 
-static void button_show_resource_window(int resource, int param2)
+static void button_show_resource_window(int resource, __attribute__((unused)) int param2)
 {
     window_resource_settings_show(resource);
 }
@@ -644,7 +648,7 @@ static void confirmed_open_trade(int accepted)
     }
 }
 
-static void button_open_trade(int param1, int param2)
+static void button_open_trade(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_popup_dialog_show(POPUP_DIALOG_OPEN_TRADE, confirmed_open_trade, 2);
 }

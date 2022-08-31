@@ -106,7 +106,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_set_priority(int new_priority, int param2)
+static void button_set_priority(int new_priority, __attribute__((unused)) int param2)
 {
     city_labor_set_priority(data.category, new_priority);
     window_go_back();

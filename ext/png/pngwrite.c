@@ -61,7 +61,7 @@ png_write_info(png_structrp png_ptr, png_const_inforp info_ptr)
       png_error(png_ptr, "Valid palette required for paletted images");
 }
 void PNGAPI
-png_write_end(png_structrp png_ptr, png_inforp info_ptr)
+png_write_end(png_structrp png_ptr, __attribute__((unused)) png_inforp info_ptr)
 {
    png_debug(1, "in png_write_end");
 

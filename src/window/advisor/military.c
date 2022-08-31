@@ -164,14 +164,14 @@ static int handle_mouse(const mouse *m)
     return generic_buttons_handle_mouse(m, 0, 0, fort_buttons, 3 * num_legions, &focus_button_id);
 }
 
-static void button_go_to_legion(int legion_id, int param2)
+static void button_go_to_legion(int legion_id, __attribute__((unused)) int param2)
 {
     const formation *m = formation_get(formation_for_legion(legion_id));
     city_view_go_to_grid_offset(map_grid_offset(m->x_home, m->y_home));
     window_city_show();
 }
 
-static void button_return_to_fort(int legion_id, int param2)
+static void button_return_to_fort(int legion_id, __attribute__((unused)) int param2)
 {
     formation *m = formation_get(formation_for_legion(legion_id));
     if (!m->in_distant_battle && !m->is_at_fort) {
@@ -180,7 +180,7 @@ static void button_return_to_fort(int legion_id, int param2)
     }
 }
 
-static void button_empire_service(int legion_id, int param2)
+static void button_empire_service(int legion_id, __attribute__((unused)) int param2)
 {
     int formation_id = formation_for_legion(legion_id);
     formation *m = formation_get(formation_id);

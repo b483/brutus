@@ -49,17 +49,17 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const mouse *m, __attribute__((unused)) const hotkeys *h)
 {
     generic_buttons_handle_mouse(mouse_in_dialog(m), 48, 128, victory_buttons, 3, &focus_button_id);
 }
 
-static void button_accept(int param1, int param2)
+static void button_accept(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_city_show();
 }
 
-static void button_continue_governing(int months, int param2)
+static void button_continue_governing(int months, __attribute__((unused)) int param2)
 {
     city_victory_continue_governing(months);
     window_city_show();
@@ -73,7 +73,8 @@ void window_victory_dialog_show(void)
         WINDOW_VICTORY_DIALOG,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     window_show(&window);
 }

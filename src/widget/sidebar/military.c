@@ -96,13 +96,13 @@ static void button_return_to_fort(int param1, int param2);
 static void button_empire_service(int param1, int param2);
 
 static image_button buttons_title_close[] = {
-    {127, 5, 31, 20, IB_NORMAL, 90, 0, button_close_military_sidebar, button_none, 0, 0, 1},
-    {4, 3, 117, 31, IB_NORMAL, 93, 0, button_military_menu, button_none, 0, 0, 1}
+    {127, 5, 31, 20, IB_NORMAL, 90, 0, button_close_military_sidebar, button_none, 0, 0, 1, 0, 0, 0},
+    {4, 3, 117, 31, IB_NORMAL, 93, 0, button_military_menu, button_none, 0, 0, 1, 0, 0, 0}
 };
 
 static arrow_button buttons_cycle_legion[] = {
-    {10, 10, 19, 24, button_cycle_legion, 0, 0},
-    {126, 10, 21, 24, button_cycle_legion, 1, 0},
+    {10, 10, 19, 24, button_cycle_legion, 0, 0, 0, 0},
+    {126, 10, 21, 24, button_cycle_legion, 1, 0, 0, 0},
 };
 
 static generic_button buttons_formation_layout[LAYOUTS_PER_LEGION - 2][LAYOUTS_PER_LEGION] = {
@@ -531,17 +531,17 @@ int widget_sidebar_military_exit(void)
     return 1;
 }
 
-static void button_military_menu(int param1, int param2)
+static void button_military_menu(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_military_menu_show();
 }
 
-static void button_close_military_sidebar(int param1, int param2)
+static void button_close_military_sidebar(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     widget_sidebar_military_exit();
 }
 
-static void button_cycle_legion(int cycle_forward, int param2)
+static void button_cycle_legion(int cycle_forward, __attribute__((unused)) int param2)
 {
     legion_info *legion = &data.active_legion;
     int step = cycle_forward ? 1 : -1;
@@ -562,7 +562,7 @@ static void button_cycle_legion(int cycle_forward, int param2)
     set_formation_id(legion->formation_id);
 }
 
-static void button_select_formation_layout(int index, int param2)
+static void button_select_formation_layout(int index, __attribute__((unused)) int param2)
 {
     formation *m = formation_get(data.active_legion.formation_id);
     if (m->in_distant_battle) {
@@ -590,13 +590,13 @@ static void button_select_formation_layout(int index, int param2)
     }
 }
 
-static void button_go_to_legion(int param1, int param2)
+static void button_go_to_legion(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     const formation *m = formation_get(data.active_legion.formation_id);
     city_view_go_to_grid_offset(map_grid_offset(m->x_home, m->y_home));
 }
 
-static void button_return_to_fort(int param1, int param2)
+static void button_return_to_fort(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     formation *m = formation_get(data.active_legion.formation_id);
     if (!m->in_distant_battle && !m->is_at_fort) {
@@ -604,7 +604,7 @@ static void button_return_to_fort(int param1, int param2)
     }
 }
 
-static void button_empire_service(int param1, int param2)
+static void button_empire_service(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     formation_toggle_empire_service(data.active_legion.formation_id);
     formation_calculate_figures();

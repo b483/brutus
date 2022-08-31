@@ -124,12 +124,12 @@ static int get_column_height_crime(const building *b)
     return NO_COLUMN;
 }
 
-static int get_column_height_none(const building *b)
+static int get_column_height_none(__attribute__((unused)) const building *b)
 {
     return NO_COLUMN;
 }
 
-static int get_tooltip_fire(tooltip_context *c, const building *b)
+static int get_tooltip_fire(__attribute__((unused)) tooltip_context *c, const building *b)
 {
     if (b->fire_risk <= 0) {
         return 46;
@@ -146,7 +146,7 @@ static int get_tooltip_fire(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_damage(tooltip_context *c, const building *b)
+static int get_tooltip_damage(__attribute__((unused)) tooltip_context *c, const building *b)
 {
     if (b->damage_risk <= 0) {
         return 52;
@@ -163,7 +163,7 @@ static int get_tooltip_damage(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_crime(tooltip_context *c, const building *b)
+static int get_tooltip_crime(__attribute__((unused)) tooltip_context *c, const building *b)
 {
     if (b->sentiment.house_happiness <= 0) {
         return 63;

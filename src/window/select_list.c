@@ -167,7 +167,8 @@ void window_select_list_show(int x, int y, int group, int num_items, void (*call
         WINDOW_SELECT_LIST,
         window_draw_underlying_window,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init_group(x, y, group, num_items, callback);
     window_show(&window);
@@ -179,7 +180,8 @@ void window_select_list_show_text(int x, int y, const uint8_t **items, int num_i
         WINDOW_SELECT_LIST,
         window_draw_underlying_window,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init_text(x, y, items, num_items, callback);
     window_show(&window);

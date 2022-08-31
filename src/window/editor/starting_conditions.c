@@ -30,17 +30,17 @@ static void button_flotsam(int param1, int param2);
 static void button_milestone(int milestone_pct, int param2);
 
 static generic_button buttons[] = {
-    {262, 76, 200, 30, button_rank, button_none},
-    {262, 116, 200, 30, button_start_year, button_none},
-    {262, 156, 200, 30, button_initial_favor, button_none},
-    {262, 196, 200, 30, button_initial_funds,button_none},
-    {262, 236, 200, 30, button_rescue_loan,button_none},
-    {262, 276, 200, 30, button_initial_personal_savings, button_none},
-    {262, 316, 200, 30, button_wheat,button_none},
-    {262, 356, 200, 30, button_flotsam, button_none, 0},
-    {262, 396, 200, 30, button_milestone, button_none, 25},
-    {262, 436, 200, 30, button_milestone, button_none, 50},
-    {262, 476, 200, 30, button_milestone, button_none, 75}
+    {262, 76, 200, 30, button_rank, button_none, 0, 0},
+    {262, 116, 200, 30, button_start_year, button_none, 0, 0},
+    {262, 156, 200, 30, button_initial_favor, button_none, 0, 0},
+    {262, 196, 200, 30, button_initial_funds,button_none, 0, 0},
+    {262, 236, 200, 30, button_rescue_loan,button_none, 0, 0},
+    {262, 276, 200, 30, button_initial_personal_savings, button_none, 0, 0},
+    {262, 316, 200, 30, button_wheat,button_none, 0, 0},
+    {262, 356, 200, 30, button_flotsam, button_none, 0, 0},
+    {262, 396, 200, 30, button_milestone, button_none, 25, 0},
+    {262, 436, 200, 30, button_milestone, button_none, 50, 0},
+    {262, 476, 200, 30, button_milestone, button_none, 75, 0}
 };
 
 static int focus_button_id;
@@ -135,47 +135,47 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_rank(int param1, int param2)
+static void button_rank(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_select_list_show(screen_dialog_offset_x() + 40, screen_dialog_offset_y() + 56,
                             32, 11, scenario_editor_set_player_rank);
 }
 
-static void button_start_year(int param1, int param2)
+static void button_start_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_editor_start_year_show();
 }
 
-static void button_initial_favor(int param1, int param2)
+static void button_initial_favor(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 120, screen_dialog_offset_y() + 56,
                               3, 100, scenario_editor_set_initial_favor);
 }
 
-static void button_initial_funds(int param1, int param2)
+static void button_initial_funds(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 120, screen_dialog_offset_y() + 56,
                               5, 99999, scenario_editor_set_initial_funds);
 }
 
-static void button_rescue_loan(int param1, int param2)
+static void button_rescue_loan(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 120, screen_dialog_offset_y() + 56,
                               5, 99999, scenario_editor_set_rescue_loan);
 }
 
-static void button_initial_personal_savings(int param1, int param2)
+static void button_initial_personal_savings(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 120, screen_dialog_offset_y() + 56,
                               5, 99999, scenario_editor_set_initial_personal_savings);
 }
 
-static void button_wheat(int param1, int param2)
+static void button_wheat(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_toggle_rome_supplies_wheat();
 }
 
-static void button_flotsam(int param1, int param2)
+static void button_flotsam(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_toggle_flotsam();
 }
@@ -186,7 +186,7 @@ static void set_milestone_year(int value)
     scenario_editor_set_milestone_year(dialog_milestone_pct, value);
 }
 
-static void button_milestone(int milestone_pct, int param2)
+static void button_milestone(int milestone_pct, __attribute__((unused)) int param2)
 {
     dialog_milestone_pct = milestone_pct;
     window_numeric_input_show(screen_dialog_offset_x() + 120, screen_dialog_offset_y() + 210,
@@ -199,7 +199,8 @@ void window_editor_starting_conditions_show(void)
         WINDOW_EDITOR_STARTING_CONDITIONS,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     window_show(&window);
 }

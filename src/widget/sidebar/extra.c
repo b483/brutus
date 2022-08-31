@@ -25,8 +25,8 @@
 static void button_game_speed(int is_down, int param2);
 
 static arrow_button arrow_buttons_speed[] = {
-    {11, 30, 17, 24, button_game_speed, 1, 0},
-    {35, 30, 15, 24, button_game_speed, 0, 0},
+    {11, 30, 17, 24, button_game_speed, 1, 0, 0, 0},
+    {35, 30, 15, 24, button_game_speed, 0, 0, 0, 0},
 };
 
 typedef struct {
@@ -261,7 +261,7 @@ int sidebar_extra_handle_mouse(const mouse *m)
     return arrow_buttons_handle_mouse(m, data.x_offset, data.y_offset, arrow_buttons_speed, 2, 0);
 }
 
-static void button_game_speed(int is_down, int param2)
+static void button_game_speed(int is_down, __attribute__((unused)) int param2)
 {
     if (is_down) {
         setting_decrease_game_speed();

@@ -31,7 +31,7 @@ static struct {
     int build_in_progress;
     int start_elevation;
     map_tile start_tile;
-} data = { 0, TOOL_GRASS, 0, 3, 0 };
+} data = { 0, TOOL_GRASS, 0, 3, 0, 0, {0} };
 
 tool_type editor_tool_type(void)
 {
@@ -136,7 +136,7 @@ int editor_tool_is_brush(void)
     }
 }
 
-static int raise_land_tile(int x, int y, int grid_offset, int terrain)
+static int raise_land_tile(int grid_offset, int terrain)
 {
     int elevation = map_elevation_at(grid_offset);
     if (elevation < 5 && elevation == data.start_elevation) {
@@ -149,7 +149,7 @@ static int raise_land_tile(int x, int y, int grid_offset, int terrain)
     return terrain;
 }
 
-static int lower_land_tile(int x, int y, int grid_offset, int terrain)
+static int lower_land_tile(int grid_offset, int terrain)
 {
     if (terrain & TERRAIN_ACCESS_RAMP) {
         terrain |= TERRAIN_ELEVATION;
@@ -216,10 +216,10 @@ static void add_terrain(const void *tile_data, int dx, int dy)
             }
             break;
         case TOOL_RAISE_LAND:
-            terrain = raise_land_tile(x, y, grid_offset, terrain);
+            terrain = raise_land_tile(grid_offset, terrain);
             break;
         case TOOL_LOWER_LAND:
-            terrain = lower_land_tile(x, y, grid_offset, terrain);
+            terrain = lower_land_tile(grid_offset, terrain);
             break;
         default:
             break;

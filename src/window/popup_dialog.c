@@ -18,8 +18,8 @@ static void button_cancel(int param1, int param2);
 static void confirm(void);
 
 static image_button buttons[] = {
-    {192, 100, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 0, button_ok, button_none, 1, 0, 1},
-    {256, 100, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 4, button_cancel, button_none, 0, 0, 1},
+    {192, 100, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 0, button_ok, button_none, 1, 0, 1, 0, 0, 0},
+    {256, 100, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 4, button_cancel, button_none, 0, 0, 1, 0, 0, 0},
 };
 
 static struct {
@@ -91,12 +91,12 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_ok(int param1, int param2)
+static void button_ok(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     confirm();
 }
 
-static void button_cancel(int param1, int param2)
+static void button_cancel(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_go_back();
     data.close_func(0);
@@ -116,7 +116,8 @@ void window_popup_dialog_show(popup_dialog_type type,
             WINDOW_POPUP_DIALOG,
             draw_background,
             draw_foreground,
-            handle_input
+            handle_input,
+            0
         };
         window_show(&window);
     }
@@ -130,7 +131,8 @@ void window_popup_dialog_show_confirmation(int text_group, int text_id,
             WINDOW_POPUP_DIALOG,
             draw_background,
             draw_foreground,
-            handle_input
+            handle_input,
+            0
         };
         window_show(&window);
     }

@@ -91,12 +91,12 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_cancel(int param1, int param2)
+static void button_cancel(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_advisors_show();
 }
 
-static void button_set_salary(int rank, int param2)
+static void button_set_salary(int rank, __attribute__((unused)) int param2)
 {
     if (!city_victory_has_won()) {
         city_emperor_set_salary_rank(rank);
@@ -112,7 +112,8 @@ void window_set_salary_show(void)
         WINDOW_SET_SALARY,
         window_advisors_draw_dialog_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     window_show(&window);
 }

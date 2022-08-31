@@ -58,7 +58,7 @@ static int image_y_offset_default(uint8_t c, int image_height, int line_height)
     return offset;
 }
 
-void font_set_encoding(encoding_type encoding)
+void font_set_encoding(void)
 {
     data.multibyte = MULTIBYTE_NONE;
     data.font_mapping = CHAR_TO_FONT_IMAGE_DEFAULT;

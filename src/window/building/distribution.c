@@ -464,12 +464,12 @@ void window_building_get_tooltip_warehouse_orders(int *group_id, int *text_id)
     }
 }
 
-static void go_to_orders(int param1, int param2)
+static void go_to_orders(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_building_info_show_storage_orders();
 }
 
-static void toggle_resource_state(int index, int param2)
+static void toggle_resource_state(int index, __attribute__((unused)) int param2)
 {
     building *b = building_get(data.building_id);
     int resource;
@@ -482,7 +482,7 @@ static void toggle_resource_state(int index, int param2)
     window_invalidate();
 }
 
-static void granary_orders(int index, int param2)
+static void granary_orders(int index, __attribute__((unused)) int param2)
 {
     int storage_id = building_get(data.building_id)->storage_id;
     if (index == 0) {
@@ -493,7 +493,7 @@ static void granary_orders(int index, int param2)
     window_invalidate();
 }
 
-static void warehouse_orders(int index, int param2)
+static void warehouse_orders(int index, __attribute__((unused)) int param2)
 {
     if (index == 0) {
         int storage_id = building_get(data.building_id)->storage_id;

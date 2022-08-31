@@ -36,15 +36,15 @@ static void set_trade_route_cost(int param1, int param2);
 static void set_expansion_year_offset(int param1, int param2);
 
 static arrow_button arrow_buttons_empire[] = {
-    {8, 48, 17, 24, button_change_empire, 1, 0},
-    {32, 48, 15, 24, button_change_empire, 0, 0}
+    {8, 48, 17, 24, button_change_empire, 1, 0, 0, 0},
+    {32, 48, 15, 24, button_change_empire, 0, 0, 0, 0}
 };
 static generic_button generic_button_ok[] = {
     {84, 48, 100, 24, button_ok, button_none, 0, 0}
 };
 static arrow_button arrow_buttons_set_city_type[] = {
-    {0, 0, 17, 24, set_city_type, 1, 0},
-    {24, 0, 15, 24, set_city_type, 0, 0}
+    {0, 0, 17, 24, set_city_type, 1, 0, 0, 0},
+    {24, 0, 15, 24, set_city_type, 0, 0, 0, 0}
 };
 static generic_button button_toggle_sell_resource[] = {
     {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
@@ -482,46 +482,46 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_change_empire(int is_down, int param2)
+static void button_change_empire(int is_down, __attribute__((unused)) int param2)
 {
     scenario_editor_change_empire(is_down ? -1 : 1);
     empire_load_editor(scenario_empire_id(), map_viewport_width(), map_viewport_height());
     window_request_refresh();
 }
 
-static void button_ok(int param1, int param2)
+static void button_ok(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_editor_map_show();
 }
 
 
-static void set_city_type(int is_down, int param2)
+static void set_city_type(int is_down, __attribute__((unused)) int param2)
 {
     empire_object_disable_postpone_trade_city(data.selected_object, is_down);
     window_request_refresh();
 }
 
 
-static void toggle_sell_resource(int resource, int param2)
+static void toggle_sell_resource(int resource, __attribute__((unused)) int param2)
 {
     empire_object_city_toggle_resource(data.selected_object, resource, 1);
 }
 
 
-static void set_resource_sell_limit(int resource, int param2)
+static void set_resource_sell_limit(int resource, __attribute__((unused)) int param2)
 {
     int resource_limit = trade_route_cycle_limit(data.selected_object->trade_route_id, resource);
     empire_object_city_set_resource_limit(data.selected_object, resource, resource_limit, 1);
 }
 
 
-static void toggle_buy_resource(int resource, int param2)
+static void toggle_buy_resource(int resource, __attribute__((unused)) int param2)
 {
     empire_object_city_toggle_resource(data.selected_object, resource, 0);
 }
 
 
-static void set_resource_buy_limit(int resource, int param2)
+static void set_resource_buy_limit(int resource, __attribute__((unused)) int param2)
 {
     int resource_limit = trade_route_cycle_limit(data.selected_object->trade_route_id, resource);
     empire_object_city_set_resource_limit(data.selected_object, resource, resource_limit, 0);
@@ -534,7 +534,7 @@ static void set_trade_route_cost_callback(int value)
 }
 
 
-static void set_trade_route_cost(int param1, int param2)
+static void set_trade_route_cost(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(button_set_trade_route_cost->x - 150, button_set_trade_route_cost->y - 150, 5, 99999, set_trade_route_cost_callback);
 }
@@ -546,7 +546,7 @@ static void set_expansion_year_offset_callback(int value)
 }
 
 
-static void set_expansion_year_offset(int param1, int param2)
+static void set_expansion_year_offset(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(data.x_min + 500, data.y_max - 250, 3, 500, set_expansion_year_offset_callback);
 }
@@ -558,7 +558,8 @@ void window_editor_empire_show(void)
         WINDOW_EDITOR_EMPIRE,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init();
     window_show(&window);

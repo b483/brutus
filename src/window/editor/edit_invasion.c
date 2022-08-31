@@ -30,14 +30,14 @@ static void button_delete(int param1, int param2);
 static void button_save(int param1, int param2);
 
 static generic_button buttons[] = {
-    {145, 152, 60, 25, button_year, button_none},
-    {145, 182, 60, 25, button_month, button_none},
-    {145, 212, 60, 25, button_amount, button_none},
-    {145, 242, 200, 25, button_type, button_none},
-    {145, 272, 200, 25, button_from, button_none},
-    {145, 302, 200, 25, button_attack_type, button_none},
-    {30, 342, 200, 25, button_delete, button_none},
-    {270, 342, 80, 25, button_save, button_none},
+    {145, 152, 60, 25, button_year, button_none, 0, 0},
+    {145, 182, 60, 25, button_month, button_none, 0, 0},
+    {145, 212, 60, 25, button_amount, button_none, 0, 0},
+    {145, 242, 200, 25, button_type, button_none, 0, 0},
+    {145, 272, 200, 25, button_from, button_none, 0, 0},
+    {145, 302, 200, 25, button_attack_type, button_none, 0, 0},
+    {30, 342, 200, 25, button_delete, button_none, 0, 0},
+    {270, 342, 80, 25, button_save, button_none, 0, 0},
 };
 
 static struct {
@@ -132,7 +132,7 @@ static void set_year(int value)
     scenario.invasions[data.id].year = value;
 }
 
-static void button_year(int param1, int param2)
+static void button_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 115, screen_dialog_offset_y() + 65, 3, 999, set_year);
 }
@@ -147,7 +147,7 @@ static void set_month(int value)
     scenario.invasions[data.id].month = value - 1;
 }
 
-static void button_month(int param1, int param2)
+static void button_month(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 115, screen_dialog_offset_y() + 95, 2, 12, set_month);
 }
@@ -157,7 +157,7 @@ static void set_amount(int value)
     scenario.invasions[data.id].amount = value;
 }
 
-static void button_amount(int param1, int param2)
+static void button_amount(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     // if this is set to 0, you get the incoming battle messages, but the enemies never show up... could be a cool trick for a map
     window_numeric_input_show(screen_dialog_offset_x() + 115, screen_dialog_offset_y() + 125, 3, 200, set_amount);
@@ -168,7 +168,7 @@ static void set_type(int value)
     scenario.invasions[data.id].type = value;
 }
 
-static void button_type(int param1, int param2)
+static void button_type(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_select_list_show_text(screen_dialog_offset_x() + 350, screen_dialog_offset_y() + 240, data.invasion_type_names, INVASION_TYPE_MAX_COUNT, set_type);
 }
@@ -178,7 +178,7 @@ static void set_from(int value)
     scenario.invasions[data.id].from = value;
 }
 
-static void button_from(int param1, int param2)
+static void button_from(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (scenario.invasions[data.id].type != INVASION_TYPE_DISTANT_BATTLE && scenario.invasions[data.id].type != INVASION_TYPE_CAESAR) {
         window_select_list_show(screen_dialog_offset_x() + 350, screen_dialog_offset_y() + 195, 35, 9, set_from);
@@ -190,14 +190,14 @@ static void set_attack(int value)
     scenario.invasions[data.id].attack_type = value;
 }
 
-static void button_attack_type(int param1, int param2)
+static void button_attack_type(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (scenario.invasions[data.id].type != INVASION_TYPE_DISTANT_BATTLE) {
         window_select_list_show(screen_dialog_offset_x() + 350, screen_dialog_offset_y() + 215, 36, 5, set_attack);
     }
 }
 
-static void button_delete(int param1, int param2)
+static void button_delete(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario.invasions[data.id].year = 0;
     scenario.invasions[data.id].month = 1;
@@ -209,7 +209,7 @@ static void button_delete(int param1, int param2)
     window_editor_invasions_show();
 }
 
-static void button_save(int param1, int param2)
+static void button_save(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_sort_invasions();
     window_editor_invasions_show();
@@ -221,7 +221,8 @@ void window_editor_edit_invasion_show(int id)
         WINDOW_EDITOR_EDIT_INVASION,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init(id);
     window_show(&window);

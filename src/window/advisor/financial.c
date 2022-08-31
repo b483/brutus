@@ -15,8 +15,8 @@
 static void button_change_taxes(int is_down, int param2);
 
 static arrow_button arrow_buttons_taxes[] = {
-    {180, 75, 17, 24, button_change_taxes, 1, 0},
-    {204, 75, 15, 24, button_change_taxes, 0, 0}
+    {180, 75, 17, 24, button_change_taxes, 1, 0, 0, 0},
+    {204, 75, 15, 24, button_change_taxes, 0, 0, 0, 0}
 };
 
 static int arrow_button_focus;
@@ -108,7 +108,7 @@ static int handle_mouse(const mouse *m)
     return arrow_buttons_handle_mouse(m, 0, 0, arrow_buttons_taxes, 2, &arrow_button_focus);
 }
 
-static void button_change_taxes(int is_down, int param2)
+static void button_change_taxes(int is_down, __attribute__((unused)) int param2)
 {
     city_finance_change_tax_percentage(is_down ? -1 : 1);
     city_finance_estimate_taxes();

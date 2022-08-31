@@ -29,7 +29,7 @@ static struct {
     int created_sequence;
     int incorrect_houses;
     int unfixable_houses;
-} extra = { 0, 0, 0, 0 };
+} extra = { 0, 0, 0, 0, 0 };
 
 building *building_get(int id)
 {

@@ -24,7 +24,7 @@ static int determine_destination(int x, int y, building_type type1, building_typ
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
-        if (b->type != type1 && b->type != type2) {
+        if ((uint16_t) b->type != type1 && (unsigned) b->type != type2) {
             continue;
         }
         if (b->distance_from_entry && b->road_network_id == road_network) {
@@ -44,9 +44,9 @@ static int determine_destination(int x, int y, building_type type1, building_typ
     for (int i = 0; i < total_venues; i++) {
         building *b = building_get(venues[i]);
         int days_left;
-        if (b->type == type1) {
+        if ((unsigned) b->type == type1) {
             days_left = b->data.entertainment.days1;
-        } else if (b->type == type2) {
+        } else if ((unsigned) b->type == type2) {
             days_left = b->data.entertainment.days2;
         } else {
             days_left = 0;

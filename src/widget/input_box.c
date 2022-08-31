@@ -15,29 +15,29 @@ void input_box_start(input_box *box)
     SDL_SetTextInputRect(&rect);
 }
 
-void input_box_pause(input_box *box)
+void input_box_pause(__attribute__((unused)) input_box *box)
 {
     keyboard_pause_capture();
 }
 
-void input_box_resume(input_box *box)
+void input_box_resume(__attribute__((unused)) input_box *box)
 {
     keyboard_resume_capture();
 }
 
-void input_box_stop(input_box *box)
+void input_box_stop(__attribute__((unused)) input_box *box)
 {
     keyboard_stop_capture();
     SDL_Rect rect = {0, 0, 0, 0};
     SDL_SetTextInputRect(&rect);
 }
 
-void input_box_refresh_text(input_box *box)
+void input_box_refresh_text(__attribute__((unused)) input_box *box)
 {
     keyboard_refresh();
 }
 
-int input_box_is_accepted(input_box *box)
+int input_box_is_accepted(__attribute__((unused)) input_box *box)
 {
     return keyboard_input_is_accepted();
 }

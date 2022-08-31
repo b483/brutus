@@ -15,8 +15,8 @@ static void button_advisor(int advisor, int param2);
 static void button_close(int param1, int param2);
 
 static image_button image_buttons[] = {
-    {92, 248, 28, 28, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 12, button_advisor, button_none, ADVISOR_TRADE, 0, 1},
-    {522, 252, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1},
+    {92, 248, 28, 28, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 12, button_advisor, button_none, ADVISOR_TRADE, 0, 1, 0, 0, 0},
+    {522, 252, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1, 0, 0, 0},
 };
 
 empire_object *selected_trade_city = 0;
@@ -55,12 +55,12 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_advisor(int advisor, int param2)
+static void button_advisor(int advisor, __attribute__((unused)) int param2)
 {
     window_advisors_show_advisor(advisor);
 }
 
-static void button_close(int param1, int param2)
+static void button_close(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_empire_show();
 }
@@ -71,7 +71,8 @@ void window_trade_opened_show(empire_object *trade_city)
         WINDOW_TRADE_OPENED,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     selected_trade_city = trade_city;
     window_show(&window);

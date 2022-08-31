@@ -853,7 +853,7 @@ static char const * ensureFilesExist(char * const aDestination,
 #ifdef _WIN32
 #ifndef TINYFD_NOLIB
 
-static int __stdcall EnumThreadWndProc(HWND hwnd, LPARAM lParam)
+static int __stdcall EnumThreadWndProc(HWND hwnd, __attribute__((unused)) LPARAM lParam)
 {
         wchar_t lTitleName[MAX_PATH];
         GetWindowTextW(hwnd, lTitleName, MAX_PATH);
@@ -1722,7 +1722,7 @@ static char const * openFileDialogWinGui8(
 }
 
 #ifndef TINYFD_NOSELECTFOLDERWIN
-static int __stdcall BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lp, LPARAM pData)
+static int __stdcall BrowseCallbackProc(HWND hwnd, UINT uMsg, __attribute__((unused)) LPARAM lp, LPARAM pData)
 {
         if (uMsg == BFFM_INITIALIZED)
         {
@@ -1731,7 +1731,7 @@ static int __stdcall BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lp, LPARAM 
         return 0;
 }
 
-static int __stdcall BrowseCallbackProcW(HWND hwnd, UINT uMsg, LPARAM lp, LPARAM pData)
+static int __stdcall BrowseCallbackProcW(HWND hwnd, UINT uMsg, __attribute__((unused)) LPARAM lp, LPARAM pData)
 {
         if (uMsg == BFFM_INITIALIZED)
         {
@@ -2260,7 +2260,7 @@ static char const * selectFolderDialogWinGuiA(
 
 
 static char const * colorChooserWinGuiA(
-        char const * const aTitle, /* NULL or "" */
+        __attribute__((unused)) char const * const aTitle, /* NULL or "" */
         char const * const aDefaultHexRGB, /* NULL or "#FF0000"*/
         unsigned char const aDefaultRGB[3], /* { 0 , 255 , 255 } */
         unsigned char aoResultRGB[3]) /* { 0 , 0 , 0 } */
@@ -2349,7 +2349,7 @@ static int messageBoxWinConsole(
     char const * const aTitle , /* NULL or "" */
     char const * const aMessage , /* NULL or ""  may contain \n and \t */
     char const * const aDialogType , /* "ok" "okcancel" "yesno" "yesnocancel" */
-    char const * const aIconType , /* "info" "warning" "error" "question" */
+    __attribute__((unused)) char const * const aIconType , /* "info" "warning" "error" "question" */
     int const aDefaultButton ) /* 0 for cancel/no , 1 for ok/yes , 2 for no in yesnocancel */
 {
         char lDialogString[MAX_PATH_OR_CMD];
@@ -2622,7 +2622,7 @@ static char const * openFileDialogWinConsole(
         char * const aoBuff ,
         char const * const aTitle , /*  NULL or "" */
         char const * const aDefaultPathAndFile , /*  NULL or "" */
-        int const aAllowMultipleSelects ) /* 0 or 1 */
+        __attribute__((unused)) int const aAllowMultipleSelects ) /* 0 or 1 */
 {
         char lFilterPatterns[MAX_PATH_OR_CMD] = "";
         char lDialogString[MAX_PATH_OR_CMD] ;

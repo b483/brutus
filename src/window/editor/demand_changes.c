@@ -95,7 +95,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_demand_change(int id, int param2)
+static void button_demand_change(int id, __attribute__((unused)) int param2)
 {
     window_editor_edit_demand_change_show(id);
 }
@@ -106,7 +106,8 @@ void window_editor_demand_changes_show(void)
         WINDOW_EDITOR_DEMAND_CHANGES,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     window_show(&window);
 }

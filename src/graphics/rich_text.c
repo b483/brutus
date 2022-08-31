@@ -14,7 +14,7 @@
 
 static void on_scroll(void);
 
-static scrollbar_type scrollbar = { 0, 0, 0, on_scroll };
+static scrollbar_type scrollbar = { 0, 0, 0, on_scroll, 0, 0, 0, 0, 0, 0 };
 
 static struct {
     int message_id;

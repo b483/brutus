@@ -25,10 +25,10 @@ static const int GOAL_OFFSETS_X[] = { 32, 288, 32, 288, 288, 288 };
 static const int GOAL_OFFSETS_Y[] = { 95, 95, 117, 117, 73, 135 };
 
 static image_button image_button_back = {
-    0, 0, 31, 20, IB_NORMAL, GROUP_ARROW_MESSAGE_PROBLEMS, 8, button_back, button_none, 0, 0, 1
+    0, 0, 31, 20, IB_NORMAL, GROUP_ARROW_MESSAGE_PROBLEMS, 8, button_back, button_none, 0, 0, 1, 0, 0, 0
 };
 static image_button image_button_start_mission = {
-    0, 0, 27, 27, IB_NORMAL, GROUP_SIDEBAR_BUTTONS, 56, button_start_mission, button_none, 1, 0, 1
+    0, 0, 27, 27, IB_NORMAL, GROUP_SIDEBAR_BUTTONS, 56, button_start_mission, button_none, 1, 0, 1, 0, 0, 0
 };
 
 static struct {
@@ -149,7 +149,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_back(int param1, int param2)
+static void button_back(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (!data.is_review) {
         rich_text_reset(0);
@@ -158,7 +158,7 @@ static void button_back(int param1, int param2)
     }
 }
 
-static void button_start_mission(int param1, int param2)
+static void button_start_mission(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     rich_text_reset(0);
     sound_speech_stop();
@@ -172,7 +172,8 @@ static void show(void)
         WINDOW_MISSION_BRIEFING,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init();
     window_show(&window);

@@ -57,7 +57,7 @@ static struct {
     int num_items;
     int y_offset;
     int focus_button_id;
-} data = { MENU_NONE };
+} data = { MENU_NONE, 0, 0, 0 };
 
 static int count_items(int submenu)
 {
@@ -141,7 +141,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_menu_item(int index, int param2)
+static void button_menu_item(int index, __attribute__((unused)) int param2)
 {
     widget_map_editor_clear_current_tile();
 
@@ -201,7 +201,8 @@ void window_editor_build_menu_show(int submenu)
         WINDOW_EDITOR_BUILD_MENU,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     window_show(&window);
 }

@@ -66,13 +66,13 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_fullscreen(int param1, int param2)
+static void button_fullscreen(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     system_set_fullscreen(!setting_fullscreen());
     data.close_callback();
 }
 
-static void button_set_resolution(int id, int param2)
+static void button_set_resolution(int id, __attribute__((unused)) int param2)
 {
     switch (id) {
         case 1: system_resize(640, 480); break;
@@ -82,7 +82,7 @@ static void button_set_resolution(int id, int param2)
     data.close_callback();
 }
 
-static void button_cancel(int param1, int param2)
+static void button_cancel(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     data.close_callback();
 }
@@ -93,7 +93,8 @@ void window_display_options_show(void (*close_callback)(void))
         WINDOW_DISPLAY_OPTIONS,
         window_draw_underlying_window,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init(close_callback);
     window_show(&window);

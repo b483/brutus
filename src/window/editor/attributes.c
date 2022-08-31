@@ -61,8 +61,8 @@ static generic_button buttons[] = {
 };
 
 static arrow_button image_arrows[] = {
-    {20, 424, 19, 24, change_image, 0, 0},
-    {44, 424, 21, 24, change_image, 1, 0},
+    {20, 424, 19, 24, change_image, 0, 0, 0, 0},
+    {44, 424, 21, 24, change_image, 1, 0, 0, 0},
 };
 
 static struct {
@@ -186,13 +186,13 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_starting_conditions(int param1, int param2)
+static void button_starting_conditions(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     stop(1);
     window_editor_starting_conditions_show();
 }
 
-static void button_requests(int param1, int param2)
+static void button_requests(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     stop(1);
     window_editor_requests_show();
@@ -204,49 +204,49 @@ static void set_enemy(int enemy)
     start();
 }
 
-static void button_enemy(int param1, int param2)
+static void button_enemy(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     stop(1);
     window_select_list_show(screen_dialog_offset_x() + 12, screen_dialog_offset_y() + 40, 37, 20, set_enemy);
 }
 
-static void button_invasions(int param1, int param2)
+static void button_invasions(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     stop(1);
     window_editor_invasions_show();
 }
 
-static void button_allowed_buildings(int param1, int param2)
+static void button_allowed_buildings(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     stop(1);
     window_editor_allowed_buildings_show();
 }
 
-static void button_win_criteria(int param1, int param2)
+static void button_win_criteria(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     stop(1);
     window_editor_win_criteria_show();
 }
 
-static void button_special_events(int param1, int param2)
+static void button_special_events(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     stop(1);
     window_editor_special_events_show();
 }
 
-static void button_price_changes(int param1, int param2)
+static void button_price_changes(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     stop(1);
     window_editor_price_changes_show();
 }
 
-static void button_demand_changes(int param1, int param2)
+static void button_demand_changes(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     stop(1);
     window_editor_demand_changes_show();
 }
 
-static void change_climate(int param1, int param2)
+static void change_climate(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_cycle_climate();
     image_load_climate(scenario_property_climate(), 1, 0);
@@ -254,7 +254,7 @@ static void change_climate(int param1, int param2)
     window_request_refresh();
 }
 
-static void change_image(int forward, int param2)
+static void change_image(int forward, __attribute__((unused)) int param2)
 {
     scenario_editor_cycle_image(forward);
     window_request_refresh();
@@ -266,7 +266,8 @@ void window_editor_attributes_show(void)
         WINDOW_EDITOR_ATTRIBUTES,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     start();
     window_show(&window);

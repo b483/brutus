@@ -48,12 +48,12 @@ static void button_close(int param1, int param2);
 static void button_advisor(int advisor, int param2);
 
 static image_button image_buttons_help_close[] = {
-    {14, 0, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1},
-    {424, 3, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1}
+    {14, 0, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1, 0, 0, 0},
+    {424, 3, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1, 0, 0, 0}
 };
 
 static image_button image_buttons_advisor[] = {
-    {350, -38, 28, 28, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 9, button_advisor, button_none, ADVISOR_RATINGS, 0, 1}
+    {350, -38, 28, 28, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 9, button_advisor, button_none, ADVISOR_RATINGS, 0, 1, 0, 0, 0}
 };
 
 static building_info_context context;
@@ -603,7 +603,7 @@ static void get_tooltip(tooltip_context *c)
     if (focus_image_button_id) {
         text_id = focus_image_button_id;
     } else if (context.type == BUILDING_INFO_LEGION) {
-        text_id = window_building_get_legion_info_tooltip_text(&context);
+        text_id = window_building_get_legion_info_tooltip_text();
     } else if (context.type == BUILDING_INFO_BUILDING && context.storage_show_special_orders) {
         int btype = building_get(context.building_id)->type;
         if (btype == BUILDING_GRANARY) {
@@ -621,7 +621,7 @@ static void get_tooltip(tooltip_context *c)
     }
 }
 
-static void button_help(int param1, int param2)
+static void button_help(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (context.help_id > 0) {
         window_message_dialog_show(context.help_id, window_city_draw_all);
@@ -631,7 +631,7 @@ static void button_help(int param1, int param2)
     window_invalidate();
 }
 
-static void button_close(int param1, int param2)
+static void button_close(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (context.storage_show_special_orders) {
         context.storage_show_special_orders = 0;
@@ -641,7 +641,7 @@ static void button_close(int param1, int param2)
     }
 }
 
-static void button_advisor(int advisor, int param2)
+static void button_advisor(int advisor, __attribute__((unused)) int param2)
 {
     window_advisors_show_advisor(advisor);
 }

@@ -97,14 +97,14 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_set_gift(int gift_id, int param2)
+static void button_set_gift(int gift_id, __attribute__((unused)) int param2)
 {
     if (city_emperor_set_gift_size(gift_id - 1)) {
         window_invalidate();
     }
 }
 
-static void button_send_gift(int param1, int param2)
+static void button_send_gift(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (city_emperor_can_send_gift(GIFT_MODEST)) {
         city_emperor_send_gift();
@@ -112,7 +112,7 @@ static void button_send_gift(int param1, int param2)
     }
 }
 
-static void button_cancel(int param1, int param2)
+static void button_cancel(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_advisors_show();
 }
@@ -123,7 +123,8 @@ void window_gift_to_emperor_show(void)
         WINDOW_GIFT_TO_EMPEROR,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init();
     window_show(&window);

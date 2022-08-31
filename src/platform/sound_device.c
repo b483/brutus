@@ -398,7 +398,7 @@ static int get_custom_audio_stream(Uint8 *dst, int len)
     return bytes_copied;
 }
 
-static void custom_music_callback(void *dummy, Uint8 *stream, int len)
+static void custom_music_callback(__attribute__((unused)) void *dummy, Uint8 *stream, int len)
 {
     get_custom_audio_stream(stream, len);
 }

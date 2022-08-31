@@ -106,7 +106,7 @@ static void draw_brush_tile(const void *data, int dx, int dy)
     draw_flat_tile(view->x + view_dx, view->y + view_dy, COLOR_MASK_GREEN);
 }
 
-static void draw_brush(const map_tile *tile, int x, int y)
+static void draw_brush(int x, int y)
 {
     view_tile vt = {x, y};
     editor_tool_foreach_brush_tile(draw_brush_tile, &vt);
@@ -172,7 +172,7 @@ void map_editor_tool_draw(const map_tile *tile)
         case TOOL_WATER:
         case TOOL_RAISE_LAND:
         case TOOL_LOWER_LAND:
-            draw_brush(tile, x, y);
+            draw_brush(x, y);
             break;
 
         case TOOL_ROAD:

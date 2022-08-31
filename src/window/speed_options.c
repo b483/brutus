@@ -22,10 +22,10 @@ static generic_button buttons[] = {
 };
 
 static arrow_button arrow_buttons[] = {
-    {112, 100, 17, 24, arrow_button_game, 1, 0},
-    {136, 100, 15, 24, arrow_button_game, 0, 0},
-    {112, 136, 17, 24, arrow_button_scroll, 1, 0},
-    {136, 136, 15, 24, arrow_button_scroll, 0, 0},
+    {112, 100, 17, 24, arrow_button_game, 1, 0, 0, 0},
+    {136, 100, 15, 24, arrow_button_game, 0, 0, 0, 0},
+    {112, 136, 17, 24, arrow_button_scroll, 1, 0, 0, 0},
+    {136, 136, 15, 24, arrow_button_scroll, 0, 0, 0, 0},
 };
 
 static struct {
@@ -81,18 +81,18 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_ok(int param1, int param2)
+static void button_ok(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     data.close_callback();
 }
 
-static void button_cancel(int param1, int param2)
+static void button_cancel(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     setting_reset_speeds(data.original_game_speed, data.original_scroll_speed);
     data.close_callback();
 }
 
-static void arrow_button_game(int is_down, int param2)
+static void arrow_button_game(int is_down, __attribute__((unused)) int param2)
 {
     if (is_down) {
         setting_decrease_game_speed();
@@ -101,7 +101,7 @@ static void arrow_button_game(int is_down, int param2)
     }
 }
 
-static void arrow_button_scroll(int is_down, int param2)
+static void arrow_button_scroll(int is_down, __attribute__((unused)) int param2)
 {
     if (is_down) {
         setting_decrease_scroll_speed();
@@ -116,7 +116,8 @@ void window_speed_options_show(void (*close_callback)(void))
         WINDOW_SPEED_OPTIONS,
         window_draw_underlying_window,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init(close_callback);
     window_show(&window);

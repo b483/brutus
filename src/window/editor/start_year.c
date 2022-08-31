@@ -19,8 +19,8 @@ static void button_era(int param1, int param2);
 static void button_year(int param1, int param2);
 
 static generic_button buttons[] = {
-    {158, 100, 100, 30, button_era, button_none},
-    {278, 100, 120, 30, button_year, button_none},
+    {158, 100, 100, 30, button_era, button_none, 0, 0},
+    {278, 100, 120, 30, button_year, button_none, 0, 0},
 };
 
 static int focus_button_id;
@@ -59,7 +59,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_era(int param1, int param2)
+static void button_era(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_set_start_year(-scenario_property_start_year());
 }
@@ -72,7 +72,7 @@ static void set_year(int value)
     scenario_editor_set_start_year(value);
 }
 
-static void button_year(int param1, int param2)
+static void button_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 140, screen_dialog_offset_y() + 80,
                               4, 9999, set_year);
@@ -84,7 +84,8 @@ void window_editor_start_year_show(void)
         WINDOW_EDITOR_START_YEAR,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     window_show(&window);
 }

@@ -38,7 +38,7 @@ static void button_change_advisor(int advisor, int param2);
 static void button_help(int param1, int param2);
 
 static image_button help_button = {
-    11, -7, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1
+    11, -7, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1, 0, 0, 0
 };
 
 static generic_button advisor_buttons[] = {
@@ -140,7 +140,7 @@ void window_advisors_draw_dialog_background(void)
     graphics_in_dialog();
     image_draw(image_group(GROUP_PANEL_WINDOWS) + 13, 0, 432);
 
-    for (int i = 0; i < 13; i++) {
+    for (unsigned int i = 0; i < 13; i++) {
         int selected_offset = 0;
         if (current_advisor && i == current_advisor - 1) {
             selected_offset = 13;
@@ -174,7 +174,7 @@ static void draw_foreground(void)
 static void handle_hotkeys(const hotkeys *h)
 {
     if (h->show_advisor) {
-        if (current_advisor == h->show_advisor) {
+        if (current_advisor == (unsigned) h->show_advisor) {
             window_city_show();
         } else {
             window_advisors_show_advisor(h->show_advisor);
@@ -203,7 +203,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_change_advisor(int advisor, int param2)
+static void button_change_advisor(int advisor, __attribute__((unused)) int param2)
 {
     if (advisor) {
         set_advisor(advisor);
@@ -213,7 +213,7 @@ static void button_change_advisor(int advisor, int param2)
     }
 }
 
-static void button_help(int param1, int param2)
+static void button_help(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (current_advisor > 0 && current_advisor < 13) {
         window_message_dialog_show(ADVISOR_TO_MESSAGE_TEXT[current_advisor], 0);

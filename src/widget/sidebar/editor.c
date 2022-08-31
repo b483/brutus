@@ -32,23 +32,23 @@ static void button_briefing(int show, int param2);
 static void button_attributes(int show, int param2);
 
 static image_button buttons_build[] = {
-    {7, 123, 71, 23, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 45, button_briefing, button_none, 1, 0, 1},
-    {84, 123, 71, 23, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 48, button_attributes, button_none, 1, 0, 1},
-    {13, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 0, button_build_tool, button_none, TOOL_GRASS, 0, 1},
-    {63, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 3, button_build_tool, button_none, TOOL_SHRUB, 0, 1},
-    {113, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 6, button_build_tool, button_none, TOOL_WATER, 0, 1},
-    {13, 303, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 21, button_build_menu, button_none, MENU_ELEVATION, 0, 1},
-    {63, 303, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 12, button_build_tool, button_none, TOOL_TREES, 0, 1},
-    {113, 303, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 15, button_build_tool, button_none, TOOL_ROCKS, 0, 1},
-    {13, 339, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 18, button_build_tool, button_none, TOOL_MEADOW, 0, 1},
-    {63, 339, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 30, button_build_tool, button_none, TOOL_ROAD, 0, 1},
-    {113, 339, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 24, button_build_menu, button_none, MENU_BRUSH_SIZE, 0, 1},
-    {13, 375, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 9, button_build_tool, button_none, TOOL_EARTHQUAKE_POINT, 0, 1},
-    {63, 375, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 39, button_build_menu, button_none, MENU_INVASION_POINTS, 0, 1},
-    {113, 375, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 42, button_build_menu, button_none, MENU_PEOPLE_POINTS, 0, 1},
-    {13, 411, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 33, button_build_menu, button_none, MENU_RIVER_POINTS, 0, 1},
-    {63, 411, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 27, button_build_menu, button_none, MENU_NATIVE_BUILDINGS, 0, 1},
-    {113, 411, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 51, button_build_menu, button_none, MENU_ANIMAL_POINTS, 0, 1},
+    {7, 123, 71, 23, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 45, button_briefing, button_none, 1, 0, 1, 0, 0, 0},
+    {84, 123, 71, 23, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 48, button_attributes, button_none, 1, 0, 1, 0, 0, 0},
+    {13, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 0, button_build_tool, button_none, TOOL_GRASS, 0, 1, 0, 0, 0},
+    {63, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 3, button_build_tool, button_none, TOOL_SHRUB, 0, 1, 0, 0, 0},
+    {113, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 6, button_build_tool, button_none, TOOL_WATER, 0, 1, 0, 0, 0},
+    {13, 303, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 21, button_build_menu, button_none, MENU_ELEVATION, 0, 1, 0, 0, 0},
+    {63, 303, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 12, button_build_tool, button_none, TOOL_TREES, 0, 1, 0, 0, 0},
+    {113, 303, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 15, button_build_tool, button_none, TOOL_ROCKS, 0, 1, 0, 0, 0},
+    {13, 339, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 18, button_build_tool, button_none, TOOL_MEADOW, 0, 1, 0, 0, 0},
+    {63, 339, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 30, button_build_tool, button_none, TOOL_ROAD, 0, 1, 0, 0, 0},
+    {113, 339, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 24, button_build_menu, button_none, MENU_BRUSH_SIZE, 0, 1, 0, 0, 0},
+    {13, 375, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 9, button_build_tool, button_none, TOOL_EARTHQUAKE_POINT, 0, 1, 0, 0, 0},
+    {63, 375, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 39, button_build_menu, button_none, MENU_INVASION_POINTS, 0, 1, 0, 0, 0},
+    {113, 375, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 42, button_build_menu, button_none, MENU_PEOPLE_POINTS, 0, 1, 0, 0, 0},
+    {13, 411, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 33, button_build_menu, button_none, MENU_RIVER_POINTS, 0, 1, 0, 0, 0},
+    {63, 411, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 27, button_build_menu, button_none, MENU_NATIVE_BUILDINGS, 0, 1, 0, 0, 0},
+    {113, 411, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 51, button_build_menu, button_none, MENU_ANIMAL_POINTS, 0, 1, 0, 0, 0},
 };
 
 static void draw_buttons(void)
@@ -168,7 +168,7 @@ int widget_sidebar_editor_handle_mouse_attributes(const mouse *m)
     return image_buttons_handle_mouse(m, sidebar_common_get_x_offset_expanded(), 24, buttons_build, 2, 0);
 }
 
-static void button_briefing(int show, int param2)
+static void button_briefing(int show, __attribute__((unused)) int param2)
 {
     window_editor_build_menu_hide();
     if (show) {
@@ -182,7 +182,7 @@ static void button_briefing(int show, int param2)
     }
 }
 
-static void button_attributes(int show, int param2)
+static void button_attributes(int show, __attribute__((unused)) int param2)
 {
     window_editor_build_menu_hide();
     if (show) {
@@ -196,7 +196,7 @@ static void button_attributes(int show, int param2)
     }
 }
 
-static void button_build_tool(int tool, int param2)
+static void button_build_tool(int tool, __attribute__((unused)) int param2)
 {
     window_editor_build_menu_hide();
     widget_map_editor_clear_current_tile();
@@ -208,7 +208,7 @@ static void button_build_tool(int tool, int param2)
     }
 }
 
-static void button_build_menu(int submenu, int param2)
+static void button_build_menu(int submenu, __attribute__((unused)) int param2)
 {
     window_editor_build_menu_show(submenu);
 }

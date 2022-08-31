@@ -95,7 +95,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_price_change(int id, int param2)
+static void button_price_change(int id, __attribute__((unused)) int param2)
 {
     window_editor_edit_price_change_show(id);
 }
@@ -106,7 +106,8 @@ void window_editor_price_changes_show(void)
         WINDOW_EDITOR_PRICE_CHANGES,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     window_show(&window);
 }

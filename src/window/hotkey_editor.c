@@ -16,8 +16,8 @@
 static void button_close(int save, int param2);
 
 static generic_button bottom_buttons[] = {
-    {192, 228, 120, 24, button_close, button_none, 0},
-    {328, 228, 120, 24, button_close, button_none, 1},
+    {192, 228, 120, 24, button_close, button_none, 0, 0},
+    {328, 228, 120, 24, button_close, button_none, 1, 0},
 };
 
 static custom_string_key bottom_button_texts[] = {
@@ -79,7 +79,7 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const mouse *m, __attribute__((unused)) const hotkeys *h)
 {
     const mouse *m_dialog = mouse_in_dialog(m);
 
@@ -90,7 +90,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_close(int ok, int param2)
+static void button_close(int ok, __attribute__((unused)) int param2)
 {
     // destroy window before callback call, because there may appear another popup window
     // by design new popup window can't be showed over another popup window
@@ -129,7 +129,8 @@ void window_hotkey_editor_show(hotkey_action action, int index,
         WINDOW_HOTKEY_EDITOR,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init(action, index, callback);
     window_show(&window);

@@ -37,8 +37,8 @@ static void button_select_file(int index, int param2);
 static void on_scroll(void);
 
 static image_button image_buttons[] = {
-    {344, 335, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 0, button_ok_cancel, button_none, 1, 0, 1},
-    {392, 335, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 4, button_ok_cancel, button_none, 0, 0, 1},
+    {344, 335, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 0, button_ok_cancel, button_none, 1, 0, 1, 0, 0, 0},
+    {392, 335, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 4, button_ok_cancel, button_none, 0, 0, 1, 0, 0, 0},
 };
 static generic_button file_buttons[] = {
     {160, 128, 288, 16, button_select_file, button_none, 0, 0},
@@ -55,7 +55,7 @@ static generic_button file_buttons[] = {
     {160, 304, 288, 16, button_select_file, button_none, 11, 0},
 };
 
-static scrollbar_type scrollbar = { 464, 120, 206, on_scroll };
+static scrollbar_type scrollbar = { 464, 120, 206, on_scroll, 0, 0, 0, 0, 0, 0 };
 
 typedef struct {
     char extension[4];
@@ -78,8 +78,8 @@ static struct {
 
 static input_box file_name_input = { 144, 80, 20, 2, FONT_NORMAL_WHITE, 0, data.typed_name, FILE_NAME_MAX };
 
-static file_type_data saved_game_data = { "sav" };
-static file_type_data scenario_data = { "map" };
+static file_type_data saved_game_data = { "sav", {0} };
+static file_type_data scenario_data = { "map", {0} };
 
 static int find_first_file_with_prefix(const char *prefix)
 {
@@ -245,7 +245,7 @@ static const char *get_chosen_filename(void)
     return typed_file;
 }
 
-static void button_ok_cancel(int is_ok, int param2)
+static void button_ok_cancel(int is_ok, __attribute__((unused)) int param2)
 {
     if (!is_ok) {
         input_box_stop(&file_name_input);
@@ -313,7 +313,7 @@ static void on_scroll(void)
     data.message_not_exist_start_time = 0;
 }
 
-static void button_select_file(int index, int param2)
+static void button_select_file(int index, __attribute__((unused)) int param2)
 {
     if (index < data.file_list->num_files) {
         strncpy(data.selected_file, data.file_list->files[scrollbar.scroll_position + index], FILE_NAME_MAX - 1);
@@ -335,7 +335,8 @@ void window_file_dialog_show(file_type type, file_dialog_type dialog_type)
         WINDOW_FILE_DIALOG,
         window_draw_underlying_window,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init(type, dialog_type);
     window_show(&window);

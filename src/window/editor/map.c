@@ -75,7 +75,8 @@ void window_editor_map_show(void)
         WINDOW_EDITOR_MAP,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     window_show(&window);
 }

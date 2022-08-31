@@ -30,8 +30,8 @@ static generic_button buttons[] = {
 };
 
 static arrow_button arrow_buttons[] = {
-    {240, 242, 17, 24, arrow_button_amount, 1, 0},
-    {264, 242, 15, 24, arrow_button_amount, 0, 0},
+    {240, 242, 17, 24, arrow_button_amount, 1, 0, 0, 0},
+    {264, 242, 15, 24, arrow_button_amount, 0, 0, 0, 0},
 };
 
 static struct {
@@ -107,7 +107,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_set_amount(int amount_id, int param2)
+static void button_set_amount(int amount_id, __attribute__((unused)) int param2)
 {
     int amount;
     switch (amount_id) {
@@ -122,18 +122,18 @@ static void button_set_amount(int amount_id, int param2)
     window_invalidate();
 }
 
-static void button_donate(int param1, int param2)
+static void button_donate(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     city_emperor_donate_savings_to_city();
     window_advisors_show();
 }
 
-static void button_cancel(int param1, int param2)
+static void button_cancel(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_advisors_show();
 }
 
-static void arrow_button_amount(int is_down, int param2)
+static void arrow_button_amount(int is_down, __attribute__((unused)) int param2)
 {
     city_emperor_change_donation_amount(is_down ? -10 : 10);
     window_invalidate();

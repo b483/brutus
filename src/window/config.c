@@ -56,7 +56,7 @@ static void button_close(int save, int param2);
 static const uint8_t *display_text_display_scale(void);
 static const uint8_t *display_text_cursor_scale(void);
 
-static scrollbar_type scrollbar = { 580, ITEM_Y_OFFSET, ITEM_HEIGHT * NUM_VISIBLE_ITEMS, on_scroll, 4 };
+static scrollbar_type scrollbar = { 580, ITEM_Y_OFFSET, ITEM_HEIGHT * NUM_VISIBLE_ITEMS, on_scroll, 4, 0, 0, 0, 0, 0 };
 
 enum {
     TYPE_NONE,
@@ -91,28 +91,28 @@ typedef struct {
 } config_widget;
 
 static config_widget all_widgets[MAX_WIDGETS] = {
-    {TYPE_INPUT_BOX, 0, TR_CONFIG_PLAYER_NAME_LABEL},
-    {TYPE_NUMERICAL_DESC, RANGE_DISPLAY_SCALE, TR_CONFIG_DISPLAY_SCALE},
-    {TYPE_NUMERICAL_RANGE, RANGE_DISPLAY_SCALE, 0, display_text_display_scale},
-    {TYPE_NUMERICAL_DESC, RANGE_CURSOR_SCALE, TR_CONFIG_CURSOR_SCALE},
-    {TYPE_NUMERICAL_RANGE, RANGE_CURSOR_SCALE, 0, display_text_cursor_scale},
-    {TYPE_SPACE},
-    {TYPE_HEADER, 0, TR_CONFIG_HEADER_UI_CHANGES},
-    {TYPE_CHECKBOX, CONFIG_UI_SHOW_INTRO_VIDEO, TR_CONFIG_SHOW_INTRO_VIDEO},
-    {TYPE_CHECKBOX, CONFIG_UI_SIDEBAR_INFO, TR_CONFIG_SIDEBAR_INFO},
-    {TYPE_CHECKBOX, CONFIG_UI_SMOOTH_SCROLLING, TR_CONFIG_SMOOTH_SCROLLING},
-    {TYPE_CHECKBOX, CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING, TR_CONFIG_DISABLE_MOUSE_EDGE_SCROLLING},
-    {TYPE_CHECKBOX, CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG, TR_CONFIG_DISABLE_RIGHT_CLICK_MAP_DRAG},
-    {TYPE_CHECKBOX, CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE, TR_CONFIG_VISUAL_FEEDBACK_ON_DELETE},
-    {TYPE_CHECKBOX, CONFIG_UI_ALLOW_CYCLING_TEMPLES, TR_CONFIG_ALLOW_CYCLING_TEMPLES},
-    {TYPE_CHECKBOX, CONFIG_UI_SHOW_WATER_STRUCTURE_RANGE, TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE},
-    {TYPE_CHECKBOX, CONFIG_UI_SHOW_CONSTRUCTION_SIZE, TR_CONFIG_SHOW_CONSTRUCTION_SIZE},
-    {TYPE_CHECKBOX, CONFIG_UI_HIGHLIGHT_LEGIONS, TR_CONFIG_HIGHLIGHT_LEGIONS},
-    {TYPE_CHECKBOX, CONFIG_UI_SHOW_MILITARY_SIDEBAR, TR_CONFIG_SHOW_MILITARY_SIDEBAR},
-    {TYPE_SPACE},
-    {TYPE_HEADER, 0, TR_CONFIG_HEADER_GAMEPLAY_CHANGES},
-    {TYPE_CHECKBOX, CONFIG_GP_FIX_IMMIGRATION_BUG, TR_CONFIG_FIX_IMMIGRATION_BUG},
-    {TYPE_CHECKBOX, CONFIG_GP_FIX_100_YEAR_GHOSTS, TR_CONFIG_FIX_100_YEAR_GHOSTS}
+    {TYPE_INPUT_BOX, 0, TR_CONFIG_PLAYER_NAME_LABEL, 0, 0},
+    {TYPE_NUMERICAL_DESC, RANGE_DISPLAY_SCALE, TR_CONFIG_DISPLAY_SCALE, 0, 0},
+    {TYPE_NUMERICAL_RANGE, RANGE_DISPLAY_SCALE, 0, display_text_display_scale, 0},
+    {TYPE_NUMERICAL_DESC, RANGE_CURSOR_SCALE, TR_CONFIG_CURSOR_SCALE, 0, 0},
+    {TYPE_NUMERICAL_RANGE, RANGE_CURSOR_SCALE, 0, display_text_cursor_scale, 0},
+    {TYPE_SPACE, 0, 0, 0, 0},
+    {TYPE_HEADER, 0, TR_CONFIG_HEADER_UI_CHANGES, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_SHOW_INTRO_VIDEO, TR_CONFIG_SHOW_INTRO_VIDEO, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_SIDEBAR_INFO, TR_CONFIG_SIDEBAR_INFO, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_SMOOTH_SCROLLING, TR_CONFIG_SMOOTH_SCROLLING, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING, TR_CONFIG_DISABLE_MOUSE_EDGE_SCROLLING, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG, TR_CONFIG_DISABLE_RIGHT_CLICK_MAP_DRAG, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE, TR_CONFIG_VISUAL_FEEDBACK_ON_DELETE, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_ALLOW_CYCLING_TEMPLES, TR_CONFIG_ALLOW_CYCLING_TEMPLES, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_SHOW_WATER_STRUCTURE_RANGE, TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_SHOW_CONSTRUCTION_SIZE, TR_CONFIG_SHOW_CONSTRUCTION_SIZE, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_HIGHLIGHT_LEGIONS, TR_CONFIG_HIGHLIGHT_LEGIONS, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_SHOW_MILITARY_SIDEBAR, TR_CONFIG_SHOW_MILITARY_SIDEBAR, 0, 0},
+    {TYPE_SPACE, 0, 0, 0, 0},
+    {TYPE_HEADER, 0, TR_CONFIG_HEADER_GAMEPLAY_CHANGES, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_GP_FIX_IMMIGRATION_BUG, TR_CONFIG_FIX_IMMIGRATION_BUG, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_GP_FIX_100_YEAR_GHOSTS, TR_CONFIG_FIX_100_YEAR_GHOSTS, 0, 0}
 };
 
 static generic_button select_buttons[] = {
@@ -124,10 +124,10 @@ static numerical_range_widget scale_ranges[] = {
 };
 
 static generic_button bottom_buttons[NUM_BOTTOM_BUTTONS] = {
-    {20, 480, 180, 30, button_hotkeys, button_none},
-    {230, 480, 180, 30, button_reset_defaults, button_none},
-    {415, 480, 100, 30, button_close, button_none, 0},
-    {520, 480, 100, 30, button_close, button_none, 1},
+    {20, 480, 180, 30, button_hotkeys, button_none, 0, 0},
+    {230, 480, 180, 30, button_reset_defaults, button_none, 0, 0},
+    {415, 480, 100, 30, button_close, button_none, 0, 0},
+    {520, 480, 100, 30, button_close, button_none, 1, 0},
 };
 
 static custom_string_key bottom_button_texts[] = {
@@ -461,12 +461,12 @@ static void toggle_switch(int key)
     window_invalidate();
 }
 
-static void button_hotkeys(int param1, int param2)
+static void button_hotkeys(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_hotkey_config_show();
 }
 
-static void button_reset_defaults(int param1, int param2)
+static void button_reset_defaults(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     for (int i = 0; i < CONFIG_MAX_ENTRIES; ++i) {
         data.config_values[i].new_value = config_get_default_value(i);
@@ -548,7 +548,7 @@ static int apply_changed_configs(void)
     return 1;
 }
 
-static void button_close(int save, int param2)
+static void button_close(int save, __attribute__((unused)) int param2)
 {
     if (!save) {
         cancel_values();
@@ -569,7 +569,8 @@ void window_config_show(void)
         WINDOW_CONFIG,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init();
     window_show(&window);

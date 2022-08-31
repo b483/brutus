@@ -38,39 +38,39 @@ static void menu_resets_invasions(int param);
 static void menu_empire_choose(int param);
 
 static menu_item menu_file[] = {
-    {7, 1, menu_file_new_map, 0},
-    {7, 2, menu_file_load_map, 0},
-    {7, 3, menu_file_save_map, 0},
-    {7, 4, menu_file_exit_editor, 0},
+    {7, 1, menu_file_new_map, 0, 0},
+    {7, 2, menu_file_load_map, 0, 0},
+    {7, 3, menu_file_save_map, 0, 0},
+    {7, 4, menu_file_exit_editor, 0, 0},
 };
 
 static menu_item menu_options[] = {
-    {2, 1, menu_options_display, 0},
-    {2, 2, menu_options_sound, 0},
-    {2, 3, menu_options_speed, 0},
+    {2, 1, menu_options_display, 0, 0},
+    {2, 2, menu_options_sound, 0, 0},
+    {2, 3, menu_options_speed, 0, 0},
 };
 
 static menu_item menu_help[] = {
-    {3, 1, menu_help_help, 0},
-    {3, 7, menu_help_about, 0},
+    {3, 1, menu_help_help, 0, 0},
+    {3, 7, menu_help_about, 0, 0},
 };
 
 static menu_item menu_resets[] = {
-    {10, 1, menu_resets_herds, 0},
-    {10, 2, menu_resets_fish, 0},
-    {10, 3, menu_resets_invasions, 0},
+    {10, 1, menu_resets_herds, 0, 0},
+    {10, 2, menu_resets_fish, 0, 0},
+    {10, 3, menu_resets_invasions, 0, 0},
 };
 
 static menu_item menu_empire[] = {
-    {149, 1, menu_empire_choose, 0},
+    {149, 1, menu_empire_choose, 0, 0},
 };
 
 static menu_bar_item menu[] = {
-    {7, menu_file, 4},
-    {2, menu_options, 3},
-    {3, menu_help, 2},
-    {10, menu_resets, 3},
-    {149, menu_empire, 1},
+    {7, menu_file, 4, 0, 0, 0, 0},
+    {2, menu_options, 3, 0, 0, 0, 0},
+    {3, menu_help, 2, 0, 0, 0, 0},
+    {10, menu_resets, 3, 0, 0, 0, 0},
+    {149, menu_empire, 1, 0, 0, 0, 0},
 };
 
 #define INDEX_OPTIONS 1
@@ -112,7 +112,8 @@ static void top_menu_window_show(void)
         WINDOW_EDITOR_TOP_MENU,
         window_editor_map_draw_all,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init();
     window_show(&window);
@@ -182,88 +183,88 @@ static void map_size_selected(int size)
     }
 }
 
-static void menu_file_new_map(int param)
+static void menu_file_new_map(__attribute__((unused)) int param)
 {
     window_select_list_show(50, 50, 33, 7, map_size_selected);
 }
 
-static void menu_file_load_map(int param)
+static void menu_file_load_map(__attribute__((unused)) int param)
 {
     clear_state();
     window_editor_map_show();
     window_file_dialog_show(FILE_TYPE_SCENARIO, FILE_DIALOG_LOAD);
 }
 
-static void menu_file_save_map(int param)
+static void menu_file_save_map(__attribute__((unused)) int param)
 {
     clear_state();
     window_editor_map_show();
     window_file_dialog_show(FILE_TYPE_SCENARIO, FILE_DIALOG_SAVE);
 }
 
-static void menu_file_exit_editor(int param)
+static void menu_file_exit_editor(__attribute__((unused)) int param)
 {
     clear_state();
     request_exit_editor();
 }
 
-static void menu_options_display(int param)
+static void menu_options_display(__attribute__((unused)) int param)
 {
     clear_state();
     window_editor_map_show();
     window_display_options_show(window_editor_map_show);
 }
 
-static void menu_options_sound(int param)
+static void menu_options_sound(__attribute__((unused)) int param)
 {
     clear_state();
     window_editor_map_show();
     window_sound_options_show(window_editor_map_show);
 }
 
-static void menu_options_speed(int param)
+static void menu_options_speed(__attribute__((unused)) int param)
 {
     clear_state();
     window_editor_map_show();
     window_speed_options_show(window_editor_map_show);
 }
 
-static void menu_help_help(int param)
+static void menu_help_help(__attribute__((unused)) int param)
 {
     clear_state();
     window_go_back();
     window_message_dialog_show(MESSAGE_DIALOG_EDITOR_HELP, window_editor_map_draw_all);
 }
 
-static void menu_help_about(int param)
+static void menu_help_about(__attribute__((unused)) int param)
 {
     clear_state();
     window_go_back();
     window_message_dialog_show(MESSAGE_DIALOG_EDITOR_ABOUT, window_editor_map_draw_all);
 }
 
-static void menu_resets_herds(int param)
+static void menu_resets_herds(__attribute__((unused)) int param)
 {
     scenario_editor_clear_herd_points();
     clear_state();
     window_go_back();
 }
 
-static void menu_resets_fish(int param)
+static void menu_resets_fish(__attribute__((unused)) int param)
 {
     scenario_editor_clear_fishing_points();
     clear_state();
     window_go_back();
 }
 
-static void menu_resets_invasions(int param)
+static void menu_resets_invasions(__attribute__((unused)) int param)
 {
     scenario_editor_clear_invasion_points();
     clear_state();
     window_go_back();
 }
 
-static void menu_empire_choose(int param)
+static void menu_empire_choose(__attribute__((unused)) int param)
 {
     clear_state();
     window_go_back();

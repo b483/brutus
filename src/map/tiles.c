@@ -104,7 +104,7 @@ static int is_updatable_rock(int grid_offset)
         !map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP);
 }
 
-static void clear_rock_image(int x, int y, int grid_offset)
+static void clear_rock_image(__attribute__((unused)) int x, __attribute__((unused)) int y, int grid_offset)
 {
     if (is_updatable_rock(grid_offset)) {
         map_image_set(grid_offset, 0);
@@ -185,7 +185,7 @@ void map_tiles_update_region_shrub(int x_min, int y_min, int x_max, int y_max)
     foreach_region_tile(x_min, y_min, x_max, y_max, set_shrub_image);
 }
 
-static void set_tree_image(int x, int y, int grid_offset)
+static void set_tree_image(__attribute__((unused)) int x, __attribute__((unused)) int y, int grid_offset)
 {
     if (map_terrain_is(grid_offset, TERRAIN_TREE) &&
         !map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP)) {
@@ -200,7 +200,7 @@ void map_tiles_update_region_trees(int x_min, int y_min, int x_max, int y_max)
     foreach_region_tile(x_min, y_min, x_max, y_max, set_tree_image);
 }
 
-static void clear_garden_image(int x, int y, int grid_offset)
+static void clear_garden_image(__attribute__((unused)) int x, __attribute__((unused)) int y, int grid_offset)
 {
     if (map_terrain_is(grid_offset, TERRAIN_GARDEN) &&
         !map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP)) {
@@ -252,7 +252,7 @@ static void set_garden_image(int x, int y, int grid_offset)
     }
 }
 
-static void remove_plaza_below_building(int x, int y, int grid_offset)
+static void remove_plaza_below_building(__attribute__((unused)) int x, __attribute__((unused)) int y, int grid_offset)
 {
     if (map_terrain_is(grid_offset, TERRAIN_ROAD) &&
         map_property_is_plaza_or_earthquake(grid_offset)) {
@@ -262,7 +262,7 @@ static void remove_plaza_below_building(int x, int y, int grid_offset)
     }
 }
 
-static void clear_plaza_image(int x, int y, int grid_offset)
+static void clear_plaza_image(__attribute__((unused)) int x, __attribute__((unused)) int y, int grid_offset)
 {
     if (map_terrain_is(grid_offset, TERRAIN_ROAD) &&
         map_property_is_plaza_or_earthquake(grid_offset)) {
@@ -321,7 +321,7 @@ void map_tiles_update_all_gardens(void)
     foreach_map_tile(set_garden_image);
 }
 
-static void determine_garden_tile(int x, int y, int grid_offset)
+static void determine_garden_tile(__attribute__((unused)) int x, __attribute__((unused)) int y, int grid_offset)
 {
     int base_image = image_group(GROUP_TERRAIN_GARDEN);
     int image_id = map_image_at(grid_offset);
@@ -605,7 +605,7 @@ static void set_wall_gatehouse_image_manually(int grid_offset)
     }
 }
 
-static void set_wall_image(int x, int y, int grid_offset)
+static void set_wall_image(__attribute__((unused)) int x, __attribute__((unused)) int y, int grid_offset)
 {
     if (!map_terrain_is(grid_offset, TERRAIN_WALL) ||
         map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
@@ -698,7 +698,7 @@ static void set_road_with_aqueduct_image(int grid_offset)
     set_aqueduct_image(grid_offset, 1, map_image_context_get_aqueduct(grid_offset, 0));
 }
 
-static void set_road_image(int x, int y, int grid_offset)
+static void set_road_image(__attribute__((unused)) int x, __attribute__((unused)) int y, int grid_offset)
 {
     if (!map_terrain_is(grid_offset, TERRAIN_ROAD) ||
         map_terrain_is(grid_offset, TERRAIN_WATER | TERRAIN_BUILDING)) {
@@ -748,7 +748,7 @@ int map_tiles_set_road(int x, int y)
     return tile_set;
 }
 
-static void clear_empty_land_image(int x, int y, int grid_offset)
+static void clear_empty_land_image(__attribute__((unused)) int x, __attribute__((unused)) int y, int grid_offset)
 {
     if (!map_terrain_is(grid_offset, TERRAIN_NOT_CLEAR)) {
         map_image_set(grid_offset, 0);
@@ -924,7 +924,7 @@ static void set_aqueduct(int grid_offset)
     map_aqueduct_set(grid_offset, img->aqueduct_offset);
 }
 
-static void update_aqueduct_tile(int x, int y, int grid_offset)
+static void update_aqueduct_tile(__attribute__((unused)) int x, __attribute__((unused)) int y, int grid_offset)
 {
     if (map_terrain_is(grid_offset, TERRAIN_AQUEDUCT) && map_aqueduct_at(grid_offset) <= 15) {
         set_aqueduct(grid_offset);
@@ -943,7 +943,7 @@ void map_tiles_update_region_aqueducts(int x_min, int y_min, int x_max, int y_ma
     foreach_region_tile(x_min, y_min, x_max, y_max, update_aqueduct_tile);
 }
 
-static void set_earthquake_image(int x, int y, int grid_offset)
+static void set_earthquake_image(__attribute__((unused)) int x, __attribute__((unused)) int y, int grid_offset)
 {
     if (map_terrain_is(grid_offset, TERRAIN_ROCK) && map_property_is_plaza_or_earthquake(grid_offset)) {
         const terrain_image *img = map_image_context_get_earthquake(grid_offset);
@@ -982,7 +982,7 @@ void map_tiles_set_earthquake(int x, int y)
     foreach_region_tile(x - 1, y - 1, x + 1, y + 1, set_earthquake_image);
 }
 
-static void set_rubble_image(int x, int y, int grid_offset)
+static void set_rubble_image(__attribute__((unused)) int x, __attribute__((unused)) int y, int grid_offset)
 {
     if (map_terrain_is(grid_offset, TERRAIN_RUBBLE) && !map_terrain_is(grid_offset, FORBIDDEN_TERRAIN_RUBBLE)) {
         map_image_set(grid_offset, image_group(GROUP_TERRAIN_RUBBLE) + (map_random_get(grid_offset) & 7));
@@ -1002,7 +1002,7 @@ void map_tiles_update_region_rubble(int x_min, int y_min, int x_max, int y_max)
     foreach_region_tile(x_min, y_min, x_max, y_max, set_rubble_image);
 }
 
-static void clear_access_ramp_image(int x, int y, int grid_offset)
+static void clear_access_ramp_image(__attribute__((unused)) int x, __attribute__((unused)) int y, int grid_offset)
 {
     if (map_terrain_is(grid_offset, TERRAIN_ACCESS_RAMP)) {
         map_image_set(grid_offset, 0);

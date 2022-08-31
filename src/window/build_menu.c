@@ -74,7 +74,7 @@ static struct {
     int y_offset;
 
     int focus_button_id;
-} data = { SUBMENU_NONE };
+} data = { SUBMENU_NONE, 0, 0, 0 };
 
 static int init(build_menu_group submenu)
 {
@@ -249,7 +249,7 @@ static int button_index_to_submenu_item(int index)
     return item;
 }
 
-static void button_menu_index(int param1, int param2)
+static void button_menu_index(int param1, __attribute__((unused)) int param2)
 {
     button_menu_item(button_index_to_submenu_item(param1 - 1));
 }
@@ -301,7 +301,7 @@ static void button_menu_item(int item)
 
 void window_build_menu_show(int submenu)
 {
-    if (submenu == SUBMENU_NONE || submenu == data.selected_submenu) {
+    if (submenu == SUBMENU_NONE || (unsigned) submenu == data.selected_submenu) {
         window_build_menu_hide();
         return;
     }

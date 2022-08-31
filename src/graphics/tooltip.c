@@ -89,7 +89,7 @@ static void save_window_under_tooltip_to_buffer(int x, int y, int width, int hei
     if (buffer_size > button_tooltip_info.buffer_size) {
         button_tooltip_info.buffer_size = buffer_size;
         free(button_tooltip_info.buffer);
-        button_tooltip_info.buffer = (color_t *)malloc(buffer_size * sizeof(color_t));
+        button_tooltip_info.buffer = (color_t *) malloc(buffer_size * sizeof(color_t));
     }
     graphics_save_to_buffer(x, y, width, height, button_tooltip_info.buffer);
 }
@@ -308,7 +308,7 @@ void tooltip_invalidate(void)
 
 void tooltip_handle(const mouse *m, void (*func)(tooltip_context *))
 {
-    tooltip_context context = {m->x, m->y};
+    tooltip_context context = { m->x, m->y, 0, 0, 0, 0, 0, 0, 0, 0, {0}, {0} };
     context.text_group = DEFAULT_TEXT_GROUP;
     if (setting_tooltips() && func) {
         func(&context);

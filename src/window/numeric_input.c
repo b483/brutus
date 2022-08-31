@@ -116,17 +116,17 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_number(int number, int param2)
+static void button_number(int number, __attribute__((unused)) int param2)
 {
     input_number(number);
 }
 
-static void button_accept(int param1, int param2)
+static void button_accept(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     input_accept();
 }
 
-static void button_cancel(int param1, int param2)
+static void button_cancel(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     close();
 }
@@ -156,6 +156,7 @@ void window_numeric_input_show(int x, int y, int max_digits, int max_value, void
         window_draw_underlying_window,
         draw_foreground,
         handle_input,
+        0
     };
     init(x, y, max_digits, max_value, callback);
     window_show(&window);

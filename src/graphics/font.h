@@ -41,7 +41,7 @@ typedef struct {
  * Sets the encoding for font drawing functions
  * @param encoding Encoding to use
  */
-void font_set_encoding(encoding_type encoding);
+void font_set_encoding(void);
 
 /**
  * Gets the font definition for the specified font

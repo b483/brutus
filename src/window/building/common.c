@@ -54,7 +54,7 @@ int window_building_get_vertical_offset(building_info_context *c, int new_window
     return new_window_y;
 }
 
-static int draw_employment_info(building_info_context *c, building *b, int y_offset, int consider_house_covering)
+static int draw_employment_info(building *b, int consider_house_covering)
 {
     int text_id;
     if (b->num_workers >= model_get_building(b->type)->laborers) {
@@ -101,14 +101,14 @@ static void draw_employment_details(building_info_context *c, building *b, int y
 void window_building_draw_employment(building_info_context *c, int y_offset)
 {
     building *b = building_get(c->building_id);
-    int text_id = draw_employment_info(c, b, y_offset, 1);
+    int text_id = draw_employment_info(b, 1);
     draw_employment_details(c, b, y_offset, text_id);
 }
 
 void window_building_draw_employment_without_house_cover(building_info_context *c, int y_offset)
 {
     building *b = building_get(c->building_id);
-    int text_id = draw_employment_info(c, b, y_offset, 0);
+    int text_id = draw_employment_info(b, 0);
     draw_employment_details(c, b, y_offset, text_id);
 }
 

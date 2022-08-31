@@ -90,7 +90,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_invasion(int id, int param2)
+static void button_invasion(int id, __attribute__((unused)) int param2)
 {
     window_editor_edit_invasion_show(id);
 }
@@ -101,7 +101,8 @@ void window_editor_invasions_show(void)
         WINDOW_EDITOR_INVASIONS,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     window_show(&window);
 }

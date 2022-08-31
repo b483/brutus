@@ -82,7 +82,8 @@ void window_editor_briefing_show(void)
         WINDOW_EDITOR_BRIEFING,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     start();
     window_show(&window);

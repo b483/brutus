@@ -26,10 +26,10 @@ static void button_delete(int param1, int param2);
 static void on_scroll(void);
 
 static image_button image_button_help = {
-    0, 0, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1
+    0, 0, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1, 0, 0, 0
 };
 static image_button image_button_close = {
-    0, 0, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1
+    0, 0, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1, 0, 0, 0
 };
 static generic_button generic_buttons_messages[] = {
     {0, 0, 412, 18, button_message, button_delete, 0, 0},
@@ -44,7 +44,7 @@ static generic_button generic_buttons_messages[] = {
     {0, 180, 412, 18, button_message, button_delete, 9, 0},
 };
 
-static scrollbar_type scrollbar = {432, 112, 208, on_scroll};
+static scrollbar_type scrollbar = { 432, 112, 208, on_scroll, 0, 0, 0, 0, 0, 0 };
 
 static struct {
     int width_blocks;
@@ -179,17 +179,17 @@ static void on_scroll(void)
     window_invalidate();
 }
 
-static void button_help(int param1, int param2)
+static void button_help(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_message_dialog_show(MESSAGE_DIALOG_MESSAGES, window_city_draw_all);
 }
 
-static void button_close(int param1, int param2)
+static void button_close(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_city_show();
 }
 
-static void button_message(int param1, int param2)
+static void button_message(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     int id = city_message_set_current(scrollbar.scroll_position + param1);
     if (id < city_message_count()) {
@@ -203,7 +203,7 @@ static void button_message(int param1, int param2)
     }
 }
 
-static void button_delete(int id_to_delete, int param2)
+static void button_delete(int id_to_delete, __attribute__((unused)) int param2)
 {
     int id = city_message_set_current(scrollbar.scroll_position + id_to_delete);
     if (id < city_message_count()) {

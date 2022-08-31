@@ -31,12 +31,12 @@ static void button_delete(int param1, int param2);
 static void button_save(int param1, int param2);
 
 static generic_button buttons[] = {
-    {30, 152, 60, 25, button_year, button_none},
-    {190, 152, 120, 25, button_resource, button_none},
-    {420, 152, 200, 25, button_route, button_none},
-    {350, 192, 100, 25, button_toggle_rise, button_none},
-    {30, 230, 250, 25, button_delete, button_none},
-    {320, 230, 100, 25, button_save, button_none}
+    {30, 152, 60, 25, button_year, button_none, 0, 0},
+    {190, 152, 120, 25, button_resource, button_none, 0, 0},
+    {420, 152, 200, 25, button_route, button_none, 0, 0},
+    {350, 192, 100, 25, button_toggle_rise, button_none, 0, 0},
+    {30, 230, 250, 25, button_delete, button_none, 0, 0},
+    {320, 230, 100, 25, button_save, button_none, 0, 0}
 };
 
 static const uint8_t UNKNOWN[4] = { '?', '?', '?', 0 };
@@ -132,7 +132,7 @@ static void set_year(int value)
     data.demand_change.year = value;
 }
 
-static void button_year(int param1, int param2)
+static void button_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 100, screen_dialog_offset_y() + 50, 3, 999, set_year);
 }
@@ -142,7 +142,7 @@ static void set_resource(int value)
     data.demand_change.resource = value;
 }
 
-static void button_resource(int param1, int param2)
+static void button_resource(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_select_list_show(screen_dialog_offset_x() + 320, screen_dialog_offset_y() + 40, 23, 16, set_resource);
 }
@@ -152,24 +152,24 @@ static void set_route_id(int index)
     data.demand_change.route_id = data.route_ids[index];
 }
 
-static void button_route(int param1, int param2)
+static void button_route(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_select_list_show_text(screen_dialog_offset_x() + 200, screen_dialog_offset_y() + 50,
         data.route_names, data.num_routes, set_route_id);
 }
 
-static void button_toggle_rise(int param1, int param2)
+static void button_toggle_rise(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     data.demand_change.is_rise = !data.demand_change.is_rise;
 }
 
-static void button_delete(int param1, int param2)
+static void button_delete(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_demand_change_delete(data.id);
     window_editor_demand_changes_show();
 }
 
-static void button_save(int param1, int param2)
+static void button_save(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_demand_change_save(data.id, &data.demand_change);
     window_editor_demand_changes_show();
@@ -181,7 +181,8 @@ void window_editor_edit_demand_change_show(int id)
         WINDOW_EDITOR_EDIT_DEMAND_CHANGE,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init(id);
     window_show(&window);

@@ -62,7 +62,7 @@ static int get_column_height_hospital(const building *b)
     return b->house_size && b->data.house.hospital ? b->data.house.hospital / 10 : NO_COLUMN;
 }
 
-static int get_tooltip_barber(tooltip_context *c, const building *b)
+static int get_tooltip_barber(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
 {
     if (b->data.house.barber <= 0) {
         return 31;
@@ -75,7 +75,7 @@ static int get_tooltip_barber(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_bathhouse(tooltip_context *c, const building *b)
+static int get_tooltip_bathhouse(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
 {
     if (b->data.house.bathhouse <= 0) {
         return 8;
@@ -88,7 +88,7 @@ static int get_tooltip_bathhouse(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_clinic(tooltip_context *c, const building *b)
+static int get_tooltip_clinic(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
 {
     if (b->data.house.clinic <= 0) {
         return 35;
@@ -101,7 +101,7 @@ static int get_tooltip_clinic(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_hospital(tooltip_context *c, const building *b)
+static int get_tooltip_hospital(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
 {
     if (b->data.house.hospital <= 0) {
         return 39;

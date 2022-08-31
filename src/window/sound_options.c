@@ -33,14 +33,14 @@ static generic_button buttons[] = {
 };
 
 static arrow_button arrow_buttons[] = {
-    {112, 100, 17, 24, arrow_button_music, 1, 0},
-    {136, 100, 15, 24, arrow_button_music, 0, 0},
-    {112, 130, 17, 24, arrow_button_speech, 1, 0},
-    {136, 130, 15, 24, arrow_button_speech, 0, 0},
-    {112, 160, 17, 24, arrow_button_effects, 1, 0},
-    {136, 160, 15, 24, arrow_button_effects, 0, 0},
-    {112, 190, 17, 24, arrow_button_city, 1, 0},
-    {136, 190, 15, 24, arrow_button_city, 0, 0},
+    {112, 100, 17, 24, arrow_button_music, 1, 0, 0, 0},
+    {136, 100, 15, 24, arrow_button_music, 0, 0, 0, 0},
+    {112, 130, 17, 24, arrow_button_speech, 1, 0, 0, 0},
+    {136, 130, 15, 24, arrow_button_speech, 0, 0, 0, 0},
+    {112, 160, 17, 24, arrow_button_effects, 1, 0, 0, 0},
+    {136, 160, 15, 24, arrow_button_effects, 0, 0, 0, 0},
+    {112, 190, 17, 24, arrow_button_city, 1, 0, 0, 0},
+    {136, 190, 15, 24, arrow_button_city, 0, 0, 0, 0},
 };
 
 static struct {
@@ -121,7 +121,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_toggle(int type, int param2)
+static void button_toggle(int type, __attribute__((unused)) int param2)
 {
     setting_toggle_sound_enabled(type);
     if (type == SOUND_MUSIC) {
@@ -137,12 +137,12 @@ static void button_toggle(int type, int param2)
     }
 }
 
-static void button_ok(int param1, int param2)
+static void button_ok(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     data.close_callback();
 }
 
-static void button_cancel(int param1, int param2)
+static void button_cancel(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     setting_reset_sound(SOUND_EFFECTS, data.original_effects.enabled, data.original_effects.volume);
     setting_reset_sound(SOUND_MUSIC, data.original_music.enabled, data.original_music.volume);
@@ -172,25 +172,25 @@ static void update_volume(set_sound_type type, int is_decrease)
     }
 }
 
-static void arrow_button_music(int is_down, int param2)
+static void arrow_button_music(int is_down, __attribute__((unused)) int param2)
 {
     update_volume(SOUND_MUSIC, is_down);
     sound_music_set_volume(setting_sound(SOUND_MUSIC)->volume);
 }
 
-static void arrow_button_speech(int is_down, int param2)
+static void arrow_button_speech(int is_down, __attribute__((unused)) int param2)
 {
     update_volume(SOUND_SPEECH, is_down);
     sound_speech_set_volume(setting_sound(SOUND_SPEECH)->volume);
 }
 
-static void arrow_button_effects(int is_down, int param2)
+static void arrow_button_effects(int is_down, __attribute__((unused)) int param2)
 {
     update_volume(SOUND_EFFECTS, is_down);
     sound_effect_set_volume(setting_sound(SOUND_EFFECTS)->volume);
 }
 
-static void arrow_button_city(int is_down, int param2)
+static void arrow_button_city(int is_down, __attribute__((unused)) int param2)
 {
     update_volume(SOUND_CITY, is_down);
     sound_city_set_volume(setting_sound(SOUND_CITY)->volume);
@@ -203,6 +203,7 @@ void window_sound_options_show(void (*close_callback)(void))
         window_draw_underlying_window,
         draw_foreground,
         handle_input,
+        0
     };
     init(close_callback);
     window_show(&window);

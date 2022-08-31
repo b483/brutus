@@ -19,7 +19,7 @@ static struct {
 
 static void noop(void)
 {}
-static void noop_input(const mouse *m, const hotkeys *h)
+static void noop_input(__attribute__((unused)) const mouse *m, __attribute__((unused)) const hotkeys *h)
 {}
 
 static void increase_queue_index(void)

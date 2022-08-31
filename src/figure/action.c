@@ -21,9 +21,8 @@
 #include "figuretype/wall.h"
 #include "figuretype/water.h"
 
-static void figure_nobody_action(figure *f)
-{
-}
+static void figure_nobody_action(__attribute__((unused)) figure *f)
+{}
 
 static void (*figure_action_callbacks[])(figure *f) = {
     figure_nobody_action, //0

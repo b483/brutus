@@ -28,17 +28,17 @@ static void button_lower_wages_toggle(int param1, int param2);
 static void button_contamination_toggle(int param1, int param2);
 
 static generic_button buttons[] = {
-    {216, 106, 100, 24, button_earthquake_severity, button_none},
-    {326, 106, 150, 24, button_earthquake_year, button_none},
-    {216, 136, 100, 24, button_gladiator_toggle,button_none},
-    {326, 136, 150, 24, button_gladiator_year,button_none},
-    {216, 166, 100, 24, button_emperor_toggle,button_none},
-    {326, 166, 150, 24, button_emperor_year, button_none},
-    {216, 196, 100, 24, button_sea_trade_toggle, button_none},
-    {216, 226, 100, 24, button_land_trade_toggle, button_none},
-    {216, 256, 100, 24, button_raise_wages_toggle, button_none},
-    {216, 286, 100, 24, button_lower_wages_toggle, button_none},
-    {216, 316, 100, 24, button_contamination_toggle, button_none},
+    {216, 106, 100, 24, button_earthquake_severity, button_none, 0, 0},
+    {326, 106, 150, 24, button_earthquake_year, button_none, 0, 0},
+    {216, 136, 100, 24, button_gladiator_toggle,button_none, 0, 0},
+    {326, 136, 150, 24, button_gladiator_year,button_none, 0, 0},
+    {216, 166, 100, 24, button_emperor_toggle,button_none, 0, 0},
+    {326, 166, 150, 24, button_emperor_year, button_none, 0, 0},
+    {216, 196, 100, 24, button_sea_trade_toggle, button_none, 0, 0},
+    {216, 226, 100, 24, button_land_trade_toggle, button_none, 0, 0},
+    {216, 256, 100, 24, button_raise_wages_toggle, button_none, 0, 0},
+    {216, 286, 100, 24, button_lower_wages_toggle, button_none, 0, 0},
+    {216, 316, 100, 24, button_contamination_toggle, button_none, 0, 0},
 };
 
 static int focus_button_id;
@@ -140,67 +140,67 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_earthquake_severity(int param1, int param2)
+static void button_earthquake_severity(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_earthquake_cycle_severity();
     window_request_refresh();
 }
 
-static void button_earthquake_year(int param1, int param2)
+static void button_earthquake_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 190, screen_dialog_offset_y() + 100,
                               3, 999, scenario_editor_earthquake_set_year);
 }
 
-static void button_gladiator_toggle(int param1, int param2)
+static void button_gladiator_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_gladiator_revolt_toggle_enabled();
     window_request_refresh();
 }
 
-static void button_gladiator_year(int param1, int param2)
+static void button_gladiator_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 190, screen_dialog_offset_y() + 100,
                               3, 999, scenario_editor_gladiator_revolt_set_year);
 }
 
-static void button_emperor_toggle(int param1, int param2)
+static void button_emperor_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_emperor_change_toggle_enabled();
     window_request_refresh();
 }
 
-static void button_emperor_year(int param1, int param2)
+static void button_emperor_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 190, screen_dialog_offset_y() + 100,
                               3, 999, scenario_editor_emperor_change_set_year);
 }
 
-static void button_sea_trade_toggle(int param1, int param2)
+static void button_sea_trade_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_sea_trade_problem_toggle_enabled();
     window_request_refresh();
 }
 
-static void button_land_trade_toggle(int param1, int param2)
+static void button_land_trade_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_land_trade_problem_toggle_enabled();
     window_request_refresh();
 }
 
-static void button_raise_wages_toggle(int param1, int param2)
+static void button_raise_wages_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_raise_wages_toggle_enabled();
     window_request_refresh();
 }
 
-static void button_lower_wages_toggle(int param1, int param2)
+static void button_lower_wages_toggle(__attribute__((unused)) int param1, __attribute__((unused))  int param2)
 {
     scenario_editor_lower_wages_toggle_enabled();
     window_request_refresh();
 }
 
-static void button_contamination_toggle(int param1, int param2)
+static void button_contamination_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_contaminated_water_toggle_enabled();
     window_request_refresh();
@@ -212,7 +212,8 @@ void window_editor_special_events_show(void)
         WINDOW_EDITOR_SPECIAL_EVENTS,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     window_show(&window);
 }

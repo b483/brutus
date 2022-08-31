@@ -175,7 +175,7 @@ static int handle_mouse(const mouse *m)
     return generic_buttons_handle_mouse(m, 0, 0, hold_festival_button, 1, &focus_button_id);
 }
 
-static void button_hold_festival(int param1, int param2)
+static void button_hold_festival(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (!city_festival_is_planned()) {
         window_hold_festival_show();

@@ -183,7 +183,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_menu_item(int index, int param2)
+static void button_menu_item(int index, __attribute__((unused)) int param2)
 {
     if (MENU_ID_TO_SUBMENU_ID[index] == 0) {
         game_state_set_overlay(MENU_ID_TO_OVERLAY[index]);
@@ -198,7 +198,7 @@ static void button_menu_item(int index, int param2)
     }
 }
 
-static void button_submenu_item(int index, int param2)
+static void button_submenu_item(int index, __attribute__((unused)) int param2)
 {
     int overlay = SUBMENU_ID_TO_OVERLAY[data.selected_submenu][index];
     if (overlay) {
@@ -214,7 +214,8 @@ void window_overlay_menu_show(void)
         WINDOW_OVERLAY_MENU,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init();
     window_show(&window);

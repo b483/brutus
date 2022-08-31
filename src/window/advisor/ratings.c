@@ -160,7 +160,7 @@ static int handle_mouse(const mouse *m)
     return generic_buttons_handle_mouse(m, 0, 0, rating_buttons, 4, &focus_button_id);
 }
 
-static void button_rating(int rating, int param2)
+static void button_rating(int rating, __attribute__((unused)) int param2)
 {
     city_rating_select(rating);
     window_invalidate();

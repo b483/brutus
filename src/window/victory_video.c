@@ -33,7 +33,7 @@ static void draw_foreground(void)
     video_draw_fullscreen();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const mouse *m, __attribute__((unused)) const hotkeys *h)
 {
     if (m->left.went_up || m->right.went_up || video_is_finished()) {
         video_stop();
@@ -48,7 +48,8 @@ void window_victory_video_show(const char *filename, int width, int height, void
             WINDOW_VICTORY_VIDEO,
             draw_background,
             draw_foreground,
-            handle_input
+            handle_input,
+            0
         };
         window_show(&window);
     } else {

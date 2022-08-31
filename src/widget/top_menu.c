@@ -47,32 +47,32 @@ static void menu_help_warnings(int param);
 static void menu_help_about(int param);
 
 static menu_item menu_file[] = {
-    {1, 2, menu_file_replay_map, 0},
-    {1, 3, menu_file_load_game, 0},
-    {1, 4, menu_file_save_game, 0},
-    {1, 6, menu_file_delete_game, 0},
-    {1, 5, menu_file_exit_game, 0},
+    {1, 2, menu_file_replay_map, 0, 0},
+    {1, 3, menu_file_load_game, 0, 0},
+    {1, 4, menu_file_save_game, 0, 0},
+    {1, 6, menu_file_delete_game, 0, 0},
+    {1, 5, menu_file_exit_game, 0, 0},
 };
 
 static menu_item menu_options[] = {
-    {2, 1, menu_options_display, 0},
-    {2, 2, menu_options_sound, 0},
-    {2, 3, menu_options_speed, 0},
-    {2, 6, menu_options_difficulty, 0},
-    {19, 51, menu_options_autosave, 0},
+    {2, 1, menu_options_display, 0, 0},
+    {2, 2, menu_options_sound, 0, 0},
+    {2, 3, menu_options_speed, 0, 0},
+    {2, 6, menu_options_difficulty, 0, 0},
+    {19, 51, menu_options_autosave, 0, 0},
 };
 
 static menu_item menu_help[] = {
-    {3, 1, menu_help_help, 0},
-    {3, 2, menu_help_mouse_help, 0},
-    {3, 5, menu_help_warnings, 0},
-    {3, 7, menu_help_about, 0},
+    {3, 1, menu_help_help, 0, 0},
+    {3, 2, menu_help_mouse_help, 0, 0},
+    {3, 5, menu_help_warnings, 0, 0},
+    {3, 7, menu_help_about, 0, 0},
 };
 
 static menu_bar_item menu[] = {
-    {1, menu_file, 5},
-    {2, menu_options, 5},
-    {3, menu_help, 4},
+    {1, menu_file, 5, 0, 0, 0, 0},
+    {2, menu_options, 5, 0, 0, 0, 0},
+    {3, menu_help, 4, 0, 0, 0, 0},
 };
 
 static const int INDEX_OPTIONS = 1;
@@ -162,7 +162,8 @@ static void top_menu_window_show(void)
         WINDOW_TOP_MENU,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init();
     window_show(&window);
@@ -344,13 +345,13 @@ int widget_top_menu_get_tooltip_text(tooltip_context *c)
     return 0;
 }
 
-static void menu_file_replay_map(int param)
+static void menu_file_replay_map(__attribute__((unused)) int param)
 {
     clear_state();
     replay_map();
 }
 
-static void menu_file_load_game(int param)
+static void menu_file_load_game(__attribute__((unused)) int param)
 {
     clear_state();
     building_construction_clear_type();
@@ -358,76 +359,76 @@ static void menu_file_load_game(int param)
     window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_LOAD);
 }
 
-static void menu_file_save_game(int param)
+static void menu_file_save_game(__attribute__((unused)) int param)
 {
     clear_state();
     window_go_back();
     window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_SAVE);
 }
 
-static void menu_file_delete_game(int param)
+static void menu_file_delete_game(__attribute__((unused)) int param)
 {
     clear_state();
     window_go_back();
     window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_DELETE);
 }
 
-static void menu_file_exit_game(int param)
+static void menu_file_exit_game(__attribute__((unused)) int param)
 {
     clear_state();
     request_exit_scenario();
 }
 
-static void menu_options_display(int param)
+static void menu_options_display(__attribute__((unused)) int param)
 {
     clear_state();
     window_display_options_show(window_city_return);
 }
 
-static void menu_options_sound(int param)
+static void menu_options_sound(__attribute__((unused)) int param)
 {
     clear_state();
     window_sound_options_show(window_city_return);
 }
 
-static void menu_options_speed(int param)
+static void menu_options_speed(__attribute__((unused)) int param)
 {
     clear_state();
     window_speed_options_show(window_city_return);
 }
 
-static void menu_options_difficulty(int param)
+static void menu_options_difficulty(__attribute__((unused)) int param)
 {
     clear_state();
     window_difficulty_options_show(window_city_return);
 }
 
-static void menu_options_autosave(int param)
+static void menu_options_autosave(__attribute__((unused)) int param)
 {
     setting_toggle_monthly_autosave();
     set_text_for_autosave();
 }
 
-static void menu_help_help(int param)
+static void menu_help_help(__attribute__((unused)) int param)
 {
     clear_state();
     window_go_back();
     window_message_dialog_show(MESSAGE_DIALOG_HELP, window_city_draw_all);
 }
 
-static void menu_help_mouse_help(int param)
+static void menu_help_mouse_help(__attribute__((unused)) int param)
 {
     setting_cycle_tooltips();
     set_text_for_tooltips();
 }
 
-static void menu_help_warnings(int param)
+static void menu_help_warnings(__attribute__((unused)) int param)
 {
     setting_toggle_warnings();
     set_text_for_warnings();
 }
 
-static void menu_help_about(int param)
+static void menu_help_about(__attribute__((unused)) int param)
 {
     clear_state();
     window_go_back();

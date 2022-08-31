@@ -481,7 +481,7 @@ int game_file_io_read_scenario(const char *dir, const char *filename)
     }
     for (int i = 0; i < scenario_data.num_pieces; i++) {
         size_t read_size = fread(scenario_data.pieces[i].buf.data, 1, scenario_data.pieces[i].buf.size, fp);
-        if (read_size != scenario_data.pieces[i].buf.size) {
+        if (read_size != (unsigned) scenario_data.pieces[i].buf.size) {
             log_error("Unable to load scenario", filename, 0);
             file_close(fp);
             return 0;
@@ -542,11 +542,11 @@ static int read_compressed_chunk(FILE *fp, void *buffer, int bytes_to_read)
     }
     int input_size = read_int32(fp);
     if ((unsigned int) input_size == UNCOMPRESSED) {
-        if (fread(buffer, 1, bytes_to_read, fp) != bytes_to_read) {
+        if (fread(buffer, 1, bytes_to_read, fp) != (unsigned) bytes_to_read) {
             return 0;
         }
     } else {
-        if (fread(compress_buffer, 1, input_size, fp) != input_size
+        if (fread(compress_buffer, 1, input_size, fp) != (unsigned) input_size
             || !zip_decompress(compress_buffer, input_size, buffer, &bytes_to_read)) {
             return 0;
         }
@@ -579,7 +579,7 @@ static int savegame_read_from_file(FILE *fp)
         if (piece->compressed) {
             result = read_compressed_chunk(fp, piece->buf.data, piece->buf.size);
         } else {
-            result = fread(piece->buf.data, 1, piece->buf.size, fp) == piece->buf.size;
+            result = fread(piece->buf.data, 1, piece->buf.size, fp) == (unsigned) piece->buf.size;
         }
         // The last piece may be smaller than buf.size
         if (!result && i != (savegame_data.num_pieces - 1)) {

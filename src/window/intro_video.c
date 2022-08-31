@@ -12,7 +12,7 @@ static int current_video;
 
 static int started;
 
-static const char *intro_videos[NUM_INTRO_VIDEOS] = {"smk/logo.smk", "smk/intro.smk", "smk/credits.smk"};
+static const char *intro_videos[NUM_INTRO_VIDEOS] = { "smk/logo.smk", "smk/intro.smk", "smk/credits.smk" };
 
 static int start_next_video(void)
 {
@@ -56,7 +56,8 @@ void window_intro_video_show(void)
         WINDOW_INTRO_VIDEO,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     window_show(&window);
 }

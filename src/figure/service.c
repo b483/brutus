@@ -51,9 +51,8 @@ static int provide_entertainment(int x, int y, int shows, void (*callback)(build
     return serviced;
 }
 
-static void labor_seeker_coverage(building *b)
-{
-}
+static void labor_seeker_coverage(__attribute__((unused)) building *b)
+{}
 
 static void theater_coverage(building *b)
 {
@@ -319,7 +318,8 @@ int figure_service_provide_coverage(figure *f)
         case FIGURE_LABOR_SEEKER:
             houses_serviced = provide_culture(x, y, labor_seeker_coverage);
             break;
-        case FIGURE_TAX_COLLECTOR: {
+        case FIGURE_TAX_COLLECTOR:
+        {
             int max_tax_rate = 0;
             houses_serviced = provide_service(x, y, &max_tax_rate, tax_collector_coverage);
             f->min_max_seen = max_tax_rate;
@@ -406,7 +406,8 @@ int figure_service_provide_coverage(figure *f)
         case FIGURE_CHARIOTEER:
             houses_serviced = provide_culture(x, y, hippodrome_coverage);
             break;
-        case FIGURE_ENGINEER: {
+        case FIGURE_ENGINEER:
+        {
             int max_damage = 0;
             houses_serviced = provide_service(x, y, &max_damage, engineer_coverage);
             if (max_damage > f->min_max_seen) {
@@ -418,7 +419,8 @@ int figure_service_provide_coverage(figure *f)
             }
             break;
         }
-        case FIGURE_PREFECT: {
+        case FIGURE_PREFECT:
+        {
             int min_happiness = 100;
             houses_serviced = provide_service(x, y, &min_happiness, prefect_coverage);
             f->min_max_seen = min_happiness;

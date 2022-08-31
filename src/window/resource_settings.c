@@ -28,13 +28,13 @@ static void button_toggle_trade(int param1, int param2);
 static void button_toggle_stockpile(int param1, int param2);
 
 static image_button resource_image_buttons[] = {
-    {58, 332, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1},
-    {558, 335, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_ok, button_none, 0, 0, 1}
+    {58, 332, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1, 0, 0, 0},
+    {558, 335, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_ok, button_none, 0, 0, 1, 0, 0, 0}
 };
 
 static arrow_button resource_arrow_buttons[] = {
-    {314, 215, 17, 24, button_export_up_down, 1, 0},
-    {338, 215, 15, 24, button_export_up_down, 0, 0}
+    {314, 215, 17, 24, button_export_up_down, 1, 0, 0, 0},
+    {338, 215, 15, 24, button_export_up_down, 0, 0, 0, 0}
 };
 
 static generic_button resource_generic_buttons[] = {
@@ -183,34 +183,34 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_help(int param1, int param2)
+static void button_help(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_message_dialog_show(MESSAGE_DIALOG_INDUSTRY, 0);
 }
 
-static void button_ok(int param1, int param2)
+static void button_ok(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_go_back();
 }
 
-static void button_export_up_down(int is_down, int param2)
+static void button_export_up_down(int is_down, __attribute__((unused)) int param2)
 {
     city_resource_change_export_over(data.resource, is_down ? -1 : 1);
 }
 
-static void button_toggle_industry(int param1, int param2)
+static void button_toggle_industry(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (building_count_industry_total(data.resource) > 0) {
         city_resource_toggle_mothballed(data.resource);
     }
 }
 
-static void button_toggle_trade(int param1, int param2)
+static void button_toggle_trade(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     city_resource_cycle_trade_status(data.resource);
 }
 
-static void button_toggle_stockpile(int param1, int param2)
+static void button_toggle_stockpile(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     city_resource_toggle_stockpiled(data.resource);
 }
@@ -221,7 +221,8 @@ void window_resource_settings_show(resource_type resource)
         WINDOW_RESOURCE_SETTINGS,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     init(resource);
     window_show(&window);

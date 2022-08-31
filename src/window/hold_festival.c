@@ -24,10 +24,10 @@ static void button_close(int param1, int param2);
 static void button_hold_festival(int param1, int param2);
 
 static image_button image_buttons_bottom[] = {
-    {58, 316, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1},
-    {558, 319, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1},
-    {358, 317, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 0, button_hold_festival, button_none, 1, 0, 1},
-    {400, 317, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 4, button_close, button_none, 0, 0, 1},
+    {58, 316, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1, 0, 0, 0},
+    {558, 319, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1, 0, 0, 0},
+    {358, 317, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 0, button_hold_festival, button_none, 1, 0, 1, 0, 0, 0},
+    {400, 317, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 4, button_close, button_none, 0, 0, 1, 0, 0, 0},
 };
 
 static generic_button buttons_gods_size[] = {
@@ -117,13 +117,13 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_god(int god, int param2)
+static void button_god(int god, __attribute__((unused)) int param2)
 {
     city_festival_select_god(god);
     window_invalidate();
 }
 
-static void button_size(int size, int param2)
+static void button_size(int size, __attribute__((unused)) int param2)
 {
     if (!city_finance_out_of_money()) {
         if (city_festival_select_size(size)) {
@@ -132,17 +132,17 @@ static void button_size(int size, int param2)
     }
 }
 
-static void button_help(int param1, int param2)
+static void button_help(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_message_dialog_show(MESSAGE_DIALOG_ADVISOR_ENTERTAINMENT, 0);
 }
 
-static void button_close(int param1, int param2)
+static void button_close(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_advisors_show();
 }
 
-static void button_hold_festival(int param1, int param2)
+static void button_hold_festival(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (city_finance_out_of_money()) {
         return;

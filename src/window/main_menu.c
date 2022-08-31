@@ -94,7 +94,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_click(int type, int param2)
+static void button_click(int type, __attribute__((unused)) int param2)
 {
     if (type == 1) {
         window_cck_selection_show();
@@ -123,7 +123,8 @@ void window_main_menu_show(int restart_music)
         WINDOW_MAIN_MENU,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     window_show(&window);
 }

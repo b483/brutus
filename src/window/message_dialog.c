@@ -34,37 +34,37 @@ static void button_advisor(int advisor, int param2);
 static void button_go_to_problem(int param1, int param2);
 
 static image_button image_button_back = {
-    0, 0, 31, 20, IB_NORMAL, GROUP_ARROW_MESSAGE_PROBLEMS, 8, button_back, button_none, 0, 0, 1
+    0, 0, 31, 20, IB_NORMAL, GROUP_ARROW_MESSAGE_PROBLEMS, 8, button_back, button_none, 0, 0, 1, 0, 0, 0
 };
 static image_button image_button_close = {
-    0, 0, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1
+    0, 0, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1, 0, 0, 0
 };
 static image_button image_button_go_to_problem = {
-    0, 0, 27, 27, IB_NORMAL, GROUP_SIDEBAR_BUTTONS, 52, button_go_to_problem, button_none, 1, 0, 1
+    0, 0, 27, 27, IB_NORMAL, GROUP_SIDEBAR_BUTTONS, 52, button_go_to_problem, button_none, 1, 0, 1, 0, 0, 0
 };
 static image_button image_button_help = {
-    0, 0, 18, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 1, 0, 1
+    0, 0, 18, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 1, 0, 1, 0, 0, 0
 };
 static image_button image_button_labor = {
-    0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 0, button_advisor, button_none, ADVISOR_LABOR, 0, 1
+    0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 0, button_advisor, button_none, ADVISOR_LABOR, 0, 1, 0, 0, 0
 };
 static image_button image_button_trade = {
-    0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 12, button_advisor, button_none, ADVISOR_TRADE, 0, 1
+    0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 12, button_advisor, button_none, ADVISOR_TRADE, 0, 1, 0, 0, 0
 };
 static image_button image_button_population = {
-    0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 15, button_advisor, button_none, ADVISOR_POPULATION, 0, 1
+    0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 15, button_advisor, button_none, ADVISOR_POPULATION, 0, 1, 0, 0, 0
 };
 static image_button image_button_imperial = {
-    0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 6, button_advisor, button_none, ADVISOR_IMPERIAL, 0, 1
+    0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 6, button_advisor, button_none, ADVISOR_IMPERIAL, 0, 1, 0, 0, 0
 };
 static image_button image_button_military = {
-    0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 3, button_advisor, button_none, ADVISOR_MILITARY, 0, 1
+    0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 3, button_advisor, button_none, ADVISOR_MILITARY, 0, 1, 0, 0, 0
 };
 static image_button image_button_health = {
-    0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 18, button_advisor, button_none, ADVISOR_HEALTH, 0, 1
+    0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 18, button_advisor, button_none, ADVISOR_HEALTH, 0, 1, 0, 0, 0
 };
 static image_button image_button_religion = {
-    0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 27, button_advisor, button_none, ADVISOR_RELIGION, 0, 1
+    0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 27, button_advisor, button_none, ADVISOR_RELIGION, 0, 1, 0, 0, 0
 };
 
 static struct {
@@ -553,7 +553,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_back(int param1, int param2)
+static void button_back(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (data.num_history > 0) {
         data.num_history--;
@@ -572,26 +572,26 @@ static void cleanup(void)
     player_message.message_advisor = 0;
 }
 
-static void button_close(int param1, int param2)
+static void button_close(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     cleanup();
     window_go_back();
     window_invalidate();
 }
 
-static void button_help(int param1, int param2)
+static void button_help(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     button_close(0, 0);
     window_message_dialog_show(MESSAGE_DIALOG_HELP, data.background_callback);
 }
 
-static void button_advisor(int advisor, int param2)
+static void button_advisor(int advisor, __attribute__((unused)) int param2)
 {
     cleanup();
     window_advisors_show_advisor(advisor);
 }
 
-static void button_go_to_problem(int param1, int param2)
+static void button_go_to_problem(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     cleanup();
     const lang_message *msg = lang_get_message(data.text_id);

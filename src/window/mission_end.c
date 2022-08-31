@@ -123,7 +123,8 @@ static void show_end_dialog(void)
         WINDOW_MISSION_END,
         draw_background,
         draw_foreground,
-        handle_input
+        handle_input,
+        0
     };
     window_show(&window);
 }

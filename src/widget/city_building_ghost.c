@@ -135,7 +135,7 @@ static void draw_building(int image_id, int x, int y)
     image_draw_isometric_top(image_id, x, y, COLOR_MASK_GREEN);
 }
 
-static void draw_fountain_range(int x, int y, int grid_offset)
+static void draw_fountain_range(int x, int y, __attribute__((unused)) int grid_offset)
 {
     image_draw_blend_alpha(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, COLOR_MASK_BLUE);
 }

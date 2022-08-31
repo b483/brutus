@@ -394,7 +394,7 @@ int window_building_handle_mouse_figure_list(const mouse *m, building_info_conte
     return handled;
 }
 
-static void select_figure(int index, int param2)
+static void select_figure(int index, __attribute__((unused)) int param2)
 {
     data.context_for_callback->figure.selected_index = index;
     window_building_play_figure_phrase(data.context_for_callback);

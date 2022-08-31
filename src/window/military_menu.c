@@ -84,7 +84,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void button_menu_item(int index, int param2)
+static void button_menu_item(int index, __attribute__((unused)) int param2)
 {
     int formation_id = formation_for_legion(index);
     const formation *m = formation_get(formation_id);
