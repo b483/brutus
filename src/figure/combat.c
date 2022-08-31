@@ -6,7 +6,6 @@
 #include "figure/properties.h"
 #include "figure/route.h"
 #include "figure/sound.h"
-#include "game/difficulty.h"
 #include "map/figure.h"
 #include "sound/effect.h"
 
@@ -70,10 +69,6 @@ static void hit_opponent(figure *f)
     int figure_attack = props->attack_value;
     int opponent_defense = opponent_props->defense_value;
 
-    // attack modifiers
-    if (f->type == FIGURE_WOLF) {
-        figure_attack = difficulty_adjust_wolf_attack(figure_attack);
-    }
     if (opponent->opponent_id != f->id && m->figure_type != FIGURE_FORT_LEGIONARY &&
             attack_is_same_direction(f->attack_direction, opponent->attack_direction)) {
         figure_attack += 4; // attack opponent on the (exposed) back

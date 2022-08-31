@@ -4,7 +4,6 @@
 #include "building/model.h"
 #include "city/data_private.h"
 #include "core/calc.h"
-#include "game/difficulty.h"
 #include "game/time.h"
 
 #define MAX_HOUSE_LEVELS 20
@@ -141,8 +140,7 @@ void city_finance_estimate_taxes(void)
         building *b = building_get(i);
         if (b->state == BUILDING_STATE_IN_USE && b->house_size && b->house_tax_coverage) {
             int is_patrician = b->subtype.house_level >= HOUSE_SMALL_VILLA;
-            int trm = difficulty_adjust_money(
-                model_get_house(b->subtype.house_level)->tax_multiplier);
+            int trm = model_get_house(b->subtype.house_level)->tax_multiplier;
             if (is_patrician) {
                 city_data.taxes.monthly.collected_patricians += b->house_population * trm;
             } else {
@@ -185,8 +183,7 @@ static void collect_monthly_taxes(void)
 
         int is_patrician = b->subtype.house_level >= HOUSE_SMALL_VILLA;
         int population = b->house_population;
-        int trm = difficulty_adjust_money(
-            model_get_house(b->subtype.house_level)->tax_multiplier);
+        int trm = model_get_house(b->subtype.house_level)->tax_multiplier;
         city_data.population.at_level[b->subtype.house_level] += population;
 
         int tax = population * trm;

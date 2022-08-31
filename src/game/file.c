@@ -29,7 +29,6 @@
 #include "figuretype/animal.h"
 #include "figuretype/water.h"
 #include "game/animation.h"
-#include "game/difficulty.h"
 #include "game/file_io.h"
 #include "game/settings.h"
 #include "game/state.h"

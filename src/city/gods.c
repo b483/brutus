@@ -194,9 +194,7 @@ static void update_god_moods(void)
             god_id = city_data.religion.least_happy_god - 1;
         }
     }
-    if (!setting_gods_enabled()) {
-        return;
-    }
+    // return here to disable gods
     if (god_id < MAX_GODS) {
         god_status *god = &city_data.religion.gods[god_id];
         if (god->happiness >= 100 && !god->blessing_done) {

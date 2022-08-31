@@ -1,4 +1,3 @@
-#include "game/difficulty.h"
 #include "game/settings.h"
 #include "scenario.h"
 #include "scenario/data.h"

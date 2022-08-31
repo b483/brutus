@@ -15,7 +15,6 @@
 #include "graphics/window.h"
 #include "widget/city.h"
 #include "window/city.h"
-#include "window/difficulty_options.h"
 #include "window/display_options.h"
 #include "window/file_dialog.h"
 #include "window/message_dialog.h"
@@ -38,7 +37,6 @@ static void menu_file_exit_game(int param);
 static void menu_options_display(int param);
 static void menu_options_sound(int param);
 static void menu_options_speed(int param);
-static void menu_options_difficulty(int param);
 static void menu_options_autosave(int param);
 
 static void menu_help_help(int param);
@@ -58,7 +56,6 @@ static menu_item menu_options[] = {
     {2, 1, menu_options_display, 0, 0},
     {2, 2, menu_options_sound, 0, 0},
     {2, 3, menu_options_speed, 0, 0},
-    {2, 6, menu_options_difficulty, 0, 0},
     {19, 51, menu_options_autosave, 0, 0},
 };
 
@@ -71,7 +68,7 @@ static menu_item menu_help[] = {
 
 static menu_bar_item menu[] = {
     {1, menu_file, 5, 0, 0, 0, 0},
-    {2, menu_options, 5, 0, 0, 0, 0},
+    {2, menu_options, 4, 0, 0, 0, 0},
     {3, menu_help, 4, 0, 0, 0, 0},
 };
 
@@ -103,7 +100,7 @@ static void clear_state(void)
 
 static void set_text_for_autosave(void)
 {
-    menu_update_text(&menu[INDEX_OPTIONS], 4, setting_monthly_autosave() ? 51 : 52);
+    menu_update_text(&menu[INDEX_OPTIONS], 3, setting_monthly_autosave() ? 51 : 52);
 }
 
 static void set_text_for_tooltips(void)
@@ -260,7 +257,7 @@ static int handle_input_submenu(const mouse *m, const hotkeys *h)
         window_go_back();
         return 1;
     }
-    int menu_id = menu_bar_handle_mouse(m, menu, 4, &data.focus_menu_id);
+    int menu_id = menu_bar_handle_mouse(m, menu, sizeof(menu) / sizeof(menu_bar_item), &data.focus_menu_id);
     if (menu_id && menu_id != data.open_sub_menu) {
         window_request_refresh();
         data.open_sub_menu = menu_id;
@@ -309,7 +306,7 @@ static int handle_right_click(int type)
 
 static int handle_mouse_menu(const mouse *m)
 {
-    int menu_id = menu_bar_handle_mouse(m, menu, 4, &data.focus_menu_id);
+    int menu_id = menu_bar_handle_mouse(m, menu, sizeof(menu) / sizeof(menu_bar_item), &data.focus_menu_id);
     if (menu_id && m->left.went_up) {
         data.open_sub_menu = menu_id;
         top_menu_window_show();
@@ -395,12 +392,6 @@ static void menu_options_speed(__attribute__((unused)) int param)
 {
     clear_state();
     window_speed_options_show(window_city_return);
-}
-
-static void menu_options_difficulty(__attribute__((unused)) int param)
-{
-    clear_state();
-    window_difficulty_options_show(window_city_return);
 }
 
 static void menu_options_autosave(__attribute__((unused)) int param)

@@ -10,14 +10,6 @@ typedef enum {
 } set_tooltips;
 
 typedef enum {
-    DIFFICULTY_VERY_EASY = 0,
-    DIFFICULTY_EASY = 1,
-    DIFFICULTY_NORMAL = 2,
-    DIFFICULTY_HARD = 3,
-    DIFFICULTY_VERY_HARD = 4
-} set_difficulty;
-
-typedef enum {
     SOUND_MUSIC = 1,
     SOUND_SPEECH = 2,
     SOUND_EFFECTS = 3,
@@ -62,13 +54,6 @@ void setting_toggle_warnings(void);
 
 int setting_monthly_autosave(void);
 void setting_toggle_monthly_autosave(void);
-
-int setting_gods_enabled(void);
-void setting_toggle_gods_enabled(void);
-
-set_difficulty setting_difficulty(void);
-void setting_increase_difficulty(void);
-void setting_decrease_difficulty(void);
 
 int setting_victory_video(void);
 

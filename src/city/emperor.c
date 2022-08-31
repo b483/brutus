@@ -6,7 +6,6 @@
 #include "city/ratings.h"
 #include "core/calc.h"
 #include "figure/formation.h"
-#include "game/difficulty.h"
 #include "game/time.h"
 #include "scenario/property.h"
 #include "scenario/invasion.h"
@@ -29,7 +28,7 @@ static void update_debt_state(void)
     }
     if (city_data.emperor.debt_state == 0) {
         // provide bailout
-        int rescue_loan = difficulty_adjust_money(scenario_rescue_loan());
+        int rescue_loan = scenario_rescue_loan();
         city_finance_process_donation(rescue_loan);
         city_finance_calculate_totals();
 

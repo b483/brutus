@@ -47,14 +47,8 @@ static void draw_god_row(god_type god, int y_offset, building_type small_temple,
 static int draw_background(void)
 {
     int height_blocks;
-    if (setting_gods_enabled()) {
-        height_blocks = 17;
-        outer_panel_draw(0, 0, 40, height_blocks);
-    } else {
-        height_blocks = 20;
-        outer_panel_draw(0, 0, 40, height_blocks);
-        lang_text_draw_multiline(59, 43, 60, 256, 520, FONT_NORMAL_BLACK);
-    }
+    height_blocks = 17;
+    outer_panel_draw(0, 0, 40, height_blocks);
 
     image_draw(image_group(GROUP_ADVISOR_ICONS) + 9, 10, 10);
 

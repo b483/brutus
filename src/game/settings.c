@@ -22,9 +22,6 @@ static struct {
     // speed settings
     int game_speed;
     int scroll_speed;
-    // difficulty settings
-    set_difficulty difficulty;
-    int gods_enabled;
     // misc settings
     int monthly_autosave;
     set_tooltips tooltips;
@@ -54,9 +51,6 @@ static void load_default_settings(void)
     data.game_speed = 80;
     data.scroll_speed = 70;
 
-    data.difficulty = DIFFICULTY_VERY_HARD;
-    data.gods_enabled = 1;
-
     data.monthly_autosave = 0;
     data.tooltips = TOOLTIPS_FULL;
     data.warnings = 1;
@@ -81,9 +75,6 @@ static void load_settings(buffer *buf)
 
     data.game_speed = buffer_read_i32(buf);
     data.scroll_speed = buffer_read_i32(buf);
-
-    data.difficulty = buffer_read_i32(buf);
-    data.gods_enabled = buffer_read_i32(buf);
 
     data.monthly_autosave = buffer_read_u8(buf);
     data.tooltips = buffer_read_i32(buf);
@@ -136,9 +127,6 @@ void settings_save(void)
 
     buffer_write_i32(buf, data.game_speed);
     buffer_write_i32(buf, data.scroll_speed);
-
-    buffer_write_i32(buf, data.difficulty);
-    buffer_write_i32(buf, data.gods_enabled);
 
     buffer_write_u8(buf, data.monthly_autosave);
     buffer_write_i32(buf, data.tooltips);
@@ -293,39 +281,6 @@ int setting_monthly_autosave(void)
 void setting_toggle_monthly_autosave(void)
 {
     data.monthly_autosave = data.monthly_autosave ? 0 : 1;
-}
-
-int setting_gods_enabled(void)
-{
-    return data.gods_enabled;
-}
-
-void setting_toggle_gods_enabled(void)
-{
-    data.gods_enabled = data.gods_enabled ? 0 : 1;
-}
-
-set_difficulty setting_difficulty(void)
-{
-    return data.difficulty;
-}
-
-void setting_increase_difficulty(void)
-{
-    if (data.difficulty >= DIFFICULTY_VERY_HARD) {
-        data.difficulty = DIFFICULTY_VERY_HARD;
-    } else {
-        data.difficulty++;
-    }
-}
-
-void setting_decrease_difficulty(void)
-{
-    if (data.difficulty <= DIFFICULTY_VERY_EASY) {
-        data.difficulty = DIFFICULTY_VERY_EASY;
-    } else {
-        data.difficulty--;
-    }
 }
 
 int setting_victory_video(void)

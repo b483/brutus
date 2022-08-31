@@ -3,7 +3,6 @@
 #include "city/constants.h"
 #include "city/data_private.h"
 #include "city/gods.h"
-#include "game/difficulty.h"
 #include "scenario/property.h"
 
 #include <string.h>
@@ -40,13 +39,8 @@ void city_data_init_scenario(void)
     city_data.unused.faction_id = 1;
     city_data.unused.unknown_00a2 = 1;
     city_data.unused.unknown_00a3 = 1;
-    city_data.finance.treasury = difficulty_adjust_money(scenario_initial_funds());
+    city_data.finance.treasury = scenario_initial_funds();
     city_data.finance.last_year.balance = city_data.finance.treasury;
-}
-
-void city_data_init_campaign_mission(void)
-{
-    city_data.finance.treasury = difficulty_adjust_money(city_data.finance.treasury);
 }
 
 static void save_main_data(buffer *main)

@@ -263,7 +263,6 @@ set(GAME_FILES
     ${PROJECT_SOURCE_DIR}/src/game/animation.c
     ${PROJECT_SOURCE_DIR}/src/game/cheats.c
     ${PROJECT_SOURCE_DIR}/src/game/custom_strings.c
-    ${PROJECT_SOURCE_DIR}/src/game/difficulty.c
     ${PROJECT_SOURCE_DIR}/src/game/file.c
     ${PROJECT_SOURCE_DIR}/src/game/file_editor.c
     ${PROJECT_SOURCE_DIR}/src/game/file_io.c
@@ -439,7 +438,6 @@ set(WINDOW_FILES
     ${PROJECT_SOURCE_DIR}/src/window/cck_selection.c
     ${PROJECT_SOURCE_DIR}/src/window/city.c
     ${PROJECT_SOURCE_DIR}/src/window/config.c
-    ${PROJECT_SOURCE_DIR}/src/window/difficulty_options.c
     ${PROJECT_SOURCE_DIR}/src/window/display_options.c
     ${PROJECT_SOURCE_DIR}/src/window/donate_to_city.c
     ${PROJECT_SOURCE_DIR}/src/window/empire.c

@@ -9,7 +9,6 @@
 #include "figure/figure.h"
 #include "figure/formation.h"
 #include "figure/name.h"
-#include "game/difficulty.h"
 #include "game/time.h"
 #include "map/grid.h"
 #include "map/terrain.h"
@@ -205,9 +204,8 @@ static int start_invasion(int enemy_type, int amount, int invasion_point, int at
     int x, y;
     int orientation;
 
-    amount = difficulty_adjust_enemies(amount);
-    if (amount >= 150) {
-        amount = 150;
+    if (amount > 200) {
+        amount = 200;
     }
     data.last_internal_invasion_id++;
     if (data.last_internal_invasion_id > 32000) {
@@ -407,7 +405,7 @@ void scenario_invasion_process(void)
 
 void scenario_invasion_start_from_mars(void)
 {
-    int amount = difficulty_adjust_enemies(50); // amount resolves to 16, 24, 32, 40, 48
+    int amount = 32;
     int grid_offset = start_invasion(ENEMY_0_BARBARIAN, amount, 8, FORMATION_ATTACK_FOOD_CHAIN, 23);
     if (grid_offset) {
         city_message_post(1, MESSAGE_LOCAL_UPRISING_MARS, data.last_internal_invasion_id, grid_offset);
@@ -427,7 +425,7 @@ int scenario_invasion_start_from_caesar(int size)
 void scenario_invasion_start_from_cheat(void)
 {
     int enemy_id = scenario.enemy_id;
-    int grid_offset = start_invasion(ENEMY_ID_TO_ENEMY_TYPE[enemy_id], 150, 8, FORMATION_ATTACK_FOOD_CHAIN, 23);
+    int grid_offset = start_invasion(ENEMY_ID_TO_ENEMY_TYPE[enemy_id], 200, 8, FORMATION_ATTACK_FOOD_CHAIN, 23);
     if (grid_offset) {
         if (ENEMY_ID_TO_ENEMY_TYPE[enemy_id] > 4) {
             city_message_post(1, MESSAGE_ENEMY_ARMY_ATTACK, data.last_internal_invasion_id, grid_offset);
