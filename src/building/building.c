@@ -165,7 +165,6 @@ building *building_create(building_type type, int x, int y)
     b->house_figure_generation_delay = map_random_get(b->grid_offset) & 0x7f;
     b->figure_roam_direction = b->house_figure_generation_delay & 6;
     b->fire_proof = props->fire_proof;
-    b->is_adjacent_to_water = map_terrain_is_adjacent_to_water(x, y, b->size);
 
     return b;
 }
@@ -263,17 +262,6 @@ void building_update_desirability(void)
             continue;
         }
         b->desirability = map_desirability_get_max(b->x, b->y, b->size);
-        if (b->is_adjacent_to_water) {
-            b->desirability += 10;
-        }
-        switch (map_elevation_at(b->grid_offset)) {
-            case 0: break;
-            case 1: b->desirability += 10; break;
-            case 2: b->desirability += 12; break;
-            case 3: b->desirability += 14; break;
-            case 4: b->desirability += 16; break;
-            default: b->desirability += 18; break;
-        }
     }
 }
 

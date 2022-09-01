@@ -130,7 +130,6 @@ typedef struct {
     unsigned char ruin_has_plague;
     signed char desirability;
     unsigned char is_deleted;
-    unsigned char is_adjacent_to_water;
     unsigned char storage_id;
     union {
         signed char house_happiness;

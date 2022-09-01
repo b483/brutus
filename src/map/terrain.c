@@ -241,17 +241,6 @@ int map_terrain_is_adjacent_to_wall(int x, int y, int size)
     return 0;
 }
 
-int map_terrain_is_adjacent_to_water(int x, int y, int size)
-{
-    int base_offset = map_grid_offset(x, y);
-    for (const int *tile_delta = map_grid_adjacent_offsets(size); *tile_delta; tile_delta++) {
-        if (map_terrain_is(base_offset + *tile_delta, TERRAIN_WATER)) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
 int map_terrain_is_adjacent_to_open_water(int x, int y, int size)
 {
     int base_offset = map_grid_offset(x, y);

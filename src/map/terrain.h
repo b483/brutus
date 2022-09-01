@@ -71,8 +71,6 @@ int map_terrain_has_only_meadow_in_ring(int x, int y, int distance);
 
 int map_terrain_is_adjacent_to_wall(int x, int y, int size);
 
-int map_terrain_is_adjacent_to_water(int x, int y, int size);
-
 int map_terrain_is_adjacent_to_open_water(int x, int y, int size);
 
 int map_terrain_get_adjacent_road_or_clear_land(int x, int y, int size, int *x_tile, int *y_tile);
