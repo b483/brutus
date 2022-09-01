@@ -119,7 +119,7 @@ static void tower_sentry_pick_target(figure *f)
     if (f->wait_ticks_next_target >= 40) {
         f->wait_ticks_next_target = 0;
         map_point tile;
-        if (figure_combat_get_missile_target_for_soldier(f, 10, &tile)) {
+        if (figure_combat_get_missile_target_for_soldier(f, 12, &tile)) {
             f->action_state = FIGURE_ACTION_172_TOWER_SENTRY_FIRING;
             f->destination_x = f->x;
             f->destination_y = f->y;
@@ -216,7 +216,7 @@ void figure_tower_sentry_action(figure *f)
             f->wait_ticks_missile++;
             if (f->wait_ticks_missile > figure_properties_for_type(f->type)->missile_delay) {
                 map_point tile;
-                if (figure_combat_get_missile_target_for_soldier(f, 10, &tile)) {
+                if (figure_combat_get_missile_target_for_soldier(f, 12, &tile)) {
                     f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
                     f->wait_ticks_missile = 0;
                     figure_create_missile(f->id, f->x, f->y, tile.x, tile.y, FIGURE_JAVELIN);

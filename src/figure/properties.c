@@ -1,7 +1,7 @@
 #include "properties.h"
 
 static const figure_properties properties[] = {
-    //  cat  dmg  atk  def Mdef Matk Mfrq
+    //  cat  hp   atk  def Mdef Matk Mfrq
         {0,   0,   0,   0,   0,   0,   0},  // FIGURE_NONE
         {1,  20,   0,   0,   0,   0,   0},  // FIGURE_IMMIGRANT
         {1,  20,   0,   0,   0,   0,   0},  // FIGURE_EMIGRANT
@@ -13,8 +13,8 @@ static const figure_properties properties[] = {
         {1,  20,   0,   0,   0,   0,   0},  // FIGURE_ENGINEER
         {1,  20,   0,   0,   0,   0,   0},  // FIGURE_WAREHOUSEMAN
         {2,  50,   5,   0,   0,   0,   0},  // FIGURE_PREFECT
-        {2,  80,   4,   0,   0,   4, 100},  // FIGURE_FORT_JAVELIN
-        {2, 120,   8,   0,   0,   0,   0},  // FIGURE_FORT_MOUNTED
+        {2,  70,   4,   0,   0,   4, 100},  // FIGURE_FORT_JAVELIN
+        {2, 140,   9,   0,   0,   0,   0},  // FIGURE_FORT_MOUNTED
         {2, 150,  10,   0,   0,   0,   0},  // FIGURE_FORT_LEGIONARY
         {0,   0,   0,   0,   0,   0,   0},  // FIGURE_FORT_STANDARD
         {1,  20,   0,   0,   0,   0,   0},  // FIGURE_ACTOR
