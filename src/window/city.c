@@ -35,6 +35,8 @@
 #include "window/file_dialog.h"
 #include "window/popup_dialog.h"
 
+static int last_legion_selected = 1;
+
 static void draw_background(void)
 {
     widget_sidebar_city_draw_background();
@@ -145,33 +147,20 @@ static void show_overlay(int overlay)
 
 static void cycle_legion(void)
 {
-    static int current_legion_id = 1;
-    if (window_is(WINDOW_CITY) || window_is(WINDOW_CITY_MILITARY)) {
-        int legion_id = current_legion_id;
-        current_legion_id = 0;
-        for (int i = 1; i < MAX_FORMATIONS; i++) {
-            legion_id++;
-            if (legion_id > MAX_LEGIONS) {
-                legion_id = 1;
-            }
-            const formation *m = formation_get(legion_id);
-            if (m->in_use == 1 && !m->is_herd && m->is_legion) {
-                if (current_legion_id == 0) {
-                    current_legion_id = legion_id;
-                    break;
-                }
-            }
-        }
-        if (current_legion_id > 0) {
-            const formation *m = formation_get(current_legion_id);
-            city_view_go_to_grid_offset(map_grid_offset(m->x_home, m->y_home));
-            if (config_get(CONFIG_UI_SHOW_MILITARY_SIDEBAR) && window_is(WINDOW_CITY_MILITARY)) {
-                window_city_military_show(current_legion_id);
-            } else {
-                window_invalidate();
-            }
+    int n_legions = formation_get_num_legions_cached();
+    if (last_legion_selected > n_legions) {
+        last_legion_selected = 1;
+    }
+    while (last_legion_selected <= n_legions) {
+        formation *m = formation_get(formation_for_legion(last_legion_selected));
+        if (!m->in_distant_battle && m->num_figures > 0) {
+            break;
+        } else {
+            last_legion_selected++;
         }
     }
+    window_city_military_show(last_legion_selected);
+    last_legion_selected++;
 }
 
 static void return_legions_to_fort(void)

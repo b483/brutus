@@ -120,7 +120,7 @@ static void init_defaults(void)
     set_mapping(KEY_TYPE_RIGHT, KEY_MOD_NONE, HOTKEY_ARROW_RIGHT);
     set_layout_mapping("P", KEY_TYPE_P, KEY_MOD_NONE, HOTKEY_TOGGLE_PAUSE);
     set_mapping(KEY_TYPE_SPACE, KEY_MOD_NONE, HOTKEY_TOGGLE_OVERLAY);
-    set_layout_mapping("L", KEY_TYPE_L, KEY_MOD_NONE, HOTKEY_CYCLE_LEGION);
+    set_layout_mapping("S", KEY_TYPE_L, KEY_MOD_NONE, HOTKEY_CYCLE_LEGION);
     set_layout_mapping("B", KEY_TYPE_B, KEY_MOD_NONE, HOTKEY_RETURN_LEGIONS_TO_FORT);
     set_layout_mapping("[", KEY_TYPE_LEFTBRACKET, KEY_MOD_NONE, HOTKEY_DECREASE_GAME_SPEED);
     set_layout_mapping("]", KEY_TYPE_RIGHTBRACKET, KEY_MOD_NONE, HOTKEY_INCREASE_GAME_SPEED);
