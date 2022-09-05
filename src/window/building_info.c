@@ -27,6 +27,7 @@
 #include "map/road_access.h"
 #include "map/sprite.h"
 #include "map/terrain.h"
+#include "widget/city.h"
 #include "window/advisors.h"
 #include "window/city.h"
 #include "window/message_dialog.h"
@@ -199,13 +200,13 @@ static void init(int grid_offset)
         } else {
             context.terrain_type = TERRAIN_INFO_ROCK;
         }
-    } else if ((map_terrain_get(grid_offset) & (TERRAIN_WATER|TERRAIN_BUILDING)) == TERRAIN_WATER) {
+    } else if ((map_terrain_get(grid_offset) & (TERRAIN_WATER | TERRAIN_BUILDING)) == TERRAIN_WATER) {
         context.terrain_type = TERRAIN_INFO_WATER;
     } else if (map_terrain_is(grid_offset, TERRAIN_TREE)) {
         context.terrain_type = TERRAIN_INFO_SHRUB;
     } else if (map_terrain_is(grid_offset, TERRAIN_GARDEN)) {
         context.terrain_type = TERRAIN_INFO_GARDEN;
-    } else if ((map_terrain_get(grid_offset) & (TERRAIN_ROAD|TERRAIN_BUILDING)) == TERRAIN_ROAD) {
+    } else if ((map_terrain_get(grid_offset) & (TERRAIN_ROAD | TERRAIN_BUILDING)) == TERRAIN_ROAD) {
         context.terrain_type = TERRAIN_INFO_ROAD;
     } else if (map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
         context.terrain_type = TERRAIN_INFO_AQUEDUCT;
@@ -342,8 +343,8 @@ static void init(int grid_offset)
     int s_height = screen_height();
     context.x_offset = center_in_city(BLOCK_SIZE * context.width_blocks);
     if (s_width >= 1024 && s_height >= 768) {
-        context.x_offset = mouse_get()->x;
-        context.y_offset = mouse_get()->y;
+        context.x_offset = mouse_get()->x - 225;
+        context.y_offset = mouse_get()->y - 250;
         window_building_set_possible_position(&context.x_offset, &context.y_offset,
             context.width_blocks, context.height_blocks);
     } else if (s_height >= 600 && mouse_get()->y <= (s_height - 24) / 2 + 24) {
@@ -355,8 +356,8 @@ static void init(int grid_offset)
 
 static void draw_background(void)
 {
-    window_city_draw_panels();
-    window_city_draw();
+    window_city_draw_background();
+    widget_city_draw();
     if (context.type == BUILDING_INFO_NONE) {
         window_building_draw_no_people(&context);
     } else if (context.type == BUILDING_INFO_TERRAIN) {
@@ -602,8 +603,6 @@ static void get_tooltip(tooltip_context *c)
     int text_id = 0, group_id = 0;
     if (focus_image_button_id) {
         text_id = focus_image_button_id;
-    } else if (context.type == BUILDING_INFO_LEGION) {
-        text_id = window_building_get_legion_info_tooltip_text();
     } else if (context.type == BUILDING_INFO_BUILDING && context.storage_show_special_orders) {
         int btype = building_get(context.building_id)->type;
         if (btype == BUILDING_GRANARY) {

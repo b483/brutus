@@ -6,7 +6,7 @@
 #include "graphics/window.h"
 #include "sound/effect.h"
 #include "widget/sidebar/common.h"
-#include "window/city.h"
+#include "widget/city.h"
 
 #define SLIDE_SPEED 7
 #define SLIDE_ACCELERATION_MILLIS 65
@@ -68,7 +68,7 @@ void sidebar_slide(slide_direction direction, back_sidebar_draw_function back_si
 
     window_type window = {
         WINDOW_SLIDING_SIDEBAR,
-        window_city_draw,
+        widget_city_draw,
         draw_sliding_foreground,
         0,
         0

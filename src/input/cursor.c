@@ -367,7 +367,7 @@ const cursor *input_cursor_data(cursor_shape cursor_id, cursor_scale scale)
 
 void input_cursor_update(window_id window)
 {
-    if (window == WINDOW_CITY_MILITARY && !window_city_military_is_cursor_in_menu()) {
+    if (window == WINDOW_CITY_MILITARY) {
         system_set_cursor(CURSOR_SWORD);
     } else if (window == WINDOW_CITY && building_construction_type() == BUILDING_CLEAR_LAND) {
         system_set_cursor(CURSOR_SHOVEL);

@@ -137,8 +137,8 @@ static void init(void)
 
 static void draw_background(void)
 {
-    window_city_draw_panels();
-    window_city_draw();
+    window_city_draw_background();
+    widget_city_draw();
 }
 
 static void draw_foreground(void)

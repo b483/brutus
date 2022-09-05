@@ -9,6 +9,7 @@
 #include "graphics/panel.h"
 #include "graphics/window.h"
 #include "input/input.h"
+#include "widget/city.h"
 #include "window/city.h"
 
 #define MENU_X_OFFSET 170
@@ -79,7 +80,7 @@ static void init(void)
 
 static void draw_background(void)
 {
-    window_city_draw_panels();
+    window_city_draw_background();
 }
 
 static int get_sidebar_x_offset(void)
@@ -91,7 +92,7 @@ static int get_sidebar_x_offset(void)
 
 static void draw_foreground(void)
 {
-    window_city_draw();
+    widget_city_draw();
     int x_offset = get_sidebar_x_offset();
     for (int i = 0; i < 8; i++) {
         label_draw(x_offset - 170, 74 + 24 * i, 10, data.menu_focus_button_id == i + 1 ? 1 : 2);

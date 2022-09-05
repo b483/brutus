@@ -151,7 +151,7 @@ int window_build_menu_image(void)
 
 static void draw_background(void)
 {
-    window_city_draw_panels();
+    window_city_draw_background();
 }
 
 static int get_sidebar_x_offset(void)
@@ -207,7 +207,7 @@ static void draw_menu_buttons(void)
 
 static void draw_foreground(void)
 {
-    window_city_draw();
+    widget_city_draw();
     draw_menu_buttons();
 }
 

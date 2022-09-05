@@ -382,11 +382,6 @@ int window_building_handle_mouse_legion_info(const mouse *m, building_info_conte
     return handled;
 }
 
-int window_building_get_legion_info_tooltip_text(void)
-{
-    return data.focus_button_id ? 147 : 0;
-}
-
 static void button_return_to_fort(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     formation *m = formation_get(data.context_for_callback->formation_id);
