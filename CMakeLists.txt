@@ -10,8 +10,8 @@ option(DRAW_FPS "Draw FPS on the top left corner of the window." OFF)
 option(SYSTEM_LIBS "Use system libraries when available." ON)
 option(LINK_MPG123 "Link mpg123 statically to Julius instead of relying on a library." OFF)
 
-set(SHORT_NAME julius)
-set(USER_FRIENDLY_NAME Julius)
+set(SHORT_NAME brutus)
+set(USER_FRIENDLY_NAME Brutus)
 project(${SHORT_NAME} C)
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/cmake/")
