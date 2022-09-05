@@ -639,13 +639,11 @@ static void button_show_resource_window(int resource, __attribute__((unused)) in
     window_resource_settings_show(resource);
 }
 
-static void confirmed_open_trade(int accepted)
+static void confirmed_open_trade(void)
 {
-    if (accepted) {
-        empire_object_open_trade(data.selected_object);
-        building_menu_update();
-        window_trade_opened_show(data.selected_object);
-    }
+    empire_object_open_trade(data.selected_object);
+    building_menu_update();
+    window_trade_opened_show(data.selected_object);
 }
 
 static void button_open_trade(__attribute__((unused)) int param1, __attribute__((unused)) int param2)

@@ -223,22 +223,19 @@ static void button_gift_to_emperor(__attribute__((unused)) int param1, __attribu
     window_gift_to_emperor_show();
 }
 
-static void confirm_nothing(__attribute__((unused)) int accepted)
+static void confirm_nothing(void)
 {}
 
-static void confirm_send_troops(int accepted)
+static void confirm_send_troops(void)
 {
-    if (accepted) {
-        formation_legions_dispatch_to_distant_battle();
-        window_empire_show();
-    }
+    formation_legions_dispatch_to_distant_battle();
+    window_empire_show();
 }
 
-static void confirm_send_goods(int accepted)
+static void confirm_send_goods(void)
 {
-    if (accepted) {
-        scenario_request_dispatch(selected_request_id);
-    }
+    scenario_request_dispatch(selected_request_id);
+
 }
 
 static void button_request(int index, __attribute__((unused)) int param2)

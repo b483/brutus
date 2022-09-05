@@ -144,13 +144,9 @@ static int input_coords_in_map(int x, int y)
     return (x >= 0 && x < width &&y >= 0 && y < height);
 }
 
-static void confirm_editor_exit_to_main_menu(int accepted)
+static void confirm_editor_exit_to_main_menu(void)
 {
-    if (accepted) {
-        game_exit_editor();
-    } else {
-        window_editor_map_show();
-    }
+    game_exit_editor();
 }
 
 void request_exit_editor(void)

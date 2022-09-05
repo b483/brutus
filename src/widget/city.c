@@ -258,16 +258,12 @@ static void handle_mouse(const mouse *m)
 }
 
 
-static void confirm_exit_to_main_menu(int accepted)
+static void confirm_exit_to_main_menu(void)
 {
-    if (accepted) {
-        building_construction_clear_type();
-        game_undo_disable();
-        game_state_reset_overlay();
-        window_main_menu_show(1);
-    } else {
-        window_city_return();
-    }
+    building_construction_clear_type();
+    game_undo_disable();
+    game_state_reset_overlay();
+    window_main_menu_show(1);
 }
 
 void request_exit_scenario(void)

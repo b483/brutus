@@ -156,12 +156,8 @@ static void set_construction_building_type(building_type type)
     }
 }
 
-static void replay_map_confirmed(int confirmed)
+static void replay_map_confirmed(void)
 {
-    if (!confirmed) {
-        window_city_show();
-        return;
-    }
     game_file_start_scenario_by_name(scenario_get_name());
     window_city_show();
 }

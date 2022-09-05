@@ -27,12 +27,12 @@ static struct {
     int custom_text_group;
     int custom_text_id;
     int ok_clicked;
-    void (*close_func)(int accepted);
+    void (*close_func)(void);
     int has_buttons;
 } data;
 
 static int init(popup_dialog_type type, int custom_text_group, int custom_text_id,
-        void (*close_func)(int accepted), int has_ok_cancel_buttons)
+        void (*close_func)(void), int has_ok_cancel_buttons)
 {
     if (window_is(WINDOW_POPUP_DIALOG)) {
         // don't show popup over popup
@@ -83,7 +83,6 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     if (input_go_back_requested(m, h)) {
-        data.close_func(0);
         window_go_back();
     }
     if (h->enter_pressed) {
@@ -99,17 +98,16 @@ static void button_ok(__attribute__((unused)) int param1, __attribute__((unused)
 static void button_cancel(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_go_back();
-    data.close_func(0);
 }
 
 static void confirm(void)
 {
     window_go_back();
-    data.close_func(1);
+    data.close_func();
 }
 
 void window_popup_dialog_show(popup_dialog_type type,
-        void (*close_func)(int accepted), int has_ok_cancel_buttons)
+        void (*close_func)(void), int has_ok_cancel_buttons)
 {
     if (init(type, 0, 0, close_func, has_ok_cancel_buttons)) {
         window_type window = {
@@ -124,7 +122,7 @@ void window_popup_dialog_show(popup_dialog_type type,
 }
 
 void window_popup_dialog_show_confirmation(int text_group, int text_id,
-        void (*close_func)(int accepted))
+        void (*close_func)(void))
 {
     if (init(POPUP_DIALOG_NONE, text_group, text_id, close_func, 1)) {
         window_type window = {

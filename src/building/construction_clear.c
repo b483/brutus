@@ -166,23 +166,15 @@ static int clear_land_confirmed(int measure_only, int x_start, int y_start, int 
     return items_placed;
 }
 
-static void confirm_delete_fort(int accepted)
+static void confirm_delete_fort(void)
 {
-    if (accepted == 1) {
-        confirm.fort_confirmed = 1;
-    } else {
-        confirm.fort_confirmed = -1;
-    }
+    confirm.fort_confirmed = 1;
     clear_land_confirmed(0, confirm.x_start, confirm.y_start, confirm.x_end, confirm.y_end);
 }
 
-static void confirm_delete_bridge(int accepted)
+static void confirm_delete_bridge(void)
 {
-    if (accepted == 1) {
-        confirm.bridge_confirmed = 1;
-    } else {
-        confirm.bridge_confirmed = -1;
-    }
+    confirm.bridge_confirmed = 1;
     clear_land_confirmed(0, confirm.x_start, confirm.y_start, confirm.x_end, confirm.y_end);
 }
 
