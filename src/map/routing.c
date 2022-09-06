@@ -446,7 +446,7 @@ static void callback_travel_noncitizen_land(int next_offset, int dist)
 {
     if (!has_fighting_enemy(next_offset)) {
         if (terrain_land_noncitizen.items[next_offset] >= NONCITIZEN_0_PASSABLE &&
-            terrain_land_noncitizen.items[next_offset] < NONCITIZEN_5_FORT) {
+            terrain_land_noncitizen.items[next_offset] <= NONCITIZEN_5_FORT) {
             enqueue(next_offset, dist);
         }
     }
