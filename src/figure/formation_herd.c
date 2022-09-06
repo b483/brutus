@@ -8,54 +8,34 @@
 #include "figure/formation.h"
 #include "figure/formation_enemy.h"
 #include "figure/route.h"
-#include "map/desirability.h"
 #include "map/grid.h"
 #include "map/soldier_strength.h"
 #include "map/terrain.h"
 #include "sound/effect.h"
 
-static int get_free_tile(int x, int y, int allow_negative_desirability, int *x_tile, int *y_tile)
+static int get_free_tile(int x, int y, int *x_tile, int *y_tile)
 {
-    unsigned short disallowed_terrain = ~(TERRAIN_ACCESS_RAMP | TERRAIN_MEADOW);
-    int tile_found = 0;
-    int x_found = 0, y_found = 0;
-
     int x_min, y_min, x_max, y_max;
     map_grid_get_area(x, y, 1, 4, &x_min, &y_min, &x_max, &y_max);
 
     for (int yy = y_min; yy <= y_max; yy++) {
         for (int xx = x_min; xx <= x_max; xx++) {
-            int grid_offset = map_grid_offset(xx, yy);
-            if (!map_terrain_is(grid_offset, disallowed_terrain)) {
-                if (map_soldier_strength_get(grid_offset)) {
-                    return 0;
-                }
-                int desirability = map_desirability_get(grid_offset);
-                if (allow_negative_desirability) {
-                    if (desirability > 1) {
-                        return 0;
-                    }
-                } else if (desirability) {
-                    return 0;
-                }
-                tile_found = 1;
-                x_found = xx;
-                y_found = yy;
+            if (map_soldier_strength_get(map_grid_offset(xx, yy))) {
+                return 0;
             }
+            *x_tile = xx;
+            *y_tile = yy;
+            return 1;
         }
     }
-    *x_tile = x_found;
-    *y_tile = y_found;
-    return tile_found;
+    return 0;
 }
 
-static int get_roaming_destination(int formation_id, int allow_negative_desirability,
-                                   int x, int y, int distance, int direction, int *x_tile, int *y_tile)
+static int get_roaming_destination(int formation_id, int x, int y, int distance, int direction, int *x_tile, int *y_tile)
 {
     int target_direction = (formation_id + random_byte()) & 6;
     if (direction) {
         target_direction = direction;
-        allow_negative_desirability = 1;
     }
     for (int i = 0; i < 4; i++) {
         int x_target, y_target;
@@ -104,7 +84,7 @@ static int get_roaming_destination(int formation_id, int allow_negative_desirabi
         } else if (y_target >= map_grid_height() - 1) {
             y_target = map_grid_height() - 2;
         }
-        if (get_free_tile(x_target, y_target, allow_negative_desirability, x_tile, y_tile)) {
+        if (get_free_tile(x_target, y_target, x_tile, y_tile)) {
             return 1;
         }
         target_direction += 2;
@@ -186,24 +166,20 @@ static void update_herd_formation(formation *m)
     }
     int roam_distance;
     int roam_delay;
-    int allow_negative_desirability;
     switch (m->figure_type) {
         case FIGURE_SHEEP:
             roam_distance = 8;
             roam_delay = 20;
-            allow_negative_desirability = 0;
             attacking_animals = 0;
             break;
         case FIGURE_ZEBRA:
             roam_distance = 20;
             roam_delay = 4;
-            allow_negative_desirability = 0;
             attacking_animals = 0;
             break;
         case FIGURE_WOLF:
             roam_distance = 16;
             roam_delay = 6;
-            allow_negative_desirability = 1;
             break;
         default:
             return;
@@ -216,8 +192,8 @@ static void update_herd_formation(formation *m)
             move_animals(m, attacking_animals);
         } else {
             int x_tile, y_tile;
-            if (get_roaming_destination(m->id, allow_negative_desirability, m->x_home, m->y_home,
-                    roam_distance, m->herd_direction, &x_tile, &y_tile)) {
+            if (get_roaming_destination(m->id, m->x_home, m->y_home,
+                roam_distance, m->herd_direction, &x_tile, &y_tile)) {
                 m->herd_direction = 0;
                 if (formation_enemy_move_formation_to(m, x_tile, y_tile, &x_tile, &y_tile)) {
                     formation_set_destination(m, x_tile, y_tile);
