@@ -34,7 +34,8 @@
 #include "window/file_dialog.h"
 #include "window/popup_dialog.h"
 
-static int last_legion_selected = 1;
+static int any_selected_legion_index = 0;
+static int current_selected_legion_index = 0;
 
 void window_city_draw_background(void)
 {
@@ -112,22 +113,66 @@ static void show_overlay(int overlay)
     window_invalidate();
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 static void cycle_legion(void)
 {
     int n_legions = formation_get_num_legions_cached();
-    if (last_legion_selected > n_legions) {
-        last_legion_selected = 1;
+    // check if any legions (forts) exist
+    if (!n_legions) {
+        return;
     }
-    while (last_legion_selected <= n_legions) {
-        formation *m = formation_get(formation_for_legion(last_legion_selected));
-        if (!m->in_distant_battle && m->num_figures > 0) {
-            break;
+
+    // wrap around if last legion was selected previously or forts deleted
+    if (current_selected_legion_index >= n_legions) {
+        current_selected_legion_index = 0;
+    }
+    // legion indexes are 1-6
+    current_selected_legion_index++;
+
+    int current_selected_legion_formation_id;
+    while (current_selected_legion_index <= n_legions) {
+        // formation id needed to prevent mismatch with index if forts deleted
+        current_selected_legion_formation_id = formation_for_legion(current_selected_legion_index);
+        formation *m = formation_get(current_selected_legion_formation_id);
+        if (m->in_distant_battle || !m->num_figures) {
+            // wrap around if last legion can't be selected but any other had been available previously
+            if ((current_selected_legion_index == n_legions) && any_selected_legion_index) {
+                current_selected_legion_index = 1;
+                // prevent infinite loop if e.g. all forts were re-built after a legion had already been selected, or all legions were vanquished
+                any_selected_legion_index = 0;
+            } else {
+                current_selected_legion_index++;
+            }
         } else {
-            last_legion_selected++;
+            window_city_military_show(current_selected_legion_formation_id);
+            if (!any_selected_legion_index) {
+                any_selected_legion_index = current_selected_legion_index;
+            }
+            return;
         }
     }
-    window_city_military_show(last_legion_selected);
-    last_legion_selected++;
 }
 
 static void return_legions_to_fort(void)
