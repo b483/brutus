@@ -331,11 +331,7 @@ int encoding_is_multibyte(void)
 
 int encoding_system_uses_decomposed(void)
 {
-#ifdef __APPLE__
-    return 1;
-#else
     return 0;
-#endif
 }
 
 static int is_ascii(const char *utf8_char)

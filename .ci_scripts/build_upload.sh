@@ -6,18 +6,14 @@ mkdir deploy
 build_dir="$(pwd)/build"
 
 VERSION=$(cat res/version.txt)
-if [[ "$GITHUB_REF" =~ ^refs/tags/v ]]
-then
+if [[ "$GITHUB_REF" =~ ^refs/tags/v ]]; then
   REPO=release
-elif [[ "$GITHUB_REF" == "refs/heads/master" ]]
-then
+elif [[ "$GITHUB_REF" == "refs/heads/master" ]]; then
   REPO=development
-elif [[ "$GITHUB_REF" =~ ^refs/heads/feature/ ]]
-then
+elif [[ "$GITHUB_REF" =~ ^refs/heads/feature/ ]]; then
   FEATURE=${GITHUB_REF##refs/heads/feature/}
   VERSION=$VERSION-$FEATURE
-elif [[ "$GITHUB_REF" =~ ^refs/pull/ ]]
-then
+elif [[ "$GITHUB_REF" =~ ^refs/pull/ ]]; then
   PR_ID=${GITHUB_REF##refs/pull/}
   PR_ID=${PR_ID%%/merge}
   VERSION=pr-$PR_ID-$VERSION
@@ -38,31 +34,23 @@ case "$DEPLOY" in
   DEPLOY_FILE=julius-$VERSION-linux.AppImage
   cp "${build_dir}/julius.AppImage" "deploy/$DEPLOY_FILE"
   ;;
-"mac")
-  PACKAGE=mac
-  DEPLOY_FILE=julius-$VERSION-mac.dmg
-  cp "${build_dir}/julius.dmg" "deploy/$DEPLOY_FILE"
-  ;;
 *)
   echo "Unknown deploy type $DEPLOY - skipping upload"
   exit
   ;;
 esac
 
-if [ ! -z "$SKIP_UPLOAD" ]
-then
+if [ ! -z "$SKIP_UPLOAD" ]; then
   echo "Build is configured to skip deploy - skipping upload"
   exit
 fi
 
-if [ -z "$REPO" ] || [ -z "$DEPLOY_FILE" ]
-then
+if [ -z "$REPO" ] || [ -z "$DEPLOY_FILE" ]; then
   echo "No repo or deploy file found - skipping upload"
   exit
 fi
 
-if [ -z "$UPLOAD_TOKEN" ]
-then
+if [ -z "$UPLOAD_TOKEN" ]; then
   echo "No upload token found - skipping upload"
   exit
 fi

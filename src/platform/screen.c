@@ -69,13 +69,10 @@ static void set_scale_percentage(int new_scale, int pixel_width, int pixel_heigh
         scale_logical_to_pixels(MINIMUM.WIDTH), scale_logical_to_pixels(MINIMUM.HEIGHT));
 
     const char *scale_quality = "linear";
-#ifndef __APPLE__
     // Scale using nearest neighbour when we scale a multiple of 100%: makes it look sharper.
-    // But not on MacOS: users are used to the linear interpolation since that's what Apple also does.
     if (scale_percentage % 100 == 0) {
         scale_quality = "nearest";
     }
-#endif
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, scale_quality);
 }
 
@@ -129,11 +126,9 @@ int platform_screen_create(const char *title, int display_scale_percentage)
         }
     }
 
-#if !defined(__APPLE__)
     if (fullscreen && SDL_GetNumVideoDisplays() > 1) {
         SDL_SetWindowGrab(SDL.window, SDL_TRUE);
     }
-#endif
 
     set_scale_percentage(display_scale_percentage, width, height);
     return platform_screen_resize(width, height);
@@ -227,11 +222,9 @@ void platform_screen_set_fullscreen(void)
     }
     SDL_SetWindowDisplayMode(SDL.window, &mode);
 
-#if !defined(__APPLE__)
     if (SDL_GetNumVideoDisplays() > 1) {
         SDL_SetWindowGrab(SDL.window, SDL_TRUE);
     }
-#endif
     setting_set_display(1, mode.w, mode.h);
 }
 

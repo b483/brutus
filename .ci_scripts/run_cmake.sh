@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
 case "$BUILD_TARGET" in
-"mac")
-	mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DSYSTEM_LIBS=OFF ..
-	;;
 "appimage")
 	mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DSYSTEM_LIBS=OFF -DCMAKE_INSTALL_PREFIX=/usr ..
 	;;

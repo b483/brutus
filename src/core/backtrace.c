@@ -2,8 +2,7 @@
 
 #include "core/log.h"
 
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__OpenBSD__) && \
-    (!defined(__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__) || __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ >= 1050)
+#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__OpenBSD__)
 
 #include <execinfo.h>
 

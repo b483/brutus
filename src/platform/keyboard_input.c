@@ -325,12 +325,7 @@ const char *system_keyboard_key_modifier_name(key_modifier_type modifier)
     switch (modifier) {
         case KEY_MOD_CTRL: return "Ctrl";
         case KEY_MOD_SHIFT: return "Shift";
-        case KEY_MOD_GUI:
-#ifdef __APPLE__
-            return "Cmd";
-#else
-            return "Gui";
-#endif
+        case KEY_MOD_GUI: return "Gui";
         case KEY_MOD_ALT: return "Alt";
         default: return "";
     }

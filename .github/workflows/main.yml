@@ -33,13 +33,6 @@ jobs:
             BUILD_TARGET: linux
             DEPLOY: linux
             SKIP_UPLOAD: true
-          - name: macOS
-            os: macos-latest
-            cache-key: macos
-            SDL_VERSION: 2.0.20
-            SDL_MIXER_VERSION: 2.0.4
-            BUILD_TARGET: mac
-            DEPLOY: mac
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     env:

@@ -167,7 +167,7 @@ static void init_defaults(void)
     set_mapping(KEY_TYPE_F2, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_2);
     set_mapping(KEY_TYPE_F3, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_3);
     set_mapping(KEY_TYPE_F4, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_4);
-    set_mapping(KEY_TYPE_F1, KEY_MOD_ALT, HOTKEY_SET_BOOKMARK_1); // mac specific: Ctrl+F1 key does not work
+    set_mapping(KEY_TYPE_F1, KEY_MOD_ALT, HOTKEY_SET_BOOKMARK_1);
     set_mapping(KEY_TYPE_F2, KEY_MOD_ALT, HOTKEY_SET_BOOKMARK_2);
     set_mapping(KEY_TYPE_F3, KEY_MOD_ALT, HOTKEY_SET_BOOKMARK_3);
     set_mapping(KEY_TYPE_F4, KEY_MOD_ALT, HOTKEY_SET_BOOKMARK_4);
@@ -178,7 +178,7 @@ static void init_defaults(void)
     set_mapping(KEY_TYPE_F8, KEY_MOD_NONE, HOTKEY_RESIZE_TO_800);
     set_mapping(KEY_TYPE_F9, KEY_MOD_NONE, HOTKEY_RESIZE_TO_1024);
     set_mapping(KEY_TYPE_F12, KEY_MOD_NONE, HOTKEY_SAVE_SCREENSHOT);
-    set_mapping(KEY_TYPE_F12, KEY_MOD_ALT, HOTKEY_SAVE_SCREENSHOT); // mac specific
+    set_mapping(KEY_TYPE_F12, KEY_MOD_ALT, HOTKEY_SAVE_SCREENSHOT);
     set_mapping(KEY_TYPE_F12, KEY_MOD_CTRL, HOTKEY_SAVE_CITY_SCREENSHOT);
 }
 

@@ -6,8 +6,7 @@ function get_sdl_lib_url {
   local MODULE=$1
   local VERSION=$2
   local EXT=$3
-  if [[ "$MODULE" == "SDL2_mixer" ]]
-  then
+  if [[ "$MODULE" == "SDL2_mixer" ]]; then
     local SDL_URL_PATH="projects/SDL_mixer/release"
   else
     local SDL_URL_PATH="release"
@@ -23,10 +22,8 @@ function install_mpg123_lib {
   local BUILDDIR=deps/build/$MODULE-$VERSION
   local LIBDIR=deps/$MODULE-$VERSION
   local ROOT=$PWD
-  if [ ! -f "$FILENAME" ] || [ ! -d "$LIBDIR" ]
-  then
-    if [ ! -f "$FILENAME" ]
-    then
+  if [ ! -f "$FILENAME" ] || [ ! -d "$LIBDIR" ]; then
+    if [ ! -f "$FILENAME" ]; then
       echo "Downloading $MODULE-$VERSION"
       MPG123_LIB_URL=https://downloads.sourceforge.net/project/$MODULE/$MODULE/$VERSION/$MODULE-$VERSION.tar.bz2
       curl -L -o "$FILENAME" "$MPG123_LIB_URL"
@@ -37,7 +34,7 @@ function install_mpg123_lib {
     tar -xf "$FILENAME" -C deps/build
     cd $BUILDDIR
     CPPFLAGS="-I$ROOT/deps/SDL2-$SDL_VERSION/include" LDFLAGS="-L$ROOT/deps/SDL2-$SDL_VERSION/lib" \
-      $CONFIGURE_PREFIX ./configure --prefix=$ROOT/$LIBDIR $CONFIGURE_OPTIONS
+    $CONFIGURE_PREFIX ./configure --prefix=$ROOT/$LIBDIR $CONFIGURE_OPTIONS
     $MAKE_PREFIX make -j4
     $MAKE_PREFIX make install
     cd $ROOT
@@ -50,8 +47,7 @@ function install_sdl_lib {
   local MODULE=$1
   local VERSION=$2
   local CONFIGURE_OPTIONS=$3
-  if [ ! -z "$4" ]
-  then
+  if [ ! -z "$4" ]; then
     local ENV_VARS="export $4"
   else
     local ENV_VARS=$4
@@ -60,10 +56,8 @@ function install_sdl_lib {
   local BUILDDIR=deps/build/$MODULE-$VERSION
   local LIBDIR=deps/$MODULE-$VERSION
   local ROOT=$PWD
-  if [ ! -f "$FILENAME" ] || [ ! -d "$LIBDIR" ]
-  then
-    if [ ! -f "$FILENAME" ]
-    then
+  if [ ! -f "$FILENAME" ] || [ ! -d "$LIBDIR" ]; then
+    if [ ! -f "$FILENAME" ]; then
       echo "Downloading $MODULE-$VERSION"
       get_sdl_lib_url $MODULE $VERSION "tar.gz"
       curl -o "$FILENAME" "$SDL_LIB_URL"
@@ -73,7 +67,10 @@ function install_sdl_lib {
     mkdir -p $LIBDIR
     tar -zxf "$FILENAME" -C deps/build
     cd $BUILDDIR
-    ($ENV_VARS ; $CONFIGURE_PREFIX ./configure --prefix=$ROOT/$LIBDIR $CONFIGURE_OPTIONS)
+    (
+      $ENV_VARS
+      $CONFIGURE_PREFIX ./configure --prefix=$ROOT/$LIBDIR $CONFIGURE_OPTIONS
+    )
     $MAKE_PREFIX make -j4
     $MAKE_PREFIX make install
     cd $ROOT
@@ -82,41 +79,17 @@ function install_sdl_lib {
   ln -sf "$ROOT/$LIBDIR" ext/SDL2
 }
 
-function install_sdl_macos {
-  local MODULE=$1
-  local VERSION=$2
-  local FILENAME=deps/$MODULE-$VERSION.dmg
-  if [ ! -f "$FILENAME" ]
-  then
-    get_sdl_lib_url $MODULE $VERSION "dmg"
-    curl -o "$FILENAME" "$SDL_LIB_URL"
-  fi
-  local VOLUME=$(hdiutil attach $FILENAME | grep -o '/Volumes/.*')
-  mkdir -p ~/Library/Frameworks
-  echo "Installing framework:" "/Volumes/SDL2"/*.framework
-  cp -rp "$VOLUME"/*.framework ~/Library/Frameworks
-  hdiutil detach "$VOLUME"
-}
-
 mkdir -p deps
-if [ "$BUILD_TARGET" == "appimage" ]
-then
+if [ "$BUILD_TARGET" == "appimage" ]; then
   sudo apt-get update && sudo apt-get -y install libgl1-mesa-dev libsdl2-dev libsdl2-mixer-dev
-elif [ ! -z "$SDL_VERSION" ] && [ ! -z "$SDL_MIXER_VERSION" ]
-then
-  if [ "$BUILD_TARGET" == "mac" ]
-  then
-    install_sdl_macos "SDL2" $SDL_VERSION
-    install_sdl_macos "SDL2_mixer" $SDL_MIXER_VERSION
-  else
+elif [ ! -z "$SDL_VERSION" ] && [ ! -z "$SDL_MIXER_VERSION" ]; then
     install_sdl_lib "SDL2" $SDL_VERSION "$SDL_CONFIGURE_OPTIONS"
-    if [ ! -z "$MPG123_VERSION" ]
-    then
+    if [ ! -z "$MPG123_VERSION" ]; then
       install_mpg123_lib $MPG123_VERSION "$MPG123_CONFIGURE_OPTIONS"
       SDL_MIXER_MPG123_FLAGS="LDFLAGS=-L$PWD/deps/mpg123-$MPG123_VERSION/lib \
         CPPFLAGS=-I$PWD/deps/mpg123-$MPG123_VERSION/include"
     fi
     install_sdl_lib "SDL2_mixer" $SDL_MIXER_VERSION "$SDL_MIXER_CONFIGURE_OPTIONS" \
-      "$SDL_MIXER_MPG123_FLAGS SDL2_CONFIG=$PWD/deps/SDL2-$SDL_VERSION/bin/sdl2-config"
+    "$SDL_MIXER_MPG123_FLAGS SDL2_CONFIG=$PWD/deps/SDL2-$SDL_VERSION/bin/sdl2-config"
   fi
 fi

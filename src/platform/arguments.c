@@ -55,12 +55,6 @@ int platform_parse_arguments(int argc, char **argv, julius_args *output_args)
     output_args->force_windowed = 0;
 
     for (int i = 1; i < argc; i++) {
-        // we ignore "-psn" arguments, this is needed to launch the app
-        // from the Finder on macOS.
-        // https://hg.libsdl.org/SDL/file/c005c49beaa9/test/testdropfile.c#l47
-        if (SDL_strncmp(argv[i], "-psn", 4) == 0) {
-            continue;
-        }
         if (SDL_strcmp(argv[i], "--display-scale") == 0) {
             if (i + 1 < argc) {
                 int percentage = parse_decimal_as_percentage(argv[i + 1]);
