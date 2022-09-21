@@ -452,16 +452,16 @@ static int pre_init(const char *custom_data_dir)
     }
 #else
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-        "Julius requires the original files from Caesar 3 to run.",
-        "Move the Julius executable to the directory containing an existing "
-        "Caesar 3 installation, or run:\njulius path-to-c3-directory",
+        "Brutus requires the original files from Caesar 3 to run.",
+        "Move the Brutus executable to the directory containing an existing "
+        "Caesar 3 installation, or run:\nbrutus path-to-c3-directory",
         NULL);
 #endif
 
     return 0;
 }
 
-static void setup(const julius_args *args)
+static void setup(const brutus_args *args)
 {
     signal(SIGSEGV, handler);
     setup_logging();
@@ -519,7 +519,7 @@ static void setup(const julius_args *args)
 
 int main(int argc, char **argv)
 {
-    julius_args args;
+    brutus_args args;
     platform_parse_arguments(argc, argv, &args);
 
     setup(&args);

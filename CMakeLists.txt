@@ -8,7 +8,7 @@ string(TOLOWER ${TARGET_PLATFORM} TARGET_PLATFORM)
 
 option(DRAW_FPS "Draw FPS on the top left corner of the window." OFF)
 option(SYSTEM_LIBS "Use system libraries when available." ON)
-option(LINK_MPG123 "Link mpg123 statically to Julius instead of relying on a library." OFF)
+option(LINK_MPG123 "Link mpg123 statically to Brutus instead of relying on a library." OFF)
 
 set(SHORT_NAME brutus)
 set(USER_FRIENDLY_NAME Brutus)
@@ -125,7 +125,7 @@ set(PLATFORM_FILES
     ${PROJECT_SOURCE_DIR}/src/platform/arguments.c
     ${PROJECT_SOURCE_DIR}/src/platform/cursor.c
     ${PROJECT_SOURCE_DIR}/src/platform/file_manager.c
-    ${PROJECT_SOURCE_DIR}/src/platform/julius.c
+    ${PROJECT_SOURCE_DIR}/src/platform/brutus.c
     ${PROJECT_SOURCE_DIR}/src/platform/keyboard_input.c
     ${PROJECT_SOURCE_DIR}/src/platform/log.c
     ${PROJECT_SOURCE_DIR}/src/platform/mouse.c
@@ -492,7 +492,7 @@ set(SOURCE_FILES
     ${WINDOW_FILES}
     ${EDITOR_FILES}
     ${TINYFD_FILES}
-    ${PROJECT_SOURCE_DIR}/res/julius.rc
+    ${PROJECT_SOURCE_DIR}/res/brutus.rc
 )
 
 function(GET_SDL_EXT_DIR result module)
@@ -573,12 +573,3 @@ endif()
 target_link_libraries(${SHORT_NAME} ${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARY})
 
 install(TARGETS ${SHORT_NAME} RUNTIME DESTINATION bin)
-
-if(UNIX)
-    install(FILES "res/julius.desktop" DESTINATION "share/applications" RENAME "com.github.bvschaik.julius.desktop")
-    install(FILES "res/julius.metainfo.xml" DESTINATION "share/metainfo" RENAME "com.github.bvschaik.julius.metainfo.xml")
-    install(FILES "res/julius_32.png" DESTINATION "share/icons/hicolor/32x32/apps" RENAME "com.github.bvschaik.julius.png")
-    install(FILES "res/julius_48.png" DESTINATION "share/icons/hicolor/48x48/apps" RENAME "com.github.bvschaik.julius.png")
-    install(FILES "res/julius_256.png" DESTINATION "share/icons/hicolor/256x256/apps" RENAME "com.github.bvschaik.julius.png")
-    install(FILES "res/julius_512.png" DESTINATION "share/icons/hicolor/512x512/apps" RENAME "com.github.bvschaik.julius.png")
-endif()

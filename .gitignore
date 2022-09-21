@@ -10,7 +10,6 @@
 src/platform/version.c
 res/version.rc
 res/version.txt
-res/julius.icns
 res/shell.html
 res/*asset*
 
