@@ -9,24 +9,24 @@ typedef struct {
     int enter_pressed;
     int escape_pressed;
     // keys with specific function
-    int cycle_legion;
-    int return_legions_to_fort;
+    int load_file;
+    int save_file;
     int decrease_game_speed;
     int increase_game_speed;
+    int toggle_pause;
     int rotate_map_left;
     int rotate_map_right;
     int replay_map;
+    int cycle_legion;
+    int return_legions_to_fort;
     int show_advisor;
-    int show_overlay;
-    int toggle_overlay;
-    int toggle_pause;
-    int toggle_editor_battle_info;
-    int set_bookmark;
-    int go_to_bookmark;
-    int load_file;
-    int save_file;
-    int building;
+    int show_empire_map;
     int clone_building;
+    int building;
+    int show_overlay;
+    int go_to_bookmark;
+    int set_bookmark;
+    int toggle_editor_battle_info;
 } hotkeys;
 
 void hotkey_install_mapping(hotkey_mapping *mappings, int num_mappings);

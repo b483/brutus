@@ -31,6 +31,7 @@
 #include "widget/top_menu.h"
 #include "widget/sidebar/city.h"
 #include "window/advisors.h"
+#include "window/empire.h"
 #include "window/file_dialog.h"
 #include "window/popup_dialog.h"
 
@@ -113,29 +114,6 @@ static void show_overlay(int overlay)
     window_invalidate();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 static void cycle_legion(void)
 {
     int n_legions = formation_get_num_legions_cached();
@@ -215,8 +193,11 @@ void replay_map(void)
 
 static void handle_hotkeys(const hotkeys *h)
 {
-    if (h->toggle_pause) {
-        toggle_pause();
+    if (h->load_file) {
+        window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_LOAD);
+    }
+    if (h->save_file) {
+        window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_SAVE);
     }
     if (h->decrease_game_speed) {
         setting_decrease_game_speed();
@@ -224,22 +205,8 @@ static void handle_hotkeys(const hotkeys *h)
     if (h->increase_game_speed) {
         setting_increase_game_speed();
     }
-    if (h->show_overlay) {
-        show_overlay(h->show_overlay);
-    }
-    if (h->toggle_overlay) {
-        game_state_toggle_overlay();
-        city_with_overlay_update();
-        window_invalidate();
-    }
-    if (h->show_advisor) {
-        window_advisors_show_advisor(h->show_advisor);
-    }
-    if (h->cycle_legion) {
-        cycle_legion();
-    }
-    if (h->return_legions_to_fort) {
-        return_legions_to_fort();
+    if (h->toggle_pause) {
+        toggle_pause();
     }
     if (h->rotate_map_left) {
         game_orientation_rotate_left();
@@ -252,6 +219,31 @@ static void handle_hotkeys(const hotkeys *h)
     if (h->replay_map) {
         replay_map();
     }
+    if (h->cycle_legion) {
+        cycle_legion();
+    }
+    if (h->return_legions_to_fort) {
+        return_legions_to_fort();
+    }
+    if (h->show_advisor) {
+        window_advisors_show_advisor(h->show_advisor);
+    }
+    if (h->show_empire_map) {
+        window_empire_show();
+    }
+    if (h->clone_building) {
+        building_type type = building_clone_type_from_grid_offset(widget_city_current_grid_offset());
+        if (type) {
+            set_construction_building_type(type);
+        }
+    }
+    if (h->building) {
+        set_construction_building_type(h->building);
+    }
+
+    if (h->show_overlay) {
+        show_overlay(h->show_overlay);
+    }
     if (h->go_to_bookmark) {
         if (map_bookmark_go_to(h->go_to_bookmark - 1)) {
             window_invalidate();
@@ -259,21 +251,6 @@ static void handle_hotkeys(const hotkeys *h)
     }
     if (h->set_bookmark) {
         map_bookmark_save(h->set_bookmark - 1);
-    }
-    if (h->load_file) {
-        window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_LOAD);
-    }
-    if (h->save_file) {
-        window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_SAVE);
-    }
-    if (h->building) {
-        set_construction_building_type(h->building);
-    }
-    if (h->clone_building) {
-        building_type type = building_clone_type_from_grid_offset(widget_city_current_grid_offset());
-        if (type) {
-            set_construction_building_type(type);
-        }
     }
 }
 

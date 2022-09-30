@@ -58,13 +58,6 @@ void system_init_cursors(int scale_percentage);
 void system_set_cursor(int cursor_id);
 
 /**
- * Get the key corresponding to the symbol in the current layout
- * @param name Name of the key
- * @return Corresponding key, or KEY_TYPE_NONE if the key does not exist on the layout
- */
-key_type system_keyboard_key_for_symbol(const char *name);
-
-/**
  * Gets the key name for the current keyboard layout
  * @param key Key to get the name for
  * @return Key name, may be empty

@@ -37,7 +37,7 @@ static void load_default_settings(void)
 {
     data.fullscreen = 0;
     data.window_width = 1280;
-    data.window_height = 720;
+    data.window_height = 800;
 
     data.sound_effects.enabled = 1;
     data.sound_effects.volume = 50;
@@ -208,6 +208,15 @@ int setting_game_speed(void)
     return data.game_speed;
 }
 
+void setting_decrease_game_speed(void)
+{
+    if (data.game_speed > 100) {
+        data.game_speed -= 100;
+    } else {
+        data.game_speed = calc_bound(data.game_speed - 10, 10, 100);
+    }
+}
+
 void setting_increase_game_speed(void)
 {
     if (data.game_speed >= 100) {
@@ -216,15 +225,6 @@ void setting_increase_game_speed(void)
         }
     } else {
         data.game_speed = calc_bound(data.game_speed + 10, 10, 100);
-    }
-}
-
-void setting_decrease_game_speed(void)
-{
-    if (data.game_speed > 100) {
-        data.game_speed -= 100;
-    } else {
-        data.game_speed = calc_bound(data.game_speed - 10, 10, 100);
     }
 }
 

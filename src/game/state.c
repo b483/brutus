@@ -51,13 +51,6 @@ void game_state_reset_overlay(void)
     data.previous_overlay = OVERLAY_NONE;
 }
 
-void game_state_toggle_overlay(void)
-{
-    int tmp = data.previous_overlay;
-    data.previous_overlay = data.current_overlay;
-    data.current_overlay = tmp;
-}
-
 void game_state_set_overlay(int overlay)
 {
     if (overlay == OVERLAY_NONE) {

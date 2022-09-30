@@ -18,52 +18,44 @@ static const char *ini_keys[] = {
     "arrow_left",
     "arrow_right",
     "toggle_fullscreen",
-    "center_screen",
-    "resize_to_640",
-    "resize_to_800",
-    "resize_to_1024",
+    "reset_window",
     "save_screenshot",
     "save_city_screenshot",
     "load_file",
     "save_file",
-    "increase_game_speed",
     "decrease_game_speed",
+    "increase_game_speed",
     "toggle_pause",
-    "cycle_legion",
-    "return_legions_to_fort",
     "rotate_map_left",
     "rotate_map_right",
     "replay_map",
+    "cycle_legion",
+    "return_legions_to_fort",
+    "show_advisor_chief",
+    "show_empire_map",
     "clone_building",
     "build_vacant_house",
     "build_clear_land",
     "build_road",
-    "build_plaza",
-    "build_gardens",
-    "build_prefecture",
-    "build_engineers_post",
-    "build_doctor",
-    "build_granary",
-    "build_warehouse",
-    "build_market",
-    "build_wall",
-    "build_gatehouse",
-    "build_reservoir",
-    "build_aqueduct",
     "build_fountain",
-    "show_advisor_labor",
-    "show_advisor_military",
-    "show_advisor_imperial",
-    "show_advisor_ratings",
-    "show_advisor_trade",
-    "show_advisor_population",
-    "show_advisor_health",
-    "show_advisor_education",
-    "show_advisor_entertainment",
-    "show_advisor_religion",
-    "show_advisor_financial",
-    "show_advisor_chief",
-    "toggle_overlay",
+    "build_barber",
+    "build_bathhouse",
+    "build_doctor",
+    "build_small_temples",
+    "build_school",
+    "build_library",
+    "build_theater",
+    "build_amphitheater",
+    "build_gladiator_school",
+    "build_actor_colony",
+    "build_forum",
+    "build_small_statue",
+    "build_medium_statue",
+    "build_gardens",
+    "build_plaza",
+    "build_engineers_post",
+    "build_prefecture",
+    "build_market",
     "show_overlay_water",
     "show_overlay_fire",
     "show_overlay_damage",
@@ -100,65 +92,69 @@ static void set_mapping(key_type key, key_modifier_type modifiers, hotkey_action
     mapping->action = action;
 }
 
-static void set_layout_mapping(
-    const char *name, key_type default_key, key_modifier_type modifiers, hotkey_action action)
-{
-    key_type key = system_keyboard_key_for_symbol(name);
-    if (key == KEY_TYPE_NONE) {
-        log_info("No key found on layout for", name, 0);
-        key = default_key;
-    }
-    set_mapping(key, modifiers, action);
-}
-
 static void init_defaults(void)
 {
     memset(data.default_mappings, 0, sizeof(data.default_mappings));
+    // Arrow keys
     set_mapping(KEY_TYPE_UP, KEY_MOD_NONE, HOTKEY_ARROW_UP);
     set_mapping(KEY_TYPE_DOWN, KEY_MOD_NONE, HOTKEY_ARROW_DOWN);
     set_mapping(KEY_TYPE_LEFT, KEY_MOD_NONE, HOTKEY_ARROW_LEFT);
     set_mapping(KEY_TYPE_RIGHT, KEY_MOD_NONE, HOTKEY_ARROW_RIGHT);
-    set_layout_mapping("P", KEY_TYPE_P, KEY_MOD_NONE, HOTKEY_TOGGLE_PAUSE);
-    set_mapping(KEY_TYPE_SPACE, KEY_MOD_NONE, HOTKEY_TOGGLE_OVERLAY);
-    set_layout_mapping("S", KEY_TYPE_L, KEY_MOD_NONE, HOTKEY_CYCLE_LEGION);
-    set_layout_mapping("B", KEY_TYPE_B, KEY_MOD_NONE, HOTKEY_RETURN_LEGIONS_TO_FORT);
-    set_layout_mapping("[", KEY_TYPE_LEFTBRACKET, KEY_MOD_NONE, HOTKEY_DECREASE_GAME_SPEED);
-    set_layout_mapping("]", KEY_TYPE_RIGHTBRACKET, KEY_MOD_NONE, HOTKEY_INCREASE_GAME_SPEED);
-    set_mapping(KEY_TYPE_PAGEDOWN, KEY_MOD_NONE, HOTKEY_DECREASE_GAME_SPEED);
-    set_mapping(KEY_TYPE_PAGEUP, KEY_MOD_NONE, HOTKEY_INCREASE_GAME_SPEED);
+    set_mapping(KEY_TYPE_KP_8, KEY_MOD_NONE, HOTKEY_ARROW_UP);
+    set_mapping(KEY_TYPE_KP_2, KEY_MOD_NONE, HOTKEY_ARROW_DOWN);
+    set_mapping(KEY_TYPE_KP_4, KEY_MOD_NONE, HOTKEY_ARROW_LEFT);
+    set_mapping(KEY_TYPE_KP_6, KEY_MOD_NONE, HOTKEY_ARROW_RIGHT);
+    // Global hotkeys
+    set_mapping(KEY_TYPE_ENTER, KEY_MOD_ALT, HOTKEY_TOGGLE_FULLSCREEN);
+    set_mapping(KEY_TYPE_ENTER, KEY_MOD_CTRL, HOTKEY_RESET_WINDOW);
+    set_mapping(KEY_TYPE_COMMA, KEY_MOD_CTRL, HOTKEY_SAVE_SCREENSHOT);
+    set_mapping(KEY_TYPE_PERIOD, KEY_MOD_CTRL, HOTKEY_SAVE_CITY_SCREENSHOT);
+    set_mapping(KEY_TYPE_L, KEY_MOD_CTRL, HOTKEY_LOAD_FILE);
+    set_mapping(KEY_TYPE_S, KEY_MOD_CTRL, HOTKEY_SAVE_FILE);
+    // City hotkeys
+    set_mapping(KEY_TYPE_D, KEY_MOD_NONE, HOTKEY_DECREASE_GAME_SPEED);
+    set_mapping(KEY_TYPE_F, KEY_MOD_NONE, HOTKEY_INCREASE_GAME_SPEED);
+    set_mapping(KEY_TYPE_KP_MINUS, KEY_MOD_NONE, HOTKEY_DECREASE_GAME_SPEED);
+    set_mapping(KEY_TYPE_KP_PLUS, KEY_MOD_NONE, HOTKEY_INCREASE_GAME_SPEED);
+    set_mapping(KEY_TYPE_SPACE, KEY_MOD_NONE, HOTKEY_TOGGLE_PAUSE);
     set_mapping(KEY_TYPE_HOME, KEY_MOD_NONE, HOTKEY_ROTATE_MAP_LEFT);
     set_mapping(KEY_TYPE_END, KEY_MOD_NONE, HOTKEY_ROTATE_MAP_RIGHT);
-    set_layout_mapping("R", KEY_TYPE_R, KEY_MOD_CTRL, HOTKEY_REPLAY_MAP);
-    set_mapping(KEY_TYPE_1, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_LABOR);
-    set_mapping(KEY_TYPE_2, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_MILITARY);
-    set_mapping(KEY_TYPE_3, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_IMPERIAL);
-    set_mapping(KEY_TYPE_4, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_RATINGS);
-    set_mapping(KEY_TYPE_5, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_TRADE);
-    set_mapping(KEY_TYPE_6, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_POPULATION);
-    set_mapping(KEY_TYPE_7, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_HEALTH);
-    set_mapping(KEY_TYPE_8, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_EDUCATION);
-    set_mapping(KEY_TYPE_9, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_ENTERTAINMENT);
-    set_mapping(KEY_TYPE_0, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_RELIGION);
-    set_mapping(KEY_TYPE_KP_1, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_LABOR);
-    set_mapping(KEY_TYPE_KP_2, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_MILITARY);
-    set_mapping(KEY_TYPE_KP_3, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_IMPERIAL);
-    set_mapping(KEY_TYPE_KP_4, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_RATINGS);
-    set_mapping(KEY_TYPE_KP_5, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_TRADE);
-    set_mapping(KEY_TYPE_KP_6, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_POPULATION);
-    set_mapping(KEY_TYPE_KP_7, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_HEALTH);
-    set_mapping(KEY_TYPE_KP_8, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_EDUCATION);
-    set_mapping(KEY_TYPE_KP_9, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_ENTERTAINMENT);
-    set_mapping(KEY_TYPE_KP_0, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_RELIGION);
-    set_layout_mapping("-", KEY_TYPE_MINUS, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_FINANCIAL);
-    set_layout_mapping("=", KEY_TYPE_EQUALS, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_CHIEF);
-    set_layout_mapping("W", KEY_TYPE_W, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_WATER);
-    set_layout_mapping("F", KEY_TYPE_F, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_FIRE);
-    set_layout_mapping("D", KEY_TYPE_D, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_DAMAGE);
-    set_layout_mapping("C", KEY_TYPE_C, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_CRIME);
-    set_layout_mapping("T", KEY_TYPE_T, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_PROBLEMS);
-    set_layout_mapping("A", KEY_TYPE_A, KEY_MOD_CTRL, HOTKEY_EDITOR_TOGGLE_BATTLE_INFO);
-    set_layout_mapping("O", KEY_TYPE_O, KEY_MOD_CTRL, HOTKEY_LOAD_FILE);
-    set_layout_mapping("S", KEY_TYPE_S, KEY_MOD_CTRL, HOTKEY_SAVE_FILE);
+    set_mapping(KEY_TYPE_R, KEY_MOD_CTRL, HOTKEY_REPLAY_MAP);
+    set_mapping(KEY_TYPE_TAB, KEY_MOD_NONE, HOTKEY_CYCLE_LEGION);
+    set_mapping(KEY_TYPE_B, KEY_MOD_NONE, HOTKEY_RETURN_LEGIONS_TO_FORT);
+    set_mapping(KEY_TYPE_GRAVE, KEY_MOD_NONE, HOTKEY_SHOW_ADVISOR_CHIEF);
+    set_mapping(KEY_TYPE_GRAVE, KEY_MOD_ALT, HOTKEY_SHOW_EMPIRE_MAP);
+    // Construction hotkeys
+    set_mapping(KEY_TYPE_G, KEY_MOD_NONE, HOTKEY_BUILD_CLONE);
+    set_mapping(KEY_TYPE_Q, KEY_MOD_NONE, HOTKEY_BUILD_VACANT_HOUSE);
+    set_mapping(KEY_TYPE_W, KEY_MOD_NONE, HOTKEY_BUILD_CLEAR_LAND);
+    set_mapping(KEY_TYPE_E, KEY_MOD_NONE, HOTKEY_BUILD_ROAD);
+    set_mapping(KEY_TYPE_R, KEY_MOD_NONE, HOTKEY_BUILD_FOUNTAIN);
+    set_mapping(KEY_TYPE_T, KEY_MOD_NONE, HOTKEY_BUILD_BARBER);
+    set_mapping(KEY_TYPE_A, KEY_MOD_NONE, HOTKEY_BUILD_BATHHOUSE);
+    set_mapping(KEY_TYPE_S, KEY_MOD_NONE, HOTKEY_BUILD_DOCTOR);
+    set_mapping(KEY_TYPE_Z, KEY_MOD_NONE, HOTKEY_BUILD_SMALL_TEMPLES);
+    set_mapping(KEY_TYPE_X, KEY_MOD_NONE, HOTKEY_BUILD_SCHOOL);
+    set_mapping(KEY_TYPE_C, KEY_MOD_NONE, HOTKEY_BUILD_LIBRARY);
+    set_mapping(KEY_TYPE_V, KEY_MOD_NONE, HOTKEY_BUILD_THEATER);
+    set_mapping(KEY_TYPE_Q, KEY_MOD_ALT, HOTKEY_BUILD_AMPHITHEATER);
+    set_mapping(KEY_TYPE_W, KEY_MOD_ALT, HOTKEY_BUILD_GLADIATOR_SCHOOL);
+    set_mapping(KEY_TYPE_E, KEY_MOD_ALT, HOTKEY_BUILD_ACTOR_COLONY);
+    set_mapping(KEY_TYPE_R, KEY_MOD_ALT, HOTKEY_BUILD_FORUM);
+    set_mapping(KEY_TYPE_T, KEY_MOD_ALT, HOTKEY_BUILD_SMALL_STATUE);
+    set_mapping(KEY_TYPE_A, KEY_MOD_ALT, HOTKEY_BUILD_MEDIUM_STATUE);
+    set_mapping(KEY_TYPE_S, KEY_MOD_ALT, HOTKEY_BUILD_GARDENS);
+    set_mapping(KEY_TYPE_Z, KEY_MOD_ALT, HOTKEY_BUILD_PLAZA);
+    set_mapping(KEY_TYPE_X, KEY_MOD_ALT, HOTKEY_BUILD_ENGINEERS_POST);
+    set_mapping(KEY_TYPE_C, KEY_MOD_ALT, HOTKEY_BUILD_PREFECTURE);
+    set_mapping(KEY_TYPE_V, KEY_MOD_ALT, HOTKEY_BUILD_MARKET);
+    // Overlays
+    set_mapping(KEY_TYPE_1, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_WATER);
+    set_mapping(KEY_TYPE_2, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_FIRE);
+    set_mapping(KEY_TYPE_3, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_DAMAGE);
+    set_mapping(KEY_TYPE_4, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_CRIME);
+    set_mapping(KEY_TYPE_5, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_PROBLEMS);
+    // City map bookmarks
     set_mapping(KEY_TYPE_F1, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_1);
     set_mapping(KEY_TYPE_F2, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_2);
     set_mapping(KEY_TYPE_F3, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_3);
@@ -167,19 +163,8 @@ static void init_defaults(void)
     set_mapping(KEY_TYPE_F2, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_2);
     set_mapping(KEY_TYPE_F3, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_3);
     set_mapping(KEY_TYPE_F4, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_4);
-    set_mapping(KEY_TYPE_F1, KEY_MOD_ALT, HOTKEY_SET_BOOKMARK_1);
-    set_mapping(KEY_TYPE_F2, KEY_MOD_ALT, HOTKEY_SET_BOOKMARK_2);
-    set_mapping(KEY_TYPE_F3, KEY_MOD_ALT, HOTKEY_SET_BOOKMARK_3);
-    set_mapping(KEY_TYPE_F4, KEY_MOD_ALT, HOTKEY_SET_BOOKMARK_4);
-    set_mapping(KEY_TYPE_F5, KEY_MOD_NONE, HOTKEY_CENTER_WINDOW);
-    set_mapping(KEY_TYPE_F6, KEY_MOD_NONE, HOTKEY_TOGGLE_FULLSCREEN);
-    set_mapping(KEY_TYPE_ENTER, KEY_MOD_ALT, HOTKEY_TOGGLE_FULLSCREEN);
-    set_mapping(KEY_TYPE_F7, KEY_MOD_NONE, HOTKEY_RESIZE_TO_640);
-    set_mapping(KEY_TYPE_F8, KEY_MOD_NONE, HOTKEY_RESIZE_TO_800);
-    set_mapping(KEY_TYPE_F9, KEY_MOD_NONE, HOTKEY_RESIZE_TO_1024);
-    set_mapping(KEY_TYPE_F12, KEY_MOD_NONE, HOTKEY_SAVE_SCREENSHOT);
-    set_mapping(KEY_TYPE_F12, KEY_MOD_ALT, HOTKEY_SAVE_SCREENSHOT);
-    set_mapping(KEY_TYPE_F12, KEY_MOD_CTRL, HOTKEY_SAVE_CITY_SCREENSHOT);
+    // Editor
+    set_mapping(KEY_TYPE_A, KEY_MOD_CTRL, HOTKEY_EDITOR_TOGGLE_BATTLE_INFO);
 }
 
 const hotkey_mapping *hotkey_for_action(hotkey_action action, int index)

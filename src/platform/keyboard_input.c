@@ -301,19 +301,6 @@ void platform_handle_text(SDL_TextInputEvent *event)
     keyboard_text(event->text);
 }
 
-key_type system_keyboard_key_for_symbol(const char *name)
-{
-    SDL_Keycode keycode = SDL_GetKeyFromName(name);
-    if (keycode == SDLK_UNKNOWN) {
-        return KEY_TYPE_NONE;
-    }
-    SDL_Scancode scancode = SDL_GetScancodeFromKey(keycode);
-    if (scancode == SDL_SCANCODE_UNKNOWN) {
-        return KEY_TYPE_NONE;
-    }
-    return get_key_from_scancode(scancode);
-}
-
 const char *system_keyboard_key_name(key_type key)
 {
     SDL_Scancode scancode = get_scancode_from_key(key);

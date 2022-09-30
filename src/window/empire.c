@@ -471,6 +471,11 @@ static void handle_input(const mouse *m, const hotkeys *h)
         data.focus_button_id = 3;
     }
     button_id = 0;
+
+    if (h->show_empire_map) {
+        window_city_show();
+    }
+
     determine_selected_object(m);
     if (data.selected_object) {
         if (data.selected_object->city_type == EMPIRE_CITY_TRADE) {
