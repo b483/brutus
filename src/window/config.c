@@ -113,8 +113,7 @@ static config_widget all_widgets[MAX_WIDGETS] = {
     {TYPE_CHECKBOX, CONFIG_GP_FIX_100_YEAR_GHOSTS, TR_CONFIG_FIX_100_YEAR_GHOSTS, 0, 0}
 };
 
-static generic_button select_buttons[] = {
-};
+static generic_button select_buttons[] = { 0 };
 
 static numerical_range_widget scale_ranges[] = {
     {30, 50, 500, 5, 0},
