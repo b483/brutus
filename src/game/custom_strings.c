@@ -56,7 +56,6 @@ static custom_string all_strings[] = {
     {TR_CONFIG_SHOW_CONSTRUCTION_SIZE, "Show draggable construction size"},
     {TR_CONFIG_HIGHLIGHT_LEGIONS, "Highlight legion on cursor hover"},
     {TR_CONFIG_SHOW_MILITARY_SIDEBAR, "Enable military sidebar"},
-    {TR_CONFIG_FIX_IMMIGRATION_BUG, "Fix immigration bug on very hard"},
     {TR_CONFIG_FIX_100_YEAR_GHOSTS, "Fix 100-year-old ghosts"},
     {TR_HOTKEY_TITLE, "Brutus hotkey configuration"},
     {TR_HOTKEY_LABEL, "Hotkey"},

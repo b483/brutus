@@ -174,14 +174,13 @@ void city_sentiment_update(void)
     int houses_needing_food = 0;
     int total_sentiment_contribution_food = 0;
     int total_sentiment_penalty_tents = 0;
-    int default_sentiment = 40;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
         building *b = building_get(i);
         if (b->state != BUILDING_STATE_IN_USE || !b->house_size) {
             continue;
         }
         if (!b->house_population) {
-            b->sentiment.house_happiness = 10 + default_sentiment;
+            b->sentiment.house_happiness = 50;
             continue;
         }
         if (city_data.population.population < 300) {
@@ -190,13 +189,9 @@ void city_sentiment_update(void)
             sentiment_contribution_taxes = 0;
             sentiment_contribution_wages = 0;
 
-            b->sentiment.house_happiness = default_sentiment;
+            b->sentiment.house_happiness = 50;
             if (city_data.population.population < 200) {
                 b->sentiment.house_happiness += 10;
-            } else if (default_sentiment < 50 && config_get(CONFIG_GP_FIX_IMMIGRATION_BUG)) {
-                // Fix very hard immigration bug: give a boost for Very Hard difficulty (40 sentiment default) so that
-                // immigration is not halted simply because you are between pop 200 and 300
-                b->sentiment.house_happiness += 50 - default_sentiment;
             }
             continue;
         }
