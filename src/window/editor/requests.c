@@ -20,26 +20,26 @@
 static void button_request(int id, int param2);
 
 static generic_button buttons[] = {
-    {20, 42, 290, 25, button_request, button_none, 0, 0},
-    {20, 72, 290, 25, button_request, button_none, 1, 0},
-    {20, 102, 290, 25, button_request, button_none, 2, 0},
-    {20, 132, 290, 25, button_request, button_none, 3, 0},
-    {20, 162, 290, 25, button_request, button_none, 4, 0},
-    {20, 192, 290, 25, button_request, button_none, 5, 0},
-    {20, 222, 290, 25, button_request, button_none, 6, 0},
-    {20, 252, 290, 25, button_request, button_none, 7, 0},
-    {20, 282, 290, 25, button_request, button_none, 8, 0},
-    {20, 312, 290, 25, button_request, button_none, 9, 0},
-    {320, 42, 290, 25, button_request, button_none, 10, 0},
-    {320, 72, 290, 25, button_request, button_none, 11, 0},
-    {320, 102, 290, 25, button_request, button_none, 12, 0},
-    {320, 132, 290, 25, button_request, button_none, 13, 0},
-    {320, 162, 290, 25, button_request, button_none, 14, 0},
-    {320, 192, 290, 25, button_request, button_none, 15, 0},
-    {320, 222, 290, 25, button_request, button_none, 16, 0},
-    {320, 252, 290, 25, button_request, button_none, 17, 0},
-    {320, 282, 290, 25, button_request, button_none, 18, 0},
-    {320, 312, 290, 25, button_request, button_none, 19, 0},
+    {20, 48, 290, 25, button_request, button_none, 0, 0},
+    {20, 78, 290, 25, button_request, button_none, 1, 0},
+    {20, 108, 290, 25, button_request, button_none, 2, 0},
+    {20, 138, 290, 25, button_request, button_none, 3, 0},
+    {20, 168, 290, 25, button_request, button_none, 4, 0},
+    {20, 198, 290, 25, button_request, button_none, 5, 0},
+    {20, 228, 290, 25, button_request, button_none, 6, 0},
+    {20, 258, 290, 25, button_request, button_none, 7, 0},
+    {20, 288, 290, 25, button_request, button_none, 8, 0},
+    {20, 318, 290, 25, button_request, button_none, 9, 0},
+    {320, 48, 290, 25, button_request, button_none, 10, 0},
+    {320, 78, 290, 25, button_request, button_none, 11, 0},
+    {320, 108, 290, 25, button_request, button_none, 12, 0},
+    {320, 138, 290, 25, button_request, button_none, 13, 0},
+    {320, 168, 290, 25, button_request, button_none, 14, 0},
+    {320, 198, 290, 25, button_request, button_none, 15, 0},
+    {320, 228, 290, 25, button_request, button_none, 16, 0},
+    {320, 258, 290, 25, button_request, button_none, 17, 0},
+    {320, 288, 290, 25, button_request, button_none, 18, 0},
+    {320, 318, 290, 25, button_request, button_none, 19, 0},
 };
 
 static int focus_button_id;
@@ -53,19 +53,17 @@ static void draw_foreground(void)
 {
     graphics_in_dialog();
 
-    outer_panel_draw(0, 0, 40, 30);
-    lang_text_draw(44, 14, 20, 12, FONT_LARGE_BLACK);
-    lang_text_draw_centered(13, 3, 0, 456, 640, FONT_NORMAL_BLACK);
-    lang_text_draw_multiline(152, 1, 32, 376, 576, FONT_NORMAL_BLACK);
+    outer_panel_draw(0, 0, 40, 28);
+    lang_text_draw_centered(44, 14, 0, 16, 640, FONT_LARGE_BLACK);
 
     for (int i = 0; i < 20; i++) {
         int x, y;
         if (i < 10) {
             x = 20;
-            y = 42 + 30 * i;
+            y = 48 + 30 * i;
         } else {
             x = 320;
-            y = 42 + 30 * (i - 10);
+            y = 48 + 30 * (i - 10);
         }
         button_border_draw(x, y, 290, 25, focus_button_id == i + 1);
         editor_request request;
@@ -80,6 +78,9 @@ static void draw_foreground(void)
             lang_text_draw_centered(44, 23, x, y + 6, 290, FONT_NORMAL_BLACK);
         }
     }
+
+    // requests hint
+    lang_text_draw_multiline(152, 1, 32, 360, 576, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
 }

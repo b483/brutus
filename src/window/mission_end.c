@@ -1,6 +1,5 @@
 #include "mission_end.h"
 
-#include "city/emperor.h"
 #include "city/finance.h"
 #include "city/population.h"
 #include "city/ratings.h"
@@ -8,15 +7,12 @@
 #include "game/settings.h"
 #include "game/state.h"
 #include "game/undo.h"
-#include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "input/input.h"
-#include "scenario/property.h"
-#include "scenario/scenario.h"
 #include "sound/music.h"
 #include "sound/speech.h"
 #include "window/intermezzo.h"
@@ -26,44 +22,22 @@
 
 static void draw_lost(void)
 {
-    outer_panel_draw(48, 16, 34, 16);
+    outer_panel_draw(48, 16, 34, 13);
     lang_text_draw_centered(62, 1, 48, 32, 544, FONT_LARGE_BLACK);
-    lang_text_draw_multiline(62, 16, 64, 72, 496, FONT_NORMAL_BLACK);
-}
-
-static int get_max(int value1, int value2, int value3)
-{
-    int max = value1;
-    if (value2 > max) {
-        max = value2;
-    }
-    if (value3 > max) {
-        max = value3;
-    }
-    return max;
+    lang_text_draw_multiline(62, 16, 72, 75, 496, FONT_NORMAL_BLACK);
 }
 
 static void draw_won(void)
 {
-    outer_panel_draw(48, 128, 34, 18);
+    outer_panel_draw(48, 128, 34, 17);
     lang_text_draw_centered(62, 0, 48, 144, 544, FONT_LARGE_BLACK);
 
     inner_panel_draw(64, 184, 32, 7);
 
     lang_text_draw_multiline(147, 20, 80, 192, 488, FONT_NORMAL_WHITE);
 
-    int left_width = get_max(
-        lang_text_get_width(148, 0, FONT_NORMAL_BLACK),
-        lang_text_get_width(148, 2, FONT_NORMAL_BLACK),
-        lang_text_get_width(148, 4, FONT_NORMAL_BLACK)
-    );
-    int right_width = get_max(
-        lang_text_get_width(148, 1, FONT_NORMAL_BLACK),
-        lang_text_get_width(148, 3, FONT_NORMAL_BLACK),
-        lang_text_get_width(148, 5, FONT_NORMAL_BLACK)
-    );
     int left_offset = 68;
-    int right_offset = left_offset + 10 + 512 * left_width / (left_width + right_width);
+    int right_offset = 315;
     int width = lang_text_draw(148, 0, left_offset, 308, FONT_NORMAL_BLACK);
     text_draw_number(city_rating_culture(), '@', " ", left_offset + width, 308, FONT_NORMAL_BLACK);
 
@@ -81,8 +55,6 @@ static void draw_won(void)
 
     width = lang_text_draw(148, 5, right_offset, 348, FONT_NORMAL_BLACK);
     text_draw_number(city_finance_treasury(), '@', " ", right_offset + width, 348, FONT_NORMAL_BLACK);
-
-    lang_text_draw_centered(13, 1, 64, 388, 512, FONT_NORMAL_BLACK);
 }
 
 static void draw_background(void)
@@ -94,15 +66,6 @@ static void draw_background(void)
         draw_lost();
     }
     graphics_reset_dialog();
-}
-
-static void draw_foreground(void)
-{
-    if (city_victory_state() != VICTORY_STATE_WON) {
-        graphics_in_dialog();
-        lang_text_draw_centered(13, 1, 80, 230, 480, FONT_NORMAL_BLACK);
-        graphics_reset_dialog();
-    }
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)
@@ -122,7 +85,7 @@ static void show_end_dialog(void)
     window_type window = {
         WINDOW_MISSION_END,
         draw_background,
-        draw_foreground,
+        0,
         handle_input,
         0
     };

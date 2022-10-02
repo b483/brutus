@@ -17,7 +17,7 @@ static void button_ok(int param1, int param2);
 static void button_cancel(int param1, int param2);
 static void confirm(void);
 
-static image_button buttons[] = {
+static image_button popup_dialog_buttons[] = {
     {192, 100, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 0, button_ok, button_none, 1, 0, 1, 0, 0, 0},
     {256, 100, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 4, button_cancel, button_none, 0, 0, 1, 0, 0, 0},
 };
@@ -51,7 +51,11 @@ static void draw_background(void)
 {
     window_draw_underlying_window();
     graphics_in_dialog();
-    outer_panel_draw(80, 80, 30, 10);
+    if (data.has_buttons) {
+        outer_panel_draw(80, 80, 30, 10);
+    } else {
+        outer_panel_draw(80, 80, 30, 7);
+    }
     if (data.type >= 0) {
         lang_text_draw_centered(GROUP, data.type, 80, 100, 480, FONT_LARGE_BLACK);
         if (lang_text_get_width(GROUP, data.type + 1, FONT_NORMAL_BLACK) >= 420) {
@@ -70,16 +74,14 @@ static void draw_foreground(void)
 {
     graphics_in_dialog();
     if (data.has_buttons) {
-        image_buttons_draw(80, 80, buttons, 2);
-    } else {
-        lang_text_draw_centered(13, 1, 80, 208, 480, FONT_NORMAL_BLACK);
+        image_buttons_draw(80, 80, popup_dialog_buttons, sizeof(popup_dialog_buttons) / sizeof(image_button));
     }
     graphics_reset_dialog();
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (data.has_buttons && image_buttons_handle_mouse(mouse_in_dialog(m), 80, 80, buttons, 2, 0)) {
+    if (data.has_buttons && image_buttons_handle_mouse(mouse_in_dialog(m), 80, 80, popup_dialog_buttons, sizeof(popup_dialog_buttons) / sizeof(image_button), 0)) {
         return;
     }
     if (input_go_back_requested(m, h)) {

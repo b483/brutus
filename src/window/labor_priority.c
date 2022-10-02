@@ -37,28 +37,13 @@ static void init(int category)
     data.max_items = city_labor_max_selectable_priority(category);
 }
 
-static int get_dialog_width(void)
-{
-    int title_width = lang_text_get_width(50, 25, FONT_LARGE_BLACK);
-    int rclick_width = lang_text_get_width(13, 3, FONT_NORMAL_BLACK);
-    int dialog_width = 16 + (title_width > rclick_width ? title_width : rclick_width);
-    if (dialog_width < MIN_DIALOG_WIDTH) dialog_width = MIN_DIALOG_WIDTH;
-    if (dialog_width % BLOCK_SIZE != 0) {
-        // make sure the width is a multiple of BLOCK_SIZE
-        dialog_width += BLOCK_SIZE - dialog_width % BLOCK_SIZE;
-    }
-    return dialog_width;
-}
-
 static void draw_background(void)
 {
     window_draw_underlying_window();
 
     graphics_in_dialog();
 
-    int dialog_width = get_dialog_width();
-    int dialog_x = 160 - (dialog_width - MIN_DIALOG_WIDTH) / 2;
-    outer_panel_draw(dialog_x, 176, dialog_width / BLOCK_SIZE, 9);
+    outer_panel_draw(160, 176, 20, 8);
     lang_text_draw_centered(50, 25, 160, 185, 320, FONT_LARGE_BLACK);
     for (int i = 0; i < 9; i++) {
         graphics_draw_rect(178 + 32 * i, 221, 27, 27, COLOR_BLACK);
@@ -70,7 +55,6 @@ static void draw_background(void)
 
     graphics_draw_rect(180, 256, 280, 25, COLOR_BLACK);
     lang_text_draw_centered(50, 26, 148, 263, 344, FONT_NORMAL_BLACK);
-    lang_text_draw_centered(13, 3, 128, 296, 384, FONT_NORMAL_BLACK);
     graphics_reset_dialog();
 }
 

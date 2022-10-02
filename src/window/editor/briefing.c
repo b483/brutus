@@ -43,7 +43,7 @@ static void draw_foreground(void)
     outer_panel_draw(-300, -165, 60, 4);
     input_box_draw(&scenario_briefing_input);
 
-    outer_panel_draw(-300, -100, 60, 45);
+    outer_panel_draw(-300, -100, 60, 43);
     // Formatted typed in text
     rich_text_set_fonts(FONT_NORMAL_BLACK, FONT_NORMAL_RED, 6);
     rich_text_init(briefing, -350, -75, 60, 38, 0);
@@ -53,9 +53,6 @@ static void draw_foreground(void)
 
     // @L, @P hint
     text_draw(get_custom_string(TR_EDITOR_MAP_BRIEFING_HINT), -190, 550, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
-
-    // Right-click to continue
-    lang_text_draw_centered(13, 3, -305, 585, 960, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
 }

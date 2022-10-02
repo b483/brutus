@@ -109,10 +109,9 @@ static void draw_foreground(void)
 {
     graphics_in_dialog();
 
-    outer_panel_draw(-160, 0, 52, 32);
+    outer_panel_draw(-160, 0, 52, 30);
 
-    lang_text_draw_centered(44, 47, -160, 12, 832, FONT_LARGE_BLACK);
-    lang_text_draw_centered(13, 3, -160, 480, 832, FONT_NORMAL_BLACK);
+    lang_text_draw_centered(44, 47, -160, 16, 832, FONT_LARGE_BLACK);
 
     for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
         int x, y;

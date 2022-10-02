@@ -34,10 +34,9 @@ static void draw_foreground(void)
 {
     graphics_in_dialog();
 
-    outer_panel_draw(128, 44, 20, 10);
+    outer_panel_draw(128, 44, 20, 8);
 
     lang_text_draw_centered(44, 13, 138, 56, 320, FONT_LARGE_BLACK);
-    lang_text_draw_centered(13, 3, 128, 178, 320, FONT_NORMAL_BLACK);
 
     int start_year = scenario_property_start_year();
     button_border_draw(158, 100, 100, 30, focus_button_id == 1);
