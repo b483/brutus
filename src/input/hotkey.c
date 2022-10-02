@@ -245,6 +245,15 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
         case HOTKEY_EDITOR_TOGGLE_BATTLE_INFO:
             def->action = &data.hotkey_state.toggle_editor_battle_info;
             break;
+        case HOTKEY_CHEAT_MONEY:
+            def->action = &data.hotkey_state.cheat_money;
+            break;
+        case HOTKEY_CHEAT_INVASION:
+            def->action = &data.hotkey_state.cheat_invasion;
+            break;
+        case HOTKEY_CHEAT_VICTORY:
+            def->action = &data.hotkey_state.cheat_victory;
+            break;
         default:
             def->action = 0;
     }

@@ -70,6 +70,9 @@ static const char *ini_keys[] = {
     "set_bookmark_3",
     "set_bookmark_4",
     "editor_toggle_battle_info",
+    "cheat money",
+    "cheat invasion",
+    "cheat victory",
 };
 
 static struct {
@@ -107,8 +110,8 @@ static void init_defaults(void)
     // Global hotkeys
     set_mapping(KEY_TYPE_ENTER, KEY_MOD_ALT, HOTKEY_TOGGLE_FULLSCREEN);
     set_mapping(KEY_TYPE_ENTER, KEY_MOD_CTRL, HOTKEY_RESET_WINDOW);
-    set_mapping(KEY_TYPE_COMMA, KEY_MOD_CTRL, HOTKEY_SAVE_SCREENSHOT);
-    set_mapping(KEY_TYPE_PERIOD, KEY_MOD_CTRL, HOTKEY_SAVE_CITY_SCREENSHOT);
+    set_mapping(KEY_TYPE_LEFTBRACKET, KEY_MOD_CTRL, HOTKEY_SAVE_SCREENSHOT);
+    set_mapping(KEY_TYPE_RIGHTBRACKET, KEY_MOD_CTRL, HOTKEY_SAVE_CITY_SCREENSHOT);
     set_mapping(KEY_TYPE_L, KEY_MOD_CTRL, HOTKEY_LOAD_FILE);
     set_mapping(KEY_TYPE_S, KEY_MOD_CTRL, HOTKEY_SAVE_FILE);
     // City hotkeys
@@ -165,6 +168,10 @@ static void init_defaults(void)
     set_mapping(KEY_TYPE_F4, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_4);
     // Editor
     set_mapping(KEY_TYPE_A, KEY_MOD_CTRL, HOTKEY_EDITOR_TOGGLE_BATTLE_INFO);
+    // Cheats
+    set_mapping(KEY_TYPE_COMMA, KEY_MOD_CTRL, HOTKEY_CHEAT_MONEY);
+    set_mapping(KEY_TYPE_PERIOD, KEY_MOD_CTRL, HOTKEY_CHEAT_INVASION);
+    set_mapping(KEY_TYPE_SLASH, KEY_MOD_CTRL, HOTKEY_CHEAT_VICTORY);
 }
 
 const hotkey_mapping *hotkey_for_action(hotkey_action action, int index)

@@ -27,6 +27,9 @@ typedef struct {
     int go_to_bookmark;
     int set_bookmark;
     int toggle_editor_battle_info;
+    int cheat_money;
+    int cheat_invasion;
+    int cheat_victory;
 } hotkeys;
 
 void hotkey_install_mapping(hotkey_mapping *mappings, int num_mappings);

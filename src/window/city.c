@@ -10,6 +10,7 @@
 #include "core/config.h"
 #include "figure/formation.h"
 #include "figure/formation_legion.h"
+#include "game/cheats.h"
 #include "game/file.h"
 #include "game/orientation.h"
 #include "game/settings.h"
@@ -251,6 +252,15 @@ static void handle_hotkeys(const hotkeys *h)
     }
     if (h->set_bookmark) {
         map_bookmark_save(h->set_bookmark - 1);
+    }
+    if (h->cheat_money) {
+        game_cheat_money();
+    }
+    if (h->cheat_invasion) {
+        game_cheat_invasion();
+    }
+    if (h->cheat_victory) {
+        game_cheat_victory();
     }
 }
 

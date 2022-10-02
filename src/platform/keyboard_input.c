@@ -1,16 +1,10 @@
 #include "keyboard_input.h"
 
-#include "game/cheats.h"
 #include "game/system.h"
 #include "input/hotkey.h"
 #include "input/keys.h"
 #include "input/keyboard.h"
 #include "input/mouse.h"
-
-static int is_alt_down(SDL_KeyboardEvent *event)
-{
-    return (event->keysym.mod & KMOD_ALT) != 0;
-}
 
 static key_type get_key_from_scancode(SDL_Scancode scancode)
 {
@@ -272,21 +266,6 @@ void platform_handle_key_down(SDL_KeyboardEvent *event)
     key_type key = get_key_from_scancode(event->keysym.scancode);
     key_modifier_type mod = get_modifier(event->keysym.mod);
     hotkey_key_pressed(key, mod, event->repeat);
-
-    // handle cheats: special case since they ARE layout dependent
-    if (!event->repeat && is_alt_down(event)) {
-        switch (event->keysym.sym) {
-            case SDLK_k:
-                game_cheat_activate();
-                break;
-            case SDLK_c:
-                game_cheat_money();
-                break;
-            case SDLK_v:
-                game_cheat_victory();
-                break;
-        }
-    }
 }
 
 void platform_handle_key_up(SDL_KeyboardEvent *event)
