@@ -11,8 +11,6 @@
 
 // Keep this in the same order as the config_keys in config.h
 static const char *ini_keys[] = {
-    "gameplay_fix_immigration",
-    "gameplay_fix_100y_ghosts",
     "screen_display_scale",
     "screen_cursor_scale",
     "ui_sidebar_info",
@@ -25,7 +23,6 @@ static const char *ini_keys[] = {
     "ui_show_water_structure_range",
     "ui_show_construction_size",
     "ui_highlight_legions",
-    "ui_show_military_sidebar"
 };
 
 static const char *ini_string_keys[] = {
