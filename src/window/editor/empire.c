@@ -452,6 +452,9 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (h->toggle_editor_battle_info) {
         data.show_battle_objects = !data.show_battle_objects;
     }
+    if (h->show_empire_map) {
+        window_editor_map_show();
+    }
     data.focus_ok_button_id = 0;
     if (!arrow_buttons_handle_mouse(m, data.x_min + 20, data.y_max - 100, arrow_buttons_empire, 2, 0)) {
         if (!generic_buttons_handle_mouse(m, data.x_min + 20, data.y_max - 100,

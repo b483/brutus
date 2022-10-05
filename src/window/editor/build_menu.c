@@ -131,8 +131,7 @@ static int handle_build_submenu(const mouse *m)
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (handle_build_submenu(m) ||
-        widget_sidebar_editor_handle_mouse_build_menu(m)) {
+    if (handle_build_submenu(m)) {
         return;
     }
     if (input_go_back_requested(m, h) || click_outside_menu(m, get_sidebar_x_offset())) {

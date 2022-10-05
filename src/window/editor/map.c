@@ -14,6 +14,7 @@
 #include "widget/map_editor.h"
 #include "widget/top_menu_editor.h"
 #include "widget/sidebar/editor.h"
+#include "window/editor/empire.h"
 #include "window/file_dialog.h"
 #include "window/popup_dialog.h"
 #include "window/editor/attributes.h"
@@ -38,6 +39,9 @@ static void handle_hotkeys(const hotkeys *h)
     }
     if (h->save_file) {
         window_file_dialog_show(FILE_TYPE_SCENARIO, FILE_DIALOG_SAVE);
+    }
+    if (h->show_empire_map) {
+        window_editor_empire_show();
     }
 }
 

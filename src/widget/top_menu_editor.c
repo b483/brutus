@@ -16,7 +16,6 @@
 #include "window/select_list.h"
 #include "window/sound_options.h"
 #include "window/speed_options.h"
-#include "window/editor/empire.h"
 #include "window/editor/map.h"
 
 static void menu_file_new_map(int param);
@@ -34,8 +33,6 @@ static void menu_help_about(int param);
 static void menu_resets_herds(int param);
 static void menu_resets_fish(int param);
 static void menu_resets_invasions(int param);
-
-static void menu_empire_choose(int param);
 
 static menu_item menu_file[] = {
     {7, 1, menu_file_new_map, 0, 0},
@@ -61,16 +58,11 @@ static menu_item menu_resets[] = {
     {10, 3, menu_resets_invasions, 0, 0},
 };
 
-static menu_item menu_empire[] = {
-    {149, 1, menu_empire_choose, 0, 0},
-};
-
-static menu_bar_item menu[] = {
+static menu_bar_item top_menu_editor[] = {
     {7, menu_file, 4, 0, 0, 0, 0},
     {2, menu_options, 3, 0, 0, 0, 0},
     {3, menu_help, 2, 0, 0, 0, 0},
     {10, menu_resets, 3, 0, 0, 0, 0},
-    {149, menu_empire, 1, 0, 0, 0, 0},
 };
 
 #define INDEX_OPTIONS 1
@@ -90,7 +82,7 @@ static void clear_state(void)
 
 static void init(void)
 {
-    menu[INDEX_OPTIONS].items[0].hidden = 0;
+    top_menu_editor[INDEX_OPTIONS].items[0].hidden = 0;
 }
 
 static void draw_foreground(void)
@@ -98,7 +90,7 @@ static void draw_foreground(void)
     if (!data.open_sub_menu) {
         return;
     }
-    menu_draw(&menu[data.open_sub_menu - 1], data.focus_sub_menu_id);
+    menu_draw(&top_menu_editor[data.open_sub_menu - 1], data.focus_sub_menu_id);
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)
@@ -127,7 +119,7 @@ void widget_top_menu_editor_draw(void)
     for (int i = 0; i * block_width < s_width; i++) {
         image_draw(image_base + i % 8, i * block_width, 0);
     }
-    menu_bar_draw(menu, 5, s_width);
+    menu_bar_draw(top_menu_editor, sizeof(top_menu_editor) / sizeof(menu_bar_item), s_width);
 }
 
 static int handle_input_submenu(const mouse *m, const hotkeys *h)
@@ -137,12 +129,12 @@ static int handle_input_submenu(const mouse *m, const hotkeys *h)
         window_go_back();
         return 1;
     }
-    int menu_id = menu_bar_handle_mouse(m, menu, 5, &data.focus_menu_id);
+    int menu_id = menu_bar_handle_mouse(m, top_menu_editor, sizeof(top_menu_editor) / sizeof(menu_bar_item), &data.focus_menu_id);
     if (menu_id && menu_id != data.open_sub_menu) {
         window_request_refresh();
         data.open_sub_menu = menu_id;
     }
-    if (!menu_handle_mouse(m, &menu[data.open_sub_menu - 1], &data.focus_sub_menu_id)) {
+    if (!menu_handle_mouse(m, &top_menu_editor[data.open_sub_menu - 1], &data.focus_sub_menu_id)) {
         if (m->left.went_up) {
             clear_state();
             window_go_back();
@@ -154,7 +146,7 @@ static int handle_input_submenu(const mouse *m, const hotkeys *h)
 
 static int handle_mouse_menu(const mouse *m)
 {
-    int menu_id = menu_bar_handle_mouse(m, menu, 5, &data.focus_menu_id);
+    int menu_id = menu_bar_handle_mouse(m, top_menu_editor, sizeof(top_menu_editor) / sizeof(menu_bar_item), &data.focus_menu_id);
     if (menu_id && m->left.went_up) {
         data.open_sub_menu = menu_id;
         top_menu_window_show();
@@ -262,11 +254,4 @@ static void menu_resets_invasions(__attribute__((unused)) int param)
     scenario_editor_clear_invasion_points();
     clear_state();
     window_go_back();
-}
-
-static void menu_empire_choose(__attribute__((unused)) int param)
-{
-    clear_state();
-    window_go_back();
-    window_editor_empire_show();
 }

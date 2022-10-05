@@ -13,6 +13,7 @@
 #include "scenario/property.h"
 #include "widget/input_box.h"
 #include "widget/sidebar/editor.h"
+#include "window/editor/attributes.h"
 #include "window/editor/map.h"
 
 #define MAX_BRIEFING 2302
@@ -60,15 +61,14 @@ static void draw_foreground(void)
 static void handle_input(const mouse *m, const hotkeys *h)
 {
     const mouse *m_dialog = mouse_in_dialog(m);
-    if (input_box_handle_mouse(m_dialog, &scenario_briefing_input)
-        || widget_sidebar_editor_handle_mouse_attributes(m)) {
+    if (input_box_handle_mouse(m_dialog, &scenario_briefing_input)) {
         return;
     }
     if (input_go_back_requested(m, h)) {
         input_box_stop(&scenario_briefing_input);
         scenario_editor_update_briefing(briefing);
         rich_text_reset(0);
-        window_editor_map_show();
+        window_editor_attributes_show();
     }
     rich_text_handle_mouse(m_dialog);
 }

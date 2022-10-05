@@ -19,8 +19,8 @@
 #include "widget/minimap.h"
 #include "widget/sidebar/common.h"
 #include "window/editor/attributes.h"
-#include "window/editor/briefing.h"
 #include "window/editor/build_menu.h"
+#include "window/editor/empire.h"
 #include "window/editor/map.h"
 
 #define MINIMAP_Y_OFFSET 30
@@ -28,12 +28,12 @@
 static void button_build_tool(int tool, int param2);
 static void button_build_menu(int submenu, int param2);
 
-static void button_briefing(int show, int param2);
 static void button_attributes(int show, int param2);
+static void button_empire(int param1, int param2);
 
 static image_button buttons_build[] = {
-    {7, 123, 71, 23, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 45, button_briefing, button_none, 1, 0, 1, 0, 0, 0},
-    {84, 123, 71, 23, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 48, button_attributes, button_none, 1, 0, 1, 0, 0, 0},
+    {7, 123, 71, 23, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 48, button_attributes, button_none, 1, 0, 1, 0, 0, 0},
+    {84, 123, 71, 23, IB_NORMAL, GROUP_SIDEBAR_ADVISORS_EMPIRE, 3, button_empire, button_none, 0, 0, 1, 0, 0, 0},
     {13, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 0, button_build_tool, button_none, TOOL_GRASS, 0, 1, 0, 0, 0},
     {63, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 3, button_build_tool, button_none, TOOL_SHRUB, 0, 1, 0, 0, 0},
     {113, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 6, button_build_tool, button_none, TOOL_WATER, 0, 1, 0, 0, 0},
@@ -53,7 +53,7 @@ static image_button buttons_build[] = {
 
 static void draw_buttons(void)
 {
-    image_buttons_draw(sidebar_common_get_x_offset_expanded(), TOP_MENU_HEIGHT, buttons_build, 17);
+    image_buttons_draw(sidebar_common_get_x_offset_expanded(), TOP_MENU_HEIGHT, buttons_build, sizeof(buttons_build) / sizeof(image_button));
 }
 
 static void draw_status(void)
@@ -155,31 +155,12 @@ int widget_sidebar_editor_handle_mouse(const mouse *m)
     if (widget_minimap_handle_mouse(m)) {
         return 1;
     }
-    return image_buttons_handle_mouse(m, sidebar_common_get_x_offset_expanded(), 24, buttons_build, 17, 0);
-}
-
-int widget_sidebar_editor_handle_mouse_build_menu(const mouse *m)
-{
-    return image_buttons_handle_mouse(m, sidebar_common_get_x_offset_expanded(), 24, buttons_build, 17, 0);
+    return image_buttons_handle_mouse(m, sidebar_common_get_x_offset_expanded(), 24, buttons_build, sizeof(buttons_build) / sizeof(image_button), 0);
 }
 
 int widget_sidebar_editor_handle_mouse_attributes(const mouse *m)
 {
-    return image_buttons_handle_mouse(m, sidebar_common_get_x_offset_expanded(), 24, buttons_build, 2, 0);
-}
-
-static void button_briefing(int show, __attribute__((unused)) int param2)
-{
-    window_editor_build_menu_hide();
-    if (show) {
-        if (!window_is(WINDOW_EDITOR_BRIEFING)) {
-            window_editor_briefing_show();
-        }
-    } else {
-        if (!window_is(WINDOW_EDITOR_MAP)) {
-            window_editor_map_show();
-        }
-    }
+    return image_buttons_handle_mouse(m, sidebar_common_get_x_offset_expanded(), 24, buttons_build, 1, 0);
 }
 
 static void button_attributes(int show, __attribute__((unused)) int param2)
@@ -194,6 +175,11 @@ static void button_attributes(int show, __attribute__((unused)) int param2)
             window_editor_map_show();
         }
     }
+}
+
+static void button_empire(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
+{
+    window_editor_empire_show();
 }
 
 static void button_build_tool(int tool, __attribute__((unused)) int param2)
