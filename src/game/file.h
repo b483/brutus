@@ -4,13 +4,6 @@
 #include <stdint.h>
 
 /**
- * Start scenario by name
- * @param scenario_name Name of the scenario without extension
- * @return Boolean true on success, false on failure
- */
-int game_file_start_scenario_by_name(const uint8_t *scenario_name);
-
-/**
  * Start scenario from filename
  * @param scenario_file File to load
  * @return Boolean true on success, false on failure

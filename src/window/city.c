@@ -182,8 +182,9 @@ static void set_construction_building_type(building_type type)
 
 static void replay_map_confirmed(void)
 {
-    game_file_start_scenario_by_name(scenario_get_name());
-    window_city_show();
+    if (game_file_start_scenario((char *) scenario_get_name())) {
+        window_city_show();
+    }
 }
 
 void replay_map(void)

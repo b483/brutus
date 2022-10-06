@@ -51,7 +51,6 @@ static void fix_image_ids(void)
     }
 }
 
-
 void empire_object_load_initial(buffer *buf)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
@@ -95,7 +94,6 @@ void empire_object_load_initial(buffer *buf)
     fix_image_ids();
 }
 
-
 void empire_object_load_state(buffer *buf)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
@@ -137,7 +135,6 @@ void empire_object_load_state(buffer *buf)
     fix_image_ids();
 }
 
-
 void empire_object_save_state(buffer *buf)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
@@ -177,7 +174,6 @@ void empire_object_save_state(buffer *buf)
     }
 }
 
-
 void empire_object_init_cities(void)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
@@ -211,7 +207,6 @@ void empire_object_init_cities(void)
     }
 }
 
-
 int empire_object_init_distant_battle_travel_months(int object_type)
 {
     int month = 0;
@@ -224,18 +219,15 @@ int empire_object_init_distant_battle_travel_months(int object_type)
     return month;
 }
 
-
 empire_object *empire_object_get(int object_id)
 {
     return &objects[object_id];
 }
 
-
 int empire_object_get_trade_route_id(int object_id)
 {
     return objects[object_id].trade_route_id;
 }
-
 
 empire_object *empire_object_get_for_trade_route(int trade_route_id)
 {
@@ -246,7 +238,6 @@ empire_object *empire_object_get_for_trade_route(int trade_route_id)
     }
     return 0;
 }
-
 
 const empire_object *empire_object_get_battle_icon(int path_id, int year)
 {
@@ -261,7 +252,6 @@ const empire_object *empire_object_get_battle_icon(int path_id, int year)
     return 0;
 }
 
-
 int empire_object_get_max_invasion_path(void)
 {
     int max_path = 0;
@@ -274,7 +264,6 @@ int empire_object_get_max_invasion_path(void)
     }
     return max_path;
 }
-
 
 int empire_object_get_closest(int x, int y)
 {
@@ -305,7 +294,6 @@ int empire_object_get_closest(int x, int y)
     return min_obj_id;
 }
 
-
 empire_object *empire_object_get_our_city(void)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
@@ -316,7 +304,6 @@ empire_object *empire_object_get_our_city(void)
     return 0;
 }
 
-
 void empire_object_foreach(void (*callback)(const empire_object *))
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
@@ -325,7 +312,6 @@ void empire_object_foreach(void (*callback)(const empire_object *))
         }
     }
 }
-
 
 void empire_object_set_expanded(void)
 {
@@ -344,7 +330,6 @@ void empire_object_set_expanded(void)
         }
     }
 }
-
 
 static int get_animation_offset(int image_id, int current_index)
 {
@@ -388,12 +373,10 @@ static int get_animation_offset(int image_id, int current_index)
     return current_index;
 }
 
-
 int empire_object_update_animation(const empire_object *obj, int image_id)
 {
     return objects[obj->id].animation_index = get_animation_offset(image_id, obj->animation_index);
 }
-
 
 void empire_object_our_city_set_resources_sell(void)
 {
@@ -447,7 +430,6 @@ void empire_object_our_city_set_resources_sell(void)
     }
 }
 
-
 void empire_object_trade_cities_disable_default_resources(void)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
@@ -462,7 +444,6 @@ void empire_object_trade_cities_disable_default_resources(void)
         }
     }
 }
-
 
 void empire_object_disable_postpone_trade_city(empire_object *object, int is_down)
 {
@@ -484,7 +465,6 @@ void empire_object_disable_postpone_trade_city(empire_object *object, int is_dow
         object->expanded.image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
     }
 }
-
 
 void empire_object_city_toggle_resource(empire_object *object, int resource, int selling)
 {
@@ -515,7 +495,6 @@ void empire_object_city_toggle_resource(empire_object *object, int resource, int
     }
 }
 
-
 void empire_object_city_set_resource_limit(empire_object *object, int resource, int resource_limit, int selling)
 {
     if (selling) {
@@ -525,19 +504,16 @@ void empire_object_city_set_resource_limit(empire_object *object, int resource, 
     }
 }
 
-
 void empire_object_city_set_trade_route_cost(empire_object *object, int trade_route_cost)
 {
     object->trade_route_cost = trade_route_cost;
 }
-
 
 void empire_object_open_trade(empire_object *object)
 {
     city_finance_process_construction(object->trade_route_cost);
     object->trade_route_open = 1;
 }
-
 
 int empire_object_trade_route_is_open(int trade_route_id)
 {
@@ -548,7 +524,6 @@ int empire_object_trade_route_is_open(int trade_route_id)
     }
     return 0;
 }
-
 
 int empire_object_is_sea_trade_route(int route_id)
 {
@@ -565,7 +540,6 @@ int empire_object_is_sea_trade_route(int route_id)
     return 0;
 }
 
-
 void empire_object_city_reset_yearly_trade_amounts(void)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
@@ -574,7 +548,6 @@ void empire_object_city_reset_yearly_trade_amounts(void)
         }
     }
 }
-
 
 int empire_object_city_count_wine_sources(void)
 {
@@ -589,7 +562,6 @@ int empire_object_city_count_wine_sources(void)
     return sources;
 }
 
-
 int empire_can_import_resource(int resource)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
@@ -603,7 +575,6 @@ int empire_can_import_resource(int resource)
     return 0;
 }
 
-
 int empire_can_export_resource(int resource)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
@@ -616,7 +587,6 @@ int empire_can_export_resource(int resource)
     }
     return 0;
 }
-
 
 static int get_raw_resource(int resource)
 {
@@ -636,7 +606,6 @@ static int get_raw_resource(int resource)
     }
 }
 
-
 int empire_object_our_city_can_produce_resource(int resource)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
@@ -652,7 +621,6 @@ int empire_object_our_city_can_produce_resource(int resource)
     // our city wasn't found or not in use (shouldn't happen)
     return 0;
 }
-
 
 int empire_can_produce_resource(int resource)
 {
@@ -670,7 +638,6 @@ int empire_can_produce_resource(int resource)
         );
     }
 }
-
 
 static int generate_trader(empire_object *city)
 {
@@ -750,7 +717,6 @@ static int generate_trader(empire_object *city)
     return 0;
 }
 
-
 void empire_object_city_generate_trader(void)
 {
     for (int i = 1; i < MAX_OBJECTS; i++) {
@@ -776,7 +742,6 @@ void empire_object_city_generate_trader(void)
     }
 }
 
-
 void empire_object_city_remove_trader(int city_id, int figure_id)
 {
     for (int i = 0; i < 3; i++) {
@@ -785,7 +750,6 @@ void empire_object_city_remove_trader(int city_id, int figure_id)
         }
     }
 }
-
 
 int empire_object_get_vulnerable_roman_city(void)
 {
@@ -797,12 +761,10 @@ int empire_object_get_vulnerable_roman_city(void)
     return 0;
 }
 
-
 void empire_object_city_set_vulnerable(int object_id)
 {
     objects[object_id].city_type = EMPIRE_CITY_VULNERABLE_ROMAN;
 }
-
 
 void empire_object_city_set_foreign(int object_id)
 {

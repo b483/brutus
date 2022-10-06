@@ -170,19 +170,6 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
     game_state_unpause();
 }
 
-static int load_custom_scenario(const uint8_t *scenario_name, const char *scenario_file)
-{
-    if (!file_exists(MAPS_DIR_PATH, scenario_file)) {
-        return 0;
-    }
-
-    clear_scenario_data();
-    game_file_load_scenario_data(scenario_file);
-    initialize_scenario_data(scenario_name);
-    return 1;
-}
-
-
 static void initialize_saved_game(void)
 {
     scenario_distant_battle_set_roman_travel_months();
@@ -218,13 +205,31 @@ static void initialize_saved_game(void)
     game_state_unpause();
 }
 
-
-static int start_scenario(const uint8_t *scenario_name, const char *scenario_file)
+int game_file_start_scenario(const char *scenario)
 {
-    map_bookmarks_clear();
-    if (!load_custom_scenario(scenario_name, scenario_file)) {
+    // assume scenario can be passed in with or without .map extension
+    char scenario_file[FILE_NAME_MAX];
+    strncpy(scenario_file, scenario, FILE_NAME_MAX);
+    uint8_t scenario_name[FILE_NAME_MAX];
+    encoding_from_utf8(scenario, scenario_name, FILE_NAME_MAX);
+    if (file_has_extension(scenario_file, "map")) {
+        file_remove_extension(scenario_name);
+    } else {
+        file_append_extension(scenario_file, "map");
+    }
+    if (!file_exists(MAPS_DIR_PATH, scenario_file)) {
         return 0;
     }
+
+    map_bookmarks_clear();
+    clear_scenario_data();
+
+    if (!game_file_load_scenario_data(scenario_file)) {
+        return 0;
+    }
+    trade_prices_reset();
+
+    initialize_scenario_data(scenario_name);
     set_player_name_from_config();
     city_emperor_init_scenario();
     building_menu_update();
@@ -232,40 +237,11 @@ static int start_scenario(const uint8_t *scenario_name, const char *scenario_fil
     return 1;
 }
 
-static const char *get_scenario_filename(const uint8_t *scenario_name, int decomposed)
-{
-    static char filename[FILE_NAME_MAX];
-    encoding_to_utf8(scenario_name, filename, FILE_NAME_MAX, decomposed);
-    if (!file_has_extension(filename, "map")) {
-        file_append_extension(filename, "map");
-    }
-    return filename;
-}
-
-int game_file_start_scenario_by_name(const uint8_t *scenario_name)
-{
-    if (start_scenario(scenario_name, get_scenario_filename(scenario_name, 0))) {
-        return 1;
-    } else {
-        return start_scenario(scenario_name, get_scenario_filename(scenario_name, 1));
-    }
-}
-
-int game_file_start_scenario(const char *scenario_file)
-{
-    uint8_t scenario_name[FILE_NAME_MAX];
-    encoding_from_utf8(scenario_file, scenario_name, FILE_NAME_MAX);
-    file_remove_extension(scenario_name);
-    return start_scenario(scenario_name, scenario_file);
-}
-
 int game_file_load_scenario_data(const char *scenario_file)
 {
     if (!game_file_io_read_scenario(MAPS_DIR_PATH, scenario_file)) {
         return 0;
     }
-
-    trade_prices_reset();
     city_view_reset_orientation();
     return 1;
 }

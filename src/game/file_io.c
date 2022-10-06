@@ -205,7 +205,7 @@ static void init_scenario_data(void)
     state->random_iv = create_scenario_piece(8);
     state->camera = create_scenario_piece(8);
     state->scenario = create_scenario_piece(3581);
-    state->empire_object = create_scenario_piece(18400);
+    state->empire_object = create_scenario_piece(20600);
 }
 
 static void init_savegame_data(void)
@@ -251,7 +251,7 @@ static void init_savegame_data(void)
     state->city_graph_order = create_savegame_piece(8, 0);
     state->emperor_change_time = create_savegame_piece(8, 0);
     state->empire = create_savegame_piece(8, 0);
-    state->empire_objects = create_savegame_piece(18400, 1);
+    state->empire_objects = create_savegame_piece(20600, 1);
     state->building_count_industry = create_savegame_piece(128, 0);
     state->trade_prices = create_savegame_piece(128, 0);
     state->figure_names = create_savegame_piece(84, 0);
