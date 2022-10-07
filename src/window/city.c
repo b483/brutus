@@ -227,8 +227,8 @@ static void handle_hotkeys(const hotkeys *h)
     if (h->return_legions_to_fort) {
         return_legions_to_fort();
     }
-    if (h->show_advisor) {
-        window_advisors_show_advisor(h->show_advisor);
+    if (h->show_last_advisor) {
+        window_advisors_show_advisor(setting_last_advisor());
     }
     if (h->show_empire_map) {
         window_empire_show();

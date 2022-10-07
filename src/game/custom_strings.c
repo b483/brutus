@@ -85,7 +85,7 @@ static custom_string all_strings[] = {
     {TR_HOTKEY_REPLAY_MAP, "Replay map"},
     {TR_HOTKEY_CYCLE_LEGION, "Cycle through legions"},
     {TR_HOTKEY_RETURN_LEGIONS_TO_FORT, "Return legions to fort"},
-    {TR_HOTKEY_SHOW_ADVISOR_CHIEF, "Chief advisor"},
+    {TR_HOTKEY_SHOW_LAST_ADVISOR, "Show last advisor"},
     {TR_HOTKEY_SHOW_EMPIRE_MAP, "Empire map"},
     {TR_HOTKEY_SHOW_OVERLAY_WATER, "Show water overlay"},
     {TR_HOTKEY_SHOW_OVERLAY_FIRE, "Show fire overlay"},

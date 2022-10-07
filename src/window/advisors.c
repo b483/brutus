@@ -171,20 +171,11 @@ static void draw_foreground(void)
     }
 }
 
-static void handle_hotkeys(const hotkeys *h)
-{
-    if (h->show_advisor) {
-        if (current_advisor == (unsigned) h->show_advisor) {
-            window_city_show();
-        } else {
-            window_advisors_show_advisor(h->show_advisor);
-        }
-    }
-}
-
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    handle_hotkeys(h);
+    if (h->show_last_advisor) {
+        window_city_show();
+    }
     const mouse *m_dialog = mouse_in_dialog(m);
     if (generic_buttons_handle_mouse(m_dialog, 0, 440, advisor_buttons, 13, &focus_button_id)) {
         return;

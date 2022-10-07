@@ -19,7 +19,7 @@ typedef struct {
     int replay_map;
     int cycle_legion;
     int return_legions_to_fort;
-    int show_advisor;
+    int show_last_advisor;
     int show_empire_map;
     int clone_building;
     int building;

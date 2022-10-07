@@ -92,9 +92,8 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
         case HOTKEY_RETURN_LEGIONS_TO_FORT:
             def->action = &data.hotkey_state.return_legions_to_fort;
             break;
-        case HOTKEY_SHOW_ADVISOR_CHIEF:
-            def->action = &data.hotkey_state.show_advisor;
-            def->value = ADVISOR_CHIEF;
+        case HOTKEY_SHOW_LAST_ADVISOR:
+            def->action = &data.hotkey_state.show_last_advisor;
             break;
         case HOTKEY_SHOW_EMPIRE_MAP:
             def->action = &data.hotkey_state.show_empire_map;
