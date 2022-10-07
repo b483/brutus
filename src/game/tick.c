@@ -75,7 +75,6 @@ static void advance_month(void)
     scenario_random_event_process();
     city_finance_handle_month_change();
     city_resource_consume_food();
-    scenario_request_process();
     scenario_demand_change_process();
     scenario_price_change_process();
     city_victory_update_months_to_govern();
@@ -92,7 +91,7 @@ static void advance_month(void)
     } else {
         city_ratings_update(0);
     }
-
+    scenario_request_process();
     scenario_invasion_process();
     scenario_distant_battle_process();
     city_population_record_monthly();

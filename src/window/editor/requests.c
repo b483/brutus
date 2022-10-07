@@ -11,6 +11,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "input/input.h"
+#include "scenario/data.h"
 #include "scenario/editor.h"
 #include "scenario/property.h"
 #include "window/editor/attributes.h"
@@ -19,7 +20,7 @@
 
 static void button_request(int id, int param2);
 
-static generic_button buttons[] = {
+static generic_button buttons_requests[] = {
     {20, 48, 290, 25, button_request, button_none, 0, 0},
     {20, 78, 290, 25, button_request, button_none, 1, 0},
     {20, 108, 290, 25, button_request, button_none, 2, 0},
@@ -56,7 +57,7 @@ static void draw_foreground(void)
     outer_panel_draw(0, 0, 40, 28);
     lang_text_draw_centered(44, 14, 0, 16, 640, FONT_LARGE_BLACK);
 
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < MAX_REQUESTS; i++) {
         int x, y;
         if (i < 10) {
             x = 20;
@@ -66,14 +67,13 @@ static void draw_foreground(void)
             y = 48 + 30 * (i - 10);
         }
         button_border_draw(x, y, 290, 25, focus_button_id == i + 1);
-        editor_request request;
-        scenario_editor_request_get(i, &request);
-        if (request.resource) {
-            text_draw_number(request.year, '+', " ", x + 20, y + 6, FONT_NORMAL_BLACK);
-            lang_text_draw_year(scenario_property_start_year() + request.year, x + 80, y + 6, FONT_NORMAL_BLACK);
-            int width = text_draw_number(request.amount, '@', " ", x + 180, y + 6, FONT_NORMAL_BLACK);
-            int offset = request.resource + resource_image_offset(request.resource, RESOURCE_IMAGE_ICON);
-            image_draw(image_group(GROUP_EDITOR_RESOURCE_ICONS) + offset, x + 190 + width, y + 3);
+
+        if (scenario.requests[i].resource) {
+            int width = lang_text_draw(25, scenario.requests[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
+            width += lang_text_draw_year(scenario_property_start_year() + scenario.requests[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
+            width += text_draw_number(scenario.requests[i].amount, ' ', "", x + 6 + width, y + 6, FONT_NORMAL_BLACK);
+            image_draw(image_group(GROUP_EDITOR_RESOURCE_ICONS) + scenario.requests[i].resource + resource_image_offset(scenario.requests[i].resource, RESOURCE_IMAGE_ICON), x + 12 + width, y + 3);
+            text_draw_number(scenario.requests[i].years_deadline, ' ', "Y", x + 40 + width, y + 6, FONT_NORMAL_BLACK);
         } else {
             lang_text_draw_centered(44, 23, x, y + 6, 290, FONT_NORMAL_BLACK);
         }
@@ -87,7 +87,7 @@ static void draw_foreground(void)
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, 20, &focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_requests, sizeof(buttons_requests) / sizeof(generic_button), &focus_button_id)) {
         return;
     }
     if (input_go_back_requested(m, h)) {

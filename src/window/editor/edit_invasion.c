@@ -29,7 +29,7 @@ static void button_attack_type(int param1, int param2);
 static void button_delete(int param1, int param2);
 static void button_save(int param1, int param2);
 
-static generic_button buttons[] = {
+static generic_button buttons_edit_invasion[] = {
     {145, 152, 60, 25, button_year, button_none, 0, 0},
     {145, 182, 60, 25, button_month, button_none, 0, 0},
     {145, 212, 60, 25, button_amount, button_none, 0, 0},
@@ -37,7 +37,7 @@ static generic_button buttons[] = {
     {145, 272, 200, 25, button_from, button_none, 0, 0},
     {145, 302, 200, 25, button_attack_type, button_none, 0, 0},
     {30, 342, 200, 25, button_delete, button_none, 0, 0},
-    {270, 342, 80, 25, button_save, button_none, 0, 0},
+    {265, 342, 80, 25, button_save, button_none, 0, 0},
 };
 
 static struct {
@@ -68,13 +68,13 @@ static void draw_foreground(void)
     lang_text_draw_centered(44, 22, 0, 114, 384, FONT_LARGE_BLACK);
 
     // Year offset
-    text_draw(get_custom_string(TR_EDITOR_INVASION_YEAR), 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(get_custom_string(TR_EDITOR_OFFSET_YEAR), 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(145, 152, 60, 25, data.focus_button_id == 1);
-    text_draw_number_centered_prefix(scenario.invasions[data.id].year, '+', 145, 158, 60, FONT_NORMAL_BLACK);
+    text_draw_number_centered_prefix(scenario.invasions[data.id].year, '+', 147, 158, 60, FONT_NORMAL_BLACK);
     lang_text_draw_year(scenario_property_start_year() + scenario.invasions[data.id].year, 215, 158, FONT_NORMAL_BLACK);
 
     // Month
-    text_draw(get_custom_string(TR_EDITOR_INVASION_MONTH), 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(get_custom_string(TR_EDITOR_MONTH), 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(145, 182, 60, 25, data.focus_button_id == 2);
     text_draw_number_centered(scenario.invasions[data.id].month + 1, 145, 188, 60, FONT_NORMAL_BLACK);
 
@@ -84,7 +84,7 @@ static void draw_foreground(void)
     }
 
     // Amount
-    text_draw(get_custom_string(TR_EDITOR_INVASION_AMOUNT), 30, 218, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(get_custom_string(TR_EDITOR_AMOUNT), 30, 218, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(145, 212, 60, 25, data.focus_button_id == 3);
     text_draw_number_centered(scenario.invasions[data.id].amount, 145, 218, 60, FONT_NORMAL_BLACK);
 
@@ -111,15 +111,15 @@ static void draw_foreground(void)
     lang_text_draw_centered(44, 26, 30, 350, 200, FONT_NORMAL_BLACK);
 
     // OK
-    button_border_draw(270, 342, 80, 25, data.focus_button_id == 8);
-    lang_text_draw_centered(18, 3, 270, 350, 80, FONT_NORMAL_BLACK);
+    button_border_draw(265, 342, 80, 25, data.focus_button_id == 8);
+    lang_text_draw_centered(18, 3, 265, 350, 80, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, sizeof(buttons) / sizeof(generic_button), &data.focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_invasion, sizeof(buttons_edit_invasion) / sizeof(generic_button), &data.focus_button_id)) {
         return;
     }
     if (input_go_back_requested(m, h)) {
@@ -199,8 +199,8 @@ static void button_attack_type(__attribute__((unused)) int param1, __attribute__
 
 static void button_delete(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario.invasions[data.id].year = 0;
-    scenario.invasions[data.id].month = 1;
+    scenario.invasions[data.id].year = 1;
+    scenario.invasions[data.id].month = 0;
     scenario.invasions[data.id].amount = 0;
     scenario.invasions[data.id].type = 0;
     scenario.invasions[data.id].from = 8;

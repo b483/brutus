@@ -138,13 +138,8 @@ static void draw_foreground(void)
     lang_text_draw(44, 40, 32, 165, FONT_NORMAL_BLACK);
     button_border_draw(212, 156, 250, 30, data.focus_button_id == 4);
 
-    editor_request request;
-    scenario_editor_request_get(0, &request);
-    if (request.resource) {
-        lang_text_draw_year(scenario_property_start_year() + request.year, 222, 165, FONT_NORMAL_BLACK);
-        int width = text_draw_number(request.amount, '@', " ", 312, 165, FONT_NORMAL_BLACK);
-        int offset = request.resource + resource_image_offset(request.resource, RESOURCE_IMAGE_ICON);
-        image_draw(image_group(GROUP_EDITOR_RESOURCE_ICONS) + offset, 322 + width, 160);
+    if (scenario.requests[0].resource) {
+        text_draw_centered(get_custom_string(TR_EDITOR_REQUEST_SCHEDULED), 212, 165, 250, FONT_NORMAL_BLACK, COLOR_BLACK);
     } else {
         lang_text_draw_centered(44, 19, 212, 165, 250, FONT_NORMAL_BLACK);
     }

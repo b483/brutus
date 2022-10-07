@@ -62,16 +62,15 @@ static void draw_foreground(void)
             x = 320;
             y = 48 + 30 * (i - 10);
         }
-        int invasions_box_width = 290;
-        button_border_draw(x, y, invasions_box_width, 25, focus_button_id == i + 1);
+        button_border_draw(x, y, 290, 25, focus_button_id == i + 1);
         if (scenario.invasions[i].type) {
             int width = lang_text_draw(25, scenario.invasions[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
             width += lang_text_draw_year(scenario_property_start_year() + scenario.invasions[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
             width += text_draw_number(scenario.invasions[i].amount, ' ', "", x + 6 + width, y + 6, FONT_NORMAL_BLACK);
             uint8_t *invasions_type_text = get_custom_string(TR_EDITOR_INVASION_TYPE_NO_INVADERS + scenario.invasions[i].type);
-            text_draw(invasions_type_text, x - 12 + width + (invasions_box_width - width - text_get_width(invasions_type_text, FONT_NORMAL_BLACK)), y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
+            text_draw(invasions_type_text, x - 12 + width + (290 - width - text_get_width(invasions_type_text, FONT_NORMAL_BLACK)), y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
         } else {
-            lang_text_draw_centered(44, 23, x, y + 6, invasions_box_width, FONT_NORMAL_BLACK);
+            lang_text_draw_centered(44, 23, x, y + 6, 290, FONT_NORMAL_BLACK);
         }
     }
 

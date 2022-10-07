@@ -1,7 +1,7 @@
 #include "edit_request.h"
 
+#include "game/custom_strings.h"
 #include "game/resource.h"
-#include "graphics/button.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/lang_text.h"
@@ -10,6 +10,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "input/input.h"
+#include "scenario/data.h"
 #include "scenario/editor.h"
 #include "scenario/property.h"
 #include "window/editor/map.h"
@@ -18,6 +19,7 @@
 #include "window/select_list.h"
 
 static void button_year(int param1, int param2);
+static void button_month(int param1, int param2);
 static void button_amount(int param1, int param2);
 static void button_resource(int param1, int param2);
 static void button_deadline_years(int param1, int param2);
@@ -25,26 +27,25 @@ static void button_favor(int param1, int param2);
 static void button_delete(int param1, int param2);
 static void button_save(int param1, int param2);
 
-static generic_button buttons[] = {
-    {30, 152, 60, 25, button_year, button_none, 0, 0},
-    {330, 152, 80, 25, button_amount, button_none, 0, 0},
-    {430, 152, 100, 25, button_resource, button_none, 0, 0},
-    {70, 190, 140, 25, button_deadline_years, button_none, 0, 0},
-    {400, 190, 80, 25, button_favor, button_none, 0, 0},
-    {10, 234, 250, 25, button_delete, button_none, 0, 0},
-    {300, 234, 100, 25, button_save, button_none, 0, 0}
+static generic_button buttons_edit_request[] = {
+    {155, 152, 100, 25, button_year, button_none, 0, 0},
+    {155, 182, 100, 25, button_month, button_none, 0, 0},
+    {155, 212, 100, 25, button_amount, button_none, 0, 0},
+    {155, 242, 100, 25, button_resource, button_none, 0, 0},
+    {155, 272, 100, 25, button_deadline_years, button_none, 0, 0},
+    {155, 302, 100, 25, button_favor, button_none, 0, 0},
+    {30, 342, 200, 25, button_delete, button_none, 0, 0},
+    {300, 342, 80, 25, button_save, button_none, 0, 0},
 };
 
 static struct {
     int id;
-    editor_request request;
     int focus_button_id;
 } data;
 
 static void init(int id)
 {
     data.id = id;
-    scenario_editor_request_get(id, &data.request);
 }
 
 static void draw_background(void)
@@ -56,40 +57,60 @@ static void draw_foreground(void)
 {
     graphics_in_dialog();
 
-    outer_panel_draw(0, 100, 38, 11);
-    lang_text_draw(44, 21, 14, 114, FONT_LARGE_BLACK);
+    outer_panel_draw(0, 100, 26, 18);
+    // Request from the Emperor
+    text_draw_centered(get_custom_string(TR_EDITOR_REQUEST_FROM_EMPEROR), 0, 116, 416, FONT_LARGE_BLACK, COLOR_BLACK);
 
-    button_border_draw(30, 152, 60, 25, data.focus_button_id == 1);
-    text_draw_number_centered_prefix(data.request.year, '+', 30, 158, 60, FONT_NORMAL_BLACK);
-    lang_text_draw_year(scenario_property_start_year() + data.request.year, 110, 158, FONT_NORMAL_BLACK);
+    // Year offset
+    text_draw(get_custom_string(TR_EDITOR_OFFSET_YEAR), 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
+    button_border_draw(155, 152, 100, 25, data.focus_button_id == 1);
+    text_draw_number_centered_prefix(scenario.requests[data.id].year, '+', 157, 158, 100, FONT_NORMAL_BLACK);
+    lang_text_draw_year(scenario_property_start_year() + scenario.requests[data.id].year, 275, 158, FONT_NORMAL_BLACK);
 
-    lang_text_draw(44, 72, 250, 158, FONT_NORMAL_BLACK);
-    button_border_draw(330, 152, 80, 25, data.focus_button_id == 2);
-    text_draw_number_centered(data.request.amount, 330, 158, 80, FONT_NORMAL_BLACK);
+    // Month
+    text_draw(get_custom_string(TR_EDITOR_MONTH), 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
+    button_border_draw(155, 182, 100, 25, data.focus_button_id == 2);
+    text_draw_number_centered(scenario.requests[data.id].month + 1, 155, 188, 100, FONT_NORMAL_BLACK);
 
-    button_border_draw(430, 152, 100, 25, data.focus_button_id == 3);
-    lang_text_draw_centered(23, data.request.resource, 430, 158, 100, FONT_NORMAL_BLACK);
+    // Invalid year/month combination
+    if (scenario.requests[data.id].year == 0 && scenario.requests[data.id].month == 0) {
+        text_draw(get_custom_string(TR_EDITOR_INVASION_INVALID_MONTH), 260, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
+    }
 
-    lang_text_draw(44, 24, 40, 196, FONT_NORMAL_BLACK);
-    button_border_draw(70, 190, 140, 25, data.focus_button_id == 4);
-    lang_text_draw_amount(8, 8, data.request.deadline_years, 80, 196, FONT_NORMAL_BLACK);
+    // Amount
+    text_draw(get_custom_string(TR_EDITOR_AMOUNT), 30, 218, FONT_NORMAL_BLACK, COLOR_BLACK);
+    button_border_draw(155, 212, 100, 25, data.focus_button_id == 3);
+    text_draw_number_centered(scenario.requests[data.id].amount, 155, 218, 100, FONT_NORMAL_BLACK);
 
-    lang_text_draw(44, 73, 300, 196, FONT_NORMAL_BLACK);
-    button_border_draw(400, 190, 80, 25, data.focus_button_id == 5);
-    text_draw_number_centered_prefix(data.request.favor, '+', 400, 196, 80, FONT_NORMAL_BLACK);
+    // Resource
+    text_draw(get_custom_string(TR_EDITOR_RESOURCE), 30, 248, FONT_NORMAL_BLACK, COLOR_BLACK);
+    button_border_draw(155, 242, 100, 25, data.focus_button_id == 4);
+    lang_text_draw_centered(23, scenario.requests[data.id].resource, 155, 248, 100, FONT_NORMAL_BLACK);
 
-    button_border_draw(300, 234, 100, 25, data.focus_button_id == 7);
-    lang_text_draw_centered(18, 3, 300, 240, 100, FONT_NORMAL_BLACK);
+    // Years deadline
+    text_draw(get_custom_string(TR_EDITOR_YEARS_DEADLINE), 30, 278, FONT_NORMAL_BLACK, COLOR_BLACK);
+    button_border_draw(155, 272, 100, 25, data.focus_button_id == 5);
+    lang_text_draw_amount(8, 8, scenario.requests[data.id].years_deadline, 160, 278, FONT_NORMAL_BLACK);
 
-    button_border_draw(10, 234, 250, 25, data.focus_button_id == 6);
-    lang_text_draw_centered(44, 25, 10, 240, 250, FONT_NORMAL_BLACK);
+    // Favor granted
+    text_draw(get_custom_string(TR_EDITOR_FAVOR_GRANTED), 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
+    button_border_draw(155, 302, 100, 25, data.focus_button_id == 6);
+    text_draw_number_centered_prefix(scenario.requests[data.id].favor, '+', 157, 308, 100, FONT_NORMAL_BLACK);
+
+    // Unschedule request
+    button_border_draw(30, 342, 200, 25, data.focus_button_id == 7);
+    lang_text_draw_centered(44, 25, 30, 350, 200, FONT_NORMAL_BLACK);
+
+    // OK
+    button_border_draw(300, 342, 80, 25, data.focus_button_id == 8);
+    lang_text_draw_centered(18, 3, 300, 350, 80, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, 7, &data.focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_request, sizeof(buttons_edit_request) / sizeof(generic_button), &data.focus_button_id)) {
         return;
     }
     if (input_go_back_requested(m, h)) {
@@ -99,76 +120,99 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 static void set_year(int value)
 {
-    data.request.year = value;
+    scenario.requests[data.id].year = value;
 }
 
 static void button_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_numeric_input_show(screen_dialog_offset_x() + 100, screen_dialog_offset_y() + 50, 3, 999, set_year);
+    window_numeric_input_show(screen_dialog_offset_x() + 140, screen_dialog_offset_y() + 65, 3, 999, set_year);
+}
+
+static void set_month(int value)
+{
+    // Jan is 1 for input/draw purposes
+    if (value == 0) {
+        value = 1;
+    }
+    // change month back to 0 indexed before saving
+    scenario.requests[data.id].month = value - 1;
+}
+
+static void button_month(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
+{
+    window_numeric_input_show(screen_dialog_offset_x() + 140, screen_dialog_offset_y() + 95, 2, 12, set_month);
 }
 
 static void set_amount(int value)
 {
-    data.request.amount = value;
+    // don't allow 0
+    scenario.requests[data.id].amount = value ? value : 1;
 }
 
 static void button_amount(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    int max_amount = 999;
     int max_digits = 3;
-    if (data.request.resource == RESOURCE_DENARII) {
-        max_amount = 30000;
+    int max_amount = 999;
+    if (scenario.requests[data.id].resource == RESOURCE_DENARII) {
         max_digits = 5;
+        max_amount = 99999;
     }
     window_numeric_input_show(
-        screen_dialog_offset_x() + 190, screen_dialog_offset_y() + 50,
+        screen_dialog_offset_x() + 140, screen_dialog_offset_y() + 125,
         max_digits, max_amount, set_amount
     );
 }
 
 static void set_resource(int value)
 {
-    data.request.resource = value;
-    if (data.request.amount > 999) {
-        data.request.amount = 999;
+    scenario.requests[data.id].resource = value;
+    if (scenario.requests[data.id].amount > 999 && scenario.requests[data.id].resource != RESOURCE_DENARII) {
+        scenario.requests[data.id].amount = 999;
     }
 }
 
 static void button_resource(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_select_list_show(screen_dialog_offset_x() + 210, screen_dialog_offset_y() + 40, 23, 17, set_resource);
+    window_select_list_show(screen_dialog_offset_x() + 255, screen_dialog_offset_y() + 77, 23, 17, set_resource);
 }
 
 static void set_deadline_years(int value)
 {
-    data.request.deadline_years = value;
+    // don't allow 0
+    scenario.requests[data.id].years_deadline = value ? value : 1;
+    scenario.requests[data.id].months_to_comply = 12 * scenario.requests[data.id].years_deadline;
 }
 
 static void button_deadline_years(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_numeric_input_show(screen_dialog_offset_x() + 220, screen_dialog_offset_y() + 100,
-        3, 999, set_deadline_years);
+    window_numeric_input_show(screen_dialog_offset_x() + 140, screen_dialog_offset_y() + 185, 3, 999, set_deadline_years);
 }
 
 static void set_favor(int value)
 {
-    data.request.favor = value;
+    scenario.requests[data.id].favor = value;
 }
 
 static void button_favor(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_numeric_input_show(screen_dialog_offset_x() + 260, screen_dialog_offset_y() + 100, 3, 100, set_favor);
+    window_numeric_input_show(screen_dialog_offset_x() + 140, screen_dialog_offset_y() + 215, 3, 100, set_favor);
 }
 
 static void button_delete(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_request_delete(data.id);
+    scenario.requests[data.id].year = 1;
+    scenario.requests[data.id].month = 0;
+    scenario.requests[data.id].amount = 1;
+    scenario.requests[data.id].resource = 0;
+    scenario.requests[data.id].years_deadline = 5;
+    scenario.requests[data.id].favor = 8;
+    scenario_editor_sort_requests();
     window_editor_requests_show();
 }
 
 static void button_save(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_request_save(data.id, &data.request);
+    scenario_editor_sort_requests();
     window_editor_requests_show();
 }
 

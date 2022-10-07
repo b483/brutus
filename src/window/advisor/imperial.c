@@ -12,7 +12,7 @@
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
 #include "graphics/text.h"
-#include "graphics/window.h"
+#include "scenario/data.h"
 #include "scenario/property.h"
 #include "scenario/request.h"
 #include "window/donate_to_city.h"
@@ -49,42 +49,47 @@ static generic_button imperial_buttons[] = {
 static int focus_button_id;
 static int selected_request_id;
 
-static void draw_request(int index, const scenario_request *request)
+static int draw_requests(int request_index)
 {
-    if (index >= 5) {
-        return;
-    }
-
-    button_border_draw(38, 96 + 42 * index, 560, 40, 0);
-    text_draw_number(request->amount, '@', " ", 40, 102 + 42 * index, FONT_NORMAL_WHITE);
-    int resource_offset = request->resource + resource_image_offset(request->resource, RESOURCE_IMAGE_ICON);
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + resource_offset, 110, 100 + 42 * index);
-    lang_text_draw(23, request->resource, 150, 102 + 42 * index, FONT_NORMAL_WHITE);
-
-    int width = lang_text_draw_amount(8, 4, request->months_to_comply, 310, 102 + 42 * index, FONT_NORMAL_WHITE);
-    lang_text_draw(12, 2, 310 + width, 102 + 42 * index, FONT_NORMAL_WHITE);
-
-    if (request->resource == RESOURCE_DENARII) {
-        // request for money
-        int treasury = city_finance_treasury();
-        width = text_draw_number(treasury, '@', " ", 40, 120 + 42 * index, FONT_NORMAL_WHITE);
-        width += lang_text_draw(52, 44, 40 + width, 120 + 42 * index, FONT_NORMAL_WHITE);
-        if (treasury < request->amount) {
-            lang_text_draw(52, 48, 80 + width, 120 + 42 * index, FONT_NORMAL_WHITE);
-        } else {
-            lang_text_draw(52, 47, 80 + width, 120 + 42 * index, FONT_NORMAL_WHITE);
+    for (int i = 0; i < MAX_REQUESTS; i++) {
+        if (request_index >= 5) {
+            return request_index;
         }
-    } else {
-        // normal goods request
-        int amount_stored = city_resource_count(request->resource);
-        width = text_draw_number(amount_stored, '@', " ", 40, 120 + 42 * index, FONT_NORMAL_WHITE);
-        width += lang_text_draw(52, 43, 40 + width, 120 + 42 * index, FONT_NORMAL_WHITE);
-        if (amount_stored < request->amount) {
-            lang_text_draw(52, 48, 80 + width, 120 + 42 * index, FONT_NORMAL_WHITE);
-        } else {
-            lang_text_draw(52, 47, 80 + width, 120 + 42 * index, FONT_NORMAL_WHITE);
+        if (scenario.requests[i].resource && scenario.requests[i].visible) {
+            button_border_draw(38, 96 + 42 * request_index, 560, 40, 0);
+            text_draw_number(scenario.requests[i].amount, '@', " ", 40, 102 + 42 * request_index, FONT_NORMAL_WHITE);
+            int resource_offset = scenario.requests[i].resource + resource_image_offset(scenario.requests[i].resource, RESOURCE_IMAGE_ICON);
+            image_draw(image_group(GROUP_RESOURCE_ICONS) + resource_offset, 110, 100 + 42 * request_index);
+            lang_text_draw(23, scenario.requests[i].resource, 150, 102 + 42 * request_index, FONT_NORMAL_WHITE);
+
+            int width = lang_text_draw_amount(8, 4, scenario.requests[i].months_to_comply, 310, 102 + 42 * request_index, FONT_NORMAL_WHITE);
+            lang_text_draw(12, 2, 310 + width, 102 + 42 * request_index, FONT_NORMAL_WHITE);
+
+            if (scenario.requests[i].resource == RESOURCE_DENARII) {
+                // request for money
+                int treasury = city_finance_treasury();
+                width = text_draw_number(treasury, '@', " ", 40, 120 + 42 * request_index, FONT_NORMAL_WHITE);
+                width += lang_text_draw(52, 44, 40 + width, 120 + 42 * request_index, FONT_NORMAL_WHITE);
+                if (treasury < scenario.requests[i].amount) {
+                    lang_text_draw(52, 48, 80 + width, 120 + 42 * request_index, FONT_NORMAL_WHITE);
+                } else {
+                    lang_text_draw(52, 47, 80 + width, 120 + 42 * request_index, FONT_NORMAL_WHITE);
+                }
+            } else {
+                // normal goods request
+                int amount_stored = city_resource_count(scenario.requests[i].resource);
+                width = text_draw_number(amount_stored, '@', " ", 40, 120 + 42 * request_index, FONT_NORMAL_WHITE);
+                width += lang_text_draw(52, 43, 40 + width, 120 + 42 * request_index, FONT_NORMAL_WHITE);
+                if (amount_stored < scenario.requests[i].amount) {
+                    lang_text_draw(52, 48, 80 + width, 120 + 42 * request_index, FONT_NORMAL_WHITE);
+                } else {
+                    lang_text_draw(52, 47, 80 + width, 120 + 42 * request_index, FONT_NORMAL_WHITE);
+                }
+            }
+            request_index++;
         }
     }
+    return request_index;
 }
 
 static int draw_background(void)
@@ -125,7 +130,7 @@ static int draw_background(void)
         lang_text_draw_amount(8, 4, city_military_months_until_distant_battle(), 80 + width, 120, FONT_NORMAL_WHITE);
         num_requests = 1;
     }
-    num_requests = scenario_request_foreach_visible(num_requests, draw_request);
+    num_requests += draw_requests(num_requests);
     if (!num_requests) {
         lang_text_draw_multiline(52, 21, 64, 160, 512, FONT_NORMAL_WHITE);
     }
@@ -149,18 +154,24 @@ static int get_request_status(int index)
             }
         }
     }
-    const scenario_request *request = scenario_request_get_visible(index - num_requests);
-    if (request) {
-        if (request->resource == RESOURCE_DENARII) {
-            if (city_finance_treasury() <= request->amount) {
-                return STATUS_NOT_ENOUGH_RESOURCES;
+    int index_offset = index - num_requests;
+    for (int i = 0; i < MAX_REQUESTS; i++) {
+        if (scenario.requests[i].resource && scenario.requests[i].visible &&
+            scenario.requests[i].state <= 1) {
+            if (index_offset == 0) {
+                if (scenario.requests[i].resource == RESOURCE_DENARII) {
+                    if (city_finance_treasury() <= scenario.requests[i].amount) {
+                        return STATUS_NOT_ENOUGH_RESOURCES;
+                    }
+                } else {
+                    if (city_resource_count(scenario.requests[i].resource) < scenario.requests[i].amount) {
+                        return STATUS_NOT_ENOUGH_RESOURCES;
+                    }
+                }
+                return i + 1;
             }
-        } else {
-            if (city_resource_count(request->resource) < request->amount) {
-                return STATUS_NOT_ENOUGH_RESOURCES;
-            }
+            index_offset--;
         }
-        return request->id + 1;
     }
     return 0;
 }

@@ -54,13 +54,15 @@ void scenario_editor_create(int map_size)
 
     // Requests
     for (int i = 0; i < MAX_REQUESTS; i++) {
-        scenario.requests[i].deadline_years = 5;
+        scenario.requests[i].year = 1;
+        scenario.requests[i].amount = 1;
+        scenario.requests[i].years_deadline = 5;
         scenario.requests[i].favor = 8;
     }
 
     // Invasions
     for (int i = 0; i < MAX_INVASIONS; i++) {
-        scenario.invasions[i].month = 1;
+        scenario.invasions[i].year = 1;
         scenario.invasions[i].from = 8;
     }
 
@@ -113,49 +115,22 @@ void scenario_editor_set_native_images(int image_hut, int image_meeting, int ima
     scenario.native_images.crops = image_crops;
 }
 
-void scenario_editor_request_get(int index, editor_request *request)
-{
-    request->year = scenario.requests[index].year;
-    request->amount = scenario.requests[index].amount;
-    request->resource = scenario.requests[index].resource;
-    request->deadline_years = scenario.requests[index].deadline_years;
-    request->favor = scenario.requests[index].favor;
-}
-
-static void sort_requests(void)
+void scenario_editor_sort_requests(void)
 {
     for (int i = 0; i < MAX_REQUESTS; i++) {
         for (int j = MAX_REQUESTS - 1; j > 0; j--) {
             request_t *current = &scenario.requests[j];
             request_t *prev = &scenario.requests[j - 1];
-            if (current->resource && (!prev->resource || prev->year > current->year)) {
-                request_t tmp = *current;
-                *current = *prev;
-                *prev = tmp;
+            if (current->resource) {
+                // if no previous request scheduled, move current back until first; if previous request is later than current, swap
+                if (!prev->resource || prev->year > current->year || (prev->year == current->year && prev->month > current->month)) {
+                    request_t tmp = *current;
+                    *current = *prev;
+                    *prev = tmp;
+                }
             }
         }
     }
-}
-
-void scenario_editor_request_delete(int index)
-{
-    scenario.requests[index].year = 0;
-    scenario.requests[index].amount = 0;
-    scenario.requests[index].resource = 0;
-    scenario.requests[index].deadline_years = 5;
-    scenario.requests[index].favor = 8;
-    sort_requests();
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_request_save(int index, editor_request *request)
-{
-    scenario.requests[index].year = request->year;
-    scenario.requests[index].amount = request->amount;
-    scenario.requests[index].resource = request->resource;
-    scenario.requests[index].deadline_years = request->deadline_years;
-    scenario.requests[index].favor = request->favor;
-    sort_requests();
     scenario.is_saved = 0;
 }
 
@@ -171,11 +146,11 @@ void scenario_editor_sort_invasions(void)
                     invasion_t tmp = *current;
                     *current = *prev;
                     *prev = tmp;
-                    scenario.is_saved = 0;
                 }
             }
         }
     }
+    scenario.is_saved = 0;
 }
 
 void scenario_editor_price_change_get(int index, editor_price_change *price_change)

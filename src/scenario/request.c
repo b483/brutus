@@ -7,20 +7,8 @@
 #include "city/ratings.h"
 #include "city/resource.h"
 #include "core/random.h"
-#include "game/resource.h"
 #include "game/time.h"
 #include "scenario/data.h"
-
-void scenario_request_init(void)
-{
-    for (int i = 0; i < MAX_REQUESTS; i++) {
-        random_generate_next();
-        if (scenario.requests[i].resource) {
-            scenario.requests[i].month = (random_byte() & 7) + 2;
-            scenario.requests[i].months_to_comply = 12 * scenario.requests[i].deadline_years;
-        }
-    }
-}
 
 void scenario_request_process(void)
 {
@@ -28,11 +16,10 @@ void scenario_request_process(void)
         if (!scenario.requests[i].resource || scenario.requests[i].state > REQUEST_STATE_DISPATCHED_LATE) {
             continue;
         }
-        int state = scenario.requests[i].state;
-        if (state == REQUEST_STATE_DISPATCHED || state == REQUEST_STATE_DISPATCHED_LATE) {
+        if (scenario.requests[i].state == REQUEST_STATE_DISPATCHED || scenario.requests[i].state == REQUEST_STATE_DISPATCHED_LATE) {
             --scenario.requests[i].months_to_comply;
             if (scenario.requests[i].months_to_comply <= 0) {
-                if (state == REQUEST_STATE_DISPATCHED) {
+                if (scenario.requests[i].state == REQUEST_STATE_DISPATCHED) {
                     city_message_post(1, MESSAGE_REQUEST_RECEIVED, i, 0);
                     city_ratings_change_favor(scenario.requests[i].favor);
                 } else {
@@ -46,7 +33,7 @@ void scenario_request_process(void)
             // normal or overdue
             if (scenario.requests[i].visible) {
                 --scenario.requests[i].months_to_comply;
-                if (state == REQUEST_STATE_NORMAL) {
+                if (scenario.requests[i].state == REQUEST_STATE_NORMAL) {
                     if (scenario.requests[i].months_to_comply == 12) {
                         // reminder
                         city_message_post(1, MESSAGE_REQUEST_REMINDER, i, 0);
@@ -56,7 +43,7 @@ void scenario_request_process(void)
                         scenario.requests[i].months_to_comply = 24;
                         city_ratings_reduce_favor_missed_request(3);
                     }
-                } else if (state == REQUEST_STATE_OVERDUE) {
+                } else if (scenario.requests[i].state == REQUEST_STATE_OVERDUE) {
                     if (scenario.requests[i].months_to_comply <= 0) {
                         city_message_post(1, MESSAGE_REQUEST_REFUSED_OVERDUE, i, 0);
                         scenario.requests[i].state = REQUEST_STATE_IGNORED;
@@ -98,6 +85,7 @@ void scenario_request_dispatch(int id)
     } else {
         scenario.requests[id].state = REQUEST_STATE_DISPATCHED_LATE;
     }
+    random_generate_next();
     scenario.requests[id].months_to_comply = (random_byte() & 3) + 1;
     scenario.requests[id].visible = 0;
     int amount = scenario.requests[id].amount;
@@ -109,41 +97,4 @@ void scenario_request_dispatch(int id)
     } else {
         building_warehouses_remove_resource(scenario.requests[id].resource, amount);
     }
-}
-
-const scenario_request *scenario_request_get(int id)
-{
-    static scenario_request request;
-    request.id = id;
-    request.amount = scenario.requests[id].amount;
-    request.resource = scenario.requests[id].resource;
-    request.state = scenario.requests[id].state;
-    request.months_to_comply = scenario.requests[id].months_to_comply;
-    return &request;
-}
-
-int scenario_request_foreach_visible(int start_index, void (*callback)(int index, const scenario_request *request))
-{
-    int index = start_index;
-    for (int i = 0; i < MAX_REQUESTS; i++) {
-        if (scenario.requests[i].resource && scenario.requests[i].visible) {
-            callback(index, scenario_request_get(i));
-            index++;
-        }
-    }
-    return index;
-}
-
-const scenario_request *scenario_request_get_visible(int index)
-{
-    for (int i = 0; i < MAX_REQUESTS; i++) {
-        if (scenario.requests[i].resource && scenario.requests[i].visible &&
-            scenario.requests[i].state <= 1) {
-            if (index == 0) {
-                return scenario_request_get(i);
-            }
-            index--;
-        }
-    }
-    return 0;
 }

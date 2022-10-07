@@ -225,9 +225,9 @@ static custom_string all_strings[] = {
     {TR_EDITOR_HERD_POINT_6, "Herd point 6"},
     {TR_EDITOR_HERD_POINT_7, "Herd point 7"},
     {TR_EDITOR_HERD_POINT_8, "Herd point 8"},
-    {TR_EDITOR_INVASION_YEAR, "Year offset:"},
-    {TR_EDITOR_INVASION_MONTH, "Month:"},
-    {TR_EDITOR_INVASION_AMOUNT, "Amount:"},
+    {TR_EDITOR_OFFSET_YEAR, "Year offset:"},
+    {TR_EDITOR_MONTH, "Month:"},
+    {TR_EDITOR_AMOUNT, "Amount:"},
     {TR_EDITOR_INVASION_TYPE, "Type:"},
     {TR_EDITOR_INVASION_FROM, "From:"},
     {TR_EDITOR_INVASION_ATTACK_TYPE, "Attack type:"},
@@ -237,7 +237,12 @@ static custom_string all_strings[] = {
     {TR_EDITOR_INVASION_TYPE_ENEMY_ARMY, "Enemy army"},
     {TR_EDITOR_INVASION_TYPE_CAESAR, "Caesar's legions"},
     {TR_EDITOR_INVASION_TYPE_DISTANT_BATTLE, "Distant battle"},
-    {TR_EDITOR_INVASION_SCHEDULED, "Invasions scheduled"}
+    {TR_EDITOR_INVASION_SCHEDULED, "Invasions scheduled"},
+    {TR_EDITOR_REQUEST_FROM_EMPEROR, "Request from the Emperor"},
+    {TR_EDITOR_RESOURCE, "Resource:"},
+    {TR_EDITOR_YEARS_DEADLINE, "Years deadline:"},
+    {TR_EDITOR_FAVOR_GRANTED, "Favor granted:"},
+    {TR_EDITOR_REQUEST_SCHEDULED, "Requests scheduled"}
 };
 
 static void set_strings(const custom_string *strings, int num_strings)

@@ -116,11 +116,11 @@ struct win_criteria_t {
 
 typedef struct {
     int year;
+    int month;
     int amount;
     int resource;
-    int deadline_years;
+    int years_deadline;
     int favor;
-    int month;
     int state;
     int visible;
     int months_to_comply;

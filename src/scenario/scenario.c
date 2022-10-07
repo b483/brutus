@@ -56,19 +56,19 @@ void scenario_save_state(buffer *buf)
         buffer_write_i16(buf, scenario.requests[i].year);
     }
     for (int i = 0; i < MAX_REQUESTS; i++) {
-        buffer_write_i16(buf, scenario.requests[i].amount);
+        buffer_write_u8(buf, scenario.requests[i].month);
+    }
+    for (int i = 0; i < MAX_REQUESTS; i++) {
+        buffer_write_u32(buf, scenario.requests[i].amount);
     }
     for (int i = 0; i < MAX_REQUESTS; i++) {
         buffer_write_i16(buf, scenario.requests[i].resource);
     }
     for (int i = 0; i < MAX_REQUESTS; i++) {
-        buffer_write_i16(buf, scenario.requests[i].deadline_years);
+        buffer_write_i16(buf, scenario.requests[i].years_deadline);
     }
     for (int i = 0; i < MAX_REQUESTS; i++) {
         buffer_write_u8(buf, scenario.requests[i].favor);
-    }
-    for (int i = 0; i < MAX_REQUESTS; i++) {
-        buffer_write_u8(buf, scenario.requests[i].month);
     }
     for (int i = 0; i < MAX_REQUESTS; i++) {
         buffer_write_u8(buf, scenario.requests[i].state);
@@ -270,19 +270,19 @@ void scenario_load_state(buffer *buf)
         scenario.requests[i].year = buffer_read_i16(buf);
     }
     for (int i = 0; i < MAX_REQUESTS; i++) {
-        scenario.requests[i].amount = buffer_read_i16(buf);
+        scenario.requests[i].month = buffer_read_u8(buf);
+    }
+    for (int i = 0; i < MAX_REQUESTS; i++) {
+        scenario.requests[i].amount = buffer_read_u32(buf);
     }
     for (int i = 0; i < MAX_REQUESTS; i++) {
         scenario.requests[i].resource = buffer_read_i16(buf);
     }
     for (int i = 0; i < MAX_REQUESTS; i++) {
-        scenario.requests[i].deadline_years = buffer_read_i16(buf);
+        scenario.requests[i].years_deadline = buffer_read_i16(buf);
     }
     for (int i = 0; i < MAX_REQUESTS; i++) {
         scenario.requests[i].favor = buffer_read_u8(buf);
-    }
-    for (int i = 0; i < MAX_REQUESTS; i++) {
-        scenario.requests[i].month = buffer_read_u8(buf);
     }
     for (int i = 0; i < MAX_REQUESTS; i++) {
         scenario.requests[i].state = buffer_read_u8(buf);

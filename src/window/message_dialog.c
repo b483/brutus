@@ -18,6 +18,7 @@
 #include "graphics/window.h"
 #include "input/input.h"
 #include "input/scroll.h"
+#include "scenario/data.h"
 #include "scenario/property.h"
 #include "scenario/request.h"
 #include "window/advisors.h"
@@ -206,14 +207,13 @@ static void draw_city_message_text(const lang_message *msg)
                 data.x_text + 8, data.y_text + 56, BLOCK_SIZE * (data.text_width_blocks - 1),
                 data.text_height_blocks - 1, 0);
             if (msg->message_type == MESSAGE_TYPE_IMPERIAL) {
-                const scenario_request *request = scenario_request_get(player_message.param1);
                 int y_offset = data.y_text + 86 + lines * 16;
-                text_draw_number(request->amount, '@', " ", data.x_text + 8, y_offset, FONT_NORMAL_WHITE);
-                image_draw(resource_image(request->resource), data.x_text + 70, y_offset - 5);
-                lang_text_draw(23, request->resource,
+                text_draw_number(scenario.requests[player_message.param1].amount, '@', " ", data.x_text + 8, y_offset, FONT_NORMAL_WHITE);
+                image_draw(resource_image(scenario.requests[player_message.param1].resource), data.x_text + 70, y_offset - 5);
+                lang_text_draw(23, scenario.requests[player_message.param1].resource,
                     data.x_text + 100, y_offset, FONT_NORMAL_WHITE);
-                if (request->state == REQUEST_STATE_NORMAL || request->state == REQUEST_STATE_OVERDUE) {
-                    int width = lang_text_draw_amount(8, 4, request->months_to_comply,
+                if (scenario.requests[player_message.param1].state == REQUEST_STATE_NORMAL || scenario.requests[player_message.param1].state == REQUEST_STATE_OVERDUE) {
+                    int width = lang_text_draw_amount(8, 4, scenario.requests[player_message.param1].months_to_comply,
                         data.x_text + 200, y_offset, FONT_NORMAL_WHITE);
                     lang_text_draw(12, 2, data.x_text + 200 + width, y_offset, FONT_NORMAL_WHITE);
                 }
@@ -382,15 +382,14 @@ static void draw_background_video(void)
         if (lines_required > lines_available) {
             y_text += 8;
         }
-        const scenario_request *request = scenario_request_get(player_message.param1);
-        text_draw_number(request->amount, '@', " ", data.x + 8, y_text, FONT_NORMAL_WHITE);
+        text_draw_number(scenario.requests[player_message.param1].amount, '@', " ", data.x + 8, y_text, FONT_NORMAL_WHITE);
         image_draw(
-            image_group(GROUP_RESOURCE_ICONS) + request->resource
-            + resource_image_offset(request->resource, RESOURCE_IMAGE_ICON),
+            image_group(GROUP_RESOURCE_ICONS) + scenario.requests[player_message.param1].resource
+            + resource_image_offset(scenario.requests[player_message.param1].resource, RESOURCE_IMAGE_ICON),
             data.x + 70, y_text - 5);
-        lang_text_draw(23, request->resource, data.x + 100, y_text, FONT_NORMAL_WHITE);
-        if (request->state == REQUEST_STATE_NORMAL || request->state == REQUEST_STATE_OVERDUE) {
-            width = lang_text_draw_amount(8, 4, request->months_to_comply, data.x + 200, y_text, FONT_NORMAL_WHITE);
+        lang_text_draw(23, scenario.requests[player_message.param1].resource, data.x + 100, y_text, FONT_NORMAL_WHITE);
+        if (scenario.requests[player_message.param1].state == REQUEST_STATE_NORMAL || scenario.requests[player_message.param1].state == REQUEST_STATE_OVERDUE) {
+            width = lang_text_draw_amount(8, 4, scenario.requests[player_message.param1].months_to_comply, data.x + 200, y_text, FONT_NORMAL_WHITE);
             lang_text_draw(12, 2, data.x + 200 + width, y_text, FONT_NORMAL_WHITE);
         }
     }
