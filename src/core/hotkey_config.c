@@ -33,6 +33,7 @@ static const char *ini_keys[] = {
     "return_legions_to_fort",
     "show_last_advisor",
     "show_empire_map",
+    "show_messages",
     "clone_building",
     "build_vacant_house",
     "build_clear_land",
@@ -125,8 +126,9 @@ static void init_defaults(void)
     set_mapping(KEY_TYPE_R, KEY_MOD_CTRL, HOTKEY_REPLAY_MAP);
     set_mapping(KEY_TYPE_TAB, KEY_MOD_NONE, HOTKEY_CYCLE_LEGION);
     set_mapping(KEY_TYPE_B, KEY_MOD_NONE, HOTKEY_RETURN_LEGIONS_TO_FORT);
-    set_mapping(KEY_TYPE_GRAVE, KEY_MOD_NONE, HOTKEY_SHOW_LAST_ADVISOR);
-    set_mapping(KEY_TYPE_GRAVE, KEY_MOD_ALT, HOTKEY_SHOW_EMPIRE_MAP);
+    set_mapping(KEY_TYPE_D, KEY_MOD_ALT, HOTKEY_SHOW_LAST_ADVISOR);
+    set_mapping(KEY_TYPE_F, KEY_MOD_ALT, HOTKEY_SHOW_EMPIRE_MAP);
+    set_mapping(KEY_TYPE_GRAVE, KEY_MOD_NONE, HOTKEY_SHOW_MESSAGES);
     // Construction hotkeys
     set_mapping(KEY_TYPE_G, KEY_MOD_NONE, HOTKEY_BUILD_CLONE);
     set_mapping(KEY_TYPE_Q, KEY_MOD_NONE, HOTKEY_BUILD_VACANT_HOUSE);

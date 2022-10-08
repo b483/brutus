@@ -34,6 +34,7 @@
 #include "window/advisors.h"
 #include "window/empire.h"
 #include "window/file_dialog.h"
+#include "window/message_list.h"
 #include "window/popup_dialog.h"
 
 static int any_selected_legion_index = 0;
@@ -232,6 +233,9 @@ static void handle_hotkeys(const hotkeys *h)
     }
     if (h->show_empire_map) {
         window_empire_show();
+    }
+    if (h->show_messages) {
+        window_message_list_show();
     }
     if (h->clone_building) {
         building_type type = building_clone_type_from_grid_offset(widget_city_current_grid_offset());

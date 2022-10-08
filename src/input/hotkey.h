@@ -21,6 +21,7 @@ typedef struct {
     int return_legions_to_fort;
     int show_last_advisor;
     int show_empire_map;
+    int show_messages;
     int clone_building;
     int building;
     int show_overlay;

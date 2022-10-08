@@ -142,6 +142,9 @@ static void draw_foreground(void)
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
+    if (h->show_messages) {
+        window_city_show();
+    }
     const mouse *m_dialog = mouse_in_dialog(m);
     int old_button_id = data.focus_button_id;
     data.focus_button_id = 0;
