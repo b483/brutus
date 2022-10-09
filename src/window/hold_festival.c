@@ -113,7 +113,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         focus_button_id = 0;
     }
     if (!handled && input_go_back_requested(m, h)) {
-        window_advisors_show();
+        window_advisors_show(ADVISOR_RELIGION);
     }
 }
 
@@ -139,7 +139,7 @@ static void button_help(__attribute__((unused)) int param1, __attribute__((unuse
 
 static void button_close(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_advisors_show();
+    window_advisors_show(ADVISOR_RELIGION);
 }
 
 static void button_hold_festival(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
@@ -148,7 +148,7 @@ static void button_hold_festival(__attribute__((unused)) int param1, __attribute
         return;
     }
     city_festival_schedule();
-    window_advisors_show();
+    window_advisors_show(ADVISOR_RELIGION);
 }
 
 static void get_tooltip(tooltip_context *c)

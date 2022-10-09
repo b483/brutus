@@ -636,7 +636,7 @@ static void button_return_to_city(__attribute__((unused)) int param1, __attribut
 
 static void button_advisor(int advisor, __attribute__((unused)) int param2)
 {
-    window_advisors_show_advisor(advisor);
+    window_advisors_show(advisor);
 }
 
 static void button_show_resource_window(int resource, __attribute__((unused)) int param2)

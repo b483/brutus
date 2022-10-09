@@ -229,7 +229,7 @@ static void handle_hotkeys(const hotkeys *h)
         return_legions_to_fort();
     }
     if (h->show_last_advisor) {
-        window_advisors_show_advisor(setting_last_advisor());
+        window_advisors_show(setting_last_advisor());
     }
     if (h->show_empire_map) {
         window_empire_show();

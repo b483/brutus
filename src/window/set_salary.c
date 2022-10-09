@@ -87,13 +87,13 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     if (input_go_back_requested(m, h)) {
-        window_advisors_show();
+        window_advisors_show(ADVISOR_IMPERIAL);
     }
 }
 
 static void button_cancel(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_advisors_show();
+    window_advisors_show(ADVISOR_IMPERIAL);
 }
 
 static void button_set_salary(int rank, __attribute__((unused)) int param2)
@@ -102,7 +102,7 @@ static void button_set_salary(int rank, __attribute__((unused)) int param2)
         city_emperor_set_salary_rank(rank);
         city_finance_update_salary();
         city_ratings_update_favor_explanation();
-        window_advisors_show();
+        window_advisors_show(ADVISOR_IMPERIAL);
     }
 }
 

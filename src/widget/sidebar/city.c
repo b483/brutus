@@ -325,7 +325,7 @@ static void button_go_to_problem(__attribute__((unused)) int param1, __attribute
 
 static void button_advisors(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_advisors_show_advisor(setting_last_advisor());
+    window_advisors_show(setting_last_advisor());
 }
 
 static void button_empire(__attribute__((unused)) int param1, __attribute__((unused)) int param2)

@@ -88,13 +88,12 @@ void scenario_request_dispatch(int id)
     random_generate_next();
     scenario.requests[id].months_to_comply = (random_byte() & 3) + 1;
     scenario.requests[id].visible = 0;
-    int amount = scenario.requests[id].amount;
     if (scenario.requests[id].resource == RESOURCE_DENARII) {
-        city_finance_process_sundry(amount);
+        city_finance_process_sundry(scenario.requests[id].amount);
     } else if (scenario.requests[id].resource == RESOURCE_TROOPS) {
-        city_population_remove_for_troop_request(amount);
-        building_warehouses_remove_resource(RESOURCE_WEAPONS, amount);
+        city_population_remove_for_troop_request(scenario.requests[id].amount);
+        building_warehouses_remove_resource(RESOURCE_WEAPONS, scenario.requests[id].amount);
     } else {
-        building_warehouses_remove_resource(scenario.requests[id].resource, amount);
+        building_warehouses_remove_resource(scenario.requests[id].resource, scenario.requests[id].amount);
     }
 }

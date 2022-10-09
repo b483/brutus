@@ -57,7 +57,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 static void button_advisor(int advisor, __attribute__((unused)) int param2)
 {
-    window_advisors_show_advisor(advisor);
+    window_advisors_show(advisor);
 }
 
 static void button_close(__attribute__((unused)) int param1, __attribute__((unused)) int param2)

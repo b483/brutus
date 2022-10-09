@@ -35,7 +35,7 @@ static void draw_background(void)
 static void handle_input(const mouse *m, const hotkeys *h)
 {
     if (input_go_back_requested(m, h)) {
-        window_advisors_show();
+        window_advisors_show(ADVISOR_TRADE);
     }
 }
 

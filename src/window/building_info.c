@@ -642,7 +642,7 @@ static void button_close(__attribute__((unused)) int param1, __attribute__((unus
 
 static void button_advisor(int advisor, __attribute__((unused)) int param2)
 {
-    window_advisors_show_advisor(advisor);
+    window_advisors_show(advisor);
 }
 
 void window_building_info_show(int grid_offset)

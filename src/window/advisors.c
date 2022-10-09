@@ -130,8 +130,6 @@ static void init(void)
     formation_calculate_figures();
 
     city_ratings_update_explanations();
-
-    set_advisor_window();
 }
 
 void window_advisors_draw_dialog_background(void)
@@ -237,7 +235,7 @@ advisor_type window_advisors_get_advisor(void)
     return current_advisor;
 }
 
-void window_advisors_show(void)
+void window_advisors_show(advisor_type advisor)
 {
     window_type window = {
         WINDOW_ADVISORS,
@@ -246,13 +244,11 @@ void window_advisors_show(void)
         handle_input,
         get_tooltip
     };
+    if (advisor) {
+        set_advisor(advisor);
+    } else {
+        set_advisor(ADVISOR_CHIEF);
+    }
     init();
     window_show(&window);
-}
-
-
-void window_advisors_show_advisor(advisor_type advisor)
-{
-    set_advisor(advisor);
-    window_advisors_show();
 }

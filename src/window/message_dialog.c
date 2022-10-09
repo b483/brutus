@@ -587,7 +587,7 @@ static void button_help(__attribute__((unused)) int param1, __attribute__((unuse
 static void button_advisor(int advisor, __attribute__((unused)) int param2)
 {
     cleanup();
-    window_advisors_show_advisor(advisor);
+    window_advisors_show(advisor);
 }
 
 static void button_go_to_problem(__attribute__((unused)) int param1, __attribute__((unused)) int param2)

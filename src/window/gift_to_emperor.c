@@ -93,7 +93,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     if (input_go_back_requested(m, h)) {
-        window_advisors_show();
+        window_advisors_show(ADVISOR_IMPERIAL);
     }
 }
 
@@ -108,13 +108,13 @@ static void button_send_gift(__attribute__((unused)) int param1, __attribute__((
 {
     if (city_emperor_can_send_gift(GIFT_MODEST)) {
         city_emperor_send_gift();
-        window_advisors_show();
+        window_advisors_show(ADVISOR_IMPERIAL);
     }
 }
 
 static void button_cancel(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_advisors_show();
+    window_advisors_show(ADVISOR_IMPERIAL);
 }
 
 void window_gift_to_emperor_show(void)
