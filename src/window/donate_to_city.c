@@ -16,20 +16,18 @@
 
 static void button_set_amount(int amount_id, int param2);
 static void button_donate(int param1, int param2);
-static void button_cancel(int param1, int param2);
 static void arrow_button_amount(int is_down, int param2);
 
-static generic_button buttons[] = {
-    {336, 283, 160, 20, button_cancel, button_none, 0, 0},
-    {144, 283, 160, 20, button_donate, button_none, 0, 0},
+static generic_button buttons_donate_to_city[] = {
     {128, 216, 64, 20, button_set_amount, button_none, 0, 0},
     {208, 216, 64, 20, button_set_amount, button_none, 1, 0},
     {288, 216, 64, 20, button_set_amount, button_none, 2, 0},
     {368, 216, 64, 20, button_set_amount, button_none, 3, 0},
     {448, 216, 64, 20, button_set_amount, button_none, 4, 0},
+    {368, 243, 144, 20, button_donate, button_none, 0, 0},
 };
 
-static arrow_button arrow_buttons[] = {
+static arrow_button arrow_buttons_donate_to_city[] = {
     {240, 242, 17, 24, arrow_button_amount, 1, 0, 0, 0},
     {264, 242, 15, 24, arrow_button_amount, 0, 0, 0, 0},
 };
@@ -45,7 +43,7 @@ static void draw_background(void)
 
     graphics_in_dialog();
 
-    outer_panel_draw(64, 160, 32, 10);
+    outer_panel_draw(64, 160, 32, 9);
     image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_DENARII, 80, 176);
     lang_text_draw_centered(52, 16, 112, 176, 448, FONT_LARGE_BLACK);
 
@@ -58,18 +56,13 @@ static void draw_background(void)
     lang_text_draw_centered(52, 19, 444, 221, 64, FONT_NORMAL_WHITE);
 
     int width = lang_text_draw(52, 17, 128, 248, FONT_NORMAL_WHITE);
+    width += 129;
+    arrow_buttons_donate_to_city[0].x_offset = width;
+    arrow_buttons_donate_to_city[1].x_offset = arrow_buttons_donate_to_city[0].x_offset + arrow_buttons_donate_to_city[0].size;
 
-    int button_start = 128 + width + 10;
-    if (button_start < 240) {
-        button_start = 240;
-    }
-    arrow_buttons[0].x_offset = button_start;
-    arrow_buttons[1].x_offset = arrow_buttons[0].x_offset + arrow_buttons[0].size;
+    text_draw_number(city_emperor_donate_amount(), '@', " ", width + 71, 248, FONT_NORMAL_GREEN);
 
-    text_draw_number(city_emperor_donate_amount(), '@', " ", button_start + 76, 248, FONT_NORMAL_WHITE);
-
-    lang_text_draw_centered(13, 4, 336, 288, 160, FONT_NORMAL_BLACK);
-    lang_text_draw_centered(52, 18, 144, 288, 160, FONT_NORMAL_BLACK);
+    lang_text_draw_centered(52, 18, 368, 248, 144, FONT_NORMAL_GREEN);
 
     graphics_reset_dialog();
 }
@@ -78,16 +71,15 @@ static void draw_foreground(void)
 {
     graphics_in_dialog();
 
-    button_border_draw(128, 216, 64, 20, data.focus_button_id == 3);
-    button_border_draw(208, 216, 64, 20, data.focus_button_id == 4);
-    button_border_draw(288, 216, 64, 20, data.focus_button_id == 5);
-    button_border_draw(368, 216, 64, 20, data.focus_button_id == 6);
-    button_border_draw(448, 216, 64, 20, data.focus_button_id == 7);
+    button_border_draw(128, 216, 64, 20, data.focus_button_id == 1);
+    button_border_draw(208, 216, 64, 20, data.focus_button_id == 2);
+    button_border_draw(288, 216, 64, 20, data.focus_button_id == 3);
+    button_border_draw(368, 216, 64, 20, data.focus_button_id == 4);
+    button_border_draw(448, 216, 64, 20, data.focus_button_id == 5);
 
-    button_border_draw(336, 283, 160, 20, data.focus_button_id == 1);
-    button_border_draw(144, 283, 160, 20, data.focus_button_id == 2);
+    button_border_draw(368, 243, 144, 20, data.focus_button_id == 6);
 
-    arrow_buttons_draw(0, 0, arrow_buttons, 2);
+    arrow_buttons_draw(0, 0, arrow_buttons_donate_to_city, sizeof(arrow_buttons_donate_to_city) / sizeof(arrow_button));
 
     graphics_reset_dialog();
 }
@@ -96,10 +88,10 @@ static void handle_input(const mouse *m, const hotkeys *h)
 {
     data.focus_arrow_button_id = 0;
     const mouse *m_dialog = mouse_in_dialog(m);
-    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons, 7, &data.focus_button_id)) {
+    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_donate_to_city, sizeof(buttons_donate_to_city) / sizeof(generic_button), &data.focus_button_id)) {
         return;
     }
-    if (arrow_buttons_handle_mouse(m_dialog, 0, 0, arrow_buttons, 2, &data.focus_arrow_button_id)) {
+    if (arrow_buttons_handle_mouse(m_dialog, 0, 0, arrow_buttons_donate_to_city, sizeof(arrow_buttons_donate_to_city) / sizeof(arrow_button), &data.focus_arrow_button_id)) {
         return;
     }
     if (input_go_back_requested(m, h)) {
@@ -128,11 +120,6 @@ static void button_donate(__attribute__((unused)) int param1, __attribute__((unu
     window_advisors_show(ADVISOR_IMPERIAL);
 }
 
-static void button_cancel(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
-{
-    window_advisors_show(ADVISOR_IMPERIAL);
-}
-
 static void arrow_button_amount(int is_down, __attribute__((unused)) int param2)
 {
     city_emperor_change_donation_amount(is_down ? -10 : 10);
@@ -145,9 +132,7 @@ static void get_tooltip(tooltip_context *c)
         return;
     }
     c->type = TOOLTIP_BUTTON;
-    if (data.focus_button_id == 1) {
-        c->text_id = 98;
-    } else if (data.focus_button_id == 2) {
+    if (data.focus_button_id == 6) {
         c->text_id = 99;
     } else if (data.focus_button_id) {
         c->text_id = 100;

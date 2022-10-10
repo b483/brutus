@@ -27,7 +27,6 @@ static void button_type(int param1, int param2);
 static void button_from(int param1, int param2);
 static void button_attack_type(int param1, int param2);
 static void button_delete(int param1, int param2);
-static void button_save(int param1, int param2);
 
 static generic_button buttons_edit_invasion[] = {
     {145, 152, 60, 25, button_year, button_none, 0, 0},
@@ -36,8 +35,7 @@ static generic_button buttons_edit_invasion[] = {
     {145, 242, 200, 25, button_type, button_none, 0, 0},
     {145, 272, 200, 25, button_from, button_none, 0, 0},
     {145, 302, 200, 25, button_attack_type, button_none, 0, 0},
-    {30, 342, 200, 25, button_delete, button_none, 0, 0},
-    {265, 342, 80, 25, button_save, button_none, 0, 0},
+    {90, 342, 200, 25, button_delete, button_none, 0, 0},
 };
 
 static struct {
@@ -107,12 +105,8 @@ static void draw_foreground(void)
     }
 
     // Unschedule invasion
-    button_border_draw(30, 342, 200, 25, data.focus_button_id == 7);
-    lang_text_draw_centered(44, 26, 30, 350, 200, FONT_NORMAL_BLACK);
-
-    // OK
-    button_border_draw(265, 342, 80, 25, data.focus_button_id == 8);
-    lang_text_draw_centered(18, 3, 265, 350, 80, FONT_NORMAL_BLACK);
+    button_border_draw(90, 342, 200, 25, data.focus_button_id == 7);
+    lang_text_draw_centered(44, 26, 90, 350, 200, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
 }
@@ -123,7 +117,8 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     if (input_go_back_requested(m, h)) {
-        button_save(0, 0);
+        scenario_editor_sort_invasions();
+        window_editor_invasions_show();
     }
 }
 
@@ -205,12 +200,6 @@ static void button_delete(__attribute__((unused)) int param1, __attribute__((unu
     scenario.invasions[data.id].type = 0;
     scenario.invasions[data.id].from = 8;
     scenario.invasions[data.id].attack_type = 0;
-    scenario_editor_sort_invasions();
-    window_editor_invasions_show();
-}
-
-static void button_save(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
-{
     scenario_editor_sort_invasions();
     window_editor_invasions_show();
 }

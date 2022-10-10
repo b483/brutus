@@ -17,11 +17,9 @@
 
 #define MIN_DIALOG_WIDTH 384
 
-static void button_cancel(int param1, int param2);
 static void button_set_salary(int rank, int param2);
 
-static generic_button buttons[] = {
-    {240, 395, 160, 20, button_cancel, button_none, 0, 0},
+static generic_button buttons_set_salary[] = {
     {144, 85, 352, 20, button_set_salary, button_none, 0, 0},
     {144, 105, 352, 20, button_set_salary, button_none, 1, 0},
     {144, 125, 352, 20, button_set_salary, button_none, 2, 0},
@@ -54,14 +52,14 @@ static void draw_foreground(void)
 
     int dialog_width = get_dialog_width();
     int dialog_x = 128 - (dialog_width - MIN_DIALOG_WIDTH) / 2;
-    outer_panel_draw(dialog_x, 32, dialog_width / BLOCK_SIZE, 25);
+    outer_panel_draw(dialog_x, 32, dialog_width / BLOCK_SIZE, 24);
     image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_DENARII, dialog_x + 16, 48);
     lang_text_draw_centered(52, 15, dialog_x + 48, 48, dialog_width - 64, FONT_LARGE_BLACK);
 
     inner_panel_draw(144, 80, 22, 15);
 
     for (int rank = 0; rank < 11; rank++) {
-        font_t font = focus_button_id == rank + 2 ? FONT_NORMAL_RED : FONT_NORMAL_WHITE;
+        font_t font = focus_button_id == rank + 1 ? FONT_NORMAL_RED : FONT_NORMAL_WHITE;
         int width = lang_text_draw(52, rank + 4, 176, 90 + 20 * rank, font);
         text_draw_money(city_emperor_salary_for_rank(rank), 176 + width, 90 + 20 * rank, font);
     }
@@ -75,25 +73,18 @@ static void draw_foreground(void)
     } else {
         lang_text_draw_multiline(52, 77, 152, 336, 336, FONT_NORMAL_BLACK);
     }
-    button_border_draw(240, 395, 160, 20, focus_button_id == 1);
-    lang_text_draw_centered(13, 4, 176, 400, 288, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, 12, &focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_set_salary, sizeof(buttons_set_salary) / sizeof(generic_button), &focus_button_id)) {
         return;
     }
     if (input_go_back_requested(m, h)) {
         window_advisors_show(ADVISOR_IMPERIAL);
     }
-}
-
-static void button_cancel(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
-{
-    window_advisors_show(ADVISOR_IMPERIAL);
 }
 
 static void button_set_salary(int rank, __attribute__((unused)) int param2)

@@ -28,7 +28,6 @@ static void button_resource(int param1, int param2);
 static void button_route(int param1, int param2);
 static void button_toggle_rise(int param1, int param2);
 static void button_delete(int param1, int param2);
-static void button_save(int param1, int param2);
 
 static generic_button buttons[] = {
     {30, 152, 60, 25, button_year, button_none, 0, 0},
@@ -36,7 +35,6 @@ static generic_button buttons[] = {
     {420, 152, 200, 25, button_route, button_none, 0, 0},
     {350, 192, 100, 25, button_toggle_rise, button_none, 0, 0},
     {30, 230, 250, 25, button_delete, button_none, 0, 0},
-    {320, 230, 100, 25, button_save, button_none, 0, 0}
 };
 
 static const uint8_t UNKNOWN[4] = { '?', '?', '?', 0 };
@@ -111,9 +109,6 @@ static void draw_foreground(void)
     button_border_draw(30, 230, 250, 25, data.focus_button_id == 5);
     lang_text_draw_centered(44, 101, 30, 236, 250, FONT_NORMAL_BLACK);
 
-    button_border_draw(320, 230, 100, 25, data.focus_button_id == 6);
-    lang_text_draw_centered(18, 3, 320, 236, 100, FONT_NORMAL_BLACK);
-
     graphics_reset_dialog();
 }
 
@@ -123,7 +118,8 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     if (input_go_back_requested(m, h)) {
-        button_save(0, 0);
+        scenario_editor_demand_change_save(data.id, &data.demand_change);
+        window_editor_demand_changes_show();
     }
 }
 
@@ -166,12 +162,6 @@ static void button_toggle_rise(__attribute__((unused)) int param1, __attribute__
 static void button_delete(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_demand_change_delete(data.id);
-    window_editor_demand_changes_show();
-}
-
-static void button_save(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
-{
-    scenario_editor_demand_change_save(data.id, &data.demand_change);
     window_editor_demand_changes_show();
 }
 

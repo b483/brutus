@@ -385,13 +385,13 @@ static void menu_options_display(__attribute__((unused)) int param)
 static void menu_options_sound(__attribute__((unused)) int param)
 {
     clear_state();
-    window_sound_options_show(window_city_return);
+    window_sound_options_show(0);
 }
 
 static void menu_options_speed(__attribute__((unused)) int param)
 {
     clear_state();
-    window_speed_options_show(window_city_return);
+    window_speed_options_show(0);
 }
 
 static void menu_options_autosave(__attribute__((unused)) int param)

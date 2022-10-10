@@ -211,14 +211,14 @@ static void menu_options_sound(__attribute__((unused)) int param)
 {
     clear_state();
     window_editor_map_show();
-    window_sound_options_show(window_editor_map_show);
+    window_sound_options_show(1);
 }
 
 static void menu_options_speed(__attribute__((unused)) int param)
 {
     clear_state();
     window_editor_map_show();
-    window_speed_options_show(window_editor_map_show);
+    window_speed_options_show(1);
 }
 
 static void menu_help_help(__attribute__((unused)) int param)

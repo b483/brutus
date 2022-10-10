@@ -25,7 +25,6 @@ static void button_resource(int param1, int param2);
 static void button_deadline_years(int param1, int param2);
 static void button_favor(int param1, int param2);
 static void button_delete(int param1, int param2);
-static void button_save(int param1, int param2);
 
 static generic_button buttons_edit_request[] = {
     {155, 152, 100, 25, button_year, button_none, 0, 0},
@@ -34,8 +33,7 @@ static generic_button buttons_edit_request[] = {
     {155, 242, 100, 25, button_resource, button_none, 0, 0},
     {155, 272, 100, 25, button_deadline_years, button_none, 0, 0},
     {155, 302, 100, 25, button_favor, button_none, 0, 0},
-    {30, 342, 200, 25, button_delete, button_none, 0, 0},
-    {300, 342, 80, 25, button_save, button_none, 0, 0},
+    {105, 342, 200, 25, button_delete, button_none, 0, 0},
 };
 
 static struct {
@@ -98,12 +96,8 @@ static void draw_foreground(void)
     text_draw_number_centered_prefix(scenario.requests[data.id].favor, '+', 157, 308, 100, FONT_NORMAL_BLACK);
 
     // Unschedule request
-    button_border_draw(30, 342, 200, 25, data.focus_button_id == 7);
-    lang_text_draw_centered(44, 25, 30, 350, 200, FONT_NORMAL_BLACK);
-
-    // OK
-    button_border_draw(300, 342, 80, 25, data.focus_button_id == 8);
-    lang_text_draw_centered(18, 3, 300, 350, 80, FONT_NORMAL_BLACK);
+    button_border_draw(105, 342, 200, 25, data.focus_button_id == 7);
+    lang_text_draw_centered(44, 25, 105, 350, 200, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
 }
@@ -114,7 +108,8 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     if (input_go_back_requested(m, h)) {
-        button_save(0, 0);
+        scenario_editor_sort_requests();
+        window_editor_requests_show();
     }
 }
 
@@ -206,12 +201,6 @@ static void button_delete(__attribute__((unused)) int param1, __attribute__((unu
     scenario.requests[data.id].resource = 0;
     scenario.requests[data.id].years_deadline = 5;
     scenario.requests[data.id].favor = 8;
-    scenario_editor_sort_requests();
-    window_editor_requests_show();
-}
-
-static void button_save(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
-{
     scenario_editor_sort_requests();
     window_editor_requests_show();
 }

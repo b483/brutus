@@ -335,7 +335,7 @@ static void button_empire(__attribute__((unused)) int param1, __attribute__((unu
 
 static void button_mission_briefing(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_mission_briefing_show_review();
+    window_mission_briefing_show();
 }
 
 static void button_rotate_north(__attribute__((unused)) int param1, __attribute__((unused)) int param2)

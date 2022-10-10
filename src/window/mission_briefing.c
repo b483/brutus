@@ -18,27 +18,11 @@
 #include "window/city.h"
 #include "window/intermezzo.h"
 
-static void button_back(int param1, int param2);
-static void button_start_mission(int param1, int param2);
-
 static const int GOAL_OFFSETS_X[] = { 32, 288, 32, 288, 288, 288 };
 static const int GOAL_OFFSETS_Y[] = { 95, 95, 117, 117, 73, 135 };
 
-static image_button image_button_back = {
-    0, 0, 31, 20, IB_NORMAL, GROUP_ARROW_MESSAGE_PROBLEMS, 8, button_back, button_none, 0, 0, 1, 0, 0, 0
-};
-static image_button image_button_start_mission = {
-    0, 0, 27, 27, IB_NORMAL, GROUP_SIDEBAR_BUTTONS, 56, button_start_mission, button_none, 1, 0, 1, 0, 0, 0
-};
-
-static struct {
-    int is_review;
-    int focus_button;
-} data;
-
 static void init(void)
 {
-    data.focus_button = 0;
     rich_text_reset(0);
 }
 
@@ -48,7 +32,7 @@ static void draw_background(void)
 
     graphics_in_dialog();
 
-    outer_panel_draw(16, 32, 38, 27);
+    outer_panel_draw(16, 32, 38, 26);
 
     // Player name
     text_draw(scenario_settings_player_name(), 50, 48, FONT_LARGE_BLACK, 0);
@@ -109,12 +93,6 @@ static void draw_background(void)
     rich_text_draw(scenario_briefing(), 48, 196, 496, 14, 0);
     graphics_reset_clip_rectangle();
 
-    // To the city / cancel
-    lang_text_draw(62, 7, 376, 433, FONT_NORMAL_BLACK);
-    if (!data.is_review) {
-        lang_text_draw(13, 4, 66, 435, FONT_NORMAL_BLACK);
-    }
-
     graphics_reset_dialog();
 }
 
@@ -123,10 +101,6 @@ static void draw_foreground(void)
     graphics_in_dialog();
 
     rich_text_draw_scrollbar();
-    image_buttons_draw(516, 426, &image_button_start_mission, 1);
-    if (!data.is_review) {
-        image_buttons_draw(26, 428, &image_button_back, 1);
-    }
 
     graphics_reset_dialog();
 }
@@ -135,35 +109,13 @@ static void handle_input(const mouse *m, const hotkeys *h)
 {
     const mouse *m_dialog = mouse_in_dialog(m);
     rich_text_handle_mouse(m_dialog);
-    if (image_buttons_handle_mouse(m_dialog, 516, 426, &image_button_start_mission, 1, 0)) {
-        return;
-    }
-    if (!data.is_review) {
-        if (image_buttons_handle_mouse(m_dialog, 26, 428, &image_button_back, 1, 0)) {
-            return;
-        }
-    }
     if (input_go_back_requested(m, h)) {
-        button_start_mission(0, 0);
+        rich_text_reset(0);
+        sound_speech_stop();
+        sound_music_update(1);
+        window_city_show();
         return;
     }
-}
-
-static void button_back(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
-{
-    if (!data.is_review) {
-        rich_text_reset(0);
-        window_cck_selection_show();
-        sound_music_play_intro();
-    }
-}
-
-static void button_start_mission(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
-{
-    rich_text_reset(0);
-    sound_speech_stop();
-    sound_music_update(1);
-    window_city_show();
 }
 
 static void show(void)
@@ -181,12 +133,5 @@ static void show(void)
 
 void window_mission_briefing_show(void)
 {
-    data.is_review = 0;
-    window_intermezzo_show(INTERMEZZO_MISSION_BRIEFING, show);
-}
-
-void window_mission_briefing_show_review(void)
-{
-    data.is_review = 1;
     window_intermezzo_show(INTERMEZZO_MISSION_BRIEFING, show);
 }

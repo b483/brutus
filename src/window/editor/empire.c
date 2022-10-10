@@ -26,7 +26,6 @@
 #define MAX_HEIGHT 1136
 
 static void button_change_empire(int is_down, int param2);
-static void button_ok(int param1, int param2);
 static void set_city_type(int is_down, int param2);
 static void toggle_sell_resource(int resource, int param2);
 static void set_resource_sell_limit(int resource, int param2);
@@ -36,11 +35,8 @@ static void set_trade_route_cost(int param1, int param2);
 static void set_expansion_year_offset(int param1, int param2);
 
 static arrow_button arrow_buttons_empire[] = {
-    {8, 48, 17, 24, button_change_empire, 1, 0, 0, 0},
-    {32, 48, 15, 24, button_change_empire, 0, 0, 0, 0}
-};
-static generic_button generic_button_ok[] = {
-    {84, 48, 100, 24, button_ok, button_none, 0, 0}
+    {28, -52, 17, 24, button_change_empire, 1, 0, 0, 0},
+    {52, -52, 15, 24, button_change_empire, 0, 0, 0, 0}
 };
 static arrow_button arrow_buttons_set_city_type[] = {
     {0, 0, 17, 24, set_city_type, 1, 0, 0, 0},
@@ -64,7 +60,6 @@ static generic_button button_toggle_sell_resource[] = {
     {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
 };
 static generic_button button_toggle_sell_resource_limit[] = {
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
     {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
     {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
     {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
@@ -114,7 +109,6 @@ static generic_button button_toggle_buy_resource_limit[] = {
     {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
     {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
     {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
 };
 static generic_button button_set_trade_route_cost[] = {
     {0, 0, 65, 26, set_trade_route_cost, button_none, 0, 0},
@@ -127,7 +121,6 @@ static struct {
     empire_object *selected_object;
     int x_min, x_max, y_min, y_max;
     int x_draw_offset, y_draw_offset;
-    int focus_ok_button_id;
     int focus_trade_route_cost_button_id;
     int focus_expansion_year_button_id;
     int is_scrolling;
@@ -138,7 +131,6 @@ static struct {
 static void init(void)
 {
     data.selected_object = 0;
-    data.focus_ok_button_id = 0;
     data.focus_trade_route_cost_button_id = 0;
     data.focus_expansion_year_button_id = 0;
 }
@@ -408,17 +400,13 @@ static void draw_city_info(void)
 
 static void draw_panel_buttons(void)
 {
-    arrow_buttons_draw(data.x_min + 20, data.y_max - 100, arrow_buttons_empire, 2);
-
+    arrow_buttons_draw(data.x_min, data.y_max, arrow_buttons_empire, 2);
     if (data.selected_object && data.selected_object->type == EMPIRE_OBJECT_CITY) {
         draw_city_info();
     } else {
         lang_text_draw_centered(150, scenario_empire_id(),
             data.x_min, data.y_max - 85, data.x_max - data.x_min, FONT_NORMAL_GREEN);
     }
-
-    button_border_draw(data.x_min + 104, data.y_max - 52, 100, 24, data.focus_ok_button_id == 1);
-    lang_text_draw_centered(44, 7, data.x_min + 104, data.y_max - 45, 100, FONT_NORMAL_GREEN);
 }
 
 static void draw_foreground(void)
@@ -455,33 +443,40 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (h->show_empire_map) {
         window_editor_map_show();
     }
-    data.focus_ok_button_id = 0;
-    if (!arrow_buttons_handle_mouse(m, data.x_min + 20, data.y_max - 100, arrow_buttons_empire, 2, 0)) {
-        if (!generic_buttons_handle_mouse(m, data.x_min + 20, data.y_max - 100,
-            generic_button_ok, 1, &data.focus_ok_button_id)) {
-            determine_selected_object(m);
-            if (data.selected_object && data.selected_object->type == EMPIRE_OBJECT_CITY) {
-                if (data.selected_object->trade_route_id) {
-                    arrow_buttons_handle_mouse(m, 0, 0, arrow_buttons_set_city_type, 2, 0);
-                    if (!generic_buttons_handle_mouse(m, 0, 0, button_toggle_sell_resource_limit, RESOURCE_MAX - 1, 0)) {
-                        generic_buttons_handle_mouse(m, 0, 0, button_toggle_sell_resource, RESOURCE_MAX - 1, 0);
-                    }
-                    if (!generic_buttons_handle_mouse(m, 0, 0, button_toggle_buy_resource_limit, RESOURCE_MAX - 1, 0)) {
-                        generic_buttons_handle_mouse(m, 0, 0, button_toggle_buy_resource, RESOURCE_MAX - 1, 0);
-                    }
-                    generic_buttons_handle_mouse(m, 0, 0, button_set_trade_route_cost, 1, &data.focus_trade_route_cost_button_id);
-                    if (data.selected_object->city_type == EMPIRE_CITY_FUTURE_TRADE) {
-                        generic_buttons_handle_mouse(m, data.x_min + 648, data.y_max - 53, button_set_expansion_year, 1, &data.focus_expansion_year_button_id);
-                    }
+    if (arrow_buttons_handle_mouse(m, data.x_min, data.y_max, arrow_buttons_empire, 2, 0)) {
+        return;
+    }
+    determine_selected_object(m);
+    if (data.selected_object && data.selected_object->type == EMPIRE_OBJECT_CITY) {
+        if (data.selected_object->trade_route_id) {
+            arrow_buttons_handle_mouse(m, 0, 0, arrow_buttons_set_city_type, 2, 0);
+            if (generic_buttons_handle_mouse(m, 0, 0, button_toggle_sell_resource_limit, sizeof(button_toggle_sell_resource) / sizeof(generic_button), 0)) {
+                return;
+            }
+            if (generic_buttons_handle_mouse(m, 0, 0, button_toggle_sell_resource, sizeof(button_toggle_sell_resource) / sizeof(generic_button), 0)) {
+                return;
+            }
+            if (generic_buttons_handle_mouse(m, 0, 0, button_toggle_buy_resource_limit, sizeof(button_toggle_buy_resource_limit) / sizeof(generic_button), 0)) {
+                return;
+            }
+            if (generic_buttons_handle_mouse(m, 0, 0, button_toggle_buy_resource, sizeof(button_toggle_buy_resource_limit) / sizeof(generic_button), 0)) {
+                return;
+            }
+            if (generic_buttons_handle_mouse(m, 0, 0, button_set_trade_route_cost, 1, &data.focus_trade_route_cost_button_id)) {
+                return;
+            }
+            if (data.selected_object->city_type == EMPIRE_CITY_FUTURE_TRADE) {
+                if (generic_buttons_handle_mouse(m, data.x_min + 648, data.y_max - 53, button_set_expansion_year, 1, &data.focus_expansion_year_button_id)) {
+                    return;
                 }
-                if (input_go_back_requested(m, h)) {
-                    data.selected_object = 0;
-                    window_invalidate();
-                }
-            } else if (input_go_back_requested(m, h)) {
-                window_editor_map_show();
             }
         }
+        if (input_go_back_requested(m, h)) {
+            data.selected_object = 0;
+            window_invalidate();
+        }
+    } else if (input_go_back_requested(m, h)) {
+        window_editor_map_show();
     }
 }
 
@@ -491,12 +486,6 @@ static void button_change_empire(int is_down, __attribute__((unused)) int param2
     empire_load_editor(scenario_empire_id(), map_viewport_width(), map_viewport_height());
     window_request_refresh();
 }
-
-static void button_ok(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
-{
-    window_editor_map_show();
-}
-
 
 static void set_city_type(int is_down, __attribute__((unused)) int param2)
 {

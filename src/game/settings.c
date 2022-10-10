@@ -52,7 +52,7 @@ static void load_default_settings(void)
     data.scroll_speed = 70;
 
     data.monthly_autosave = 0;
-    data.tooltips = TOOLTIPS_FULL;
+    data.tooltips = TOOLTIPS_NONE;
     data.warnings = 1;
     data.victory_video = 0;
     data.last_advisor = ADVISOR_LABOR;
