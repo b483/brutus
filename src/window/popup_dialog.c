@@ -85,7 +85,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     if (input_go_back_requested(m, h)) {
-        window_go_back();
+        button_cancel(0, 0);
     }
     if (h->enter_pressed) {
         confirm();
@@ -100,6 +100,10 @@ static void button_ok(__attribute__((unused)) int param1, __attribute__((unused)
 static void button_cancel(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_go_back();
+    // prevent getting stuck on top menu window (last active) when declining pop-up to exit scenario/editor
+    if (window_is(WINDOW_TOP_MENU) || window_is(WINDOW_EDITOR_TOP_MENU)) {
+        window_go_back();
+    }
 }
 
 static void confirm(void)

@@ -33,6 +33,7 @@
 #include "window/advisor/ratings.h"
 #include "window/advisor/religion.h"
 #include "window/advisor/trade.h"
+#include "window/empire.h"
 
 static void button_change_advisor(int advisor, int param2);
 static void button_help(int param1, int param2);
@@ -173,6 +174,11 @@ static void handle_input(const mouse *m, const hotkeys *h)
 {
     if (h->show_last_advisor) {
         window_city_show();
+        return;
+    }
+    if (h->show_empire_map) {
+        window_empire_show();
+        return;
     }
     const mouse *m_dialog = mouse_in_dialog(m);
     if (generic_buttons_handle_mouse(m_dialog, 0, 440, advisor_buttons, 13, &focus_button_id)) {

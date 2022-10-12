@@ -8,6 +8,7 @@
 #include "empire/object.h"
 #include "empire/trade_route.h"
 #include "empire/type.h"
+#include "game/settings.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
@@ -472,8 +473,14 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
     button_id = 0;
 
+    if (h->show_last_advisor) {
+        window_advisors_show(setting_last_advisor());
+        return;
+    }
+
     if (h->show_empire_map) {
         window_city_show();
+        return;
     }
 
     determine_selected_object(m);
@@ -535,11 +542,11 @@ static void handle_input(const mouse *m, const hotkeys *h)
                     }
                     /* fall through */
                 default:
-                    window_city_show();
+                    window_go_back();
             }
         }
     } else if (input_go_back_requested(m, h)) {
-        window_city_show();
+        window_go_back();
     }
 }
 
@@ -605,6 +612,14 @@ static void get_tooltip_trade_route_type(tooltip_context *c)
 
 static void get_tooltip(tooltip_context *c)
 {
+    if (data.focus_button_id) {
+        c->type = TOOLTIP_BUTTON;
+        switch (data.focus_button_id) {
+            case 1: c->text_id = 1; break;
+            case 2: c->text_id = 2; break;
+            case 3: c->text_id = 69; break;
+        }
+    }
     if (!data.selected_object) {
         return;
     }
@@ -612,13 +627,6 @@ static void get_tooltip(tooltip_context *c)
     if (resource) {
         c->type = TOOLTIP_BUTTON;
         c->text_id = 131 + resource;
-    } else if (data.focus_button_id) {
-        c->type = TOOLTIP_BUTTON;
-        switch (data.focus_button_id) {
-            case 1: c->text_id = 1; break;
-            case 2: c->text_id = 2; break;
-            case 3: c->text_id = 69; break;
-        }
     } else {
         get_tooltip_trade_route_type(c);
     }
