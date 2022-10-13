@@ -138,10 +138,10 @@ typedef struct {
 
 typedef struct {
     int year;
+    int month;
     int resource;
     int is_rise;
     int amount;
-    int month;
 } price_change_t;
 
 typedef struct {

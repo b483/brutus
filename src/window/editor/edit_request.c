@@ -72,7 +72,7 @@ static void draw_foreground(void)
 
     // Invalid year/month combination
     if (scenario.requests[data.id].year == 0 && scenario.requests[data.id].month == 0) {
-        text_draw(get_custom_string(TR_EDITOR_INVASION_INVALID_MONTH), 260, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 260, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
     }
 
     // Amount
@@ -97,7 +97,7 @@ static void draw_foreground(void)
 
     // Unschedule request
     button_border_draw(105, 342, 200, 25, data.focus_button_id == 7);
-    lang_text_draw_centered(44, 25, 105, 350, 200, FONT_NORMAL_BLACK);
+    lang_text_draw_centered(44, 25, 105, 348, 200, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
 }

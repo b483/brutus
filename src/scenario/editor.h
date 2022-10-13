@@ -6,13 +6,6 @@
 typedef struct {
     int year;
     int resource;
-    int amount;
-    int is_rise;
-} editor_price_change;
-
-typedef struct {
-    int year;
-    int resource;
     int route_id;
     int is_rise;
 } editor_demand_change;
@@ -25,9 +18,7 @@ void scenario_editor_sort_requests(void);
 
 void scenario_editor_sort_invasions(void);
 
-void scenario_editor_price_change_get(int index, editor_price_change *price_change);
-void scenario_editor_price_change_delete(int index);
-void scenario_editor_price_change_save(int index, editor_price_change *price_change);
+void scenario_editor_sort_price_changes(void);
 
 void scenario_editor_demand_change_get(int index, editor_demand_change *demand_change);
 void scenario_editor_demand_change_delete(int index);

@@ -62,9 +62,7 @@
 #include "scenario/gladiator_revolt.h"
 #include "scenario/invasion.h"
 #include "scenario/map.h"
-#include "scenario/price_change.h"
 #include "scenario/property.h"
-#include "scenario/request.h"
 #include "scenario/scenario.h"
 #include "sound/city.h"
 #include "sound/music.h"
@@ -160,7 +158,6 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
     scenario_invasion_init();
     city_military_determine_distant_battle_city();
     scenario_demand_change_init();
-    scenario_price_change_init();
     building_menu_update();
     image_load_climate(scenario_property_climate(), 0, 0);
     image_load_enemy(scenario_property_enemy());

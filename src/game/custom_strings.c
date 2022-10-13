@@ -228,11 +228,11 @@ static custom_string all_strings[] = {
     {TR_EDITOR_HERD_POINT_8, "Herd point 8"},
     {TR_EDITOR_OFFSET_YEAR, "Year offset:"},
     {TR_EDITOR_MONTH, "Month:"},
+    {TR_EDITOR_INVALID_YEAR_MONTH, "Jan year 0 invalid"},
     {TR_EDITOR_AMOUNT, "Amount:"},
     {TR_EDITOR_INVASION_TYPE, "Type:"},
     {TR_EDITOR_INVASION_FROM, "From:"},
     {TR_EDITOR_INVASION_ATTACK_TYPE, "Attack type:"},
-    {TR_EDITOR_INVASION_INVALID_MONTH, "Jan year 0 invalid"},
     {TR_EDITOR_INVASION_TYPE_NO_INVADERS, "No invaders"},
     {TR_EDITOR_INVASION_TYPE_LOCAL_RAIDERS, "Local raiders"},
     {TR_EDITOR_INVASION_TYPE_ENEMY_ARMY, "Enemy army"},
@@ -243,7 +243,9 @@ static custom_string all_strings[] = {
     {TR_EDITOR_RESOURCE, "Resource:"},
     {TR_EDITOR_YEARS_DEADLINE, "Years deadline:"},
     {TR_EDITOR_FAVOR_GRANTED, "Favor granted:"},
-    {TR_EDITOR_REQUEST_SCHEDULED, "Requests scheduled"}
+    {TR_EDITOR_REQUEST_SCHEDULED, "Requests scheduled"},
+    {TR_EDITOR_NO_PRICE_CHANGE, "No price changes"},
+    {TR_EDITOR_PRICE_CHANGE_SCHEDULED, "Price changes scheduled"}
 };
 
 static void set_strings(const custom_string *strings, int num_strings)

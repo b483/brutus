@@ -147,6 +147,9 @@ void scenario_save_state(buffer *buf)
         buffer_write_i16(buf, scenario.price_changes[i].year);
     }
     for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
+        buffer_write_u8(buf, scenario.price_changes[i].month);
+    }
+    for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
         buffer_write_u8(buf, scenario.price_changes[i].resource);
     }
     for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
@@ -154,9 +157,6 @@ void scenario_save_state(buffer *buf)
     }
     for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
         buffer_write_u8(buf, scenario.price_changes[i].amount);
-    }
-    for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
-        buffer_write_u8(buf, scenario.price_changes[i].month);
     }
 
     // Demand changes
@@ -361,6 +361,9 @@ void scenario_load_state(buffer *buf)
         scenario.price_changes[i].year = buffer_read_i16(buf);
     }
     for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
+        scenario.price_changes[i].month = buffer_read_u8(buf);
+    }
+    for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
         scenario.price_changes[i].resource = buffer_read_u8(buf);
     }
     for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
@@ -368,9 +371,6 @@ void scenario_load_state(buffer *buf)
     }
     for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
         scenario.price_changes[i].amount = buffer_read_u8(buf);
-    }
-    for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
-        scenario.price_changes[i].month = buffer_read_u8(buf);
     }
 
     // Demand changes

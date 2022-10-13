@@ -172,7 +172,11 @@ static void draw_foreground(void)
 
     // Price changes
     button_border_draw(212, 396, 250, 30, data.focus_button_id == 10);
-    lang_text_draw_centered(44, 95, 212, 405, 250, FONT_NORMAL_BLACK);
+    if (scenario.price_changes[0].resource) {
+        text_draw_centered(get_custom_string(TR_EDITOR_PRICE_CHANGE_SCHEDULED), 212, 405, 250, FONT_NORMAL_BLACK, COLOR_BLACK);
+    } else {
+        text_draw_centered(get_custom_string(TR_EDITOR_NO_PRICE_CHANGE), 212, 405, 250, FONT_NORMAL_BLACK, COLOR_BLACK);
+    }
 
     // Demand changes
     button_border_draw(212, 436, 250, 30, data.focus_button_id == 11);

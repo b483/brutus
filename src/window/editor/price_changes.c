@@ -67,15 +67,13 @@ static void draw_foreground(void)
             y = 48 + 30 * (i - 10);
         }
         button_border_draw(x, y, 290, 25, focus_button_id == i + 1);
-        editor_price_change price_change;
-        scenario_editor_price_change_get(i, &price_change);
-        if (price_change.year) {
-            text_draw_number(price_change.year, '+', " ", x + 10, y + 6, FONT_NORMAL_BLACK);
-            lang_text_draw_year(scenario_property_start_year() + price_change.year, x + 65, y + 6, FONT_NORMAL_BLACK);
-            int offset = price_change.resource + resource_image_offset(price_change.resource, RESOURCE_IMAGE_ICON);
-            image_draw(image_group(GROUP_EDITOR_RESOURCE_ICONS) + offset, x + 140, y + 3);
-            int width = lang_text_draw(44, price_change.is_rise ? 104 : 103, x + 170, y + 6, FONT_NORMAL_BLACK);
-            text_draw_number(price_change.amount, '@', " ", x + 170 + width, y + 6, FONT_NORMAL_BLACK);
+
+        if (scenario.price_changes[i].resource) {
+            int width = lang_text_draw(25, scenario.requests[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
+            width += lang_text_draw_year(scenario_property_start_year() + scenario.requests[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
+            image_draw(image_group(GROUP_EDITOR_RESOURCE_ICONS) + scenario.price_changes[i].resource + resource_image_offset(scenario.price_changes[i].resource, RESOURCE_IMAGE_ICON), x + 12 + width, y + 3);
+            width += lang_text_draw(44, scenario.price_changes[i].is_rise ? 104 : 103, x + 45 + width, y + 6, FONT_NORMAL_BLACK);
+            text_draw_number(scenario.price_changes[i].amount, '@', " ", x + 45 + width, y + 6, FONT_NORMAL_BLACK);
         } else {
             lang_text_draw_centered(44, 102, x, y + 6, 290, FONT_NORMAL_BLACK);
         }
