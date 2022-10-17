@@ -216,6 +216,7 @@ static custom_string all_strings[] = {
     {TR_EMPIRE_EXPANSION_YEAR, "Year offset for empire expansion: "},
     {TR_EDITOR_MAP_BRIEFING, "Map briefing"},
     {TR_EDITOR_MAP_BRIEFING_HINT, "Hint: 'atL' for new line, 'atP' for new paragraph (replace 'at' with the symbol - will be hidden)"},
+    {TR_EDITOR_MAP_BRIEFING_RESET, "Reset briefing"},
     {TR_EDITOR_INITIAL_FAVOR, "Initial favor"},
     {TR_EDITOR_INITIAL_PERSONAL_SAVINGS, "Initial personal savings"},
     {TR_EDITOR_HERD_POINT_1, "Herd point 1"},

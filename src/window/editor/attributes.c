@@ -34,8 +34,6 @@
 #include "window/editor/win_criteria.h"
 #include "window/select_list.h"
 
-#define BRIEF_DESC_LENGTH 32
-
 static void button_briefing(int param1, int param2);
 static void button_starting_conditions(int param1, int param2);
 static void button_requests(int param1, int param2);
@@ -70,26 +68,26 @@ static arrow_button image_arrows[] = {
 
 static struct {
     int is_paused;
-    uint8_t brief_description[BRIEF_DESC_LENGTH];
+    uint8_t brief_description[MAX_BRIEF_DESCRIPTION];
     int focus_button_id;
 } data;
 
 static input_box scenario_description_input = {
     92, 40, 19, 2, FONT_NORMAL_WHITE, 1,
-    data.brief_description, BRIEF_DESC_LENGTH
+    data.brief_description, MAX_BRIEF_DESCRIPTION
 };
 
-static void start(void)
+static void start_brief_description_box_input(void)
 {
     if (data.is_paused) {
         input_box_resume(&scenario_description_input);
     } else {
-        string_copy(scenario_brief_description(), data.brief_description, BRIEF_DESC_LENGTH);
+        string_copy(scenario_brief_description(), data.brief_description, MAX_BRIEF_DESCRIPTION);
         input_box_start(&scenario_description_input);
     }
 }
 
-static void stop(int paused)
+static void stop_brief_description_box_input(int paused)
 {
     if (paused) {
         input_box_pause(&scenario_description_input);
@@ -201,74 +199,74 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     if (input_go_back_requested(m, h)) {
-        stop(0);
+        stop_brief_description_box_input(0);
         window_editor_map_show();
     }
 }
 
 static void button_briefing(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    stop(1);
+    stop_brief_description_box_input(0);
     window_editor_briefing_show();
 }
 
 static void button_starting_conditions(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    stop(1);
+    stop_brief_description_box_input(1);
     window_editor_starting_conditions_show();
 }
 
 static void button_requests(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    stop(1);
+    stop_brief_description_box_input(1);
     window_editor_requests_show();
 }
 
 static void set_enemy(int enemy)
 {
     scenario_editor_set_enemy(enemy);
-    start();
+    start_brief_description_box_input();
 }
 
 static void button_enemy(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    stop(1);
+    stop_brief_description_box_input(1);
     window_select_list_show(screen_dialog_offset_x() + 12, screen_dialog_offset_y() + 40, 37, 20, set_enemy);
 }
 
 static void button_invasions(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    stop(1);
+    stop_brief_description_box_input(1);
     window_editor_invasions_show();
 }
 
 static void button_allowed_buildings(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    stop(1);
+    stop_brief_description_box_input(1);
     window_editor_allowed_buildings_show();
 }
 
 static void button_win_criteria(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    stop(1);
+    stop_brief_description_box_input(1);
     window_editor_win_criteria_show();
 }
 
 static void button_special_events(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    stop(1);
+    stop_brief_description_box_input(1);
     window_editor_special_events_show();
 }
 
 static void button_price_changes(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    stop(1);
+    stop_brief_description_box_input(1);
     window_editor_price_changes_show();
 }
 
 static void button_demand_changes(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    stop(1);
+    stop_brief_description_box_input(1);
     window_editor_demand_changes_show();
 }
 
@@ -295,6 +293,6 @@ void window_editor_attributes_show(void)
         handle_input,
         0
     };
-    start();
+    start_brief_description_box_input();
     window_show(&window);
 }

@@ -2,6 +2,7 @@
 
 #include "core/string.h"
 #include "game/custom_strings.h"
+#include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
@@ -9,6 +10,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "input/input.h"
+#include "scenario/data.h"
 #include "scenario/editor.h"
 #include "scenario/property.h"
 #include "widget/input_box.h"
@@ -16,20 +18,30 @@
 #include "window/editor/attributes.h"
 #include "window/editor/map.h"
 
-#define MAX_BRIEFING 2302
+static void button_reset_briefing_text(int param1, int param2);
 
 uint8_t briefing[MAX_BRIEFING];
+static int focus_button_id;
 
 static input_box scenario_briefing_input = {
     -260, -150, 55, 2, FONT_NORMAL_WHITE, 1,
     briefing, MAX_BRIEFING
 };
 
-static void start(void)
+static generic_button button_reset[] = {
+    {455, 540, 190, 35, button_reset_briefing_text, button_none, 0, 0}
+};
+
+static void start_briefing_box_input(void)
 {
-    rich_text_reset(0);
     string_copy(scenario_briefing(), briefing, MAX_BRIEFING);
     input_box_start(&scenario_briefing_input);
+}
+
+static void stop_briefing_box_input(void)
+{
+    input_box_stop(&scenario_briefing_input);
+    scenario_editor_update_briefing(briefing);
 }
 
 static void draw_background(void)
@@ -53,7 +65,11 @@ static void draw_foreground(void)
     rich_text_draw_scrollbar();
 
     // @L, @P hint
-    text_draw(get_custom_string(TR_EDITOR_MAP_BRIEFING_HINT), -190, 550, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
+    text_draw(get_custom_string(TR_EDITOR_MAP_BRIEFING_HINT), -285, 550, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
+
+    // Reset briefing
+    button_border_draw(455, 540, 190, 35, focus_button_id);
+    text_draw_centered(get_custom_string(TR_EDITOR_MAP_BRIEFING_RESET), 455, 545, 190, FONT_LARGE_PLAIN, COLOR_TOOLTIP);
 
     graphics_reset_dialog();
 }
@@ -65,12 +81,22 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     if (input_go_back_requested(m, h)) {
-        input_box_stop(&scenario_briefing_input);
-        scenario_editor_update_briefing(briefing);
+        stop_briefing_box_input();
         rich_text_reset(0);
         window_editor_attributes_show();
     }
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, button_reset, 1, &focus_button_id)) {
+        return;
+    }
     rich_text_handle_mouse(m_dialog);
+}
+
+static void button_reset_briefing_text(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
+{
+    briefing[0] = '\0';
+    stop_briefing_box_input();
+    rich_text_reset(0);
+    start_briefing_box_input();
 }
 
 void window_editor_briefing_show(void)
@@ -82,6 +108,6 @@ void window_editor_briefing_show(void)
         handle_input,
         0
     };
-    start();
+    start_briefing_box_input();
     window_show(&window);
 }
