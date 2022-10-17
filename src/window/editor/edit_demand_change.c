@@ -32,7 +32,7 @@ static void button_route(int param1, int param2);
 static void button_toggle_rise(int param1, int param2);
 static void button_delete(int param1, int param2);
 
-static generic_button buttons[] = {
+static generic_button buttons_edit_demand_change[] = {
     {130, 152, 100, 25, button_year, button_none, 0, 0},
     {130, 182, 100, 25, button_month, button_none, 0, 0},
     {130, 212, 100, 25, button_resource, button_none, 0, 0},
@@ -119,7 +119,6 @@ static void draw_foreground(void)
         text_draw_centered(route_display_names[scenario.demand_changes[data.id].route_id], 130, 248, 200, FONT_NORMAL_BLACK, 0);
     }
 
-
     // demand for this good rises/falls
     lang_text_draw(44, 100, 30, 278, FONT_NORMAL_BLACK);
     button_border_draw(230, 272, 100, 25, data.focus_button_id == 5);
@@ -134,7 +133,7 @@ static void draw_foreground(void)
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, 6, &data.focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_demand_change, sizeof(buttons_edit_demand_change) / sizeof(generic_button), &data.focus_button_id)) {
         return;
     }
     if (input_go_back_requested(m, h)) {
