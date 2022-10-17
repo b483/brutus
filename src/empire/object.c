@@ -519,7 +519,7 @@ int empire_object_trade_route_is_open(int trade_route_id)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
         if (objects[i].in_use && objects[i].trade_route_id == trade_route_id) {
-            return objects[i].trade_route_open ? 1 : 0;
+            return objects[i].trade_route_open;
         }
     }
     return 0;

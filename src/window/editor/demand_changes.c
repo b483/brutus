@@ -20,7 +20,7 @@
 
 static void button_demand_change(int id, int param2);
 
-static generic_button buttons[] = {
+static generic_button buttons_demand_changes[] = {
     {20, 48, 290, 25, button_demand_change, button_none, 0, 0},
     {20, 78, 290, 25, button_demand_change, button_none, 1, 0},
     {20, 108, 290, 25, button_demand_change, button_none, 2, 0},
@@ -67,16 +67,14 @@ static void draw_foreground(void)
             y = 48 + 30 * (i - 10);
         }
         button_border_draw(x, y, 290, 25, focus_button_id == i + 1);
-        editor_demand_change demand_change;
-        scenario_editor_demand_change_get(i, &demand_change);
-        if (demand_change.year) {
-            text_draw_number(demand_change.year, '+', " ", x + 10, y + 6, FONT_NORMAL_BLACK);
-            lang_text_draw_year(scenario_property_start_year() + demand_change.year, x + 35, y + 6, FONT_NORMAL_BLACK);
-            int offset = demand_change.resource + resource_image_offset(demand_change.resource, RESOURCE_IMAGE_ICON);
-            image_draw(image_group(GROUP_EDITOR_RESOURCE_ICONS) + offset, x + 115, y + 3);
-            int width = lang_text_draw(44, 97, x + 140, y + 6, FONT_NORMAL_BLACK);
-            width += text_draw_number(demand_change.route_id, '@', " ", x + 140 + width, y + 6, FONT_NORMAL_BLACK);
-            lang_text_draw(44, demand_change.is_rise ? 99 : 98, x + 140 + width, y + 6, FONT_NORMAL_BLACK);
+
+        if (scenario.demand_changes[i].resource && scenario.demand_changes[i].route_id) {
+            int width = lang_text_draw(25, scenario.demand_changes[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
+            width += lang_text_draw_year(scenario_property_start_year() + scenario.demand_changes[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
+            image_draw(image_group(GROUP_EDITOR_RESOURCE_ICONS) + scenario.demand_changes[i].resource + resource_image_offset(scenario.demand_changes[i].resource, RESOURCE_IMAGE_ICON), x + 12 + width, y + 3);
+            width += lang_text_draw(44, 97, x + 45 + width, y + 6, FONT_NORMAL_BLACK);
+            width += text_draw_number(scenario.demand_changes[i].route_id, '@', " ", x + 40 + width, y + 6, FONT_NORMAL_BLACK);
+            lang_text_draw(44, scenario.demand_changes[i].is_rise ? 99 : 98, x + 40 + width, y + 6, FONT_NORMAL_BLACK);
         } else {
             lang_text_draw_centered(44, 96, x, y + 6, 290, FONT_NORMAL_BLACK);
         }
@@ -87,7 +85,7 @@ static void draw_foreground(void)
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, 20, &focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_demand_changes, sizeof(buttons_demand_changes) / sizeof(generic_button), &focus_button_id)) {
         return;
     }
     if (input_go_back_requested(m, h)) {

@@ -20,7 +20,7 @@
 
 static void button_price_change(int id, int param2);
 
-static generic_button buttons[] = {
+static generic_button buttons_price_changes[] = {
     {20, 48, 290, 25, button_price_change, button_none, 0, 0},
     {20, 78, 290, 25, button_price_change, button_none, 1, 0},
     {20, 108, 290, 25, button_price_change, button_none, 2, 0},
@@ -69,8 +69,8 @@ static void draw_foreground(void)
         button_border_draw(x, y, 290, 25, focus_button_id == i + 1);
 
         if (scenario.price_changes[i].resource) {
-            int width = lang_text_draw(25, scenario.requests[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
-            width += lang_text_draw_year(scenario_property_start_year() + scenario.requests[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
+            int width = lang_text_draw(25, scenario.price_changes[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
+            width += lang_text_draw_year(scenario_property_start_year() + scenario.price_changes[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
             image_draw(image_group(GROUP_EDITOR_RESOURCE_ICONS) + scenario.price_changes[i].resource + resource_image_offset(scenario.price_changes[i].resource, RESOURCE_IMAGE_ICON), x + 12 + width, y + 3);
             width += lang_text_draw(44, scenario.price_changes[i].is_rise ? 104 : 103, x + 45 + width, y + 6, FONT_NORMAL_BLACK);
             text_draw_number(scenario.price_changes[i].amount, '@', " ", x + 45 + width, y + 6, FONT_NORMAL_BLACK);
@@ -87,7 +87,7 @@ static void draw_foreground(void)
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, 20, &focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_price_changes, sizeof(buttons_price_changes) / sizeof(generic_button), &focus_button_id)) {
         return;
     }
     if (input_go_back_requested(m, h)) {

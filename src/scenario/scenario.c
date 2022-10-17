@@ -164,6 +164,9 @@ void scenario_save_state(buffer *buf)
         buffer_write_i16(buf, scenario.demand_changes[i].year);
     }
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
+        buffer_write_u8(buf, scenario.demand_changes[i].month);
+    }
+    for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
         buffer_write_u8(buf, scenario.demand_changes[i].resource);
     }
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
@@ -171,9 +174,6 @@ void scenario_save_state(buffer *buf)
     }
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
         buffer_write_u8(buf, scenario.demand_changes[i].is_rise);
-    }
-    for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
-        buffer_write_u8(buf, scenario.demand_changes[i].month);
     }
 
     // Earthquake points
@@ -378,6 +378,9 @@ void scenario_load_state(buffer *buf)
         scenario.demand_changes[i].year = buffer_read_i16(buf);
     }
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
+        scenario.demand_changes[i].month = buffer_read_u8(buf);
+    }
+    for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
         scenario.demand_changes[i].resource = buffer_read_u8(buf);
     }
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
@@ -385,9 +388,6 @@ void scenario_load_state(buffer *buf)
     }
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
         scenario.demand_changes[i].is_rise = buffer_read_u8(buf);
-    }
-    for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
-        scenario.demand_changes[i].month = buffer_read_u8(buf);
     }
 
     // Earthquake points

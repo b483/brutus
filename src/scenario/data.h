@@ -146,10 +146,10 @@ typedef struct {
 
 typedef struct {
     int year;
+    int month;
     int resource;
     int route_id;
     int is_rise;
-    int month;
 } demand_change_t;
 
 extern struct scenario_t {

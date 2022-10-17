@@ -245,7 +245,9 @@ static custom_string all_strings[] = {
     {TR_EDITOR_FAVOR_GRANTED, "Favor granted:"},
     {TR_EDITOR_REQUEST_SCHEDULED, "Requests scheduled"},
     {TR_EDITOR_NO_PRICE_CHANGE, "No price changes"},
-    {TR_EDITOR_PRICE_CHANGE_SCHEDULED, "Price changes scheduled"}
+    {TR_EDITOR_PRICE_CHANGE_SCHEDULED, "Price changes scheduled"},
+    {TR_EDITOR_NO_DEMAND_CHANGE, "No demand changes"},
+    {TR_EDITOR_DEMAND_CHANGE_SCHEDULED, "Demand changes scheduled"}
 };
 
 static void set_strings(const custom_string *strings, int num_strings)

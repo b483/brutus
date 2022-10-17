@@ -3,13 +3,6 @@
 
 #include <stdint.h>
 
-typedef struct {
-    int year;
-    int resource;
-    int route_id;
-    int is_rise;
-} editor_demand_change;
-
 void scenario_editor_create(int map_size);
 
 void scenario_editor_set_native_images(int image_hut, int image_meeting, int image_crops);
@@ -20,9 +13,7 @@ void scenario_editor_sort_invasions(void);
 
 void scenario_editor_sort_price_changes(void);
 
-void scenario_editor_demand_change_get(int index, editor_demand_change *demand_change);
-void scenario_editor_demand_change_delete(int index);
-void scenario_editor_demand_change_save(int index, editor_demand_change *demand_change);
+void scenario_editor_sort_demand_changes(void);
 
 void scenario_editor_cycle_image(int forward);
 

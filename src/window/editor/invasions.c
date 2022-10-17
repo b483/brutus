@@ -16,7 +16,7 @@
 
 static void button_invasion(int id, int param2);
 
-static generic_button buttons[] = {
+static generic_button buttons_invasions[] = {
     {20, 48, 290, 25, button_invasion, button_none, 0, 0},
     {20, 78, 290, 25, button_invasion, button_none, 1, 0},
     {20, 108, 290, 25, button_invasion, button_none, 2, 0},
@@ -82,7 +82,7 @@ static void draw_foreground(void)
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, sizeof(buttons) / sizeof(generic_button), &focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_invasions, sizeof(buttons_invasions) / sizeof(generic_button), &focus_button_id)) {
         return;
     }
     if (input_go_back_requested(m, h)) {

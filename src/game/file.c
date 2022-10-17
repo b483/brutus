@@ -54,7 +54,6 @@
 #include "map/terrain.h"
 #include "map/tiles.h"
 #include "scenario/criteria.h"
-#include "scenario/demand_change.h"
 #include "scenario/distant_battle.h"
 #include "scenario/earthquake.h"
 #include "scenario/emperor_change.h"
@@ -157,7 +156,6 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
     traders_clear();
     scenario_invasion_init();
     city_military_determine_distant_battle_city();
-    scenario_demand_change_init();
     building_menu_update();
     image_load_climate(scenario_property_climate(), 0, 0);
     image_load_enemy(scenario_property_enemy());

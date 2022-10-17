@@ -484,6 +484,12 @@ static void button_change_empire(int is_down, __attribute__((unused)) int param2
 {
     scenario_editor_change_empire(is_down ? -1 : 1);
     empire_load_editor(scenario_empire_id(), map_viewport_width(), map_viewport_height());
+
+    // reset demand changes to prevent possible city/resource mixups
+    for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
+        scenario.demand_changes[i].route_id = 0;
+    }
+
     window_request_refresh();
 }
 

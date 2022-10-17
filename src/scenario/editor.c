@@ -96,6 +96,11 @@ void scenario_editor_create(int map_size)
         scenario.price_changes[i].amount = 1;
     }
 
+    // Demand changes
+    for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
+        scenario.demand_changes[i].year = 1;
+    }
+
     init_point(&scenario.earthquake_point);
     for (int i = 0; i < MAX_INVASION_POINTS; i++) {
         init_point(&scenario.invasion_points[i]);
@@ -178,51 +183,22 @@ void scenario_editor_sort_price_changes(void)
     scenario.is_saved = 0;
 }
 
-void scenario_editor_demand_change_get(int index, editor_demand_change *demand_change)
+void scenario_editor_sort_demand_changes(void)
 {
-    demand_change->year = scenario.demand_changes[index].year;
-    demand_change->resource = scenario.demand_changes[index].resource;
-    demand_change->route_id = scenario.demand_changes[index].route_id;
-    demand_change->is_rise = scenario.demand_changes[index].is_rise;
-}
-
-static void sort_demand_changes(void)
-{
-    for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
-        if (!scenario.demand_changes[i].resource) {
-            scenario.demand_changes[i].year = 0;
-        }
-    }
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
         for (int j = MAX_DEMAND_CHANGES - 1; j > 0; j--) {
             demand_change_t *current = &scenario.demand_changes[j];
             demand_change_t *prev = &scenario.demand_changes[j - 1];
-            if (current->year && (!prev->year || prev->year > current->year)) {
-                demand_change_t tmp = *current;
-                *current = *prev;
-                *prev = tmp;
+            if (current->resource && current->route_id) {
+                // if no previous demand change scheduled, move current back until first; if previous demand change is later than current, swap
+                if (!prev->resource || !prev->route_id || prev->year > current->year || (prev->year == current->year && prev->month > current->month)) {
+                    demand_change_t tmp = *current;
+                    *current = *prev;
+                    *prev = tmp;
+                }
             }
         }
     }
-}
-
-void scenario_editor_demand_change_delete(int index)
-{
-    scenario.demand_changes[index].year = 0;
-    scenario.demand_changes[index].resource = 0;
-    scenario.demand_changes[index].route_id = 0;
-    scenario.demand_changes[index].is_rise = 0;
-    sort_demand_changes();
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_demand_change_save(int index, editor_demand_change *demand_change)
-{
-    scenario.demand_changes[index].year = demand_change->year;
-    scenario.demand_changes[index].resource = demand_change->resource;
-    scenario.demand_changes[index].route_id = demand_change->route_id;
-    scenario.demand_changes[index].is_rise = demand_change->is_rise;
-    sort_demand_changes();
     scenario.is_saved = 0;
 }
 
