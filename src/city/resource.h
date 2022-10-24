@@ -9,8 +9,6 @@ typedef struct {
     int items[RESOURCE_MAX];
 } resource_list;
 
-int city_resource_count(resource_type resource);
-
 const resource_list *city_resource_get_available(void);
 
 const resource_list *city_resource_get_available_foods(void);
@@ -28,17 +26,9 @@ int city_resource_operating_granaries(void);
 int city_resource_last_used_warehouse(void);
 void city_resource_set_last_used_warehouse(int warehouse_id);
 
-resource_trade_status city_resource_trade_status(resource_type resource);
 void city_resource_cycle_trade_status(resource_type resource);
 
-int city_resource_export_over(resource_type resource);
-void city_resource_change_export_over(resource_type resource, int change);
-
-int city_resource_is_stockpiled(resource_type resource);
 void city_resource_toggle_stockpiled(resource_type resource);
-
-int city_resource_is_mothballed(resource_type resource);
-void city_resource_toggle_mothballed(resource_type resource);
 
 int city_resource_has_workshop_with_room(int workshop_type);
 

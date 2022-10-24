@@ -17,53 +17,9 @@ int city_festival_months_since_last(void)
     return city_data.festival.months_since_festival;
 }
 
-int city_festival_small_cost(void)
-{
-    return city_data.festival.small_cost;
-}
-
-int city_festival_large_cost(void)
-{
-    return city_data.festival.large_cost;
-}
-
-int city_festival_grand_cost(void)
-{
-    return city_data.festival.grand_cost;
-}
-
-int city_festival_grand_wine(void)
-{
-    return city_data.festival.grand_wine;
-}
-
-int city_festival_out_of_wine(void)
-{
-    return city_data.festival.not_enough_wine;
-}
-
-int city_festival_selected_god(void)
-{
-    return city_data.festival.selected.god;
-}
-
-void city_festival_select_god(int god_id)
-{
-    city_data.festival.selected.god = god_id;
-}
-
 int city_festival_selected_size(void)
 {
     return city_data.festival.selected.size;
-}
-
-int city_festival_select_size(int size)
-{
-    if (size == FESTIVAL_GRAND && city_data.festival.not_enough_wine) {
-        return 0;
-    }
-    city_data.festival.selected.size = size;
-    return 1;
 }
 
 void city_festival_schedule(void)

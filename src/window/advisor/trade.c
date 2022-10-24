@@ -1,5 +1,6 @@
 #include "trade.h"
 
+#include "city/data_private.h"
 #include "city/resource.h"
 #include "game/resource.h"
 #include "graphics/generic_button.h"
@@ -69,20 +70,20 @@ static void draw_foreground(void)
             button_border_draw(80, y_offset + 54, 480, 24, 1);
         }
         lang_text_draw(23, resource, 88, y_offset + 61, FONT_NORMAL_WHITE);
-        text_draw_number_centered(city_resource_count(resource),
+        text_draw_number_centered(city_data.resource.stored_in_warehouses[resource],
             180, y_offset + 61, 60, FONT_NORMAL_WHITE);
-        if (city_resource_is_mothballed(resource)) {
+        if (city_data.resource.mothballed[resource]) {
             lang_text_draw_centered(18, 5, 240, y_offset + 61, 100, FONT_NORMAL_WHITE);
         }
-        if (city_resource_is_stockpiled(resource)) {
+        if (city_data.resource.stockpiled[resource]) {
             lang_text_draw(54, 3, 340, y_offset + 61, FONT_NORMAL_WHITE);
         } else {
-            resource_trade_status trade_status = city_resource_trade_status(resource);
+            resource_trade_status trade_status = city_data.resource.trade_status[resource];
             if (trade_status == TRADE_STATUS_IMPORT) {
                 lang_text_draw(54, 5, 340, y_offset + 61, FONT_NORMAL_WHITE);
             } else if (trade_status == TRADE_STATUS_EXPORT) {
                 int width = lang_text_draw(54, 6, 340, y_offset + 61, FONT_NORMAL_WHITE);
-                text_draw_number(city_resource_export_over(resource), '@', " ",
+                text_draw_number(city_data.resource.export_over[resource], '@', " ",
                     340 + width, y_offset + 61, FONT_NORMAL_WHITE);
             }
         }

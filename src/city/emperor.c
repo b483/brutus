@@ -10,7 +10,7 @@
 #include "scenario/property.h"
 #include "scenario/invasion.h"
 
-const int SALARY_FOR_RANK[11] = { 0, 2, 5, 8, 12, 20, 30, 40, 60, 80, 100 };
+const int SALARY_FOR_RANK[11] = { 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144 };
 
 void city_emperor_init_scenario(void)
 {
@@ -154,49 +154,6 @@ void city_emperor_update(void)
     process_caesar_invasion();
 }
 
-void city_emperor_init_selected_gift(void)
-{
-    if (city_data.emperor.selected_gift_size == GIFT_LAVISH && !city_emperor_can_send_gift(GIFT_LAVISH)) {
-        city_data.emperor.selected_gift_size = GIFT_GENEROUS;
-    }
-    if (city_data.emperor.selected_gift_size == GIFT_GENEROUS && !city_emperor_can_send_gift(GIFT_GENEROUS)) {
-        city_data.emperor.selected_gift_size = GIFT_MODEST;
-    }
-}
-
-int city_emperor_set_gift_size(int size)
-{
-    if (city_data.emperor.gifts[size].cost <= city_data.emperor.personal_savings) {
-        city_data.emperor.selected_gift_size = size;
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-int city_emperor_selected_gift_size(void)
-{
-    return city_data.emperor.selected_gift_size;
-}
-
-const emperor_gift *city_emperor_get_gift(int size)
-{
-    return &city_data.emperor.gifts[size];
-}
-
-int city_emperor_can_send_gift(int size)
-{
-    return city_data.emperor.gifts[size].cost <= city_data.emperor.personal_savings;
-}
-
-void city_emperor_calculate_gift_costs(void)
-{
-    int savings = city_data.emperor.personal_savings;
-    city_data.emperor.gifts[GIFT_MODEST].cost = savings / 8 + 20;
-    city_data.emperor.gifts[GIFT_GENEROUS].cost = savings / 4 + 50;
-    city_data.emperor.gifts[GIFT_LAVISH].cost = savings / 2 + 100;
-}
-
 void city_emperor_send_gift(void)
 {
     int size = city_data.emperor.selected_gift_size;
@@ -257,11 +214,6 @@ void city_emperor_send_gift(void)
     city_data.emperor.personal_savings -= cost;
 }
 
-int city_emperor_months_since_gift(void)
-{
-    return city_data.emperor.months_since_gift;
-}
-
 int city_emperor_salary_for_rank(int rank)
 {
     return SALARY_FOR_RANK[rank];
@@ -273,11 +225,6 @@ void city_emperor_set_salary_rank(int player_rank)
     city_data.emperor.salary_amount = SALARY_FOR_RANK[player_rank];
 }
 
-int city_emperor_salary_rank(void)
-{
-    return city_data.emperor.salary_rank;
-}
-
 int city_emperor_salary_amount(void)
 {
     return city_data.emperor.salary_amount;
@@ -286,40 +233,6 @@ int city_emperor_salary_amount(void)
 int city_emperor_personal_savings(void)
 {
     return city_data.emperor.personal_savings;
-}
-
-int city_emperor_rank(void)
-{
-    return city_data.emperor.player_rank;
-}
-
-void city_emperor_init_donation_amount(void)
-{
-    if (city_data.emperor.donate_amount > city_data.emperor.personal_savings) {
-        city_data.emperor.donate_amount = city_data.emperor.personal_savings;
-    }
-}
-
-void city_emperor_set_donation_amount(int amount)
-{
-    city_data.emperor.donate_amount = calc_bound(amount, 0, city_data.emperor.personal_savings);
-}
-
-void city_emperor_change_donation_amount(int change)
-{
-    city_emperor_set_donation_amount(city_data.emperor.donate_amount + change);
-}
-
-void city_emperor_donate_savings_to_city(void)
-{
-    city_finance_process_donation(city_data.emperor.donate_amount);
-    city_data.emperor.personal_savings -= city_data.emperor.donate_amount;
-    city_finance_calculate_totals();
-}
-
-int city_emperor_donate_amount(void)
-{
-    return city_data.emperor.donate_amount;
 }
 
 void city_emperor_mark_soldier_killed(void)

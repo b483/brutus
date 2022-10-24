@@ -1,8 +1,7 @@
 #include "donate_to_city.h"
 
-#include "city/emperor.h"
+#include "city/data_private.h"
 #include "core/calc.h"
-#include "game/resource.h"
 #include "graphics/arrow_button.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -19,17 +18,17 @@ static void button_donate(int param1, int param2);
 static void arrow_button_amount(int is_down, int param2);
 
 static generic_button buttons_donate_to_city[] = {
-    {128, 216, 64, 20, button_set_amount, button_none, 0, 0},
-    {208, 216, 64, 20, button_set_amount, button_none, 1, 0},
-    {288, 216, 64, 20, button_set_amount, button_none, 2, 0},
-    {368, 216, 64, 20, button_set_amount, button_none, 3, 0},
-    {448, 216, 64, 20, button_set_amount, button_none, 4, 0},
-    {368, 243, 144, 20, button_donate, button_none, 0, 0},
+    {144, 230, 64, 20, button_set_amount, button_none, 0, 0},
+    {144, 257, 64, 20, button_set_amount, button_none, 1, 0},
+    {224, 230, 64, 20, button_set_amount, button_none, 2, 0},
+    {224, 257, 64, 20, button_set_amount, button_none, 3, 0},
+    {304, 257, 64, 20, button_set_amount, button_none, 4, 0},
+    {384, 257, 120, 20, button_donate, button_none, 0, 0},
 };
 
 static arrow_button arrow_buttons_donate_to_city[] = {
-    {240, 242, 17, 24, arrow_button_amount, 1, 0, 0, 0},
-    {264, 242, 15, 24, arrow_button_amount, 0, 0, 0, 0},
+    {455, 230, 17, 24, arrow_button_amount, -10, 0, 0, 0},
+    {479, 230, 15, 24, arrow_button_amount, 10, 0, 0, 0},
 };
 
 static struct {
@@ -37,55 +36,55 @@ static struct {
     int focus_arrow_button_id;
 } data;
 
-static void draw_background(void)
-{
-    window_advisors_draw_dialog_background();
-
-    graphics_in_dialog();
-
-    outer_panel_draw(64, 160, 32, 9);
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_DENARII, 80, 176);
-    lang_text_draw_centered(52, 16, 112, 176, 448, FONT_LARGE_BLACK);
-
-    inner_panel_draw(112, 208, 26, 4);
-
-    text_draw_number_centered(0, 124, 221, 64, FONT_NORMAL_WHITE);
-    text_draw_number_centered(500, 204, 221, 64, FONT_NORMAL_WHITE);
-    text_draw_number_centered(2000, 284, 221, 64, FONT_NORMAL_WHITE);
-    text_draw_number_centered(5000, 364, 221, 64, FONT_NORMAL_WHITE);
-    lang_text_draw_centered(52, 19, 444, 221, 64, FONT_NORMAL_WHITE);
-
-    int width = lang_text_draw(52, 17, 128, 248, FONT_NORMAL_WHITE);
-    width += 129;
-    arrow_buttons_donate_to_city[0].x_offset = width;
-    arrow_buttons_donate_to_city[1].x_offset = arrow_buttons_donate_to_city[0].x_offset + arrow_buttons_donate_to_city[0].size;
-
-    text_draw_number(city_emperor_donate_amount(), '@', " ", width + 71, 248, FONT_NORMAL_GREEN);
-
-    lang_text_draw_centered(52, 18, 368, 248, 144, FONT_NORMAL_GREEN);
-
-    graphics_reset_dialog();
-}
-
 static void draw_foreground(void)
 {
     graphics_in_dialog();
 
-    button_border_draw(128, 216, 64, 20, data.focus_button_id == 1);
-    button_border_draw(208, 216, 64, 20, data.focus_button_id == 2);
-    button_border_draw(288, 216, 64, 20, data.focus_button_id == 3);
-    button_border_draw(368, 216, 64, 20, data.focus_button_id == 4);
-    button_border_draw(448, 216, 64, 20, data.focus_button_id == 5);
+    outer_panel_draw(108, 172, 27, 8);
 
-    button_border_draw(368, 243, 144, 20, data.focus_button_id == 6);
+    // Coin image
+    image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_DENARII, 124, 188);
+
+    // Give money to the city
+    lang_text_draw_centered(52, 16, 108, 188, 432, FONT_LARGE_BLACK);
+
+    inner_panel_draw(124, 220, 25, 4);
+
+    // 0
+    button_border_draw(144, 230, 64, 20, data.focus_button_id == 1);
+    text_draw_number_centered(0, 142, 235, 64, FONT_NORMAL_WHITE);
+    // 500
+    button_border_draw(144, 257, 64, 20, data.focus_button_id == 2);
+    text_draw_number_centered(500, 142, 262, 64, FONT_NORMAL_WHITE);
+    // 2000
+    button_border_draw(224, 230, 64, 20, data.focus_button_id == 3);
+    text_draw_number_centered(2000, 222, 235, 64, FONT_NORMAL_WHITE);
+    // 5000
+    button_border_draw(224, 257, 64, 20, data.focus_button_id == 4);
+    text_draw_number_centered(5000, 222, 262, 64, FONT_NORMAL_WHITE);
+    // All
+    button_border_draw(304, 257, 64, 20, data.focus_button_id == 5);
+    lang_text_draw_centered(52, 19, 304, 262, 64, FONT_NORMAL_WHITE);
+
+    // Donation is
+    lang_text_draw(52, 17, 304, 235, FONT_NORMAL_WHITE);
+    text_draw_number(city_data.emperor.donate_amount, '@', " ", 394, 235, FONT_NORMAL_GREEN);
 
     arrow_buttons_draw(0, 0, arrow_buttons_donate_to_city, sizeof(arrow_buttons_donate_to_city) / sizeof(arrow_button));
+
+    // Give money
+    button_border_draw(384, 257, 120, 20, data.focus_button_id == 6);
+    lang_text_draw_centered(52, 18, 384, 262, 120, FONT_NORMAL_GREEN);
 
     graphics_reset_dialog();
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
+    if (input_go_back_requested(m, h)) {
+        window_advisors_show(ADVISOR_IMPERIAL);
+        return;
+    }
     data.focus_arrow_button_id = 0;
     const mouse *m_dialog = mouse_in_dialog(m);
     if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_donate_to_city, sizeof(buttons_donate_to_city) / sizeof(generic_button), &data.focus_button_id)) {
@@ -94,8 +93,10 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (arrow_buttons_handle_mouse(m_dialog, 0, 0, arrow_buttons_donate_to_city, sizeof(arrow_buttons_donate_to_city) / sizeof(arrow_button), &data.focus_arrow_button_id)) {
         return;
     }
-    if (input_go_back_requested(m, h)) {
+    // exit window on click outside of outer panel boundaries
+    if (m_dialog->left.went_up && (m_dialog->x < 108 || m_dialog->y < 172 || m_dialog->x > 540 || m_dialog->y > 300)) {
         window_advisors_show(ADVISOR_IMPERIAL);
+        return;
     }
 }
 
@@ -110,19 +111,21 @@ static void button_set_amount(int amount_id, __attribute__((unused)) int param2)
         case 4: amount = 1000000; break;
         default: return;
     }
-    city_emperor_set_donation_amount(amount);
+    city_data.emperor.donate_amount = calc_bound(amount, 0, city_data.emperor.personal_savings);
     window_invalidate();
 }
 
 static void button_donate(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    city_emperor_donate_savings_to_city();
+    city_finance_process_donation(city_data.emperor.donate_amount);
+    city_data.emperor.personal_savings -= city_data.emperor.donate_amount;
+    city_finance_calculate_totals();
     window_advisors_show(ADVISOR_IMPERIAL);
 }
 
-static void arrow_button_amount(int is_down, __attribute__((unused)) int param2)
+static void arrow_button_amount(int value, __attribute__((unused)) int param2)
 {
-    city_emperor_change_donation_amount(is_down ? -10 : 10);
+    city_data.emperor.donate_amount = calc_bound(city_data.emperor.donate_amount + value, 0, city_data.emperor.personal_savings);
     window_invalidate();
 }
 
@@ -145,11 +148,11 @@ void window_donate_to_city_show(void)
 {
     window_type window = {
         WINDOW_DONATE_TO_CITY,
-        draw_background,
+        window_advisors_draw_dialog_background,
         draw_foreground,
         handle_input,
         get_tooltip
     };
-    city_emperor_init_donation_amount();
+    city_data.emperor.donate_amount = 0;
     window_show(&window);
 }

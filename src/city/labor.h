@@ -9,17 +9,6 @@ typedef struct {
     int total_houses_covered;
 } labor_category_data;
 
-int city_labor_unemployment_percentage(void);
-int city_labor_unemployment_percentage_for_senate(void);
-
-int city_labor_workers_needed(void);
-int city_labor_workers_employed(void);
-int city_labor_workers_unemployed(void);
-
-int city_labor_wages(void);
-void city_labor_change_wages(int amount);
-
-int city_labor_wages_rome(void);
 int city_labor_raise_wages_rome(void);
 int city_labor_lower_wages_rome(void);
 

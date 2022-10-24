@@ -55,47 +55,6 @@ static struct {
     {LABOR_CATEGORY_GOVERNANCE_RELIGION, 1},
 };
 
-int city_labor_unemployment_percentage(void)
-{
-    return city_data.labor.unemployment_percentage;
-}
-
-int city_labor_unemployment_percentage_for_senate(void)
-{
-    return city_data.labor.unemployment_percentage_for_senate;
-}
-
-int city_labor_workers_needed(void)
-{
-    return city_data.labor.workers_needed;
-}
-
-int city_labor_workers_employed(void)
-{
-    return city_data.labor.workers_employed;
-}
-
-int city_labor_workers_unemployed(void)
-{
-    return city_data.labor.workers_unemployed;
-}
-
-int city_labor_wages(void)
-{
-    return city_data.labor.wages;
-}
-
-void city_labor_change_wages(int amount)
-{
-    city_data.labor.wages += amount;
-    city_data.labor.wages = calc_bound(city_data.labor.wages, 0, 100);
-}
-
-int city_labor_wages_rome(void)
-{
-    return city_data.labor.wages_rome;
-}
-
 int city_labor_raise_wages_rome(void)
 {
     if (city_data.labor.wages_rome >= 45) {
@@ -130,7 +89,8 @@ void city_labor_calculate_workers(int num_plebs, int num_patricians)
         city_data.population.working_age, city_data.population.percentage_plebs);
 }
 
-static int is_industry_disabled(building *b) {
+static int is_industry_disabled(building *b)
+{
     if (b->type < BUILDING_WHEAT_FARM || b->type > BUILDING_POTTERY_WORKSHOP) {
         return 0;
     }

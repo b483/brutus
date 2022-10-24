@@ -1,6 +1,6 @@
 #include "imperial.h"
 
-#include "city/emperor.h"
+#include "city/data_private.h"
 #include "city/finance.h"
 #include "city/military.h"
 #include "city/ratings.h"
@@ -137,7 +137,7 @@ static void draw_requests(void)
                 }
             } else {
                 // normal goods request
-                int amount_stored = city_resource_count(scenario.requests[i].resource);
+                int amount_stored = city_data.resource.stored_in_warehouses[scenario.requests[i].resource];
                 width = text_draw_number(amount_stored, '@', " ", 40, 120 + 42 * request_index, FONT_NORMAL_WHITE);
                 width += lang_text_draw(52, 43, 40 + width, 120 + 42 * request_index, FONT_NORMAL_WHITE);
                 if (amount_stored < scenario.requests[i].amount) {
@@ -157,8 +157,6 @@ static void draw_requests(void)
 
 static int draw_background(void)
 {
-    city_emperor_calculate_gift_costs();
-
     outer_panel_draw(0, 0, 40, ADVISOR_HEIGHT);
     image_draw(image_group(GROUP_ADVISOR_ICONS) + 2, 10, 10);
 
@@ -202,7 +200,7 @@ static int get_request_status(int index)
                         return STATUS_NOT_ENOUGH_RESOURCES;
                     }
                 } else {
-                    if (city_resource_count(scenario.requests[i].resource) < scenario.requests[i].amount) {
+                    if (city_data.resource.stored_in_warehouses[scenario.requests[i].resource] < scenario.requests[i].amount) {
                         return STATUS_NOT_ENOUGH_RESOURCES;
                     }
                 }
@@ -235,7 +233,7 @@ static void draw_foreground(void)
         button_border_draw(38, 264, 550, 40, focus_button_id == 5);
     }
 
-    lang_text_draw(32, city_emperor_rank(), 64, 338, FONT_LARGE_BROWN);
+    lang_text_draw(32, city_data.emperor.player_rank, 64, 338, FONT_LARGE_BROWN);
 
     int width = lang_text_draw(52, 1, 64, 372, FONT_NORMAL_WHITE);
     text_draw_money(city_emperor_personal_savings(), 72 + width, 372, FONT_NORMAL_WHITE);
@@ -250,7 +248,7 @@ static void draw_foreground(void)
 
     // Set salary
     button_border_draw(62, 393, 500, 20, focus_button_id == 8);
-    width = lang_text_draw(52, city_emperor_salary_rank() + 4, 112, 398, FONT_NORMAL_WHITE);
+    width = lang_text_draw(52, city_data.emperor.salary_rank + 4, 112, 398, FONT_NORMAL_WHITE);
     width += text_draw_number(city_emperor_salary_amount(), '@', " ", 112 + width, 398, FONT_NORMAL_WHITE);
     lang_text_draw(52, 3, 112 + width, 398, FONT_NORMAL_WHITE);
 

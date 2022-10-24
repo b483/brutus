@@ -1,6 +1,6 @@
 #include "extra.h"
 
-#include "city/labor.h"
+#include "city/data_private.h"
 #include "city/population.h"
 #include "city/ratings.h"
 #include "core/config.h"
@@ -145,9 +145,9 @@ static int update_extra_info(int is_background)
         changed |= update_extra_info_value(setting_game_speed(), &data.game_speed);
     }
     if (data.info_to_display & SIDEBAR_EXTRA_DISPLAY_UNEMPLOYMENT) {
-        changed |= update_extra_info_value(city_labor_unemployment_percentage(), &data.unemployment_percentage);
+        changed |= update_extra_info_value(city_data.labor.unemployment_percentage, &data.unemployment_percentage);
         changed |= update_extra_info_value(
-                       city_labor_workers_unemployed() - city_labor_workers_needed(),
+                       city_data.labor.workers_unemployed - city_data.labor.workers_needed,
                        &data.unemployment_amount
         );
     }

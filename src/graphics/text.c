@@ -303,9 +303,11 @@ static int number_to_string(uint8_t *str, int value, char prefix, const char *po
         str[offset++] = prefix;
     }
     offset += string_from_int(&str[offset], value, 0);
-    while (*postfix) {
-        str[offset++] = *postfix;
-        postfix++;
+    if (postfix) {
+        while (*postfix) {
+            str[offset++] = *postfix;
+            postfix++;
+        }
     }
     str[offset] = 0;
     return offset;

@@ -1,10 +1,7 @@
 #include "set_salary.h"
 
-#include "city/emperor.h"
-#include "city/finance.h"
+#include "city/data_private.h"
 #include "city/ratings.h"
-#include "city/victory.h"
-#include "game/resource.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
@@ -15,63 +12,53 @@
 #include "input/input.h"
 #include "window/advisors.h"
 
-#define MIN_DIALOG_WIDTH 384
-
 static void button_set_salary(int rank, int param2);
 
 static generic_button buttons_set_salary[] = {
-    {144, 85, 352, 20, button_set_salary, button_none, 0, 0},
-    {144, 105, 352, 20, button_set_salary, button_none, 1, 0},
-    {144, 125, 352, 20, button_set_salary, button_none, 2, 0},
-    {144, 145, 352, 20, button_set_salary, button_none, 3, 0},
-    {144, 165, 352, 20, button_set_salary, button_none, 4, 0},
-    {144, 185, 352, 20, button_set_salary, button_none, 5, 0},
-    {144, 205, 352, 20, button_set_salary, button_none, 6, 0},
-    {144, 225, 352, 20, button_set_salary, button_none, 7, 0},
-    {144, 245, 352, 20, button_set_salary, button_none, 8, 0},
-    {144, 265, 352, 20, button_set_salary, button_none, 9, 0},
-    {144, 285, 352, 20, button_set_salary, button_none, 10, 0},
+    {196, 96, 250, 15, button_set_salary, button_none, 0, 0},
+    {196, 116, 250, 15, button_set_salary, button_none, 1, 0},
+    {196, 136, 250, 15, button_set_salary, button_none, 2, 0},
+    {196, 156, 250, 15, button_set_salary, button_none, 3, 0},
+    {196, 176, 250, 15, button_set_salary, button_none, 4, 0},
+    {196, 196, 250, 15, button_set_salary, button_none, 5, 0},
+    {196, 216, 250, 15, button_set_salary, button_none, 6, 0},
+    {196, 236, 250, 15, button_set_salary, button_none, 7, 0},
+    {196, 256, 250, 15, button_set_salary, button_none, 8, 0},
+    {196, 276, 250, 15, button_set_salary, button_none, 9, 0},
+    {196, 296, 250, 15, button_set_salary, button_none, 10, 0},
 };
 
 static int focus_button_id;
-
-static int get_dialog_width(void)
-{
-    int dialog_width = 16 + lang_text_get_width(52, 15, FONT_LARGE_BLACK);
-    if (dialog_width < MIN_DIALOG_WIDTH) dialog_width = MIN_DIALOG_WIDTH;
-    if (dialog_width % BLOCK_SIZE != 0) {
-        // make sure the width is a multiple of BLOCK_SIZE
-        dialog_width += BLOCK_SIZE - dialog_width % BLOCK_SIZE;
-    }
-    return dialog_width;
-}
 
 static void draw_foreground(void)
 {
     graphics_in_dialog();
 
-    int dialog_width = get_dialog_width();
-    int dialog_x = 128 - (dialog_width - MIN_DIALOG_WIDTH) / 2;
-    outer_panel_draw(dialog_x, 32, dialog_width / BLOCK_SIZE, 24);
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_DENARII, dialog_x + 16, 48);
-    lang_text_draw_centered(52, 15, dialog_x + 48, 48, dialog_width - 64, FONT_LARGE_BLACK);
+    outer_panel_draw(164, 32, 20, 23);
 
-    inner_panel_draw(144, 80, 22, 15);
+    // Coin image
+    image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_DENARII, 180, 48);
+
+    // Set salary level
+    lang_text_draw_centered(52, 15, 164, 48, 320, FONT_LARGE_BLACK);
+
+    inner_panel_draw(180, 80, 18, 15);
 
     for (int rank = 0; rank < 11; rank++) {
         font_t font = focus_button_id == rank + 1 ? FONT_NORMAL_RED : FONT_NORMAL_WHITE;
-        int width = lang_text_draw(52, rank + 4, 176, 90 + 20 * rank, font);
-        text_draw_money(city_emperor_salary_for_rank(rank), 176 + width, 90 + 20 * rank, font);
+        lang_text_draw(52, rank + 4, 196, 96 + 20 * rank, font);
+        text_draw_money(city_emperor_salary_for_rank(rank), 385, 96 + 20 * rank, font);
     }
 
-    if (!city_victory_has_won()) {
-        if (city_emperor_salary_rank() <= city_emperor_rank()) {
-            lang_text_draw_multiline(52, 76, 152, 336, 336, FONT_NORMAL_BLACK);
+    if (!city_data.mission.has_won) {
+        if (city_data.emperor.salary_rank <= city_data.emperor.player_rank) {
+            lang_text_draw_multiline(52, 76, 185, 336, 288, FONT_NORMAL_BLACK);
         } else {
-            lang_text_draw_multiline(52, 71, 152, 336, 336, FONT_NORMAL_BLACK);
+            lang_text_draw_multiline(52, 71, 185, 336, 288, FONT_NORMAL_BLACK);
         }
     } else {
-        lang_text_draw_multiline(52, 77, 152, 336, 336, FONT_NORMAL_BLACK);
+        graphics_shade_rect(180, 80, 288, 240, 0);
+        lang_text_draw_multiline(52, 77, 185, 336, 288, FONT_NORMAL_BLACK);
     }
 
     graphics_reset_dialog();
@@ -79,17 +66,25 @@ static void draw_foreground(void)
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_set_salary, sizeof(buttons_set_salary) / sizeof(generic_button), &focus_button_id)) {
-        return;
-    }
     if (input_go_back_requested(m, h)) {
         window_advisors_show(ADVISOR_IMPERIAL);
+        return;
+    }
+
+    const mouse *m_dialog = mouse_in_dialog(m);
+    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_set_salary, sizeof(buttons_set_salary) / sizeof(generic_button), &focus_button_id)) {
+        return;
+    }
+    // exit window on click outside of outer panel boundaries
+    if (m_dialog->left.went_up && (m_dialog->x < 164 || m_dialog->y < 32 || m_dialog->x > 484 || m_dialog->y > 400)) {
+        window_advisors_show(ADVISOR_IMPERIAL);
+        return;
     }
 }
 
 static void button_set_salary(int rank, __attribute__((unused)) int param2)
 {
-    if (!city_victory_has_won()) {
+    if (!city_data.mission.has_won) {
         city_emperor_set_salary_rank(rank);
         city_finance_update_salary();
         city_ratings_update_favor_explanation();

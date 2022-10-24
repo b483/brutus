@@ -2,6 +2,7 @@
 
 #include "building/count.h"
 #include "city/constants.h"
+#include "city/data_private.h"
 #include "city/population.h"
 #include "city/resource.h"
 #include "core/calc.h"
@@ -133,12 +134,12 @@ int empire_can_export_resource_to_city(int city_id, int resource)
         // quota reached
         return 0;
     }
-    if (city_resource_count(resource) <= city_resource_export_over(resource)) {
+    if (city_data.resource.stored_in_warehouses[resource] <= city_data.resource.export_over[resource]) {
         // stocks too low
         return 0;
     }
     if (city_id == 0 || city->resource_buy.resource[resource]) {
-        return city_resource_trade_status(resource) == TRADE_STATUS_EXPORT;
+        return city_data.resource.trade_status[resource] == TRADE_STATUS_EXPORT;
     } else {
         return 0;
     }
@@ -164,14 +165,14 @@ int empire_can_import_resource_from_city(int city_id, int resource)
     if (!city->resource_sell.resource[resource]) {
         return 0;
     }
-    if (city_resource_trade_status(resource) != TRADE_STATUS_IMPORT) {
+    if (city_data.resource.trade_status[resource] != TRADE_STATUS_IMPORT) {
         return 0;
     }
     if (trade_route_limit_reached(city->trade_route_id, resource)) {
         return 0;
     }
 
-    int in_stock = city_resource_count(resource);
+    int in_stock = city_data.resource.stored_in_warehouses[resource];
     int max_in_stock = 0;
     int finished_good = RESOURCE_NONE;
     switch (resource) {

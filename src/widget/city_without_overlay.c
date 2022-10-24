@@ -4,8 +4,8 @@
 #include "building/construction.h"
 #include "building/dock.h"
 #include "city/buildings.h"
+#include "city/data_private.h"
 #include "city/entertainment.h"
-#include "city/labor.h"
 #include "city/population.h"
 #include "city/ratings.h"
 #include "city/view.h"
@@ -251,7 +251,7 @@ static void draw_senate_rating_flags(const building *b, int x, int y, color_t co
         image_draw_masked(image_id + 4, x + 228, y + 19 - city_rating_favor() / 2, color_mask);
         // unemployed
         image_id = image_group(GROUP_FIGURE_HOMELESS);
-        int unemployment_pct = city_labor_unemployment_percentage_for_senate();
+        int unemployment_pct = city_data.labor.unemployment_percentage_for_senate;
         if (unemployment_pct > 0) {
             image_draw_masked(image_id + 108, x + 80, y, color_mask);
         }

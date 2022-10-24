@@ -4,9 +4,9 @@
 #include "building/market.h"
 #include "city/constants.h"
 #include "city/culture.h"
+#include "city/data_private.h"
 #include "city/figures.h"
 #include "city/gods.h"
-#include "city/labor.h"
 #include "city/population.h"
 #include "city/resource.h"
 #include "city/sentiment.h"
@@ -593,13 +593,13 @@ static int phrase_based_on_city_state(figure *f)
 {
     f->phrase_sequence_city = 0;
     int god_state = city_god_state();
-    int unemployment_pct = city_labor_unemployment_percentage();
+    int unemployment_pct = city_data.labor.unemployment_percentage;
 
     if (city_resource_food_supply_months() <= 0) {
         return 0;
     } else if (unemployment_pct >= 17) {
         return 1;
-    } else if (city_labor_workers_needed() >= 10) {
+    } else if (city_data.labor.workers_needed >= 10) {
         return 2;
     } else if (city_culture_average_entertainment() == 0) {
         return 3;

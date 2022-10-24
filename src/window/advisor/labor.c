@@ -1,7 +1,7 @@
 #include "labor.h"
 
+#include "city/data_private.h"
 #include "city/finance.h"
-#include "city/labor.h"
 #include "core/calc.h"
 #include "graphics/arrow_button.h"
 #include "graphics/generic_button.h"
@@ -12,9 +12,7 @@
 #include "graphics/window.h"
 #include "window/labor_priority.h"
 
-#define ADVISOR_HEIGHT 26
-
-static void arrow_button_wages(int is_down, int param2);
+static void arrow_button_wages(int value, int param2);
 static void button_priority(int category, int param2);
 
 static generic_button category_buttons[] = {
@@ -29,9 +27,9 @@ static generic_button category_buttons[] = {
     {40, 277, 560, 22, button_priority, button_none, 8, 0},
 };
 
-static arrow_button wage_buttons[] = {
-    {158, 354, 17, 24, arrow_button_wages, 1, 0, 0, 0},
-    {182, 354, 15, 24, arrow_button_wages, 0, 0, 0, 0}
+static arrow_button wage_arrow_buttons[] = {
+    {158, 354, 17, 24, arrow_button_wages, -1, 0, 0, 0},
+    {182, 354, 15, 24, arrow_button_wages, 1, 0, 0, 0}
 };
 
 static int focus_button_id;
@@ -39,75 +37,82 @@ static int arrow_button_focus;
 
 static int draw_background(void)
 {
-    outer_panel_draw(0, 0, 40, ADVISOR_HEIGHT);
+    outer_panel_draw(0, 0, 40, 26);
+
+    // Labor advisor icon
     image_draw(image_group(GROUP_ADVISOR_ICONS), 10, 10);
 
+    // Labor Allocation
     lang_text_draw(50, 0, 60, 12, FONT_LARGE_BLACK);
 
-    // table headers
+    // Priority/Sector/Need/Have
     lang_text_draw(50, 21, 60, 56, FONT_SMALL_PLAIN);
     lang_text_draw(50, 22, 170, 56, FONT_SMALL_PLAIN);
     lang_text_draw(50, 23, 400, 56, FONT_SMALL_PLAIN);
     lang_text_draw(50, 24, 500, 56, FONT_SMALL_PLAIN);
 
-    // xx employed, yy unemployed
-    int width = text_draw_number(city_labor_workers_employed(), '@', " ", 32, 320, FONT_NORMAL_BLACK);
-    width += lang_text_draw(50, 12, 32 + width, 320, FONT_NORMAL_BLACK);
-    width += text_draw_number(city_labor_workers_unemployed(), '@', " ", 50 + width, 320, FONT_NORMAL_BLACK);
-    width += lang_text_draw(50, 13, 50 + width, 320, FONT_NORMAL_BLACK);
-    text_draw_number(city_labor_unemployment_percentage(), '@', "%)", 50 + width, 320, FONT_NORMAL_BLACK);
+    inner_panel_draw(32, 70, 36, 15);
 
-    // wages panel
+    // Employed workforce
+    int width = text_draw_number(city_data.labor.workers_employed, 0, 0, 32, 320, FONT_NORMAL_BLACK);
+    lang_text_draw(50, 12, 32 + width, 320, FONT_NORMAL_BLACK);
+    // Unemployed workforce
+    width = text_draw_number(city_data.labor.workers_unemployed, 0, 0, 320, 320, FONT_NORMAL_BLACK);
+    width += lang_text_draw(50, 13, 320 + width, 320, FONT_NORMAL_BLACK);
+    text_draw_number(city_data.labor.unemployment_percentage, 0, "%)", 314 + width, 320, FONT_NORMAL_BLACK);
+
+    // Wages panel
     inner_panel_draw(64, 350, 32, 2);
-    lang_text_draw(50, 14, 70, 359, FONT_NORMAL_WHITE);
-    width = text_draw_number(city_labor_wages(), '@', " ", 230, 359, FONT_NORMAL_WHITE);
-    width += lang_text_draw(50, 15, 230 + width, 359, FONT_NORMAL_WHITE);
-    width += lang_text_draw(50, 18, 230 + width, 359, FONT_NORMAL_WHITE);
-    text_draw_number(city_labor_wages_rome(), '@', " )", 230 + width, 359, FONT_NORMAL_WHITE);
+    lang_text_draw(50, 14, 80, 359, FONT_NORMAL_WHITE);
+    text_draw_number(city_data.labor.wages, 0, 0, 222, 359, FONT_NORMAL_WHITE);
+    lang_text_draw(50, 15, 254, 359, FONT_NORMAL_WHITE);
+    lang_text_draw(50, 18, 330, 359, FONT_NORMAL_WHITE);
+    text_draw_number(city_data.labor.wages_rome, 0, ")", 430, 359, FONT_NORMAL_WHITE);
 
-    // estimated wages
-    width = lang_text_draw(50, 19, 64, 390, FONT_NORMAL_BLACK);
-    text_draw_money(city_finance_estimated_wages(), 64 + width, 390, FONT_NORMAL_BLACK);
+    // Estimated annual bill
+    lang_text_draw(50, 19, 64, 388, FONT_NORMAL_BLACK);
+    text_draw_money(city_data.finance.estimated_wages, 255, 388, FONT_NORMAL_BLACK);
 
-    return ADVISOR_HEIGHT;
+    // outer panel draw height
+    return 26;
 }
 
 static void draw_foreground(void)
 {
-    arrow_buttons_draw(0, 0, wage_buttons, 2);
-
-    inner_panel_draw(32, 70, 36, 15);
-
+    // Industry stats
     for (int i = 0; i < 9; i++) {
-        int focus = i == focus_button_id - 1;
-        int y_offset = 82 + 25 * i;
-        button_border_draw(40, 77 + 25 * i, 560, 22, focus);
+        button_border_draw(40, 77 + 25 * i, 560, 22, i == focus_button_id - 1);
         const labor_category_data *cat = city_labor_category(i);
         if (cat->priority) {
-            image_draw(image_group(GROUP_LABOR_PRIORITY_LOCK), 70, y_offset - 2);
-            text_draw_number(cat->priority, '@', " ", 90, y_offset, FONT_NORMAL_WHITE);
+            image_draw(image_group(GROUP_LABOR_PRIORITY_LOCK), 70, 80 + 25 * i);
+            text_draw_number(cat->priority, 0, 0, 90, 82 + 25 * i, FONT_NORMAL_WHITE);
         }
-        lang_text_draw(50, i + 1, 170, y_offset, FONT_NORMAL_WHITE);
-        text_draw_number(cat->workers_needed, '@', " ", 410, y_offset, FONT_NORMAL_WHITE);
-        font_t font = FONT_NORMAL_WHITE;
-        if (cat->workers_needed != cat->workers_allocated) {
-            font = FONT_NORMAL_RED;
+        lang_text_draw(50, i + 1, 170, 82 + 25 * i, FONT_NORMAL_WHITE);
+        text_draw_number(cat->workers_needed, 0, 0, 410, 82 + 25 * i, FONT_NORMAL_WHITE);
+        if (cat->workers_needed > cat->workers_allocated) {
+            text_draw_number(cat->workers_allocated, 0, 0, 510, 82 + 25 * i, FONT_NORMAL_RED);
+        } else {
+            text_draw_number(cat->workers_allocated, 0, 0, 510, 82 + 25 * i, FONT_NORMAL_WHITE);
         }
-        text_draw_number(cat->workers_allocated, '@', " ", 510, y_offset, font);
     }
+
+    arrow_buttons_draw(0, 0, wage_arrow_buttons, 2);
 }
 
 static int handle_mouse(const mouse *m)
 {
-    if (generic_buttons_handle_mouse(m, 0, 0, category_buttons, 9, &focus_button_id)) {
+    if (generic_buttons_handle_mouse(m, 0, 0, category_buttons, sizeof(category_buttons) / sizeof(generic_button), &focus_button_id)) {
         return 1;
     }
-    return arrow_buttons_handle_mouse(m, 0, 0, wage_buttons, 2, &arrow_button_focus);
+    if (arrow_buttons_handle_mouse(m, 0, 0, wage_arrow_buttons, 2, &arrow_button_focus)) {
+        return 1;
+    }
+    return 0;
 }
 
-static void arrow_button_wages(int is_down, __attribute__((unused)) int param2)
+static void arrow_button_wages(int value, __attribute__((unused)) int param2)
 {
-    city_labor_change_wages(is_down ? -1 : 1);
+    city_data.labor.wages = calc_bound(city_data.labor.wages + value, 0, 100);
     city_finance_estimate_wages();
     city_finance_calculate_totals();
     window_invalidate();
@@ -122,11 +127,11 @@ static int get_tooltip_text(void)
 {
     if (focus_button_id) {
         return 90;
-    } else if (arrow_button_focus) {
-        return 91;
-    } else {
-        return 0;
     }
+    if (arrow_button_focus) {
+        return 91;
+    }
+    return 0;
 }
 
 const advisor_window_type *window_advisor_labor(void)

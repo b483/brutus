@@ -9,6 +9,7 @@
 #include "building/properties.h"
 #include "building/warehouse.h"
 #include "city/buildings.h"
+#include "city/data_private.h"
 #include "city/finance.h"
 #include "city/resource.h"
 #include "city/view.h"
@@ -87,7 +88,7 @@ static int place_houses(int measure_only, int x_start, int y_start, int x_end, i
     game_undo_restore_building_state();
     for (int y = y_min; y <= y_max; y++) {
         for (int x = x_min; x <= x_max; x++) {
-            int grid_offset = map_grid_offset(x,y);
+            int grid_offset = map_grid_offset(x, y);
             if (map_terrain_is(grid_offset, TERRAIN_NOT_CLEAR)) {
                 continue;
             }
@@ -155,7 +156,7 @@ static int place_garden(int x_start, int y_start, int x_end, int y_end)
     int items_placed = 0;
     for (int y = y_min; y <= y_max; y++) {
         for (int x = x_min; x <= x_max; x++) {
-            int grid_offset = map_grid_offset(x,y);
+            int grid_offset = map_grid_offset(x, y);
             if (!map_terrain_is(grid_offset, TERRAIN_NOT_CLEAR)) {
                 items_placed++;
                 map_terrain_add(grid_offset, TERRAIN_GARDEN);
@@ -220,8 +221,8 @@ static int place_reservoir_and_aqueducts(
         map_routing_block(x_end - 1, y_end - 1, 3);
         mark_construction(x_end - 1, y_end - 1, 3, TERRAIN_ALL, 1);
     }
-    const int aqueduct_offsets_x[] = {0, 2, 0, -2};
-    const int aqueduct_offsets_y[] = {-2, 0, 2, 0};
+    const int aqueduct_offsets_x[] = { 0, 2, 0, -2 };
+    const int aqueduct_offsets_y[] = { -2, 0, 2, 0 };
     int min_dist = 10000;
     int min_dir_start = 0, min_dir_end = 0;
     for (int dir_start = 0; dir_start < 4; dir_start++) {
@@ -232,7 +233,7 @@ static int place_reservoir_and_aqueducts(
             int dy_end = aqueduct_offsets_y[dir_end];
             int dist;
             if (building_construction_place_aqueduct_for_reservoir(1,
-                    x_start + dx_start, y_start + dy_start, x_end + dx_end, y_end + dy_end, &dist)) {
+                x_start + dx_start, y_start + dy_start, x_end + dx_end, y_end + dy_end, &dist)) {
                 if (dist && dist < min_dist) {
                     min_dist = dist;
                     min_dir_start = dir_start;
@@ -489,8 +490,8 @@ void building_construction_update(int x, int y, int grid_offset)
         mark_construction(x, y, 3, TERRAIN_ALL, 0);
     } else if (building_is_fort(type)) {
         if (formation_get_num_legions_cached() < 6) {
-            const int offsets_x[] = {3, 4, 4, 3};
-            const int offsets_y[] = {-1, -1, 0, 0};
+            const int offsets_x[] = { 3, 4, 4, 3 };
+            const int offsets_y[] = { -1, -1, 0, 0 };
             int orient_index = city_view_orientation() / 2;
             int x_offset = offsets_x[orient_index];
             int y_offset = offsets_y[orient_index];
@@ -571,12 +572,12 @@ void building_construction_place(void)
         return;
     }
     if (type >= BUILDING_LARGE_TEMPLE_CERES && type <= BUILDING_LARGE_TEMPLE_VENUS
-        && city_resource_count(RESOURCE_MARBLE) < 2) {
+        && city_data.resource.stored_in_warehouses[RESOURCE_MARBLE] < 2) {
         map_property_clear_constructing_and_deleted();
         city_warning_show(WARNING_MARBLE_NEEDED_LARGE_TEMPLE);
         return;
     }
-    if (type == BUILDING_ORACLE && city_resource_count(RESOURCE_MARBLE) < 2) {
+    if (type == BUILDING_ORACLE && city_data.resource.stored_in_warehouses[RESOURCE_MARBLE] < 2) {
         map_property_clear_constructing_and_deleted();
         city_warning_show(WARNING_MARBLE_NEEDED_ORACLE);
         return;
@@ -649,16 +650,16 @@ void building_construction_place(void)
         if (info.place_reservoir_at_start == PLACE_RESERVOIR_YES) {
             building *reservoir = building_create(BUILDING_RESERVOIR, x_start - 1, y_start - 1);
             game_undo_add_building(reservoir);
-            map_building_tiles_add(reservoir->id, x_start-1, y_start-1, 3,
+            map_building_tiles_add(reservoir->id, x_start - 1, y_start - 1, 3,
                 image_group(GROUP_BUILDING_RESERVOIR), TERRAIN_BUILDING);
-            map_aqueduct_set(map_grid_offset(x_start-1, y_start-1), 0);
+            map_aqueduct_set(map_grid_offset(x_start - 1, y_start - 1), 0);
         }
         if (info.place_reservoir_at_end == PLACE_RESERVOIR_YES) {
             building *reservoir = building_create(BUILDING_RESERVOIR, x_end - 1, y_end - 1);
             game_undo_add_building(reservoir);
-            map_building_tiles_add(reservoir->id, x_end-1, y_end-1, 3,
+            map_building_tiles_add(reservoir->id, x_end - 1, y_end - 1, 3,
                 image_group(GROUP_BUILDING_RESERVOIR), TERRAIN_BUILDING);
-            map_aqueduct_set(map_grid_offset(x_end-1, y_end-1), 0);
+            map_aqueduct_set(map_grid_offset(x_end - 1, y_end - 1), 0);
             if (!map_terrain_exists_tile_in_area_with_type(x_start - 2, y_start - 2, 5, TERRAIN_WATER)
                 && info.place_reservoir_at_start == PLACE_RESERVOIR_NO) {
                 building_construction_warning_check_reservoir(BUILDING_RESERVOIR);

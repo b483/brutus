@@ -162,8 +162,3 @@ void city_victory_stop_governing(void)
     city_data.mission.continue_months_left = 0;
     city_data.mission.continue_months_chosen = 0;
 }
-
-int city_victory_has_won(void)
-{
-    return city_data.mission.has_won;
-}

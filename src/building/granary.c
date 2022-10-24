@@ -4,6 +4,7 @@
 #include "building/model.h"
 #include "building/storage.h"
 #include "building/warehouse.h"
+#include "city/data_private.h"
 #include "city/message.h"
 #include "city/resource.h"
 #include "core/calc.h"
@@ -221,7 +222,7 @@ int building_granary_for_storing(int x, int y, int resource, int distance_from_e
     if (!resource_is_food(resource)) {
         return 0;
     }
-    if (city_resource_is_stockpiled(resource) && !force_on_stockpile) {
+    if (city_data.resource.stockpiled[resource] && !force_on_stockpile) {
         return 0;
     }
     int min_dist = INFINITE;
@@ -270,7 +271,7 @@ int building_getting_granary_for_storing(int x, int y, int resource, int distanc
     if (!resource_is_food(resource)) {
         return 0;
     }
-    if (city_resource_is_stockpiled(resource)) {
+    if (city_data.resource.stockpiled[resource]) {
         return 0;
     }
     int min_dist = INFINITE;

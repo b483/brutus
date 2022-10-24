@@ -38,11 +38,6 @@ int city_finance_estimated_tax_income(void)
     return city_data.finance.estimated_tax_income;
 }
 
-int city_finance_estimated_wages(void)
-{
-    return city_data.finance.estimated_wages;
-}
-
 void city_finance_process_import(int price)
 {
     city_data.finance.treasury -= price;

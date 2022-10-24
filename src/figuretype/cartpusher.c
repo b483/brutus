@@ -4,6 +4,7 @@
 #include "building/granary.h"
 #include "building/industry.h"
 #include "building/warehouse.h"
+#include "city/data_private.h"
 #include "city/resource.h"
 #include "core/image.h"
 #include "figure/combat.h"
@@ -42,7 +43,7 @@ static void determine_cartpusher_destination(figure *f, building *b, int road_ne
     int dst_building_id = building_warehouse_for_storing(0, f->x, f->y,
         b->output_resource_id, b->distance_from_entry, road_network_id,
         &understaffed_storages, &dst);
-    if (!city_resource_is_stockpiled(b->output_resource_id)) {
+    if (!city_data.resource.stockpiled[b->output_resource_id]) {
         dst_building_id = 0;
     }
     if (dst_building_id) {
