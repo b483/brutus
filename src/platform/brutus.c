@@ -17,8 +17,6 @@
 #include "platform/platform.h"
 #include "platform/screen.h"
 
-#include "tinyfiledialogs/tinyfiledialogs.h"
-
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,10 +24,6 @@
 
 #if defined(_WIN32)
 #include <string.h>
-#endif
-
-#if defined(USE_TINYFILEDIALOGS)
-#define SHOW_FOLDER_SELECT_DIALOG
 #endif
 
 #ifdef DRAW_FPS
@@ -47,6 +41,15 @@ enum {
     USER_EVENT_WINDOWED,
     USER_EVENT_CENTER_WINDOW,
 };
+
+char EXECUTABLE_DIR_PATH[FILE_NAME_MAX];
+char DATA_TEXT_FILE_PATH[FILE_NAME_MAX];
+char SETTINGS_FILE_PATH[FILE_NAME_MAX];
+char CONFIGS_FILE_PATH[FILE_NAME_MAX];
+char HOTKEY_CONFIGS_FILE_PATH[FILE_NAME_MAX];
+char MAPS_DIR_PATH[FILE_NAME_MAX + 5];
+char SAVES_DIR_PATH[FILE_NAME_MAX + 6];
+char GAME_DATA_PATH[FILE_NAME_MAX];
 
 static struct {
     int active;
@@ -347,24 +350,6 @@ static int init_sdl(void)
     return 1;
 }
 
-#ifdef SHOW_FOLDER_SELECT_DIALOG
-static const char *ask_for_data_dir(int again)
-{
-    if (again) {
-        int result = tinyfd_messageBox("Wrong folder selected",
-            "Brutus requires the original files from Caesar 3 to run.\n\n"
-            "The selected folder is not a proper Caesar 3 folder.\n\n"
-            "Press OK to select another folder or Cancel to exit.",
-            "okcancel", "warning", 1);
-        if (!result) {
-            return NULL;
-        }
-    }
-    return tinyfd_selectFolderDialog("Please select your Caesar 3 folder", NULL);
-}
-#endif
-
-
 int load_data_dir(void)
 {
     FILE *fp = fopen(DATA_TEXT_FILE_PATH, "r");
@@ -374,20 +359,12 @@ int load_data_dir(void)
         if (length > 0) {
             return 1;
         }
-    }
-    return 0;
-}
-
-static void save_data_dir(const char *data_dir)
-{
-    FILE *fp = fopen(DATA_TEXT_FILE_PATH, "w");
-    if (fp) {
-        fwrite(data_dir, 1, strlen(data_dir), fp);
+    } else {
+        FILE *fp = fopen(DATA_TEXT_FILE_PATH, "w");
         fclose(fp);
+        return 0;
     }
-    strcpy(GAME_DATA_PATH, data_dir);
 }
-
 
 static int pre_init(const char *custom_data_dir)
 {
@@ -431,32 +408,22 @@ static int pre_init(const char *custom_data_dir)
         return game_pre_init();
     }
 
-#ifdef SHOW_FOLDER_SELECT_DIALOG
     if (load_data_dir()) {
         SDL_Log("Loading game from user pref %s", GAME_DATA_PATH);
         if (platform_file_manager_set_base_path(GAME_DATA_PATH) && game_pre_init()) {
             return 1;
         } else {
-            SDL_Log("Incorrect game path specified in data_dir.txt: %s", GAME_DATA_PATH);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
+                "Ya dun goofed",
+                "Incorrect game path specified in data_dir.txt",
+                NULL);
         }
     } else {
-        const char *user_dir = ask_for_data_dir(0);
-        while (user_dir) {
-            SDL_Log("Loading game from user-selected dir %s", user_dir);
-            if (platform_file_manager_set_base_path(user_dir) && game_pre_init()) {
-                save_data_dir(user_dir);
-                return 1;
-            }
-            user_dir = ask_for_data_dir(1);
-        }
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
+            "Game path not specified",
+            "Brutus requires Caesar 3 to run. Provide the path to the game in data_dir.txt.",
+            NULL);
     }
-#else
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-        "Brutus requires the original files from Caesar 3 to run.",
-        "Move the Brutus executable to the directory containing an existing "
-        "Caesar 3 installation, or run:\nbrutus path-to-c3-directory",
-        NULL);
-#endif
 
     return 0;
 }

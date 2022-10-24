@@ -203,7 +203,7 @@ int game_file_start_scenario(const char *scenario)
 {
     // assume scenario can be passed in with or without .map extension
     char scenario_file[FILE_NAME_MAX];
-    strncpy(scenario_file, scenario, FILE_NAME_MAX);
+    strncpy(scenario_file, scenario, FILE_NAME_MAX - 1);
     uint8_t scenario_name[FILE_NAME_MAX];
     encoding_from_utf8(scenario, scenario_name, FILE_NAME_MAX);
     if (file_has_extension(scenario_file, "map")) {

@@ -99,10 +99,6 @@ if(DRAW_FPS)
     add_definitions(-DDRAW_FPS)
 endif()
 
-set(TINYFD_FILES
-    ext/tinyfiledialogs/tinyfiledialogs.c
-)
-
 set(PNG_FILES
     ext/png/png.c
     ext/png/pngerror.c
@@ -491,7 +487,6 @@ set(SOURCE_FILES
     ${WIDGET_FILES}
     ${WINDOW_FILES}
     ${EDITOR_FILES}
-    ${TINYFD_FILES}
     ${PROJECT_SOURCE_DIR}/res/brutus.rc
 )
 
