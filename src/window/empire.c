@@ -73,7 +73,6 @@ static struct {
     int x_min, x_max, y_min, y_max;
     int x_draw_offset, y_draw_offset;
     int focus_button_id;
-    int is_scrolling;
     int finished_scroll;
     int focus_resource;
 } data;

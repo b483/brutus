@@ -46,7 +46,6 @@ static custom_string all_strings[] = {
     {TR_CONFIG_HEADER_UI_CHANGES, "User interface changes"},
     {TR_CONFIG_SHOW_INTRO_VIDEO, "Play intro videos"},
     {TR_CONFIG_SIDEBAR_INFO, "Extra information in the control panel"},
-    {TR_CONFIG_SMOOTH_SCROLLING, "Enable smooth scrolling"},
     {TR_CONFIG_DISABLE_MOUSE_EDGE_SCROLLING, "Disable map scrolling on window edge"},
     {TR_CONFIG_DISABLE_RIGHT_CLICK_MAP_DRAG, "Disable right click to drag the map"},
     {TR_CONFIG_VISUAL_FEEDBACK_ON_DELETE, "Improve visual feedback when clearing land"},

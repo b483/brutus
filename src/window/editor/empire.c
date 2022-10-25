@@ -123,7 +123,6 @@ static struct {
     int x_draw_offset, y_draw_offset;
     int focus_trade_route_cost_button_id;
     int focus_expansion_year_button_id;
-    int is_scrolling;
     int finished_scroll;
     int show_battle_objects;
 } data;
