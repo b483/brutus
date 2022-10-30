@@ -304,7 +304,7 @@ static void draw_trade_city_info(int x_offset, int y_offset, int width)
         button_toggle_sell_resource_limit[r - 1].x = resource_x_offset + 12;
         button_toggle_sell_resource_limit[r - 1].y = y_offset - 12;
         button_toggle_sell_resource_limit[r - 1].parameter1 = r;
-        if (data.selected_object->resource_sell.resource[r]) {
+        if (data.selected_object->resources_sell_list.resource[r]) {
             draw_resource_trade_city(r, trade_route_limit(data.selected_object->trade_route_id, r), resource_x_offset + 1, y_offset - 8);
         } else {
             image_draw_blend(871, resource_x_offset + 1, y_offset - 8, COLOR_MOUSE_DARK_GRAY);
@@ -323,7 +323,7 @@ static void draw_trade_city_info(int x_offset, int y_offset, int width)
         button_toggle_buy_resource_limit[r - 1].x = resource_x_offset + 12;
         button_toggle_buy_resource_limit[r - 1].y = y_offset - 12;
         button_toggle_buy_resource_limit[r - 1].parameter1 = r;
-        if (data.selected_object->resource_buy.resource[r]) {
+        if (data.selected_object->resources_buy_list.resource[r]) {
             draw_resource_trade_city(r, trade_route_limit(data.selected_object->trade_route_id, r), resource_x_offset + 1, y_offset - 8);
         } else {
             image_draw_blend(871, resource_x_offset + 1, y_offset - 8, COLOR_MOUSE_DARK_GRAY);
@@ -378,7 +378,7 @@ static void draw_city_info(void)
             // draw icons for available resources based on the "Buildings allowed" menu
             int resource_x_offset = x_offset + 30 + width;
             for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-                if (data.selected_object->resource_sell.resource[r]) {
+                if (data.selected_object->resources_sell_list.resource[r]) {
                     graphics_draw_inset_rect(resource_x_offset, y_offset - 9, 26, 26);
                     int image_id = r + image_group(GROUP_EDITOR_EMPIRE_RESOURCES);
                     int resource_offset = resource_image_offset(r, RESOURCE_IMAGE_ICON);

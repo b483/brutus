@@ -57,7 +57,7 @@ static void create_route_names(void)
     for (int i = 1; i < MAX_ROUTES; i++) {
         empire_object *object = empire_object_get_for_trade_route(i);
         if (object && (object->city_type == EMPIRE_CITY_TRADE || object->city_type == EMPIRE_CITY_FUTURE_TRADE)) {
-            if (object->resource_buy.resource[scenario.demand_changes[data.id].resource] || object->resource_sell.resource[scenario.demand_changes[data.id].resource]) {
+            if (object->resources_buy_list.resource[scenario.demand_changes[data.id].resource] || object->resources_sell_list.resource[scenario.demand_changes[data.id].resource]) {
                 uint8_t *dst = route_display_names[i];
                 int offset = string_from_int(dst, i, 0);
                 dst[offset++] = ' ';

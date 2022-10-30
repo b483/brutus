@@ -138,7 +138,7 @@ int empire_can_export_resource_to_city(int city_id, int resource)
         // stocks too low
         return 0;
     }
-    if (city_id == 0 || city->resource_buy.resource[resource]) {
+    if (city_id == 0 || city->resources_buy_list.resource[resource]) {
         return city_data.resource.trade_status[resource] == TRADE_STATUS_EXPORT;
     } else {
         return 0;
@@ -162,7 +162,7 @@ static int get_max_stock_for_population(void)
 int empire_can_import_resource_from_city(int city_id, int resource)
 {
     empire_object *city = empire_object_get(city_id);
-    if (!city->resource_sell.resource[resource]) {
+    if (!city->resources_sell_list.resource[resource]) {
         return 0;
     }
     if (city_data.resource.trade_status[resource] != TRADE_STATUS_IMPORT) {

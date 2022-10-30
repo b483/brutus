@@ -153,7 +153,7 @@ static void draw_trade_city_info(void)
         lang_text_draw(47, 10, x_offset, y_offset + 40, FONT_NORMAL_GREEN);
         int index = 0;
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            if (!data.selected_object->resource_sell.resource[r]) {
+            if (!data.selected_object->resources_sell_list.resource[r]) {
                 continue;
             }
             int trade_max = trade_route_limit(data.selected_object->trade_route_id, r);
@@ -174,7 +174,7 @@ static void draw_trade_city_info(void)
         lang_text_draw(47, 9, x_offset, y_offset + 71, FONT_NORMAL_GREEN);
         index = 0;
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            if (!data.selected_object->resource_buy.resource[r]) {
+            if (!data.selected_object->resources_buy_list.resource[r]) {
                 continue;
             }
             int trade_max = trade_route_limit(data.selected_object->trade_route_id, r);
@@ -194,7 +194,7 @@ static void draw_trade_city_info(void)
     } else { // trade is closed
         int index = lang_text_draw(47, 5, x_offset + 35, y_offset + 42, FONT_NORMAL_GREEN);
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            if (!data.selected_object->resource_sell.resource[r]) {
+            if (!data.selected_object->resources_sell_list.resource[r]) {
                 continue;
             }
             int trade_max = trade_route_limit(data.selected_object->trade_route_id, r);
@@ -203,7 +203,7 @@ static void draw_trade_city_info(void)
         }
         index += lang_text_draw(47, 4, x_offset + index + 85, y_offset + 42, FONT_NORMAL_GREEN);
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            if (!data.selected_object->resource_buy.resource[r]) {
+            if (!data.selected_object->resources_buy_list.resource[r]) {
                 continue;
             }
             int trade_max = trade_route_limit(data.selected_object->trade_route_id, r);
@@ -493,11 +493,11 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
                 // we only want to handle resource buttons that the selected city trades
                 for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-                    if (data.selected_object->resource_sell.resource[r]) {
+                    if (data.selected_object->resources_sell_list.resource[r]) {
                         generic_buttons_handle_mouse(m, x_offset + 75 + 104 * index_sell, y_offset + 31,
                             generic_button_trade_resource + r - 1, 1, &button_id);
                         index_sell++;
-                    } else if (data.selected_object->resource_buy.resource[r]) {
+                    } else if (data.selected_object->resources_buy_list.resource[r]) {
                         generic_buttons_handle_mouse(m, x_offset + 75 + 104 * index_buy, y_offset + 62,
                             generic_button_trade_resource + r - 1, 1, &button_id);
                         index_buy++;
@@ -571,7 +571,7 @@ static int get_tooltip_resource(tooltip_context *c)
 
     int item_offset = lang_text_get_width(47, 5, FONT_NORMAL_GREEN);
     for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-        if (data.selected_object->resource_sell.resource[r]) {
+        if (data.selected_object->resources_sell_list.resource[r]) {
             if (is_mouse_hit(c, x_offset + 45 + item_offset, y_offset + 33, 26)) {
                 return r;
             }
@@ -580,7 +580,7 @@ static int get_tooltip_resource(tooltip_context *c)
     }
     item_offset += lang_text_get_width(47, 4, FONT_NORMAL_GREEN);
     for (int r = RESOURCE_MIN; r <= RESOURCE_MAX; r++) {
-        if (data.selected_object->resource_buy.resource[r]) {
+        if (data.selected_object->resources_buy_list.resource[r]) {
             if (is_mouse_hit(c, x_offset + 95 + item_offset, y_offset + 33, 26)) {
                 return r;
             }

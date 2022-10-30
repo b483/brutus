@@ -30,11 +30,11 @@ typedef struct {
     struct {
         int resource[RESOURCE_MAX];
         int resource_limit[RESOURCE_MAX];
-    } resource_sell;
+    } resources_sell_list;
     struct {
         int resource[RESOURCE_MAX];
         int resource_limit[RESOURCE_MAX];
-    } resource_buy;
+    } resources_buy_list;
     int invasion_path_id;
     int invasion_years;
     int distant_battle_travel_months;
