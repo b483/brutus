@@ -26,7 +26,7 @@
 #include "map/grid.h"
 #include "scenario/building.h"
 #include "scenario/criteria.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 #include "widget/city.h"
 #include "widget/city_with_overlay.h"
 #include "widget/top_menu.h"
@@ -183,7 +183,7 @@ static void set_construction_building_type(building_type type)
 
 static void replay_map_confirmed(void)
 {
-    if (game_file_start_scenario((char *) scenario_get_name())) {
+    if (game_file_start_scenario((char *) scenario.scenario_name)) {
         window_city_show();
     }
 }

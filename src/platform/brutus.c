@@ -364,6 +364,7 @@ int load_data_dir(void)
         fclose(fp);
         return 0;
     }
+    return 0;
 }
 
 static int pre_init(const char *custom_data_dir)

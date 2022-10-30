@@ -213,9 +213,9 @@ static custom_string all_strings[] = {
     {TR_TRADE_CITY_TYPE, "A trade city"},
     {TR_FUTURE_TRADE_CITY_TYPE, "A future trade city"},
     {TR_EMPIRE_EXPANSION_YEAR, "Year offset for empire expansion: "},
-    {TR_EDITOR_MAP_BRIEFING, "Map briefing"},
-    {TR_EDITOR_MAP_BRIEFING_HINT, "Hint: 'atL' for new line, 'atP' for new paragraph (replace 'at' with the symbol - will be hidden)"},
-    {TR_EDITOR_MAP_BRIEFING_RESET, "Reset briefing"},
+    {TR_EDITOR_SCENARIO_BRIEFING, "Scenario briefing"},
+    {TR_EDITOR_SCENARIO_BRIEFING_HINT, "Hint: 'atL' for new line, 'atP' for new paragraph (replace 'at' with the symbol - will be hidden)"},
+    {TR_EDITOR_SCENARIO_BRIEFING_RESET, "Reset briefing"},
     {TR_EDITOR_INITIAL_FAVOR, "Initial favor"},
     {TR_EDITOR_INITIAL_PERSONAL_SAVINGS, "Initial personal savings"},
     {TR_EDITOR_HERD_POINT_1, "Herd point 1"},
@@ -245,9 +245,9 @@ static custom_string all_strings[] = {
     {TR_EDITOR_FAVOR_GRANTED, "Favor granted:"},
     {TR_EDITOR_REQUEST_SCHEDULED, "Requests scheduled"},
     {TR_EDITOR_NO_PRICE_CHANGE, "No price changes"},
-    {TR_EDITOR_PRICE_CHANGE_SCHEDULED, "Price changes scheduled"},
+    {TR_EDITOR_PRICE_CHANGE_SCHEDULED, "Price changes sch."},
     {TR_EDITOR_NO_DEMAND_CHANGE, "No demand changes"},
-    {TR_EDITOR_DEMAND_CHANGE_SCHEDULED, "Demand changes scheduled"}
+    {TR_EDITOR_DEMAND_CHANGE_SCHEDULED, "Demand changes sch."}
 };
 
 static void set_strings(const custom_string *strings, int num_strings)

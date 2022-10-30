@@ -3,12 +3,6 @@
 #include "core/string.h"
 #include "scenario/data.h"
 
-
-const uint8_t *scenario_get_name(void)
-{
-    return scenario.scenario_name;
-}
-
 void scenario_set_name(const uint8_t *name)
 {
     string_copy(name, scenario.scenario_name, MAX_SCENARIO_NAME);

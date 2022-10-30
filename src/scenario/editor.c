@@ -35,11 +35,11 @@ void scenario_editor_create(int map_size)
     scenario.map.grid_border_size = GRID_SIZE - scenario.map.width;
     scenario.map.grid_start = (GRID_SIZE - scenario.map.height) / 2 * GRID_SIZE + (GRID_SIZE - scenario.map.width) / 2;
 
-    // Map description/briefing
-    string_copy(lang_get_string(44, 38), scenario.briefing, MAX_BRIEFING);
-
     // Brief description
     string_copy(lang_get_string(44, 37), scenario.brief_description, MAX_BRIEF_DESCRIPTION);
+
+    // Scenario description/briefing
+    string_copy(lang_get_string(44, 38), scenario.briefing, MAX_BRIEFING);
 
     // Starting conditions
     scenario.start_year = -500;

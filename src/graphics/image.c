@@ -324,7 +324,7 @@ static void draw_compressed_blend_alpha(
                     while (b) {
                         color_t d = *dst;
                         *dst = (((src_rb + (d & 0xff00ff) * alpha_dst) & 0xff00ff00) |
-                                ((src_g  + (d & 0x00ff00) * alpha_dst) & 0x00ff0000)) >> 8;
+                                ((src_g + (d & 0x00ff00) * alpha_dst) & 0x00ff0000)) >> 8;
                         b--;
                         dst++;
                     }
@@ -333,7 +333,7 @@ static void draw_compressed_blend_alpha(
                         if (x >= clip->clipped_pixels_left && x < img->width - clip->clipped_pixels_right) {
                             color_t d = *dst;
                             *dst = (((src_rb + (d & 0xff00ff) * alpha_dst) & 0xff00ff00) |
-                                   ((src_g  + (d & 0x00ff00) * alpha_dst) & 0x00ff0000)) >> 8;
+                                   ((src_g + (d & 0x00ff00) * alpha_dst) & 0x00ff0000)) >> 8;
                         }
                         dst++;
                         x++;
@@ -695,14 +695,49 @@ void image_draw_letter(font_t font, int letter_id, int x, int y, color_t color)
     }
 }
 
+void image_draw_scaled(int image_id, int x_offset, int y_offset, double scale_factor)
+{
+    const image *img = image_get(image_id);
+    const color_t *data = image_data(image_id);
+
+    if (!data || img->draw.type == IMAGE_TYPE_ISOMETRIC || img->draw.is_fully_compressed || !scale_factor) {
+        return;
+    }
+
+    int width = (int) (img->width * scale_factor);
+    int height = (int) (img->height * scale_factor);
+
+    const clip_info *clip = graphics_get_clip_info(x_offset, y_offset, width, height);
+    if (!clip->is_visible) {
+        return;
+    }
+    for (int y = clip->clipped_pixels_top; y < height - clip->clipped_pixels_bottom; y++) {
+        color_t *dst = graphics_get_pixel(x_offset + clip->clipped_pixels_left, y_offset + y);
+        int x_max = width - clip->clipped_pixels_right;
+        int image_y_offset = (int) (y / scale_factor) * img->width;
+        for (int x = clip->clipped_pixels_left; x < x_max; x++, dst++) {
+            color_t pixel = data[(int) (image_y_offset + x / scale_factor)];
+            if (pixel != COLOR_SG2_TRANSPARENT) {
+                *dst = pixel;
+            }
+        }
+    }
+}
+
 void image_draw_fullscreen_background(int image_id)
 {
     int s_width = screen_width();
     int s_height = screen_height();
-    if (s_width > 1024 || s_height > 768) {
-        graphics_clear_screen();
+    const image *img = image_get(image_id);
+    double scale_w = screen_width() / (double) img->width;
+    double scale_h = screen_height() / (double) img->height;
+    double scale = scale_w > scale_h ? scale_w : scale_h;
+
+    if (scale <= 1.0f) {
+        image_draw(image_id, (s_width - img->width) / 2, (s_height - img->height) / 2);
+    } else {
+        image_draw_scaled(image_id, (int) ((s_width - img->width * scale) / 2), (int) ((s_height - img->height * scale) / 2), scale);
     }
-    image_draw(image_id, (s_width - 1024) / 2, (s_height - 768) / 2);
 }
 
 void image_draw_isometric_footprint(int image_id, int x, int y, color_t color_mask)
@@ -841,69 +876,5 @@ void image_draw_isometric_top_from_draw_tile(int image_id, int x, int y, color_t
     }
 }
 
-static color_t color_average(const image *img, const color_t *data, int x, int y, unsigned int scale_factor)
-{
-    x *= scale_factor;
-    y *= scale_factor;
-    int rb = 0, g = 0;
-    int num_colors = 0;
-    int num_transparent = 0;
-    int max_x = x + scale_factor;
-    int max_y = y + scale_factor;
-    while (y < max_y) {
-        if (y == img->height) {
-            break;
-        }
-        int current_x = x;
-        while (current_x < max_x) {
-            if (current_x == img->width) {
-                break;
-            }
-            color_t color = data[y * img->width + current_x];
-            if (color == COLOR_SG2_TRANSPARENT) {
-                num_transparent++;
-            } else {
-                // Note: keeping the R and B channels on the same int limits scale_factor to a maximum of 16
-                rb += color & 0xff00ff;
-                g += color & 0xff00;
-                num_colors++;
-            }
-            current_x++;
-        }
-        y++;
-    }
-    if (num_transparent > num_colors) {
-        return COLOR_SG2_TRANSPARENT;
-    }
-    return ((rb / num_colors) & 0xff0000) | ((g / num_colors) & 0xff00) | ((rb & 0xffff) / num_colors);
-}
 
-void image_draw_scaled_down(int image_id, int x_offset, int y_offset, unsigned int scale_factor)
-{
-    const image *img = image_get(image_id);
-    const color_t *data = image_data(image_id);
 
-    if (!data || img->draw.type == IMAGE_TYPE_ISOMETRIC || img->draw.is_fully_compressed || !scale_factor) {
-        return;
-    }
-
-    int width = img->width / scale_factor;
-    int height = img->height / scale_factor;
-
-    if (!width || !height) {
-        return;
-    }
-
-    const clip_info *clip = graphics_get_clip_info(x_offset, y_offset, width, height);
-    if (!clip->is_visible) {
-        return;
-    }
-    for (int y = clip->clipped_pixels_top; y < height - clip->clipped_pixels_bottom; y++) {
-        color_t *dst = graphics_get_pixel(x_offset + clip->clipped_pixels_left, y_offset + y);
-        int x_max = width - clip->clipped_pixels_right;
-
-        for (int x = clip->clipped_pixels_left; x < x_max; x++, dst++) {
-            *dst = color_average(img, data, x, y, scale_factor);
-        }
-    }
-}

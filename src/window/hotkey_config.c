@@ -15,6 +15,7 @@
 #include "graphics/window.h"
 #include "window/config.h"
 #include "window/hotkey_editor.h"
+#include "window/main_menu.h"
 #include "window/plain_message_dialog.h"
 
 #define HOTKEY_HEADER -1
@@ -184,7 +185,8 @@ static void draw_background(void)
 {
     graphics_clear_screen();
 
-    image_draw_fullscreen_background(image_group(GROUP_CONFIG));
+    image_draw_fullscreen_background(image_group(GROUP_INTERMEZZO_BACKGROUND) + 16);
+    draw_version_string();
 
     graphics_in_dialog();
     outer_panel_draw(0, 0, 40, 30);

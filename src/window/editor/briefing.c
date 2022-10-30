@@ -60,16 +60,18 @@ static void draw_foreground(void)
     // Formatted typed in text
     rich_text_set_fonts(FONT_NORMAL_BLACK, FONT_NORMAL_RED, 6);
     rich_text_init(briefing, -350, -75, 60, 38, 0);
+    graphics_set_clip_rectangle(-300, -100, 970, 635);
     rich_text_draw(briefing, -260, -70, 912, 35, 0);
     rich_text_reset_lines_only();
     rich_text_draw_scrollbar();
+    graphics_reset_clip_rectangle();
 
     // @L, @P hint
-    text_draw(get_custom_string(TR_EDITOR_MAP_BRIEFING_HINT), -285, 550, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
+    text_draw(get_custom_string(TR_EDITOR_SCENARIO_BRIEFING_HINT), -285, 550, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
 
     // Reset briefing
     button_border_draw(455, 540, 190, 35, focus_button_id);
-    text_draw_centered(get_custom_string(TR_EDITOR_MAP_BRIEFING_RESET), 455, 545, 190, FONT_LARGE_PLAIN, COLOR_TOOLTIP);
+    text_draw_centered(get_custom_string(TR_EDITOR_SCENARIO_BRIEFING_RESET), 455, 545, 190, FONT_LARGE_PLAIN, COLOR_TOOLTIP);
 
     graphics_reset_dialog();
 }

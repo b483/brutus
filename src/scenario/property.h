@@ -9,8 +9,6 @@ typedef enum {
     CLIMATE_DESERT = 2
 } scenario_climate;
 
-
-const uint8_t *scenario_get_name(void);
 void scenario_set_name(const uint8_t *name);
 
 const uint8_t *scenario_settings_player_name(void);

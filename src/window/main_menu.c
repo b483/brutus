@@ -33,7 +33,7 @@ static generic_button buttons[] = {
     {192, 300, 256, 25, button_click, button_none, 5, 0},
 };
 
-static void draw_version_string(void)
+void draw_version_string(void)
 {
     uint8_t version_string[100] = "Brutus v";
     int version_prefix_length = string_length(version_string);
@@ -55,12 +55,8 @@ static void draw_version_string(void)
 static void draw_background(void)
 {
     graphics_clear_screen();
-    graphics_in_dialog();
-    image_draw(image_group(GROUP_MAIN_MENU_BACKGROUND), 0, 0);
-    graphics_reset_dialog();
-    if (window_is(WINDOW_MAIN_MENU)) {
-        draw_version_string();
-    }
+    image_draw_fullscreen_background(image_group(GROUP_INTERMEZZO_BACKGROUND) + 16);
+    draw_version_string();
 }
 
 static void draw_foreground(void)

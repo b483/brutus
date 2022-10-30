@@ -11,6 +11,7 @@
 #include "graphics/image_button.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
+#include "graphics/screen.h"
 #include "graphics/scrollbar.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
@@ -90,8 +91,6 @@ static void draw_scenario_list(void)
         font_t font = FONT_NORMAL_GREEN;
         if (data.focus_button_id == i + 1) {
             font = FONT_NORMAL_WHITE;
-        } else if (!data.focus_button_id && data.selected_item == i + scrollbar.scroll_position) {
-            font = FONT_NORMAL_WHITE;
         }
         strcpy(file, data.scenarios->files[i + scrollbar.scroll_position]);
         encoding_from_utf8(file, displayable_file, FILE_NAME_MAX);
@@ -107,7 +106,8 @@ static void draw_scenario_info(void)
     const int scenario_info_width = 280;
     const int scenario_criteria_x = 420;
 
-    image_draw(image_group(GROUP_SCENARIO_IMAGE) + scenario_image_id(), 78, 36);
+    button_border_draw(75, 35, 184, 144, 0);
+    image_draw(image_group(GROUP_SCENARIO_IMAGE) + scenario_image_id(), 77, 37);
 
     text_ellipsize(data.selected_scenario_display, FONT_LARGE_BLACK, scenario_info_width + 10);
     text_draw_centered(data.selected_scenario_display,
@@ -209,8 +209,13 @@ static void draw_scenario_info(void)
 
 static void draw_background(void)
 {
-    image_draw_fullscreen_background(image_group(GROUP_CCK_BACKGROUND));
+    image_draw_fullscreen_background(image_group(GROUP_INTERMEZZO_BACKGROUND) + 16);
+    draw_version_string();
+
+    graphics_set_clip_rectangle((screen_width() - 640) / 2, (screen_height() - 480) / 2, 640, 480);
     graphics_in_dialog();
+    image_draw(image_group(GROUP_CCK_BACKGROUND), (640 - 1024) / 2, (480 - 768) / 2);
+    graphics_reset_clip_rectangle();
     inner_panel_draw(280, 242, 2, 12);
     draw_scenario_list();
     draw_scenario_info();
