@@ -3,11 +3,11 @@
 
 #include "core/buffer.h"
 
-int scenario_is_saved(void);
-
 void scenario_save_state(buffer *buf);
 
 void scenario_load_state(buffer *buf);
+
+void scenario_settings_set_player_name(const uint8_t *name);
 
 void scenario_settings_save_state(buffer *player_name);
 

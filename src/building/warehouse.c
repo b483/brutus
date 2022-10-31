@@ -13,7 +13,7 @@
 #include "empire/trade_prices.h"
 #include "map/image.h"
 #include "map/road_access.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 
 int building_warehouse_get_space_info(building *warehouse)
 {
@@ -340,7 +340,7 @@ int building_warehouse_for_getting(building *src, int resource, map_point *dst)
 
 static int determine_granary_accept_foods(int resources[RESOURCE_MAX_FOOD])
 {
-    if (scenario_property_rome_supplies_wheat()) {
+    if (scenario.rome_supplies_wheat) {
         return 0;
     }
     for (int i = 0; i < RESOURCE_MAX_FOOD; i++) {
@@ -370,7 +370,7 @@ static int determine_granary_accept_foods(int resources[RESOURCE_MAX_FOOD])
 
 static int determine_granary_get_foods(int resources[RESOURCE_MAX_FOOD])
 {
-    if (scenario_property_rome_supplies_wheat()) {
+    if (scenario.rome_supplies_wheat) {
         return 0;
     }
     for (int i = 0; i < RESOURCE_MAX_FOOD; i++) {
@@ -504,7 +504,7 @@ int building_warehouse_determine_worker_task(building *warehouse, int *resource)
         }
     }
     // deliver food to accepting granary
-    if (determine_granary_accept_foods(granary_resources) && !scenario_property_rome_supplies_wheat()) {
+    if (determine_granary_accept_foods(granary_resources) && !scenario.rome_supplies_wheat) {
         space = warehouse;
         for (int i = 0; i < 8; i++) {
             space = building_next(space);

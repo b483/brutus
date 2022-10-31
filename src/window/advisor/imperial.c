@@ -15,7 +15,6 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
-#include "scenario/property.h"
 #include "scenario/request.h"
 #include "window/donate_to_city.h"
 #include "window/empire.h"
@@ -160,7 +159,7 @@ static int draw_background(void)
     outer_panel_draw(0, 0, 40, ADVISOR_HEIGHT);
     image_draw(image_group(GROUP_ADVISOR_ICONS) + 2, 10, 10);
 
-    text_draw(scenario_settings_player_name(), 60, 12, FONT_LARGE_BLACK, 0);
+    text_draw(scenario_settings.player_name, 60, 12, FONT_LARGE_BLACK, 0);
 
     int width = lang_text_draw(52, 0, 60, 44, FONT_NORMAL_BLACK);
     text_draw_number(city_rating_favor(), '@', " ", 60 + width, 44, FONT_NORMAL_BLACK);

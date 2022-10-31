@@ -39,12 +39,12 @@
 #include "map/sprite.h"
 #include "map/terrain.h"
 #include "map/tiles.h"
+#include "scenario/data.h"
 #include "scenario/distant_battle.h"
 #include "scenario/editor.h"
 #include "scenario/empire.h"
 #include "scenario/invasion.h"
 #include "scenario/map.h"
-#include "scenario/property.h"
 #include "sound/city.h"
 #include "sound/music.h"
 
@@ -104,7 +104,7 @@ static void create_blank_map(int size)
 
 static void prepare_map_for_editing(int map_is_new)
 {
-    image_load_climate(scenario_property_climate(), 1, 0);
+    image_load_climate(scenario.climate, 1, 0);
 
     if (map_is_new) {
         empire_load(0);

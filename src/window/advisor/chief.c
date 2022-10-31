@@ -14,8 +14,8 @@
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
 #include "graphics/text.h"
+#include "scenario/data.h"
 #include "scenario/invasion.h"
-#include "scenario/property.h"
 
 #define ADVISOR_HEIGHT 23
 #define X_OFFSET 232
@@ -92,7 +92,7 @@ static int draw_background(void)
 
     // food stocks
     draw_title(126, 4);
-    if (scenario_property_rome_supplies_wheat()) {
+    if (scenario.rome_supplies_wheat) {
         lang_text_draw(61, 26, X_OFFSET, 126, FONT_NORMAL_GREEN);
     } else if (city_resource_food_supply_months() > 0) {
         width = lang_text_draw(61, 28, X_OFFSET, 126, FONT_NORMAL_GREEN);
@@ -103,7 +103,7 @@ static int draw_background(void)
 
     // food consumption
     draw_title(146, 62);
-    if (scenario_property_rome_supplies_wheat()) {
+    if (scenario.rome_supplies_wheat) {
         lang_text_draw(61, 26, X_OFFSET, 146, FONT_NORMAL_GREEN);
     } else {
         int pct = city_resource_food_percentage_produced();

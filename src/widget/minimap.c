@@ -12,7 +12,7 @@
 #include "map/property.h"
 #include "map/random.h"
 #include "map/terrain.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 
 #include <stdlib.h>
 
@@ -250,7 +250,7 @@ static void draw_minimap(void)
 
 static void draw_uncached(int x_offset, int y_offset, int width, int height)
 {
-    data.enemy_color = ENEMY_COLOR_BY_CLIMATE[scenario_property_climate()];
+    data.enemy_color = ENEMY_COLOR_BY_CLIMATE[scenario.climate];
     prepare_minimap_cache(width, height);
     set_bounds(x_offset, y_offset, width, height);
     draw_minimap();

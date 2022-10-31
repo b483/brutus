@@ -4,7 +4,6 @@
 #include "core/string.h"
 #include "map/grid.h"
 #include "scenario/data.h"
-#include "scenario/property.h"
 
 #include <string.h>
 
@@ -48,9 +47,33 @@ void scenario_editor_create(int map_size)
     scenario.rescue_loan = 500;
     scenario.initial_personal_savings = 0;
     scenario.rome_supplies_wheat = 0;
-    scenario.win_criteria.milestone25_year = 10;
-    scenario.win_criteria.milestone50_year = 20;
-    scenario.win_criteria.milestone75_year = 30;
+    scenario.milestone25_year = 10;
+    scenario.milestone50_year = 20;
+    scenario.milestone75_year = 30;
+
+    // Win criteria
+    scenario.culture_win_criteria.enabled = 1;
+    scenario.culture_win_criteria.goal = 10;
+    scenario.prosperity_win_criteria.enabled = 1;
+    scenario.prosperity_win_criteria.goal = 10;
+    scenario.peace_win_criteria.enabled = 1;
+    scenario.peace_win_criteria.goal = 10;
+    scenario.favor_win_criteria.enabled = 1;
+    scenario.favor_win_criteria.goal = 10;
+    scenario.population_win_criteria.enabled = 0;
+    scenario.population_win_criteria.goal = 0;
+    scenario.time_limit_win_criteria.enabled = 0;
+    scenario.time_limit_win_criteria.years = 0;
+    scenario.survival_time_win_criteria.enabled = 0;
+    scenario.survival_time_win_criteria.years = 0;
+
+    // Buildings allowed
+    for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
+        scenario.allowed_buildings[i] = 1;
+    }
+
+    scenario.earthquake.severity = 0;
+    scenario.earthquake.year = 0;
 
     // Requests
     for (int i = 0; i < MAX_REQUESTS; i++) {
@@ -65,30 +88,6 @@ void scenario_editor_create(int map_size)
         scenario.invasions[i].year = 1;
         scenario.invasions[i].from = 8;
     }
-
-    // Buildings allowed
-    for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
-        scenario.allowed_buildings[i] = 1;
-    }
-
-    // Win criteria
-    scenario.win_criteria.culture.enabled = 1;
-    scenario.win_criteria.culture.goal = 10;
-    scenario.win_criteria.prosperity.enabled = 1;
-    scenario.win_criteria.prosperity.goal = 10;
-    scenario.win_criteria.peace.enabled = 1;
-    scenario.win_criteria.peace.goal = 10;
-    scenario.win_criteria.favor.enabled = 1;
-    scenario.win_criteria.favor.goal = 10;
-    scenario.win_criteria.population.enabled = 0;
-    scenario.win_criteria.population.goal = 0;
-    scenario.win_criteria.time_limit.enabled = 0;
-    scenario.win_criteria.time_limit.years = 0;
-    scenario.win_criteria.survival_time.enabled = 0;
-    scenario.win_criteria.survival_time.years = 0;
-
-    scenario.earthquake.severity = 0;
-    scenario.earthquake.year = 0;
 
     // Price changes
     for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
@@ -119,11 +118,244 @@ void scenario_editor_create(int map_size)
     scenario.is_saved = 1;
 }
 
+void scenario_editor_change_empire(int change)
+{
+    scenario.empire.id += change;
+    if (scenario.empire.id < 0) {
+        scenario.empire.id = 39;
+    } else if (scenario.empire.id >= 40) {
+        scenario.empire.id = 0;
+    }
+    scenario.is_saved = 0;
+}
+
 void scenario_editor_set_native_images(int image_hut, int image_meeting, int image_crops)
 {
     scenario.native_images.hut = image_hut;
     scenario.native_images.meeting = image_meeting;
     scenario.native_images.crops = image_crops;
+}
+
+void scenario_editor_cycle_image(int forward)
+{
+    if (forward) {
+        scenario.brief_description_image_id++;
+    } else {
+        scenario.brief_description_image_id--;
+    }
+    if (scenario.brief_description_image_id < 0) {
+        scenario.brief_description_image_id = 15;
+    }
+    if (scenario.brief_description_image_id > 15) {
+        scenario.brief_description_image_id = 0;
+    }
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_cycle_climate(void)
+{
+    switch (scenario.climate) {
+        case CLIMATE_CENTRAL:
+            scenario.climate = CLIMATE_NORTHERN;
+            break;
+        case CLIMATE_NORTHERN:
+            scenario.climate = CLIMATE_DESERT;
+            break;
+        case CLIMATE_DESERT:
+        default:
+            scenario.climate = CLIMATE_CENTRAL;
+            break;
+    }
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_update_brief_description(const uint8_t *new_description)
+{
+    if (!string_equals(scenario.brief_description, new_description)) {
+        string_copy(new_description, scenario.brief_description, MAX_BRIEF_DESCRIPTION);
+        scenario.is_saved = 0;
+    }
+}
+
+void scenario_editor_update_briefing(const uint8_t *new_briefing)
+{
+    if (!string_equals(scenario.briefing, new_briefing)) {
+        string_copy(new_briefing, scenario.briefing, MAX_BRIEFING);
+        scenario.is_saved = 0;
+    }
+}
+
+void scenario_editor_set_player_rank(int rank)
+{
+    scenario.player_rank = rank;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_start_year(int year)
+{
+    scenario.start_year = year;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_initial_favor(int amount)
+{
+    scenario.initial_favor = amount;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_initial_funds(int amount)
+{
+    scenario.initial_funds = amount;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_rescue_loan(int amount)
+{
+    scenario.rescue_loan = amount;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_initial_personal_savings(int amount)
+{
+    scenario.initial_personal_savings = amount;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_toggle_rome_supplies_wheat(void)
+{
+    scenario.rome_supplies_wheat = !scenario.rome_supplies_wheat;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_toggle_flotsam(void)
+{
+    scenario.flotsam_enabled = !scenario.flotsam_enabled;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_toggle_open_play(void)
+{
+    scenario.is_open_play = !scenario.is_open_play;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_toggle_population(void)
+{
+    scenario.population_win_criteria.enabled = !scenario.population_win_criteria.enabled;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_population(int goal)
+{
+    scenario.population_win_criteria.goal = goal;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_toggle_culture(void)
+{
+    scenario.culture_win_criteria.enabled = !scenario.culture_win_criteria.enabled;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_culture(int goal)
+{
+    scenario.culture_win_criteria.goal = goal;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_toggle_prosperity(void)
+{
+    scenario.prosperity_win_criteria.enabled = !scenario.prosperity_win_criteria.enabled;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_prosperity(int goal)
+{
+    scenario.prosperity_win_criteria.goal = goal;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_toggle_peace(void)
+{
+    scenario.peace_win_criteria.enabled = !scenario.peace_win_criteria.enabled;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_peace(int goal)
+{
+    scenario.peace_win_criteria.goal = goal;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_toggle_favor(void)
+{
+    scenario.favor_win_criteria.enabled = !scenario.favor_win_criteria.enabled;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_favor(int goal)
+{
+    scenario.favor_win_criteria.goal = goal;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_toggle_time_limit(void)
+{
+    scenario.time_limit_win_criteria.enabled = !scenario.time_limit_win_criteria.enabled;
+    if (scenario.time_limit_win_criteria.enabled) {
+        scenario.survival_time_win_criteria.enabled = 0;
+    }
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_time_limit(int years)
+{
+    scenario.time_limit_win_criteria.years = years;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_toggle_survival_time(void)
+{
+    scenario.survival_time_win_criteria.enabled = !scenario.survival_time_win_criteria.enabled;
+    if (scenario.survival_time_win_criteria.enabled) {
+        scenario.time_limit_win_criteria.enabled = 0;
+    }
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_survival_time(int years)
+{
+    scenario.survival_time_win_criteria.years = years;
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_milestone_year(int milestone_percentage, int year)
+{
+    switch (milestone_percentage) {
+        case 25:
+            scenario.milestone25_year = year;
+            break;
+        case 50:
+            scenario.milestone50_year = year;
+            break;
+        case 75:
+            scenario.milestone75_year = year;
+            break;
+        default:
+            return;
+    }
+    scenario.is_saved = 0;
+}
+
+int scenario_editor_is_building_allowed(int id)
+{
+    return scenario.allowed_buildings[id];
+}
+
+void scenario_editor_toggle_building_allowed(int id)
+{
+    scenario.allowed_buildings[id] = scenario.allowed_buildings[id] ? 0 : 1;
+    scenario.is_saved = 0;
 }
 
 void scenario_editor_sort_requests(void)
@@ -142,6 +374,12 @@ void scenario_editor_sort_requests(void)
             }
         }
     }
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_set_enemy(int enemy_id)
+{
+    scenario.enemy_id = enemy_id;
     scenario.is_saved = 0;
 }
 
@@ -199,261 +437,5 @@ void scenario_editor_sort_demand_changes(void)
             }
         }
     }
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_cycle_image(int forward)
-{
-    if (forward) {
-        scenario.image_id++;
-    } else {
-        scenario.image_id--;
-    }
-    if (scenario.image_id < 0) {
-        scenario.image_id = 15;
-    }
-    if (scenario.image_id > 15) {
-        scenario.image_id = 0;
-    }
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_cycle_climate(void)
-{
-    switch (scenario.climate) {
-        case CLIMATE_CENTRAL:
-            scenario.climate = CLIMATE_NORTHERN;
-            break;
-        case CLIMATE_NORTHERN:
-            scenario.climate = CLIMATE_DESERT;
-            break;
-        case CLIMATE_DESERT:
-        default:
-            scenario.climate = CLIMATE_CENTRAL;
-            break;
-    }
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_update_briefing(const uint8_t *new_briefing)
-{
-    if (!string_equals(scenario.briefing, new_briefing)) {
-        string_copy(new_briefing, scenario.briefing, MAX_BRIEFING);
-        scenario.is_saved = 0;
-    }
-}
-
-void scenario_editor_update_brief_description(const uint8_t *new_description)
-{
-    if (!string_equals(scenario.brief_description, new_description)) {
-        string_copy(new_description, scenario.brief_description, MAX_BRIEF_DESCRIPTION);
-        scenario.is_saved = 0;
-    }
-}
-
-void scenario_editor_set_enemy(int enemy_id)
-{
-    scenario.enemy_id = enemy_id;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_change_empire(int change)
-{
-    scenario.empire.id += change;
-    if (scenario.empire.id < 0) {
-        scenario.empire.id = 39;
-    } else if (scenario.empire.id >= 40) {
-        scenario.empire.id = 0;
-    }
-    scenario.is_saved = 0;
-}
-
-int scenario_editor_is_building_allowed(int id)
-{
-    return scenario.allowed_buildings[id];
-}
-
-void scenario_editor_toggle_building_allowed(int id)
-{
-    scenario.allowed_buildings[id] = scenario.allowed_buildings[id] ? 0 : 1;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_set_player_rank(int rank)
-{
-    scenario.player_rank = rank;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_set_initial_favor(int amount)
-{
-    scenario.initial_favor = amount;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_set_initial_funds(int amount)
-{
-    scenario.initial_funds = amount;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_set_rescue_loan(int amount)
-{
-    scenario.rescue_loan = amount;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_set_initial_personal_savings(int amount)
-{
-    scenario.initial_personal_savings = amount;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_toggle_rome_supplies_wheat(void)
-{
-    scenario.rome_supplies_wheat = !scenario.rome_supplies_wheat;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_toggle_flotsam(void)
-{
-    scenario.flotsam_enabled = !scenario.flotsam_enabled;
-    scenario.is_saved = 0;
-}
-
-int scenario_editor_milestone_year(int milestone_percentage)
-{
-    switch (milestone_percentage) {
-        case 25:
-            return scenario.win_criteria.milestone25_year;
-        case 50:
-            return scenario.win_criteria.milestone50_year;
-        case 75:
-            return scenario.win_criteria.milestone75_year;
-        default:
-            return 0;
-    }
-}
-
-void scenario_editor_set_milestone_year(int milestone_percentage, int year)
-{
-    switch (milestone_percentage) {
-        case 25:
-            scenario.win_criteria.milestone25_year = year;
-            break;
-        case 50:
-            scenario.win_criteria.milestone50_year = year;
-            break;
-        case 75:
-            scenario.win_criteria.milestone75_year = year;
-            break;
-        default:
-            return;
-    }
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_set_start_year(int year)
-{
-    scenario.start_year = year;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_toggle_open_play(void)
-{
-    scenario.is_open_play = !scenario.is_open_play;
-    if (scenario.is_open_play) {
-        scenario.open_play_scenario_id = 12; // fix it to 12: first unused entry
-    }
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_toggle_culture(void)
-{
-    scenario.win_criteria.culture.enabled = !scenario.win_criteria.culture.enabled;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_set_culture(int goal)
-{
-    scenario.win_criteria.culture.goal = goal;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_toggle_prosperity(void)
-{
-    scenario.win_criteria.prosperity.enabled = !scenario.win_criteria.prosperity.enabled;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_set_prosperity(int goal)
-{
-    scenario.win_criteria.prosperity.goal = goal;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_toggle_peace(void)
-{
-    scenario.win_criteria.peace.enabled = !scenario.win_criteria.peace.enabled;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_set_peace(int goal)
-{
-    scenario.win_criteria.peace.goal = goal;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_toggle_favor(void)
-{
-    scenario.win_criteria.favor.enabled = !scenario.win_criteria.favor.enabled;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_set_favor(int goal)
-{
-    scenario.win_criteria.favor.goal = goal;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_toggle_population(void)
-{
-    scenario.win_criteria.population.enabled = !scenario.win_criteria.population.enabled;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_set_population(int goal)
-{
-    scenario.win_criteria.population.goal = goal;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_toggle_time_limit(void)
-{
-    scenario.win_criteria.time_limit.enabled = !scenario.win_criteria.time_limit.enabled;
-    if (scenario.win_criteria.time_limit.enabled) {
-        scenario.win_criteria.survival_time.enabled = 0;
-    }
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_set_time_limit(int years)
-{
-    scenario.win_criteria.time_limit.years = years;
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_toggle_survival_time(void)
-{
-    scenario.win_criteria.survival_time.enabled = !scenario.win_criteria.survival_time.enabled;
-    if (scenario.win_criteria.survival_time.enabled) {
-        scenario.win_criteria.time_limit.enabled = 0;
-    }
-    scenario.is_saved = 0;
-}
-
-void scenario_editor_set_survival_time(int years)
-{
-    scenario.win_criteria.survival_time.years = years;
     scenario.is_saved = 0;
 }

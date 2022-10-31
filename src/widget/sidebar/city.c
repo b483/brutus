@@ -17,7 +17,6 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "map/orientation.h"
-#include "scenario/property.h"
 #include "widget/city.h"
 #include "widget/minimap.h"
 #include "widget/sidebar/common.h"

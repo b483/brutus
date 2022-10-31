@@ -18,7 +18,6 @@
 #include "input/input.h"
 #include "scenario/data.h"
 #include "scenario/editor.h"
-#include "scenario/property.h"
 #include "widget/input_box.h"
 #include "widget/minimap.h"
 #include "widget/sidebar/editor.h"
@@ -82,7 +81,7 @@ static void start_brief_description_box_input(void)
     if (data.is_paused) {
         input_box_resume(&scenario_description_input);
     } else {
-        string_copy(scenario_brief_description(), data.brief_description, MAX_BRIEF_DESCRIPTION);
+        string_copy(scenario.brief_description, data.brief_description, MAX_BRIEF_DESCRIPTION);
         input_box_start(&scenario_description_input);
     }
 }
@@ -111,7 +110,7 @@ static void draw_foreground(void)
 
     // Brief description image
     button_border_draw(18, 60, 184, 144, 0);
-    image_draw(image_group(GROUP_EDITOR_SCENARIO_IMAGE) + scenario_image_id(), 20, 62);
+    image_draw(image_group(GROUP_EDITOR_SCENARIO_IMAGE) + scenario.brief_description_image_id, 20, 62);
 
     // Briefing
     button_border_draw(213, 60, 195, 30, data.focus_button_id == 1);
@@ -119,7 +118,7 @@ static void draw_foreground(void)
 
     // Terrain set
     button_border_draw(213, 100, 195, 30, data.focus_button_id == 2);
-    lang_text_draw_centered(44, 77 + scenario_property_climate(), 213, 109, 195, FONT_NORMAL_BLACK);
+    lang_text_draw_centered(44, 77 + scenario.climate, 213, 109, 195, FONT_NORMAL_BLACK);
 
     // Starting conditions
     button_border_draw(213, 140, 195, 30, data.focus_button_id == 3);
@@ -149,7 +148,7 @@ static void draw_foreground(void)
 
     // Enemy
     button_border_draw(17, 300, 185, 30, data.focus_button_id == 8);
-    lang_text_draw_centered(37, scenario_property_enemy(), 17, 309, 185, FONT_NORMAL_BLACK);
+    lang_text_draw_centered(37, scenario.enemy_id, 17, 309, 185, FONT_NORMAL_BLACK);
 
     // Invasions
     button_border_draw(213, 300, 195, 30, data.focus_button_id == 9);
@@ -262,7 +261,7 @@ static void button_demand_changes(__attribute__((unused)) int param1, __attribut
 static void change_climate(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario_editor_cycle_climate();
-    image_load_climate(scenario_property_climate(), 1, 0);
+    image_load_climate(scenario.climate, 1, 0);
     widget_minimap_invalidate();
     window_request_refresh();
 }

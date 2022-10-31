@@ -6,7 +6,7 @@
 #include "map/property.h"
 #include "map/random.h"
 #include "map/terrain.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 
 typedef struct {
     color_t left;
@@ -113,7 +113,7 @@ static void draw_minimap_tile(int x_view, int y_view, int grid_offset)
     } else {
         int rand = map_random_get(grid_offset);
         const tile_color *color;
-        const tile_color_set *set = &MINIMAP_COLOR_SETS[scenario_property_climate()];
+        const tile_color_set *set = &MINIMAP_COLOR_SETS[scenario.climate];
         if (terrain & TERRAIN_WATER) {
             color = &set->water[rand & 3];
         } else if (terrain & (TERRAIN_TREE | TERRAIN_SHRUB)) {

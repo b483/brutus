@@ -7,7 +7,7 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 #include "sound/music.h"
 #include "window/city.h"
 
@@ -28,7 +28,7 @@ static void draw_background(void)
 
     outer_panel_draw(48, 128, 34, 15);
     lang_text_draw_centered(62, 0, 48, 144, 544, FONT_LARGE_BLACK);
-    text_draw_centered(scenario_settings_player_name(), 48, 194, 544, FONT_LARGE_BLACK, 0);
+    text_draw_centered(scenario_settings.player_name, 48, 194, 544, FONT_LARGE_BLACK, 0);
     graphics_reset_dialog();
 }
 
@@ -45,7 +45,7 @@ static void draw_foreground(void)
     // Continue for 5 years
     large_label_draw(80, 304, 30, focus_button_id == 3);
     lang_text_draw_centered(62, 5, 80, 310, 480, FONT_NORMAL_GREEN);
-    
+
     graphics_reset_dialog();
 }
 

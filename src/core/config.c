@@ -2,7 +2,7 @@
 
 #include "core/file.h"
 #include "core/log.h"
-#include "scenario/property.h"
+#include "scenario/scenario.h"
 
 #include <stdio.h>
 #include <string.h>

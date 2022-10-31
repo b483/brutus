@@ -9,7 +9,7 @@
 #include "city/resource.h"
 #include "core/calc.h"
 #include "map/routing_terrain.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 #include "sound/effect.h"
 
 #define MAX_GRANARIES 100
@@ -216,7 +216,7 @@ void building_granaries_calculate_stocks(void)
 int building_granary_for_storing(int x, int y, int resource, int distance_from_entry, int road_network_id,
                                  int force_on_stockpile, int *understaffed, map_point *dst)
 {
-    if (scenario_property_rome_supplies_wheat()) {
+    if (scenario.rome_supplies_wheat) {
         return 0;
     }
     if (!resource_is_food(resource)) {
@@ -265,7 +265,7 @@ int building_granary_for_storing(int x, int y, int resource, int distance_from_e
 int building_getting_granary_for_storing(int x, int y, int resource, int distance_from_entry, int road_network_id,
                                          map_point *dst)
 {
-    if (scenario_property_rome_supplies_wheat()) {
+    if (scenario.rome_supplies_wheat) {
         return 0;
     }
     if (!resource_is_food(resource)) {
@@ -313,7 +313,7 @@ int building_granary_for_getting(building *src, map_point *dst)
     if (s_src->empty_all) {
         return 0;
     }
-    if (scenario_property_rome_supplies_wheat()) {
+    if (scenario.rome_supplies_wheat) {
         return 0;
     }
     int is_getting = 0;

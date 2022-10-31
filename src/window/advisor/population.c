@@ -11,7 +11,7 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 
 #define ADVISOR_HEIGHT 27
 
@@ -50,7 +50,7 @@ static void get_min_max_month_year(int max_months, int *start_month, int *start_
         *start_year = *end_year - max_months / 12;
     } else {
         *start_month = 0;
-        *start_year = scenario_property_start_year();
+        *start_year = scenario.start_year;
         *end_month = (max_months + *start_month) % 12;
         *end_year = (max_months + *start_month) / 12 + *start_year;
     }
@@ -334,7 +334,7 @@ static int draw_background(void)
     image_draw(image_id, 56, 398);
 
     // food stores
-    if (scenario_property_rome_supplies_wheat()) {
+    if (scenario.rome_supplies_wheat) {
         lang_text_draw(55, 11, 75, 342, FONT_NORMAL_WHITE);
     } else {
         width = lang_text_draw_amount(8, 6, city_resource_operating_granaries(), 75, 342, FONT_NORMAL_WHITE);

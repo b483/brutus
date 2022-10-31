@@ -19,7 +19,6 @@
 #include "input/input.h"
 #include "input/scroll.h"
 #include "scenario/data.h"
-#include "scenario/property.h"
 #include "scenario/request.h"
 #include "window/advisors.h"
 #include "window/city.h"
@@ -161,7 +160,7 @@ static void draw_city_message_text(const lang_message *msg)
         }
     } else {
         width += lang_text_draw(63, 5, data.x_text + width + 60, data.y_text + 6, FONT_NORMAL_WHITE);
-        text_draw(scenario_settings_player_name(), data.x_text + width + 60, data.y_text + 6, FONT_NORMAL_WHITE, 0);
+        text_draw(scenario_settings.player_name, data.x_text + width + 60, data.y_text + 6, FONT_NORMAL_WHITE, 0);
     }
     switch (msg->message_type) {
         case MESSAGE_TYPE_DISASTER:
@@ -362,7 +361,7 @@ static void draw_background_video(void)
         lang_text_draw_amount(8, 0, player_message.param1, data.x + 90 + width, y_base + 4, FONT_NORMAL_WHITE);
     } else {
         width += lang_text_draw(63, 5, data.x + 70 + width, y_base + 4, FONT_NORMAL_WHITE);
-        text_draw(scenario_settings_player_name(), data.x + 70 + width, y_base + 4, FONT_NORMAL_WHITE, 0);
+        text_draw(scenario_settings.player_name, data.x + 70 + width, y_base + 4, FONT_NORMAL_WHITE, 0);
     }
 
     data.text_height_blocks = msg->height_blocks - 1 - (32 + data.y_text - data.y) / BLOCK_SIZE;

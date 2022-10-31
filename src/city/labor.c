@@ -8,7 +8,7 @@
 #include "core/calc.h"
 #include "core/random.h"
 #include "game/time.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 
 #define MAX_CATS 10
 
@@ -239,7 +239,7 @@ static void check_employment(void)
 
     // workers needed message
     if (!orig_needed && city_data.labor.workers_needed > 0) {
-        if (game_time_year() >= scenario_property_start_year()) {
+        if (game_time_year() >= scenario.start_year) {
             city_message_post_with_message_delay(MESSAGE_CAT_WORKERS_NEEDED, 0, MESSAGE_WORKERS_NEEDED, 6);
         }
     }

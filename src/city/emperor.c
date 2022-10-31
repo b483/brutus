@@ -7,16 +7,16 @@
 #include "core/calc.h"
 #include "figure/formation.h"
 #include "game/time.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 #include "scenario/invasion.h"
 
 const int SALARY_FOR_RANK[11] = { 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144 };
 
 void city_emperor_init_scenario(void)
 {
-    city_data.ratings.favor = scenario_initial_favor();
-    city_data.emperor.personal_savings = scenario_initial_personal_savings();
-    city_data.emperor.player_rank = scenario_property_player_rank();
+    city_data.ratings.favor = scenario.initial_favor;
+    city_data.emperor.personal_savings = scenario.initial_personal_savings;
+    city_data.emperor.player_rank = scenario.player_rank;
     city_emperor_set_salary_rank(city_data.emperor.player_rank);
 }
 
@@ -28,7 +28,7 @@ static void update_debt_state(void)
     }
     if (city_data.emperor.debt_state == 0) {
         // provide bailout
-        int rescue_loan = scenario_rescue_loan();
+        int rescue_loan = scenario.rescue_loan;
         city_finance_process_donation(rescue_loan);
         city_finance_calculate_totals();
 

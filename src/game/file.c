@@ -61,7 +61,7 @@
 #include "scenario/gladiator_revolt.h"
 #include "scenario/invasion.h"
 #include "scenario/map.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 #include "scenario/scenario.h"
 #include "sound/city.h"
 #include "sound/music.h"
@@ -110,7 +110,7 @@ static void clear_scenario_data(void)
 
 static void initialize_scenario_data(const uint8_t *scenario_name)
 {
-    scenario_set_name(scenario_name);
+    string_copy(scenario_name, scenario.scenario_name, MAX_SCENARIO_NAME);
     scenario_map_init();
 
     // initialize grids
@@ -144,7 +144,7 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
     city_map_set_entry_point(entry.x, entry.y);
     city_map_set_exit_point(exit.x, exit.y);
 
-    game_time_init(scenario_property_start_year());
+    game_time_init(scenario.start_year);
 
     // set up events
     scenario_earthquake_init();
@@ -157,8 +157,8 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
     scenario_invasion_init();
     city_military_determine_distant_battle_city();
     building_menu_update();
-    image_load_climate(scenario_property_climate(), 0, 0);
-    image_load_enemy(scenario_property_enemy());
+    image_load_climate(scenario.climate, 0, 0);
+    image_load_enemy(scenario.enemy_id);
 
     city_data_init_scenario();
     game_state_unpause();
@@ -189,8 +189,8 @@ static void initialize_saved_game(void)
     game_undo_disable();
     game_state_reset_overlay();
 
-    image_load_climate(scenario_property_climate(), 0, 0);
-    image_load_enemy(scenario_property_enemy());
+    image_load_climate(scenario.climate, 0, 0);
+    image_load_enemy(scenario.enemy_id);
     city_military_determine_distant_battle_city();
     map_tiles_determine_gardens();
 

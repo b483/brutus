@@ -12,7 +12,6 @@
 #include "input/input.h"
 #include "scenario/criteria.h"
 #include "scenario/data.h"
-#include "scenario/property.h"
 #include "sound/music.h"
 #include "sound/speech.h"
 #include "window/cck_selection.h"
@@ -34,43 +33,43 @@ static void draw_background(void)
     text_draw(scenario.brief_description, -84, -27, FONT_NORMAL_BLACK, 0);
 
     // Player name
-    text_draw(scenario_settings_player_name(), -84, 5, FONT_NORMAL_BLACK, 0);
+    text_draw(scenario_settings.player_name, -84, 5, FONT_NORMAL_BLACK, 0);
 
     // Objectives
     inner_panel_draw(-84, 37, 50, 5);
     lang_text_draw(62, 10, -60, 55, FONT_NORMAL_WHITE);
-    if (scenario_criteria_population_enabled()) {
+    if (scenario.population_win_criteria.enabled) {
         label_draw(-60, 83, 15, 1);
         int width = lang_text_draw(62, 11, -52, 87, FONT_NORMAL_RED);
-        text_draw_number(scenario_criteria_population(), 0, 0, width - 52, 87, FONT_NORMAL_RED);
+        text_draw_number(scenario.population_win_criteria.goal, 0, 0, width - 52, 87, FONT_NORMAL_RED);
     }
-    if (scenario_criteria_culture_enabled()) {
+    if (scenario.culture_win_criteria.enabled) {
         label_draw(196, 51, 15, 1);
         int width = lang_text_draw(62, 12, 204, 55, FONT_NORMAL_RED);
-        text_draw_number(scenario_criteria_culture(), 0, 0, 204 + width, 55, FONT_NORMAL_RED);
+        text_draw_number(scenario.culture_win_criteria.goal, 0, 0, 204 + width, 55, FONT_NORMAL_RED);
     }
-    if (scenario_criteria_prosperity_enabled()) {
+    if (scenario.prosperity_win_criteria.enabled) {
         label_draw(196, 83, 15, 1);
         int width = lang_text_draw(62, 13, 204, 87, FONT_NORMAL_RED);
-        text_draw_number(scenario_criteria_prosperity(), 0, 0, 204 + width, 87, FONT_NORMAL_RED);
+        text_draw_number(scenario.prosperity_win_criteria.goal, 0, 0, 204 + width, 87, FONT_NORMAL_RED);
     }
-    if (scenario_criteria_peace_enabled()) {
+    if (scenario.peace_win_criteria.enabled) {
         label_draw(452, 51, 15, 1);
         int width = lang_text_draw(62, 14, 460, 55, FONT_NORMAL_RED);
-        text_draw_number(scenario_criteria_peace(), 0, 0, 460 + width, 55, FONT_NORMAL_RED);
+        text_draw_number(scenario.peace_win_criteria.goal, 0, 0, 460 + width, 55, FONT_NORMAL_RED);
     }
-    if (scenario_criteria_favor_enabled()) {
+    if (scenario.favor_win_criteria.enabled) {
         label_draw(452, 83, 15, 1);
         int width = lang_text_draw(62, 15, 460, 87, FONT_NORMAL_RED);
-        text_draw_number(scenario_criteria_favor(), 0, 0, 460 + width, 87, FONT_NORMAL_RED);
+        text_draw_number(scenario.favor_win_criteria.goal, 0, 0, 460 + width, 87, FONT_NORMAL_RED);
     }
 
     inner_panel_draw(-84, 141, 50, 24);
     // Text body (map description)
     rich_text_set_fonts(FONT_NORMAL_WHITE, FONT_NORMAL_RED, 5);
-    rich_text_init(scenario_briefing(), -60, 141, 46, 24, 0);
+    rich_text_init(scenario.briefing, -60, 141, 46, 24, 0);
     graphics_set_clip_rectangle(-68, 157, 800, 365);
-    rich_text_draw(scenario_briefing(), -68, 157, 800, 384, 0);
+    rich_text_draw(scenario.briefing, -68, 157, 800, 384, 0);
     graphics_reset_clip_rectangle();
     rich_text_draw_scrollbar();
 

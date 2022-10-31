@@ -9,8 +9,8 @@
 #include "graphics/screen.h"
 #include "graphics/window.h"
 #include "input/input.h"
+#include "scenario/data.h"
 #include "scenario/editor.h"
-#include "scenario/property.h"
 #include "window/editor/map.h"
 #include "window/editor/starting_conditions.h"
 #include "window/numeric_input.h"
@@ -38,7 +38,7 @@ static void draw_foreground(void)
 
     lang_text_draw_centered(44, 13, 138, 56, 320, FONT_LARGE_BLACK);
 
-    int start_year = scenario_property_start_year();
+    int start_year = scenario.start_year;
     button_border_draw(158, 100, 100, 30, focus_button_id == 1);
     lang_text_draw_centered(20, start_year >= 0 ? 1 : 0, 158, 110, 100, FONT_NORMAL_BLACK);
 
@@ -60,12 +60,12 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 static void button_era(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_set_start_year(-scenario_property_start_year());
+    scenario_editor_set_start_year(-scenario.start_year);
 }
 
 static void set_year(int value)
 {
-    if (scenario_property_start_year() < 0) {
+    if (scenario.start_year < 0) {
         value = -value;
     }
     scenario_editor_set_start_year(value);

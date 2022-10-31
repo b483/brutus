@@ -15,6 +15,7 @@
 #include "map/routing_terrain.h"
 #include "map/tiles.h"
 #include "map/terrain.h"
+#include "scenario/data.h"
 #include "scenario/editor_events.h"
 #include "scenario/editor_map.h"
 #include "city/warning.h"
@@ -51,11 +52,6 @@ void editor_tool_deactivate(void)
     } else {
         data.active = 0;
     }
-}
-
-void editor_tool_set_type(tool_type type)
-{
-    editor_tool_set_with_id(type, 0);
 }
 
 void editor_tool_set_with_id(tool_type type, int id)
@@ -294,7 +290,7 @@ void editor_tool_update_use(const map_tile *tile)
             break;
     }
 
-    scenario_editor_updated_terrain();
+    scenario.is_saved = 0;
     widget_minimap_invalidate();
 }
 
@@ -302,7 +298,7 @@ static void place_earthquake_flag(const map_tile *tile)
 {
     int warning = 0;
     if (editor_tool_can_place_flag(data.type, tile, &warning)) {
-        if (scenario_editor_earthquake_severity()) {
+        if (scenario.earthquake.severity) {
             scenario_editor_set_earthquake_point(tile->x, tile->y);
         } else {
             city_warning_show(WARNING_EDITOR_NO_EARTHQUAKE_SCHEDULED);
@@ -353,6 +349,11 @@ static void place_building(const map_tile *tile)
             image_id = image_group(GROUP_EDITOR_BUILDING_CROPS);
             size = 1;
             break;
+        case TOOL_HOUSE_VACANT_LOT:
+            type = BUILDING_HOUSE_VACANT_LOT;
+            image_id = image_group(GROUP_EDITOR_BUILDING_NATIVE) - 4;
+            size = 1;
+            break;
         default:
             return;
     }
@@ -360,7 +361,7 @@ static void place_building(const map_tile *tile)
     if (editor_tool_can_place_building(tile, size * size, 0)) {
         building *b = building_create(type, tile->x, tile->y);
         map_building_tiles_add(b->id, tile->x, tile->y, size, image_id, TERRAIN_BUILDING);
-        scenario_editor_updated_terrain();
+        scenario.is_saved = 0;
     } else {
         city_warning_show(WARNING_EDITOR_CANNOT_PLACE);
     }
@@ -377,7 +378,7 @@ static void update_terrain_after_elevation_changes(void)
     map_tiles_update_all_empty_land();
     map_tiles_update_all_meadow();
 
-    scenario_editor_updated_terrain();
+    scenario.is_saved = 0;
 }
 
 static void place_access_ramp(const map_tile *tile)
@@ -395,7 +396,7 @@ static void place_access_ramp(const map_tile *tile)
             image_group(GROUP_TERRAIN_ACCESS_RAMP) + orientation, TERRAIN_ACCESS_RAMP);
 
         update_terrain_after_elevation_changes();
-        scenario_editor_updated_terrain();
+        scenario.is_saved = 0;
     } else {
         city_warning_show(WARNING_EDITOR_CANNOT_PLACE);
     }
@@ -404,7 +405,7 @@ static void place_access_ramp(const map_tile *tile)
 static void place_road(const map_tile *start_tile, const map_tile *end_tile)
 {
     if (building_construction_place_road(0, start_tile->x, start_tile->y, end_tile->x, end_tile->y)) {
-        scenario_editor_updated_terrain();
+        scenario.is_saved = 0;
     }
 }
 
@@ -445,6 +446,7 @@ void editor_tool_end_use(const map_tile *tile)
         case TOOL_NATIVE_CENTER:
         case TOOL_NATIVE_FIELD:
         case TOOL_NATIVE_HUT:
+        case TOOL_HOUSE_VACANT_LOT:
             place_building(tile);
             break;
         case TOOL_RAISE_LAND:

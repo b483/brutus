@@ -8,7 +8,7 @@
 #include "core/config.h"
 #include "game/time.h"
 #include "scenario/criteria.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 #include "sound/music.h"
 #include "window/mission_end.h"
 #include "window/victory_dialog.h"
@@ -39,33 +39,33 @@ static int determine_victory_state(void)
     int state = VICTORY_STATE_WON;
     int has_criteria = 0;
 
-    if (scenario_criteria_culture_enabled()) {
+    if (scenario.culture_win_criteria.enabled) {
         has_criteria = 1;
-        if (city_data.ratings.culture < scenario_criteria_culture()) {
+        if (city_data.ratings.culture < scenario.culture_win_criteria.goal) {
             state = VICTORY_STATE_NONE;
         }
     }
-    if (scenario_criteria_prosperity_enabled()) {
+    if (scenario.prosperity_win_criteria.enabled) {
         has_criteria = 1;
-        if (city_data.ratings.prosperity < scenario_criteria_prosperity()) {
+        if (city_data.ratings.prosperity < scenario.prosperity_win_criteria.goal) {
             state = VICTORY_STATE_NONE;
         }
     }
-    if (scenario_criteria_peace_enabled()) {
+    if (scenario.peace_win_criteria.enabled) {
         has_criteria = 1;
-        if (city_data.ratings.peace < scenario_criteria_peace()) {
+        if (city_data.ratings.peace < scenario.peace_win_criteria.goal) {
             state = VICTORY_STATE_NONE;
         }
     }
-    if (scenario_criteria_favor_enabled()) {
+    if (scenario.favor_win_criteria.enabled) {
         has_criteria = 1;
-        if (city_data.ratings.favor < scenario_criteria_favor()) {
+        if (city_data.ratings.favor < scenario.favor_win_criteria.goal) {
             state = VICTORY_STATE_NONE;
         }
     }
-    if (scenario_criteria_population_enabled()) {
+    if (scenario.population_win_criteria.enabled) {
         has_criteria = 1;
-        if (city_data.population.population < scenario_criteria_population()) {
+        if (city_data.population.population < scenario.population_win_criteria.goal) {
             state = VICTORY_STATE_NONE;
         }
     }
@@ -75,14 +75,14 @@ static int determine_victory_state(void)
     }
     // Bug: the survival time only works if no other criteria have been set
     if (!has_criteria) {
-        if (scenario_criteria_time_limit_enabled() || scenario_criteria_survival_enabled()) {
+        if (scenario.time_limit_win_criteria.enabled || scenario.survival_time_win_criteria.enabled) {
             has_criteria = 1;
         }
     }
     if (game_time_year() >= scenario_criteria_max_year()) {
-        if (scenario_criteria_time_limit_enabled()) {
+        if (scenario.time_limit_win_criteria.enabled) {
             state = VICTORY_STATE_LOST;
-        } else if (scenario_criteria_survival_enabled()) {
+        } else if (scenario.survival_time_win_criteria.enabled) {
             state = VICTORY_STATE_WON;
         }
     }
@@ -105,7 +105,7 @@ static int determine_victory_state(void)
 
 void city_victory_check(void)
 {
-    if (scenario_is_open_play()) {
+    if (scenario.is_open_play) {
         return;
     }
     data.state = determine_victory_state();

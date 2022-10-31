@@ -8,7 +8,6 @@
 #include "city/trade.h"
 #include "core/random.h"
 #include "scenario/data.h"
-#include "scenario/property.h"
 
 enum {
     EVENT_ROME_RAISES_WAGES = 1,
@@ -52,7 +51,7 @@ static void disrupt_land_trade(void)
     if (scenario.random_events.land_trade_problem) {
         if (city_trade_has_land_trade_route()) {
             city_trade_start_land_trade_problems(48);
-            if (scenario_property_climate() == CLIMATE_DESERT) {
+            if (scenario.climate == CLIMATE_DESERT) {
                 city_message_post(1, MESSAGE_LAND_TRADE_DISRUPTED_SANDSTORMS, 0, 0);
             } else {
                 city_message_post(1, MESSAGE_LAND_TRADE_DISRUPTED_LANDSLIDES, 0, 0);

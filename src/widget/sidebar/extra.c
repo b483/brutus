@@ -14,7 +14,8 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "scenario/criteria.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
+
 
 #define EXTRA_INFO_LINE_SPACE 16
 #define EXTRA_INFO_HEIGHT_GAME_SPEED 64
@@ -108,23 +109,23 @@ static void set_extra_info_objectives(void)
     data.favor.target = 0;
     data.population.target = 0;
 
-    if (scenario_is_open_play()) {
+    if (scenario.is_open_play) {
         return;
     }
-    if (scenario_criteria_culture_enabled()) {
-        data.culture.target = scenario_criteria_culture();
+    if (scenario.culture_win_criteria.enabled) {
+        data.culture.target = scenario.culture_win_criteria.goal;
     }
-    if (scenario_criteria_prosperity_enabled()) {
-        data.prosperity.target = scenario_criteria_prosperity();
+    if (scenario.prosperity_win_criteria.enabled) {
+        data.prosperity.target = scenario.prosperity_win_criteria.goal;
     }
-    if (scenario_criteria_peace_enabled()) {
-        data.peace.target = scenario_criteria_peace();
+    if (scenario.peace_win_criteria.enabled) {
+        data.peace.target = scenario.peace_win_criteria.goal;
     }
-    if (scenario_criteria_favor_enabled()) {
-        data.favor.target = scenario_criteria_favor();
+    if (scenario.favor_win_criteria.enabled) {
+        data.favor.target = scenario.favor_win_criteria.goal;
     }
-    if (scenario_criteria_population_enabled()) {
-        data.population.target = scenario_criteria_population();
+    if (scenario.population_win_criteria.enabled) {
+        data.population.target = scenario.population_win_criteria.goal;
     }
 }
 

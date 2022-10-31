@@ -14,7 +14,7 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 #include "widget/city.h"
 
 static void select_figure(int index, int param2);
@@ -215,7 +215,7 @@ static void draw_enemy(building_info_context *c, figure *f)
     image_draw(image_group(GROUP_BIG_PEOPLE) + image_id - 1, c->x_offset + 28, c->y_offset + 112);
 
     lang_text_draw(65, f->name, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
-    lang_text_draw(37, scenario_property_enemy() + 20, c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN);
+    lang_text_draw(37, scenario.enemy_id + 20, c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN);
 }
 
 static void draw_animal(building_info_context *c, figure *f)

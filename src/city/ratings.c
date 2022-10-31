@@ -7,7 +7,7 @@
 #include "core/calc.h"
 #include "game/time.h"
 #include "scenario/criteria.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 
 int city_rating_culture(void)
 {
@@ -202,7 +202,7 @@ static void update_prosperity_explanation(void)
     }
 
     int reason;
-    if (city_data.ratings.prosperity <= 0 && game_time_year() == scenario_property_start_year()) {
+    if (city_data.ratings.prosperity <= 0 && game_time_year() == scenario.start_year) {
         reason = 0;
     } else if (city_data.ratings.prosperity >= city_data.ratings.prosperity_max) {
         reason = 1;
@@ -497,7 +497,7 @@ static void update_peace_rating(void)
 
 static void update_favor_rating(int is_yearly_update)
 {
-    if (scenario_is_open_play()) {
+    if (scenario.is_open_play) {
         city_data.ratings.favor = 50;
         return;
     }
@@ -548,29 +548,29 @@ static void update_favor_rating(int is_yearly_update)
         }
         if (milestone_pct) {
             int bonus = 1;
-            if (scenario_criteria_culture_enabled() &&
+            if (scenario.culture_win_criteria.enabled &&
                 city_data.ratings.culture < calc_adjust_with_percentage(
-                    scenario_criteria_culture(), milestone_pct)) {
+                    scenario.culture_win_criteria.goal, milestone_pct)) {
                 bonus = 0;
             }
-            if (scenario_criteria_prosperity_enabled() &&
+            if (scenario.prosperity_win_criteria.enabled &&
                 city_data.ratings.prosperity < calc_adjust_with_percentage(
-                    scenario_criteria_prosperity(), milestone_pct)) {
+                    scenario.prosperity_win_criteria.goal, milestone_pct)) {
                 bonus = 0;
             }
-            if (scenario_criteria_peace_enabled() &&
+            if (scenario.peace_win_criteria.enabled &&
                 city_data.ratings.peace < calc_adjust_with_percentage(
-                    scenario_criteria_peace(), milestone_pct)) {
+                    scenario.peace_win_criteria.goal, milestone_pct)) {
                 bonus = 0;
             }
-            if (scenario_criteria_favor_enabled() &&
+            if (scenario.favor_win_criteria.enabled &&
                 city_data.ratings.favor < calc_adjust_with_percentage(
-                    scenario_criteria_favor(), milestone_pct)) {
+                    scenario.favor_win_criteria.goal, milestone_pct)) {
                 bonus = 0;
             }
-            if (scenario_criteria_population_enabled() &&
+            if (scenario.population_win_criteria.enabled &&
                 city_data.population.population < calc_adjust_with_percentage(
-                    scenario_criteria_population(), milestone_pct)) {
+                    scenario.population_win_criteria.goal, milestone_pct)) {
                 bonus = 0;
             }
             if (bonus) {

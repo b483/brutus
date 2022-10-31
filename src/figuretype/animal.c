@@ -16,8 +16,8 @@
 #include "map/figure.h"
 #include "map/grid.h"
 #include "map/point.h"
+#include "scenario/data.h"
 #include "scenario/map.h"
-#include "scenario/property.h"
 
 static const map_point SEAGULL_OFFSETS[] = {
     {0, 0}, {0, -2}, {-2, 0}, {1, 2}, {2, 0}, {-3, 1}, {4, -3}, {-2, 4}, {0, 0}
@@ -65,7 +65,7 @@ static void create_herd(int x, int y)
 {
     figure_type herd_type;
     int num_animals;
-    switch (scenario_property_climate()) {
+    switch (scenario.climate) {
         case CLIMATE_CENTRAL:
             herd_type = FIGURE_SHEEP;
             num_animals = 10;

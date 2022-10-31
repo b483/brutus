@@ -122,7 +122,7 @@ static void draw_status(void)
         }
     }
 
-    if (scenario_editor_earthquake_severity() > 0) {
+    if (scenario.earthquake.severity > 0) {
         map_point earthquake = scenario_editor_earthquake_point();
         if (earthquake.x == -1 || earthquake.y == -1) {
             lang_text_draw(44, 57, text_offset, 269, FONT_NORMAL_RED);
@@ -186,7 +186,7 @@ static void button_build_tool(int tool, __attribute__((unused)) int param2)
 {
     window_editor_build_menu_hide();
     widget_map_editor_clear_current_tile();
-    editor_tool_set_type(tool);
+    editor_tool_set_with_id(tool, 0);
     if (window_is(WINDOW_EDITOR_BUILD_MENU)) {
         window_editor_map_show();
     } else {

@@ -8,7 +8,7 @@
 #include "empire/object.h"
 #include "map/road_access.h"
 #include "scenario/building.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 
 static struct {
     resource_list resource_list;
@@ -247,7 +247,7 @@ static void calculate_available_food(void)
         city_data.resource.food_supply_months =
             city_data.resource.granary_total_stored > 0 ? 1 : 0;
     }
-    if (scenario_property_rome_supplies_wheat()) {
+    if (scenario.rome_supplies_wheat) {
         city_data.resource.food_types_available = 1;
         city_data.resource.food_supply_months = 12;
     }
@@ -256,7 +256,7 @@ static void calculate_available_food(void)
 void city_resource_calculate_food_stocks_and_supply_wheat(void)
 {
     calculate_available_food();
-    if (scenario_property_rome_supplies_wheat()) {
+    if (scenario.rome_supplies_wheat) {
         for (int i = 1; i < MAX_BUILDINGS; i++) {
             building *b = building_get(i);
             if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_MARKET) {
@@ -306,7 +306,7 @@ void city_resource_consume_food(void)
                 amount_per_type /= num_types;
             }
             b->data.house.num_foods = 0;
-            if (scenario_property_rome_supplies_wheat()) {
+            if (scenario.rome_supplies_wheat) {
                 city_data.resource.food_types_eaten = 1;
                 city_data.resource.food_types_available = 1;
                 b->data.house.inventory[INVENTORY_WHEAT] = amount_per_type;

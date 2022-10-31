@@ -6,7 +6,6 @@
 #include "city/message.h"
 #include "core/calc.h"
 #include "core/random.h"
-#include "scenario/property.h"
 
 int city_health(void)
 {

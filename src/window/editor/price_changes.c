@@ -13,7 +13,6 @@
 #include "input/input.h"
 #include "scenario/data.h"
 #include "scenario/editor.h"
-#include "scenario/property.h"
 #include "window/editor/attributes.h"
 #include "window/editor/edit_price_change.h"
 #include "window/editor/map.h"
@@ -70,7 +69,7 @@ static void draw_foreground(void)
 
         if (scenario.price_changes[i].resource) {
             int width = lang_text_draw(25, scenario.price_changes[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
-            width += lang_text_draw_year(scenario_property_start_year() + scenario.price_changes[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
+            width += lang_text_draw_year(scenario.start_year + scenario.price_changes[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
             image_draw(image_group(GROUP_EDITOR_RESOURCE_ICONS) + scenario.price_changes[i].resource + resource_image_offset(scenario.price_changes[i].resource, RESOURCE_IMAGE_ICON), x + 12 + width, y + 3);
             width += lang_text_draw(44, scenario.price_changes[i].is_rise ? 104 : 103, x + 45 + width, y + 6, FONT_NORMAL_BLACK);
             text_draw_number(scenario.price_changes[i].amount, '@', " ", x + 45 + width, y + 6, FONT_NORMAL_BLACK);

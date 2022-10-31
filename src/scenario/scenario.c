@@ -1,3 +1,4 @@
+#include "core/string.h"
 #include "game/settings.h"
 #include "scenario.h"
 #include "scenario/data.h"
@@ -5,16 +6,8 @@
 struct scenario_t scenario;
 struct scenario_settings scenario_settings;
 
-int scenario_is_saved(void)
-{
-    return scenario.is_saved;
-}
-
 void scenario_save_state(buffer *buf)
 {
-    buffer_write_u8(buf, scenario.open_play_scenario_id);
-    buffer_write_i16(buf, scenario.image_id);
-
     buffer_write_i32(buf, scenario.map.width);
     buffer_write_i32(buf, scenario.map.height);
     buffer_write_i32(buf, scenario.map.grid_start);
@@ -29,11 +22,15 @@ void scenario_save_state(buffer *buf)
     // Map name
     buffer_write_raw(buf, scenario.scenario_name, MAX_SCENARIO_NAME);
 
-    // Map description
-    buffer_write_raw(buf, scenario.briefing, MAX_BRIEFING);
-
     // Brief description
     buffer_write_raw(buf, scenario.brief_description, MAX_BRIEF_DESCRIPTION);
+    buffer_write_i16(buf, scenario.brief_description_image_id);
+
+    // Scenario description
+    buffer_write_raw(buf, scenario.briefing, MAX_BRIEFING);
+
+    // Terrain set
+    buffer_write_u8(buf, scenario.climate);
 
     // Starting conditions
     buffer_write_i16(buf, scenario.player_rank);
@@ -44,12 +41,45 @@ void scenario_save_state(buffer *buf)
     buffer_write_i32(buf, scenario.initial_personal_savings);
     buffer_write_i32(buf, scenario.rome_supplies_wheat);
     buffer_write_u8(buf, scenario.flotsam_enabled);
-    buffer_write_i32(buf, scenario.win_criteria.milestone25_year);
-    buffer_write_i32(buf, scenario.win_criteria.milestone50_year);
-    buffer_write_i32(buf, scenario.win_criteria.milestone75_year);
 
-    // Terrain set
-    buffer_write_u8(buf, scenario.climate);
+    // Win criteria
+    buffer_write_i16(buf, scenario.is_open_play);
+    buffer_write_i32(buf, scenario.population_win_criteria.enabled);
+    buffer_write_i32(buf, scenario.population_win_criteria.goal);
+    buffer_write_u8(buf, scenario.culture_win_criteria.enabled);
+    buffer_write_i32(buf, scenario.culture_win_criteria.goal);
+    buffer_write_u8(buf, scenario.prosperity_win_criteria.enabled);
+    buffer_write_i32(buf, scenario.prosperity_win_criteria.goal);
+    buffer_write_u8(buf, scenario.peace_win_criteria.enabled);
+    buffer_write_i32(buf, scenario.peace_win_criteria.goal);
+    buffer_write_u8(buf, scenario.favor_win_criteria.enabled);
+    buffer_write_i32(buf, scenario.favor_win_criteria.goal);
+    buffer_write_i32(buf, scenario.time_limit_win_criteria.enabled);
+    buffer_write_i32(buf, scenario.time_limit_win_criteria.years);
+    buffer_write_i32(buf, scenario.survival_time_win_criteria.enabled);
+    buffer_write_i32(buf, scenario.survival_time_win_criteria.years);
+    buffer_write_i32(buf, scenario.milestone25_year);
+    buffer_write_i32(buf, scenario.milestone50_year);
+    buffer_write_i32(buf, scenario.milestone75_year);
+
+    // Buildings allowed
+    for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
+        buffer_write_i16(buf, scenario.allowed_buildings[i]);
+    }
+
+    // Special events
+    buffer_write_i32(buf, scenario.earthquake.severity);
+    buffer_write_i32(buf, scenario.earthquake.year);
+    buffer_write_i32(buf, scenario.gladiator_revolt.enabled);
+    buffer_write_i32(buf, scenario.gladiator_revolt.year);
+    buffer_write_i32(buf, scenario.emperor_change.enabled);
+    buffer_write_i32(buf, scenario.emperor_change.year);
+    // random events
+    buffer_write_i32(buf, scenario.random_events.sea_trade_problem);
+    buffer_write_i32(buf, scenario.random_events.land_trade_problem);
+    buffer_write_i32(buf, scenario.random_events.raise_wages);
+    buffer_write_i32(buf, scenario.random_events.lower_wages);
+    buffer_write_i32(buf, scenario.random_events.contaminated_water);
 
     // Requests
     for (int i = 0; i < MAX_REQUESTS; i++) {
@@ -105,42 +135,6 @@ void scenario_save_state(buffer *buf)
     for (int i = 0; i < MAX_INVASIONS; i++) {
         buffer_write_i16(buf, scenario.invasions[i].attack_type);
     }
-
-    // Buildings allowed
-    for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
-        buffer_write_i16(buf, scenario.allowed_buildings[i]);
-    }
-
-    // Win criteria
-    buffer_write_i16(buf, scenario.is_open_play);
-    buffer_write_u8(buf, scenario.win_criteria.culture.enabled);
-    buffer_write_i32(buf, scenario.win_criteria.culture.goal);
-    buffer_write_u8(buf, scenario.win_criteria.prosperity.enabled);
-    buffer_write_i32(buf, scenario.win_criteria.prosperity.goal);
-    buffer_write_u8(buf, scenario.win_criteria.peace.enabled);
-    buffer_write_i32(buf, scenario.win_criteria.peace.goal);
-    buffer_write_u8(buf, scenario.win_criteria.favor.enabled);
-    buffer_write_i32(buf, scenario.win_criteria.favor.goal);
-    buffer_write_i32(buf, scenario.win_criteria.time_limit.enabled);
-    buffer_write_i32(buf, scenario.win_criteria.time_limit.years);
-    buffer_write_i32(buf, scenario.win_criteria.survival_time.enabled);
-    buffer_write_i32(buf, scenario.win_criteria.survival_time.years);
-    buffer_write_i32(buf, scenario.win_criteria.population.enabled);
-    buffer_write_i32(buf, scenario.win_criteria.population.goal);
-
-    // Special events
-    buffer_write_i32(buf, scenario.earthquake.severity);
-    buffer_write_i32(buf, scenario.earthquake.year);
-    buffer_write_i32(buf, scenario.gladiator_revolt.enabled);
-    buffer_write_i32(buf, scenario.gladiator_revolt.year);
-    buffer_write_i32(buf, scenario.emperor_change.enabled);
-    buffer_write_i32(buf, scenario.emperor_change.year);
-    // random events
-    buffer_write_i32(buf, scenario.random_events.sea_trade_problem);
-    buffer_write_i32(buf, scenario.random_events.land_trade_problem);
-    buffer_write_i32(buf, scenario.random_events.raise_wages);
-    buffer_write_i32(buf, scenario.random_events.lower_wages);
-    buffer_write_i32(buf, scenario.random_events.contaminated_water);
 
     // Price changes
     for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
@@ -200,10 +194,11 @@ void scenario_save_state(buffer *buf)
     buffer_write_i16(buf, scenario.river_exit_point.x);
     buffer_write_i16(buf, scenario.river_exit_point.y);
 
-    // Native buildings
+    // Buildings
     buffer_write_i32(buf, scenario.native_images.hut);
     buffer_write_i32(buf, scenario.native_images.meeting);
     buffer_write_i32(buf, scenario.native_images.crops);
+    buffer_write_i32(buf, scenario.native_images.vacant_lots);
 
     // Fishing points
     for (int i = 0; i < MAX_FISH_POINTS; i++) {
@@ -226,9 +221,6 @@ void scenario_save_state(buffer *buf)
 
 void scenario_load_state(buffer *buf)
 {
-    scenario.open_play_scenario_id = buffer_read_u8(buf);
-    scenario.image_id = buffer_read_i16(buf);
-
     scenario.map.width = buffer_read_i32(buf);
     scenario.map.height = buffer_read_i32(buf);
     scenario.map.grid_start = buffer_read_i32(buf);
@@ -243,11 +235,15 @@ void scenario_load_state(buffer *buf)
     // Map name
     buffer_read_raw(buf, scenario.scenario_name, MAX_SCENARIO_NAME);
 
-    // Map description
-    buffer_read_raw(buf, scenario.briefing, MAX_BRIEFING);
-
     // Brief description
     buffer_read_raw(buf, scenario.brief_description, MAX_BRIEF_DESCRIPTION);
+    scenario.brief_description_image_id = buffer_read_i16(buf);
+
+    // Scenario description
+    buffer_read_raw(buf, scenario.briefing, MAX_BRIEFING);
+
+    // Terrain set
+    scenario.climate = buffer_read_u8(buf);
 
     // Starting conditions
     scenario.player_rank = buffer_read_i16(buf);
@@ -258,12 +254,45 @@ void scenario_load_state(buffer *buf)
     scenario.initial_personal_savings = buffer_read_i32(buf);
     scenario.rome_supplies_wheat = buffer_read_i32(buf);
     scenario.flotsam_enabled = buffer_read_u8(buf);
-    scenario.win_criteria.milestone25_year = buffer_read_i32(buf);
-    scenario.win_criteria.milestone50_year = buffer_read_i32(buf);
-    scenario.win_criteria.milestone75_year = buffer_read_i32(buf);
 
-    // Terrain set
-    scenario.climate = buffer_read_u8(buf);
+    // Win criteria
+    scenario.is_open_play = buffer_read_i16(buf);
+    scenario.population_win_criteria.enabled = buffer_read_i32(buf);
+    scenario.population_win_criteria.goal = buffer_read_i32(buf);
+    scenario.culture_win_criteria.enabled = buffer_read_u8(buf);
+    scenario.culture_win_criteria.goal = buffer_read_i32(buf);
+    scenario.prosperity_win_criteria.enabled = buffer_read_u8(buf);
+    scenario.prosperity_win_criteria.goal = buffer_read_i32(buf);
+    scenario.peace_win_criteria.enabled = buffer_read_u8(buf);
+    scenario.peace_win_criteria.goal = buffer_read_i32(buf);
+    scenario.favor_win_criteria.enabled = buffer_read_u8(buf);
+    scenario.favor_win_criteria.goal = buffer_read_i32(buf);
+    scenario.time_limit_win_criteria.enabled = buffer_read_i32(buf);
+    scenario.time_limit_win_criteria.years = buffer_read_i32(buf);
+    scenario.survival_time_win_criteria.enabled = buffer_read_i32(buf);
+    scenario.survival_time_win_criteria.years = buffer_read_i32(buf);
+    scenario.milestone25_year = buffer_read_i32(buf);
+    scenario.milestone50_year = buffer_read_i32(buf);
+    scenario.milestone75_year = buffer_read_i32(buf);
+
+    // Buildings allowed
+    for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
+        scenario.allowed_buildings[i] = buffer_read_i16(buf);
+    }
+
+    // Special events
+    scenario.earthquake.severity = buffer_read_i32(buf);
+    scenario.earthquake.year = buffer_read_i32(buf);
+    scenario.gladiator_revolt.enabled = buffer_read_i32(buf);
+    scenario.gladiator_revolt.year = buffer_read_i32(buf);
+    scenario.emperor_change.enabled = buffer_read_i32(buf);
+    scenario.emperor_change.year = buffer_read_i32(buf);
+    // random events
+    scenario.random_events.sea_trade_problem = buffer_read_i32(buf);
+    scenario.random_events.land_trade_problem = buffer_read_i32(buf);
+    scenario.random_events.raise_wages = buffer_read_i32(buf);
+    scenario.random_events.lower_wages = buffer_read_i32(buf);
+    scenario.random_events.contaminated_water = buffer_read_i32(buf);
 
     // Requests
     for (int i = 0; i < MAX_REQUESTS; i++) {
@@ -319,42 +348,6 @@ void scenario_load_state(buffer *buf)
     for (int i = 0; i < MAX_INVASIONS; i++) {
         scenario.invasions[i].attack_type = buffer_read_i16(buf);
     }
-
-    // Buildings allowed
-    for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
-        scenario.allowed_buildings[i] = buffer_read_i16(buf);
-    }
-
-    // Win criteria
-    scenario.is_open_play = buffer_read_i16(buf);
-    scenario.win_criteria.culture.enabled = buffer_read_u8(buf);
-    scenario.win_criteria.culture.goal = buffer_read_i32(buf);
-    scenario.win_criteria.prosperity.enabled = buffer_read_u8(buf);
-    scenario.win_criteria.prosperity.goal = buffer_read_i32(buf);
-    scenario.win_criteria.peace.enabled = buffer_read_u8(buf);
-    scenario.win_criteria.peace.goal = buffer_read_i32(buf);
-    scenario.win_criteria.favor.enabled = buffer_read_u8(buf);
-    scenario.win_criteria.favor.goal = buffer_read_i32(buf);
-    scenario.win_criteria.time_limit.enabled = buffer_read_i32(buf);
-    scenario.win_criteria.time_limit.years = buffer_read_i32(buf);
-    scenario.win_criteria.survival_time.enabled = buffer_read_i32(buf);
-    scenario.win_criteria.survival_time.years = buffer_read_i32(buf);
-    scenario.win_criteria.population.enabled = buffer_read_i32(buf);
-    scenario.win_criteria.population.goal = buffer_read_i32(buf);
-
-    // Special events
-    scenario.earthquake.severity = buffer_read_i32(buf);
-    scenario.earthquake.year = buffer_read_i32(buf);
-    scenario.gladiator_revolt.enabled = buffer_read_i32(buf);
-    scenario.gladiator_revolt.year = buffer_read_i32(buf);
-    scenario.emperor_change.enabled = buffer_read_i32(buf);
-    scenario.emperor_change.year = buffer_read_i32(buf);
-    // random events
-    scenario.random_events.sea_trade_problem = buffer_read_i32(buf);
-    scenario.random_events.land_trade_problem = buffer_read_i32(buf);
-    scenario.random_events.raise_wages = buffer_read_i32(buf);
-    scenario.random_events.lower_wages = buffer_read_i32(buf);
-    scenario.random_events.contaminated_water = buffer_read_i32(buf);
 
     // Price changes
     for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
@@ -418,6 +411,7 @@ void scenario_load_state(buffer *buf)
     scenario.native_images.hut = buffer_read_i32(buf);
     scenario.native_images.meeting = buffer_read_i32(buf);
     scenario.native_images.crops = buffer_read_i32(buf);
+    scenario.native_images.vacant_lots = buffer_read_i32(buf);
 
     // Fishing points
     for (int i = 0; i < MAX_FISH_POINTS; i++) {
@@ -436,6 +430,11 @@ void scenario_load_state(buffer *buf)
     }
 
     scenario.is_saved = 1;
+}
+
+void scenario_settings_set_player_name(const uint8_t *name)
+{
+    string_copy(name, scenario_settings.player_name, MAX_PLAYER_NAME);
 }
 
 void scenario_settings_save_state(buffer *player_name)

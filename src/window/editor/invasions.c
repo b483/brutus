@@ -9,7 +9,6 @@
 #include "graphics/window.h"
 #include "input/input.h"
 #include "scenario/data.h"
-#include "scenario/property.h"
 #include "window/editor/attributes.h"
 #include "window/editor/edit_invasion.h"
 #include "window/editor/map.h"
@@ -65,7 +64,7 @@ static void draw_foreground(void)
         button_border_draw(x, y, 290, 25, focus_button_id == i + 1);
         if (scenario.invasions[i].type) {
             int width = lang_text_draw(25, scenario.invasions[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
-            width += lang_text_draw_year(scenario_property_start_year() + scenario.invasions[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
+            width += lang_text_draw_year(scenario.start_year + scenario.invasions[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
             width += text_draw_number(scenario.invasions[i].amount, ' ', "", x + 6 + width, y + 6, FONT_NORMAL_BLACK);
             uint8_t *invasions_type_text = get_custom_string(TR_EDITOR_INVASION_TYPE_NO_INVADERS + scenario.invasions[i].type);
             text_draw(invasions_type_text, x - 12 + width + (290 - width - text_get_width(invasions_type_text, FONT_NORMAL_BLACK)), y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);

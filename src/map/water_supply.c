@@ -12,7 +12,7 @@
 #include "map/image.h"
 #include "map/property.h"
 #include "map/terrain.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 
 #include <string.h>
 
@@ -207,7 +207,7 @@ void map_water_supply_update_reservoir_fountain(void)
         if (map_terrain_is(b->grid_offset, TERRAIN_RESERVOIR_RANGE) && b->num_workers) {
             b->has_water_access = 1;
             map_terrain_add_with_radius(b->x, b->y, 1,
-                scenario_property_climate() == CLIMATE_DESERT ? 3 : 4,
+                scenario.climate == CLIMATE_DESERT ? 3 : 4,
                 TERRAIN_FOUNTAIN_RANGE);
         } else {
             b->has_water_access = 0;

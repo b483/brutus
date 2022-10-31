@@ -13,6 +13,7 @@
 #include "map/image.h"
 #include "map/point.h"
 #include "map/property.h"
+#include "scenario/data.h"
 #include "scenario/scenario.h"
 #include "sound/city.h"
 #include "sound/effect.h"
@@ -151,7 +152,7 @@ static void confirm_editor_exit_to_main_menu(void)
 
 void request_exit_editor(void)
 {
-    if (scenario_is_saved()) {
+    if (scenario.is_saved) {
         game_exit_editor();
     } else {
         window_popup_dialog_show(POPUP_DIALOG_EDITOR_QUIT_WITHOUT_SAVING, confirm_editor_exit_to_main_menu, 1);

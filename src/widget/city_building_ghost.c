@@ -24,7 +24,7 @@
 #include "map/terrain.h"
 #include "map/tiles.h"
 #include "map/water.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 #include "widget/city_bridge.h"
 
 #define MAX_TILES 25
@@ -491,7 +491,7 @@ static void draw_fountain(const map_tile *tile, int x, int y)
         int image_id = image_group(building_properties_for_type(BUILDING_FOUNTAIN)->image_group);
         if (config_get(CONFIG_UI_SHOW_WATER_STRUCTURE_RANGE)) {
             city_view_foreach_tile_in_range(tile->grid_offset, 1,
-                scenario_property_climate() == CLIMATE_DESERT ? 3 : 4, draw_fountain_range);
+                scenario.climate == CLIMATE_DESERT ? 3 : 4, draw_fountain_range);
         }
         image_draw_isometric_footprint(image_id, x, y, color_mask);
         image_draw_isometric_top(image_id, x, y, color_mask);

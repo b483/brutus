@@ -5,7 +5,7 @@
 #include "city/resource.h"
 #include "core/calc.h"
 #include "game/resource.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 
 struct resource_data {
     int building_id;
@@ -88,7 +88,7 @@ int building_market_get_storage_destination(building *market)
             continue;
         }
         if (b->type == BUILDING_GRANARY) {
-            if (scenario_property_rome_supplies_wheat()) {
+            if (scenario.rome_supplies_wheat) {
                 continue;
             }
             update_food_resource(&resources[INVENTORY_WHEAT], RESOURCE_WHEAT, b, distance);

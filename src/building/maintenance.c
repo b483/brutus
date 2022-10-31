@@ -23,7 +23,7 @@
 #include "map/routing.h"
 #include "map/routing_terrain.h"
 #include "map/tiles.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 #include "sound/effect.h"
 
 static int fire_spread_direction = 0;
@@ -35,7 +35,7 @@ void building_maintenance_update_fire_direction(void)
 
 void building_maintenance_update_burning_ruins(void)
 {
-    scenario_climate climate = scenario_property_climate();
+    scenario_climate climate = scenario.climate;
     int recalculate_terrain = 0;
     building_list_burning_clear();
     for (int i = 1; i < MAX_BUILDINGS; i++) {
@@ -154,7 +154,7 @@ void building_maintenance_check_fire_collapse(void)
 {
     city_sentiment_reset_protesters_criminals();
 
-    scenario_climate climate = scenario_property_climate();
+    scenario_climate climate = scenario.climate;
     int recalculate_terrain = 0;
     int random_global = random_byte() & 7;
     int max_id = building_get_highest_id();

@@ -7,12 +7,12 @@
 #include "graphics/image.h"
 #include "input/scroll.h"
 #include "map/terrain.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 
 #define MAX_TILES 4
 
-static const int X_VIEW_OFFSETS[MAX_TILES] = {0, -30, 30, 0};
-static const int Y_VIEW_OFFSETS[MAX_TILES] = {0, 15, 15, 30};
+static const int X_VIEW_OFFSETS[MAX_TILES] = { 0, -30, 30, 0 };
+static const int Y_VIEW_OFFSETS[MAX_TILES] = { 0, 15, 15, 30 };
 
 static void offset_to_view_offset(int dx, int dy, int *view_dx, int *view_dy)
 {
@@ -23,7 +23,7 @@ static void offset_to_view_offset(int dx, int dy, int *view_dx, int *view_dy)
 
 static void draw_flat_tile(int x, int y, color_t color_mask)
 {
-    if (color_mask == COLOR_MASK_GREEN && scenario_property_climate() != CLIMATE_DESERT) {
+    if (color_mask == COLOR_MASK_GREEN && scenario.climate != CLIMATE_DESERT) {
         image_draw_blend_alpha(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, ALPHA_MASK_SEMI_TRANSPARENT | color_mask);
     } else {
         image_draw_blend(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, color_mask);
@@ -70,6 +70,8 @@ static void draw_building(const map_tile *tile, int x_view, int y_view, building
         int image_id;
         if (type == BUILDING_NATIVE_CROPS) {
             image_id = image_group(GROUP_EDITOR_BUILDING_CROPS);
+        } else if (type == BUILDING_HOUSE_VACANT_LOT) {
+            image_id = image_group(GROUP_EDITOR_BUILDING_NATIVE) - 4;
         } else {
             image_id = image_group(props->image_group) + props->image_offset;
         }
@@ -108,7 +110,7 @@ static void draw_brush_tile(const void *data, int dx, int dy)
 
 static void draw_brush(int x, int y)
 {
-    view_tile vt = {x, y};
+    view_tile vt = { x, y };
     editor_tool_foreach_brush_tile(draw_brush_tile, &vt);
 }
 
@@ -119,7 +121,7 @@ static void draw_access_ramp(const map_tile *tile, int x, int y)
         int image_id = image_group(GROUP_TERRAIN_ACCESS_RAMP) + orientation;
         draw_building_image(image_id, x, y);
     } else {
-        int blocked[4] = {1, 1, 1, 1};
+        int blocked[4] = { 1, 1, 1, 1 };
         draw_partially_blocked(x, y, 4, blocked);
     }
 }
@@ -148,7 +150,9 @@ void map_editor_tool_draw(const map_tile *tile)
         case TOOL_NATIVE_FIELD:
             draw_building(tile, x, y, BUILDING_NATIVE_CROPS);
             break;
-
+        case TOOL_HOUSE_VACANT_LOT:
+            draw_building(tile, x, y, BUILDING_HOUSE_VACANT_LOT);
+            break;
         case TOOL_EARTHQUAKE_POINT:
         case TOOL_ENTRY_POINT:
         case TOOL_EXIT_POINT:

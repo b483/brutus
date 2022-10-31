@@ -12,7 +12,6 @@
 #include "input/input.h"
 #include "scenario/data.h"
 #include "scenario/editor.h"
-#include "scenario/property.h"
 #include "widget/input_box.h"
 #include "widget/sidebar/editor.h"
 #include "window/editor/attributes.h"
@@ -34,7 +33,7 @@ static generic_button button_reset[] = {
 
 static void start_briefing_box_input(void)
 {
-    string_copy(scenario_briefing(), briefing, MAX_BRIEFING);
+    string_copy(scenario.briefing, briefing, MAX_BRIEFING);
     input_box_start(&scenario_briefing_input);
 }
 

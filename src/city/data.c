@@ -3,7 +3,7 @@
 #include "city/constants.h"
 #include "city/data_private.h"
 #include "city/gods.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 
 #include <string.h>
 
@@ -39,7 +39,7 @@ void city_data_init_scenario(void)
     city_data.unused.faction_id = 1;
     city_data.unused.unknown_00a2 = 1;
     city_data.unused.unknown_00a3 = 1;
-    city_data.finance.treasury = scenario_initial_funds();
+    city_data.finance.treasury = scenario.initial_funds;
     city_data.finance.last_year.balance = city_data.finance.treasury;
 }
 

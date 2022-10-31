@@ -20,7 +20,7 @@
 #include "graphics/font.h"
 #include "graphics/video.h"
 #include "graphics/window.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 #include "scenario/scenario.h"
 #include "sound/city.h"
 #include "sound/system.h"
@@ -109,7 +109,7 @@ static int reload_language(int is_editor, int reload_images)
         load_custom_messages();
     }
 
-    if (!image_load_climate(scenario_property_climate(), is_editor, reload_images)) {
+    if (!image_load_climate(scenario.climate, is_editor, reload_images)) {
         errlog("unable to load main graphics");
         return 0;
     }

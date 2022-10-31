@@ -109,6 +109,12 @@ enum {
     ALLOWED_BUILDING_WAREHOUSE = 77,
 };
 
+typedef enum {
+    CLIMATE_CENTRAL = 0,
+    CLIMATE_NORTHERN = 1,
+    CLIMATE_DESERT = 2
+} scenario_climate;
+
 struct win_criteria_t {
     int enabled;
     int goal;
@@ -153,41 +159,12 @@ typedef struct {
 } demand_change_t;
 
 extern struct scenario_t {
-    uint8_t scenario_name[MAX_SCENARIO_NAME];
-    uint8_t briefing[MAX_BRIEFING];
-    uint8_t brief_description[MAX_BRIEF_DESCRIPTION];
-    int is_open_play;
-    int open_play_scenario_id;
-    int player_rank;
-    int start_year;
-    int initial_favor;
-    int initial_funds;
-    int rescue_loan;
-    int initial_personal_savings;
-    int rome_supplies_wheat;
-    int flotsam_enabled;
-    int climate;
-    int image_id;
-    int enemy_id;
-
     struct {
-        struct win_criteria_t population;
-        struct win_criteria_t culture;
-        struct win_criteria_t prosperity;
-        struct win_criteria_t peace;
-        struct win_criteria_t favor;
-        struct {
-            int enabled;
-            int years;
-        } time_limit;
-        struct {
-            int enabled;
-            int years;
-        } survival_time;
-        int milestone25_year;
-        int milestone50_year;
-        int milestone75_year;
-    } win_criteria;
+        int width;
+        int height;
+        int grid_start;
+        int grid_border_size;
+    } map;
 
     struct {
         int id;
@@ -197,28 +174,49 @@ extern struct scenario_t {
         int distant_battle_enemy_travel_months;
     } empire;
 
-    request_t requests[MAX_REQUESTS];
-    invasion_t invasions[MAX_INVASIONS];
-    price_change_t price_changes[MAX_DEMAND_CHANGES];
-    demand_change_t demand_changes[MAX_DEMAND_CHANGES];
-
+    uint8_t scenario_name[MAX_SCENARIO_NAME];
+    uint8_t brief_description[MAX_BRIEF_DESCRIPTION];
+    int brief_description_image_id;
+    uint8_t briefing[MAX_BRIEFING];
+    int climate;
+    int player_rank;
+    int start_year;
+    int initial_favor;
+    int initial_funds;
+    int rescue_loan;
+    int initial_personal_savings;
+    int rome_supplies_wheat;
+    int flotsam_enabled;
+    int is_open_play;
+    struct win_criteria_t population_win_criteria;
+    struct win_criteria_t culture_win_criteria;
+    struct win_criteria_t prosperity_win_criteria;
+    struct win_criteria_t peace_win_criteria;
+    struct win_criteria_t favor_win_criteria;
+    struct {
+        int enabled;
+        int years;
+    } time_limit_win_criteria;
+    struct {
+        int enabled;
+        int years;
+    } survival_time_win_criteria;
+    int milestone25_year;
+    int milestone50_year;
+    int milestone75_year;
     short allowed_buildings[MAX_ALLOWED_BUILDINGS];
-
     struct {
         int severity;
         int year;
     } earthquake;
-
-    struct {
-        int year;
-        int enabled;
-    } emperor_change;
-
     struct {
         int year;
         int enabled;
     } gladiator_revolt;
-
+    struct {
+        int year;
+        int enabled;
+    } emperor_change;
     struct {
         int sea_trade_problem;
         int land_trade_problem;
@@ -226,13 +224,11 @@ extern struct scenario_t {
         int lower_wages;
         int contaminated_water;
     } random_events;
-
-    struct {
-        int width;
-        int height;
-        int grid_start;
-        int grid_border_size;
-    } map;
+    request_t requests[MAX_REQUESTS];
+    int enemy_id;
+    invasion_t invasions[MAX_INVASIONS];
+    price_change_t price_changes[MAX_DEMAND_CHANGES];
+    demand_change_t demand_changes[MAX_DEMAND_CHANGES];
 
     map_point earthquake_point;
     map_point invasion_points[MAX_INVASION_POINTS];
@@ -247,6 +243,7 @@ extern struct scenario_t {
         int hut;
         int meeting;
         int crops;
+        int vacant_lots;
     } native_images;
 
     int is_saved;

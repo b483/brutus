@@ -12,7 +12,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "input/input.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 #include "widget/city.h"
 #include "widget/sidebar/city.h"
 #include "window/city.h"
@@ -103,19 +103,19 @@ int window_build_menu_image(void)
         case BUILD_MENU_VACANT_HOUSE:
             return image_base;
         case BUILD_MENU_CLEAR_LAND:
-            if (scenario_property_climate() == CLIMATE_DESERT) {
+            if (scenario.climate == CLIMATE_DESERT) {
                 return image_group(GROUP_PANEL_WINDOWS_DESERT);
             } else {
                 return image_base + 11;
             }
         case BUILD_MENU_ROAD:
-            if (scenario_property_climate() == CLIMATE_DESERT) {
+            if (scenario.climate == CLIMATE_DESERT) {
                 return image_group(GROUP_PANEL_WINDOWS_DESERT) + 1;
             } else {
                 return image_base + 10;
             }
         case BUILD_MENU_WATER:
-            if (scenario_property_climate() == CLIMATE_DESERT) {
+            if (scenario.climate == CLIMATE_DESERT) {
                 return image_group(GROUP_PANEL_WINDOWS_DESERT) + 2;
             } else {
                 return image_base + 3;
@@ -136,7 +136,7 @@ int window_build_menu_image(void)
             return image_base + 7;
         case BUILD_MENU_SECURITY:
         case BUILD_MENU_FORTS:
-            if (scenario_property_climate() == CLIMATE_DESERT) {
+            if (scenario.climate == CLIMATE_DESERT) {
                 return image_group(GROUP_PANEL_WINDOWS_DESERT) + 3;
             } else {
                 return image_base + 8;

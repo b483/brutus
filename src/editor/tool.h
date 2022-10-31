@@ -20,17 +20,17 @@ typedef enum {
     TOOL_EXIT_POINT = 13,
     TOOL_RIVER_ENTRY_POINT = 14,
     TOOL_RIVER_EXIT_POINT = 15,
-    TOOL_NATIVE_HUT = 16,
-    TOOL_NATIVE_CENTER = 17,
+    TOOL_NATIVE_CENTER = 16,
+    TOOL_NATIVE_HUT = 17,
     TOOL_NATIVE_FIELD = 18,
-    TOOL_FISHING_POINT = 19,
-    TOOL_HERD_POINT = 20
+    TOOL_HOUSE_VACANT_LOT = 19,
+    TOOL_FISHING_POINT = 20,
+    TOOL_HERD_POINT = 21
 } tool_type;
 
 tool_type editor_tool_type(void);
 int editor_tool_is_active(void);
 void editor_tool_deactivate(void);
-void editor_tool_set_type(tool_type tool);
 void editor_tool_set_with_id(tool_type tool, int id);
 
 int editor_tool_is_brush(void);

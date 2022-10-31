@@ -7,7 +7,7 @@
 #include "game/resource.h"
 #include "map/building_tiles.h"
 #include "map/road_access.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 
 #define MAX_PROGRESS_RAW 200
 #define MAX_PROGRESS_WORKSHOP 400
@@ -76,7 +76,7 @@ void building_industry_update_production(void)
 
 void building_industry_update_wheat_production(void)
 {
-    if (scenario_property_climate() == CLIMATE_NORTHERN) {
+    if (scenario.climate == CLIMATE_NORTHERN) {
         return;
     }
     for (int i = 1; i < MAX_BUILDINGS; i++) {

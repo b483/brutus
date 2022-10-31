@@ -16,6 +16,7 @@
 #include "map/random.h"
 #include "map/terrain.h"
 #include "scenario/building.h"
+#include "scenario/data.h"
 
 static void mark_native_land(int x, int y, int size, int radius)
 {
@@ -86,9 +87,6 @@ static void determine_meeting_center(void)
 void map_natives_init(void)
 {
     int meeting_center_set = 0;
-    int image_hut = scenario_building_image_native_hut();
-    int image_meeting = scenario_building_image_native_meeting();
-    int image_crops = scenario_building_image_native_crops();
     int native_image = image_group(GROUP_BUILDING_NATIVE);
     int grid_offset = map_data.start_offset;
     for (int y = 0; y < map_data.height; y++, grid_offset += map_data.border_size) {
@@ -96,25 +94,27 @@ void map_natives_init(void)
             if (!map_terrain_is(grid_offset, TERRAIN_BUILDING) || map_building_at(grid_offset)) {
                 continue;
             }
-
             int random_bit = map_random_get(grid_offset) & 1;
             int type;
             int image_id = map_image_at(grid_offset);
-            if (image_id == image_hut) {
+            if (image_id == scenario.native_images.hut) {
                 type = BUILDING_NATIVE_HUT;
                 map_image_set(grid_offset, native_image);
-            } else if (image_id == image_hut + 1) {
+            } else if (image_id == scenario.native_images.hut + 1) {
                 type = BUILDING_NATIVE_HUT;
                 map_image_set(grid_offset, native_image + 1);
-            } else if (image_id == image_meeting) {
+            } else if (image_id == scenario.native_images.meeting) {
                 type = BUILDING_NATIVE_MEETING;
                 map_image_set(grid_offset, native_image + 2);
                 map_image_set(grid_offset + map_grid_delta(1, 0), native_image + 2);
                 map_image_set(grid_offset + map_grid_delta(0, 1), native_image + 2);
                 map_image_set(grid_offset + map_grid_delta(1, 1), native_image + 2);
-            } else if (image_id == image_crops) {
+            } else if (image_id == scenario.native_images.crops) {
                 type = BUILDING_NATIVE_CROPS;
                 map_image_set(grid_offset, image_group(GROUP_BUILDING_FARM_CROPS) + random_bit);
+            } else if (image_group(GROUP_EDITOR_BUILDING_NATIVE) - 4) {
+                type = BUILDING_HOUSE_VACANT_LOT;
+                map_image_set(grid_offset, image_group(GROUP_EDITOR_BUILDING_NATIVE) - 4);
             } else { //unknown building
                 map_building_tiles_remove(0, x, y);
                 continue;
@@ -141,18 +141,17 @@ void map_natives_init(void)
                     b->figure_spawn_delay = random_bit;
                     mark_native_land(b->x, b->y, 1, 3);
                     break;
+                case BUILDING_HOUSE_VACANT_LOT:
+                    map_building_set(grid_offset, b->id);
+                    break;
             }
         }
     }
-
     determine_meeting_center();
 }
 
 void map_natives_init_editor(void)
 {
-    int image_hut = scenario_building_image_native_hut();
-    int image_meeting = scenario_building_image_native_meeting();
-    int image_crops = scenario_building_image_native_crops();
     int native_image = image_group(GROUP_EDITOR_BUILDING_NATIVE);
     int grid_offset = map_data.start_offset;
     for (int y = 0; y < map_data.height; y++, grid_offset += map_data.border_size) {
@@ -160,24 +159,26 @@ void map_natives_init_editor(void)
             if (!map_terrain_is(grid_offset, TERRAIN_BUILDING) || map_building_at(grid_offset)) {
                 continue;
             }
-
             int type;
             int image_id = map_image_at(grid_offset);
-            if (image_id == image_hut) {
+            if (image_id == scenario.native_images.hut) {
                 type = BUILDING_NATIVE_HUT;
                 map_image_set(grid_offset, native_image);
-            } else if (image_id == image_hut + 1) {
+            } else if (image_id == scenario.native_images.hut + 1) {
                 type = BUILDING_NATIVE_HUT;
                 map_image_set(grid_offset, native_image + 1);
-            } else if (image_id == image_meeting) {
+            } else if (image_id == scenario.native_images.meeting) {
                 type = BUILDING_NATIVE_MEETING;
                 map_image_set(grid_offset, native_image + 2);
                 map_image_set(grid_offset + map_grid_delta(1, 0), native_image + 2);
                 map_image_set(grid_offset + map_grid_delta(0, 1), native_image + 2);
                 map_image_set(grid_offset + map_grid_delta(1, 1), native_image + 2);
-            } else if (image_id == image_crops) {
+            } else if (image_id == scenario.native_images.crops) {
                 type = BUILDING_NATIVE_CROPS;
                 map_image_set(grid_offset, image_group(GROUP_EDITOR_BUILDING_CROPS));
+            } else if (image_group(GROUP_EDITOR_BUILDING_NATIVE) - 4) {
+                type = BUILDING_HOUSE_VACANT_LOT;
+                map_image_set(grid_offset, image_group(GROUP_EDITOR_BUILDING_NATIVE) - 4);
             } else { //unknown building
                 map_building_tiles_remove(0, x, y);
                 continue;

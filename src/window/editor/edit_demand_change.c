@@ -16,7 +16,6 @@
 #include "input/input.h"
 #include "scenario/data.h"
 #include "scenario/editor.h"
-#include "scenario/property.h"
 #include "window/editor/demand_changes.h"
 #include "window/editor/map.h"
 #include "window/numeric_input.h"
@@ -95,7 +94,7 @@ static void draw_foreground(void)
     text_draw(get_custom_string(TR_EDITOR_OFFSET_YEAR), 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(130, 152, 100, 25, data.focus_button_id == 1);
     text_draw_number_centered_prefix(scenario.demand_changes[data.id].year, '+', 132, 158, 100, FONT_NORMAL_BLACK);
-    lang_text_draw_year(scenario_property_start_year() + scenario.demand_changes[data.id].year, 240, 158, FONT_NORMAL_BLACK);
+    lang_text_draw_year(scenario.start_year + scenario.demand_changes[data.id].year, 240, 158, FONT_NORMAL_BLACK);
 
     // Month
     text_draw(get_custom_string(TR_EDITOR_MONTH), 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);

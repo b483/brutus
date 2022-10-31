@@ -14,7 +14,6 @@
 #include "map/terrain.h"
 #include "scenario/data.h"
 #include "scenario/map.h"
-#include "scenario/property.h"
 
 #include <string.h>
 

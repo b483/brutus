@@ -17,7 +17,7 @@
 #include "graphics/scrollbar.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/property.h"
+#include "scenario/scenario.h"
 #include "widget/input_box.h"
 #include "window/hotkey_config.h"
 #include "window/main_menu.h"

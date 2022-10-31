@@ -13,7 +13,7 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/property.h"
+#include "scenario/data.h"
 #include "window/building_info.h"
 
 static void go_to_orders(int param1, int param2);
@@ -164,7 +164,7 @@ void window_building_draw_granary(building_info_context *c)
     building *b = building_get(c->building_id);
     if (!c->has_road_access) {
         window_building_draw_description_at(c, 40, 69, 25);
-    } else if (scenario_property_rome_supplies_wheat()) {
+    } else if (scenario.rome_supplies_wheat) {
         window_building_draw_description_at(c, 40, 98, 4);
     } else {
         int total_stored = 0;
