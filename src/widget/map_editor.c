@@ -166,25 +166,6 @@ void widget_map_editor_handle_input(const mouse *m, const hotkeys *h)
     if (m->right.went_down && input_coords_in_map(m->x, m->y) && !editor_tool_is_active()) {
         scroll_drag_start();
     }
-    if (m->right.went_up) {
-        if (!editor_tool_is_active()) {
-            int has_scrolled = scroll_drag_end();
-            if (!has_scrolled) {
-                editor_tool_deactivate();
-            }
-        } else {
-            editor_tool_deactivate();
-        }
-    }
-
-    if (h->escape_pressed) {
-        if (editor_tool_is_active()) {
-            editor_tool_deactivate();
-        } else {
-            request_exit_editor();
-        }
-        return;
-    }
 
     map_tile *tile = &data.current_tile;
     update_city_view_coords(m->x, m->y, tile);
@@ -202,6 +183,26 @@ void widget_map_editor_handle_input(const mouse *m, const hotkeys *h)
     if (m->left.went_up && editor_tool_is_in_use()) {
         editor_tool_end_use(tile);
         sound_effect_play(SOUND_EFFECT_BUILD);
+    }
+    if (m->right.went_up) {
+        if (!editor_tool_is_active()) {
+            int has_scrolled = scroll_drag_end();
+            if (!has_scrolled) {
+                editor_tool_deactivate();
+            }
+        } else {
+            editor_tool_deactivate();
+            editor_tool_end_use(tile);
+        }
+    }
+    if (h->escape_pressed) {
+        if (editor_tool_is_active()) {
+            editor_tool_deactivate();
+            editor_tool_end_use(tile);
+        } else {
+            request_exit_editor();
+        }
+        return;
     }
 }
 
