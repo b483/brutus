@@ -9,7 +9,6 @@
 #include "graphics/rich_text.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "scenario/data.h"
 #include "scenario/editor.h"
 #include "widget/input_box.h"
@@ -81,7 +80,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (input_box_handle_mouse(m_dialog, &scenario_briefing_input)) {
         return;
     }
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         stop_briefing_box_input();
         rich_text_reset(0);
         window_editor_attributes_show();

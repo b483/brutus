@@ -7,7 +7,6 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "input/keyboard.h"
 #include "sound/effect.h"
 
@@ -108,7 +107,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (generic_buttons_handle_mouse(m, data.x, data.y, buttons, 12, &data.focus_button_id)) {
         return;
     }
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         close();
     }
     if (h->enter_pressed) {

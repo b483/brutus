@@ -12,7 +12,6 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "sound/music.h"
 #include "sound/speech.h"
 #include "window/intermezzo.h"
@@ -70,7 +69,7 @@ static void draw_background(void)
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         sound_music_stop();
         sound_speech_stop();
         city_victory_stop_governing();

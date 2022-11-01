@@ -16,7 +16,6 @@
 #include "graphics/text.h"
 #include "graphics/video.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "input/scroll.h"
 #include "scenario/data.h"
 #include "scenario/request.h"
@@ -546,7 +545,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     } else {
         handled = handle_input_normal(m_dialog, msg);
     }
-    if (!handled && input_go_back_requested(m, h)) {
+    if (!handled && (m->right.went_up || h->escape_pressed)) {
         button_close(0, 0);
     }
 }

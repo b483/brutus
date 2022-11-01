@@ -8,7 +8,6 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "sound/city.h"
 #include "sound/effect.h"
 #include "sound/music.h"
@@ -107,7 +106,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         arrow_buttons_handle_mouse(m_dialog, 208, 60, arrow_buttons_sound_options, sizeof(arrow_buttons_sound_options) / sizeof(arrow_button), 0)) {
         return;
     }
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         if (data.from_editor) {
             window_editor_map_show();
         } else {

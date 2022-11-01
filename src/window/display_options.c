@@ -9,7 +9,6 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 
 static void button_fullscreen(int param1, int param2);
 static void button_reset_window(int param1, int param2);
@@ -56,7 +55,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, display_top_menu_buttons, sizeof(display_top_menu_buttons)/(sizeof(generic_button)), &data.focus_button_id)) {
         return;
     }
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         data.close_callback();
     }
 }

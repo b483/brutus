@@ -11,7 +11,6 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "scenario/data.h"
 #include "widget/city.h"
 #include "widget/sidebar/city.h"
@@ -233,7 +232,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         widget_sidebar_city_handle_mouse_build_menu(m)) {
         return;
     }
-    if (input_go_back_requested(m, h) || click_outside_menu(m, get_sidebar_x_offset())) {
+    if (m->right.went_up || h->escape_pressed || click_outside_menu(m, get_sidebar_x_offset())) {
         data.selected_submenu = SUBMENU_NONE;
         window_city_show();
         return;

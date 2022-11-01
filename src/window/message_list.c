@@ -13,7 +13,6 @@
 #include "graphics/scrollbar.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "window/city.h"
 #include "window/message_dialog.h"
 
@@ -171,7 +170,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (button_id && old_button_id != button_id) {
         window_invalidate();
     }
-    if (!handled && input_go_back_requested(m, h)) {
+    if (!handled && (m->right.went_up || h->escape_pressed)) {
         button_close(0, 0);
     }
 }

@@ -9,7 +9,6 @@
 #include "graphics/rich_text.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "scenario/criteria.h"
 #include "scenario/data.h"
 #include "sound/music.h"
@@ -79,7 +78,7 @@ static void draw_background(void)
 static void handle_input(const mouse *m, const hotkeys *h)
 {
     rich_text_handle_mouse(mouse_in_dialog(m));
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         rich_text_reset(0);
         sound_speech_stop();
         sound_music_update(1);

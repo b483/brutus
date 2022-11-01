@@ -17,7 +17,6 @@
 #include "graphics/panel.h"
 #include "graphics/screen.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "map/aqueduct.h"
 #include "map/building.h"
 #include "map/figure.h"
@@ -593,7 +592,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (!handled) {
         handled |= handle_specific_building_info_mouse(m);
     }
-    if (!handled && input_go_back_requested(m, h)) {
+    if (!handled && (m->right.went_up || h->escape_pressed)) {
         window_city_show();
     }
 }

@@ -8,7 +8,6 @@
 #include "graphics/screen.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "scenario/data.h"
 #include "scenario/editor_events.h"
 #include "window/editor/attributes.h"
@@ -126,7 +125,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, 11, &focus_button_id)) {
         return;
     }
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         window_editor_attributes_show();
     }
 }

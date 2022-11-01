@@ -6,7 +6,6 @@
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
 #include "graphics/window.h"
-#include "input/input.h"
 
 #define GROUP 5
 
@@ -84,7 +83,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (data.has_buttons && image_buttons_handle_mouse(mouse_in_dialog(m), 80, 80, popup_dialog_buttons, sizeof(popup_dialog_buttons) / sizeof(image_button), 0)) {
         return;
     }
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         button_cancel(0, 0);
     }
     if (h->enter_pressed) {

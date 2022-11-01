@@ -15,7 +15,6 @@
 #include "graphics/scrollbar.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "scenario/criteria.h"
 #include "scenario/data.h"
 #include "scenario/invasion.h"
@@ -247,7 +246,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         button_start_scenario(0, 0);
         return;
     }
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         window_main_menu_show(0);
     }
 }

@@ -8,7 +8,6 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "scenario/data.h"
 #include "widget/map_editor.h"
 #include "widget/sidebar/editor.h"
@@ -124,7 +123,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (handle_build_submenu(m)) {
         return;
     }
-    if (input_go_back_requested(m, h) || click_outside_menu(m, get_sidebar_x_offset())) {
+    if (m->right.went_up || h->escape_pressed || click_outside_menu(m, get_sidebar_x_offset())) {
         data.selected_submenu = MENU_NONE;
         window_editor_map_show();
     }

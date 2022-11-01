@@ -9,7 +9,6 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "scenario/data.h"
 #include "scenario/editor.h"
 #include "window/editor/attributes.h"
@@ -145,7 +144,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, MAX_ALLOWED_BUILDINGS, &focus_button_id)) {
         return;
     }
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         empire_object_our_city_set_resources_sell();
         window_editor_attributes_show();
     }

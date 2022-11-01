@@ -17,7 +17,6 @@
 #include "graphics/screen.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "input/scroll.h"
 #include "scenario/empire.h"
 #include "scenario/invasion.h"
@@ -516,7 +515,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
             }
         }
         // allow de-selection only for objects that are currently selected/drawn
-        if (input_go_back_requested(m, h)) {
+        if (m->right.went_up || h->escape_pressed) {
             switch (data.selected_object->type) {
                 case EMPIRE_OBJECT_CITY:
                     data.selected_object = 0;
@@ -544,7 +543,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
                     window_go_back();
             }
         }
-    } else if (input_go_back_requested(m, h)) {
+    } else if (m->right.went_up || h->escape_pressed) {
         window_go_back();
         if (window_is(WINDOW_TRADE_OPENED)) {
             window_city_show();

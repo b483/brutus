@@ -15,7 +15,6 @@
 #include "graphics/screen.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "scenario/data.h"
 #include "scenario/editor.h"
 #include "widget/input_box.h"
@@ -186,7 +185,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         widget_sidebar_editor_handle_mouse_attributes(m)) {
         return;
     }
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         stop_brief_description_box_input(0);
         window_editor_map_show();
     }

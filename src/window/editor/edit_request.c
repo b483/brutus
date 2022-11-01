@@ -9,7 +9,6 @@
 #include "graphics/screen.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "scenario/data.h"
 #include "scenario/editor.h"
 #include "window/editor/map.h"
@@ -106,7 +105,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_request, sizeof(buttons_edit_request) / sizeof(generic_button), &data.focus_button_id)) {
         return;
     }
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         scenario_editor_sort_requests();
         window_editor_requests_show();
     }

@@ -7,7 +7,6 @@
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "window/advisors.h"
 #include "window/empire.h"
 
@@ -50,7 +49,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (image_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, image_buttons, 2, 0)) {
         return;
     }
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         window_empire_show();
     }
 }

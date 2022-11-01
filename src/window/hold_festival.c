@@ -14,7 +14,6 @@
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "window/advisors.h"
 #include "window/message_dialog.h"
 
@@ -97,7 +96,7 @@ static void draw_foreground(void)
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         window_advisors_show(ADVISOR_ENTERTAINMENT);
         return;
     }

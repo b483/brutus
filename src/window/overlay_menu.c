@@ -8,7 +8,6 @@
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "widget/city.h"
 #include "window/city.h"
 
@@ -170,7 +169,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
             m, x_offset - SUBMENU_X_OFFSET, MENU_Y_OFFSET + MENU_ITEM_HEIGHT * data.selected_menu,
             submenu_buttons, data.num_submenu_items, &data.submenu_focus_button_id);
     }
-    if (!handled && input_go_back_requested(m, h)) {
+    if (!handled && (m->right.went_up || h->escape_pressed)) {
         if (data.keep_submenu_open) {
             close_submenu();
         } else {

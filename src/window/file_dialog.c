@@ -19,7 +19,6 @@
 #include "graphics/scrollbar.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "platform/file_manager.h"
 #include "widget/input_box.h"
 #include "window/city.h"
@@ -216,7 +215,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         scrollbar_handle_mouse(&scrollbar, m_dialog)) {
         return;
     }
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         input_box_stop(&file_name_input);
         window_go_back();
     }

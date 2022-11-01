@@ -18,7 +18,6 @@
 #include "graphics/image_button.h"
 #include "graphics/panel.h"
 #include "graphics/window.h"
-#include "input/input.h"
 #include "window/city.h"
 #include "window/message_dialog.h"
 #include "window/advisor/chief.h"
@@ -192,7 +191,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (current_advisor_window->handle_mouse && current_advisor_window->handle_mouse(m_dialog)) {
         return;
     }
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         window_city_show();
         return;
     }

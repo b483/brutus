@@ -6,7 +6,6 @@
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
 #include "graphics/window.h"
-#include "input/input.h"
 
 static void button_set_priority(int new_priority, int param2);
 static void button_remove_priority(int param1, int param2);
@@ -66,7 +65,7 @@ static void draw_foreground(void)
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (input_go_back_requested(m, h)) {
+    if (m->right.went_up || h->escape_pressed) {
         window_go_back();
         return;
     }
