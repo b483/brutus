@@ -218,7 +218,7 @@ static void set_enemy(int enemy)
 static void button_enemy(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     stop_brief_description_box_input(1);
-    window_select_list_show(screen_dialog_offset_x() + 12, screen_dialog_offset_y() + 40, 37, 20, set_enemy);
+    window_select_list_show(screen_dialog_offset_x() - 190, screen_dialog_offset_y() + 110, 37, 20, set_enemy);
 }
 
 static void button_invasions(__attribute__((unused)) int param1, __attribute__((unused)) int param2)

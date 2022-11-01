@@ -6,10 +6,10 @@
 
 #include <stdint.h>
 
-#define MAX_REQUESTS 20
-#define MAX_INVASIONS 20
-#define MAX_DEMAND_CHANGES 20
-#define MAX_PRICE_CHANGES 20
+#define MAX_REQUESTS 40
+#define MAX_INVASIONS 40
+#define MAX_PRICE_CHANGES 40
+#define MAX_DEMAND_CHANGES 40
 
 #define MAX_HERD_POINTS 8
 #define MAX_FISH_POINTS 8

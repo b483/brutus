@@ -103,7 +103,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 static void button_rank(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_select_list_show(screen_dialog_offset_x() + 40, screen_dialog_offset_y() + 56,
+    window_select_list_show(screen_dialog_offset_x() + 462, screen_dialog_offset_y() - 55,
                             32, 11, scenario_editor_set_player_rank);
 }
 
@@ -114,25 +114,25 @@ static void button_start_year(__attribute__((unused)) int param1, __attribute__(
 
 static void button_initial_favor(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_numeric_input_show(screen_dialog_offset_x() + 120, screen_dialog_offset_y() + 56,
+    window_numeric_input_show(screen_dialog_offset_x() + 300, screen_dialog_offset_y() + 50,
                               3, 100, scenario_editor_set_initial_favor);
 }
 
 static void button_initial_funds(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_numeric_input_show(screen_dialog_offset_x() + 120, screen_dialog_offset_y() + 56,
+    window_numeric_input_show(screen_dialog_offset_x() + 300, screen_dialog_offset_y() + 90,
                               5, 99999, scenario_editor_set_initial_funds);
 }
 
 static void button_rescue_loan(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_numeric_input_show(screen_dialog_offset_x() + 120, screen_dialog_offset_y() + 56,
+    window_numeric_input_show(screen_dialog_offset_x() + 300, screen_dialog_offset_y() + 130,
                               5, 99999, scenario_editor_set_rescue_loan);
 }
 
 static void button_initial_personal_savings(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_numeric_input_show(screen_dialog_offset_x() + 120, screen_dialog_offset_y() + 56,
+    window_numeric_input_show(screen_dialog_offset_x() + 300, screen_dialog_offset_y() + 170,
                               5, 99999, scenario_editor_set_initial_personal_savings);
 }
 

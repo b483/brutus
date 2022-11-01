@@ -19,50 +19,71 @@
 static void button_demand_change(int id, int param2);
 
 static generic_button buttons_demand_changes[] = {
-    {20, 48, 290, 25, button_demand_change, button_none, 0, 0},
-    {20, 78, 290, 25, button_demand_change, button_none, 1, 0},
-    {20, 108, 290, 25, button_demand_change, button_none, 2, 0},
-    {20, 138, 290, 25, button_demand_change, button_none, 3, 0},
-    {20, 168, 290, 25, button_demand_change, button_none, 4, 0},
-    {20, 198, 290, 25, button_demand_change, button_none, 5, 0},
-    {20, 228, 290, 25, button_demand_change, button_none, 6, 0},
-    {20, 258, 290, 25, button_demand_change, button_none, 7, 0},
-    {20, 288, 290, 25, button_demand_change, button_none, 8, 0},
-    {20, 318, 290, 25, button_demand_change, button_none, 9, 0},
-    {320, 48, 290, 25, button_demand_change, button_none, 10, 0},
-    {320, 78, 290, 25, button_demand_change, button_none, 11, 0},
-    {320, 108, 290, 25, button_demand_change, button_none, 12, 0},
-    {320, 138, 290, 25, button_demand_change, button_none, 13, 0},
-    {320, 168, 290, 25, button_demand_change, button_none, 14, 0},
-    {320, 198, 290, 25, button_demand_change, button_none, 15, 0},
-    {320, 228, 290, 25, button_demand_change, button_none, 16, 0},
-    {320, 258, 290, 25, button_demand_change, button_none, 17, 0},
-    {320, 288, 290, 25, button_demand_change, button_none, 18, 0},
-    {320, 318, 290, 25, button_demand_change, button_none, 19, 0},
+    {-300, 48, 290, 25, button_demand_change, button_none, 0, 0},
+    {-300, 78, 290, 25, button_demand_change, button_none, 1, 0},
+    {-300, 108, 290, 25, button_demand_change, button_none, 2, 0},
+    {-300, 138, 290, 25, button_demand_change, button_none, 3, 0},
+    {-300, 168, 290, 25, button_demand_change, button_none, 4, 0},
+    {-300, 198, 290, 25, button_demand_change, button_none, 5, 0},
+    {-300, 228, 290, 25, button_demand_change, button_none, 6, 0},
+    {-300, 258, 290, 25, button_demand_change, button_none, 7, 0},
+    {-300, 288, 290, 25, button_demand_change, button_none, 8, 0},
+    {-300, 318, 290, 25, button_demand_change, button_none, 9, 0},
+    {0, 48, 290, 25, button_demand_change, button_none, 10, 0},
+    {0, 78, 290, 25, button_demand_change, button_none, 11, 0},
+    {0, 108, 290, 25, button_demand_change, button_none, 12, 0},
+    {0, 138, 290, 25, button_demand_change, button_none, 13, 0},
+    {0, 168, 290, 25, button_demand_change, button_none, 14, 0},
+    {0, 198, 290, 25, button_demand_change, button_none, 15, 0},
+    {0, 228, 290, 25, button_demand_change, button_none, 16, 0},
+    {0, 258, 290, 25, button_demand_change, button_none, 17, 0},
+    {0, 288, 290, 25, button_demand_change, button_none, 18, 0},
+    {0, 318, 290, 25, button_demand_change, button_none, 19, 0},
+    {300, 48, 290, 25, button_demand_change, button_none, 20, 0},
+    {300, 78, 290, 25, button_demand_change, button_none, 21, 0},
+    {300, 108, 290, 25, button_demand_change, button_none, 22, 0},
+    {300, 138, 290, 25, button_demand_change, button_none, 23, 0},
+    {300, 168, 290, 25, button_demand_change, button_none, 24, 0},
+    {300, 198, 290, 25, button_demand_change, button_none, 25, 0},
+    {300, 228, 290, 25, button_demand_change, button_none, 26, 0},
+    {300, 258, 290, 25, button_demand_change, button_none, 27, 0},
+    {300, 288, 290, 25, button_demand_change, button_none, 28, 0},
+    {300, 318, 290, 25, button_demand_change, button_none, 29, 0},
+    {600, 48, 290, 25, button_demand_change, button_none, 30, 0},
+    {600, 78, 290, 25, button_demand_change, button_none, 31, 0},
+    {600, 108, 290, 25, button_demand_change, button_none, 32, 0},
+    {600, 138, 290, 25, button_demand_change, button_none, 33, 0},
+    {600, 168, 290, 25, button_demand_change, button_none, 34, 0},
+    {600, 198, 290, 25, button_demand_change, button_none, 35, 0},
+    {600, 228, 290, 25, button_demand_change, button_none, 36, 0},
+    {600, 258, 290, 25, button_demand_change, button_none, 37, 0},
+    {600, 288, 290, 25, button_demand_change, button_none, 38, 0},
+    {600, 318, 290, 25, button_demand_change, button_none, 39, 0},
 };
 
 static int focus_button_id;
-
-static void draw_background(void)
-{
-    window_editor_map_draw_all();
-}
 
 static void draw_foreground(void)
 {
     graphics_in_dialog();
 
-    outer_panel_draw(0, 0, 40, 23);
-    lang_text_draw_centered(44, 94, 0, 16, 640, FONT_LARGE_BLACK);
+    outer_panel_draw(-320, 0, 77, 23);
+    lang_text_draw_centered(44, 94, -320, 16, 1232, FONT_LARGE_BLACK);
 
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
         int x, y;
         if (i < 10) {
-            x = 20;
+            x = -300;
             y = 48 + 30 * i;
-        } else {
-            x = 320;
+        } else if (i < 20) {
+            x = 0;
             y = 48 + 30 * (i - 10);
+        } else if (i < 30) {
+            x = 300;
+            y = 48 + 30 * (i - 20);
+        } else {
+            x = 600;
+            y = 48 + 30 * (i - 30);
         }
         button_border_draw(x, y, 290, 25, focus_button_id == i + 1);
 
@@ -71,8 +92,8 @@ static void draw_foreground(void)
             width += lang_text_draw_year(scenario.start_year + scenario.demand_changes[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
             image_draw(image_group(GROUP_EDITOR_RESOURCE_ICONS) + scenario.demand_changes[i].resource + resource_image_offset(scenario.demand_changes[i].resource, RESOURCE_IMAGE_ICON), x + 12 + width, y + 3);
             width += lang_text_draw(44, 97, x + 45 + width, y + 6, FONT_NORMAL_BLACK);
-            width += text_draw_number(scenario.demand_changes[i].route_id, '@', " ", x + 40 + width, y + 6, FONT_NORMAL_BLACK);
-            lang_text_draw(44, scenario.demand_changes[i].is_rise ? 99 : 98, x + 40 + width, y + 6, FONT_NORMAL_BLACK);
+            width += text_draw_number(scenario.demand_changes[i].route_id, 0, 0, x + 48 + width, y + 6, FONT_NORMAL_BLACK);
+            lang_text_draw(44, scenario.demand_changes[i].is_rise ? 99 : 98, x + 48 + width, y + 6, FONT_NORMAL_BLACK);
         } else {
             lang_text_draw_centered(44, 96, x, y + 6, 290, FONT_NORMAL_BLACK);
         }
@@ -100,7 +121,7 @@ void window_editor_demand_changes_show(void)
 {
     window_type window = {
         WINDOW_EDITOR_DEMAND_CHANGES,
-        draw_background,
+        window_editor_map_draw_all,
         draw_foreground,
         handle_input,
         0

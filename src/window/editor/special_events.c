@@ -138,7 +138,7 @@ static void button_earthquake_severity(__attribute__((unused)) int param1, __att
 
 static void button_earthquake_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_numeric_input_show(screen_dialog_offset_x() + 190, screen_dialog_offset_y() + 100,
+    window_numeric_input_show(screen_dialog_offset_x() + 320, screen_dialog_offset_y() - 10,
                               3, 999, scenario_editor_earthquake_set_year);
 }
 
@@ -150,7 +150,7 @@ static void button_gladiator_toggle(__attribute__((unused)) int param1, __attrib
 
 static void button_gladiator_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_numeric_input_show(screen_dialog_offset_x() + 190, screen_dialog_offset_y() + 100,
+    window_numeric_input_show(screen_dialog_offset_x() + 320, screen_dialog_offset_y() + 20,
                               3, 999, scenario_editor_gladiator_revolt_set_year);
 }
 
@@ -162,7 +162,7 @@ static void button_emperor_toggle(__attribute__((unused)) int param1, __attribut
 
 static void button_emperor_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_numeric_input_show(screen_dialog_offset_x() + 190, screen_dialog_offset_y() + 100,
+    window_numeric_input_show(screen_dialog_offset_x() + 320, screen_dialog_offset_y() + 50,
                               3, 999, scenario_editor_emperor_change_set_year);
 }
 

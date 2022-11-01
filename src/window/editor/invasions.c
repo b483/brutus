@@ -15,56 +15,77 @@
 static void button_invasion(int id, int param2);
 
 static generic_button buttons_invasions[] = {
-    {20, 48, 290, 25, button_invasion, button_none, 0, 0},
-    {20, 78, 290, 25, button_invasion, button_none, 1, 0},
-    {20, 108, 290, 25, button_invasion, button_none, 2, 0},
-    {20, 138, 290, 25, button_invasion, button_none, 3, 0},
-    {20, 168, 290, 25, button_invasion, button_none, 4, 0},
-    {20, 198, 290, 25, button_invasion, button_none, 5, 0},
-    {20, 228, 290, 25, button_invasion, button_none, 6, 0},
-    {20, 258, 290, 25, button_invasion, button_none, 7, 0},
-    {20, 288, 290, 25, button_invasion, button_none, 8, 0},
-    {20, 318, 290, 25, button_invasion, button_none, 9, 0},
-    {320, 48, 290, 25, button_invasion, button_none, 10, 0},
-    {320, 78, 290, 25, button_invasion, button_none, 11, 0},
-    {320, 108, 290, 25, button_invasion, button_none, 12, 0},
-    {320, 138, 290, 25, button_invasion, button_none, 13, 0},
-    {320, 168, 290, 25, button_invasion, button_none, 14, 0},
-    {320, 198, 290, 25, button_invasion, button_none, 15, 0},
-    {320, 228, 290, 25, button_invasion, button_none, 16, 0},
-    {320, 258, 290, 25, button_invasion, button_none, 17, 0},
-    {320, 288, 290, 25, button_invasion, button_none, 18, 0},
-    {320, 318, 290, 25, button_invasion, button_none, 19, 0},
+    {-300, 48, 290, 25, button_invasion, button_none, 0, 0},
+    {-300, 78, 290, 25, button_invasion, button_none, 1, 0},
+    {-300, 108, 290, 25, button_invasion, button_none, 2, 0},
+    {-300, 138, 290, 25, button_invasion, button_none, 3, 0},
+    {-300, 168, 290, 25, button_invasion, button_none, 4, 0},
+    {-300, 198, 290, 25, button_invasion, button_none, 5, 0},
+    {-300, 228, 290, 25, button_invasion, button_none, 6, 0},
+    {-300, 258, 290, 25, button_invasion, button_none, 7, 0},
+    {-300, 288, 290, 25, button_invasion, button_none, 8, 0},
+    {-300, 318, 290, 25, button_invasion, button_none, 9, 0},
+    {0, 48, 290, 25, button_invasion, button_none, 10, 0},
+    {0, 78, 290, 25, button_invasion, button_none, 11, 0},
+    {0, 108, 290, 25, button_invasion, button_none, 12, 0},
+    {0, 138, 290, 25, button_invasion, button_none, 13, 0},
+    {0, 168, 290, 25, button_invasion, button_none, 14, 0},
+    {0, 198, 290, 25, button_invasion, button_none, 15, 0},
+    {0, 228, 290, 25, button_invasion, button_none, 16, 0},
+    {0, 258, 290, 25, button_invasion, button_none, 17, 0},
+    {0, 288, 290, 25, button_invasion, button_none, 18, 0},
+    {0, 318, 290, 25, button_invasion, button_none, 19, 0},
+    {300, 48, 290, 25, button_invasion, button_none, 20, 0},
+    {300, 78, 290, 25, button_invasion, button_none, 21, 0},
+    {300, 108, 290, 25, button_invasion, button_none, 22, 0},
+    {300, 138, 290, 25, button_invasion, button_none, 23, 0},
+    {300, 168, 290, 25, button_invasion, button_none, 24, 0},
+    {300, 198, 290, 25, button_invasion, button_none, 25, 0},
+    {300, 228, 290, 25, button_invasion, button_none, 26, 0},
+    {300, 258, 290, 25, button_invasion, button_none, 27, 0},
+    {300, 288, 290, 25, button_invasion, button_none, 28, 0},
+    {300, 318, 290, 25, button_invasion, button_none, 29, 0},
+    {600, 48, 290, 25, button_invasion, button_none, 30, 0},
+    {600, 78, 290, 25, button_invasion, button_none, 31, 0},
+    {600, 108, 290, 25, button_invasion, button_none, 32, 0},
+    {600, 138, 290, 25, button_invasion, button_none, 33, 0},
+    {600, 168, 290, 25, button_invasion, button_none, 34, 0},
+    {600, 198, 290, 25, button_invasion, button_none, 35, 0},
+    {600, 228, 290, 25, button_invasion, button_none, 36, 0},
+    {600, 258, 290, 25, button_invasion, button_none, 37, 0},
+    {600, 288, 290, 25, button_invasion, button_none, 38, 0},
+    {600, 318, 290, 25, button_invasion, button_none, 39, 0},
 };
 
 static int focus_button_id;
-
-static void draw_background(void)
-{
-    window_editor_map_draw_all();
-}
 
 static void draw_foreground(void)
 {
     graphics_in_dialog();
 
-    outer_panel_draw(0, 0, 40, 28);
-    lang_text_draw_centered(44, 15, 20, 16, 640, FONT_LARGE_BLACK);
+    outer_panel_draw(-320, 0, 77, 26);
+    lang_text_draw_centered(44, 15, -320, 16, 1232, FONT_LARGE_BLACK);
 
     for (int i = 0; i < MAX_INVASIONS; i++) {
         int x, y;
         if (i < 10) {
-            x = 20;
+            x = -300;
             y = 48 + 30 * i;
-        } else {
-            x = 320;
+        } else if (i < 20) {
+            x = 0;
             y = 48 + 30 * (i - 10);
+        } else if (i < 30) {
+            x = 300;
+            y = 48 + 30 * (i - 20);
+        } else {
+            x = 600;
+            y = 48 + 30 * (i - 30);
         }
         button_border_draw(x, y, 290, 25, focus_button_id == i + 1);
         if (scenario.invasions[i].type) {
             int width = lang_text_draw(25, scenario.invasions[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
             width += lang_text_draw_year(scenario.start_year + scenario.invasions[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
-            width += text_draw_number(scenario.invasions[i].amount, ' ', "", x + 6 + width, y + 6, FONT_NORMAL_BLACK);
+            width += text_draw_number(scenario.invasions[i].amount, 0, 0, x + 12 + width, y + 6, FONT_NORMAL_BLACK);
             uint8_t *invasions_type_text = get_custom_string(TR_EDITOR_INVASION_TYPE_NO_INVADERS + scenario.invasions[i].type);
             text_draw(invasions_type_text, x - 12 + width + (290 - width - text_get_width(invasions_type_text, FONT_NORMAL_BLACK)), y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
         } else {
@@ -73,7 +94,7 @@ static void draw_foreground(void)
     }
 
     // invasions hint
-    lang_text_draw_multiline(152, 2, 32, 360, 576, FONT_NORMAL_BLACK);
+    lang_text_draw_multiline(152, 2, -280, 360, 1200, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
 }
@@ -97,7 +118,7 @@ void window_editor_invasions_show(void)
 {
     window_type window = {
         WINDOW_EDITOR_INVASIONS,
-        draw_background,
+        window_editor_map_draw_all,
         draw_foreground,
         handle_input,
         0
