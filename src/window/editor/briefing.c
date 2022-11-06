@@ -65,11 +65,11 @@ static void draw_foreground(void)
     graphics_reset_clip_rectangle();
 
     // @L, @P hint
-    text_draw(get_custom_string(TR_EDITOR_SCENARIO_BRIEFING_HINT), -285, 550, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
+    text_draw(get_custom_string(TR_EDITOR_SCENARIO_RICH_TEXT_HINT), -285, 550, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
 
     // Reset briefing
     button_border_draw(455, 540, 190, 35, focus_button_id);
-    text_draw_centered(get_custom_string(TR_EDITOR_SCENARIO_BRIEFING_RESET), 455, 545, 190, FONT_LARGE_PLAIN, COLOR_TOOLTIP);
+    text_draw_centered(get_custom_string(TR_EDITOR_SCENARIO_BRIEFING_RESET), 455, 545, 190, FONT_LARGE_PLAIN, COLOR_RED);
 
     graphics_reset_dialog();
 }
@@ -77,9 +77,6 @@ static void draw_foreground(void)
 static void handle_input(const mouse *m, const hotkeys *h)
 {
     const mouse *m_dialog = mouse_in_dialog(m);
-    if (input_box_handle_mouse(m_dialog, &scenario_briefing_input)) {
-        return;
-    }
     if (m->right.went_up || h->escape_pressed) {
         stop_briefing_box_input();
         rich_text_reset(0);

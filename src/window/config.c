@@ -291,7 +291,6 @@ static void draw_background(void)
             text_draw_centered(w->get_display_text(), btn->x, y + btn->y + 6, btn->width, FONT_NORMAL_BLACK, 0);
         } else if (w->type == TYPE_INPUT_BOX) {
             text_draw(get_custom_string(w->description), 20, y + 6, FONT_NORMAL_BLACK, 0);
-            input_box_start(&player_name_input);
         } else if (w->type == TYPE_NUMERICAL_RANGE) {
             numerical_range_draw(&scale_ranges[w->subtype], NUMERICAL_RANGE_X, y, w->get_display_text());
         } else if (w->type == TYPE_NUMERICAL_DESC) {
@@ -412,6 +411,15 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (scrollbar_handle_mouse(&scrollbar, m_dialog)) {
         return;
     }
+
+    if (m->left.went_up && input_box_is_mouse_inside_input(m_dialog, &player_name_input)) {
+        input_box_start(&player_name_input);
+    }
+    if (m->left.went_up && !input_box_is_mouse_inside_input(m_dialog, &player_name_input)) {
+        input_box_stop(&player_name_input);
+        scenario_settings_set_player_name((const uint8_t *) data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value);
+    }
+
     int handled = 0;
     data.focus_button = 0;
 

@@ -19,8 +19,6 @@ static struct {
     int position;
     int cursor_position;
     int width;
-    int visible;
-    time_millis updated;
     int x_offset;
     int y_offset;
     int text_offset_start;
@@ -51,38 +49,15 @@ void text_capture_cursor(int cursor_position, int offset_start, int offset_end)
     input_cursor.text_offset_end = offset_end;
 }
 
-void text_draw_cursor(int x_offset, int y_offset, int is_insert)
+void text_draw_cursor(int x_offset, int y_offset)
 {
     if (!input_cursor.capture) {
         return;
     }
     input_cursor.capture = 0;
-    time_millis curr = time_get_millis();
-    time_millis diff = curr - input_cursor.updated;
-    if (!input_cursor.visible && diff >= 200) {
-        input_cursor.visible = 1;
-        input_cursor.updated = curr;
-    } else if (input_cursor.visible && diff >= 400) {
-        input_cursor.visible = 0;
-        input_cursor.updated = curr;
-    }
-    if (input_cursor.visible) {
-        if (is_insert) {
-            graphics_draw_horizontal_line(
-                x_offset + input_cursor.x_offset - 3, x_offset + input_cursor.x_offset + 1,
-                y_offset + input_cursor.y_offset - 3, COLOR_WHITE);
-            graphics_draw_vertical_line(
-                x_offset + input_cursor.x_offset - 1, y_offset + input_cursor.y_offset - 3,
-                y_offset + input_cursor.y_offset + 13, COLOR_WHITE);
-            graphics_draw_horizontal_line(
-                x_offset + input_cursor.x_offset - 3, x_offset + input_cursor.x_offset + 1,
-                y_offset + input_cursor.y_offset + 14, COLOR_WHITE);
-        } else {
-            graphics_fill_rect(
-                x_offset + input_cursor.x_offset, y_offset + input_cursor.y_offset + 14,
-                input_cursor.width, 2, COLOR_WHITE);
-        }
-    }
+    graphics_fill_rect(
+        x_offset + input_cursor.x_offset, y_offset + input_cursor.y_offset + 14,
+        input_cursor.width, 2, COLOR_WHITE);
 }
 
 int text_get_width(const uint8_t *str, font_t font)

@@ -40,7 +40,7 @@ static struct {
     int message_count[MAX_MESSAGE_CATEGORIES];
     int message_delay[MAX_MESSAGE_CATEGORIES];
 
-    time_millis last_sound_time[MESSAGE_CAT_RIOT_COLLAPSE+1];
+    time_millis last_sound_time[MESSAGE_CAT_RIOT_COLLAPSE + 1];
 
     int problem_count;
     int problem_index;
@@ -63,7 +63,7 @@ void city_message_init_scenario(void)
 
     data.next_message_sequence = 0;
     data.total_messages = 0;
-    data.current_message_id = 0;
+    data.current_message_id = -1;
 
     for (int i = 0; i < MAX_MESSAGE_CATEGORIES; i++) {
         data.message_count[i] = 0;
@@ -94,16 +94,6 @@ void city_message_init_problem_areas(void)
     data.problem_last_click_time = time_get_millis();
 }
 
-static int new_message_id(void)
-{
-    for (int i = 0; i < MAX_MESSAGES; i++) {
-        if (!data.messages[i].message_type) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 static int has_video(int text_id)
 {
     const lang_message *msg = lang_get_message(text_id);
@@ -113,16 +103,6 @@ static int has_video(int text_id)
     char video_file[FILE_NAME_MAX];
     encoding_to_utf8(msg->video.text, video_file, FILE_NAME_MAX, 0);
     return file_exists(0, video_file);
-}
-
-static void enqueue_message(int sequence)
-{
-    for (int i = 0; i < MAX_QUEUE; i++) {
-        if (!data.queue[i]) {
-            data.queue[i] = sequence;
-            break;
-        }
-    }
 }
 
 static void play_sound(int text_id)
@@ -136,16 +116,15 @@ static void play_sound(int text_id)
 
 static void show_message_popup(int message_id)
 {
-    city_message *msg = &data.messages[message_id];
     data.consecutive_message_delay = 5;
-    msg->is_read = 1;
-    int text_id = city_message_get_text_id(msg->message_type);
+    data.messages[message_id].is_read = 1;
+    int text_id = city_message_get_text_id(data.messages[message_id].message_type);
     if (!has_video(text_id)) {
         play_sound(text_id);
     }
     window_message_dialog_show_city_message(text_id,
-        msg->year, msg->month, msg->param1, msg->param2,
-        city_message_get_advisor(msg->message_type), 1);
+        data.messages[message_id].year, data.messages[message_id].month, data.messages[message_id].param1, data.messages[message_id].param2,
+        city_message_get_advisor(data.messages[message_id].message_type), 1);
 }
 
 void city_message_disable_sound_for_next_message(void)
@@ -165,21 +144,24 @@ void city_message_apply_sound_interval(message_category category)
 
 void city_message_post(int use_popup, int message_type, int param1, int param2)
 {
-    int id = new_message_id();
-    if (id < 0) {
+    for (int i = 0; i < MAX_MESSAGES; i++) {
+        if (!data.messages[i].message_type) {
+            data.current_message_id = i;
+            break;
+        }
+    }
+    if (data.current_message_id < 0) {
         return;
     }
     data.total_messages++;
-    data.current_message_id = id;
 
-    city_message *msg = &data.messages[id];
-    msg->message_type = message_type;
-    msg->is_read = 0;
-    msg->year = game_time_year();
-    msg->month = game_time_month();
-    msg->param1 = param1;
-    msg->param2 = param2;
-    msg->sequence = data.next_message_sequence++;
+    data.messages[data.current_message_id].message_type = message_type;
+    data.messages[data.current_message_id].is_read = 0;
+    data.messages[data.current_message_id].year = game_time_year();
+    data.messages[data.current_message_id].month = game_time_month();
+    data.messages[data.current_message_id].param1 = param1;
+    data.messages[data.current_message_id].param2 = param2;
+    data.messages[data.current_message_id].sequence = data.next_message_sequence++;
 
     int text_id = city_message_get_text_id(message_type);
     lang_message_type lang_msg_type = lang_get_message(text_id)->message_type;
@@ -188,10 +170,15 @@ void city_message_post(int use_popup, int message_type, int param1, int param2)
         window_invalidate();
     }
     if (use_popup && window_is(WINDOW_CITY)) {
-        show_message_popup(id);
+        show_message_popup(data.current_message_id);
     } else if (use_popup) {
         // add to queue to be processed when player returns to city
-        enqueue_message(msg->sequence);
+        for (int i = 0; i < MAX_QUEUE; i++) {
+            if (!data.queue[i]) {
+                data.queue[i] = data.messages[data.current_message_id].sequence;
+                break;
+            }
+        }
     } else if (should_play_sound) {
         play_sound(text_id);
     }
@@ -266,18 +253,18 @@ void city_message_sort_and_compact(void)
         for (int a = 0; a < MAX_MESSAGES - 1; a++) {
             int swap = 0;
             if (data.messages[a].message_type) {
-                if (data.messages[a].sequence < data.messages[a+1].sequence) {
-                    if (data.messages[a+1].message_type) {
+                if (data.messages[a].sequence < data.messages[a + 1].sequence) {
+                    if (data.messages[a + 1].message_type) {
                         swap = 1;
                     }
                 }
-            } else if (data.messages[a+1].message_type) {
+            } else if (data.messages[a + 1].message_type) {
                 swap = 1;
             }
             if (swap) {
                 city_message tmp_message = data.messages[a];
-                data.messages[a] = data.messages[a+1];
-                data.messages[a+1] = tmp_message;
+                data.messages[a] = data.messages[a + 1];
+                data.messages[a + 1] = tmp_message;
             }
         }
     }

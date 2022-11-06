@@ -414,7 +414,9 @@ set(WINDOW_FILES
     ${PROJECT_SOURCE_DIR}/src/window/editor/attributes.c
     ${PROJECT_SOURCE_DIR}/src/window/editor/briefing.c
     ${PROJECT_SOURCE_DIR}/src/window/editor/build_menu.c
+    ${PROJECT_SOURCE_DIR}/src/window/editor/custom_messages.c
     ${PROJECT_SOURCE_DIR}/src/window/editor/demand_changes.c
+    ${PROJECT_SOURCE_DIR}/src/window/editor/edit_custom_message.c
     ${PROJECT_SOURCE_DIR}/src/window/editor/edit_demand_change.c
     ${PROJECT_SOURCE_DIR}/src/window/editor/edit_invasion.c
     ${PROJECT_SOURCE_DIR}/src/window/editor/edit_price_change.c

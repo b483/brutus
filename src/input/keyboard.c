@@ -8,7 +8,6 @@
 #include "graphics/text.h"
 
 static struct {
-    int insert;
     int capture;
     int accepted;
 
@@ -173,11 +172,6 @@ int keyboard_input_is_accepted(void)
     }
 }
 
-int keyboard_is_insert(void)
-{
-    return data.insert;
-}
-
 int keyboard_is_capturing(void)
 {
     return data.capture;
@@ -253,18 +247,6 @@ static void remove_current_char(void)
     data.length -= bytes;
 }
 
-static void add_char(const uint8_t *value, int bytes)
-{
-    if (data.insert) {
-        insert_char(value, bytes);
-    } else {
-        if (data.cursor_position < data.length) {
-            remove_current_char();
-        }
-        insert_char(value, bytes);
-    }
-}
-
 void keyboard_backspace(void)
 {
     if (data.capture && data.cursor_position > 0) {
@@ -280,11 +262,6 @@ void keyboard_delete(void)
         remove_current_char();
         update_viewport(1);
     }
-}
-
-void keyboard_insert(void)
-{
-    data.insert ^= 1;
 }
 
 void keyboard_left(void)
@@ -336,7 +313,7 @@ static int keyboard_character(uint8_t *text)
         add = 1;
     } else if (c >= 'A' && c <= 'Z') {
         add = 1;
-    } else if (c == ',' || c == '.' || c == '?' || c == '!' || c == '@' || c == '%' || c == '\'') {
+    } else if (c == ',' || c == '.' || c == '?' || c == '!' || c == '@' || c == '%' || c == '\'' || c == '/' || c == '_') {
         add = data.allow_punctuation;
     } else if (c >= 0x80) { // do not check non-ascii for valid characters
         add = 1;
@@ -344,7 +321,7 @@ static int keyboard_character(uint8_t *text)
 
     int bytes = get_char_bytes(text);
     if (add) {
-        add_char(text, bytes);
+        insert_char(text, bytes);
         update_viewport(1);
     }
     return bytes;

@@ -9,6 +9,8 @@ void scenario_editor_set_native_images(int image_hut, int image_meeting, int ima
 
 void scenario_editor_sort_requests(void);
 
+void scenario_editor_sort_custom_messages(void);
+
 void scenario_editor_sort_invasions(void);
 
 void scenario_editor_sort_price_changes(void);

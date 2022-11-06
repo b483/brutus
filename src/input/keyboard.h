@@ -25,7 +25,6 @@ void keyboard_return(void);
 
 void keyboard_backspace(void);
 void keyboard_delete(void);
-void keyboard_insert(void);
 
 void keyboard_left(void);
 void keyboard_right(void);

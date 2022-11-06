@@ -21,14 +21,13 @@ typedef struct {
  * @param box Input box
  */
 void input_box_start(input_box *box);
-void input_box_pause(input_box *box);
-void input_box_resume(input_box *box);
 void input_box_stop(input_box *box);
 
 void input_box_refresh_text(input_box *box);
 int input_box_is_accepted(input_box *box);
 
-int input_box_handle_mouse(const mouse *m, const input_box *box);
+int input_box_is_mouse_inside_input(const mouse *m, const input_box *box);
+
 void input_box_draw(const input_box *box);
 
 #endif // WIDGET_INPUT_BOX_H

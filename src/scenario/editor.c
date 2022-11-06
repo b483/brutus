@@ -83,6 +83,11 @@ void scenario_editor_create(int map_size)
         scenario.requests[i].favor = 8;
     }
 
+    // Custom messages
+    for (int i = 0; i < MAX_REQUESTS; i++) {
+        scenario.editor_custom_messages[i].year = 1;
+    }
+
     // Invasions
     for (int i = 0; i < MAX_INVASIONS; i++) {
         scenario.invasions[i].year = 1;
@@ -368,6 +373,25 @@ void scenario_editor_sort_requests(void)
                 // if no previous request scheduled, move current back until first; if previous request is later than current, swap
                 if (!prev->resource || prev->year > current->year || (prev->year == current->year && prev->month > current->month)) {
                     request_t tmp = *current;
+                    *current = *prev;
+                    *prev = tmp;
+                }
+            }
+        }
+    }
+    scenario.is_saved = 0;
+}
+
+void scenario_editor_sort_custom_messages(void)
+{
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        for (int j = MAX_EDITOR_CUSTOM_MESSAGES - 1; j > 0; j--) {
+            editor_custom_messages_t *current = &scenario.editor_custom_messages[j];
+            editor_custom_messages_t *prev = &scenario.editor_custom_messages[j - 1];
+            if (current->enabled) {
+                // if no previous custom message scheduled, move current back until first; if previous custom message is later than current, swap
+                if (!prev->enabled || prev->year > current->year || (prev->year == current->year && prev->month > current->month)) {
+                    editor_custom_messages_t tmp = *current;
                     *current = *prev;
                     *prev = tmp;
                 }

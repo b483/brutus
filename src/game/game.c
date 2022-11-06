@@ -87,7 +87,6 @@ int game_init(void)
         return 0;
     }
 
-    load_custom_messages();
     sound_system_init();
     game_state_init();
     window_logo_show((is_unpatched() ? MESSAGE_MISSING_PATCH : MESSAGE_NONE));
@@ -104,9 +103,6 @@ static int reload_language(int is_editor, int reload_images)
             errlog("'c3.eng' or 'c3_mm.eng' files not found or too large.");
         }
         return 0;
-    }
-    if (!is_editor) {
-        load_custom_messages();
     }
 
     if (!image_load_climate(scenario.climate, is_editor, reload_images)) {
@@ -141,11 +137,6 @@ void game_exit_editor(void)
     }
     editor_set_active(0);
     window_main_menu_show(1);
-}
-
-int game_reload_language(void)
-{
-    return reload_language(0, 1);
 }
 
 void game_run(void)

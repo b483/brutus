@@ -236,9 +236,6 @@ void platform_handle_key_down(SDL_KeyboardEvent *event)
         case SDLK_DELETE:
             keyboard_delete();
             break;
-        case SDLK_INSERT:
-            keyboard_insert();
-            break;
         case SDLK_LEFT:
             keyboard_left();
             break;

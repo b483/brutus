@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #define MAX_REQUESTS 40
+#define MAX_EDITOR_CUSTOM_MESSAGES 45
 #define MAX_INVASIONS 40
 #define MAX_PRICE_CHANGES 40
 #define MAX_DEMAND_CHANGES 40
@@ -21,6 +22,9 @@
 #define MAX_SCENARIO_NAME 65
 #define MAX_BRIEF_DESCRIPTION 32
 #define MAX_BRIEFING 2500
+#define MAX_CUSTOM_MESSAGE_TITLE 30
+#define MAX_CUSTOM_MESSAGE_TEXT 1000
+#define MAX_CUSTOM_MESSAGE_VIDEO_TEXT 24
 
 enum {
     EVENT_NOT_STARTED = 0,
@@ -136,6 +140,16 @@ typedef struct {
 typedef struct {
     int year;
     int month;
+    int urgent;
+    int enabled;
+    uint8_t title[MAX_CUSTOM_MESSAGE_TEXT];
+    uint8_t text[MAX_CUSTOM_MESSAGE_TEXT];
+    uint8_t video_file[MAX_CUSTOM_MESSAGE_VIDEO_TEXT];
+} editor_custom_messages_t;
+
+typedef struct {
+    int year;
+    int month;
     int amount;
     int type;
     int from;
@@ -225,6 +239,7 @@ extern struct scenario_t {
         int contaminated_water;
     } random_events;
     request_t requests[MAX_REQUESTS];
+    editor_custom_messages_t editor_custom_messages[MAX_EDITOR_CUSTOM_MESSAGES];
     int enemy_id;
     invasion_t invasions[MAX_INVASIONS];
     price_change_t price_changes[MAX_DEMAND_CHANGES];

@@ -45,6 +45,7 @@
 #include "scenario/demand_change.h"
 #include "scenario/distant_battle.h"
 #include "scenario/earthquake.h"
+#include "scenario/editor_events.h"
 #include "scenario/emperor_change.h"
 #include "scenario/empire.h"
 #include "scenario/gladiator_revolt.h"
@@ -89,6 +90,7 @@ static void advance_month(void)
     } else {
         city_ratings_update(0);
     }
+    scenario_custom_messages_process();
     scenario_request_process();
     scenario_price_change_process();
     scenario_demand_change_process();

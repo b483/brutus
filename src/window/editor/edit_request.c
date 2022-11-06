@@ -44,11 +44,6 @@ static void init(int id)
     data.id = id;
 }
 
-static void draw_background(void)
-{
-    window_editor_map_draw_all();
-}
-
 static void draw_foreground(void)
 {
     graphics_in_dialog();
@@ -70,7 +65,7 @@ static void draw_foreground(void)
 
     // Invalid year/month combination
     if (scenario.requests[data.id].year == 0 && scenario.requests[data.id].month == 0) {
-        text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 260, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 260, 188, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 
     // Amount
@@ -207,7 +202,7 @@ void window_editor_edit_request_show(int id)
 {
     window_type window = {
         WINDOW_EDITOR_EDIT_REQUEST,
-        draw_background,
+        window_editor_map_draw_all,
         draw_foreground,
         handle_input,
         0

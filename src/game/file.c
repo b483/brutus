@@ -151,6 +151,7 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
     scenario_gladiator_revolt_init();
     scenario_emperor_change_init();
     scenario_criteria_init_max_year();
+    load_custom_messages();
 
     empire_init_scenario();
     traders_clear();

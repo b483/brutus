@@ -113,6 +113,29 @@ void scenario_save_state(buffer *buf)
         buffer_write_u8(buf, scenario.requests[i].can_comply_dialog_shown);
     }
 
+    // Custom messages
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        buffer_write_i16(buf, scenario.editor_custom_messages[i].year);
+    }
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        buffer_write_u8(buf, scenario.editor_custom_messages[i].month);
+    }
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        buffer_write_u8(buf, scenario.editor_custom_messages[i].urgent);
+    }
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        buffer_write_u8(buf, scenario.editor_custom_messages[i].enabled);
+    }
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        buffer_write_raw(buf, scenario.editor_custom_messages[i].title, MAX_CUSTOM_MESSAGE_TITLE);
+    }
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        buffer_write_raw(buf, scenario.editor_custom_messages[i].text, MAX_CUSTOM_MESSAGE_TEXT);
+    }
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        buffer_write_raw(buf, scenario.editor_custom_messages[i].video_file, MAX_CUSTOM_MESSAGE_VIDEO_TEXT);
+    }
+
     // Enemy
     buffer_write_i16(buf, scenario.enemy_id);
 
@@ -324,6 +347,29 @@ void scenario_load_state(buffer *buf)
     }
     for (int i = 0; i < MAX_REQUESTS; i++) {
         scenario.requests[i].can_comply_dialog_shown = buffer_read_u8(buf);
+    }
+
+    // Custom messages
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        scenario.editor_custom_messages[i].year = buffer_read_i16(buf);
+    }
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        scenario.editor_custom_messages[i].month = buffer_read_u8(buf);
+    }
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        scenario.editor_custom_messages[i].urgent = buffer_read_u8(buf);
+    }
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        scenario.editor_custom_messages[i].enabled = buffer_read_u8(buf);
+    }
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        buffer_read_raw(buf, scenario.editor_custom_messages[i].title, MAX_CUSTOM_MESSAGE_TITLE);
+    }
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        buffer_read_raw(buf, scenario.editor_custom_messages[i].text, MAX_CUSTOM_MESSAGE_TEXT);
+    }
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        buffer_read_raw(buf, scenario.editor_custom_messages[i].video_file, MAX_CUSTOM_MESSAGE_VIDEO_TEXT);
     }
 
     // Enemy

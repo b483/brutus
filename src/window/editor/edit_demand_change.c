@@ -102,7 +102,7 @@ static void draw_foreground(void)
 
     // Invalid year/month combination
     if (scenario.demand_changes[data.id].year == 0 && scenario.demand_changes[data.id].month == 0) {
-        text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 245, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 245, 188, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 
     // Resource

@@ -1,5 +1,7 @@
 #include "editor_events.h"
 
+#include "city/message.h"
+#include "game/time.h"
 #include "scenario/data.h"
 
 void scenario_editor_earthquake_cycle_severity(void)
@@ -69,4 +71,17 @@ void scenario_editor_contaminated_water_toggle_enabled(void)
 {
     scenario.random_events.contaminated_water = !scenario.random_events.contaminated_water;
     scenario.is_saved = 0;
+}
+
+void scenario_custom_messages_process(void)
+{
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        if (!scenario.editor_custom_messages[i].enabled) {
+            continue;
+        }
+        if (game_time_year() == scenario.editor_custom_messages[i].year + scenario.start_year
+            && game_time_month() == scenario.editor_custom_messages[i].month) {
+            city_message_post(1, 123 + i, 0, 0);
+        }
+    }
 }

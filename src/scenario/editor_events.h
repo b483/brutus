@@ -20,5 +20,6 @@ void scenario_editor_lower_wages_toggle_enabled(void);
 
 void scenario_editor_contaminated_water_toggle_enabled(void);
 
+void scenario_custom_messages_process(void);
 
 #endif // SCENARIO_EDITOR_EVENTS_H

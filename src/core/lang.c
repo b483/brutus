@@ -6,6 +6,7 @@
 #include "core/log.h"
 #include "core/string.h"
 #include "game/custom_strings.h"
+#include "scenario/data.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -135,13 +136,30 @@ void load_custom_messages(void)
     }
 
     // distant battle won but triumphal arch disabled from the editor
-    lang_message *m = &data.message_entries[i];
-    set_message_parameters(m, TR_CITY_MESSAGE_TITLE_DISTANT_BATTLE_WON_TRIUMPHAL_ARCH_DISABLED, TR_CITY_MESSAGE_TEXT_DISTANT_BATTLE_WON_TRIUMPHAL_ARCH_DISABLED, 0,
+    set_message_parameters(&data.message_entries[i], TR_CITY_MESSAGE_TITLE_DISTANT_BATTLE_WON_TRIUMPHAL_ARCH_DISABLED, TR_CITY_MESSAGE_TEXT_DISTANT_BATTLE_WON_TRIUMPHAL_ARCH_DISABLED, 0,
         MESSAGE_TYPE_GENERAL);
-    m->video.text = (uint8_t *) "smk/army_win.smk";
+    data.message_entries[i].video.text = (uint8_t *) "smk/army_win.smk";
     i += 1;
-}
 
+    // editor custom messages
+    for (int j = 0; j < MAX_EDITOR_CUSTOM_MESSAGES; j++) {
+        if (scenario.editor_custom_messages[j].enabled) {
+            data.message_entries[i].type = TYPE_MESSAGE;
+            data.message_entries[i].message_type = MESSAGE_TYPE_GENERAL;
+            data.message_entries[i].x = 0;
+            data.message_entries[i].y = 0;
+            data.message_entries[i].width_blocks = 30;
+            data.message_entries[i].height_blocks = 20;
+            data.message_entries[i].title.x = 0;
+            data.message_entries[i].title.y = 0;
+            data.message_entries[i].urgent = scenario.editor_custom_messages[j].urgent;
+            data.message_entries[i].title.text = scenario.editor_custom_messages[j].title;
+            data.message_entries[i].content.text = scenario.editor_custom_messages[j].text;
+            data.message_entries[i].video.text = scenario.editor_custom_messages[j].video_file;
+            i += 1;
+        }
+    }
+}
 
 static int load_message(const char *filename, uint8_t *data_buffer)
 {

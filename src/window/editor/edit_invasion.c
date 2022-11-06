@@ -76,7 +76,7 @@ static void draw_foreground(void)
 
     // Invalid year/month combination
     if (scenario.invasions[data.id].year == 0 && scenario.invasions[data.id].month == 0) {
-        text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 220, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 220, 188, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 
     // Amount
