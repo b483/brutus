@@ -128,7 +128,7 @@ static void draw_foreground(void)
             y = 50 + 20 * (i - 60);
         }
         button_border_draw(x, y, 190, 20, focus_button_id == i + 1);
-        if (scenario_editor_is_building_allowed(i)) {
+        if (scenario.allowed_buildings[i]) {
             text_draw_centered(get_custom_string(i + TR_ALLOWED_BUILDING_HOUSE_VACANT_LOT), x, y + 5, 190, FONT_NORMAL_BLACK, 0);
         } else {
             text_draw_centered(get_custom_string(i + TR_ALLOWED_BUILDING_HOUSE_VACANT_LOT), x, y + 5, 190, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
@@ -152,7 +152,8 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 void toggle_building(int id, __attribute__((unused)) int param2)
 {
-    scenario_editor_toggle_building_allowed(id);
+    scenario.allowed_buildings[id] = !scenario.allowed_buildings[id];
+    scenario.is_saved = 0;
 }
 
 void window_editor_allowed_buildings_show(void)

@@ -9,8 +9,8 @@
 #include "empire/object.h"
 #include "figure/formation.h"
 #include "figure/formation_legion.h"
-#include "scenario/building.h"
-#include "scenario/distant_battle.h"
+#include "scenario/data.h"
+#include "scenario/editor_events.h"
 
 void city_military_clear_legionary_legions(void)
 {
@@ -103,7 +103,7 @@ int city_military_distant_battle_enemy_strength(void)
 
 void city_military_dispatch_to_distant_battle(int roman_strength)
 {
-    city_data.distant_battle.roman_months_to_travel_forth = scenario_distant_battle_roman_travel_months();
+    city_data.distant_battle.roman_months_to_travel_forth = scenario.empire.distant_battle_roman_travel_months;
     city_data.distant_battle.roman_strength = roman_strength;
 }
 
@@ -159,8 +159,8 @@ void city_military_init_distant_battle(int enemy_strength)
 
 static void update_time_traveled(void)
 {
-    int roman_travel_months = scenario_distant_battle_roman_travel_months();
-    int enemy_travel_months = scenario_distant_battle_enemy_travel_months();
+    int roman_travel_months = scenario.empire.distant_battle_roman_travel_months;
+    int enemy_travel_months = scenario.empire.distant_battle_enemy_travel_months;
     if (city_data.distant_battle.months_until_battle < enemy_travel_months) {
         city_data.distant_battle.enemy_months_traveled =
             enemy_travel_months - city_data.distant_battle.months_until_battle + 1;

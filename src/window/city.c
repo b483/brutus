@@ -24,9 +24,8 @@
 #include "graphics/window.h"
 #include "map/bookmark.h"
 #include "map/grid.h"
-#include "scenario/building.h"
-#include "scenario/criteria.h"
 #include "scenario/data.h"
+#include "scenario/editor_events.h"
 #include "widget/city.h"
 #include "widget/city_with_overlay.h"
 #include "widget/top_menu.h"
@@ -66,27 +65,25 @@ static void draw_paused_banner(void)
 static void draw_time_left(void)
 {
     if (scenario.time_limit_win_criteria.enabled && !city_data.mission.has_won) {
-        int years;
-        if (scenario_criteria_max_year() <= game_time_year() + 1) {
-            years = 0;
+        int remaining_months;
+        if (scenario.start_year + scenario.time_limit_win_criteria.years <= game_time_year() + 1) {
+            remaining_months = 12 - game_time_month();
         } else {
-            years = scenario_criteria_max_year() - game_time_year() - 1;
+            remaining_months = 12 - game_time_month() + 12 * (scenario.start_year + scenario.time_limit_win_criteria.years - game_time_year() - 1);
         }
-        int total_months = 12 - game_time_month() + 12 * years;
         label_draw(1, 25, 15, 1);
         int width = lang_text_draw(6, 2, 6, 29, FONT_NORMAL_BLACK);
-        text_draw_number(total_months, '@', " ", 6 + width, 29, FONT_NORMAL_BLACK);
+        text_draw_number(remaining_months, ' ', 0, 6 + width, 29, FONT_NORMAL_BLACK);
     } else if (scenario.survival_time_win_criteria.enabled && !city_data.mission.has_won) {
-        int years;
-        if (scenario_criteria_max_year() <= game_time_year() + 1) {
-            years = 0;
+        int remaining_months;
+        if (scenario.start_year + scenario.survival_time_win_criteria.years <= game_time_year() + 1) {
+            remaining_months = 12 - game_time_month();
         } else {
-            years = scenario_criteria_max_year() - game_time_year() - 1;
+            remaining_months = 12 - game_time_month() + 12 * (scenario.start_year + scenario.survival_time_win_criteria.years - game_time_year() - 1);
         }
-        int total_months = 12 - game_time_month() + 12 * years;
         label_draw(1, 25, 15, 1);
         int width = lang_text_draw(6, 3, 6, 29, FONT_NORMAL_BLACK);
-        text_draw_number(total_months, '@', " ", 6 + width, 29, FONT_NORMAL_BLACK);
+        text_draw_number(remaining_months, ' ', 0, 6 + width, 29, FONT_NORMAL_BLACK);
     }
 }
 

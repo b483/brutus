@@ -15,9 +15,8 @@
 #include "graphics/scrollbar.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/criteria.h"
 #include "scenario/data.h"
-#include "scenario/invasion.h"
+#include "scenario/editor_events.h"
 #include "scenario/map.h"
 #include "sound/music.h"
 #include "widget/scenario_minimap.h"
@@ -142,7 +141,12 @@ static void draw_scenario_info(void)
         lang_text_draw_centered(44, text_id, scenario_info_x, 170, scenario_info_width, FONT_NORMAL_BLACK);
 
         // military
-        int num_invasions = scenario_invasion_count();
+        int num_invasions = 0;
+        for (int i = 0; i < MAX_INVASIONS; i++) {
+            if (scenario.invasions[i].type) {
+                num_invasions++;
+            }
+        }
         if (num_invasions <= 0) {
             text_id = 112;
         } else if (num_invasions <= 2) {

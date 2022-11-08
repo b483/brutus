@@ -15,7 +15,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
-#include "scenario/request.h"
+#include "scenario/editor_events.h"
 #include "window/donate_to_city.h"
 #include "window/empire.h"
 #include "window/gift_to_emperor.h"

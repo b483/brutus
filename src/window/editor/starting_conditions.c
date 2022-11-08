@@ -101,10 +101,16 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
+static void set_player_rank(int rank)
+{
+    scenario.player_rank = rank;
+    scenario.is_saved = 0;
+}
+
 static void button_rank(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_select_list_show(screen_dialog_offset_x() + 462, screen_dialog_offset_y() - 55,
-                            32, 11, scenario_editor_set_player_rank);
+                            32, 11, set_player_rank);
 }
 
 static void button_start_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
@@ -112,38 +118,64 @@ static void button_start_year(__attribute__((unused)) int param1, __attribute__(
     window_editor_start_year_show();
 }
 
+static void set_initial_favor(int amount)
+{
+    scenario.initial_favor = amount;
+    scenario.is_saved = 0;
+}
+
 static void button_initial_favor(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 300, screen_dialog_offset_y() + 50,
-                              3, 100, scenario_editor_set_initial_favor);
+                              3, 100, set_initial_favor);
+}
+
+static void set_initial_funds(int amount)
+{
+    scenario.initial_funds = amount;
+    scenario.is_saved = 0;
 }
 
 static void button_initial_funds(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 300, screen_dialog_offset_y() + 90,
-                              5, 99999, scenario_editor_set_initial_funds);
+                              5, 99999, set_initial_funds);
+}
+
+static void set_rescue_loan(int amount)
+{
+    scenario.rescue_loan = amount;
+    scenario.is_saved = 0;
 }
 
 static void button_rescue_loan(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 300, screen_dialog_offset_y() + 130,
-                              5, 99999, scenario_editor_set_rescue_loan);
+                              5, 99999, set_rescue_loan);
+}
+
+static void set_initial_personal_savings(int amount)
+{
+    scenario.initial_personal_savings = amount;
+    scenario.is_saved = 0;
 }
 
 static void button_initial_personal_savings(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 300, screen_dialog_offset_y() + 170,
-                              5, 99999, scenario_editor_set_initial_personal_savings);
+                              5, 99999, set_initial_personal_savings);
 }
 
 static void button_wheat(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_toggle_rome_supplies_wheat();
+    scenario.rome_supplies_wheat = !scenario.rome_supplies_wheat;
+    scenario.is_saved = 0;
 }
 
 static void button_flotsam(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_toggle_flotsam();
+    scenario.flotsam_enabled = !scenario.flotsam_enabled;
+    scenario.is_saved = 0;
 }
 
 void window_editor_starting_conditions_show(void)

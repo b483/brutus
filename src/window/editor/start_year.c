@@ -57,9 +57,15 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
+void set_start_year(int year)
+{
+    scenario.start_year = year;
+    scenario.is_saved = 0;
+}
+
 static void button_era(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_set_start_year(-scenario.start_year);
+    set_start_year(-scenario.start_year);
 }
 
 static void set_year(int value)
@@ -67,7 +73,7 @@ static void set_year(int value)
     if (scenario.start_year < 0) {
         value = -value;
     }
-    scenario_editor_set_start_year(value);
+    set_start_year(value);
 }
 
 static void button_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)

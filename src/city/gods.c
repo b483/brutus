@@ -15,7 +15,7 @@
 #include "figuretype/water.h"
 #include "game/settings.h"
 #include "game/time.h"
-#include "scenario/invasion.h"
+#include "scenario/editor_events.h"
 
 #define TIE 10
 

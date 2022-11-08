@@ -15,7 +15,6 @@
 #include "map/property.h"
 #include "map/random.h"
 #include "map/terrain.h"
-#include "scenario/building.h"
 #include "scenario/data.h"
 
 static void mark_native_land(int x, int y, int size, int radius)

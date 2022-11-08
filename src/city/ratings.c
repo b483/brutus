@@ -6,7 +6,6 @@
 #include "city/data_private.h"
 #include "core/calc.h"
 #include "game/time.h"
-#include "scenario/criteria.h"
 #include "scenario/data.h"
 
 int city_rating_culture(void)
@@ -537,11 +536,11 @@ static void update_favor_rating(int is_yearly_update)
         }
         // milestone
         int milestone_pct;
-        if (scenario_criteria_milestone_year(25) == game_time_year()) {
+        if (scenario.start_year + scenario.milestone25_year == game_time_year()) {
             milestone_pct = 25;
-        } else if (scenario_criteria_milestone_year(50) == game_time_year()) {
+        } else if (scenario.start_year + scenario.milestone50_year == game_time_year()) {
             milestone_pct = 50;
-        } else if (scenario_criteria_milestone_year(75) == game_time_year()) {
+        } else if (scenario.start_year + scenario.milestone75_year == game_time_year()) {
             milestone_pct = 75;
         } else {
             milestone_pct = 0;

@@ -39,7 +39,10 @@ static void start_briefing_box_input(void)
 static void stop_briefing_box_input(void)
 {
     input_box_stop(&scenario_briefing_input);
-    scenario_editor_update_briefing(briefing);
+    if (!string_equals(scenario.briefing, briefing)) {
+        string_copy(briefing, scenario.briefing, MAX_BRIEFING);
+        scenario.is_saved = 0;
+    }
 }
 
 static void draw_background(void)

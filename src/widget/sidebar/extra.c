@@ -13,7 +13,6 @@
 #include "graphics/menu.h"
 #include "graphics/panel.h"
 #include "graphics/text.h"
-#include "scenario/criteria.h"
 #include "scenario/data.h"
 
 

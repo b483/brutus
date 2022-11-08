@@ -11,7 +11,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "map/grid.h"
-#include "scenario/invasion.h"
+#include "scenario/editor_events.h"
 #include "window/city.h"
 
 #define ADVISOR_HEIGHT 26

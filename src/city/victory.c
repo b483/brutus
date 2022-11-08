@@ -7,7 +7,6 @@
 #include "city/message.h"
 #include "core/config.h"
 #include "game/time.h"
-#include "scenario/criteria.h"
 #include "scenario/data.h"
 #include "sound/music.h"
 #include "window/mission_end.h"
@@ -79,12 +78,11 @@ static int determine_victory_state(void)
             has_criteria = 1;
         }
     }
-    if (game_time_year() >= scenario_criteria_max_year()) {
-        if (scenario.time_limit_win_criteria.enabled) {
-            state = VICTORY_STATE_LOST;
-        } else if (scenario.survival_time_win_criteria.enabled) {
-            state = VICTORY_STATE_WON;
-        }
+
+    if (scenario.time_limit_win_criteria.enabled && (game_time_year() >= scenario.start_year + scenario.time_limit_win_criteria.years)) {
+        state = VICTORY_STATE_LOST;
+    } else if (scenario.survival_time_win_criteria.enabled && (game_time_year() >= scenario.start_year + scenario.survival_time_win_criteria.years)) {
+        state = VICTORY_STATE_WON;
     }
 
     if (city_figures_total_invading_enemies() > 2 + city_data.figure.soldiers) {

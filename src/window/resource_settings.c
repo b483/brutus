@@ -15,7 +15,6 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/building.h"
 #include "window/advisor/trade.h"
 #include "window/message_dialog.h"
 

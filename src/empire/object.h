@@ -79,7 +79,7 @@ void empire_object_our_city_set_resources_sell(void);
 void empire_object_trade_cities_disable_default_resources(void);
 
 // changes city type to disable trade with city or postpone it (via empire expansion)
-void empire_object_disable_postpone_trade_city(empire_object *object, int is_down);
+void empire_object_disable_postpone_trade_city(empire_object *object, int value);
 
 // toggle resource sell/buy status for empire city trade
 void empire_object_city_toggle_resource(empire_object *object, int resource, int selling);

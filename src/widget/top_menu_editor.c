@@ -7,7 +7,7 @@
 #include "graphics/menu.h"
 #include "graphics/screen.h"
 #include "graphics/window.h"
-#include "scenario/editor_map.h"
+#include "scenario/data.h"
 #include "widget/map_editor.h"
 #include "window/display_options.h"
 #include "window/file_dialog.h"
@@ -237,21 +237,33 @@ static void menu_help_about(__attribute__((unused)) int param)
 
 static void menu_resets_herds(__attribute__((unused)) int param)
 {
-    scenario_editor_clear_herd_points();
+    for (int i = 0; i < MAX_HERD_POINTS; i++) {
+        scenario.herd_points[i].x = -1;
+        scenario.herd_points[i].y = -1;
+    }
+    scenario.is_saved = 0;
     clear_state();
     window_go_back();
 }
 
 static void menu_resets_fish(__attribute__((unused)) int param)
 {
-    scenario_editor_clear_fishing_points();
+    for (int i = 0; i < MAX_FISH_POINTS; i++) {
+        scenario.fishing_points[i].x = -1;
+        scenario.fishing_points[i].y = -1;
+    }
+    scenario.is_saved = 0;
     clear_state();
     window_go_back();
 }
 
 static void menu_resets_invasions(__attribute__((unused)) int param)
 {
-    scenario_editor_clear_invasion_points();
+    for (int i = 0; i < MAX_INVASION_POINTS; i++) {
+        scenario.invasion_points[i].x = -1;
+        scenario.invasion_points[i].y = -1;
+    }
+    scenario.is_saved = 0;
     clear_state();
     window_go_back();
 }

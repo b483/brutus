@@ -53,13 +53,11 @@
 #include "map/sprite.h"
 #include "map/terrain.h"
 #include "map/tiles.h"
-#include "scenario/criteria.h"
-#include "scenario/distant_battle.h"
 #include "scenario/earthquake.h"
+#include "scenario/editor_events.h"
 #include "scenario/emperor_change.h"
 #include "scenario/empire.h"
 #include "scenario/gladiator_revolt.h"
-#include "scenario/invasion.h"
 #include "scenario/map.h"
 #include "scenario/data.h"
 #include "scenario/scenario.h"
@@ -150,7 +148,6 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
     scenario_earthquake_init();
     scenario_gladiator_revolt_init();
     scenario_emperor_change_init();
-    scenario_criteria_init_max_year();
     load_custom_messages();
 
     empire_init_scenario();

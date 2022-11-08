@@ -8,7 +8,6 @@
 #include "graphics/text.h"
 #include "graphics/screen.h"
 #include "graphics/window.h"
-#include "scenario/criteria.h"
 #include "scenario/data.h"
 #include "scenario/editor.h"
 #include "window/editor/attributes.h"
@@ -160,83 +159,150 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 static void button_open_play_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_toggle_open_play();
+    scenario.is_open_play = !scenario.is_open_play;
+    scenario.is_saved = 0;
 }
 
 static void button_population_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_toggle_population();
+    scenario.population_win_criteria.enabled = !scenario.population_win_criteria.enabled;
+    scenario.is_saved = 0;
+}
+
+static void set_population(int goal)
+{
+    scenario.population_win_criteria.goal = goal;
+    scenario.is_saved = 0;
 }
 
 static void button_population_value(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_numeric_input_show(screen_dialog_offset_x() + 402, screen_dialog_offset_y() + 24, 5, 99999, scenario_editor_set_population);
+    window_numeric_input_show(screen_dialog_offset_x() + 402, screen_dialog_offset_y() + 24, 5, 99999, set_population);
 }
 
 static void button_rating_toggle(int rating, __attribute__((unused)) int param2)
 {
     switch (rating) {
         case RATING_CULTURE:
-            scenario_editor_toggle_culture();
+            scenario.culture_win_criteria.enabled = !scenario.culture_win_criteria.enabled;
+            scenario.is_saved = 0;
             break;
         case RATING_PROSPERITY:
-            scenario_editor_toggle_prosperity();
+            scenario.prosperity_win_criteria.enabled = !scenario.prosperity_win_criteria.enabled;
+            scenario.is_saved = 0;
             break;
         case RATING_PEACE:
-            scenario_editor_toggle_peace();
+            scenario.peace_win_criteria.enabled = !scenario.peace_win_criteria.enabled;
+            scenario.is_saved = 0;
             break;
         case RATING_FAVOR:
-            scenario_editor_toggle_favor();
+            scenario.favor_win_criteria.enabled = !scenario.favor_win_criteria.enabled;
+            scenario.is_saved = 0;
             break;
     }
+}
+
+static void set_culture(int goal)
+{
+    scenario.culture_win_criteria.goal = goal;
+    scenario.is_saved = 0;
+}
+
+static void set_prosperity(int goal)
+{
+    scenario.prosperity_win_criteria.goal = goal;
+    scenario.is_saved = 0;
+}
+
+static void set_peace(int goal)
+{
+    scenario.peace_win_criteria.goal = goal;
+    scenario.is_saved = 0;
+}
+
+static void set_favor(int goal)
+{
+    scenario.favor_win_criteria.goal = goal;
+    scenario.is_saved = 0;
 }
 
 static void button_rating_value(int rating, __attribute__((unused)) int param2)
 {
-    void (*callback)(int);
     switch (rating) {
         case RATING_CULTURE:
-            callback = scenario_editor_set_culture;
+            window_numeric_input_show(screen_dialog_offset_x() + 402, screen_dialog_offset_y() + 104, 3, 100, set_culture);
             break;
         case RATING_PROSPERITY:
-            callback = scenario_editor_set_prosperity;
+            window_numeric_input_show(screen_dialog_offset_x() + 402, screen_dialog_offset_y() + 104, 3, 100, set_prosperity);
             break;
         case RATING_PEACE:
-            callback = scenario_editor_set_peace;
+            window_numeric_input_show(screen_dialog_offset_x() + 402, screen_dialog_offset_y() + 104, 3, 100, set_peace);
             break;
         case RATING_FAVOR:
-            callback = scenario_editor_set_favor;
+            window_numeric_input_show(screen_dialog_offset_x() + 402, screen_dialog_offset_y() + 104, 3, 100, set_favor);
             break;
         default:
             return;
     }
-    window_numeric_input_show(screen_dialog_offset_x() + 402, screen_dialog_offset_y() + 104, 3, 100, callback);
 }
 
 static void button_time_limit_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_toggle_time_limit();
+    scenario.time_limit_win_criteria.enabled = !scenario.time_limit_win_criteria.enabled;
+    if (scenario.time_limit_win_criteria.enabled) {
+        scenario.survival_time_win_criteria.enabled = 0;
+    }
+    scenario.is_saved = 0;
+}
+
+static void set_time_limit(int years)
+{
+    scenario.time_limit_win_criteria.years = years;
+    scenario.is_saved = 0;
 }
 
 static void button_time_limit_years(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_numeric_input_show(screen_dialog_offset_x() + 402, screen_dialog_offset_y() + 224, 3, 999, scenario_editor_set_time_limit);
+    window_numeric_input_show(screen_dialog_offset_x() + 402, screen_dialog_offset_y() + 224, 3, 999, set_time_limit);
 }
 
 static void button_survival_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_toggle_survival_time();
+    scenario.survival_time_win_criteria.enabled = !scenario.survival_time_win_criteria.enabled;
+    if (scenario.survival_time_win_criteria.enabled) {
+        scenario.time_limit_win_criteria.enabled = 0;
+    }
+    scenario.is_saved = 0;
+}
+
+static void set_survival_time(int years)
+{
+    scenario.survival_time_win_criteria.years = years;
+    scenario.is_saved = 0;
 }
 
 static void button_survival_years(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_numeric_input_show(screen_dialog_offset_x() + 402, screen_dialog_offset_y() + 264, 3, 999, scenario_editor_set_survival_time);
+    window_numeric_input_show(screen_dialog_offset_x() + 402, screen_dialog_offset_y() + 264, 3, 999, set_survival_time);
 }
 
 static int dialog_milestone_pct;
 static void set_milestone_year(int value)
 {
-    scenario_editor_set_milestone_year(dialog_milestone_pct, value);
+    switch (dialog_milestone_pct) {
+        case 25:
+            scenario.milestone25_year = value;
+            break;
+        case 50:
+            scenario.milestone50_year = value;
+            break;
+        case 75:
+            scenario.milestone75_year = value;
+            break;
+        default:
+            return;
+    }
+    scenario.is_saved = 0;
 }
 
 static void button_milestone(int milestone_pct, __attribute__((unused)) int param2)

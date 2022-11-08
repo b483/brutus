@@ -7,7 +7,6 @@
 #include "core/calc.h"
 #include "empire/object.h"
 #include "map/road_access.h"
-#include "scenario/building.h"
 #include "scenario/data.h"
 
 static struct {

@@ -4,7 +4,7 @@
 #include "figure/image.h"
 #include "map/figure.h"
 #include "map/grid.h"
-#include "scenario/editor_map.h"
+#include "scenario/data.h"
 #include "scenario/map.h"
 
 void figure_create_editor_flags(void)
@@ -20,11 +20,11 @@ void figure_editor_flag_action(figure *f)
     f->image_id = image_group(GROUP_FIGURE_MAP_FLAG_FLAGS) + f->image_offset / 2;
     map_figure_delete(f);
 
-    map_point point = {0, 0};
+    map_point point = { 0, 0 };
     int id = f->resource_id;
     int image_base = image_group(GROUP_FIGURE_MAP_FLAG_ICONS);
     if (id == MAP_FLAG_EARTHQUAKE) {
-        point = scenario_editor_earthquake_point();
+        point = scenario.earthquake_point;
         f->cart_image_id = image_base;
     } else if (id == MAP_FLAG_ENTRY) {
         point = scenario_map_entry();
@@ -39,13 +39,13 @@ void figure_editor_flag_action(figure *f)
         point = scenario_map_river_exit();
         f->cart_image_id = image_base + 5;
     } else if (id >= MAP_FLAG_INVASION_MIN && id < MAP_FLAG_INVASION_MAX) {
-        point = scenario_editor_invasion_point(id - MAP_FLAG_INVASION_MIN);
+        point = scenario.invasion_points[id - MAP_FLAG_INVASION_MIN];
         f->cart_image_id = image_base + 1;
     } else if (id >= MAP_FLAG_FISHING_MIN && id < MAP_FLAG_FISHING_MAX) {
-        point = scenario_editor_fishing_point(id - MAP_FLAG_FISHING_MIN);
+        point = scenario.fishing_points[id - MAP_FLAG_FISHING_MIN];
         f->cart_image_id = image_group(GROUP_FIGURE_FORT_STANDARD_ICONS) + 3;
     } else if (id >= MAP_FLAG_HERD_MIN && id < MAP_FLAG_HERD_MAX) {
-        point = scenario_editor_herd_point(id - MAP_FLAG_HERD_MIN);
+        point = scenario.herd_points[id - MAP_FLAG_HERD_MIN];
         f->cart_image_id = image_group(GROUP_FIGURE_FORT_STANDARD_ICONS) + 4;
     }
     f->x = point.x;

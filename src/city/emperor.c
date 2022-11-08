@@ -8,7 +8,7 @@
 #include "figure/formation.h"
 #include "game/time.h"
 #include "scenario/data.h"
-#include "scenario/invasion.h"
+#include "scenario/editor_events.h"
 
 const int SALARY_FOR_RANK[11] = { 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144 };
 

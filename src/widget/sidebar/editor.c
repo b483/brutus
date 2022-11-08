@@ -13,7 +13,6 @@
 #include "graphics/window.h"
 #include "scenario/data.h"
 #include "scenario/editor_events.h"
-#include "scenario/editor_map.h"
 #include "scenario/map.h"
 #include "widget/map_editor.h"
 #include "widget/minimap.h"
@@ -110,7 +109,13 @@ static void draw_status(void)
         }
     }
 
-    int invasion_points = scenario_editor_count_invasion_points();
+    int invasion_points = 0;
+    for (int i = 0; i < MAX_INVASION_POINTS; i++) {
+        if (scenario.invasion_points[i].x != -1) {
+            invasion_points++;
+        }
+    }
+
     if (invasion_points == 1) {
         lang_text_draw(44, 64, text_offset, 254, FONT_NORMAL_GREEN);
     } else if (invasion_points > 1) {
@@ -123,7 +128,7 @@ static void draw_status(void)
     }
 
     if (scenario.earthquake.severity > 0) {
-        map_point earthquake = scenario_editor_earthquake_point();
+        map_point earthquake = scenario.earthquake_point;
         if (earthquake.x == -1 || earthquake.y == -1) {
             lang_text_draw(44, 57, text_offset, 269, FONT_NORMAL_RED);
         } else {

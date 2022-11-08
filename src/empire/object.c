@@ -384,15 +384,15 @@ void empire_object_our_city_set_resources_sell(void)
     for (int resource = 0; resource < RESOURCE_MAX; resource++) {
         // farms match across enums, rest don't
         if (resource <= RESOURCE_VINES) {
-            if (scenario_editor_is_building_allowed(resource + ALLOWED_BUILDING_WHEAT_FARM - 1))
+            if (scenario.allowed_buildings[resource + ALLOWED_BUILDING_WHEAT_FARM - 1])
                 our_city->resources_sell_list.resource[resource] = resource;
             else {
                 our_city->resources_sell_list.resource[resource] = 0;
             }
         }
         if (resource == RESOURCE_MEAT) {
-            if (scenario_editor_is_building_allowed(ALLOWED_BUILDING_WHARF)
-                || scenario_editor_is_building_allowed(ALLOWED_BUILDING_PIG_FARM)
+            if (scenario.allowed_buildings[ALLOWED_BUILDING_WHARF]
+                || scenario.allowed_buildings[ALLOWED_BUILDING_PIG_FARM]
             ) {
                 our_city->resources_sell_list.resource[resource] = resource;
             } else {
@@ -400,28 +400,28 @@ void empire_object_our_city_set_resources_sell(void)
             }
         }
         if (resource >= RESOURCE_WINE && resource <= RESOURCE_OIL) {
-            if (scenario_editor_is_building_allowed(resource + ALLOWED_BUILDING_WINE_WORKSHOP - 7))
+            if (scenario.allowed_buildings[resource + ALLOWED_BUILDING_WINE_WORKSHOP - 7])
                 our_city->resources_sell_list.resource[resource] = resource;
             else {
                 our_city->resources_sell_list.resource[resource] = 0;
             }
         }
         if (resource >= RESOURCE_IRON && resource <= RESOURCE_TIMBER) {
-            if (scenario_editor_is_building_allowed(resource + ALLOWED_BUILDING_IRON_MINE - 9))
+            if (scenario.allowed_buildings[resource + ALLOWED_BUILDING_IRON_MINE - 9])
                 our_city->resources_sell_list.resource[resource] = resource;
             else {
                 our_city->resources_sell_list.resource[resource] = 0;
             }
         }
         if (resource >= RESOURCE_CLAY && resource <= RESOURCE_MARBLE) {
-            if (scenario_editor_is_building_allowed(resource + ALLOWED_BUILDING_CLAY_PIT - 11))
+            if (scenario.allowed_buildings[resource + ALLOWED_BUILDING_CLAY_PIT - 11])
                 our_city->resources_sell_list.resource[resource] = resource;
             else {
                 our_city->resources_sell_list.resource[resource] = 0;
             }
         }
         if (resource >= RESOURCE_WEAPONS) {
-            if (scenario_editor_is_building_allowed(resource + ALLOWED_BUILDING_WEAPONS_WORKSHOP - 13))
+            if (scenario.allowed_buildings[resource + ALLOWED_BUILDING_WEAPONS_WORKSHOP - 13])
                 our_city->resources_sell_list.resource[resource] = resource;
             else {
                 our_city->resources_sell_list.resource[resource] = 0;
@@ -445,13 +445,13 @@ void empire_object_trade_cities_disable_default_resources(void)
     }
 }
 
-void empire_object_disable_postpone_trade_city(empire_object *object, int is_down)
+void empire_object_disable_postpone_trade_city(empire_object *object, int value)
 {
-    object->city_type += is_down ? -1 : 1;
+    object->city_type += value;
     if (object->city_type < EMPIRE_CITY_DISTANT_ROMAN) {
         object->city_type = EMPIRE_CITY_FUTURE_TRADE;
     } else if (object->city_type == EMPIRE_CITY_OURS) {
-        is_down ? object->city_type-- : object->city_type++;
+        value == -1 ? object->city_type-- : object->city_type++;
     } else if (object->city_type > EMPIRE_CITY_FUTURE_TRADE) {
         object->city_type = EMPIRE_CITY_DISTANT_ROMAN;
     }

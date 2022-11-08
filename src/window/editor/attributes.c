@@ -45,7 +45,7 @@ static void button_special_events(int param1, int param2);
 static void button_price_changes(int param1, int param2);
 static void button_demand_changes(int param1, int param2);
 static void change_climate(int param1, int param2);
-static void change_image(int forward, int param2);
+static void change_image(int value, int param2);
 
 static generic_button buttons_editor_attributes[] = {
     {213, 60, 195, 30, button_briefing, button_none, 0, 0},
@@ -63,7 +63,7 @@ static generic_button buttons_editor_attributes[] = {
 };
 
 static arrow_button image_arrows[] = {
-    {19, 16, 19, 24, change_image, 0, 0, 0, 0},
+    {19, 16, 19, 24, change_image, -1, 0, 0, 0},
     {43, 16, 21, 24, change_image, 1, 0, 0, 0},
 };
 
@@ -87,7 +87,10 @@ static void start_brief_description_box_input(void)
 static void stop_brief_description_box_input(void)
 {
     input_box_stop(&scenario_description_input);
-    scenario_editor_update_brief_description(data.brief_description);
+    if (!string_equals(scenario.brief_description, data.brief_description)) {
+        string_copy(data.brief_description, scenario.brief_description, MAX_BRIEF_DESCRIPTION);
+        scenario.is_saved = 0;
+    }
 }
 
 static void draw_foreground(void)
@@ -216,7 +219,8 @@ static void button_requests(__attribute__((unused)) int param1, __attribute__((u
 
 static void set_enemy(int enemy)
 {
-    scenario_editor_set_enemy(enemy);
+    scenario.enemy_id = enemy;
+    scenario.is_saved = 0;
     start_brief_description_box_input();
 }
 
@@ -264,15 +268,36 @@ static void button_demand_changes(__attribute__((unused)) int param1, __attribut
 
 static void change_climate(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_cycle_climate();
+    switch (scenario.climate) {
+        case CLIMATE_CENTRAL:
+            scenario.climate = CLIMATE_NORTHERN;
+            break;
+        case CLIMATE_NORTHERN:
+            scenario.climate = CLIMATE_DESERT;
+            break;
+        case CLIMATE_DESERT:
+        default:
+            scenario.climate = CLIMATE_CENTRAL;
+            break;
+    }
+    scenario.is_saved = 0;
     image_load_climate(scenario.climate, 1, 0);
     widget_minimap_invalidate();
     window_request_refresh();
 }
 
-static void change_image(int forward, __attribute__((unused)) int param2)
+static void change_image(int value, __attribute__((unused)) int param2)
 {
-    scenario_editor_cycle_image(forward);
+    scenario.brief_description_image_id += value;
+
+    if (scenario.brief_description_image_id < 0) {
+        scenario.brief_description_image_id = 15;
+    }
+    if (scenario.brief_description_image_id > 15) {
+        scenario.brief_description_image_id = 0;
+    }
+    scenario.is_saved = 0;
+
     window_request_refresh();
 }
 

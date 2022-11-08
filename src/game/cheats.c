@@ -4,7 +4,7 @@
 #include "city/finance.h"
 #include "city/victory.h"
 #include "graphics/window.h"
-#include "scenario/invasion.h"
+#include "scenario/editor_events.h"
 #include "window/building_info.h"
 
 

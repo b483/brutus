@@ -36,11 +36,10 @@
 #include "map/sprite.h"
 #include "map/terrain.h"
 #include "platform/file_manager.h"
-#include "scenario/criteria.h"
 #include "scenario/earthquake.h"
+#include "scenario/editor_events.h"
 #include "scenario/emperor_change.h"
 #include "scenario/gladiator_revolt.h"
-#include "scenario/invasion.h"
 #include "scenario/scenario.h"
 #include "sound/city.h"
 
@@ -122,7 +121,6 @@ typedef struct {
     buffer *figure_names;
     buffer *culture_coverage;
     buffer *scenario;
-    buffer *max_game_year;
     buffer *earthquake;
     buffer *emperor_change_state;
     buffer *messages;
@@ -257,7 +255,6 @@ static void init_savegame_data(void)
     state->figure_names = create_savegame_piece(84, 0);
     state->culture_coverage = create_savegame_piece(60, 0);
     state->scenario = create_savegame_piece(52257, 0);
-    state->max_game_year = create_savegame_piece(4, 0);
     state->earthquake = create_savegame_piece(60, 0);
     state->emperor_change_state = create_savegame_piece(4, 0);
     state->messages = create_savegame_piece(14000, 1);
@@ -377,7 +374,6 @@ static void savegame_load_from_state(savegame_state *state)
     city_culture_load_state(state->culture_coverage);
 
     scenario_load_state(state->scenario);
-    scenario_criteria_load_state(state->max_game_year);
     scenario_earthquake_load_state(state->earthquake);
     city_message_load_state(state->messages, state->message_extra,
                             state->message_counts, state->message_delays,
@@ -450,7 +446,6 @@ static void savegame_save_to_state(savegame_state *state)
 
     scenario_save_state(state->scenario);
 
-    scenario_criteria_save_state(state->max_game_year);
     scenario_earthquake_save_state(state->earthquake);
     city_message_save_state(state->messages, state->message_extra,
                             state->message_counts, state->message_delays,

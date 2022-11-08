@@ -1,7 +1,7 @@
 #include "city/buildings.h"
 #include "core/config.h"
 #include "menu.h"
-#include "scenario/building.h"
+#include "scenario/editor_events.h"
 
 #define BUILD_MENU_ITEM_MAX 30
 

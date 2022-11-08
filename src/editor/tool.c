@@ -5,6 +5,7 @@
 #include "core/image_group_editor.h"
 #include "core/random.h"
 #include "editor/tool_restriction.h"
+#include "figuretype/water.h"
 #include "game/undo.h"
 #include "map/building_tiles.h"
 #include "map/elevation.h"
@@ -17,7 +18,6 @@
 #include "map/terrain.h"
 #include "scenario/data.h"
 #include "scenario/editor_events.h"
-#include "scenario/editor_map.h"
 #include "city/warning.h"
 #include "widget/minimap.h"
 
@@ -299,7 +299,9 @@ static void place_earthquake_flag(const map_tile *tile)
     int warning = 0;
     if (editor_tool_can_place_flag(data.type, tile, &warning)) {
         if (scenario.earthquake.severity) {
-            scenario_editor_set_earthquake_point(tile->x, tile->y);
+            scenario.earthquake_point.x = tile->x;
+            scenario.earthquake_point.y = tile->y;
+            scenario.is_saved = 0;
         } else {
             city_warning_show(WARNING_EDITOR_NO_EARTHQUAKE_SCHEDULED);
         }
@@ -409,6 +411,59 @@ static void place_road(const map_tile *start_tile, const map_tile *end_tile)
     }
 }
 
+static void set_entry_point(int x, int y)
+{
+    scenario.entry_point.x = x;
+    scenario.entry_point.y = y;
+    scenario.is_saved = 0;
+}
+
+static void set_exit_point(int x, int y)
+{
+    scenario.exit_point.x = x;
+    scenario.exit_point.y = y;
+    scenario.is_saved = 0;
+}
+
+static void set_river_entry_point(int x, int y)
+{
+    scenario.river_entry_point.x = x;
+    scenario.river_entry_point.y = y;
+    scenario.is_saved = 0;
+    figure_create_flotsam();
+    map_routing_update_water();
+}
+
+static void set_river_exit_point(int x, int y)
+{
+    scenario.river_exit_point.x = x;
+    scenario.river_exit_point.y = y;
+    scenario.is_saved = 0;
+    figure_create_flotsam();
+    map_routing_update_water();
+}
+
+static void set_herd_point(int id, int x, int y)
+{
+    scenario.herd_points[id].x = x;
+    scenario.herd_points[id].y = y;
+    scenario.is_saved = 0;
+}
+
+static void set_invasion_point(int id, int x, int y)
+{
+    scenario.invasion_points[id].x = x;
+    scenario.invasion_points[id].y = y;
+    scenario.is_saved = 0;
+}
+
+static void set_fishing_point(int id, int x, int y)
+{
+    scenario.fishing_points[id].x = x;
+    scenario.fishing_points[id].y = y;
+    scenario.is_saved = 0;
+}
+
 void editor_tool_end_use(const map_tile *tile)
 {
     if (!data.build_in_progress) {
@@ -423,25 +478,25 @@ void editor_tool_end_use(const map_tile *tile)
             place_earthquake_flag(tile);
             break;
         case TOOL_ENTRY_POINT:
-            place_flag(tile, scenario_editor_set_entry_point);
+            place_flag(tile, set_entry_point);
             break;
         case TOOL_EXIT_POINT:
-            place_flag(tile, scenario_editor_set_exit_point);
+            place_flag(tile, set_exit_point);
             break;
         case TOOL_RIVER_ENTRY_POINT:
-            place_flag(tile, scenario_editor_set_river_entry_point);
+            place_flag(tile, set_river_entry_point);
             break;
         case TOOL_RIVER_EXIT_POINT:
-            place_flag(tile, scenario_editor_set_river_exit_point);
+            place_flag(tile, set_river_exit_point);
             break;
         case TOOL_INVASION_POINT:
-            place_flag_with_id(tile, scenario_editor_set_invasion_point);
+            place_flag_with_id(tile, set_invasion_point);
             break;
         case TOOL_FISHING_POINT:
-            place_flag_with_id(tile, scenario_editor_set_fishing_point);
+            place_flag_with_id(tile, set_fishing_point);
             break;
         case TOOL_HERD_POINT:
-            place_flag_with_id(tile, scenario_editor_set_herd_point);
+            place_flag_with_id(tile, set_herd_point);
             break;
         case TOOL_NATIVE_CENTER:
         case TOOL_NATIVE_FIELD:

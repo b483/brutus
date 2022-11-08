@@ -132,67 +132,96 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 static void button_earthquake_severity(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_earthquake_cycle_severity();
+    scenario.earthquake.severity++;
+    if (scenario.earthquake.severity > EARTHQUAKE_LARGE) {
+        scenario.earthquake.severity = EARTHQUAKE_NONE;
+    }
+    scenario.is_saved = 0;
     window_request_refresh();
+}
+
+static void set_earthquake_year(int year)
+{
+    scenario.earthquake.year = year;
+    scenario.is_saved = 0;
 }
 
 static void button_earthquake_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 320, screen_dialog_offset_y() - 10,
-                              3, 999, scenario_editor_earthquake_set_year);
+                              3, 999, set_earthquake_year);
 }
 
 static void button_gladiator_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_gladiator_revolt_toggle_enabled();
+    scenario.gladiator_revolt.enabled = !scenario.gladiator_revolt.enabled;
+    scenario.is_saved = 0;
     window_request_refresh();
+}
+
+static void set_gladiator_revolt_year(int year)
+{
+    scenario.gladiator_revolt.year = year;
+    scenario.is_saved = 0;
 }
 
 static void button_gladiator_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 320, screen_dialog_offset_y() + 20,
-                              3, 999, scenario_editor_gladiator_revolt_set_year);
+                              3, 999, set_gladiator_revolt_year);
 }
 
 static void button_emperor_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_emperor_change_toggle_enabled();
+    scenario.emperor_change.enabled = !scenario.emperor_change.enabled;
+    scenario.is_saved = 0;
     window_request_refresh();
+}
+
+static void set_emperor_change_year(int year)
+{
+    scenario.emperor_change.year = year;
+    scenario.is_saved = 0;
 }
 
 static void button_emperor_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 320, screen_dialog_offset_y() + 50,
-                              3, 999, scenario_editor_emperor_change_set_year);
+                              3, 999, set_emperor_change_year);
 }
 
 static void button_sea_trade_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_sea_trade_problem_toggle_enabled();
+    scenario.random_events.sea_trade_problem = !scenario.random_events.sea_trade_problem;
+    scenario.is_saved = 0;
     window_request_refresh();
 }
 
 static void button_land_trade_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_land_trade_problem_toggle_enabled();
+    scenario.random_events.land_trade_problem = !scenario.random_events.land_trade_problem;
+    scenario.is_saved = 0;
     window_request_refresh();
 }
 
 static void button_raise_wages_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_raise_wages_toggle_enabled();
+    scenario.random_events.raise_wages = !scenario.random_events.raise_wages;
+    scenario.is_saved = 0;
     window_request_refresh();
 }
 
 static void button_lower_wages_toggle(__attribute__((unused)) int param1, __attribute__((unused))  int param2)
 {
-    scenario_editor_lower_wages_toggle_enabled();
+    scenario.random_events.lower_wages = !scenario.random_events.lower_wages;
+    scenario.is_saved = 0;
     window_request_refresh();
 }
 
 static void button_contamination_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario_editor_contaminated_water_toggle_enabled();
+    scenario.random_events.contaminated_water = !scenario.random_events.contaminated_water;
+    scenario.is_saved = 0;
     window_request_refresh();
 }
 

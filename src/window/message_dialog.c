@@ -18,7 +18,7 @@
 #include "graphics/window.h"
 #include "input/scroll.h"
 #include "scenario/data.h"
-#include "scenario/request.h"
+#include "scenario/editor_events.h"
 #include "window/advisors.h"
 #include "window/city.h"
 

@@ -15,7 +15,7 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "scenario/data.h"
-#include "scenario/invasion.h"
+#include "scenario/editor_events.h"
 
 #define ADVISOR_HEIGHT 23
 #define X_OFFSET 232
