@@ -292,7 +292,9 @@ static custom_string all_strings[] = {
     {TR_EDITOR_NO_PRICE_CHANGE, "No price changes"},
     {TR_EDITOR_PRICE_CHANGE_SCHEDULED, "Price changes sch."},
     {TR_EDITOR_NO_DEMAND_CHANGE, "No demand changes"},
-    {TR_EDITOR_DEMAND_CHANGE_SCHEDULED, "Demand changes sch."}
+    {TR_EDITOR_DEMAND_CHANGE_SCHEDULED, "Demand changes sch."},
+    {TR_BRIEFING_FIRED_AFTER, "Fired after"},
+    {TR_BRIEFING_SURVIVE_FOR, "Survive for"},
 };
 
 static void set_strings(const custom_string *strings, int num_strings)

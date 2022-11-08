@@ -2,6 +2,7 @@
 
 #include "core/image_group.h"
 #include "core/lang.h"
+#include "game/custom_strings.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
 #include "graphics/lang_text.h"
@@ -35,31 +36,40 @@ static void draw_background(void)
 
     // Objectives
     inner_panel_draw(-84, 37, 50, 5);
-    lang_text_draw(62, 10, -60, 55, FONT_NORMAL_WHITE);
-    if (scenario.population_win_criteria.enabled) {
-        label_draw(-60, 83, 15, 1);
-        int width = lang_text_draw(62, 11, -52, 87, FONT_NORMAL_RED);
-        text_draw_number(scenario.population_win_criteria.goal, 0, 0, width - 52, 87, FONT_NORMAL_RED);
-    }
+    lang_text_draw(62, 10, -60, 72, FONT_NORMAL_WHITE);
     if (scenario.culture_win_criteria.enabled) {
-        label_draw(196, 51, 15, 1);
-        int width = lang_text_draw(62, 12, 204, 55, FONT_NORMAL_RED);
-        text_draw_number(scenario.culture_win_criteria.goal, 0, 0, 204 + width, 55, FONT_NORMAL_RED);
+        label_draw(52, 51, 13, 1);
+        int width = lang_text_draw(62, 12, 60, 55, FONT_NORMAL_RED);
+        text_draw_number(scenario.culture_win_criteria.goal, 0, 0, width + 60, 55, FONT_NORMAL_RED);
     }
     if (scenario.prosperity_win_criteria.enabled) {
-        label_draw(196, 83, 15, 1);
-        int width = lang_text_draw(62, 13, 204, 87, FONT_NORMAL_RED);
-        text_draw_number(scenario.prosperity_win_criteria.goal, 0, 0, 204 + width, 87, FONT_NORMAL_RED);
+        label_draw(52, 83, 13, 1);
+        int width = lang_text_draw(62, 13, 60, 87, FONT_NORMAL_RED);
+        text_draw_number(scenario.prosperity_win_criteria.goal, 0, 0, width + 60, 87, FONT_NORMAL_RED);
     }
     if (scenario.peace_win_criteria.enabled) {
-        label_draw(452, 51, 15, 1);
-        int width = lang_text_draw(62, 14, 460, 55, FONT_NORMAL_RED);
-        text_draw_number(scenario.peace_win_criteria.goal, 0, 0, 460 + width, 55, FONT_NORMAL_RED);
+        label_draw(268, 51, 13, 1);
+        int width = lang_text_draw(62, 14, 276, 55, FONT_NORMAL_RED);
+        text_draw_number(scenario.peace_win_criteria.goal, 0, 0, width + 276, 55, FONT_NORMAL_RED);
     }
     if (scenario.favor_win_criteria.enabled) {
-        label_draw(452, 83, 15, 1);
-        int width = lang_text_draw(62, 15, 460, 87, FONT_NORMAL_RED);
-        text_draw_number(scenario.favor_win_criteria.goal, 0, 0, 460 + width, 87, FONT_NORMAL_RED);
+        label_draw(268, 83, 13, 1);
+        int width = lang_text_draw(62, 15, 276, 87, FONT_NORMAL_RED);
+        text_draw_number(scenario.favor_win_criteria.goal, 0, 0, width + 276, 87, FONT_NORMAL_RED);
+    }
+    if (scenario.population_win_criteria.enabled) {
+        label_draw(492, 51, 13, 1);
+        int width = lang_text_draw(62, 11, 500, 55, FONT_NORMAL_RED);
+        text_draw_number(scenario.population_win_criteria.goal, 0, 0, width + 500, 55, FONT_NORMAL_RED);
+    }
+    if (scenario.time_limit_win_criteria.enabled) {
+        label_draw(492, 83, 13, 2);
+        int width = text_draw(get_custom_string(TR_BRIEFING_FIRED_AFTER), 500, 87, FONT_NORMAL_RED, COLOR_BLACK);
+        text_draw_number(scenario.time_limit_win_criteria.years, 0, " Years", width + 500, 87, FONT_NORMAL_RED);
+    } else if (scenario.survival_time_win_criteria.enabled) {
+        label_draw(492, 83, 13, 2);
+        int width = text_draw(get_custom_string(TR_BRIEFING_SURVIVE_FOR), 500, 87, FONT_NORMAL_RED, COLOR_BLACK);
+        text_draw_number(scenario.survival_time_win_criteria.years, 0, " Years", width + 500, 87, FONT_NORMAL_RED);
     }
 
     inner_panel_draw(-84, 141, 50, 24);
