@@ -215,9 +215,6 @@ extern struct scenario_t {
         int enabled;
         int years;
     } survival_time_win_criteria;
-    int milestone25_year;
-    int milestone50_year;
-    int milestone75_year;
     short allowed_buildings[MAX_ALLOWED_BUILDINGS];
     struct {
         int severity;
@@ -227,10 +224,6 @@ extern struct scenario_t {
         int year;
         int enabled;
     } gladiator_revolt;
-    struct {
-        int year;
-        int enabled;
-    } emperor_change;
     struct {
         int sea_trade_problem;
         int land_trade_problem;

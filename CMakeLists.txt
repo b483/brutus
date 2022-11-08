@@ -316,7 +316,6 @@ set(SCENARIO_FILES
     ${PROJECT_SOURCE_DIR}/src/scenario/earthquake.c
     ${PROJECT_SOURCE_DIR}/src/scenario/editor.c
     ${PROJECT_SOURCE_DIR}/src/scenario/editor_events.c
-    ${PROJECT_SOURCE_DIR}/src/scenario/emperor_change.c
     ${PROJECT_SOURCE_DIR}/src/scenario/empire.c
     ${PROJECT_SOURCE_DIR}/src/scenario/gladiator_revolt.c
     ${PROJECT_SOURCE_DIR}/src/scenario/map.c

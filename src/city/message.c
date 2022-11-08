@@ -317,7 +317,6 @@ message_advisor city_message_get_advisor(city_message_type message_type)
         case MESSAGE_REQUEST_REFUSED_OVERDUE:
         case MESSAGE_REQUEST_RECEIVED_LATE:
         case MESSAGE_REQUEST_CAN_COMPLY:
-        case MESSAGE_EMPEROR_CHANGE:
         case MESSAGE_CAESAR_WRATH:
         case MESSAGE_CAESAR_RESPECT_1:
         case MESSAGE_CAESAR_RESPECT_2:

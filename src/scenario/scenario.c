@@ -58,9 +58,6 @@ void scenario_save_state(buffer *buf)
     buffer_write_i32(buf, scenario.time_limit_win_criteria.years);
     buffer_write_i32(buf, scenario.survival_time_win_criteria.enabled);
     buffer_write_i32(buf, scenario.survival_time_win_criteria.years);
-    buffer_write_i32(buf, scenario.milestone25_year);
-    buffer_write_i32(buf, scenario.milestone50_year);
-    buffer_write_i32(buf, scenario.milestone75_year);
 
     // Buildings allowed
     for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
@@ -72,8 +69,6 @@ void scenario_save_state(buffer *buf)
     buffer_write_i32(buf, scenario.earthquake.year);
     buffer_write_i32(buf, scenario.gladiator_revolt.enabled);
     buffer_write_i32(buf, scenario.gladiator_revolt.year);
-    buffer_write_i32(buf, scenario.emperor_change.enabled);
-    buffer_write_i32(buf, scenario.emperor_change.year);
     // random events
     buffer_write_i32(buf, scenario.random_events.sea_trade_problem);
     buffer_write_i32(buf, scenario.random_events.land_trade_problem);
@@ -294,9 +289,6 @@ void scenario_load_state(buffer *buf)
     scenario.time_limit_win_criteria.years = buffer_read_i32(buf);
     scenario.survival_time_win_criteria.enabled = buffer_read_i32(buf);
     scenario.survival_time_win_criteria.years = buffer_read_i32(buf);
-    scenario.milestone25_year = buffer_read_i32(buf);
-    scenario.milestone50_year = buffer_read_i32(buf);
-    scenario.milestone75_year = buffer_read_i32(buf);
 
     // Buildings allowed
     for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
@@ -308,8 +300,6 @@ void scenario_load_state(buffer *buf)
     scenario.earthquake.year = buffer_read_i32(buf);
     scenario.gladiator_revolt.enabled = buffer_read_i32(buf);
     scenario.gladiator_revolt.year = buffer_read_i32(buf);
-    scenario.emperor_change.enabled = buffer_read_i32(buf);
-    scenario.emperor_change.year = buffer_read_i32(buf);
     // random events
     scenario.random_events.sea_trade_problem = buffer_read_i32(buf);
     scenario.random_events.land_trade_problem = buffer_read_i32(buf);

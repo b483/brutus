@@ -47,9 +47,6 @@ void scenario_editor_create(int map_size)
     scenario.rescue_loan = 500;
     scenario.initial_personal_savings = 0;
     scenario.rome_supplies_wheat = 0;
-    scenario.milestone25_year = 10;
-    scenario.milestone50_year = 20;
-    scenario.milestone75_year = 30;
 
     // Win criteria
     scenario.culture_win_criteria.enabled = 1;

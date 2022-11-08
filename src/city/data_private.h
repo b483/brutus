@@ -247,7 +247,6 @@ extern struct city_data_t {
         int32_t peace_num_rioters;
         int32_t peace_riot_cause;
         int32_t favor_salary_penalty;
-        int32_t favor_milestone_penalty;
         int32_t favor_ignored_request_penalty;
         int32_t favor_last_year;
         int32_t favor_change; // 0 = dropping, 1 = stalling, 2 = rising

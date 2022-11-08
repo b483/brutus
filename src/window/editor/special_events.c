@@ -18,8 +18,6 @@ static void button_earthquake_severity(int param1, int param2);
 static void button_earthquake_year(int param1, int param2);
 static void button_gladiator_toggle(int param1, int param2);
 static void button_gladiator_year(int param1, int param2);
-static void button_emperor_toggle(int param1, int param2);
-static void button_emperor_year(int param1, int param2);
 static void button_sea_trade_toggle(int param1, int param2);
 static void button_land_trade_toggle(int param1, int param2);
 static void button_raise_wages_toggle(int param1, int param2);
@@ -31,13 +29,11 @@ static generic_button buttons[] = {
     {310, 74, 150, 24, button_earthquake_year, button_none, 0, 0},
     {200, 104, 100, 24, button_gladiator_toggle,button_none, 0, 0},
     {310, 104, 150, 24, button_gladiator_year,button_none, 0, 0},
-    {200, 134, 100, 24, button_emperor_toggle,button_none, 0, 0},
-    {310, 134, 150, 24, button_emperor_year, button_none, 0, 0},
-    {200, 164, 100, 24, button_sea_trade_toggle, button_none, 0, 0},
-    {200, 194, 100, 24, button_land_trade_toggle, button_none, 0, 0},
-    {200, 224, 100, 24, button_raise_wages_toggle, button_none, 0, 0},
-    {200, 254, 100, 24, button_lower_wages_toggle, button_none, 0, 0},
-    {200, 284, 100, 24, button_contamination_toggle, button_none, 0, 0},
+    {200, 134, 100, 24, button_sea_trade_toggle, button_none, 0, 0},
+    {200, 164, 100, 24, button_land_trade_toggle, button_none, 0, 0},
+    {200, 194, 100, 24, button_raise_wages_toggle, button_none, 0, 0},
+    {200, 224, 100, 24, button_lower_wages_toggle, button_none, 0, 0},
+    {200, 254, 100, 24, button_contamination_toggle, button_none, 0, 0},
 };
 
 static int focus_button_id;
@@ -51,7 +47,7 @@ static void draw_foreground(void)
 {
     graphics_in_dialog();
 
-    outer_panel_draw(0, 0, 30, 21);
+    outer_panel_draw(0, 0, 30, 19);
 
     lang_text_draw_centered(38, 0, 0, 16, 480, FONT_LARGE_BLACK);
 
@@ -77,45 +73,36 @@ static void draw_foreground(void)
     width = text_draw_number(scenario.gladiator_revolt.year, '+', 0, 330, 110, FONT_NORMAL_BLACK);
     lang_text_draw_year(scenario.start_year + scenario.gladiator_revolt.year, 340 + width, 110, FONT_NORMAL_BLACK);
 
-    // Change of Emperor
-    lang_text_draw(38, 3, 20, 140, FONT_NORMAL_BLACK);
-    button_border_draw(200, 134, 100, 24, focus_button_id == 5);
-    lang_text_draw_centered(18, scenario.emperor_change.enabled, 200, 140, 100, FONT_NORMAL_BLACK);
-
-    button_border_draw(310, 134, 150, 24, focus_button_id == 6);
-    width = text_draw_number(scenario.emperor_change.year, '+', 0, 330, 140, FONT_NORMAL_BLACK);
-    lang_text_draw_year(scenario.start_year + scenario.emperor_change.year, 340 + width, 140, FONT_NORMAL_BLACK);
-
     // random events
     // Sea trade problem
-    lang_text_draw(38, 4, 20, 170, FONT_NORMAL_BLACK);
-    button_border_draw(200, 164, 100, 24, focus_button_id == 7);
-    lang_text_draw_centered(18, scenario.random_events.sea_trade_problem, 200, 170, 100, FONT_NORMAL_BLACK);
-    lang_text_draw(38, 13, 330, 172, FONT_SMALL_PLAIN);
+    lang_text_draw(38, 4, 20, 140, FONT_NORMAL_BLACK);
+    button_border_draw(200, 134, 100, 24, focus_button_id == 5);
+    lang_text_draw_centered(18, scenario.random_events.sea_trade_problem, 200, 140, 100, FONT_NORMAL_BLACK);
+    lang_text_draw(38, 13, 330, 140, FONT_SMALL_PLAIN);
 
     // Land trade problem
-    lang_text_draw(38, 5, 20, 200, FONT_NORMAL_BLACK);
-    button_border_draw(200, 194, 100, 24, focus_button_id == 8);
-    lang_text_draw_centered(18, scenario.random_events.land_trade_problem, 200, 200, 100, FONT_NORMAL_BLACK);
-    lang_text_draw(38, 13, 330, 202, FONT_SMALL_PLAIN);
+    lang_text_draw(38, 5, 20, 170, FONT_NORMAL_BLACK);
+    button_border_draw(200, 164, 100, 24, focus_button_id == 6);
+    lang_text_draw_centered(18, scenario.random_events.land_trade_problem, 200, 170, 100, FONT_NORMAL_BLACK);
+    lang_text_draw(38, 13, 330, 170, FONT_SMALL_PLAIN);
 
     // Rome raises wages
-    lang_text_draw(38, 6, 20, 230, FONT_NORMAL_BLACK);
-    button_border_draw(200, 224, 100, 24, focus_button_id == 9);
-    lang_text_draw_centered(18, scenario.random_events.raise_wages, 200, 230, 100, FONT_NORMAL_BLACK);
-    lang_text_draw(38, 13, 330, 232, FONT_SMALL_PLAIN);
+    lang_text_draw(38, 6, 20, 200, FONT_NORMAL_BLACK);
+    button_border_draw(200, 194, 100, 24, focus_button_id == 7);
+    lang_text_draw_centered(18, scenario.random_events.raise_wages, 200, 200, 100, FONT_NORMAL_BLACK);
+    lang_text_draw(38, 13, 330, 200, FONT_SMALL_PLAIN);
 
     // Rome lowers wages
-    lang_text_draw(38, 7, 20, 260, FONT_NORMAL_BLACK);
-    button_border_draw(200, 254, 100, 24, focus_button_id == 10);
-    lang_text_draw_centered(18, scenario.random_events.lower_wages, 200, 260, 100, FONT_NORMAL_BLACK);
-    lang_text_draw(38, 13, 330, 262, FONT_SMALL_PLAIN);
+    lang_text_draw(38, 7, 20, 230, FONT_NORMAL_BLACK);
+    button_border_draw(200, 224, 100, 24, focus_button_id == 8);
+    lang_text_draw_centered(18, scenario.random_events.lower_wages, 200, 230, 100, FONT_NORMAL_BLACK);
+    lang_text_draw(38, 13, 330, 230, FONT_SMALL_PLAIN);
 
     // Contaminated water
-    lang_text_draw(38, 8, 20, 290, FONT_NORMAL_BLACK);
-    button_border_draw(200, 284, 100, 24, focus_button_id == 11);
-    lang_text_draw_centered(18, scenario.random_events.contaminated_water, 200, 290, 100, FONT_NORMAL_BLACK);
-    lang_text_draw(38, 13, 330, 292, FONT_SMALL_PLAIN);
+    lang_text_draw(38, 8, 20, 260, FONT_NORMAL_BLACK);
+    button_border_draw(200, 254, 100, 24, focus_button_id == 9);
+    lang_text_draw_centered(18, scenario.random_events.contaminated_water, 200, 260, 100, FONT_NORMAL_BLACK);
+    lang_text_draw(38, 13, 330, 260, FONT_SMALL_PLAIN);
 
     graphics_reset_dialog();
 }
@@ -169,25 +156,6 @@ static void button_gladiator_year(__attribute__((unused)) int param1, __attribut
 {
     window_numeric_input_show(screen_dialog_offset_x() + 320, screen_dialog_offset_y() + 20,
                               3, 999, set_gladiator_revolt_year);
-}
-
-static void button_emperor_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
-{
-    scenario.emperor_change.enabled = !scenario.emperor_change.enabled;
-    scenario.is_saved = 0;
-    window_request_refresh();
-}
-
-static void set_emperor_change_year(int year)
-{
-    scenario.emperor_change.year = year;
-    scenario.is_saved = 0;
-}
-
-static void button_emperor_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
-{
-    window_numeric_input_show(screen_dialog_offset_x() + 320, screen_dialog_offset_y() + 50,
-                              3, 999, set_emperor_change_year);
 }
 
 static void button_sea_trade_toggle(__attribute__((unused)) int param1, __attribute__((unused)) int param2)

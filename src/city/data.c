@@ -407,7 +407,6 @@ static void save_main_data(buffer *main)
     buffer_write_i32(main, city_data.emperor.gifts[GIFT_GENEROUS].cost);
     buffer_write_i32(main, city_data.emperor.gifts[GIFT_LAVISH].cost);
     buffer_write_i32(main, city_data.ratings.favor_salary_penalty);
-    buffer_write_i32(main, city_data.ratings.favor_milestone_penalty);
     buffer_write_i32(main, city_data.ratings.favor_ignored_request_penalty);
     buffer_write_i32(main, city_data.ratings.favor_last_year);
     buffer_write_i32(main, city_data.ratings.favor_change);
@@ -881,7 +880,6 @@ static void load_main_data(buffer *main)
     city_data.emperor.gifts[GIFT_GENEROUS].cost = buffer_read_i32(main);
     city_data.emperor.gifts[GIFT_LAVISH].cost = buffer_read_i32(main);
     city_data.ratings.favor_salary_penalty = buffer_read_i32(main);
-    city_data.ratings.favor_milestone_penalty = buffer_read_i32(main);
     city_data.ratings.favor_ignored_request_penalty = buffer_read_i32(main);
     city_data.ratings.favor_last_year = buffer_read_i32(main);
     city_data.ratings.favor_change = buffer_read_i32(main);

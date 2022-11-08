@@ -101,11 +101,6 @@ void city_ratings_change_favor(int amount)
     city_data.ratings.favor = calc_bound(city_data.ratings.favor + amount, 0, 100);
 }
 
-void city_ratings_reset_favor_emperor_change(void)
-{
-    city_data.ratings.favor = 50;
-}
-
 void city_ratings_reduce_favor_missed_request(int penalty)
 {
     city_ratings_change_favor(-penalty);
@@ -281,8 +276,6 @@ void city_ratings_update_favor_explanation(void)
         city_data.ratings.favor_explanation = 8;
     } else if (city_data.ratings.favor_salary_penalty >= 2) {
         city_data.ratings.favor_explanation = 9;
-    } else if (city_data.ratings.favor_milestone_penalty) {
-        city_data.ratings.favor_explanation = 10;
     } else if (city_data.ratings.favor_salary_penalty) {
         city_data.ratings.favor_explanation = 11;
     } else if (city_data.ratings.favor_change == 2) { // rising
@@ -506,7 +499,6 @@ static void update_favor_rating(int is_yearly_update)
     }
     if (is_yearly_update) {
         city_data.ratings.favor_salary_penalty = 0;
-        city_data.ratings.favor_milestone_penalty = 0;
         city_data.ratings.favor_ignored_request_penalty = 0;
         city_data.ratings.favor -= 2;
         // tribute penalty
@@ -533,51 +525,6 @@ static void update_favor_rating(int is_yearly_update)
         } else if (salary_delta > 0) {
             city_data.ratings.favor -= salary_delta;
             city_data.ratings.favor_salary_penalty = salary_delta;
-        }
-        // milestone
-        int milestone_pct;
-        if (scenario.start_year + scenario.milestone25_year == game_time_year()) {
-            milestone_pct = 25;
-        } else if (scenario.start_year + scenario.milestone50_year == game_time_year()) {
-            milestone_pct = 50;
-        } else if (scenario.start_year + scenario.milestone75_year == game_time_year()) {
-            milestone_pct = 75;
-        } else {
-            milestone_pct = 0;
-        }
-        if (milestone_pct) {
-            int bonus = 1;
-            if (scenario.culture_win_criteria.enabled &&
-                city_data.ratings.culture < calc_adjust_with_percentage(
-                    scenario.culture_win_criteria.goal, milestone_pct)) {
-                bonus = 0;
-            }
-            if (scenario.prosperity_win_criteria.enabled &&
-                city_data.ratings.prosperity < calc_adjust_with_percentage(
-                    scenario.prosperity_win_criteria.goal, milestone_pct)) {
-                bonus = 0;
-            }
-            if (scenario.peace_win_criteria.enabled &&
-                city_data.ratings.peace < calc_adjust_with_percentage(
-                    scenario.peace_win_criteria.goal, milestone_pct)) {
-                bonus = 0;
-            }
-            if (scenario.favor_win_criteria.enabled &&
-                city_data.ratings.favor < calc_adjust_with_percentage(
-                    scenario.favor_win_criteria.goal, milestone_pct)) {
-                bonus = 0;
-            }
-            if (scenario.population_win_criteria.enabled &&
-                city_data.population.population < calc_adjust_with_percentage(
-                    scenario.population_win_criteria.goal, milestone_pct)) {
-                bonus = 0;
-            }
-            if (bonus) {
-                city_data.ratings.favor += 5;
-            } else {
-                city_data.ratings.favor -= 2;
-                city_data.ratings.favor_milestone_penalty = 2;
-            }
         }
 
         if (city_data.ratings.favor < city_data.ratings.favor_last_year) {

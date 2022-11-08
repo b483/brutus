@@ -44,7 +44,6 @@
 #include "map/water_supply.h"
 #include "scenario/earthquake.h"
 #include "scenario/editor_events.h"
-#include "scenario/emperor_change.h"
 #include "scenario/empire.h"
 #include "scenario/gladiator_revolt.h"
 #include "sound/music.h"
@@ -171,6 +170,5 @@ void game_tick_run(void)
     figure_action_handle();
     scenario_earthquake_process();
     scenario_gladiator_revolt_process();
-    scenario_emperor_change_process();
     city_victory_check();
 }

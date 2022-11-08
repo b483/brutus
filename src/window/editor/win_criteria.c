@@ -30,7 +30,6 @@ static void button_time_limit_toggle(int param1, int param2);
 static void button_time_limit_years(int param1, int param2);
 static void button_survival_toggle(int param1, int param2);
 static void button_survival_years(int param1, int param2);
-static void button_milestone(int milestone_pct, int param2);
 
 static generic_button buttons_win_criteria[] = {
     {274, 60, 80, 30, button_open_play_toggle, button_none, 0, 0},
@@ -48,9 +47,6 @@ static generic_button buttons_win_criteria[] = {
     {374, 300, 180, 30, button_time_limit_years, button_none, 0, 0},
     {274, 340, 80, 30, button_survival_toggle, button_none, 0, 0},
     {374, 340, 180, 30, button_survival_years, button_none, 0, 0},
-    {274, 380, 280, 30, button_milestone, button_none, 25, 0},
-    {274, 420, 280, 30, button_milestone, button_none, 50, 0},
-    {274, 460, 280, 30, button_milestone, button_none, 75, 0}
 };
 
 static int focus_button_id;
@@ -59,7 +55,7 @@ static void draw_foreground(void)
 {
     graphics_in_dialog();
 
-    outer_panel_draw(0, 0, 36, 32);
+    outer_panel_draw(0, 0, 36, 25);
 
     lang_text_draw_centered(44, 48, 0, 16, 576, FONT_LARGE_BLACK);
 
@@ -125,24 +121,6 @@ static void draw_foreground(void)
     button_border_draw(374, 340, 180, 30, focus_button_id == 15);
     width = text_draw_number(scenario.survival_time_win_criteria.years, '+', 0, 394, 349, FONT_NORMAL_BLACK);
     lang_text_draw_year(scenario.start_year + scenario.survival_time_win_criteria.years, width + 404, 349, FONT_NORMAL_BLACK);
-
-    // Milestone - 25%
-    lang_text_draw(44, 91, 30, 389, FONT_NORMAL_BLACK);
-    button_border_draw(274, 380, 280, 30, focus_button_id == 16);
-    width = text_draw_number(scenario.milestone25_year, '+', 0, 360, 389, FONT_NORMAL_BLACK);
-    lang_text_draw_year(scenario.start_year + scenario.milestone25_year, width + 370, 389, FONT_SMALL_PLAIN);
-
-    // Milestone - 50%
-    lang_text_draw(44, 92, 30, 429, FONT_NORMAL_BLACK);
-    button_border_draw(274, 420, 280, 30, focus_button_id == 17);
-    width = text_draw_number(scenario.milestone50_year, '+', 0, 360, 429, FONT_NORMAL_BLACK);
-    lang_text_draw_year(scenario.start_year + scenario.milestone50_year, width + 370, 429, FONT_SMALL_PLAIN);
-
-    // Milestone - 75%
-    lang_text_draw(44, 93, 30, 469, FONT_NORMAL_BLACK);
-    button_border_draw(274, 460, 280, 30, focus_button_id == 18);
-    width = text_draw_number(scenario.milestone75_year, '+', 0, 360, 469, FONT_NORMAL_BLACK);
-    lang_text_draw_year(scenario.start_year + scenario.milestone75_year, width + 370, 469, FONT_SMALL_PLAIN);
 
     graphics_reset_dialog();
 }
@@ -284,31 +262,6 @@ static void set_survival_time(int years)
 static void button_survival_years(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(screen_dialog_offset_x() + 402, screen_dialog_offset_y() + 264, 3, 999, set_survival_time);
-}
-
-static int dialog_milestone_pct;
-static void set_milestone_year(int value)
-{
-    switch (dialog_milestone_pct) {
-        case 25:
-            scenario.milestone25_year = value;
-            break;
-        case 50:
-            scenario.milestone50_year = value;
-            break;
-        case 75:
-            scenario.milestone75_year = value;
-            break;
-        default:
-            return;
-    }
-    scenario.is_saved = 0;
-}
-
-static void button_milestone(int milestone_pct, __attribute__((unused)) int param2)
-{
-    dialog_milestone_pct = milestone_pct;
-    window_numeric_input_show(screen_dialog_offset_x() + 352, screen_dialog_offset_y() + 344, 3, 999, set_milestone_year);
 }
 
 void window_editor_win_criteria_show(void)

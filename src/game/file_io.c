@@ -38,7 +38,6 @@
 #include "platform/file_manager.h"
 #include "scenario/earthquake.h"
 #include "scenario/editor_events.h"
-#include "scenario/emperor_change.h"
 #include "scenario/gladiator_revolt.h"
 #include "scenario/scenario.h"
 #include "sound/city.h"
@@ -113,7 +112,6 @@ typedef struct {
     buffer *city_view_camera;
     buffer *building_count_culture1;
     buffer *city_graph_order;
-    buffer *emperor_change_time;
     buffer *empire;
     buffer *empire_objects;
     buffer *building_count_industry;
@@ -122,7 +120,6 @@ typedef struct {
     buffer *culture_coverage;
     buffer *scenario;
     buffer *earthquake;
-    buffer *emperor_change_state;
     buffer *messages;
     buffer *message_extra;
     buffer *population_messages;
@@ -202,7 +199,7 @@ static void init_scenario_data(void)
     state->elevation = create_scenario_piece(26244);
     state->random_iv = create_scenario_piece(8);
     state->camera = create_scenario_piece(8);
-    state->scenario = create_scenario_piece(52257);
+    state->scenario = create_scenario_piece(52237);
     state->empire_object = create_scenario_piece(20600);
 }
 
@@ -235,7 +232,7 @@ static void init_savegame_data(void)
     state->route_paths = create_savegame_piece(300000, 1);
     state->formations = create_savegame_piece(5500, 1);
     state->formation_totals = create_savegame_piece(12, 0);
-    state->city_data = create_savegame_piece(36136, 1);
+    state->city_data = create_savegame_piece(36118, 1);
     state->city_faction_unknown = create_savegame_piece(2, 0);
     state->player_name = create_savegame_piece(24, 0);
     state->city_faction = create_savegame_piece(4, 0);
@@ -247,16 +244,14 @@ static void init_savegame_data(void)
     state->city_view_camera = create_savegame_piece(8, 0);
     state->building_count_culture1 = create_savegame_piece(132, 0);
     state->city_graph_order = create_savegame_piece(8, 0);
-    state->emperor_change_time = create_savegame_piece(8, 0);
     state->empire = create_savegame_piece(8, 0);
     state->empire_objects = create_savegame_piece(20600, 1);
     state->building_count_industry = create_savegame_piece(128, 0);
     state->trade_prices = create_savegame_piece(128, 0);
     state->figure_names = create_savegame_piece(84, 0);
     state->culture_coverage = create_savegame_piece(60, 0);
-    state->scenario = create_savegame_piece(52257, 0);
+    state->scenario = create_savegame_piece(52237, 0);
     state->earthquake = create_savegame_piece(60, 0);
-    state->emperor_change_state = create_savegame_piece(4, 0);
     state->messages = create_savegame_piece(14000, 1);
     state->message_extra = create_savegame_piece(12, 0);
     state->population_messages = create_savegame_piece(9, 0);
@@ -365,8 +360,6 @@ static void savegame_load_from_state(savegame_state *state)
                               state->building_count_military,
                               state->building_count_support);
 
-    scenario_emperor_change_load_state(state->emperor_change_time, state->emperor_change_state);
-
     empire_load_state(state->empire);
     empire_object_load_state(state->empire_objects);
     trade_prices_load_state(state->trade_prices);
@@ -436,8 +429,6 @@ static void savegame_save_to_state(savegame_state *state)
                               state->building_count_culture3,
                               state->building_count_military,
                               state->building_count_support);
-
-    scenario_emperor_change_save_state(state->emperor_change_time, state->emperor_change_state);
     empire_save_state(state->empire);
     empire_object_save_state(state->empire_objects);
     trade_prices_save_state(state->trade_prices);

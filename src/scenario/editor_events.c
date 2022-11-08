@@ -453,7 +453,7 @@ void scenario_custom_messages_process(void)
         }
         if (game_time_year() == scenario.editor_custom_messages[i].year + scenario.start_year
             && game_time_month() == scenario.editor_custom_messages[i].month) {
-            city_message_post(1, 123 + i, 0, 0);
+            city_message_post(1, MESSAGE_EDITOR_1 + i, 0, 0);
         }
     }
 }
