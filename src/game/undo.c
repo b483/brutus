@@ -17,7 +17,7 @@
 #include "map/routing_terrain.h"
 #include "map/sprite.h"
 #include "map/terrain.h"
-#include "scenario/earthquake.h"
+#include "scenario/editor_events.h"
 
 #include <string.h>
 

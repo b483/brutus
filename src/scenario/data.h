@@ -2,7 +2,6 @@
 #define SCENARIO_DATA_H
 
 #include "map/point.h"
-#include "scenario/types.h"
 
 #include <stdint.h>
 
@@ -27,9 +26,24 @@
 #define MAX_CUSTOM_MESSAGE_VIDEO_TEXT 24
 
 enum {
-    EVENT_NOT_STARTED = 0,
-    EVENT_IN_PROGRESS = 1,
-    EVENT_FINISHED = 2
+    EARTHQUAKE_NONE = 0,
+    EARTHQUAKE_SMALL = 1,
+    EARTHQUAKE_MEDIUM = 2,
+    EARTHQUAKE_LARGE = 3
+};
+
+enum {
+    EVENT_DISABLED = 0,
+    EVENT_NOT_STARTED = 1,
+    EVENT_IN_PROGRESS = 2,
+    EVENT_FINISHED = 3
+};
+
+enum {
+    INVASION_TYPE_LOCAL_UPRISING = 1,
+    INVASION_TYPE_ENEMY_ARMY = 2,
+    INVASION_TYPE_CAESAR = 3,
+    INVASION_TYPE_DISTANT_BATTLE = 4,
 };
 
 enum {
@@ -218,11 +232,13 @@ extern struct scenario_t {
     short allowed_buildings[MAX_ALLOWED_BUILDINGS];
     struct {
         int severity;
+        int month;
         int year;
     } earthquake;
     struct {
+        int state;
+        int month;
         int year;
-        int enabled;
     } gladiator_revolt;
     struct {
         int sea_trade_problem;

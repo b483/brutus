@@ -42,10 +42,8 @@
 #include "map/routing_terrain.h"
 #include "map/tiles.h"
 #include "map/water_supply.h"
-#include "scenario/earthquake.h"
 #include "scenario/editor_events.h"
 #include "scenario/empire.h"
-#include "scenario/gladiator_revolt.h"
 #include "sound/music.h"
 #include "widget/minimap.h"
 
@@ -84,6 +82,7 @@ static void advance_month(void)
         city_ratings_update(0);
     }
     scenario_custom_messages_process();
+    scenario_gladiator_revolt_process();
     scenario_request_process();
     scenario_price_change_process();
     scenario_demand_change_process();
@@ -169,6 +168,5 @@ void game_tick_run(void)
     advance_tick();
     figure_action_handle();
     scenario_earthquake_process();
-    scenario_gladiator_revolt_process();
     city_victory_check();
 }

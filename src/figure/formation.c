@@ -486,9 +486,6 @@ void formation_calculate_figures(void)
         if (!figure_is_legion(f) && !figure_is_enemy(f) && !figure_is_herd(f)) {
             continue;
         }
-        if (f->type == FIGURE_ENEMY54_GLADIATOR) {
-            continue;
-        }
         int index = add_figure(f->formation_id, i,
             f->formation_at_rest != 1, f->damage,
             figure_properties_for_type(f->type)->max_damage

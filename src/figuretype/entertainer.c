@@ -11,11 +11,11 @@
 #include "map/grid.h"
 #include "map/road_access.h"
 #include "map/road_network.h"
-#include "scenario/gladiator_revolt.h"
+#include "scenario/data.h"
 
 static int determine_destination(int x, int y, building_type type1, building_type type2)
 {
-    int road_network = map_road_network_get(map_grid_offset(x,y));
+    int road_network = map_road_network_get(map_grid_offset(x, y));
 
     building_list_small_clear();
 
@@ -151,7 +151,7 @@ void figure_entertainer_action(figure *f)
     if (f->wait_ticks_missile >= 120) {
         f->wait_ticks_missile = 0;
     }
-    if (scenario_gladiator_revolt_is_in_progress() && f->type == FIGURE_GLADIATOR) {
+    if (scenario.gladiator_revolt.state == EVENT_IN_PROGRESS && f->type == FIGURE_GLADIATOR) {
         if (f->action_state == FIGURE_ACTION_92_ENTERTAINER_GOING_TO_VENUE ||
             f->action_state == FIGURE_ACTION_94_ENTERTAINER_ROAMING ||
             f->action_state == FIGURE_ACTION_95_ENTERTAINER_RETURNING) {

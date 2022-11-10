@@ -72,6 +72,10 @@ void scenario_editor_create(int map_size)
     scenario.earthquake.severity = 0;
     scenario.earthquake.year = 0;
 
+    // Special events
+    scenario.earthquake.year = 1;
+    scenario.gladiator_revolt.year = 1;
+
     // Requests
     for (int i = 0; i < MAX_REQUESTS; i++) {
         scenario.requests[i].year = 1;

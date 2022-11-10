@@ -1,5 +1,6 @@
 #include "editor_events.h"
 
+#include "building/count.h"
 #include "building/destruction.h"
 #include "building/warehouse.h"
 #include "city/data_private.h"
@@ -18,15 +19,32 @@
 #include "figure/figure.h"
 #include "figure/formation.h"
 #include "figure/name.h"
+#include "figuretype/missile.h"
 #include "game/time.h"
+#include "map/building.h"
 #include "map/grid.h"
+#include "map/routing_terrain.h"
 #include "map/terrain.h"
+#include "map/tiles.h"
 #include "scenario/data.h"
 #include "scenario/map.h"
+#include "sound/effect.h"
 
 #include <string.h>
 
 #define MAX_INVASION_WARNINGS 101
+
+static struct {
+    int state;
+    int duration;
+    int max_duration;
+    int delay;
+    int max_delay;
+    struct {
+        int x;
+        int y;
+    } expand[4];
+} data_earthquake;
 
 enum {
     EVENT_ROME_RAISES_WAGES = 1,
@@ -109,7 +127,7 @@ typedef struct {
 static struct {
     int last_internal_invasion_id;
     invasion_warning warnings[MAX_INVASION_WARNINGS];
-} data;
+} data_invasion;
 
 int scenario_building_allowed(int building_type)
 {
@@ -272,6 +290,165 @@ int scenario_building_allowed(int building_type)
             return scenario.allowed_buildings[ALLOWED_BUILDING_WAREHOUSE];
     }
     return 1;
+}
+
+void scenario_gladiator_revolt_process(void)
+{
+    if (!scenario.gladiator_revolt.state) {
+        return;
+    }
+    if (scenario.gladiator_revolt.state == EVENT_NOT_STARTED) {
+        if (game_time_year() == scenario.start_year + scenario.gladiator_revolt.year && game_time_month() == scenario.gladiator_revolt.month) {
+            if (building_count_active(BUILDING_GLADIATOR_SCHOOL) > 0) {
+                scenario.gladiator_revolt.state = EVENT_IN_PROGRESS;
+                city_message_post(1, MESSAGE_GLADIATOR_REVOLT, 0, 0);
+            } else {
+                scenario.gladiator_revolt.state = EVENT_FINISHED;
+            }
+        }
+    } else if (scenario.gladiator_revolt.state == EVENT_IN_PROGRESS) {
+        if (scenario.gladiator_revolt.month + 3 == game_time_month()) {
+            scenario.gladiator_revolt.state = EVENT_FINISHED;
+            city_message_post(1, MESSAGE_GLADIATOR_REVOLT_FINISHED, 0, 0);
+        }
+    }
+}
+
+void scenario_earthquake_init(void)
+{
+    switch (scenario.earthquake.severity) {
+        default:
+            data_earthquake.max_duration = 0;
+            data_earthquake.max_delay = 0;
+            break;
+        case EARTHQUAKE_SMALL:
+            data_earthquake.max_duration = 25 + (random_byte() & 0x1f);
+            data_earthquake.max_delay = 10;
+            break;
+        case EARTHQUAKE_MEDIUM:
+            data_earthquake.max_duration = 100 + (random_byte() & 0x3f);
+            data_earthquake.max_delay = 8;
+            break;
+        case EARTHQUAKE_LARGE:
+            data_earthquake.max_duration = 250 + random_byte();
+            data_earthquake.max_delay = 6;
+            break;
+    }
+    data_earthquake.state = EVENT_NOT_STARTED;
+    for (int i = 0; i < 4; i++) {
+        data_earthquake.expand[i].x = scenario.earthquake_point.x;
+        data_earthquake.expand[i].y = scenario.earthquake_point.y;
+    }
+}
+
+static void advance_earthquake_to_tile(int x, int y)
+{
+    int grid_offset = map_grid_offset(x, y);
+    int building_id = map_building_at(grid_offset);
+    if (building_id) {
+        building_destroy_by_fire(building_get(building_id));
+        sound_effect_play(SOUND_EFFECT_EXPLOSION);
+        int ruin_id = map_building_at(grid_offset);
+        if (ruin_id) {
+            building_get(ruin_id)->state = BUILDING_STATE_DELETED_BY_GAME;
+            map_building_set(grid_offset, 0);
+        }
+    }
+    map_terrain_set(grid_offset, 0);
+    map_tiles_set_earthquake(x, y);
+    map_tiles_update_all_gardens();
+    map_tiles_update_all_roads();
+    map_tiles_update_all_plazas();
+
+    map_routing_update_land();
+    map_routing_update_walls();
+
+    figure_create_explosion_cloud(x, y, 1);
+}
+
+void scenario_earthquake_process(void)
+{
+    if (scenario.earthquake.severity == EARTHQUAKE_NONE
+        || scenario.earthquake_point.x == -1 || scenario.earthquake_point.y == -1) {
+        return;
+    }
+    if (data_earthquake.state == EVENT_NOT_STARTED) {
+        if (scenario.start_year + scenario.earthquake.year == game_time_year() && scenario.earthquake.month == game_time_month()) {
+            data_earthquake.state = EVENT_IN_PROGRESS;
+            data_earthquake.duration = 0;
+            data_earthquake.delay = 0;
+            advance_earthquake_to_tile(data_earthquake.expand[0].x, data_earthquake.expand[0].y);
+            city_message_post(1, MESSAGE_EARTHQUAKE, 0,
+                map_grid_offset(data_earthquake.expand[0].x, data_earthquake.expand[0].y));
+        }
+    } else if (data_earthquake.state == EVENT_IN_PROGRESS) {
+        data_earthquake.delay++;
+        if (data_earthquake.delay >= data_earthquake.max_delay) {
+            data_earthquake.delay = 0;
+            data_earthquake.duration++;
+            if (data_earthquake.duration >= data_earthquake.max_duration) {
+                data_earthquake.state = EVENT_FINISHED;
+            }
+            int dx, dy, index;
+            switch (random_byte() & 0xf) {
+                case 0: index = 0; dx = 0; dy = -1; break;
+                case 1: index = 1; dx = 1; dy = 0; break;
+                case 2: index = 2; dx = 0; dy = 1; break;
+                case 3: index = 3; dx = -1; dy = 0; break;
+                case 4: index = 0; dx = 0; dy = -1; break;
+                case 5: index = 0; dx = -1; dy = 0; break;
+                case 6: index = 0; dx = 1; dy = 0; break;
+                case 7: index = 1; dx = 1; dy = 0; break;
+                case 8: index = 1; dx = 0; dy = -1; break;
+                case 9: index = 1; dx = 0; dy = 1; break;
+                case 10: index = 2; dx = 0; dy = 1; break;
+                case 11: index = 2; dx = -1; dy = 0; break;
+                case 12: index = 2; dx = 1; dy = 0; break;
+                case 13: index = 3; dx = -1; dy = 0; break;
+                case 14: index = 3; dx = 0; dy = -1; break;
+                case 15: index = 3; dx = 0; dy = 1; break;
+                default: return;
+            }
+            int x = calc_bound(data_earthquake.expand[index].x + dx, 0, scenario.map.width - 1);
+            int y = calc_bound(data_earthquake.expand[index].y + dy, 0, scenario.map.height - 1);
+            if (!map_terrain_is(map_grid_offset(x, y), TERRAIN_ELEVATION | TERRAIN_ROCK | TERRAIN_WATER)) {
+                data_earthquake.expand[index].x = x;
+                data_earthquake.expand[index].y = y;
+                advance_earthquake_to_tile(x, y);
+            }
+        }
+    }
+}
+
+int scenario_earthquake_is_in_progress(void)
+{
+    return data_earthquake.state == EVENT_IN_PROGRESS;
+}
+
+void scenario_earthquake_save_state(buffer *buf)
+{
+    buffer_write_i32(buf, data_earthquake.state);
+    buffer_write_i32(buf, data_earthquake.duration);
+    buffer_write_i32(buf, data_earthquake.max_duration);
+    buffer_write_i32(buf, data_earthquake.max_delay);
+    buffer_write_i32(buf, data_earthquake.delay);
+    for (int i = 0; i < 4; i++) {
+        buffer_write_i32(buf, data_earthquake.expand[i].x);
+        buffer_write_i32(buf, data_earthquake.expand[i].y);
+    }
+}
+
+void scenario_earthquake_load_state(buffer *buf)
+{
+    data_earthquake.state = buffer_read_i32(buf);
+    data_earthquake.duration = buffer_read_i32(buf);
+    data_earthquake.max_duration = buffer_read_i32(buf);
+    data_earthquake.max_delay = buffer_read_i32(buf);
+    data_earthquake.delay = buffer_read_i32(buf);
+    for (int i = 0; i < 4; i++) {
+        data_earthquake.expand[i].x = buffer_read_i32(buf);
+        data_earthquake.expand[i].y = buffer_read_i32(buf);
+    }
 }
 
 static void raise_wages(void)
@@ -460,7 +637,7 @@ void scenario_custom_messages_process(void)
 
 void scenario_invasion_clear(void)
 {
-    memset(data.warnings, 0, MAX_INVASION_WARNINGS * sizeof(invasion_warning));
+    memset(data_invasion.warnings, 0, MAX_INVASION_WARNINGS * sizeof(invasion_warning));
 }
 
 void scenario_invasion_init(void)
@@ -471,7 +648,7 @@ void scenario_invasion_init(void)
     if (path_max == 0) {
         return;
     }
-    invasion_warning *warning = &data.warnings[1];
+    invasion_warning *warning = &data_invasion.warnings[1];
     for (int i = 0; i < MAX_INVASIONS; i++) {
         random_generate_next();
         if (!scenario.invasions[i].type) {
@@ -521,7 +698,7 @@ void scenario_invasion_init(void)
 int scenario_invasion_exists_upcoming(void)
 {
     for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        if (data.warnings[i].in_use && data.warnings[i].handled) {
+        if (data_invasion.warnings[i].in_use && data_invasion.warnings[i].handled) {
             return 1;
         }
     }
@@ -531,8 +708,8 @@ int scenario_invasion_exists_upcoming(void)
 void scenario_invasion_foreach_warning(void (*callback)(int x, int y, int image_id))
 {
     for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        if (data.warnings[i].in_use && data.warnings[i].handled) {
-            callback(data.warnings[i].x, data.warnings[i].y, data.warnings[i].image_id);
+        if (data_invasion.warnings[i].in_use && data_invasion.warnings[i].handled) {
+            callback(data_invasion.warnings[i].x, data_invasion.warnings[i].y, data_invasion.warnings[i].image_id);
         }
     }
 }
@@ -569,9 +746,9 @@ static int start_invasion(int enemy_type, int amount, int invasion_point, int at
     if (amount > 200) {
         amount = 200;
     }
-    data.last_internal_invasion_id++;
-    if (data.last_internal_invasion_id > 32000) {
-        data.last_internal_invasion_id = 1;
+    data_invasion.last_internal_invasion_id++;
+    if (data_invasion.last_internal_invasion_id > 32000) {
+        data_invasion.last_internal_invasion_id = 1;
     }
     // calculate soldiers per type
     int num_type1 = calc_adjust_with_percentage(amount, ENEMY_PROPERTIES[enemy_type].pct_type1);
@@ -662,7 +839,7 @@ static int start_invasion(int enemy_type, int amount, int invasion_point, int at
         for (int i = 0; i < formations_per_type[type]; i++) {
             int formation_id = formation_create_enemy(
                 figure_type, x, y, ENEMY_PROPERTIES[enemy_type].formation_layout, orientation,
-                enemy_type, attack_type, invasion_id, data.last_internal_invasion_id
+                enemy_type, attack_type, invasion_id, data_invasion.last_internal_invasion_id
             );
             if (formation_id <= 0) {
                 continue;
@@ -687,11 +864,11 @@ void scenario_invasion_process(void)
 {
     int enemy_id = scenario.enemy_id;
     for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        if (!data.warnings[i].in_use) {
+        if (!data_invasion.warnings[i].in_use) {
             continue;
         }
         // update warnings
-        invasion_warning *warning = &data.warnings[i];
+        invasion_warning *warning = &data_invasion.warnings[i];
         warning->months_to_go--;
         if (warning->months_to_go <= 0) {
             if (warning->handled != 1) {
@@ -724,9 +901,9 @@ void scenario_invasion_process(void)
                     warning->invasion_id);
                 if (grid_offset > 0) {
                     if (ENEMY_ID_TO_ENEMY_TYPE[enemy_id] > 4) {
-                        city_message_post(1, MESSAGE_ENEMY_ARMY_ATTACK, data.last_internal_invasion_id, grid_offset);
+                        city_message_post(1, MESSAGE_ENEMY_ARMY_ATTACK, data_invasion.last_internal_invasion_id, grid_offset);
                     } else {
-                        city_message_post(1, MESSAGE_BARBARIAN_ATTACK, data.last_internal_invasion_id, grid_offset);
+                        city_message_post(1, MESSAGE_BARBARIAN_ATTACK, data_invasion.last_internal_invasion_id, grid_offset);
                     }
                 }
             }
@@ -739,7 +916,7 @@ void scenario_invasion_process(void)
                     scenario.invasions[warning->invasion_id].attack_type,
                     warning->invasion_id);
                 if (grid_offset > 0) {
-                    city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, data.last_internal_invasion_id, grid_offset);
+                    city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, data_invasion.last_internal_invasion_id, grid_offset);
                 }
                 city_data.emperor.invasion.from_editor = 1;
                 city_data.emperor.invasion.size = scenario.invasions[warning->invasion_id].amount;
@@ -758,7 +935,7 @@ void scenario_invasion_process(void)
                     scenario.invasions[i].attack_type,
                     i);
                 if (grid_offset > 0) {
-                    city_message_post(1, MESSAGE_LOCAL_UPRISING, data.last_internal_invasion_id, grid_offset);
+                    city_message_post(1, MESSAGE_LOCAL_UPRISING, data_invasion.last_internal_invasion_id, grid_offset);
                 }
             }
         }
@@ -770,7 +947,7 @@ void scenario_invasion_start_from_mars(void)
     int amount = 32;
     int grid_offset = start_invasion(ENEMY_0_BARBARIAN, amount, 8, FORMATION_ATTACK_FOOD_CHAIN, 23);
     if (grid_offset) {
-        city_message_post(1, MESSAGE_LOCAL_UPRISING_MARS, data.last_internal_invasion_id, grid_offset);
+        city_message_post(1, MESSAGE_LOCAL_UPRISING_MARS, data_invasion.last_internal_invasion_id, grid_offset);
     }
 }
 
@@ -778,7 +955,7 @@ int scenario_invasion_start_from_caesar(int size)
 {
     int grid_offset = start_invasion(ENEMY_11_CAESAR, size, 0, FORMATION_ATTACK_BEST_BUILDINGS, 24);
     if (grid_offset > 0) {
-        city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, data.last_internal_invasion_id, grid_offset);
+        city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, data_invasion.last_internal_invasion_id, grid_offset);
         return 1;
     }
     return 0;
@@ -790,19 +967,19 @@ void scenario_invasion_start_from_cheat(void)
     int grid_offset = start_invasion(ENEMY_ID_TO_ENEMY_TYPE[enemy_id], 200, 8, FORMATION_ATTACK_FOOD_CHAIN, 23);
     if (grid_offset) {
         if (ENEMY_ID_TO_ENEMY_TYPE[enemy_id] > 4) {
-            city_message_post(1, MESSAGE_ENEMY_ARMY_ATTACK, data.last_internal_invasion_id, grid_offset);
+            city_message_post(1, MESSAGE_ENEMY_ARMY_ATTACK, data_invasion.last_internal_invasion_id, grid_offset);
         } else {
-            city_message_post(1, MESSAGE_BARBARIAN_ATTACK, data.last_internal_invasion_id, grid_offset);
+            city_message_post(1, MESSAGE_BARBARIAN_ATTACK, data_invasion.last_internal_invasion_id, grid_offset);
         }
     }
 }
 
 void scenario_invasion_save_state(buffer *invasion_id, buffer *warnings)
 {
-    buffer_write_u16(invasion_id, data.last_internal_invasion_id);
+    buffer_write_u16(invasion_id, data_invasion.last_internal_invasion_id);
 
     for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        const invasion_warning *w = &data.warnings[i];
+        const invasion_warning *w = &data_invasion.warnings[i];
         buffer_write_u8(warnings, w->in_use);
         buffer_write_u8(warnings, w->handled);
         buffer_write_u8(warnings, w->invasion_path_id);
@@ -820,10 +997,10 @@ void scenario_invasion_save_state(buffer *invasion_id, buffer *warnings)
 
 void scenario_invasion_load_state(buffer *invasion_id, buffer *warnings)
 {
-    data.last_internal_invasion_id = buffer_read_u16(invasion_id);
+    data_invasion.last_internal_invasion_id = buffer_read_u16(invasion_id);
 
     for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        invasion_warning *w = &data.warnings[i];
+        invasion_warning *w = &data_invasion.warnings[i];
         w->in_use = buffer_read_u8(warnings);
         w->handled = buffer_read_u8(warnings);
         w->invasion_path_id = buffer_read_u8(warnings);

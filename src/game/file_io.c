@@ -36,9 +36,7 @@
 #include "map/sprite.h"
 #include "map/terrain.h"
 #include "platform/file_manager.h"
-#include "scenario/earthquake.h"
 #include "scenario/editor_events.h"
-#include "scenario/gladiator_revolt.h"
 #include "scenario/scenario.h"
 #include "sound/city.h"
 
@@ -139,7 +137,6 @@ typedef struct {
     buffer *building_storages;
     buffer *building_count_culture2;
     buffer *building_count_support;
-    buffer *gladiator_revolt;
     buffer *trade_route_limit;
     buffer *trade_route_traded;
     buffer *building_barracks_tower_sentry;
@@ -199,7 +196,7 @@ static void init_scenario_data(void)
     state->elevation = create_scenario_piece(26244);
     state->random_iv = create_scenario_piece(8);
     state->camera = create_scenario_piece(8);
-    state->scenario = create_scenario_piece(52237);
+    state->scenario = create_scenario_piece(52214);
     state->empire_object = create_scenario_piece(20600);
 }
 
@@ -250,8 +247,8 @@ static void init_savegame_data(void)
     state->trade_prices = create_savegame_piece(128, 0);
     state->figure_names = create_savegame_piece(84, 0);
     state->culture_coverage = create_savegame_piece(60, 0);
-    state->scenario = create_savegame_piece(52237, 0);
-    state->earthquake = create_savegame_piece(60, 0);
+    state->scenario = create_savegame_piece(52214, 0);
+    state->earthquake = create_savegame_piece(52, 0);
     state->messages = create_savegame_piece(14000, 1);
     state->message_extra = create_savegame_piece(12, 0);
     state->population_messages = create_savegame_piece(9, 0);
@@ -271,7 +268,6 @@ static void init_savegame_data(void)
     state->building_storages = create_savegame_piece(4400, 0);
     state->building_count_culture2 = create_savegame_piece(32, 0);
     state->building_count_support = create_savegame_piece(24, 0);
-    state->gladiator_revolt = create_savegame_piece(16, 0);
     state->trade_route_limit = create_savegame_piece(1280, 1);
     state->trade_route_traded = create_savegame_piece(1280, 1);
     state->building_barracks_tower_sentry = create_savegame_piece(4, 0);
@@ -378,7 +374,6 @@ static void savegame_load_from_state(savegame_state *state)
                              state->building_list_burning, state->building_list_burning_totals);
 
     building_storage_load_state(state->building_storages);
-    scenario_gladiator_revolt_load_state(state->gladiator_revolt);
     trade_routes_load_state(state->trade_route_limit, state->trade_route_traded);
     map_routing_load_state(state->routing_counters);
     enemy_armies_load_state(state->enemy_armies, state->enemy_army_totals);
@@ -448,7 +443,6 @@ static void savegame_save_to_state(savegame_state *state)
                              state->building_list_burning, state->building_list_burning_totals);
 
     building_storage_save_state(state->building_storages);
-    scenario_gladiator_revolt_save_state(state->gladiator_revolt);
     trade_routes_save_state(state->trade_route_limit, state->trade_route_traded);
     map_routing_save_state(state->routing_counters);
     enemy_armies_save_state(state->enemy_armies, state->enemy_army_totals);

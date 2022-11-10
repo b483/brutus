@@ -14,7 +14,7 @@
 #include "figure/route.h"
 #include "figuretype/missile.h"
 #include "map/figure.h"
-#include "scenario/gladiator_revolt.h"
+#include "scenario/data.h"
 #include "sound/effect.h"
 #include "sound/speech.h"
 
@@ -49,7 +49,7 @@ static void enemy_initial(figure *f, formation *m)
         f->type == FIGURE_ENEMY51_SPEAR || f->type == FIGURE_ENEMY52_MOUNTED_ARCHER) {
         // missile throwers
         f->wait_ticks_missile++;
-        map_point tile = {0, 0};
+        map_point tile = { 0, 0 };
         if (f->wait_ticks_missile > figure_properties_for_type(f->type)->missile_delay) {
             f->wait_ticks_missile = 0;
             if (figure_combat_get_missile_target_for_enemy(f, 10, city_figures_soldiers() < 4, &tile)) {
@@ -565,7 +565,7 @@ void figure_enemy_gladiator_action(figure *f)
     f->terrain_usage = TERRAIN_USAGE_ANY;
     f->use_cross_country = 0;
     figure_image_increase_offset(f, 12);
-    if (scenario_gladiator_revolt_is_finished()) {
+    if (scenario.gladiator_revolt.state == EVENT_FINISHED) {
         // end of gladiator revolt: kill gladiators
         if (f->action_state != FIGURE_ACTION_149_CORPSE) {
             f->action_state = FIGURE_ACTION_149_CORPSE;

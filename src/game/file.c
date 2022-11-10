@@ -53,10 +53,8 @@
 #include "map/sprite.h"
 #include "map/terrain.h"
 #include "map/tiles.h"
-#include "scenario/earthquake.h"
 #include "scenario/editor_events.h"
 #include "scenario/empire.h"
-#include "scenario/gladiator_revolt.h"
 #include "scenario/map.h"
 #include "scenario/data.h"
 #include "scenario/scenario.h"
@@ -145,7 +143,6 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
 
     // set up events
     scenario_earthquake_init();
-    scenario_gladiator_revolt_init();
     load_custom_messages();
 
     empire_init_scenario();

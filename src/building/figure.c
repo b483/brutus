@@ -23,6 +23,8 @@
 #include "map/road_access.h"
 #include "map/terrain.h"
 #include "map/water.h"
+#include "scenario/data.h"
+#include "scenario/editor_events.h"
 
 static int worker_percentage(const building *b)
 {
@@ -305,10 +307,12 @@ static void spawn_figure_gladiator_school(building *b)
         b->figure_spawn_delay++;
         if (b->figure_spawn_delay > spawn_delay) {
             b->figure_spawn_delay = 0;
-            figure *f = figure_create(FIGURE_GLADIATOR, road.x, road.y, DIR_0_TOP);
-            f->action_state = FIGURE_ACTION_90_ENTERTAINER_AT_SCHOOL_CREATED;
-            f->building_id = b->id;
-            b->figure_id = f->id;
+            if (scenario.gladiator_revolt.state != EVENT_IN_PROGRESS) {
+                figure *f = figure_create(FIGURE_GLADIATOR, road.x, road.y, DIR_0_TOP);
+                f->action_state = FIGURE_ACTION_90_ENTERTAINER_AT_SCHOOL_CREATED;
+                f->building_id = b->id;
+                b->figure_id = f->id;
+            }
         }
     }
 }
@@ -407,16 +411,21 @@ static void spawn_figure_amphitheater(building *b)
         b->figure_spawn_delay++;
         if (b->figure_spawn_delay > spawn_delay) {
             b->figure_spawn_delay = 0;
-            figure *f;
             if (b->data.entertainment.days1 > 0) {
-                f = figure_create(FIGURE_GLADIATOR, road.x, road.y, DIR_0_TOP);
+                if (scenario.gladiator_revolt.state != EVENT_IN_PROGRESS) {
+                    figure *f = figure_create(FIGURE_GLADIATOR, road.x, road.y, DIR_0_TOP);
+                    f->action_state = FIGURE_ACTION_94_ENTERTAINER_ROAMING;
+                    f->building_id = b->id;
+                    b->figure_id = f->id;
+                    figure_movement_init_roaming(f);
+                }
             } else {
-                f = figure_create(FIGURE_ACTOR, road.x, road.y, DIR_0_TOP);
+                figure *f = figure_create(FIGURE_ACTOR, road.x, road.y, DIR_0_TOP);
+                f->action_state = FIGURE_ACTION_94_ENTERTAINER_ROAMING;
+                f->building_id = b->id;
+                b->figure_id = f->id;
+                figure_movement_init_roaming(f);
             }
-            f->action_state = FIGURE_ACTION_94_ENTERTAINER_ROAMING;
-            f->building_id = b->id;
-            b->figure_id = f->id;
-            figure_movement_init_roaming(f);
         }
     }
 }
@@ -547,16 +556,22 @@ static void spawn_figure_colosseum(building *b)
         b->figure_spawn_delay++;
         if (b->figure_spawn_delay > spawn_delay) {
             b->figure_spawn_delay = 0;
-            figure *f;
             if (b->data.entertainment.days1 > 0) {
-                f = figure_create(FIGURE_LION_TAMER, road.x, road.y, DIR_0_TOP);
+                if (scenario.gladiator_revolt.state != EVENT_IN_PROGRESS) {
+                    figure *f = figure_create(FIGURE_LION_TAMER, road.x, road.y, DIR_0_TOP);
+                    f->action_state = FIGURE_ACTION_94_ENTERTAINER_ROAMING;
+                    f->building_id = b->id;
+                    b->figure_id = f->id;
+                    figure_movement_init_roaming(f);
+                }
             } else {
-                f = figure_create(FIGURE_GLADIATOR, road.x, road.y, DIR_0_TOP);
+                figure *f = figure_create(FIGURE_GLADIATOR, road.x, road.y, DIR_0_TOP);
+                f->action_state = FIGURE_ACTION_94_ENTERTAINER_ROAMING;
+                f->building_id = b->id;
+                b->figure_id = f->id;
+                figure_movement_init_roaming(f);
             }
-            f->action_state = FIGURE_ACTION_94_ENTERTAINER_ROAMING;
-            f->building_id = b->id;
-            b->figure_id = f->id;
-            figure_movement_init_roaming(f);
+
             if (b->data.entertainment.days1 > 0 || b->data.entertainment.days2 > 0) {
                 if (city_entertainment_show_message_colosseum()) {
                     city_message_post(1, MESSAGE_WORKING_COLOSSEUM, 0, 0);

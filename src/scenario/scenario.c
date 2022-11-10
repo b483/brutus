@@ -65,16 +65,18 @@ void scenario_save_state(buffer *buf)
     }
 
     // Special events
-    buffer_write_i32(buf, scenario.earthquake.severity);
-    buffer_write_i32(buf, scenario.earthquake.year);
-    buffer_write_i32(buf, scenario.gladiator_revolt.enabled);
-    buffer_write_i32(buf, scenario.gladiator_revolt.year);
+    buffer_write_u8(buf, scenario.earthquake.severity);
+    buffer_write_u8(buf, scenario.earthquake.month);
+    buffer_write_u16(buf, scenario.earthquake.year);
+    buffer_write_u8(buf, scenario.gladiator_revolt.state);
+    buffer_write_u8(buf, scenario.gladiator_revolt.month);
+    buffer_write_u16(buf, scenario.gladiator_revolt.year);
     // random events
-    buffer_write_i32(buf, scenario.random_events.sea_trade_problem);
-    buffer_write_i32(buf, scenario.random_events.land_trade_problem);
-    buffer_write_i32(buf, scenario.random_events.raise_wages);
-    buffer_write_i32(buf, scenario.random_events.lower_wages);
-    buffer_write_i32(buf, scenario.random_events.contaminated_water);
+    buffer_write_u8(buf, scenario.random_events.sea_trade_problem);
+    buffer_write_u8(buf, scenario.random_events.land_trade_problem);
+    buffer_write_u8(buf, scenario.random_events.raise_wages);
+    buffer_write_u8(buf, scenario.random_events.lower_wages);
+    buffer_write_u8(buf, scenario.random_events.contaminated_water);
 
     // Requests
     for (int i = 0; i < MAX_REQUESTS; i++) {
@@ -296,16 +298,18 @@ void scenario_load_state(buffer *buf)
     }
 
     // Special events
-    scenario.earthquake.severity = buffer_read_i32(buf);
-    scenario.earthquake.year = buffer_read_i32(buf);
-    scenario.gladiator_revolt.enabled = buffer_read_i32(buf);
-    scenario.gladiator_revolt.year = buffer_read_i32(buf);
+    scenario.earthquake.severity = buffer_read_u8(buf);
+    scenario.earthquake.month = buffer_read_u8(buf);
+    scenario.earthquake.year = buffer_read_u16(buf);
+    scenario.gladiator_revolt.state = buffer_read_u8(buf);
+    scenario.gladiator_revolt.month = buffer_read_u8(buf);
+    scenario.gladiator_revolt.year = buffer_read_u16(buf);
     // random events
-    scenario.random_events.sea_trade_problem = buffer_read_i32(buf);
-    scenario.random_events.land_trade_problem = buffer_read_i32(buf);
-    scenario.random_events.raise_wages = buffer_read_i32(buf);
-    scenario.random_events.lower_wages = buffer_read_i32(buf);
-    scenario.random_events.contaminated_water = buffer_read_i32(buf);
+    scenario.random_events.sea_trade_problem = buffer_read_u8(buf);
+    scenario.random_events.land_trade_problem = buffer_read_u8(buf);
+    scenario.random_events.raise_wages = buffer_read_u8(buf);
+    scenario.random_events.lower_wages = buffer_read_u8(buf);
+    scenario.random_events.contaminated_water = buffer_read_u8(buf);
 
     // Requests
     for (int i = 0; i < MAX_REQUESTS; i++) {

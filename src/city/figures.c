@@ -52,6 +52,7 @@ void city_figures_add_soldier(void)
 void city_figures_set_gladiator_revolt(void)
 {
     city_data.figure.attacking_natives = 10;
+    city_data.figure.security_breach_duration = 10;
 }
 
 int city_figures_animals(void)
