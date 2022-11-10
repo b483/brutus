@@ -135,7 +135,7 @@ int scenario_building_allowed(int building_type)
         case BUILDING_HOUSE_VACANT_LOT:
             return scenario.allowed_buildings[ALLOWED_BUILDING_HOUSE_VACANT_LOT];
         case BUILDING_CLEAR_LAND:
-            return scenario.allowed_buildings[ALLOWED_BUILDING_CLEAR_LAND];
+            return scenario.allowed_buildings[ALLOWED_BUILDING_CLEAR_TERRAIN];
         case BUILDING_ROAD:
             return scenario.allowed_buildings[ALLOWED_BUILDING_ROAD];
         case BUILDING_DRAGGABLE_RESERVOIR:

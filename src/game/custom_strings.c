@@ -109,7 +109,7 @@ static custom_string all_strings[] = {
     {TR_HOTKEY_DUPLICATE_MESSAGE, "This key combination is already assigned to the following action:"},
     {TR_WARNING_SCREENSHOT_SAVED, "Screenshot saved: "},
     {TR_ALLOWED_BUILDING_HOUSE_VACANT_LOT, "Housing"},
-    {TR_ALLOWED_BUILDING_CLEAR_LAND, "Clear land"},
+    {TR_ALLOWED_BUILDING_CLEAR_TERRAIN, "Clear terrain"},
     {TR_ALLOWED_BUILDING_ROAD, "Road"},
     {TR_ALLOWED_BUILDING_DRAGGABLE_RESERVOIR, "Reservoir"},
     {TR_ALLOWED_BUILDING_AQUEDUCT, "Aqueduct"},

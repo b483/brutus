@@ -51,7 +51,6 @@ void building_menu_disable_all(void)
     }
 }
 
-
 static void enable_cycling_temples_if_configured(building_type type)
 {
     int sub = (type == BUILDING_MENU_SMALL_TEMPLES) ? BUILD_MENU_SMALL_TEMPLES : BUILD_MENU_LARGE_TEMPLES;
@@ -126,11 +125,13 @@ static void enable_building_group_menu_items(void)
     }
 }
 
-
 static void enable_normal(int *enabled, building_type type)
 {
     enable_if_allowed(enabled, type, BUILDING_HOUSE_VACANT_LOT);
-    enable_if_allowed(enabled, type, BUILDING_CLEAR_LAND);
+    // clear land option always enabled to allow deleting buildings
+    if (type == BUILDING_CLEAR_LAND) {
+        *enabled = 1;
+    }
     enable_if_allowed(enabled, type, BUILDING_ROAD);
     enable_if_allowed(enabled, type, BUILDING_DRAGGABLE_RESERVOIR);
     enable_if_allowed(enabled, type, BUILDING_AQUEDUCT);
@@ -213,7 +214,6 @@ static void enable_normal(int *enabled, building_type type)
     enable_if_allowed(enabled, type, BUILDING_WAREHOUSE);
 }
 
-
 void building_menu_update(void)
 {
     building_menu_disable_all();
@@ -228,7 +228,6 @@ void building_menu_update(void)
     changed = 1;
 }
 
-
 int building_menu_count_items(int submenu)
 {
     int count = 0;
@@ -239,7 +238,6 @@ int building_menu_count_items(int submenu)
     }
     return count;
 }
-
 
 int building_menu_next_index(int submenu, int current_index)
 {
@@ -254,12 +252,10 @@ int building_menu_next_index(int submenu, int current_index)
     return 0;
 }
 
-
 building_type building_menu_type(int submenu, int item)
 {
     return MENU_BUILDING_TYPE[submenu][item];
 }
-
 
 static int get_building_menu_item_for_type(building_type type)
 {
@@ -273,7 +269,6 @@ static int get_building_menu_item_for_type(building_type type)
     return -1;
 }
 
-
 build_menu_group get_building_menu_for_type(building_type type)
 {
     for (int sub = 0; sub < BUILD_MENU_MAX; sub++) {
@@ -286,7 +281,6 @@ build_menu_group get_building_menu_for_type(building_type type)
     return -1;
 }
 
-
 int building_menu_is_enabled(building_type type)
 {
     for (int sub = 0; sub < BUILD_MENU_MAX; sub++) {
@@ -298,7 +292,6 @@ int building_menu_is_enabled(building_type type)
     }
     return 0;
 }
-
 
 int building_menu_has_changed(void)
 {

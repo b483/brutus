@@ -15,6 +15,7 @@
 #include "map/routing_terrain.h"
 #include "map/terrain.h"
 #include "map/tiles.h"
+#include "scenario/editor_events.h"
 #include "window/popup_dialog.h"
 
 static struct {
@@ -67,6 +68,8 @@ static int clear_land_confirmed(int measure_only, int x_start, int y_start, int 
                     if (b) {
                         items_placed++;
                     }
+                } else if (map_terrain_is(grid_offset, TERRAIN_SHRUB | TERRAIN_TREE) && !scenario_building_allowed(BUILDING_CLEAR_LAND)) {
+                    continue;
                 } else if (map_terrain_is(grid_offset, TERRAIN_ROCK | TERRAIN_ELEVATION)) {
                     continue;
                 } else if (map_terrain_is(grid_offset, TERRAIN_WATER)) { // keep the "bridge is free" bug from C3
@@ -75,6 +78,9 @@ static int clear_land_confirmed(int measure_only, int x_start, int y_start, int 
                     || map_terrain_is(grid_offset, TERRAIN_NOT_CLEAR)) {
                     items_placed++;
                 }
+                continue;
+            }
+            if (map_terrain_is(grid_offset, TERRAIN_SHRUB | TERRAIN_TREE) && !scenario_building_allowed(BUILDING_CLEAR_LAND)) {
                 continue;
             }
             if (map_terrain_is(grid_offset, TERRAIN_ROCK | TERRAIN_ELEVATION)) {
