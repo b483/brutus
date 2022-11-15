@@ -159,17 +159,15 @@ void city_military_init_distant_battle(int enemy_strength)
 
 static void update_time_traveled(void)
 {
-    int roman_travel_months = scenario.empire.distant_battle_roman_travel_months;
-    int enemy_travel_months = scenario.empire.distant_battle_enemy_travel_months;
-    if (city_data.distant_battle.months_until_battle < enemy_travel_months) {
+    if (city_data.distant_battle.months_until_battle < scenario.empire.distant_battle_enemy_travel_months) {
         city_data.distant_battle.enemy_months_traveled =
-            enemy_travel_months - city_data.distant_battle.months_until_battle + 1;
+            scenario.empire.distant_battle_enemy_travel_months - city_data.distant_battle.months_until_battle + 1;
     } else {
         city_data.distant_battle.enemy_months_traveled = 1;
     }
     if (city_data.distant_battle.roman_months_to_travel_forth >= 1) {
-        if (roman_travel_months - city_data.distant_battle.roman_months_traveled >
-            enemy_travel_months - city_data.distant_battle.enemy_months_traveled) {
+        if (scenario.empire.distant_battle_roman_travel_months - city_data.distant_battle.roman_months_traveled >
+            scenario.empire.distant_battle_enemy_travel_months - city_data.distant_battle.enemy_months_traveled) {
             city_data.distant_battle.roman_months_to_travel_forth -= 2;
         } else {
             city_data.distant_battle.roman_months_to_travel_forth--;
@@ -178,12 +176,12 @@ static void update_time_traveled(void)
             city_data.distant_battle.roman_months_to_travel_forth = 1;
         }
         city_data.distant_battle.roman_months_traveled =
-            roman_travel_months - city_data.distant_battle.roman_months_to_travel_forth + 1;
+            scenario.empire.distant_battle_roman_travel_months - city_data.distant_battle.roman_months_to_travel_forth + 1;
         if (city_data.distant_battle.roman_months_traveled < 1) {
             city_data.distant_battle.roman_months_traveled = 1;
         }
-        if (city_data.distant_battle.roman_months_traveled > roman_travel_months) {
-            city_data.distant_battle.roman_months_traveled = roman_travel_months;
+        if (city_data.distant_battle.roman_months_traveled > scenario.empire.distant_battle_roman_travel_months) {
+            city_data.distant_battle.roman_months_traveled = scenario.empire.distant_battle_roman_travel_months;
         }
     }
 }
@@ -256,11 +254,11 @@ static void fight_distant_battle(void)
         if (scenario_building_allowed(BUILDING_TRIUMPHAL_ARCH)) {
             city_message_post(1, MESSAGE_DISTANT_BATTLE_WON, 0, 0);
             city_buildings_earn_triumphal_arch();
+            building_menu_update();
         } else {
             city_message_post(1, MESSAGE_DISTANT_BATTLE_WON_TRIUMPHAL_ARCH_DISABLED, 0, 0);
         }
         city_ratings_change_favor(25);
-        building_menu_update();
         city_data.distant_battle.won_count++;
         city_data.distant_battle.city_foreign_months_left = 0;
         city_data.distant_battle.roman_months_to_travel_back = city_data.distant_battle.roman_months_traveled;

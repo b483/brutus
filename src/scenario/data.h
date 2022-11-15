@@ -26,24 +26,9 @@
 #define MAX_CUSTOM_MESSAGE_VIDEO_TEXT 24
 
 enum {
-    EARTHQUAKE_NONE = 0,
-    EARTHQUAKE_SMALL = 1,
-    EARTHQUAKE_MEDIUM = 2,
-    EARTHQUAKE_LARGE = 3
-};
-
-enum {
-    EVENT_DISABLED = 0,
-    EVENT_NOT_STARTED = 1,
-    EVENT_IN_PROGRESS = 2,
-    EVENT_FINISHED = 3
-};
-
-enum {
-    INVASION_TYPE_LOCAL_UPRISING = 1,
-    INVASION_TYPE_ENEMY_ARMY = 2,
-    INVASION_TYPE_CAESAR = 3,
-    INVASION_TYPE_DISTANT_BATTLE = 4,
+    CLIMATE_CENTRAL = 0,
+    CLIMATE_NORTHERN = 1,
+    CLIMATE_DESERT = 2
 };
 
 enum {
@@ -127,132 +112,147 @@ enum {
     ALLOWED_BUILDING_WAREHOUSE = 77,
 };
 
-typedef enum {
-    CLIMATE_CENTRAL = 0,
-    CLIMATE_NORTHERN = 1,
-    CLIMATE_DESERT = 2
-} scenario_climate;
-
-struct win_criteria_t {
-    int enabled;
-    int goal;
+enum {
+    EARTHQUAKE_NONE = 0,
+    EARTHQUAKE_SMALL = 1,
+    EARTHQUAKE_MEDIUM = 2,
+    EARTHQUAKE_LARGE = 3
 };
 
-typedef struct {
-    int year;
-    int month;
-    int amount;
-    int resource;
-    int years_deadline;
-    int favor;
-    int state;
-    int visible;
-    int months_to_comply;
-    int can_comply_dialog_shown;
-} request_t;
+enum {
+    EVENT_DISABLED = 0,
+    EVENT_NOT_STARTED = 1,
+    EVENT_IN_PROGRESS = 2,
+    EVENT_FINISHED = 3
+};
 
-typedef struct {
-    int year;
-    int month;
-    int urgent;
-    int enabled;
-    uint8_t title[MAX_CUSTOM_MESSAGE_TEXT];
-    uint8_t text[MAX_CUSTOM_MESSAGE_TEXT];
-    uint8_t video_file[MAX_CUSTOM_MESSAGE_VIDEO_TEXT];
-} editor_custom_messages_t;
+enum {
+    INVASION_TYPE_LOCAL_UPRISING = 1,
+    INVASION_TYPE_ENEMY_ARMY = 2,
+    INVASION_TYPE_CAESAR = 3,
+    INVASION_TYPE_DISTANT_BATTLE = 4,
+};
 
-typedef struct {
-    int year;
-    int month;
-    int amount;
-    int type;
-    int from;
-    int attack_type;
-} invasion_t;
+struct win_criteria_t {
+    int8_t enabled;
+    int32_t goal;
+};
 
-typedef struct {
-    int year;
-    int month;
-    int resource;
-    int is_rise;
-    int amount;
-} price_change_t;
+struct request_t {
+    int16_t year;
+    int16_t amount;
+    int16_t years_deadline;
+    int16_t months_to_comply;
+    int8_t month;
+    int8_t resource;
+    int8_t favor;
+    int8_t state;
+    int8_t visible;
+    int8_t can_comply_dialog_shown;
+};
 
-typedef struct {
-    int year;
-    int month;
-    int resource;
-    int route_id;
-    int is_rise;
-} demand_change_t;
+struct editor_custom_messages_t {
+    int16_t year;
+    int8_t month;
+    int8_t urgent;
+    int8_t enabled;
+    unsigned char title[MAX_CUSTOM_MESSAGE_TITLE];
+    unsigned char text[MAX_CUSTOM_MESSAGE_TEXT];
+    unsigned char video_file[MAX_CUSTOM_MESSAGE_VIDEO_TEXT];
+};
+
+struct invasion_t {
+    int16_t year;
+    int16_t amount;
+    int8_t month;
+    int8_t type;
+    int8_t from;
+    int8_t target_type;
+};
+
+struct price_change_t {
+    int16_t year;
+    int8_t month;
+    int8_t resource;
+    int8_t is_rise;
+    int8_t amount;
+};
+
+struct demand_change_t {
+    int16_t year;
+    int8_t month;
+    int8_t resource;
+    int8_t route_id;
+    int8_t is_rise;
+};
 
 extern struct scenario_t {
     struct {
-        int width;
-        int height;
-        int grid_start;
-        int grid_border_size;
+        int16_t width;
+        int16_t height;
+        int16_t grid_start;
+        int16_t grid_border_size;
     } map;
 
     struct {
-        int id;
-        int is_expanded;
-        int expansion_year;
-        int distant_battle_roman_travel_months;
-        int distant_battle_enemy_travel_months;
+        int16_t expansion_year;
+        int8_t id;
+        int8_t is_expanded;
+        int8_t distant_battle_roman_travel_months;
+        int8_t distant_battle_enemy_travel_months;
     } empire;
 
-    uint8_t scenario_name[MAX_SCENARIO_NAME];
-    uint8_t brief_description[MAX_BRIEF_DESCRIPTION];
-    int brief_description_image_id;
-    uint8_t briefing[MAX_BRIEFING];
-    int climate;
-    int player_rank;
-    int start_year;
-    int initial_favor;
-    int initial_funds;
-    int rescue_loan;
-    int initial_personal_savings;
-    int rome_supplies_wheat;
-    int flotsam_enabled;
-    int is_open_play;
+    unsigned char scenario_name[MAX_SCENARIO_NAME];
+    unsigned char brief_description[MAX_BRIEF_DESCRIPTION];
+    int8_t brief_description_image_id;
+    unsigned char briefing[MAX_BRIEFING];
+    int8_t climate;
+    int8_t player_rank;
+    int16_t start_year;
+    int8_t initial_favor;
+    int32_t initial_funds;
+    int32_t rescue_loan;
+    int32_t initial_personal_savings;
+    int8_t rome_supplies_wheat;
+    int8_t flotsam_enabled;
+    int8_t is_open_play;
     struct win_criteria_t population_win_criteria;
     struct win_criteria_t culture_win_criteria;
     struct win_criteria_t prosperity_win_criteria;
     struct win_criteria_t peace_win_criteria;
     struct win_criteria_t favor_win_criteria;
     struct {
-        int enabled;
-        int years;
+        int8_t enabled;
+        int16_t years;
     } time_limit_win_criteria;
     struct {
-        int enabled;
-        int years;
+        int8_t enabled;
+        int16_t years;
     } survival_time_win_criteria;
-    short allowed_buildings[MAX_ALLOWED_BUILDINGS];
+    int8_t allowed_buildings[MAX_ALLOWED_BUILDINGS];
     struct {
-        int severity;
-        int month;
-        int year;
+        int8_t severity;
+        int8_t month;
+        int16_t year;
     } earthquake;
     struct {
-        int state;
-        int month;
-        int year;
+        int8_t state;
+        int8_t month;
+        int16_t year;
     } gladiator_revolt;
     struct {
-        int sea_trade_problem;
-        int land_trade_problem;
-        int raise_wages;
-        int lower_wages;
-        int contaminated_water;
+        int8_t sea_trade_problem;
+        int8_t land_trade_problem;
+        int8_t raise_wages;
+        int8_t lower_wages;
+        int8_t contaminated_water;
     } random_events;
-    request_t requests[MAX_REQUESTS];
-    editor_custom_messages_t editor_custom_messages[MAX_EDITOR_CUSTOM_MESSAGES];
-    int enemy_id;
-    invasion_t invasions[MAX_INVASIONS];
-    price_change_t price_changes[MAX_DEMAND_CHANGES];
-    demand_change_t demand_changes[MAX_DEMAND_CHANGES];
+    struct request_t requests[MAX_REQUESTS];
+    struct editor_custom_messages_t editor_custom_messages[MAX_EDITOR_CUSTOM_MESSAGES];
+    int8_t enemy_id;
+    struct invasion_t invasions[MAX_INVASIONS];
+    struct price_change_t price_changes[MAX_PRICE_CHANGES];
+    struct demand_change_t demand_changes[MAX_DEMAND_CHANGES];
 
     map_point earthquake_point;
     map_point invasion_points[MAX_INVASION_POINTS];
@@ -264,17 +264,17 @@ extern struct scenario_t {
     map_point fishing_points[MAX_FISH_POINTS];
 
     struct {
-        int hut;
-        int meeting;
-        int crops;
-        int vacant_lots;
+        int32_t hut;
+        int32_t meeting;
+        int32_t crops;
+        int32_t vacant_lots;
     } native_images;
 
-    int is_saved;
+    int8_t is_saved;
 } scenario;
 
 extern struct scenario_settings {
-    uint8_t player_name[MAX_PLAYER_NAME];
+    unsigned char player_name[MAX_PLAYER_NAME];
 } scenario_settings;
 
 #endif // SCENARIO_DATA_H

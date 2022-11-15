@@ -10,7 +10,6 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
-#include "scenario/editor.h"
 #include "window/editor/map.h"
 #include "window/editor/requests.h"
 #include "window/numeric_input.h"
@@ -93,6 +92,24 @@ static void draw_foreground(void)
     lang_text_draw_centered(44, 25, 105, 348, 200, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
+}
+
+static void scenario_editor_sort_requests(void)
+{
+    for (int i = 0; i < MAX_REQUESTS; i++) {
+        for (int j = MAX_REQUESTS - 1; j > 0; j--) {
+            if (scenario.requests[j].resource) {
+                // if no previous request scheduled, move current back until first; if previous request is later than current, swap
+                if (!scenario.requests[j - 1].resource || scenario.requests[j - 1].year > scenario.requests[j].year
+                || (scenario.requests[j - 1].year == scenario.requests[j].year && scenario.requests[j - 1].month > scenario.requests[j].month)) {
+                    struct request_t tmp = scenario.requests[j];
+                    scenario.requests[j] = scenario.requests[j - 1];
+                    scenario.requests[j - 1] = tmp;
+                }
+            }
+        }
+    }
+    scenario.is_saved = 0;
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)
@@ -193,6 +210,7 @@ static void button_delete(__attribute__((unused)) int param1, __attribute__((unu
     scenario.requests[data.id].amount = 1;
     scenario.requests[data.id].resource = 0;
     scenario.requests[data.id].years_deadline = 5;
+    scenario.requests[data.id].months_to_comply = 60;
     scenario.requests[data.id].favor = 8;
     scenario_editor_sort_requests();
     window_editor_requests_show();

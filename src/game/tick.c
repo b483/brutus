@@ -43,7 +43,6 @@
 #include "map/tiles.h"
 #include "map/water_supply.h"
 #include "scenario/editor_events.h"
-#include "scenario/empire.h"
 #include "sound/music.h"
 #include "widget/minimap.h"
 

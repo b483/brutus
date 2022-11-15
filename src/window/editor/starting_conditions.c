@@ -10,7 +10,6 @@
 #include "graphics/screen.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
-#include "scenario/editor.h"
 #include "scenario/map.h"
 #include "window/editor/attributes.h"
 #include "window/editor/map.h"
@@ -86,7 +85,7 @@ static void draw_foreground(void)
     // Flotsam on?
     lang_text_draw(44, 80, 32, 337, FONT_NORMAL_BLACK);
     button_border_draw(262, 328, 200, 30, focus_button_id == 8);
-    lang_text_draw_centered(18, scenario_map_has_flotsam(), 262, 337, 200, FONT_NORMAL_BLACK);
+    lang_text_draw_centered(18, scenario.flotsam_enabled, 262, 337, 200, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
 }

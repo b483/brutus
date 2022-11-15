@@ -10,7 +10,6 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
-#include "scenario/editor.h"
 #include "window/editor/invasions.h"
 #include "window/editor/map.h"
 #include "window/numeric_input.h"
@@ -97,9 +96,9 @@ static void draw_foreground(void)
             lang_text_draw_centered(35, scenario.invasions[data.id].from, 145, 278, 200, FONT_NORMAL_BLACK);
         }
         // Attack type
-        text_draw(get_custom_string(TR_EDITOR_INVASION_ATTACK_TYPE), 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw(get_custom_string(TR_EDITOR_INVASION_TARGET_TYPE), 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
         button_border_draw(145, 302, 200, 25, data.focus_button_id == 6);
-        lang_text_draw_centered(36, scenario.invasions[data.id].attack_type, 145, 308, 200, FONT_NORMAL_BLACK);
+        lang_text_draw_centered(36, scenario.invasions[data.id].target_type, 145, 308, 200, FONT_NORMAL_BLACK);
     }
 
     // Unschedule invasion
@@ -107,6 +106,24 @@ static void draw_foreground(void)
     lang_text_draw_centered(44, 26, 90, 348, 200, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
+}
+
+static void scenario_editor_sort_invasions(void)
+{
+    for (int i = 0; i < MAX_INVASIONS; i++) {
+        for (int j = MAX_INVASIONS - 1; j > 0; j--) {
+            if (scenario.invasions[j].type) {
+                // if no previous invasion scheduled, move current back until first; if previous invasion is later than current, swap
+                if (!scenario.invasions[j - 1].type || scenario.invasions[j - 1].year > scenario.invasions[j].year
+                || (scenario.invasions[j - 1].year == scenario.invasions[j].year && scenario.invasions[j - 1].month > scenario.invasions[j].month)) {
+                    struct invasion_t tmp = scenario.invasions[j];
+                    scenario.invasions[j] = scenario.invasions[j - 1];
+                    scenario.invasions[j - 1] = tmp;
+                }
+            }
+        }
+    }
+    scenario.is_saved = 0;
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)
@@ -180,7 +197,7 @@ static void button_from(__attribute__((unused)) int param1, __attribute__((unuse
 
 static void set_attack(int value)
 {
-    scenario.invasions[data.id].attack_type = value;
+    scenario.invasions[data.id].target_type = value;
 }
 
 static void button_attack_type(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
@@ -197,7 +214,7 @@ static void button_delete(__attribute__((unused)) int param1, __attribute__((unu
     scenario.invasions[data.id].amount = 0;
     scenario.invasions[data.id].type = 0;
     scenario.invasions[data.id].from = 8;
-    scenario.invasions[data.id].attack_type = 0;
+    scenario.invasions[data.id].target_type = 0;
     scenario_editor_sort_invasions();
     window_editor_invasions_show();
 }

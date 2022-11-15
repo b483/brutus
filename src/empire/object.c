@@ -12,8 +12,6 @@
 #include "figuretype/trader.h"
 #include "game/animation.h"
 #include "scenario/data.h"
-#include "scenario/editor.h"
-#include "scenario/empire.h"
 #include "scenario/map.h"
 
 #define MAX_OBJECTS 200
@@ -272,7 +270,7 @@ int empire_object_get_closest(int x, int y)
     for (int i = 0; i < MAX_OBJECTS && objects[i].in_use; i++) {
         const empire_object *obj = &objects[i];
         int obj_x, obj_y;
-        if (scenario_empire_is_expanded()) {
+        if (scenario.empire.is_expanded) {
             obj_x = obj->expanded.x;
             obj_y = obj->expanded.y;
         } else {

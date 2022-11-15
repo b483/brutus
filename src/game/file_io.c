@@ -196,7 +196,7 @@ static void init_scenario_data(void)
     state->elevation = create_scenario_piece(26244);
     state->random_iv = create_scenario_piece(8);
     state->camera = create_scenario_piece(8);
-    state->scenario = create_scenario_piece(52214);
+    state->scenario = create_scenario_piece(51972);
     state->empire_object = create_scenario_piece(20600);
 }
 
@@ -247,7 +247,7 @@ static void init_savegame_data(void)
     state->trade_prices = create_savegame_piece(128, 0);
     state->figure_names = create_savegame_piece(84, 0);
     state->culture_coverage = create_savegame_piece(60, 0);
-    state->scenario = create_savegame_piece(52214, 0);
+    state->scenario = create_savegame_piece(51972, 0);
     state->earthquake = create_savegame_piece(52, 0);
     state->messages = create_savegame_piece(14000, 1);
     state->message_extra = create_savegame_piece(12, 0);

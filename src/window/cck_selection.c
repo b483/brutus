@@ -130,7 +130,7 @@ static void draw_scenario_info(void)
 
         // map size
         int text_id;
-        switch (scenario_map_size()) {
+        switch (scenario.map.width) {
             case 40: text_id = 121; break;
             case 60: text_id = 122; break;
             case 80: text_id = 123; break;

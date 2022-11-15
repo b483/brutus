@@ -14,7 +14,6 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
-#include "scenario/editor.h"
 #include "window/editor/demand_changes.h"
 #include "window/editor/map.h"
 #include "window/numeric_input.h"
@@ -127,6 +126,24 @@ static void draw_foreground(void)
     lang_text_draw_centered(44, 101, 80, 318, 250, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
+}
+
+static void scenario_editor_sort_demand_changes(void)
+{
+    for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
+        for (int j = MAX_DEMAND_CHANGES - 1; j > 0; j--) {
+            if (scenario.demand_changes[j].resource && scenario.demand_changes[j].route_id) {
+                // if no previous demand change scheduled, move current back until first; if previous demand change is later than current, swap
+                if (!scenario.demand_changes[j - 1].resource || !scenario.demand_changes[j - 1].route_id || scenario.demand_changes[j - 1].year > scenario.demand_changes[j].year
+                || (scenario.demand_changes[j - 1].year == scenario.demand_changes[j].year && scenario.demand_changes[j - 1].month > scenario.demand_changes[j].month)) {
+                    struct demand_change_t tmp = scenario.demand_changes[j];
+                    scenario.demand_changes[j] = scenario.demand_changes[j - 1];
+                    scenario.demand_changes[j - 1] = tmp;
+                }
+            }
+        }
+    }
+    scenario.is_saved = 0;
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)

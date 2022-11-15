@@ -10,7 +10,6 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
-#include "scenario/editor.h"
 #include "widget/input_box.h"
 #include "widget/sidebar/editor.h"
 #include "window/editor/attributes.h"

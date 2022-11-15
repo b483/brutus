@@ -3,6 +3,8 @@
 
 #include "core/buffer.h"
 
+void scenario_editor_create(int map_size);
+
 void scenario_save_state(buffer *buf);
 
 void scenario_load_state(buffer *buf);

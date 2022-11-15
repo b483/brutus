@@ -313,9 +313,7 @@ set(MAP_FILES
     ${PROJECT_SOURCE_DIR}/src/map/water_supply.c
 )
 set(SCENARIO_FILES
-    ${PROJECT_SOURCE_DIR}/src/scenario/editor.c
     ${PROJECT_SOURCE_DIR}/src/scenario/editor_events.c
-    ${PROJECT_SOURCE_DIR}/src/scenario/empire.c
     ${PROJECT_SOURCE_DIR}/src/scenario/map.c
     ${PROJECT_SOURCE_DIR}/src/scenario/scenario.c
 )

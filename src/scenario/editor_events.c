@@ -129,6 +129,21 @@ static struct {
     invasion_warning warnings[MAX_INVASION_WARNINGS];
 } data_invasion;
 
+void scenario_empire_process_expansion(void)
+{
+    if (scenario.empire.is_expanded || scenario.empire.expansion_year <= 0) {
+        return;
+    }
+    if (game_time_year() < scenario.empire.expansion_year + scenario.start_year) {
+        return;
+    }
+
+    empire_object_set_expanded();
+
+    scenario.empire.is_expanded = 1;
+    city_message_post(1, MESSAGE_EMPIRE_HAS_EXPANDED, 0, 0);
+}
+
 int scenario_building_allowed(int building_type)
 {
     switch (building_type) {
@@ -897,7 +912,7 @@ void scenario_invasion_process(void)
                     ENEMY_ID_TO_ENEMY_TYPE[enemy_id],
                     scenario.invasions[warning->invasion_id].amount,
                     scenario.invasions[warning->invasion_id].from,
-                    scenario.invasions[warning->invasion_id].attack_type,
+                    scenario.invasions[warning->invasion_id].target_type,
                     warning->invasion_id);
                 if (grid_offset > 0) {
                     if (ENEMY_ID_TO_ENEMY_TYPE[enemy_id] > 4) {
@@ -913,7 +928,7 @@ void scenario_invasion_process(void)
                     ENEMY_11_CAESAR,
                     scenario.invasions[warning->invasion_id].amount,
                     scenario.invasions[warning->invasion_id].from,
-                    scenario.invasions[warning->invasion_id].attack_type,
+                    scenario.invasions[warning->invasion_id].target_type,
                     warning->invasion_id);
                 if (grid_offset > 0) {
                     city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, data_invasion.last_internal_invasion_id, grid_offset);
@@ -932,7 +947,7 @@ void scenario_invasion_process(void)
                     ENEMY_0_BARBARIAN,
                     scenario.invasions[i].amount,
                     scenario.invasions[i].from,
-                    scenario.invasions[i].attack_type,
+                    scenario.invasions[i].target_type,
                     i);
                 if (grid_offset > 0) {
                     city_message_post(1, MESSAGE_LOCAL_UPRISING, data_invasion.last_internal_invasion_id, grid_offset);
@@ -1014,16 +1029,6 @@ void scenario_invasion_load_state(buffer *invasion_id, buffer *warnings)
         w->months_to_go = buffer_read_i32(warnings);
         w->invasion_id = buffer_read_u8(warnings);
     }
-}
-
-void scenario_distant_battle_set_roman_travel_months(void)
-{
-    scenario.empire.distant_battle_roman_travel_months = empire_object_init_distant_battle_travel_months(EMPIRE_OBJECT_ROMAN_ARMY);
-}
-
-void scenario_distant_battle_set_enemy_travel_months(void)
-{
-    scenario.empire.distant_battle_enemy_travel_months = empire_object_init_distant_battle_travel_months(EMPIRE_OBJECT_ENEMY_ARMY);
 }
 
 void scenario_distant_battle_process(void)

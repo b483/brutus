@@ -11,7 +11,6 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
-#include "scenario/editor.h"
 #include "widget/input_box.h"
 #include "window/editor/custom_messages.h"
 #include "window/editor/map.h"
@@ -154,6 +153,24 @@ static void draw_foreground(void)
     }
 
     graphics_reset_dialog();
+}
+
+static void scenario_editor_sort_custom_messages(void)
+{
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        for (int j = MAX_EDITOR_CUSTOM_MESSAGES - 1; j > 0; j--) {
+            if (scenario.editor_custom_messages[j].enabled) {
+                // if no previous custom message scheduled, move current back until first; if previous custom message is later than current, swap
+                if (!scenario.editor_custom_messages[j - 1].enabled || scenario.editor_custom_messages[j - 1].year > scenario.editor_custom_messages[j].year
+                || (scenario.editor_custom_messages[j - 1].year == scenario.editor_custom_messages[j].year && scenario.editor_custom_messages[j - 1].month > scenario.editor_custom_messages[j].month)) {
+                    struct editor_custom_messages_t tmp = scenario.editor_custom_messages[j];
+                    scenario.editor_custom_messages[j] = scenario.editor_custom_messages[j - 1];
+                    scenario.editor_custom_messages[j - 1] = tmp;
+                }
+            }
+        }
+    }
+    scenario.is_saved = 0;
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)

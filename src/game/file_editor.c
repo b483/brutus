@@ -40,10 +40,9 @@
 #include "map/terrain.h"
 #include "map/tiles.h"
 #include "scenario/data.h"
-#include "scenario/editor.h"
 #include "scenario/editor_events.h"
-#include "scenario/empire.h"
 #include "scenario/map.h"
+#include "scenario/scenario.h"
 #include "sound/city.h"
 #include "sound/music.h"
 
@@ -157,9 +156,6 @@ int game_file_editor_write_scenario(const char *dir, const char *scenario_file)
     scenario.native_images.hut = image_group(GROUP_EDITOR_BUILDING_NATIVE);
     scenario.native_images.meeting = image_group(GROUP_EDITOR_BUILDING_NATIVE) + 2;
     scenario.native_images.crops = image_group(GROUP_EDITOR_BUILDING_CROPS);
-
-    scenario_distant_battle_set_roman_travel_months();
-    scenario_distant_battle_set_enemy_travel_months();
 
     return game_file_io_write_scenario(dir, scenario_file);
 }

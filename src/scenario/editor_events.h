@@ -12,6 +12,8 @@ typedef enum {
     REQUEST_STATE_RECEIVED = 5
 } scenario_request_state;
 
+void scenario_empire_process_expansion(void);
+
 int scenario_building_allowed(int building_type);
 
 void scenario_gladiator_revolt_process(void);
@@ -56,9 +58,6 @@ void scenario_invasion_process(void);
 void scenario_invasion_save_state(buffer *invasion_id, buffer *warnings);
 
 void scenario_invasion_load_state(buffer *invasion_id, buffer *warnings);
-
-void scenario_distant_battle_set_roman_travel_months(void);
-void scenario_distant_battle_set_enemy_travel_months(void);
 
 void scenario_distant_battle_process(void);
 

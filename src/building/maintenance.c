@@ -35,7 +35,6 @@ void building_maintenance_update_fire_direction(void)
 
 void building_maintenance_update_burning_ruins(void)
 {
-    scenario_climate climate = scenario.climate;
     int recalculate_terrain = 0;
     building_list_burning_clear();
     for (int i = 1; i < MAX_BUILDINGS; i++) {
@@ -58,7 +57,7 @@ void building_maintenance_update_burning_ruins(void)
             continue;
         }
         building_list_burning_add(i);
-        if (climate == CLIMATE_DESERT) {
+        if (scenario.climate == CLIMATE_DESERT) {
             if (b->fire_duration & 3) { // check spread every 4 ticks
                 continue;
             }
@@ -154,7 +153,6 @@ void building_maintenance_check_fire_collapse(void)
 {
     city_sentiment_reset_protesters_criminals();
 
-    scenario_climate climate = scenario.climate;
     int recalculate_terrain = 0;
     int random_global = random_byte() & 7;
     int max_id = building_get_highest_id();
@@ -190,9 +188,9 @@ void building_maintenance_check_fire_collapse(void)
             } else {
                 b->fire_risk += 2;
             }
-            if (climate == CLIMATE_NORTHERN) {
+            if (scenario.climate == CLIMATE_NORTHERN) {
                 b->fire_risk = 0;
-            } else if (climate == CLIMATE_DESERT) {
+            } else if (scenario.climate == CLIMATE_DESERT) {
                 b->fire_risk += 3;
             }
         }

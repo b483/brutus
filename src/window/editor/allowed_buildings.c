@@ -10,7 +10,6 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
-#include "scenario/editor.h"
 #include "window/editor/attributes.h"
 #include "window/editor/map.h"
 

@@ -45,57 +45,55 @@ enum {
     HORSE_FINISHED = 2
 };
 
-static void create_fishing_point(int x, int y)
-{
-    random_generate_next();
-    figure *fish = figure_create(FIGURE_FISH_GULLS, x, y, DIR_0_TOP);
-    fish->image_offset = random_byte() & 0x1f;
-    fish->progress_on_tile = random_byte() & 7;
-    figure_movement_set_cross_country_direction(fish,
-        fish->cross_country_x, fish->cross_country_y,
-        15 * fish->destination_x, 15 * fish->destination_y, 0);
-}
-
 void figure_create_fishing_points(void)
 {
-    scenario_map_foreach_fishing_point(create_fishing_point);
-}
-
-static void create_herd(int x, int y)
-{
-    figure_type herd_type;
-    int num_animals;
-    switch (scenario.climate) {
-        case CLIMATE_CENTRAL:
-            herd_type = FIGURE_SHEEP;
-            num_animals = 10;
-            break;
-        case CLIMATE_NORTHERN:
-            herd_type = FIGURE_WOLF;
-            num_animals = 8;
-            break;
-        case CLIMATE_DESERT:
-            herd_type = FIGURE_ZEBRA;
-            num_animals = 12;
-            break;
-        default:
-            return;
-    }
-    int formation_id = formation_create_herd(herd_type, x, y, num_animals);
-    if (formation_id > 0) {
-        for (int fig = 0; fig < num_animals; fig++) {
+    for (int i = 0; i < MAX_FISH_POINTS; i++) {
+        if (scenario.fishing_points[i].x > 0) {
             random_generate_next();
-            figure *f = figure_create(herd_type, x, y, DIR_0_TOP);
-            f->action_state = FIGURE_ACTION_196_HERD_ANIMAL_AT_REST;
-            f->formation_id = formation_id;
-            f->wait_ticks = f->id & 0x1f;
+            figure *fish = figure_create(FIGURE_FISH_GULLS, scenario.fishing_points[i].x, scenario.fishing_points[i].y, DIR_0_TOP);
+            fish->image_offset = random_byte() & 0x1f;
+            fish->progress_on_tile = random_byte() & 7;
+            figure_movement_set_cross_country_direction(fish,
+                fish->cross_country_x, fish->cross_country_y,
+                15 * fish->destination_x, 15 * fish->destination_y, 0);
         }
     }
 }
 
 void figure_create_herds(void)
 {
-    scenario_map_foreach_herd_point(create_herd);
+    for (int i = 0; i < MAX_HERD_POINTS; i++) {
+        if (scenario.herd_points[i].x > 0) {
+            figure_type herd_type;
+            int num_animals;
+            switch (scenario.climate) {
+                case CLIMATE_CENTRAL:
+                    herd_type = FIGURE_SHEEP;
+                    num_animals = 10;
+                    break;
+                case CLIMATE_NORTHERN:
+                    herd_type = FIGURE_WOLF;
+                    num_animals = 8;
+                    break;
+                case CLIMATE_DESERT:
+                    herd_type = FIGURE_ZEBRA;
+                    num_animals = 12;
+                    break;
+                default:
+                    return;
+            }
+            int formation_id = formation_create_herd(herd_type, scenario.herd_points[i].x, scenario.herd_points[i].y, num_animals);
+            if (formation_id > 0) {
+                for (int fig = 0; fig < num_animals; fig++) {
+                    random_generate_next();
+                    figure *f = figure_create(herd_type, scenario.herd_points[i].x, scenario.herd_points[i].y, DIR_0_TOP);
+                    f->action_state = FIGURE_ACTION_196_HERD_ANIMAL_AT_REST;
+                    f->formation_id = formation_id;
+                    f->wait_ticks = f->id & 0x1f;
+                }
+            }
+        }
+    }
 }
 
 void figure_seagulls_action(figure *f)

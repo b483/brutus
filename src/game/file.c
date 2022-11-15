@@ -21,6 +21,7 @@
 #include "core/string.h"
 #include "empire/empire.h"
 #include "empire/trade_prices.h"
+#include "empire/type.h"
 #include "figure/enemy_army.h"
 #include "figure/formation.h"
 #include "figure/name.h"
@@ -54,7 +55,6 @@
 #include "map/terrain.h"
 #include "map/tiles.h"
 #include "scenario/editor_events.h"
-#include "scenario/empire.h"
 #include "scenario/map.h"
 #include "scenario/data.h"
 #include "scenario/scenario.h"
@@ -159,8 +159,8 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
 
 static void initialize_saved_game(void)
 {
-    scenario_distant_battle_set_roman_travel_months();
-    scenario_distant_battle_set_enemy_travel_months();
+    scenario.empire.distant_battle_roman_travel_months = empire_object_init_distant_battle_travel_months(EMPIRE_OBJECT_ROMAN_ARMY);
+    scenario.empire.distant_battle_enemy_travel_months = empire_object_init_distant_battle_travel_months(EMPIRE_OBJECT_ENEMY_ARMY);
 
     scenario_map_init();
 

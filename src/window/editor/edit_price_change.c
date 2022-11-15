@@ -10,7 +10,6 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
-#include "scenario/editor.h"
 #include "window/editor/map.h"
 #include "window/editor/price_changes.h"
 #include "window/numeric_input.h"
@@ -89,6 +88,24 @@ static void draw_foreground(void)
     lang_text_draw_centered(44, 105, 130, 258, 200, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
+}
+
+static void scenario_editor_sort_price_changes(void)
+{
+    for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
+        for (int j = MAX_PRICE_CHANGES - 1; j > 0; j--) {
+            if (scenario.price_changes[j].resource) {
+                // if no previous price change scheduled, move current back until first; if previous price change is later than current, swap
+                if (!scenario.price_changes[j - 1].resource || scenario.price_changes[j - 1].year > scenario.price_changes[j].year
+                || (scenario.price_changes[j - 1].year == scenario.price_changes[j].year && scenario.price_changes[j - 1].month > scenario.price_changes[j].month)) {
+                    struct price_change_t tmp = scenario.price_changes[j];
+                    scenario.price_changes[j] = scenario.price_changes[j - 1];
+                    scenario.price_changes[j - 1] = tmp;
+                }
+            }
+        }
+    }
+    scenario.is_saved = 0;
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)

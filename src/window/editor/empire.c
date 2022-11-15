@@ -16,8 +16,6 @@
 #include "graphics/window.h"
 #include "input/scroll.h"
 #include "scenario/data.h"
-#include "scenario/editor.h"
-#include "scenario/empire.h"
 #include "window/editor/map.h"
 #include "window/numeric_input.h"
 
@@ -364,7 +362,7 @@ static void draw_city_info(void)
             // draw empire expansion year (offset from scenario start year)
             text_draw(get_custom_string(TR_EMPIRE_EXPANSION_YEAR), x_offset + 350, y_offset + 40, FONT_NORMAL_GREEN, 0);
             button_border_draw(x_offset + 620, y_offset + 32, button_set_expansion_year->width, button_set_expansion_year->height, data.focus_expansion_year_button_id == 1);
-            text_draw_number_centered(scenario_empire_get_expansion_year_offset(), x_offset + 620, y_offset + 40, button_set_expansion_year->width, FONT_NORMAL_GREEN);
+            text_draw_number_centered(scenario.empire.expansion_year, x_offset + 620, y_offset + 40, button_set_expansion_year->width, FONT_NORMAL_GREEN);
             break;
         case EMPIRE_CITY_DISTANT_FOREIGN:
         case EMPIRE_CITY_FUTURE_ROMAN:
@@ -402,7 +400,7 @@ static void draw_panel_buttons(void)
     if (data.selected_object && data.selected_object->type == EMPIRE_OBJECT_CITY) {
         draw_city_info();
     } else {
-        lang_text_draw_centered(150, scenario_empire_id(),
+        lang_text_draw_centered(150, scenario.empire.id,
             data.x_min, data.y_max - 85, data.x_max - data.x_min, FONT_NORMAL_GREEN);
     }
 }
@@ -487,7 +485,7 @@ static void button_change_empire(int value, __attribute__((unused)) int param2)
         scenario.empire.id = 0;
     }
     scenario.is_saved = 0;
-    empire_load_editor(scenario_empire_id(), map_viewport_width(), map_viewport_height());
+    empire_load_editor(scenario.empire.id, map_viewport_width(), map_viewport_height());
 
     // reset demand changes to prevent possible city/resource mixups
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
@@ -544,7 +542,7 @@ static void set_trade_route_cost(__attribute__((unused)) int param1, __attribute
 
 static void set_expansion_year_offset_callback(int value)
 {
-    scenario_empire_set_expansion_year_offset(value);
+    scenario.empire.expansion_year = value;
 }
 
 

@@ -18,8 +18,8 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "input/scroll.h"
+#include "scenario/data.h"
 #include "scenario/editor_events.h"
-#include "scenario/empire.h"
 #include "window/advisors.h"
 #include "window/city.h"
 #include "window/message_dialog.h"
@@ -334,7 +334,7 @@ static void draw_empire_object(const empire_object *obj)
         }
     }
     int x, y, image_id;
-    if (scenario_empire_is_expanded()) {
+    if (scenario.empire.is_expanded) {
         x = obj->expanded.x;
         y = obj->expanded.y;
         image_id = obj->expanded.image_id;
