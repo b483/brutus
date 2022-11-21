@@ -142,7 +142,7 @@ void map_building_tiles_add_farm(int building_id, int x, int y, int crop_image_i
 
 int map_building_tiles_add_aqueduct(int x, int y)
 {
-    int grid_offset = map_grid_offset(x,y);
+    int grid_offset = map_grid_offset(x, y);
     map_terrain_add(grid_offset, TERRAIN_AQUEDUCT);
     map_property_clear_constructing(grid_offset);
     return 1;
@@ -254,7 +254,7 @@ static void adjust_to_absolute_xy(int *x, int *y, int size)
             break;
         case DIR_4_BOTTOM:
             *x = *x - size + 1;
-            // fall-through
+            /* fall through */
         case DIR_6_LEFT:
             *y = *y - size + 1;
             break;

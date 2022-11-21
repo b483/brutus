@@ -138,7 +138,7 @@ void window_advisors_draw_dialog_background(void)
     graphics_in_dialog();
     image_draw(image_group(GROUP_PANEL_WINDOWS) + 13, 0, 432);
 
-    for (unsigned int i = 0; i < 13; i++) {
+    for (int i = 0; i < 13; i++) {
         int selected_offset = 0;
         if (current_advisor && i == current_advisor - 1) {
             selected_offset = 13;

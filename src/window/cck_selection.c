@@ -4,6 +4,7 @@
 #include "core/encoding.h"
 #include "core/file.h"
 #include "core/image_group.h"
+#include "game/custom_strings.h"
 #include "game/file.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -67,12 +68,12 @@ static struct {
     char selected_scenario_filename[FILE_NAME_MAX];
     uint8_t selected_scenario_display[FILE_NAME_MAX];
 
-    const dir_listing *scenarios;
+    const struct dir_listing *scenarios;
 } data;
 
 static void init(void)
 {
-    data.scenarios = dir_find_files_with_extension("map");
+    data.scenarios = dir_list_files("map");
     data.focus_button_id = 0;
     data.focus_toggle_button = 0;
     data.show_minimap = 0;
@@ -86,15 +87,21 @@ static void draw_scenario_list(void)
     char file[FILE_NAME_MAX];
     uint8_t displayable_file[FILE_NAME_MAX];
     for (int i = 0; i < MAX_SCENARIOS; i++) {
+        if (i >= data.scenarios->num_files) {
+            break;
+        }
         font_t font = FONT_NORMAL_GREEN;
         if (data.focus_button_id == i + 1) {
             font = FONT_NORMAL_WHITE;
         }
-        strcpy(file, data.scenarios->files[i + scrollbar.scroll_position]);
+        strncpy(file, data.scenarios->files[i + scrollbar.scroll_position], FILE_NAME_MAX - 1);
         encoding_from_utf8(file, displayable_file, FILE_NAME_MAX);
         file_remove_extension(displayable_file);
         text_ellipsize(displayable_file, font, 240);
         text_draw(displayable_file, 24, 220 + 16 * i, font, 0);
+    }
+    if (data.scenarios->file_overflow) {
+        text_draw(get_custom_string(TR_TOO_MANY_FILES), 35, 186, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 }
 
@@ -261,7 +268,7 @@ static void button_select_item(int index, __attribute__((unused)) int param2)
         return;
     }
     data.selected_item = scrollbar.scroll_position + index;
-    strcpy(data.selected_scenario_filename, data.scenarios->files[data.selected_item]);
+    strncpy(data.selected_scenario_filename, data.scenarios->files[data.selected_item], FILE_NAME_MAX - 1);
     game_file_load_scenario_data(data.selected_scenario_filename);
     encoding_from_utf8(data.selected_scenario_filename, data.selected_scenario_display, FILE_NAME_MAX);
     file_remove_extension(data.selected_scenario_display);

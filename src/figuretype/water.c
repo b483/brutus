@@ -23,7 +23,7 @@ static const int FLOTSAM_WAIT_TICKS[] = {
     10, 50, 100, 130, 200, 250, 400, 430, 500, 600, 70, 750, 820, 830, 900, 980, 1010, 1030, 1200, 1300
 };
 
-static const int FLOTSAM_TYPE_0[] = {0, 1, 2, 3, 4, 4, 4, 3, 2, 1, 0, 0};
+static const int FLOTSAM_TYPE_0[] = { 0, 1, 2, 3, 4, 4, 4, 3, 2, 1, 0, 0 };
 static const int FLOTSAM_TYPE_12[] = {
     0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 3, 2, 1, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0
 };
@@ -44,9 +44,8 @@ void figure_create_flotsam(void)
         }
     }
 
-    map_point river_entry = scenario_map_river_entry();
     for (int i = 0; i < 20; i++) {
-        figure *f = figure_create(FIGURE_FLOTSAM, river_entry.x, river_entry.y, DIR_0_TOP);
+        figure *f = figure_create(FIGURE_FLOTSAM, scenario.river_entry_point.x, scenario.river_entry_point.y, DIR_0_TOP);
         f->action_state = FIGURE_ACTION_128_FLOTSAM_CREATED;
         f->resource_id = FLOTSAM_RESOURCE_IDS[i];
         f->wait_ticks = FLOTSAM_WAIT_TICKS[i];
@@ -72,9 +71,8 @@ void figure_flotsam_action(figure *f)
                 if (!f->resource_id && city_god_neptune_create_shipwreck_flotsam()) {
                     f->min_max_seen = 1;
                 }
-                map_point river_exit = scenario_map_river_exit();
-                f->destination_x = river_exit.x;
-                f->destination_y = river_exit.y;
+                f->destination_x = scenario.river_exit_point.x;
+                f->destination_y = scenario.river_exit_point.y;
             }
             break;
         case FIGURE_ACTION_129_FLOTSAM_FLOATING:
@@ -108,9 +106,8 @@ void figure_flotsam_action(figure *f)
                 f->wait_ticks = 300 + random_byte();
             }
             map_figure_delete(f);
-            map_point river_entry = scenario_map_river_entry();
-            f->x = river_entry.x;
-            f->y = river_entry.y;
+            f->x = scenario.river_entry_point.x;
+            f->y = scenario.river_entry_point.y;
             f->grid_offset = map_grid_offset(f->x, f->y);
             f->cross_country_x = 15 * f->x;
             f->cross_country_y = 15 * f->y;
@@ -256,7 +253,7 @@ void figure_fishing_boat_action(figure *f)
             }
             break;
         case FIGURE_ACTION_194_FISHING_BOAT_AT_WHARF:
-            {
+        {
             int pct_workers = calc_percentage(b->num_workers, model_get_building(b->type)->laborers);
             int max_wait_ticks = 5 * (102 - pct_workers);
             if (b->data.industry.has_fish > 0) {
@@ -275,8 +272,8 @@ void figure_fishing_boat_action(figure *f)
                     }
                 }
             }
-            }
-            break;
+        }
+        break;
         case FIGURE_ACTION_195_FISHING_BOAT_RETURNING_WITH_FISH:
             figure_movement_move_ticks(f, 1);
             f->height_adjusted_ticks = 0;

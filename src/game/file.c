@@ -133,11 +133,8 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
 
     scenario_map_init_entry_exit();
 
-    map_point entry = scenario_map_entry();
-    map_point exit = scenario_map_exit();
-
-    city_map_set_entry_point(entry.x, entry.y);
-    city_map_set_exit_point(exit.x, exit.y);
+    city_map_set_entry_point(scenario.entry_point.x, scenario.entry_point.y);
+    city_map_set_exit_point(scenario.exit_point.x, scenario.exit_point.y);
 
     game_time_init(scenario.start_year);
 
@@ -192,13 +189,13 @@ static void initialize_saved_game(void)
     game_state_unpause();
 }
 
-int game_file_start_scenario(const char *scenario)
+int game_file_start_scenario(const char *scenario_selected)
 {
     // assume scenario can be passed in with or without .map extension
     char scenario_file[FILE_NAME_MAX];
-    strncpy(scenario_file, scenario, FILE_NAME_MAX - 1);
+    strncpy(scenario_file, scenario_selected, FILE_NAME_MAX - 1);
     uint8_t scenario_name[FILE_NAME_MAX];
-    encoding_from_utf8(scenario, scenario_name, FILE_NAME_MAX);
+    encoding_from_utf8(scenario_selected, scenario_name, FILE_NAME_MAX);
     if (file_has_extension(scenario_file, "map")) {
         file_remove_extension(scenario_name);
     } else {

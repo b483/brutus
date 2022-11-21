@@ -327,6 +327,9 @@ void hotkey_install_mapping(hotkey_mapping *mappings, int num_mappings)
             total_definitions++;
         }
     }
+    if (!total_arrows) {
+        return;
+    }
     if (!allocate_mapping_memory(total_definitions, total_arrows)) {
         return;
     }
@@ -428,11 +431,4 @@ void hotkey_handle_global_keys(void)
     if (data.global_hotkey_state.save_city_screenshot) {
         graphics_save_screenshot(1);
     }
-}
-
-void hotkey_set_value_for_action(hotkey_action action, int value)
-{
-    hotkey_definition def;
-    set_definition_for_action(action, &def);
-    *(def.action) = value ? def.value : 0;
 }

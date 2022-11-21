@@ -10,7 +10,7 @@
 #include "scenario/data.h"
 #include "scenario/editor_events.h"
 
-const int SALARY_FOR_RANK[11] = { 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144 };
+static const int SALARY_FOR_RANK[11] = { 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144 };
 
 void city_emperor_init_scenario(void)
 {

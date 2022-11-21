@@ -32,8 +32,6 @@ typedef int pk_input_func(uint8_t *buffer, int length, struct pk_token *token);
 typedef void pk_output_func(uint8_t *buffer, int length, struct pk_token *token);
 
 struct pk_comp_buffer {
-    pk_input_func *input_func;
-    pk_output_func *output_func;
     struct pk_token *token;
 
     int window_size;
@@ -51,11 +49,12 @@ struct pk_comp_buffer {
 
     uint16_t codeword_values[774];
     uint8_t codeword_bits[774];
+
+    pk_input_func *input_func;
+    pk_output_func *output_func;
 };
 
 struct pk_decomp_buffer {
-    pk_input_func *input_func;
-    pk_output_func *output_func;
     struct pk_token *token;
 
     int window_size;
@@ -71,11 +70,14 @@ struct pk_decomp_buffer {
 
     uint8_t copy_offset_jump_table[256];
     uint8_t copy_length_jump_table[256];
+
+    pk_input_func *input_func;
+    pk_output_func *output_func;
 };
 
 struct pk_copy_length_offset {
-    int length;
     uint16_t offset;
+    int length;
 };
 
 static const uint8_t pk_copy_offset_bits[64] = {

@@ -426,19 +426,19 @@ static void draw_animation(int x, int y, int grid_offset)
             (orientation == DIR_4_BOTTOM && xy == EDGE_X0Y0) ||
             (orientation == DIR_6_LEFT && xy == EDGE_X1Y0)) {
             building *gate = building_get(map_building_at(grid_offset));
-            int image_id = image_group(GROUP_BUILDING_GATEHOUSE);
+            int gatehouse_image_id = image_group(GROUP_BUILDING_GATEHOUSE);
             int color_mask = draw_building_as_deleted(gate) ? COLOR_MASK_RED : 0;
             if (gate->subtype.orientation == 1) {
                 if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
-                    image_draw_masked(image_id, x - 22, y - 80, color_mask);
+                    image_draw_masked(gatehouse_image_id, x - 22, y - 80, color_mask);
                 } else {
-                    image_draw_masked(image_id + 1, x - 18, y - 81, color_mask);
+                    image_draw_masked(gatehouse_image_id + 1, x - 18, y - 81, color_mask);
                 }
             } else if (gate->subtype.orientation == 2) {
                 if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
-                    image_draw_masked(image_id + 1, x - 18, y - 81, color_mask);
+                    image_draw_masked(gatehouse_image_id + 1, x - 18, y - 81, color_mask);
                 } else {
-                    image_draw_masked(image_id, x - 22, y - 80, color_mask);
+                    image_draw_masked(gatehouse_image_id, x - 22, y - 80, color_mask);
                 }
             }
         }

@@ -25,7 +25,8 @@ static int parse_decimal_as_percentage(const char *str)
             case 2:
                 percentage += fraction;
                 break;
-            default: {
+            default:
+            {
                 int fraction_digits = (int) (end - start);
                 while (fraction_digits > 2) {
                     fraction = fraction / 10;
@@ -49,7 +50,6 @@ int platform_parse_arguments(int argc, char **argv, brutus_args *output_args)
     int ok = 1;
 
     // Set sensible defaults
-    output_args->data_directory = 0;
     output_args->display_scale_percentage = 0;
     output_args->cursor_scale_percentage = 0;
     output_args->force_windowed = 0;
@@ -90,8 +90,6 @@ int platform_parse_arguments(int argc, char **argv, brutus_args *output_args)
         } else if (SDL_strncmp(argv[i], "--", 2) == 0) {
             SDL_Log(UNKNOWN_OPTION_ERROR_MESSAGE, argv[i]);
             ok = 0;
-        } else {
-            output_args->data_directory = argv[i];
         }
     }
 
@@ -104,7 +102,6 @@ int platform_parse_arguments(int argc, char **argv, brutus_args *output_args)
         SDL_Log("          Scales the mouse cursor by a factor of NUMBER. Number can be 1, 1.5 or 2");
         SDL_Log("--windowed");
         SDL_Log("          Forces the game to start in windowed mode");
-        SDL_Log("The last argument, if present, is interpreted as data directory for the Caesar 3 installation");
     }
     return ok;
 }

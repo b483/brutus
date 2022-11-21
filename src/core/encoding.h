@@ -24,12 +24,6 @@ encoding_type encoding_determine(void);
 int encoding_is_multibyte(void);
 
 /**
- * Returns whether the current operating system uses decomposed form for UTF-8 strings
- * @return Boolean true if using decomposed, false otherwise
- */
-int encoding_system_uses_decomposed(void);
-
-/**
  * Checks whether the character can be displayed using the internal encoding
  * @param utf8_char UTF-8 encoded character
  * @return boolean true when the character can be displayed, false otherwise
@@ -41,9 +35,9 @@ int encoding_can_display(const char *utf8_char);
  * @param input Input to convert
  * @param output Output buffer to store the UTF-8 encoded input
  * @param output_length Length of the output buffer
- * @param decompose Whether the unicode characters should be in decomposed form
+ * @param decomposed Whether the unicode characters should be in decomposed form
  */
-void encoding_to_utf8(const uint8_t *input, char *output, int output_length, int decompose);
+void encoding_to_utf8(const uint8_t *input, char *output, int output_length, int decomposed);
 
 /**
  * Converts the internally-encoded input to UTF-8 output

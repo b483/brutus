@@ -40,9 +40,9 @@ static generic_button reset_text_button[] = {
     {515, 16, 150, 35, button_reset_text, button_none, 0, 0},
 };
 
-uint8_t editor_custom_message_video_file[MAX_CUSTOM_MESSAGE_VIDEO_TEXT];
-uint8_t editor_custom_message_title[MAX_CUSTOM_MESSAGE_TEXT];
-uint8_t editor_custom_message_text[MAX_CUSTOM_MESSAGE_TEXT];
+static uint8_t editor_custom_message_video_file[MAX_CUSTOM_MESSAGE_VIDEO_TEXT];
+static uint8_t editor_custom_message_title[MAX_CUSTOM_MESSAGE_TEXT];
+static uint8_t editor_custom_message_text[MAX_CUSTOM_MESSAGE_TEXT];
 
 static input_box editor_custom_message_input_video_file = { 36, 154, 10, 2, FONT_NORMAL_WHITE, 1, editor_custom_message_video_file, MAX_CUSTOM_MESSAGE_TITLE };
 static input_box editor_custom_message_input_title = { -68, 64, 17, 2, FONT_NORMAL_WHITE, 1, editor_custom_message_title, MAX_CUSTOM_MESSAGE_TITLE };

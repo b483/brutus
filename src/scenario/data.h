@@ -152,13 +152,13 @@ struct request_t {
 };
 
 struct editor_custom_messages_t {
-    int16_t year;
-    int8_t month;
-    int8_t urgent;
-    int8_t enabled;
     unsigned char title[MAX_CUSTOM_MESSAGE_TITLE];
     unsigned char text[MAX_CUSTOM_MESSAGE_TEXT];
     unsigned char video_file[MAX_CUSTOM_MESSAGE_VIDEO_TEXT];
+    int8_t month;
+    int8_t urgent;
+    int8_t enabled;
+    int16_t year;
 };
 
 struct invasion_t {

@@ -173,34 +173,37 @@ const set_sound *setting_sound(set_sound_type type)
     return get_sound(type);
 }
 
-int setting_sound_is_enabled(set_sound_type type)
-{
-    return get_sound(type)->enabled;
-}
-
 void setting_toggle_sound_enabled(set_sound_type type)
 {
     set_sound *sound = get_sound(type);
-    sound->enabled = sound->enabled ? 0 : 1;
+    if (sound) {
+        sound->enabled = sound->enabled ? 0 : 1;
+    }
 }
 
 void setting_increase_sound_volume(set_sound_type type)
 {
     set_sound *sound = get_sound(type);
-    sound->volume = calc_bound(sound->volume + 1, 0, 100);
+    if (sound) {
+        sound->volume = calc_bound(sound->volume + 1, 0, 100);
+    }
 }
 
 void setting_decrease_sound_volume(set_sound_type type)
 {
     set_sound *sound = get_sound(type);
-    sound->volume = calc_bound(sound->volume - 1, 0, 100);
+    if (sound) {
+        sound->volume = calc_bound(sound->volume - 1, 0, 100);
+    }
 }
 
 void setting_reset_sound(set_sound_type type, int enabled, int volume)
 {
     set_sound *sound = get_sound(type);
-    sound->enabled = enabled;
-    sound->volume = calc_bound(volume, 0, 100);
+    if (sound) {
+        sound->enabled = enabled;
+        sound->volume = calc_bound(volume, 0, 100);
+    }
 }
 
 int setting_game_speed(void)

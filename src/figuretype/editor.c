@@ -27,16 +27,20 @@ void figure_editor_flag_action(figure *f)
         point = scenario.earthquake_point;
         f->cart_image_id = image_base;
     } else if (id == MAP_FLAG_ENTRY) {
-        point = scenario_map_entry();
+        point.x = scenario.entry_point.x;
+        point.y = scenario.entry_point.y;
         f->cart_image_id = image_base + 2;
     } else if (id == MAP_FLAG_EXIT) {
-        point = scenario_map_exit();
+        point.x = scenario.exit_point.x;
+        point.y = scenario.exit_point.y;
         f->cart_image_id = image_base + 3;
     } else if (id == MAP_FLAG_RIVER_ENTRY) {
-        point = scenario_map_river_entry();
+        point.x = scenario.river_entry_point.x;
+        point.y = scenario.river_entry_point.y;
         f->cart_image_id = image_base + 4;
     } else if (id == MAP_FLAG_RIVER_EXIT) {
-        point = scenario_map_river_exit();
+        point.x = scenario.river_exit_point.x;
+        point.y = scenario.river_exit_point.y;
         f->cart_image_id = image_base + 5;
     } else if (id >= MAP_FLAG_INVASION_MIN && id < MAP_FLAG_INVASION_MAX) {
         point = scenario.invasion_points[id - MAP_FLAG_INVASION_MIN];

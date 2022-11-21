@@ -157,7 +157,7 @@ static int get_tooltip_religion(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_food_stocks(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
+static int get_tooltip_food_stocks(__attribute__((unused)) tooltip_context *c, const building *b)
 {
     if (b->house_population <= 0) {
         return 0;

@@ -15,15 +15,17 @@ void menu_bar_draw(menu_bar_item *items, int num_items, int max_width)
     for (int i = 0; i < num_items; i++) {
         total_text_width += lang_text_get_width(items[i].text_group, 0, FONT_NORMAL_GREEN);
     }
-    int spacing_width = (max_width - total_text_width - TOP_MENU_BASE_X_OFFSET) / (num_items - 1);
-    spacing_width = calc_bound(spacing_width, 0, 32);
+    if (num_items > 1) {
+        int spacing_width = (max_width - total_text_width - TOP_MENU_BASE_X_OFFSET) / (num_items - 1);
+        spacing_width = calc_bound(spacing_width, 0, 32);
 
-    short x_offset = TOP_MENU_BASE_X_OFFSET;
-    for (int i = 0; i < num_items; i++) {
-        items[i].x_start = x_offset;
-        x_offset += lang_text_draw(items[i].text_group, 0, x_offset, MENU_BASE_TEXT_Y_OFFSET, FONT_NORMAL_GREEN);
-        items[i].x_end = x_offset;
-        x_offset += spacing_width;
+        short x_offset = TOP_MENU_BASE_X_OFFSET;
+        for (int i = 0; i < num_items; i++) {
+            items[i].x_start = x_offset;
+            x_offset += lang_text_draw(items[i].text_group, 0, x_offset, MENU_BASE_TEXT_Y_OFFSET, FONT_NORMAL_GREEN);
+            items[i].x_end = x_offset;
+            x_offset += spacing_width;
+        }
     }
 }
 
@@ -124,7 +126,7 @@ int menu_handle_mouse(const mouse *m, menu_bar_item *menu, int *focus_item_id)
         return 0;
     }
     if (m->left.went_up) {
-        menu_item *item = &menu->items[item_id -1];
+        menu_item *item = &menu->items[item_id - 1];
         item->left_click_handler(item->parameter);
     }
     return item_id;

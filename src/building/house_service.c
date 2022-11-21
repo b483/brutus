@@ -98,13 +98,17 @@ void house_service_calculate_culture_aggregates(void)
 
         // education
         b->data.house.education = 0;
-        if (b->data.house.school || b->data.house.library) {
+        // release build mingw doesn't like school || library for some reason
+        if (b->data.house.school) {
             b->data.house.education = 1;
-            if (b->data.house.school && b->data.house.library) {
-                b->data.house.education = 2;
-                if (b->data.house.academy) {
-                    b->data.house.education = 3;
-                }
+        }
+        if (b->data.house.library) {
+            b->data.house.education = 1;
+        }
+        if (b->data.house.school && b->data.house.library) {
+            b->data.house.education = 2;
+            if (b->data.house.academy) {
+                b->data.house.education = 3;
             }
         }
 

@@ -15,11 +15,8 @@
 #define MOUSE_BORDER 5
 #define TOUCH_BORDER 100
 #define SCROLL_DRAG_MIN_DELTA 4
-#define KEY_WAIT_TIME_AFTER_HOLD 500
 #define SCROLL_KEY_PRESSED 1
 #define SCROLL_KEY_MAX_VALUE 30000.0f
-#define TILE_X_PIXELS 60
-#define TILE_Y_PIXELS 30
 
 static const int DIRECTION_X[] = { 0,  1,  1,  1,  0, -1, -1, -1, 0 };
 static const int DIRECTION_Y[] = { -1, -1,  0,  1,  1,  1,  0, -1, 0 };

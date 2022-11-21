@@ -22,38 +22,14 @@ void scenario_map_init_entry_exit(void)
     }
 }
 
-map_point scenario_map_entry(void)
-{
-    map_point point = { scenario.entry_point.x, scenario.entry_point.y };
-    return point;
-}
-
-map_point scenario_map_exit(void)
-{
-    map_point point = { scenario.exit_point.x, scenario.exit_point.y };
-    return point;
-}
-
 int scenario_map_has_river_entry(void)
 {
     return scenario.river_entry_point.x != -1 && scenario.river_entry_point.y != -1;
 }
 
-map_point scenario_map_river_entry(void)
-{
-    map_point point = { scenario.river_entry_point.x, scenario.river_entry_point.y };
-    return point;
-}
-
 int scenario_map_has_river_exit(void)
 {
     return scenario.river_exit_point.x != -1 && scenario.river_exit_point.y != -1;
-}
-
-map_point scenario_map_river_exit(void)
-{
-    map_point point = { scenario.river_exit_point.x, scenario.river_exit_point.y };
-    return point;
 }
 
 int scenario_map_closest_fishing_point(int x, int y, map_point *fish)

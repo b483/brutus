@@ -79,17 +79,15 @@ static void draw_status(void)
             break;
     }
 
-    map_point entry = scenario_map_entry();
-    map_point exit = scenario_map_exit();
     int people_text;
     font_t people_font = FONT_NORMAL_RED;
-    if (entry.x == -1) {
-        if (exit.x == -1) {
+    if (scenario.entry_point.x == -1) {
+        if (scenario.exit_point.x == -1) {
             people_text = 60;
         } else {
             people_text = 59;
         }
-    } else if (exit.x == -1) {
+    } else if (scenario.exit_point.x == -1) {
         people_text = 61;
     } else {
         people_text = 62;
@@ -97,12 +95,10 @@ static void draw_status(void)
     }
     lang_text_draw(44, people_text, text_offset, 224, people_font);
 
-    entry = scenario_map_river_entry();
-    exit = scenario_map_river_exit();
-    if (entry.x != -1 || exit.x != -1) {
-        if (entry.x == -1) {
+    if (scenario.entry_point.x != -1 || scenario.exit_point.x != -1) {
+        if (scenario.entry_point.x == -1) {
             lang_text_draw(44, 137, text_offset, 239, FONT_NORMAL_RED);
-        } else if (exit.x == -1) {
+        } else if (scenario.exit_point.x == -1) {
             lang_text_draw(44, 138, text_offset, 239, FONT_NORMAL_RED);
         } else {
             lang_text_draw(44, 67, text_offset, 239, FONT_NORMAL_GREEN);

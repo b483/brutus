@@ -59,11 +59,10 @@ static void play_track(int track)
     if (track <= TRACK_NONE || track >= TRACK_MAX) {
         return;
     }
-    const char *mp3_track = get_case_corrected_file(0, mp3_tracks[track]);
 
     int volume = setting_sound(SOUND_MUSIC)->volume;
-    if (!mp3_track || !sound_device_play_music(mp3_track, volume)) {
-        sound_device_play_music(get_case_corrected_file(0, tracks[track]), volume);
+    if (!sound_device_play_music(mp3_tracks[track], volume)) {
+        sound_device_play_music(tracks[track], volume);
     }
     data.current_track = track;
 }

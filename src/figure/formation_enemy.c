@@ -249,7 +249,8 @@ static void set_native_target_building(formation *m)
             case BUILDING_WAREHOUSE:
             case BUILDING_FORT:
                 break;
-            default: {
+            default:
+            {
                 int distance = calc_maximum_distance(meeting_x, meeting_y, b->x, b->y);
                 if (distance < min_distance) {
                     min_building = b;
@@ -266,12 +267,12 @@ static void set_native_target_building(formation *m)
 static void approach_target(formation *m)
 {
     if (map_routing_noncitizen_can_travel_over_land(m->x_home, m->y_home,
-            m->destination_x, m->destination_y, m->destination_building_id, 400) ||
+        m->destination_x, m->destination_y, m->destination_building_id, 400) ||
         map_routing_noncitizen_can_travel_through_everything(m->x_home, m->y_home,
             m->destination_x, m->destination_y)) {
         int x_tile, y_tile;
         if (map_routing_get_closest_tile_within_range(m->x_home, m->y_home,
-                m->destination_x, m->destination_y, 8, 20, &x_tile, &y_tile)) {
+            m->destination_x, m->destination_y, 8, 20, &x_tile, &y_tile)) {
             formation_set_destination(m, x_tile, y_tile);
         }
     }
@@ -296,7 +297,7 @@ int formation_enemy_move_formation_to(const formation *m, int x, int y, int *x_t
     int base_offset = map_grid_offset(
         formation_layout_position_x(m->layout, 0),
         formation_layout_position_y(m->layout, 0));
-    int figure_offsets[50];
+    int figure_offsets[68];
     figure_offsets[0] = 0;
     for (int i = 1; i < m->num_figures; i++) {
         figure_offsets[i] = map_grid_offset(
@@ -570,7 +571,6 @@ static void update_enemy_formation(formation *m, int *roman_distance)
     formation_set_destination_building(m,
         army->destination_x, army->destination_y, army->destination_building_id
     );
-
     update_enemy_movement(m, *roman_distance);
 }
 

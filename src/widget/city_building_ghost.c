@@ -74,14 +74,14 @@ static const int TILE_GRID_OFFSETS[4][MAX_TILES] = {
         OFFSET(4,-3), OFFSET(3,-4), OFFSET(4,-4)},
 };
 
-static const int FORT_GROUND_GRID_OFFSETS[4] = {OFFSET(3,-1), OFFSET(4,-1), OFFSET(4,0), OFFSET(3,0)};
-static const int FORT_GROUND_X_VIEW_OFFSETS[4] = {120, 90, -120, -90};
-static const int FORT_GROUND_Y_VIEW_OFFSETS[4] = {30, -75, -60, 45};
+static const int FORT_GROUND_GRID_OFFSETS[4] = { OFFSET(3,-1), OFFSET(4,-1), OFFSET(4,0), OFFSET(3,0) };
+static const int FORT_GROUND_X_VIEW_OFFSETS[4] = { 120, 90, -120, -90 };
+static const int FORT_GROUND_Y_VIEW_OFFSETS[4] = { 30, -75, -60, 45 };
 
-static const int RESERVOIR_GRID_OFFSETS[4] = {OFFSET(-1,-1), OFFSET(1,-1), OFFSET(1,1), OFFSET(-1,1)};
+static const int RESERVOIR_GRID_OFFSETS[4] = { OFFSET(-1,-1), OFFSET(1,-1), OFFSET(1,1), OFFSET(-1,1) };
 
-static const int HIPPODROME_X_VIEW_OFFSETS[4] = {150, 150, -150, -150};
-static const int HIPPODROME_Y_VIEW_OFFSETS[4] = {75, -75, -75, 75};
+static const int HIPPODROME_X_VIEW_OFFSETS[4] = { 150, 150, -150, -150 };
+static const int HIPPODROME_Y_VIEW_OFFSETS[4] = { 75, -75, -75, 75 };
 
 #define RESERVOIR_RANGE_MAX_TILES 520
 
@@ -358,7 +358,9 @@ static void draw_draggable_reservoir(const map_tile *tile, int x, int y)
         blocked = 1;
     }
     int draw_later = 0;
-    int x_start, y_start, offset;
+    int x_start = 0;
+    int y_start = 0;
+    int offset = 0;
     int has_water = map_terrain_exists_tile_in_area_with_type(map_x - 1, map_y - 1, 5, TERRAIN_WATER);
     int orientation_index = city_view_orientation() / 2;
     if (building_construction_in_progress()) {
@@ -462,7 +464,7 @@ static void draw_aqueduct(const map_tile *tile, int x, int y)
         if (map_terrain_is(grid_offset, TERRAIN_ROAD)) {
             int group_offset = img->group_offset;
             if (!img->aqueduct_offset) {
-                if (map_terrain_is(grid_offset + map_grid_delta(0,-1), TERRAIN_ROAD)) {
+                if (map_terrain_is(grid_offset + map_grid_delta(0, -1), TERRAIN_ROAD)) {
                     group_offset = 3;
                 } else {
                     group_offset = 2;

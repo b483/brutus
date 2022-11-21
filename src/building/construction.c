@@ -443,7 +443,6 @@ void building_construction_update(int x, int y, int grid_offset)
     } else {
         x = data.end.x;
         y = data.end.y;
-        grid_offset = data.end.grid_offset;
     }
     if (!type || city_finance_out_of_money()) {
         data.cost_preview = 0;

@@ -63,7 +63,6 @@ void font_set_encoding(void)
     data.multibyte = MULTIBYTE_NONE;
     data.font_mapping = CHAR_TO_FONT_IMAGE_DEFAULT;
     data.font_definitions = DEFINITIONS_DEFAULT;
-
 }
 
 const font_definition *font_definition_for(font_t font)

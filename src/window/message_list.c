@@ -191,7 +191,7 @@ static void button_close(__attribute__((unused)) int param1, __attribute__((unus
     window_city_show();
 }
 
-static void button_message(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
+static void button_message(int param1, __attribute__((unused)) int param2)
 {
     int id = city_message_set_current(scrollbar.scroll_position + param1);
     if (id < city_message_count()) {

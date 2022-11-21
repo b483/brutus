@@ -189,7 +189,7 @@ static void draw_foreground(void)
         button_border_draw(x, y, 125, 25, focus_button_id_attr == i + 1);
         if (scenario.editor_custom_messages[i].enabled) {
             int width = lang_text_draw(25, scenario.editor_custom_messages[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
-            width += lang_text_draw_year(scenario.start_year + scenario.editor_custom_messages[i].year, x + width + 6, y + 6, FONT_NORMAL_BLACK);
+            lang_text_draw_year(scenario.start_year + scenario.editor_custom_messages[i].year, x + width + 6, y + 6, FONT_NORMAL_BLACK);
         } else {
             text_draw_centered(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_ATTRIBUTES), x, y + 6, 125, FONT_NORMAL_BLACK, COLOR_BLACK);
         }

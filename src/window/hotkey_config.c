@@ -1,4 +1,4 @@
-#include "config.h"
+#include "hotkey_config.h"
 
 #include "building/type.h"
 #include "core/hotkey_config.h"
@@ -289,7 +289,7 @@ static const uint8_t *hotkey_action_name_for(hotkey_action action)
     const uint8_t *name = 0;
     for (int i = 0; i < NUM_VISIBLE_OPTIONS + scrollbar.max_scroll_position; i++) {
         hotkey_widget *widget = &hotkey_widgets[i];
-        if ((unsigned) widget->action == action) {
+        if (widget->action == action) {
             if (widget->name_translation != TR_NONE) {
                 name = get_custom_string(widget->name_translation);
             } else {
@@ -306,7 +306,7 @@ static void set_hotkey(hotkey_action action, int index, key_type key, key_modifi
     int is_duplicate_hotkey = 0;
     // check if new key combination already assigned to another action
     if (key != KEY_TYPE_NONE) {
-        for (unsigned test_action = 0; test_action < HOTKEY_MAX_ITEMS; test_action++) {
+        for (int test_action = 0; test_action < HOTKEY_MAX_ITEMS; test_action++) {
             for (int test_index = 0; test_index < 2; test_index++) {
                 if (data.mappings[test_action][test_index].key == key
                     && data.mappings[test_action][test_index].modifiers == modifiers) {

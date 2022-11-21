@@ -10,8 +10,6 @@
 src/platform/version.c
 res/version.rc
 res/version.txt
-res/shell.html
-res/*asset*
 
 # Build output and data directories
 /build*/

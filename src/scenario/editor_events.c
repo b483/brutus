@@ -785,9 +785,8 @@ static int start_invasion(int enemy_type, int amount, int invasion_point, int at
 
     // determine invasion point
     if (enemy_type == ENEMY_11_CAESAR) {
-        map_point entry_point = scenario_map_entry();
-        x = entry_point.x;
-        y = entry_point.y;
+        x = scenario.entry_point.x;
+        y = scenario.entry_point.y;
     } else {
         int num_points = 0;
         for (int i = 0; i < MAX_INVASION_POINTS; i++) {
@@ -816,9 +815,8 @@ static int start_invasion(int enemy_type, int amount, int invasion_point, int at
         y = scenario.invasion_points[invasion_point].y;
     }
     if (x == -1 || y == -1) {
-        map_point exit_point = scenario_map_exit();
-        x = exit_point.x;
-        y = exit_point.y;
+        x = scenario.exit_point.x;
+        y = scenario.exit_point.y;
     }
     // determine orientation
     if (y == 0) {

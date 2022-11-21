@@ -699,8 +699,7 @@ static int generate_trader(empire_object *city)
         // generate ship
         if (city_buildings_has_working_dock() && scenario_map_has_river_entry()
             && !city_trade_has_sea_trade_problems()) {
-            map_point river_entry = scenario_map_river_entry();
-            city->trader_figure_ids[index] = figure_create_trade_ship(river_entry.x, river_entry.y, city->id);
+            city->trader_figure_ids[index] = figure_create_trade_ship(scenario.river_entry_point.x, scenario.river_entry_point.y, city->id);
             return 1;
         }
     } else {

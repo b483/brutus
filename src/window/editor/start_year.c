@@ -56,7 +56,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-void set_start_year(int year)
+static void set_start_year(int year)
 {
     scenario.start_year = year;
     scenario.is_saved = 0;

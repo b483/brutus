@@ -164,27 +164,8 @@ static char channel_filenames[SOUND_CHANNEL_MAX][CHANNEL_FILENAME_MAX] = {
     "wavs/mission.wav",
 };
 
-static void correct_channel_filenames(void)
-{
-    for (int i = 1; i < SOUND_CHANNEL_MAX; i++) {
-        if (!channel_filenames[i][0]) {
-            continue;
-        }
-
-        char *original = channel_filenames[i];
-        const char *corrected = get_case_corrected_file(0, original);
-        if (!corrected) {
-            channel_filenames[i][0] = 0;
-        } else if (corrected != original) {
-            strncpy(original, corrected, CHANNEL_FILENAME_MAX);
-        }
-    }
-}
-
 void sound_system_init(void)
 {
-    correct_channel_filenames();
-
     sound_device_open();
     sound_device_init_channels(SOUND_CHANNEL_MAX, channel_filenames);
 

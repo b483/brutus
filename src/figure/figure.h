@@ -49,7 +49,6 @@ typedef struct {
         unsigned char soldier;
         signed char enemy;
     } formation_position_y;
-    short __unused_24;
     short wait_ticks;
     unsigned char action_state;
     unsigned char progress_on_tile;
@@ -82,7 +81,6 @@ typedef struct {
     unsigned char migrant_num_people;
     unsigned char is_ghost;
     unsigned char min_max_seen;
-    unsigned char __unused_57;
     short leading_figure_id;
     unsigned char attack_image_offset;
     unsigned char wait_ticks_missile;
@@ -104,7 +102,6 @@ typedef struct {
     unsigned char phrase_sequence_city;
     unsigned char trader_id;
     unsigned char wait_ticks_next_target;
-    unsigned char __unused_6f;
     short target_figure_id;
     short targeted_by_figure_id;
     unsigned short created_sequence;

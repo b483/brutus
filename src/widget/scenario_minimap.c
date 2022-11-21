@@ -1,4 +1,4 @@
-#include "minimap.h"
+#include "scenario_minimap.h"
 
 #include "city/view.h"
 #include "graphics/graphics.h"
@@ -25,7 +25,7 @@ typedef struct {
 // Since the minimap tiles are only 25 color sets per climate, we just hardcode them.
 // This "hack" is necessary to avoid reloading the climate graphics when selecting
 // a scenario with another climate in the CCK selection screen, which is expensive.
-const tile_color_set MINIMAP_COLOR_SETS[3] = {
+static const tile_color_set MINIMAP_COLOR_SETS[3] = {
     // central
     {
         .water = {{0x394a7b, 0x31427b}, {0x394a7b, 0x314273}, {0x313973, 0x314273}, {0x31427b, 0x394a7b}},

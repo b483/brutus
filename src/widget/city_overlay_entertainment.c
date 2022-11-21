@@ -105,7 +105,7 @@ static int get_column_height_hippodrome(const building *b)
     return b->house_size && b->data.house.hippodrome ? b->data.house.hippodrome / 10 : NO_COLUMN;
 }
 
-static int get_tooltip_entertainment(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
+static int get_tooltip_entertainment(__attribute__((unused)) tooltip_context *c, const building *b)
 {
     if (b->data.house.entertainment <= 0) {
         return 64;
@@ -132,7 +132,7 @@ static int get_tooltip_entertainment(__attribute__((unused)) tooltip_context *c,
     }
 }
 
-static int get_tooltip_theater(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
+static int get_tooltip_theater(__attribute__((unused)) tooltip_context *c, const building *b)
 {
     if (b->data.house.theater <= 0) {
         return 75;
@@ -145,7 +145,7 @@ static int get_tooltip_theater(__attribute__((unused)) tooltip_context *c, __att
     }
 }
 
-static int get_tooltip_amphitheater(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
+static int get_tooltip_amphitheater(__attribute__((unused)) tooltip_context *c, const building *b)
 {
     if (b->data.house.amphitheater_actor <= 0) {
         return 79;
@@ -158,7 +158,7 @@ static int get_tooltip_amphitheater(__attribute__((unused)) tooltip_context *c, 
     }
 }
 
-static int get_tooltip_colosseum(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
+static int get_tooltip_colosseum(__attribute__((unused)) tooltip_context *c, const building *b)
 {
     if (b->data.house.colosseum_gladiator <= 0) {
         return 83;
@@ -171,7 +171,7 @@ static int get_tooltip_colosseum(__attribute__((unused)) tooltip_context *c, __a
     }
 }
 
-static int get_tooltip_hippodrome(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
+static int get_tooltip_hippodrome(__attribute__((unused)) tooltip_context *c, const building *b)
 {
     if (b->data.house.hippodrome <= 0) {
         return 87;

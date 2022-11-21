@@ -23,6 +23,7 @@
 #include "figure/trader.h"
 #include "map/figure.h"
 #include "map/road_access.h"
+#include "scenario/data.h"
 #include "scenario/map.h"
 
 int figure_create_trade_caravan(int x, int y, int city_id)
@@ -664,9 +665,8 @@ void figure_trade_ship_action(figure *f)
             if (building_get(f->destination_building_id)->state != BUILDING_STATE_IN_USE) {
                 f->action_state = FIGURE_ACTION_115_TRADE_SHIP_LEAVING;
                 f->wait_ticks = 0;
-                map_point river_exit = scenario_map_river_exit();
-                f->destination_x = river_exit.x;
-                f->destination_y = river_exit.y;
+                f->destination_x = scenario.river_exit_point.x;
+                f->destination_y = scenario.river_exit_point.y;
             }
             break;
         case FIGURE_ACTION_112_TRADE_SHIP_MOORED:
@@ -674,16 +674,14 @@ void figure_trade_ship_action(figure *f)
                 f->trade_ship_failed_dock_attempts = 0;
                 f->action_state = FIGURE_ACTION_115_TRADE_SHIP_LEAVING;
                 f->wait_ticks = 0;
-                map_point river_entry = scenario_map_river_entry();
-                f->destination_x = river_entry.x;
-                f->destination_y = river_entry.y;
+                f->destination_x = scenario.river_entry_point.x;
+                f->destination_y = scenario.river_entry_point.y;
             } else if (trade_ship_done_trading(f)) {
                 f->trade_ship_failed_dock_attempts = 0;
                 f->action_state = FIGURE_ACTION_115_TRADE_SHIP_LEAVING;
                 f->wait_ticks = 0;
-                map_point river_entry = scenario_map_river_entry();
-                f->destination_x = river_entry.x;
-                f->destination_y = river_entry.y;
+                f->destination_x = scenario.river_entry_point.x;
+                f->destination_y = scenario.river_entry_point.y;
                 building *dst = building_get(f->destination_building_id);
                 dst->data.dock.queued_docker_id = 0;
                 dst->data.dock.num_ships = 0;

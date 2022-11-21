@@ -36,7 +36,7 @@ void graphics_init_canvas(int width, int height)
     graphics_set_clip_rectangle(0, 0, width, height);
 }
 
-const void *graphics_canvas(void)
+void *graphics_canvas(void)
 {
     return canvas.pixels;
 }

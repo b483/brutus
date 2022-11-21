@@ -300,7 +300,7 @@ static void button_menu_item(int item)
 
 void window_build_menu_show(int submenu)
 {
-    if (submenu == SUBMENU_NONE || (unsigned) submenu == data.selected_submenu) {
+    if (submenu == SUBMENU_NONE || submenu == data.selected_submenu) {
         window_build_menu_hide();
         return;
     }

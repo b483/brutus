@@ -60,7 +60,7 @@ static void image_free(void)
     free(image.pixels);
     image.pixels = 0;
     if (image.fp) {
-        file_close(image.fp);
+        fclose(image.fp);
         image.fp = 0;
     }
     png_destroy_write_struct(&image.png_ptr, &image.info_ptr);
@@ -106,7 +106,7 @@ static const char *generate_filename(int city_screenshot)
 
 static int image_begin_io(const char *filename)
 {
-    FILE *fp = file_open(filename, "wb");
+    FILE *fp = fopen(filename, "wb");
     if (!fp) {
         return 0;
     }

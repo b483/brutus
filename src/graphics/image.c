@@ -695,7 +695,7 @@ void image_draw_letter(font_t font, int letter_id, int x, int y, color_t color)
     }
 }
 
-void image_draw_scaled(int image_id, int x_offset, int y_offset, double scale_factor)
+static void image_draw_scaled(int image_id, int x_offset, int y_offset, double scale_factor)
 {
     const image *img = image_get(image_id);
     const color_t *data = image_data(image_id);

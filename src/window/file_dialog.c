@@ -7,6 +7,7 @@
 #include "core/lang.h"
 #include "core/string.h"
 #include "core/time.h"
+#include "game/custom_strings.h"
 #include "game/file.h"
 #include "game/file_io.h"
 #include "game/file_editor.h"
@@ -19,7 +20,6 @@
 #include "graphics/scrollbar.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "platform/file_manager.h"
 #include "widget/input_box.h"
 #include "window/city.h"
 #include "window/editor/map.h"
@@ -67,7 +67,7 @@ static struct {
     file_dialog_type dialog_type;
     int focus_button_id;
     int double_click;
-    const dir_listing *file_list;
+    const struct dir_listing *file_list;
 
     file_type_data *file_data;
     uint8_t typed_name[FILE_NAME_MAX];
@@ -90,13 +90,13 @@ static int find_first_file_with_prefix(const char *prefix)
     int right = data.file_list->num_files;
     while (left < right) {
         int middle = (left + right) / 2;
-        if (platform_file_manager_compare_filename_prefix(data.file_list->files[middle], prefix, len) >= 0) {
+        if (strncmp(data.file_list->files[middle], prefix, len) >= 0) {
             right = middle;
         } else {
             left = middle + 1;
         }
     }
-    if (platform_file_manager_compare_filename_prefix(data.file_list->files[left], prefix, len) == 0) {
+    if (strncmp(data.file_list->files[left], prefix, len) == 0) {
         return left;
     } else {
         return -1;
@@ -110,7 +110,7 @@ static void scroll_to_typed_text(void)
         return;
     }
     char name_utf8[FILE_NAME_MAX];
-    encoding_to_utf8(data.typed_name, name_utf8, FILE_NAME_MAX, encoding_system_uses_decomposed());
+    encoding_to_utf8(data.typed_name, name_utf8, FILE_NAME_MAX, 0);
     int index = find_first_file_with_prefix(name_utf8);
     if (index >= 0) {
         scrollbar_reset(&scrollbar, calc_bound(index, 0, data.file_list->num_files - NUM_FILES_IN_VIEW));
@@ -139,11 +139,11 @@ static void init(file_type type, file_dialog_type dialog_type)
     }
     string_copy(data.typed_name, data.previously_seen_typed_name, FILE_NAME_MAX);
 
-    data.file_list = dir_find_files_with_extension(data.file_data->extension);
+    data.file_list = dir_list_files(data.file_data->extension);
     scrollbar_init(&scrollbar, 0, data.file_list->num_files - NUM_FILES_IN_VIEW);
     scroll_to_typed_text();
 
-    strncpy(data.selected_file, data.file_data->last_loaded_file, FILE_NAME_MAX);
+    strncpy(data.selected_file, data.file_data->last_loaded_file, FILE_NAME_MAX - 1);
     input_box_start(&file_name_input);
 }
 
@@ -152,7 +152,7 @@ static void draw_foreground(void)
     graphics_in_dialog();
     uint8_t file[FILE_NAME_MAX];
 
-    outer_panel_draw(128, 40, 24, 21);
+    outer_panel_draw(128, 40, 22, 21);
     input_box_draw(&file_name_input);
     inner_panel_draw(144, 120, 20, 13);
 
@@ -169,6 +169,9 @@ static void draw_foreground(void)
     lang_text_draw(43, 5, 224, 342, FONT_NORMAL_BLACK);
 
     for (int i = 0; i < NUM_FILES_IN_VIEW; i++) {
+        if (i >= data.file_list->num_files) {
+            break;
+        }
         font_t font = FONT_NORMAL_GREEN;
         if (data.focus_button_id == i + 1) {
             font = FONT_NORMAL_WHITE;
@@ -178,7 +181,10 @@ static void draw_foreground(void)
         text_ellipsize(file, font, MAX_FILE_WINDOW_TEXT_WIDTH);
         text_draw(file, 160, 130 + 16 * i, font, 0);
     }
-
+    if (data.file_list->file_overflow) {
+        inner_panel_draw(184, 22, 15, 1);
+        text_draw_centered(get_custom_string(TR_TOO_MANY_FILES), 184, 25, 240, FONT_NORMAL_PLAIN, COLOR_RED);
+    }
     image_buttons_draw(0, 0, image_buttons, 2);
     scrollbar_draw(&scrollbar);
 
@@ -238,7 +244,7 @@ static const char *get_chosen_filename(void)
 
     // We should use the typed name, which needs to be converted to UTF-8...
     static char typed_file[FILE_NAME_MAX];
-    encoding_to_utf8(data.typed_name, typed_file, FILE_NAME_MAX, encoding_system_uses_decomposed());
+    encoding_to_utf8(data.typed_name, typed_file, FILE_NAME_MAX, 0);
     file_append_extension(typed_file, data.file_data->extension);
     return typed_file;
 }
@@ -272,8 +278,8 @@ static void button_ok_cancel(int is_ok, __attribute__((unused)) int param2)
                 return;
             }
         } else if (data.dialog_type == FILE_DIALOG_DELETE) {
-            if (game_file_io_delete_saved_game(SAVES_DIR_PATH, filename)) {
-                dir_find_files_with_extension(data.file_data->extension);
+            if (game_file_io_delete_saved_game(filename)) {
+                dir_list_files(data.file_data->extension);
                 if (scrollbar.scroll_position + NUM_FILES_IN_VIEW >= data.file_list->num_files) {
                     --scrollbar.scroll_position;
                 }

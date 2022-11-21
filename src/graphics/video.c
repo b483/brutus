@@ -44,11 +44,7 @@ static void close_smk(void)
 
 static int load_smk(const char *filename)
 {
-    const char *path = get_case_corrected_file(0, filename);
-    if (!path) {
-        return 0;
-    }
-    FILE *fp = file_open(path, "rb");
+    FILE *fp = fopen(filename, "rb");
     data.s = smacker_open(fp);
     if (!data.s) {
         // smacker_open() closes the stream on error: no need to close fp
@@ -235,7 +231,7 @@ void video_draw_fullscreen(void)
             int video_y = (int) ((data.video.y_scale == SMACKER_Y_SCALE_NONE ? y : y / 2) / scale);
             const unsigned char *line = frame + (video_y * data.video.width);
             for (int x = clip->clipped_pixels_left; x < x_max; x++) {
-                *pixel = ALPHA_OPAQUE | pal[line[(int)(x / scale)]];
+                *pixel = ALPHA_OPAQUE | pal[line[(int) (x / scale)]];
                 ++pixel;
             }
         }

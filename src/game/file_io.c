@@ -35,7 +35,6 @@
 #include "map/routing.h"
 #include "map/sprite.h"
 #include "map/terrain.h"
-#include "platform/file_manager.h"
 #include "scenario/editor_events.h"
 #include "scenario/scenario.h"
 #include "sound/city.h"
@@ -161,8 +160,10 @@ static void init_file_piece(file_piece *piece, int size, int compressed)
 {
     piece->compressed = compressed;
     void *data = malloc(size);
-    memset(data, 0, size);
-    buffer_init(&piece->buf, data, size);
+    if (data) {
+        memset(data, 0, size);
+        buffer_init(&piece->buf, data, size);
+    }
 }
 
 static buffer *create_scenario_piece(int size)
@@ -224,7 +225,7 @@ static void init_savegame_data(void)
     state->building_damage_grid = create_savegame_piece(26244, 1);
     state->aqueduct_backup_grid = create_savegame_piece(26244, 1);
     state->sprite_backup_grid = create_savegame_piece(26244, 1);
-    state->figures = create_savegame_piece(128000, 1);
+    state->figures = create_savegame_piece(124000, 1);
     state->route_figures = create_savegame_piece(1200, 1);
     state->route_paths = create_savegame_piece(300000, 1);
     state->formations = create_savegame_piece(5500, 1);
@@ -455,7 +456,10 @@ int game_file_io_read_scenario(const char *dir, const char *filename)
     log_info("Loading scenario", filename, 0);
     init_scenario_data();
 
-    FILE *fp = file_open(get_case_corrected_file(dir, filename), "rb");
+    static char dir_prepended_filepath[FILE_NAME_MAX];
+    prepend_dir_to_path(dir, filename, dir_prepended_filepath);
+
+    FILE *fp = fopen(dir_prepended_filepath, "rb");
     if (!fp) {
         return 0;
     }
@@ -463,11 +467,11 @@ int game_file_io_read_scenario(const char *dir, const char *filename)
         size_t read_size = fread(scenario_data.pieces[i].buf.data, 1, scenario_data.pieces[i].buf.size, fp);
         if (read_size != (unsigned) scenario_data.pieces[i].buf.size) {
             log_error("Unable to load scenario", filename, 0);
-            file_close(fp);
+            fclose(fp);
             return 0;
         }
     }
-    file_close(fp);
+    fclose(fp);
 
     scenario_load_from_state(&scenario_data.state);
     return 1;
@@ -479,11 +483,10 @@ int game_file_io_write_scenario(const char *dir, const char *filename)
     init_scenario_data();
     scenario_save_to_state(&scenario_data.state);
 
-    static char filepath_to_save[2 * FILE_NAME_MAX];
-    filepath_to_save[2 * FILE_NAME_MAX - 1] = 0;
-    prepend_dir_to_path(dir, filename, filepath_to_save);
+    static char dir_prepended_filepath[FILE_NAME_MAX];
+    prepend_dir_to_path(dir, filename, dir_prepended_filepath);
 
-    FILE *fp = file_open(filepath_to_save, "wb");
+    FILE *fp = fopen(dir_prepended_filepath, "wb");
     if (!fp) {
         log_error("Unable to save scenario", 0, 0);
         return 0;
@@ -491,7 +494,7 @@ int game_file_io_write_scenario(const char *dir, const char *filename)
     for (int i = 0; i < scenario_data.num_pieces; i++) {
         fwrite(scenario_data.pieces[i].buf.data, 1, scenario_data.pieces[i].buf.size, fp);
     }
-    file_close(fp);
+    fclose(fp);
     return 1;
 }
 
@@ -586,7 +589,10 @@ int game_file_io_read_saved_game(const char *dir, const char *filename, int offs
     init_savegame_data();
 
     log_info("Loading saved game", filename, 0);
-    FILE *fp = file_open(get_case_corrected_file(dir, filename), "rb");
+    static char dir_prepended_filepath[FILE_NAME_MAX];
+    prepend_dir_to_path(dir, filename, dir_prepended_filepath);
+
+    FILE *fp = fopen(dir_prepended_filepath, "rb");
     if (!fp) {
         log_error("Unable to load game", 0, 0);
         return 0;
@@ -595,7 +601,7 @@ int game_file_io_read_saved_game(const char *dir, const char *filename, int offs
         fseek(fp, offset, SEEK_SET);
     }
     int result = savegame_read_from_file(fp);
-    file_close(fp);
+    fclose(fp);
     if (!result) {
         log_error("Unable to load game", 0, 0);
         return 0;
@@ -612,26 +618,30 @@ int game_file_io_write_saved_game(const char *dir, const char *filename)
     savegame_version = SAVE_GAME_VERSION;
     savegame_save_to_state(&savegame_data.state);
 
-    static char filepath_to_save[2 * FILE_NAME_MAX];
-    filepath_to_save[2 * FILE_NAME_MAX - 1] = 0;
-    prepend_dir_to_path(dir, filename, filepath_to_save);
+    static char dir_prepended_filepath[FILE_NAME_MAX];
+    prepend_dir_to_path(dir, filename, dir_prepended_filepath);
 
-    FILE *fp = file_open(filepath_to_save, "wb");
+    FILE *fp = fopen(dir_prepended_filepath, "wb");
     if (!fp) {
         log_error("Unable to save game", 0, 0);
         return 0;
     }
     savegame_write_to_file(fp);
-    file_close(fp);
+    fclose(fp);
     return 1;
 }
 
-int game_file_io_delete_saved_game(const char *dir, const char *filename)
+int game_file_io_delete_saved_game(const char *filename)
 {
     log_info("Deleting game", filename, 0);
-    int result = platform_file_manager_remove_file(dir, filename);
-    if (!result) {
+    static char dir_prepended_filepath[FILE_NAME_MAX];
+    prepend_dir_to_path(SAVES_DIR_PATH, filename, dir_prepended_filepath);
+    int result = remove(dir_prepended_filepath);
+
+    if (result == -1) {
         log_error("Unable to delete game", 0, 0);
+        return 0;
+    } else {
+        return 1;
     }
-    return result;
 }

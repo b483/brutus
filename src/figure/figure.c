@@ -186,7 +186,6 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_u8(buf, f->source_y);
     buffer_write_u8(buf, f->formation_position_x.soldier);
     buffer_write_u8(buf, f->formation_position_y.soldier);
-    buffer_write_i16(buf, f->__unused_24);
     buffer_write_i16(buf, f->wait_ticks);
     buffer_write_u8(buf, f->action_state);
     buffer_write_u8(buf, f->progress_on_tile);
@@ -219,7 +218,6 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_u8(buf, f->migrant_num_people);
     buffer_write_u8(buf, f->is_ghost);
     buffer_write_u8(buf, f->min_max_seen);
-    buffer_write_u8(buf, f->__unused_57);
     buffer_write_i16(buf, f->leading_figure_id);
     buffer_write_u8(buf, f->attack_image_offset);
     buffer_write_u8(buf, f->wait_ticks_missile);
@@ -241,7 +239,6 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_u8(buf, f->phrase_sequence_city);
     buffer_write_u8(buf, f->trader_id);
     buffer_write_u8(buf, f->wait_ticks_next_target);
-    buffer_write_u8(buf, f->__unused_6f);
     buffer_write_i16(buf, f->target_figure_id);
     buffer_write_i16(buf, f->targeted_by_figure_id);
     buffer_write_u16(buf, f->created_sequence);
@@ -286,7 +283,6 @@ static void figure_load(buffer *buf, figure *f)
     f->source_y = buffer_read_u8(buf);
     f->formation_position_x.soldier = buffer_read_u8(buf);
     f->formation_position_y.soldier = buffer_read_u8(buf);
-    f->__unused_24 = buffer_read_i16(buf);
     f->wait_ticks = buffer_read_i16(buf);
     f->action_state = buffer_read_u8(buf);
     f->progress_on_tile = buffer_read_u8(buf);
@@ -319,7 +315,6 @@ static void figure_load(buffer *buf, figure *f)
     f->migrant_num_people = buffer_read_u8(buf);
     f->is_ghost = buffer_read_u8(buf);
     f->min_max_seen = buffer_read_u8(buf);
-    f->__unused_57 = buffer_read_u8(buf);
     f->leading_figure_id = buffer_read_i16(buf);
     f->attack_image_offset = buffer_read_u8(buf);
     f->wait_ticks_missile = buffer_read_u8(buf);
@@ -341,7 +336,6 @@ static void figure_load(buffer *buf, figure *f)
     f->phrase_sequence_city = buffer_read_u8(buf);
     f->trader_id = buffer_read_u8(buf);
     f->wait_ticks_next_target = buffer_read_u8(buf);
-    f->__unused_6f = buffer_read_u8(buf);
     f->target_figure_id = buffer_read_i16(buf);
     f->targeted_by_figure_id = buffer_read_i16(buf);
     f->created_sequence = buffer_read_u16(buf);

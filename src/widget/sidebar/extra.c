@@ -75,7 +75,6 @@ static sidebar_extra_display calculate_displayable_info(sidebar_extra_display in
     }
     if (available_height >= EXTRA_INFO_HEIGHT_RATINGS) {
         if (info_to_display & SIDEBAR_EXTRA_DISPLAY_RATINGS) {
-            available_height -= EXTRA_INFO_HEIGHT_RATINGS;
             result |= SIDEBAR_EXTRA_DISPLAY_RATINGS;
         }
     }
@@ -216,7 +215,7 @@ static void draw_extra_info_panel(void)
         y_current_line += draw_extra_info_objective(data.x_offset, y_current_line, 53, 2, &data.prosperity);
         y_current_line += draw_extra_info_objective(data.x_offset, y_current_line, 53, 3, &data.peace);
         y_current_line += draw_extra_info_objective(data.x_offset, y_current_line, 53, 4, &data.favor);
-        y_current_line += draw_extra_info_objective(data.x_offset, y_current_line, 4, 6, &data.population);
+        draw_extra_info_objective(data.x_offset, y_current_line, 4, 6, &data.population);
     }
 }
 

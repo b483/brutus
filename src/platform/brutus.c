@@ -1,6 +1,5 @@
 #include "SDL.h"
 
-#include "core/backtrace.h"
 #include "core/config.h"
 #include "core/encoding.h"
 #include "core/file.h"
@@ -12,18 +11,21 @@
 #include "graphics/screen.h"
 #include "input/mouse.h"
 #include "platform/arguments.h"
-#include "platform/file_manager.h"
 #include "platform/keyboard_input.h"
 #include "platform/platform.h"
 #include "platform/screen.h"
 
+#include <stdnoreturn.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 
 #if defined(_WIN32)
-#include <string.h>
+#include <direct.h>
+#elif(__linux__)
+#include <sys/stat.h>
+#include <sys/types.h>
 #endif
 
 #ifdef DRAW_FPS
@@ -42,29 +44,28 @@ enum {
     USER_EVENT_CENTER_WINDOW,
 };
 
-char EXECUTABLE_DIR_PATH[FILE_NAME_MAX];
-char DATA_TEXT_FILE_PATH[FILE_NAME_MAX];
-char SETTINGS_FILE_PATH[FILE_NAME_MAX];
-char CONFIGS_FILE_PATH[FILE_NAME_MAX];
-char HOTKEY_CONFIGS_FILE_PATH[FILE_NAME_MAX];
-char MAPS_DIR_PATH[FILE_NAME_MAX + 5];
-char SAVES_DIR_PATH[FILE_NAME_MAX + 6];
-char GAME_DATA_PATH[FILE_NAME_MAX];
+char EXECUTABLE_DIR_PATH[DIR_PATH_MAX];
+char DATA_TEXT_FILE_PATH[DIR_PATH_MAX];
+char SETTINGS_FILE_PATH[DIR_PATH_MAX];
+char CONFIGS_FILE_PATH[DIR_PATH_MAX];
+char HOTKEY_CONFIGS_FILE_PATH[DIR_PATH_MAX];
+char MAPS_DIR_PATH[DIR_PATH_MAX];
+char SAVES_DIR_PATH[DIR_PATH_MAX];
+char GAME_DATA_PATH[DIR_PATH_MAX];
 
 static struct {
     int active;
     int quit;
 } data = { 1, 0 };
 
-static void exit_with_status(int status)
+noreturn static void exit_with_status(int status)
 {
-    exit(status);
+    _exit(status);
 }
 
-static void handler(int sig)
+noreturn static void handler(int sig)
 {
     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Oops, crashed with signal %d :(", sig);
-    backtrace_print();
     exit_with_status(1);
 }
 
@@ -88,16 +89,14 @@ static void write_log(__attribute__((unused)) void *userdata, __attribute__((unu
 
 static void setup_logging(void)
 {
-    // On some platforms, not removing the file will not empty it when reopening for writing
-    platform_file_manager_remove_file(0, DATA_TEXT_FILE_PATH);
-    log_file = file_open("brutus-log.txt", "wt");
+    log_file = fopen("brutus-log.txt", "wt");
     SDL_LogSetOutputFunction(write_log, NULL);
 }
 
 static void teardown_logging(void)
 {
     if (log_file) {
-        file_close(log_file);
+        fclose(log_file);
     }
 }
 
@@ -236,11 +235,11 @@ static void handle_window_event(SDL_WindowEvent *event, int *window_active)
             break;
 
         case SDL_WINDOWEVENT_SHOWN:
-            SDL_Log("Window %d shown", (unsigned int) event->windowID);
+            SDL_Log("Window %u shown", event->windowID);
             *window_active = 1;
             break;
         case SDL_WINDOWEVENT_HIDDEN:
-            SDL_Log("Window %d hidden", (unsigned int) event->windowID);
+            SDL_Log("Window %u hidden", event->windowID);
             *window_active = 0;
             break;
     }
@@ -350,7 +349,7 @@ static int init_sdl(void)
     return 1;
 }
 
-int load_data_dir(void)
+static int load_data_dir(void)
 {
     FILE *fp = fopen(DATA_TEXT_FILE_PATH, "r");
     if (fp) {
@@ -360,35 +359,35 @@ int load_data_dir(void)
             return 1;
         }
     } else {
-        FILE *fp = fopen(DATA_TEXT_FILE_PATH, "w");
+        fp = fopen(DATA_TEXT_FILE_PATH, "w");
         fclose(fp);
         return 0;
     }
     return 0;
 }
 
-static int pre_init(const char *custom_data_dir)
+static int pre_init(void)
 {
     char *executable_path = SDL_GetBasePath();
     if (executable_path) {
-        if (strlen(executable_path) < FILE_NAME_MAX - 15) {
-            strcpy(EXECUTABLE_DIR_PATH, executable_path);
+        if (strlen(executable_path) < DIR_PATH_MAX - strlen("brutus.hconfigs")) {
+            strncpy(EXECUTABLE_DIR_PATH, executable_path, DIR_PATH_MAX - 1);
 
-            strcpy(DATA_TEXT_FILE_PATH, executable_path);
+            strncpy(DATA_TEXT_FILE_PATH, executable_path, DIR_PATH_MAX - 1);
             strcat(DATA_TEXT_FILE_PATH, "data_dir.txt");
 
-            strcpy(SETTINGS_FILE_PATH, executable_path);
+            strncpy(SETTINGS_FILE_PATH, executable_path, DIR_PATH_MAX - 1);
             strcat(SETTINGS_FILE_PATH, "brutus.settings");
 
-            strcpy(CONFIGS_FILE_PATH, executable_path);
+            strncpy(CONFIGS_FILE_PATH, executable_path, DIR_PATH_MAX - 1);
             strcat(CONFIGS_FILE_PATH, "brutus.configs");
 
-            strcpy(HOTKEY_CONFIGS_FILE_PATH, executable_path);
+            strncpy(HOTKEY_CONFIGS_FILE_PATH, executable_path, DIR_PATH_MAX - 1);
             strcat(HOTKEY_CONFIGS_FILE_PATH, "brutus.hconfigs");
 
-            strcpy(MAPS_DIR_PATH, executable_path);
+            strncpy(MAPS_DIR_PATH, executable_path, DIR_PATH_MAX - 1);
             strcat(MAPS_DIR_PATH, "maps");
-            strcpy(SAVES_DIR_PATH, executable_path);
+            strncpy(SAVES_DIR_PATH, executable_path, DIR_PATH_MAX - 1);
             strcat(SAVES_DIR_PATH, "saves");
         } else {
             SDL_Log("Brutus directory path too long, exiting");
@@ -400,26 +399,24 @@ static int pre_init(const char *custom_data_dir)
     }
     SDL_free(executable_path);
 
-    if (custom_data_dir) {
-        SDL_Log("Loading game from %s", custom_data_dir);
-        if (!platform_file_manager_set_base_path(custom_data_dir)) {
-            SDL_Log("%s: directory not found", custom_data_dir);
-            return 0;
-        }
-        return game_pre_init();
-    }
-
     if (load_data_dir()) {
+#ifdef _WIN32
+        _mkdir(MAPS_DIR_PATH);
+        _mkdir(SAVES_DIR_PATH);
+#elif(__linux__)
+        mkdir(MAPS_DIR_PATH, 0700);
+        mkdir(SAVES_DIR_PATH, 0700);
+#endif
         SDL_Log("Loading game from user pref %s", GAME_DATA_PATH);
-        if (platform_file_manager_set_base_path(GAME_DATA_PATH) && game_pre_init()) {
+        if (_chdir(GAME_DATA_PATH) == 0 && game_pre_init()) {
             return 1;
-        } else {
+    } else {
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
                 "Ya dun goofed",
                 "Incorrect game path specified in data_dir.txt",
                 NULL);
         }
-    } else {
+} else {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
             "Game path not specified",
             "Brutus requires Caesar 3 to run. Provide the path to the game in data_dir.txt.",
@@ -441,7 +438,7 @@ static void setup(const brutus_args *args)
         exit_with_status(-1);
     }
 
-    if (!pre_init(args->data_directory)) {
+    if (!pre_init()) {
         SDL_Log("Exiting: game pre-init failed");
         exit_with_status(1);
     }

@@ -81,7 +81,7 @@ int speed_get_delta(speed_type *speed)
     }
     double delta;
     time_millis elapsed = time_get_millis() - speed->start_time;
-    double desired = speed->desired_speed;
+    double desired = 0.0;
     desired = adjust_speed_for_elapsed_time(speed->desired_speed, speed->adjust_for_time, speed->last_speed_check);
     if (speed->total_time == SPEED_CHANGE_IMMEDIATE) {
         delta = desired;
@@ -107,7 +107,3 @@ int speed_get_delta(speed_type *speed)
     return handle_fine_position(speed, delta);
 }
 
-int speed_is_changing(const speed_type *speed)
-{
-    return speed->current_speed != speed->desired_speed;
-}

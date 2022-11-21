@@ -1,8 +1,8 @@
 #ifndef WINDOW_BUILDING_COMMON_H
 #define WINDOW_BUILDING_COMMON_H
 
-static const int MIN_Y_POSITION = 32;
-static const int MARGIN_POSITION = 16;
+#define MIN_Y_POSITION 32
+#define MARGIN_POSITION 16
 
 typedef enum {
     BUILDING_INFO_NONE = 0,

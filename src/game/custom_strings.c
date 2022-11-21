@@ -295,6 +295,7 @@ static custom_string all_strings[] = {
     {TR_EDITOR_DEMAND_CHANGE_SCHEDULED, "Demand changes sch."},
     {TR_BRIEFING_FIRED_AFTER, "Fired after"},
     {TR_BRIEFING_SURVIVE_FOR, "Survive for"},
+    {TR_TOO_MANY_FILES, "Too many files. Showing 128."},
 };
 
 static void set_strings(const custom_string *strings, int num_strings)

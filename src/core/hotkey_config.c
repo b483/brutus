@@ -226,7 +226,7 @@ static void load_defaults(void)
 static void load_file(void)
 {
     hotkey_config_clear();
-    FILE *fp = file_open(HOTKEY_CONFIGS_FILE_PATH, "rt");
+    FILE *fp = fopen(HOTKEY_CONFIGS_FILE_PATH, "rt");
     if (!fp) {
         return;
     }
@@ -255,7 +255,7 @@ static void load_file(void)
             }
         }
     }
-    file_close(fp);
+    fclose(fp);
 }
 
 void hotkey_config_load(void)
@@ -271,7 +271,7 @@ void hotkey_config_load(void)
 void hotkey_config_save(void)
 {
     hotkey_install_mapping(data.mappings, data.num_mappings);
-    FILE *fp = file_open(HOTKEY_CONFIGS_FILE_PATH, "wt");
+    FILE *fp = fopen(HOTKEY_CONFIGS_FILE_PATH, "wt");
     if (!fp) {
         log_error("Unable to write hotkey configuration file", HOTKEY_CONFIGS_FILE_PATH, 0);
         return;
@@ -280,5 +280,5 @@ void hotkey_config_save(void)
         const char *key_name = key_combination_name(data.mappings[i].key, data.mappings[i].modifiers);
         fprintf(fp, "%s=%s\n", ini_keys[data.mappings[i].action], key_name);
     }
-    file_close(fp);
+    fclose(fp);
 }

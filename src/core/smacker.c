@@ -15,7 +15,6 @@
 #define MAX_TRACKS 7
 #define MAX_PALETTE 256
 
-#define FLAG_RING 0x01
 #define FLAG_Y_INTERLACE 0x02
 #define FLAG_Y_DOUBLE 0x04
 
@@ -27,7 +26,6 @@
 
 #define BLOCK_MONO 0
 #define BLOCK_FULL 1
-#define BLOCK_VOID 2
 #define BLOCK_SOLID 3
 
 typedef struct {
@@ -257,9 +255,11 @@ static void free_tree16(hufftree16 *tree)
         return;
     }
     for (int i = 0; i < 3; i++) {
-        if (!tree->escape_nodes[i]->is_leaf) {
-            // Free manually allocated node because it's not in the tree
-            free(tree->escape_nodes[i]);
+        if (tree->escape_nodes[i]) {
+            if (!tree->escape_nodes[i]->is_leaf) {
+                // Free manually allocated node because it's not in the tree
+                free(tree->escape_nodes[i]);
+            }
         }
     }
     free_node16(tree->root);
@@ -539,7 +539,7 @@ smacker smacker_open(FILE *fp)
 
 void smacker_close(smacker s)
 {
-    file_close(s->fp);
+    fclose(s->fp);
     free(s->frame_offsets);
     free(s->frame_sizes);
     free(s->frame_types);
@@ -735,9 +735,9 @@ static int decode_palette(smacker s, uint8_t *data, int length)
         } else {
             // Literal color
             new_palette[color_index] =
-                    (PALETTE_MAP[data[index] & 0x3f] << 16) |
-                    (PALETTE_MAP[data[index + 1] & 0x3f] << 8) |
-                    (PALETTE_MAP[data[index + 2] & 0x3f]);
+                (PALETTE_MAP[data[index] & 0x3f] << 16) |
+                (PALETTE_MAP[data[index + 1] & 0x3f] << 8) |
+                (PALETTE_MAP[data[index + 2] & 0x3f]);
             color_index++;
             index += 3;
         }

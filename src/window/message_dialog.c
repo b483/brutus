@@ -211,9 +211,9 @@ static void draw_city_message_text(const lang_message *msg)
                 lang_text_draw(23, scenario.requests[player_message.param1].resource,
                     data.x_text + 100, y_offset, FONT_NORMAL_WHITE);
                 if (scenario.requests[player_message.param1].state == REQUEST_STATE_NORMAL || scenario.requests[player_message.param1].state == REQUEST_STATE_OVERDUE) {
-                    int width = lang_text_draw_amount(8, 4, scenario.requests[player_message.param1].months_to_comply,
+                    int comply_time_width = lang_text_draw_amount(8, 4, scenario.requests[player_message.param1].months_to_comply,
                         data.x_text + 200, y_offset, FONT_NORMAL_WHITE);
-                    lang_text_draw(12, 2, data.x_text + 200 + width, y_offset, FONT_NORMAL_WHITE);
+                    lang_text_draw(12, 2, data.x_text + 200 + comply_time_width, y_offset, FONT_NORMAL_WHITE);
                 }
             }
             break;

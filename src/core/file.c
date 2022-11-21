@@ -1,20 +1,14 @@
-#include "core/file.h"
+#include "file.h"
 
-#include "core/string.h"
-#include "platform/file_manager.h"
+#include "core/dir.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#ifdef _WIN32
+#include <io.h>
+#define F_OK 0
+#define access _access
+#endif
 
-FILE *file_open(const char *filename, const char *mode)
-{
-    return platform_file_manager_open_file(filename, mode);
-}
-
-int file_close(FILE *stream)
-{
-    return platform_file_manager_close_file(stream);
-}
+#include <string.h>
 
 int file_has_extension(const char *filename, const char *extension)
 {
@@ -29,7 +23,7 @@ int file_has_extension(const char *filename, const char *extension)
     if (!c) {
         filename--;
     }
-    return platform_file_manager_compare_filename(filename, extension) == 0;
+    return strcmp(filename, extension) == 0;
 }
 
 void file_change_extension(char *filename, const char *new_extension)
@@ -77,5 +71,20 @@ void file_remove_extension(uint8_t *filename)
 
 int file_exists(const char *dir, const char *filename)
 {
-    return NULL != get_case_corrected_file(dir, filename);
+    if (dir) {
+        static char filepath_to_save[FILE_NAME_MAX];
+        filepath_to_save[FILE_NAME_MAX - 1] = 0;
+        prepend_dir_to_path(dir, filename, filepath_to_save);
+        if (access(filepath_to_save, F_OK) == 0) {
+            return 1;
+        } else {
+            return 0;
+        }
+    } else {
+        if (access(filename, F_OK) == 0) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 }

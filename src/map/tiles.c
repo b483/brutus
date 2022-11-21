@@ -17,6 +17,7 @@
 #include "map/property.h"
 #include "map/random.h"
 #include "map/terrain.h"
+#include "scenario/data.h"
 #include "scenario/map.h"
 
 #define OFFSET(x,y) (x + GRID_SIZE * y)
@@ -1134,36 +1135,35 @@ void map_tiles_update_all_elevation(void)
 void map_tiles_add_entry_exit_flags(void)
 {
     int entry_orientation;
-    map_point entry_point = scenario_map_entry();
-    if (entry_point.x == 0) {
+    if (scenario.entry_point.x == 0) {
         entry_orientation = DIR_2_RIGHT;
-    } else if (entry_point.x == map_data.width - 1) {
+    } else if (scenario.entry_point.x == map_data.width - 1) {
         entry_orientation = DIR_6_LEFT;
-    } else if (entry_point.y == 0) {
+    } else if (scenario.entry_point.y == 0) {
         entry_orientation = DIR_0_TOP;
-    } else if (entry_point.y == map_data.height - 1) {
+    } else if (scenario.entry_point.y == map_data.height - 1) {
         entry_orientation = DIR_4_BOTTOM;
     } else {
         entry_orientation = -1;
     }
     int exit_orientation;
-    map_point exit_point = scenario_map_exit();
-    if (exit_point.x == 0) {
+    if (scenario.exit_point.x == 0) {
         exit_orientation = DIR_2_RIGHT;
-    } else if (exit_point.x == map_data.width - 1) {
+    } else if (scenario.exit_point.x == map_data.width - 1) {
         exit_orientation = DIR_6_LEFT;
-    } else if (exit_point.y == 0) {
+    } else if (scenario.exit_point.y == 0) {
         exit_orientation = DIR_0_TOP;
-    } else if (exit_point.y == map_data.height - 1) {
+    } else if (scenario.exit_point.y == map_data.height - 1) {
         exit_orientation = DIR_4_BOTTOM;
     } else {
         exit_orientation = -1;
     }
     if (entry_orientation >= 0) {
-        int grid_offset = map_grid_offset(entry_point.x, entry_point.y);
-        int x_tile, y_tile;
+        int grid_offset = map_grid_offset(scenario.entry_point.x, scenario.entry_point.y);
+        int x_tile = 0;
+        int y_tile = 0;
         for (int i = 1; i < 10; i++) {
-            if (map_terrain_exists_clear_tile_in_radius(entry_point.x, entry_point.y,
+            if (map_terrain_exists_clear_tile_in_radius(scenario.entry_point.x, scenario.entry_point.y,
                 1, i, grid_offset, &x_tile, &y_tile)) {
                 break;
             }
@@ -1174,10 +1174,11 @@ void map_tiles_add_entry_exit_flags(void)
         map_image_set(grid_offset_flag, image_group(GROUP_TERRAIN_ENTRY_EXIT_FLAGS) + orientation / 2);
     }
     if (exit_orientation >= 0) {
-        int grid_offset = map_grid_offset(exit_point.x, exit_point.y);
-        int x_tile, y_tile;
+        int grid_offset = map_grid_offset(scenario.exit_point.x, scenario.exit_point.y);
+        int x_tile = 0;
+        int y_tile = 0;
         for (int i = 1; i < 10; i++) {
-            if (map_terrain_exists_clear_tile_in_radius(exit_point.x, exit_point.y,
+            if (map_terrain_exists_clear_tile_in_radius(scenario.exit_point.x, scenario.exit_point.y,
                 1, i, grid_offset, &x_tile, &y_tile)) {
                 break;
             }

@@ -329,7 +329,7 @@ static const color_t *load_external_data(int image_id)
 {
     image *img = &data.main[image_id];
     char filename[FILE_NAME_MAX] = "555/";
-    strcpy(&filename[4], data.bitmaps[img->draw.bitmap_id]);
+    strncpy(&filename[4], data.bitmaps[img->draw.bitmap_id], FILE_NAME_MAX - 6);
     file_change_extension(filename, "555");
     int size = io_read_file_part_into_buffer(
         &filename[4], data.tmp_data,

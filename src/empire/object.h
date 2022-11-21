@@ -86,7 +86,7 @@ void empire_object_city_toggle_resource(empire_object *object, int resource, int
 
 /**
  * Sets sell/buy limit (amount) for given resource
- * @param object_id id for empire object
+ * @param object empire object
  * @param resource resource type to set value for
  * @param resource_limit trade limit to set for given resource type
  * @param selling whether it's a resource to sell (1) or buy (0) from the trade city perspective
@@ -95,7 +95,7 @@ void empire_object_city_set_resource_limit(empire_object *object, int resource, 
 
 /**
  * Sets the cost to open trade route with city
- * @param object_id id for empire object
+ * @param object empire object
  * @param trade_route_cost cost to open trade route
  */
 void empire_object_city_set_trade_route_cost(empire_object *object, int trade_route_cost);

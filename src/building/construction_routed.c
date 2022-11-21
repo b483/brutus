@@ -38,7 +38,6 @@ static int place_routed_building(int x_start, int y_start, int x_end, int y_end,
             return 0;
         }
         switch (type) {
-            default:
             case ROUTED_BUILDING_ROAD:
                 *items += map_tiles_set_road(x_end, y_end);
                 break;

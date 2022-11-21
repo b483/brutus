@@ -1,46 +1,27 @@
-cmake_minimum_required(VERSION 3.1)
-include(CMakeDependentOption)
-
-set(TARGET_PLATFORM "default" CACHE STRING "Platform to cross-compile for. Options: default. Leave blank for no cross compilation")
-set_property(CACHE TARGET_PLATFORM PROPERTY STRINGS default)
-
-string(TOLOWER ${TARGET_PLATFORM} TARGET_PLATFORM)
-
-option(DRAW_FPS "Draw FPS on the top left corner of the window." OFF)
-option(SYSTEM_LIBS "Use system libraries when available." ON)
-option(LINK_MPG123 "Link mpg123 statically to Brutus instead of relying on a library." OFF)
+cmake_minimum_required(VERSION 3.23[FATAL_ERROR])
 
 set(SHORT_NAME brutus)
-set(USER_FRIENDLY_NAME Brutus)
-project(${SHORT_NAME} C)
+project(${SHORT_NAME} VERSION 1.0.0 LANGUAGES C)
+set(IS_RELEASE_VERSION FALSE)
+set(CMAKE_C_STANDARD 23)
+
+option(DRAW_FPS "Draw FPS on the top left corner of the window." OFF)
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/cmake/")
 
-if(CMAKE_VERSION VERSION_LESS 3.1)
-    if(CMAKE_COMPILER_IS_GNUCC)
-        set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
-    endif()
-else()
-    set(CMAKE_C_STANDARD 99)
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wall -Wextra -Wno-sign-compare -Wno-stringop-truncation -Wpedantic -Wformat-security -Wformat-y2k -Wnull-dereference
+        -Winit-self -Wsync-nand -Wunused-const-variable=2 -Wstringop-overflow=4 -Walloc-zero -Wtrivial-auto-var-init -Warith-conversion -Wbidi-chars=any
+        -Wenum-conversion -Warray-bounds=2 -Wattribute-alias=2 -Wduplicated-branches -Wduplicated-cond -Wtrampolines -Wshadow=compatible-local
+        -Wunsafe-loop-optimizations -Wbad-function-cast -Wcast-align -Wwrite-strings -Wdangling-else -Wdate-time -Wlogical-op
+        -Waggregate-return -Wno-aggressive-loop-optimizations -Wmissing-prototypes -Wmissing-declarations -Wopenmp-simd -Wpacked -Wredundant-decls
+        -Wnested-externs -Winline -Winvalid-pch -Wvector-operation-performance -Wdisabled-optimization -Wstrict-prototypes -Werror
+        -fanalyzer)
+elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    add_compile_options(-Weverything -Wno-sign-compare -Wno-sign-conversion -Wno-declaration-after-statement -Wno-c++98-compat -Wno-switch-enum -Wno-float-conversion -Wno-float-equal
+        -Wno-implicit-int-float-conversion -Wno-cast-align -Wno-implicit-int-conversion -Wno-covered-switch-default -Wno-double-promotion -Wno-implicit-fallthrough -Wno-vla -Wno-reserved-identifier
+    )
 endif()
-
-if(CMAKE_COMPILER_IS_GNUCC)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Werror")
-
-    if(CMAKE_C_COMPILER_VERSION VERSION_GREATER 5.0)
-        set(CMAKE_C_FLAGS "-Werror=incompatible-pointer-types -Werror=int-conversion -Wstrict-prototypes ${CMAKE_C_FLAGS}")
-    endif()
-endif()
-
-# Fix bug in cmake that expects the resource compiler for mingw to have the toolchain prefix in the name
-if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.24.0 AND MINGW)
-    set(CMAKE_RC_COMPILER "windres")
-endif()
-
-set(PROJECT_VERSION_MAJOR 1)
-set(PROJECT_VERSION_MINOR 7)
-set(PROJECT_VERSION_PATCH 0)
-set(IS_RELEASE_VERSION FALSE)
 
 if(IS_RELEASE_VERSION)
     set(PROJECT_VERSION_TWEAK 0)
@@ -95,32 +76,9 @@ configure_file(${PROJECT_SOURCE_DIR}/gen/version.c.in ${PROJECT_SOURCE_DIR}/src/
 configure_file(${PROJECT_SOURCE_DIR}/gen/version.rc.in ${PROJECT_SOURCE_DIR}/res/version.rc)
 configure_file(${PROJECT_SOURCE_DIR}/gen/version.txt.in ${PROJECT_SOURCE_DIR}/res/version.txt)
 
-if(DRAW_FPS)
-    add_definitions(-DDRAW_FPS)
-endif()
-
-set(PNG_FILES
-    ext/png/png.c
-    ext/png/pngerror.c
-    ext/png/pngmem.c
-    ext/png/pngset.c
-    ext/png/pngwio.c
-    ext/png/pngwrite.c
-    ext/png/pngwutil.c
-)
-
-set(ZLIB_FILES
-    ext/zlib/adler32.c
-    ext/zlib/crc32.c
-    ext/zlib/deflate.c
-    ext/zlib/trees.c
-    ext/zlib/zutil.c
-)
-
 set(PLATFORM_FILES
     ${PROJECT_SOURCE_DIR}/src/platform/arguments.c
     ${PROJECT_SOURCE_DIR}/src/platform/cursor.c
-    ${PROJECT_SOURCE_DIR}/src/platform/file_manager.c
     ${PROJECT_SOURCE_DIR}/src/platform/brutus.c
     ${PROJECT_SOURCE_DIR}/src/platform/keyboard_input.c
     ${PROJECT_SOURCE_DIR}/src/platform/log.c
@@ -132,7 +90,6 @@ set(PLATFORM_FILES
 )
 
 set(CORE_FILES
-    ${PROJECT_SOURCE_DIR}/src/core/backtrace.c
     ${PROJECT_SOURCE_DIR}/src/core/buffer.c
     ${PROJECT_SOURCE_DIR}/src/core/calc.c
     ${PROJECT_SOURCE_DIR}/src/core/config.c
@@ -476,6 +433,16 @@ set(SOURCE_FILES
     ${PROJECT_SOURCE_DIR}/res/brutus.rc
 )
 
+add_executable(${SHORT_NAME} WIN32 ${SOURCE_FILES})
+
+if(DRAW_FPS)
+    target_compile_definitions(${SHORT_NAME} PRIVATE -DDRAW_FPS)
+endif()
+
+if(WIN32)
+    target_compile_definitions(${SHORT_NAME} PRIVATE _CRT_SECURE_NO_WARNINGS)
+endif()
+
 function(GET_SDL_EXT_DIR result module)
     if(NOT module STREQUAL "")
         set(module "_${module}")
@@ -502,55 +469,54 @@ endfunction()
 find_package(SDL2 REQUIRED)
 find_package(SDL2_mixer REQUIRED)
 
-if(LINK_MPG123)
-    find_package(MPG123 REQUIRED)
-endif()
-
-add_executable(${SHORT_NAME} WIN32 ${SOURCE_FILES})
-
-if(MSVC)
-    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
-endif()
-
 if(SDL2_INCLUDE_DIR)
-    include_directories(${SDL2_INCLUDE_DIR})
+    target_include_directories(${SHORT_NAME} SYSTEM PRIVATE ${SDL2_INCLUDE_DIR})
 endif()
 
 if(SDL2_MIXER_INCLUDE_DIR)
-    include_directories(${SDL2_MIXER_INCLUDE_DIR})
-endif()
-
-if(SYSTEM_LIBS)
-    find_package(PNG)
-endif()
-
-if(PNG_FOUND)
-    include_directories(${PNG_INCLUDE_DIRS})
-    target_link_libraries(${SHORT_NAME} ${PNG_LIBRARIES})
-else()
-    if(SYSTEM_LIBS)
-        message(STATUS "PNG was not found but that's ok: falling back to internal version")
-    endif()
-
-    include_directories("ext/png")
-    target_sources(${SHORT_NAME} PRIVATE "${PNG_FILES}" "${ZLIB_FILES}")
-endif()
-
-include_directories(ext)
-include_directories(src)
-
-if(MSVC)
-    include_directories(ext/dirent)
-endif()
-
-if(UNIX AND(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-    target_link_libraries(${SHORT_NAME} m)
-endif()
-
-if(LINK_MPG123)
-    target_link_libraries(${SHORT_NAME} ${MPG123_LIBRARY})
+    target_include_directories(${SHORT_NAME} SYSTEM PRIVATE ${SDL2_MIXER_INCLUDE_DIR})
 endif()
 
 target_link_libraries(${SHORT_NAME} ${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARY})
+
+set(PNG_FILES
+    ext/png/png.c
+    ext/png/pngerror.c
+    ext/png/pngmem.c
+    ext/png/pngset.c
+    ext/png/pngwio.c
+    ext/png/pngwrite.c
+    ext/png/pngwutil.c
+)
+
+set(ZLIB_FILES
+    ext/zlib/adler32.c
+    ext/zlib/crc32.c
+    ext/zlib/deflate.c
+    ext/zlib/trees.c
+    ext/zlib/zutil.c
+)
+
+target_include_directories(${SHORT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/ext/png)
+target_sources(${SHORT_NAME} PRIVATE "${PNG_FILES}" "${ZLIB_FILES}")
+
+include_directories(ext)
+target_include_directories(${SHORT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
+
+set_source_files_properties(
+    ${PNG_FILES}
+    PROPERTIES
+    COMPILE_FLAGS "-w"
+)
+
+set_source_files_properties(
+    ${ZLIB_FILES}
+    PROPERTIES
+    COMPILE_FLAGS "-w"
+)
+
+if(UNIX AND CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    target_link_libraries(${SHORT_NAME} m)
+endif()
 
 install(TARGETS ${SHORT_NAME} RUNTIME DESTINATION bin)

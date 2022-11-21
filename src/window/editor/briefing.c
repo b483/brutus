@@ -17,7 +17,7 @@
 
 static void button_reset_briefing_text(int param1, int param2);
 
-uint8_t briefing[MAX_BRIEFING];
+static uint8_t briefing[MAX_BRIEFING];
 static int focus_button_id;
 
 static input_box scenario_briefing_input = {

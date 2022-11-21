@@ -18,7 +18,7 @@ static image_button image_buttons[] = {
     {522, 252, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1, 0, 0, 0},
 };
 
-empire_object *selected_trade_city = 0;
+static empire_object *selected_trade_city = 0;
 
 static void draw_background(void)
 {

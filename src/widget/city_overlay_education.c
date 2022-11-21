@@ -62,7 +62,7 @@ static int get_column_height_academy(const building *b)
     return b->house_size && b->data.house.academy ? b->data.house.academy / 10 : NO_COLUMN;
 }
 
-static int get_tooltip_education(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
+static int get_tooltip_education(__attribute__((unused)) tooltip_context *c, const building *b)
 {
     switch (b->data.house.education) {
         case 0: return 100;
@@ -73,7 +73,7 @@ static int get_tooltip_education(__attribute__((unused)) tooltip_context *c, __a
     }
 }
 
-static int get_tooltip_school(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
+static int get_tooltip_school(__attribute__((unused)) tooltip_context *c, const building *b)
 {
     if (b->data.house.school <= 0) {
         return 19;
@@ -86,7 +86,7 @@ static int get_tooltip_school(__attribute__((unused)) tooltip_context *c, __attr
     }
 }
 
-static int get_tooltip_library(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
+static int get_tooltip_library(__attribute__((unused)) tooltip_context *c, const building *b)
 {
     if (b->data.house.library <= 0) {
         return 23;
@@ -99,7 +99,7 @@ static int get_tooltip_library(__attribute__((unused)) tooltip_context *c, __att
     }
 }
 
-static int get_tooltip_academy(__attribute__((unused)) tooltip_context *c, __attribute__((unused)) const building *b)
+static int get_tooltip_academy(__attribute__((unused)) tooltip_context *c, const building *b)
 {
     if (b->data.house.academy <= 0) {
         return 27;

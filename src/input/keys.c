@@ -43,7 +43,7 @@ static const modifier_name modifier_names[] = {
     {KEY_MOD_ALT, "Alt"},
     {KEY_MOD_GUI, "Gui"},
     {KEY_MOD_SHIFT, "Shift"},
-    {KEY_MOD_NONE}
+    {KEY_MOD_NONE, 0}
 };
 
 const char *key_combination_name(key_type key, key_modifier_type modifiers)
@@ -82,7 +82,7 @@ static key_type parse_key(const char *name)
 
 int key_combination_from_name(const char *name, key_type *key, key_modifier_type *modifiers)
 {
-    char editable_name[100] = {0};
+    char editable_name[100] = { 0 };
     strncpy(editable_name, name, 99);
 
     *key = KEY_TYPE_NONE;

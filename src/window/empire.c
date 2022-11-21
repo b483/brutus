@@ -126,7 +126,7 @@ static void draw_trade_resource(resource_type resource, int trade_max, int x_off
     int resource_offset = resource_image_offset(resource, RESOURCE_IMAGE_ICON);
     image_draw(image_id + resource_offset, x_offset + 1, y_offset + 1);
 
-    if ((unsigned) data.focus_resource == resource) {
+    if (data.focus_resource == resource) {
         button_border_draw(x_offset - 2, y_offset - 2, 101 + 4, 30, 1);
     }
 

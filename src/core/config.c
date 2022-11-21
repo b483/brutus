@@ -81,14 +81,14 @@ static void set_defaults(void)
     for (int i = 0; i < CONFIG_MAX_ENTRIES; ++i) {
         values[i] = default_values[i];
     }
-    strncpy(string_values[CONFIG_STRING_PLAYER_NAME], "BRUTUS", CONFIG_STRING_VALUE_MAX);
+    strncpy(string_values[CONFIG_STRING_PLAYER_NAME], "BRUTUS", CONFIG_STRING_VALUE_MAX - 1);
     set_player_name_from_config();
 }
 
 void config_load(void)
 {
     set_defaults();
-    FILE *fp = file_open(CONFIGS_FILE_PATH, "rt");
+    FILE *fp = fopen(CONFIGS_FILE_PATH, "rt");
     if (!fp) {
         return;
     }
@@ -122,14 +122,14 @@ void config_load(void)
             }
         }
     }
-    file_close(fp);
+    fclose(fp);
 
     set_player_name_from_config();
 }
 
 void config_save(void)
 {
-    FILE *fp = file_open(CONFIGS_FILE_PATH, "wt");
+    FILE *fp = fopen(CONFIGS_FILE_PATH, "wt");
     if (!fp) {
         log_error("Unable to write configuration file", CONFIGS_FILE_PATH, 0);
         return;
@@ -140,5 +140,5 @@ void config_save(void)
     for (int i = 0; i < CONFIG_STRING_MAX_ENTRIES; i++) {
         fprintf(fp, "%s=%s\n", ini_string_keys[i], string_values[i]);
     }
-    file_close(fp);
+    fclose(fp);
 }

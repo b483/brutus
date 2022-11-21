@@ -64,7 +64,6 @@ enum {
     TYPE_HEADER,
     TYPE_INPUT_BOX,
     TYPE_CHECKBOX,
-    TYPE_SELECT,
     TYPE_NUMERICAL_DESC,
     TYPE_NUMERICAL_RANGE
 };
@@ -108,8 +107,6 @@ static config_widget all_widgets[MAX_WIDGETS] = {
     {TYPE_CHECKBOX, CONFIG_UI_SHOW_CONSTRUCTION_SIZE, TR_CONFIG_SHOW_CONSTRUCTION_SIZE, 0, 0},
     {TYPE_CHECKBOX, CONFIG_UI_HIGHLIGHT_LEGIONS, TR_CONFIG_HIGHLIGHT_LEGIONS, 0, 0},
 };
-
-static generic_button select_buttons[] = { 0 };
 
 static numerical_range_widget scale_ranges[] = {
     {30, 50, 500, 5, 0},
@@ -285,10 +282,6 @@ static void draw_background(void)
             text_draw(get_custom_string(w->description), 20, y, FONT_NORMAL_BLACK, 0);
         } else if (w->type == TYPE_CHECKBOX) {
             checkbox_draw_text(20, y, w->subtype, w->description);
-        } else if (w->type == TYPE_SELECT) {
-            text_draw(get_custom_string(w->description), 20, y + 6, FONT_NORMAL_BLACK, 0);
-            const generic_button *btn = &select_buttons[w->subtype];
-            text_draw_centered(w->get_display_text(), btn->x, y + btn->y + 6, btn->width, FONT_NORMAL_BLACK, 0);
         } else if (w->type == TYPE_INPUT_BOX) {
             text_draw(get_custom_string(w->description), 20, y + 6, FONT_NORMAL_BLACK, 0);
         } else if (w->type == TYPE_NUMERICAL_RANGE) {
@@ -315,10 +308,6 @@ static void draw_foreground(void)
         int y = ITEM_Y_OFFSET + ITEM_HEIGHT * i;
         if (w->type == TYPE_CHECKBOX) {
             checkbox_draw(20, y, data.focus_button == i + 1);
-        } else if (w->type == TYPE_SELECT) {
-            const generic_button *btn = &select_buttons[w->subtype];
-            button_border_draw(btn->x, y + btn->y,
-                btn->width, btn->height, data.focus_button == i + 1);
         } else if (w->type == TYPE_INPUT_BOX) {
             input_box_draw(&player_name_input);
         }
@@ -432,13 +421,6 @@ static void handle_input(const mouse *m, const hotkeys *h)
             if (focus) {
                 data.focus_button = i + 1;
             }
-        } else if (w->type == TYPE_SELECT) {
-            generic_button *btn = &select_buttons[w->subtype];
-            int focus = 0;
-            handled |= generic_buttons_handle_mouse(m_dialog, 0, y, btn, 1, &focus);
-            if (focus) {
-                data.focus_button = i + 1;
-            }
         } else if (w->type == TYPE_NUMERICAL_RANGE) {
             handled |= numerical_range_handle_mouse(m_dialog, NUMERICAL_RANGE_X, y, w->subtype + 1);
         }
@@ -474,8 +456,7 @@ static void button_reset_defaults(__attribute__((unused)) int param1, __attribut
         data.config_values[i].new_value = config_get_default_value(i);
     }
     for (int i = 0; i < CONFIG_STRING_MAX_ENTRIES; ++i) {
-        strncpy(data.config_string_values[i].new_value,
-            config_get_default_string_value(i), CONFIG_STRING_VALUE_MAX - 1);
+        strncpy(data.config_string_values[i].new_value, config_get_default_string_value(i), CONFIG_STRING_VALUE_MAX - 1);
     }
     window_invalidate();
 }
@@ -526,8 +507,7 @@ static int config_change_cursor_scale(config_key key)
 static int config_change_string_basic(config_string_key key)
 {
     config_set_string(key, data.config_string_values[key].new_value);
-    strncpy(data.config_string_values[key].original_value,
-        data.config_string_values[key].new_value, CONFIG_STRING_VALUE_MAX - 1);
+    strncpy(data.config_string_values[key].original_value, data.config_string_values[key].new_value, CONFIG_STRING_VALUE_MAX - 1);
     return 1;
 }
 

@@ -32,7 +32,7 @@ void game_orientation_rotate_north(void)
         case DIR_4_BOTTOM:
             city_view_rotate_left();
             map_orientation_change(0);
-            // fallthrough
+            /* fall through */
         case DIR_6_LEFT:
             city_view_rotate_left();
             map_orientation_change(0);

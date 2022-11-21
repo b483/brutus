@@ -18,17 +18,12 @@ static int get_free_tile(int x, int y, int *x_tile, int *y_tile)
     int x_min, y_min, x_max, y_max;
     map_grid_get_area(x, y, 1, 4, &x_min, &y_min, &x_max, &y_max);
 
-    for (int yy = y_min; yy <= y_max; yy++) {
-        for (int xx = x_min; xx <= x_max; xx++) {
-            if (map_soldier_strength_get(map_grid_offset(xx, yy))) {
-                return 0;
-            }
-            *x_tile = xx;
-            *y_tile = yy;
-            return 1;
-        }
+    if (map_soldier_strength_get(map_grid_offset(x_min, y_min))) {
+        return 0;
     }
-    return 0;
+    *x_tile = x_min;
+    *y_tile = y_min;
+    return 1;
 }
 
 static int get_roaming_destination(int formation_id, int x, int y, int distance, int direction, int *x_tile, int *y_tile)

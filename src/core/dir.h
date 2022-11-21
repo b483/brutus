@@ -1,31 +1,25 @@
 #ifndef CORE_DIR_H
 #define CORE_DIR_H
 
+#include "core/file.h"
+
+#define MAX_NUM_FILES 128
+
 /**
  * @file
  * Directory-related functions.
  */
 
-/**
- * Directory listing
- */
-typedef struct {
-    char **files; /**< Filenames in UTF-8 encoding */
-    int num_files; /**< Number of files in the list */
-} dir_listing;
+ /**
+  * Directory listing
+  */
+struct dir_listing {
+  char files[MAX_NUM_FILES][FILE_NAME_MAX]; /**< Filenames in UTF-8 encoding */
+  int num_files; /**< Number of files in the list */
+  int file_overflow;
+};
 
-/**
- * Finds files with the given extension
- * @param extension Extension of the files to find
- * @return Directory listing
- */
-const dir_listing *dir_find_files_with_extension(const char *extension);
-
-/**
- * Finds all subdirectories
- * @return Directory listing
- */
-const dir_listing *dir_find_all_subdirectories(void);
+const struct dir_listing *dir_list_files(const char *extension);
 
 /**
  * Prepends given directory to path
@@ -34,13 +28,5 @@ const dir_listing *dir_find_all_subdirectories(void);
  * @param resulting_string The resulting new string
  */
 void prepend_dir_to_path(const char *dir_to_prepend, const char *filepath, char *resulting_string);
-
-/**
- * Get the case sensitive filename of the file
- * @param dir Directory to look in
- * @param filepath File path to match to a case-sensitive file on the filesystem
- * @return Corrected file, or NULL if the file was not found
- */
-const char *get_case_corrected_file(const char *dir, const char *filepath);
 
 #endif // CORE_DIR_H

@@ -1,61 +1,36 @@
 #ifndef CORE_FILE_H
 #define CORE_FILE_H
 
-#include "core/dir.h"
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-/**
- * @file
- * File-related functions.
- *
- * Methods related to extensions:
- * @li The extension starts from the first dot, double extensions are not supported
- * @li Extension parameters are expected to be 3 chars, without leading dot
- */
-
-#define FILE_NAME_MAX 300
+#define FILE_NAME_MAX 64
+#define DIR_PATH_MAX 255
 
 // the path to the folder where brutus.exe is located
-extern char EXECUTABLE_DIR_PATH[FILE_NAME_MAX];
+extern char EXECUTABLE_DIR_PATH[DIR_PATH_MAX];
 
 // the path to "data_dir.txt" within the Brutus directory
-extern char DATA_TEXT_FILE_PATH[FILE_NAME_MAX];
+extern char DATA_TEXT_FILE_PATH[DIR_PATH_MAX];
 
 // the path to "brutus.settings" within the Brutus directory
-extern char SETTINGS_FILE_PATH[FILE_NAME_MAX];
+extern char SETTINGS_FILE_PATH[DIR_PATH_MAX];
 
 // the path to "brutus.configs" within the Brutus directory
-extern char CONFIGS_FILE_PATH[FILE_NAME_MAX];
+extern char CONFIGS_FILE_PATH[DIR_PATH_MAX];
 
 // the path to "brutus.hconfigs" within the Brutus directory
-extern char HOTKEY_CONFIGS_FILE_PATH[FILE_NAME_MAX];
+extern char HOTKEY_CONFIGS_FILE_PATH[DIR_PATH_MAX];
 
 // the path to the /maps folder in the Brutus directory
-extern char MAPS_DIR_PATH[FILE_NAME_MAX + 5];
+extern char MAPS_DIR_PATH[DIR_PATH_MAX];
 
 // the path to the /saves folder in the Brutus directory
-extern char SAVES_DIR_PATH[FILE_NAME_MAX + 6];
+extern char SAVES_DIR_PATH[DIR_PATH_MAX];
 
 // the path to the folder where c3.exe is located
-extern char GAME_DATA_PATH[FILE_NAME_MAX];
-
-/**
- * Wrapper for fopen converting filename to path in current working directory
- * @param filename Filename
- * @param mode Mode to open the file (e.g. "wb").
- * @return FILE
- */
-FILE *file_open(const char *filename, const char *mode);
-
-/**
- * Wrapper to fclose
- * @return See fclose (If the stream is successfully closed, a zero value is returned.
- *         On failure, EOF is returned.)
- */
-int file_close(FILE *stream);
+extern char GAME_DATA_PATH[DIR_PATH_MAX];
 
 /**
  * Checks whether the file has the given extension

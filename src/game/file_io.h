@@ -9,6 +9,6 @@ int game_file_io_read_saved_game(const char *dir, const char *filename, int offs
 
 int game_file_io_write_saved_game(const char *dir, const char *filename);
 
-int game_file_io_delete_saved_game(const char *dir, const char *filename);
+int game_file_io_delete_saved_game(const char *filename);
 
 #endif // GAME_FILE_IO_H

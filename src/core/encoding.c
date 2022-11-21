@@ -302,8 +302,12 @@ static const letter_code *get_letter_code_for_combining_utf8(const char *prev_ch
 
     switch (prev_bytes) {
         default: return NULL;
-        case 2: code <<= 8; // fallthrough
-        case 1: code <<= 8; break;
+        case 2:
+            code <<= 8;
+            /* fall through */
+        case 1:
+            code <<= 8;
+            break;
     }
     code |= prev_code;
 
@@ -327,11 +331,6 @@ encoding_type encoding_determine(void)
 int encoding_is_multibyte(void)
 {
     return !data.to_utf8_table;
-}
-
-int encoding_system_uses_decomposed(void)
-{
-    return 0;
 }
 
 static int is_ascii(const char *utf8_char)
@@ -362,6 +361,9 @@ void encoding_to_utf8(const uint8_t *input, char *output, int output_length, int
             const letter_code *code = get_letter_code_for_internal(c);
             int num_bytes;
             const uint8_t *bytes;
+            if (!code) {
+                return;
+            }
             if (decomposed && code->bytes_decomposed) {
                 num_bytes = code->bytes_decomposed;
                 bytes = code->utf8_decomposed;
