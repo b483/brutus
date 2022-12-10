@@ -8,7 +8,6 @@ void figure_combat_handle_corpse(figure *f);
 void figure_combat_handle_attack(figure *f);
 
 int figure_combat_get_target_for_soldier(int x, int y, int max_distance);
-int figure_combat_get_target_for_wolf(int x, int y, int max_distance);
 int figure_combat_get_target_for_enemy(int x, int y);
 
 int figure_combat_get_missile_target_for_soldier(figure *shooter, int max_distance, map_point *tile);

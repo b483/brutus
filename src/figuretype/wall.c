@@ -105,9 +105,6 @@ void figure_ballista_action(figure *f)
 
 static void tower_sentry_pick_target(figure *f)
 {
-    if (enemy_army_total_enemy_formations() <= 0) {
-        return;
-    }
     if (f->action_state == FIGURE_ACTION_150_ATTACK ||
         f->action_state == FIGURE_ACTION_149_CORPSE) {
         return;

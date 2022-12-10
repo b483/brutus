@@ -12,6 +12,7 @@
 #include "city/data_private.h"
 #include "city/finance.h"
 #include "city/resource.h"
+#include "city/sound.h"
 #include "city/view.h"
 #include "city/warning.h"
 #include "core/calc.h"
@@ -34,6 +35,7 @@
 #include "map/terrain.h"
 #include "map/tiles.h"
 #include "map/water.h"
+#include "sound/effect.h"
 
 struct reservoir_info {
     int cost;
@@ -531,22 +533,29 @@ void building_construction_update(int x, int y, int grid_offset)
     data.cost_preview = current_cost;
 }
 
-static int has_nearby_enemy(int x_start, int y_start, int x_end, int y_end)
+static int get_nearby_enemy_type(int x_start, int y_start, int x_end, int y_end)
 {
     for (int i = 1; i < MAX_FIGURES; i++) {
         figure *f = figure_get(i);
-        if (f->state != FIGURE_STATE_ALIVE || !figure_is_enemy(f)) {
-            continue;
-        }
-        int dx = (f->x > x_start) ? (f->x - x_start) : (x_start - f->x);
-        int dy = (f->y > y_start) ? (f->y - y_start) : (y_start - f->y);
-        if (dx <= 12 && dy <= 12) {
-            return 1;
-        }
-        dx = (f->x > x_end) ? (f->x - x_end) : (x_end - f->x);
-        dy = (f->y > y_end) ? (f->y - y_end) : (y_end - f->y);
-        if (dx <= 12 && dy <= 12) {
-            return 1;
+        if (f->state == FIGURE_STATE_ALIVE && (figure_is_enemy(f) || f->type == FIGURE_WOLF)) {
+            int dx = (f->x > x_start) ? (f->x - x_start) : (x_start - f->x);
+            int dy = (f->y > y_start) ? (f->y - y_start) : (y_start - f->y);
+            if (dx <= 12 && dy <= 12) {
+                if (f->type == FIGURE_WOLF) {
+                    return 1;
+                } else {
+                    return 2;
+                }
+            }
+            dx = (f->x > x_end) ? (f->x - x_end) : (x_end - f->x);
+            dy = (f->y > y_end) ? (f->y - y_end) : (y_end - f->y);
+            if (dx <= 12 && dy <= 12) {
+                if (f->type == FIGURE_WOLF) {
+                    return 1;
+                } else {
+                    return 2;
+                }
+            }
         }
     }
     return 0;
@@ -581,7 +590,8 @@ void building_construction_place(void)
         city_warning_show(WARNING_MARBLE_NEEDED_ORACLE);
         return;
     }
-    if (type != BUILDING_CLEAR_LAND && has_nearby_enemy(x_start, y_start, x_end, y_end)) {
+    int enemy_type = get_nearby_enemy_type(x_start, y_start, x_end, y_end);
+    if (type != BUILDING_CLEAR_LAND && enemy_type) {
         if (type == BUILDING_WALL || type == BUILDING_ROAD || type == BUILDING_AQUEDUCT) {
             game_undo_restore_map(0);
         } else if (type == BUILDING_PLAZA || type == BUILDING_GARDENS) {
@@ -591,7 +601,13 @@ void building_construction_place(void)
         } else {
             map_property_clear_constructing_and_deleted();
         }
-        city_warning_show(WARNING_ENEMY_NEARBY);
+        if (enemy_type == 1) {
+            if (city_sound_update_march_wolf()) {
+                sound_effect_play(SOUND_EFFECT_WOLF_HOWL);
+            }
+        } else {
+            city_warning_show(WARNING_ENEMY_NEARBY);
+        }
         return;
     }
 

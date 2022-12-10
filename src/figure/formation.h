@@ -9,6 +9,13 @@
 #define MAX_LEGIONS 6
 #define MAX_FORMATION_FIGURES 16
 
+#define WOLF_PACK_SIZE 8
+#define SHEEP_HERD_SIZE 10
+#define ZEBRA_HERD_SIZE 12
+#define MAX_WOLF_ROAM_DISTANCE 16
+#define MAX_SHEEP_ROAM_DISTANCE 8
+#define MAX_ZEBRA_ROAM_DISTANCE 20
+
 enum {
     LEGION_RECRUIT_NONE = 0,
     LEGION_RECRUIT_MOUNTED = 1,
@@ -17,7 +24,7 @@ enum {
 };
 
 enum {
-    FORMATION_ATTACK_FOOD_CHAIN= 0,
+    FORMATION_ATTACK_FOOD_CHAIN = 0,
     FORMATION_ATTACK_GOLD_STORES = 1,
     FORMATION_ATTACK_BEST_BUILDINGS = 2,
     FORMATION_ATTACK_TROOPS = 3,
@@ -115,7 +122,6 @@ typedef struct {
     formation_state enemy_state;
 
     /* Herd-related */
-    int herd_direction;
     int herd_wolf_spawn_delay;
 
     struct {

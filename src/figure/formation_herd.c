@@ -6,200 +6,88 @@
 #include "figure/combat.h"
 #include "figure/figure.h"
 #include "figure/formation.h"
+#include "figure/formation_layout.h"
 #include "figure/formation_enemy.h"
 #include "figure/route.h"
+#include "map/figure.h"
 #include "map/grid.h"
+#include "map/routing.h"
 #include "map/soldier_strength.h"
 #include "map/terrain.h"
-#include "sound/effect.h"
 
-static int get_free_tile(int x, int y, int *x_tile, int *y_tile)
+static int set_herd_roaming_destination(formation *m, int roam_distance)
 {
-    int x_min, y_min, x_max, y_max;
-    map_grid_get_area(x, y, 1, 4, &x_min, &y_min, &x_max, &y_max);
-
-    if (map_soldier_strength_get(map_grid_offset(x_min, y_min))) {
-        return 0;
-    }
-    *x_tile = x_min;
-    *y_tile = y_min;
-    return 1;
-}
-
-static int get_roaming_destination(int formation_id, int x, int y, int distance, int direction, int *x_tile, int *y_tile)
-{
-    int target_direction = (formation_id + random_byte()) & 6;
-    if (direction) {
-        target_direction = direction;
-    }
-    for (int i = 0; i < 4; i++) {
-        int x_target, y_target;
-        switch (target_direction) {
-            case DIR_0_TOP:
-                x_target = x;
-                y_target = y - distance;
-                break;
-            case DIR_1_TOP_RIGHT:
-                x_target = x + distance;
-                y_target = y - distance;
-                break;
-            case DIR_2_RIGHT:
-                x_target = x + distance;
-                y_target = y;
-                break;
-            case DIR_3_BOTTOM_RIGHT:
-                x_target = x + distance;
-                y_target = y + distance;
-                break;
-            case DIR_4_BOTTOM:
-                x_target = x;
-                y_target = y + distance;
-                break;
-            case DIR_5_BOTTOM_LEFT:
-                x_target = x - distance;
-                y_target = y + distance;
-                break;
-            case DIR_6_LEFT:
-                x_target = x - distance;
-                y_target = y;
-                break;
-            case DIR_7_TOP_LEFT:
-                x_target = x - distance;
-                y_target = y - distance;
-                break;
-            default:
-                continue;
-        }
-        if (x_target <= 0) {
-            x_target = 1;
-        } else if (y_target <= 0) {
-            y_target = 1;
-        } else if (x_target >= map_grid_width() - 1) {
-            x_target = map_grid_width() - 2;
-        } else if (y_target >= map_grid_height() - 1) {
-            y_target = map_grid_height() - 2;
-        }
-        if (get_free_tile(x_target, y_target, x_tile, y_tile)) {
-            return 1;
-        }
-        target_direction += 2;
-        if (target_direction > 6) {
-            target_direction = 0;
-        }
-    }
-    return 0;
-}
-
-static void move_animals(const formation *m, int attacking_animals)
-{
-    for (int i = 0; i < MAX_FORMATION_FIGURES; i++) {
-        if (m->figures[i] <= 0) continue;
-        figure *f = figure_get(m->figures[i]);
-        if (f->action_state == FIGURE_ACTION_149_CORPSE ||
-            f->action_state == FIGURE_ACTION_150_ATTACK) {
-            continue;
-        }
-        f->wait_ticks = 401;
-        if (attacking_animals) {
-            int target_id = figure_combat_get_target_for_wolf(f->x, f->y, 6);
-            if (target_id) {
-                figure *target = figure_get(target_id);
-                f->action_state = FIGURE_ACTION_199_WOLF_ATTACKING;
-                f->destination_x = target->x;
-                f->destination_y = target->y;
-                f->target_figure_id = target_id;
-                target->targeted_by_figure_id = f->id;
-                f->target_figure_created_sequence = target->created_sequence;
-                figure_route_remove(f);
-            } else {
-                f->action_state = FIGURE_ACTION_196_HERD_ANIMAL_AT_REST;
-            }
-        } else {
-            f->action_state = FIGURE_ACTION_196_HERD_ANIMAL_AT_REST;
-        }
-    }
-}
-
-static int can_spawn_wolf(formation *m)
-{
-    if (m->num_figures < m->max_figures && m->figure_type == FIGURE_WOLF) {
-        m->herd_wolf_spawn_delay++;
-        if (m->herd_wolf_spawn_delay > 32) {
-            m->herd_wolf_spawn_delay = 0;
-            return 1;
-        }
-    }
-    return 0;
-}
-
-static void update_herd_formation(formation *m)
-{
-    if (can_spawn_wolf(m)) {
-        // spawn new wolf
-        if (!map_terrain_is(map_grid_offset(m->x, m->y), TERRAIN_IMPASSABLE_WOLF)) {
-            figure *wolf = figure_create(m->figure_type, m->x, m->y, DIR_0_TOP);
-            wolf->action_state = FIGURE_ACTION_196_HERD_ANIMAL_AT_REST;
-            wolf->formation_id = m->id;
-            wolf->wait_ticks = wolf->id & 0x1f;
-        }
-    }
-    int attacking_animals = 0;
-    for (int fig = 0; fig < MAX_FORMATION_FIGURES; fig++) {
-        int figure_id = m->figures[fig];
-        if (figure_id > 0 && figure_get(figure_id)->action_state == FIGURE_ACTION_150_ATTACK) {
-            attacking_animals++;
-        }
-    }
-    if (m->missile_attack_timeout) {
-        attacking_animals = 1;
-    }
-    if (m->figures[0]) {
-        figure *f = figure_get(m->figures[0]);
-        if (f->state == FIGURE_STATE_ALIVE) {
-            formation_set_home(m, f->x, f->y);
-        }
-    }
-    int roam_distance;
-    int roam_delay;
-    switch (m->figure_type) {
-        case FIGURE_SHEEP:
-            roam_distance = 8;
-            roam_delay = 20;
-            attacking_animals = 0;
+    random_generate_next();
+    int target_direction = random_byte() % 8;
+    int target_tile_x, target_tile_y;
+    switch (target_direction) {
+        case DIR_0_TOP:
+            target_tile_x = m->x;
+            target_tile_y = m->y - roam_distance;
             break;
-        case FIGURE_ZEBRA:
-            roam_distance = 20;
-            roam_delay = 4;
-            attacking_animals = 0;
+        case DIR_1_TOP_RIGHT:
+            target_tile_x = m->x + roam_distance;
+            target_tile_y = m->y - roam_distance;
             break;
-        case FIGURE_WOLF:
-            roam_distance = 16;
-            roam_delay = 6;
+        case DIR_2_RIGHT:
+            target_tile_x = m->x + roam_distance;
+            target_tile_y = m->y;
+            break;
+        case DIR_3_BOTTOM_RIGHT:
+            target_tile_x = m->x + roam_distance;
+            target_tile_y = m->y + roam_distance;
+            break;
+        case DIR_4_BOTTOM:
+            target_tile_x = m->x;
+            target_tile_y = m->y + roam_distance;
+            break;
+        case DIR_5_BOTTOM_LEFT:
+            target_tile_x = m->x - roam_distance;
+            target_tile_y = m->y + roam_distance;
+            break;
+        case DIR_6_LEFT:
+            target_tile_x = m->x - roam_distance;
+            target_tile_y = m->y;
+            break;
+        case DIR_7_TOP_LEFT:
+            target_tile_x = m->x - roam_distance;
+            target_tile_y = m->y - roam_distance;
             break;
         default:
-            return;
+            return 0;
     }
-    m->wait_ticks++;
-    if (m->wait_ticks > roam_delay || attacking_animals) {
-        m->wait_ticks = 0;
-        if (attacking_animals) {
-            formation_set_destination(m, m->x_home, m->y_home);
-            move_animals(m, attacking_animals);
-        } else {
-            int x_tile, y_tile;
-            if (get_roaming_destination(m->id, m->x_home, m->y_home,
-                roam_distance, m->herd_direction, &x_tile, &y_tile)) {
-                m->herd_direction = 0;
-                if (formation_enemy_move_formation_to(m, x_tile, y_tile, &x_tile, &y_tile)) {
-                    formation_set_destination(m, x_tile, y_tile);
-                    if (m->figure_type == FIGURE_WOLF && city_sound_update_march_wolf()) {
-                        sound_effect_play(SOUND_EFFECT_WOLF_HOWL);
-                    }
-                    move_animals(m, attacking_animals);
-                }
-            }
+    if (target_tile_x <= 0 || target_tile_y <= 0) {
+        return 0;
+    } else if (target_tile_x >= map_grid_width() - 1) {
+        target_tile_x = map_grid_width() - 2;
+    } else if (target_tile_y >= map_grid_height() - 1) {
+        target_tile_y = map_grid_height() - 2;
+    }
+    if (map_soldier_strength_get(map_grid_offset(target_tile_x, target_tile_y))) {
+        return 0;
+    }
+
+    int base_offset = map_grid_offset(formation_layout_position_x(m->layout, 0), formation_layout_position_y(m->layout, 0));
+    int figure_offsets[m->num_figures];
+    figure_offsets[0] = 0;
+    for (int i = 1; i < m->num_figures; i++) {
+        figure_offsets[i] = map_grid_offset(formation_layout_position_x(m->layout, i), formation_layout_position_y(m->layout, i)) - base_offset;
+    }
+    for (int fig = 0; fig < m->num_figures; fig++) {
+        int fig_target_loc_grid_offset = map_grid_offset(target_tile_x, target_tile_y) + figure_offsets[fig];
+        if (!map_grid_is_valid_offset(fig_target_loc_grid_offset)) {
+            return 0;
+        }
+        if (map_terrain_is(fig_target_loc_grid_offset, TERRAIN_IMPASSABLE_HERD)) {
+            return 0;
+        }
+        if (map_has_figure_at(fig_target_loc_grid_offset)) {
+            return 0;
         }
     }
+    m->destination_x = target_tile_x;
+    m->destination_y = target_tile_y;
+    return 1;
 }
 
 void formation_herd_update(void)
@@ -209,8 +97,33 @@ void formation_herd_update(void)
     }
     for (int i = 1; i < MAX_FORMATIONS; i++) {
         formation *m = formation_get(i);
-        if (m->in_use && m->is_herd && !m->is_legion && m->num_figures > 0) {
-            update_herd_formation(m);
+        if (m->in_use && m->is_herd && m->num_figures > 0) {
+            random_generate_next();
+            int random_factor = random_byte();
+            int roam_distance;
+            int roam_delay;
+            switch (m->figure_type) {
+                case FIGURE_WOLF:
+                    roam_distance = (random_factor % MAX_WOLF_ROAM_DISTANCE) >= MAX_WOLF_ROAM_DISTANCE / 2 ? (random_factor % MAX_WOLF_ROAM_DISTANCE) : MAX_WOLF_ROAM_DISTANCE;
+                    roam_delay = 12;
+                    break;
+                case FIGURE_SHEEP:
+                    roam_distance = (random_factor % MAX_SHEEP_ROAM_DISTANCE) >= MAX_SHEEP_ROAM_DISTANCE / 2 ? (random_factor % MAX_SHEEP_ROAM_DISTANCE) : MAX_SHEEP_ROAM_DISTANCE;
+                    roam_delay = 24;
+                    break;
+                case FIGURE_ZEBRA:
+                    roam_distance = (random_factor % MAX_ZEBRA_ROAM_DISTANCE) >= MAX_ZEBRA_ROAM_DISTANCE / 2 ? (random_factor % MAX_ZEBRA_ROAM_DISTANCE) : MAX_ZEBRA_ROAM_DISTANCE;
+                    roam_delay = 6;
+                    break;
+                default:
+                    return;
+            }
+            m->wait_ticks++;
+            if (m->wait_ticks > roam_delay) {
+                if (set_herd_roaming_destination(m, roam_distance)) {
+                    m->wait_ticks = 0;
+                }
+            }
         }
     }
 }

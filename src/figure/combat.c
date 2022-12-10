@@ -180,52 +180,6 @@ int figure_combat_get_target_for_soldier(int x, int y, int max_distance)
     return 0;
 }
 
-int figure_combat_get_target_for_wolf(int x, int y, int max_distance)
-{
-    int min_figure_id = 0;
-    int min_distance = 10000;
-    for (int i = 1; i < MAX_FIGURES; i++) {
-        figure *f = figure_get(i);
-        if (figure_is_dead(f) || !f->type) {
-            continue;
-        }
-        switch (f->type) {
-            case FIGURE_EXPLOSION:
-            case FIGURE_FORT_STANDARD:
-            case FIGURE_TRADE_SHIP:
-            case FIGURE_FISHING_BOAT:
-            case FIGURE_MAP_FLAG:
-            case FIGURE_FLOTSAM:
-            case FIGURE_SHIPWRECK:
-            case FIGURE_TOWER_SENTRY:
-            case FIGURE_ARROW:
-            case FIGURE_JAVELIN:
-            case FIGURE_BOLT:
-            case FIGURE_BALLISTA:
-            case FIGURE_CREATURE:
-                continue;
-        }
-        if (f->type == FIGURE_WOLF) {
-            continue;
-        }
-        if (figure_is_legion(f) && f->action_state == FIGURE_ACTION_80_SOLDIER_AT_REST) {
-            continue;
-        }
-        int distance = calc_maximum_distance(x, y, f->x, f->y);
-        if (f->targeted_by_figure_id) {
-            distance *= 2;
-        }
-        if (distance < min_distance) {
-            min_distance = distance;
-            min_figure_id = i;
-        }
-    }
-    if (min_distance <= max_distance && min_figure_id) {
-        return min_figure_id;
-    }
-    return 0;
-}
-
 int figure_combat_get_target_for_enemy(int x, int y)
 {
     int min_figure_id = 0;

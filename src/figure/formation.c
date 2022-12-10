@@ -461,16 +461,14 @@ static int add_figure(int formation_id, int figure_id, int deployed, int damage,
     return 0; // shouldn't happen
 }
 
-void formation_move_herds_away(int x, int y)
+void formation_move_herds_away(int from_x, int from_y)
 {
     for (int i = 1; i < MAX_FORMATIONS; i++) {
-        formation *f = &formations[i];
-        if (f->in_use != 1 || f->is_legion || !f->is_herd || f->num_figures <= 0) {
-            continue;
-        }
-        if (calc_maximum_distance(x, y, f->x_home, f->y_home) <= 6) {
-            formations[i].wait_ticks = 50;
-            formations[i].herd_direction = calc_general_direction(x, y, f->x_home, f->y_home);
+        if (formations[i].in_use && (formations[i].figure_type == FIGURE_SHEEP || formations[i].figure_type == FIGURE_ZEBRA) && formations[i].num_figures > 0) {
+            if (calc_maximum_distance(from_x, from_y, formations[i].destination_x, formations[i].destination_y) <= 6) {
+                // force new roaming destination search
+                formations[i].wait_ticks = 50;
+            }
         }
     }
 }
@@ -668,7 +666,6 @@ void formations_save_state(buffer *buf, buffer *totals)
         buffer_write_u8(buf, f->months_very_low_morale);
         buffer_write_u8(buf, f->invasion_id);
         buffer_write_u8(buf, f->herd_wolf_spawn_delay);
-        buffer_write_u8(buf, f->herd_direction);
         buffer_write_i16(buf, f->invasion_sequence);
     }
 }
@@ -737,7 +734,6 @@ void formations_load_state(buffer *buf, buffer *totals)
         f->months_very_low_morale = buffer_read_u8(buf);
         f->invasion_id = buffer_read_u8(buf);
         f->herd_wolf_spawn_delay = buffer_read_u8(buf);
-        f->herd_direction = buffer_read_u8(buf);
         f->invasion_sequence = buffer_read_i16(buf);
     }
 }
