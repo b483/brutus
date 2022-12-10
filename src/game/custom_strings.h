@@ -271,7 +271,8 @@ typedef enum {
     TR_BRIEFING_FIRED_AFTER,
     TR_BRIEFING_SURVIVE_FOR,
     TR_TOO_MANY_FILES,
-    TRANSLATION_MAX_KEY
+    TR_GAME_PAUSED,
+    CUSTOM_STRINGS_MAX_KEY
 } custom_string_key;
 
 typedef struct {

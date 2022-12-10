@@ -11,6 +11,7 @@
 #include "figure/formation.h"
 #include "figure/formation_legion.h"
 #include "game/cheats.h"
+#include "game/custom_strings.h"
 #include "game/file.h"
 #include "game/orientation.h"
 #include "game/settings.h"
@@ -58,7 +59,7 @@ static void draw_paused_banner(void)
     if (game_state_is_paused()) {
         int x_offset = center_in_city(448);
         outer_panel_draw(x_offset, 40, 28, 3);
-        lang_text_draw_centered(13, 2, x_offset, 58, 448, FONT_NORMAL_BLACK);
+        text_draw_centered(get_custom_string(TR_GAME_PAUSED), x_offset, 58, 448, FONT_NORMAL_BLACK, COLOR_BLACK);
     }
 }
 

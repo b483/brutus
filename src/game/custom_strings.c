@@ -11,7 +11,7 @@
 #define BUFFER_SIZE 100000
 
 static struct {
-    uint8_t *strings[TRANSLATION_MAX_KEY];
+    uint8_t *strings[CUSTOM_STRINGS_MAX_KEY];
     uint8_t buffer[BUFFER_SIZE];
     int buf_index;
 } data;
@@ -296,6 +296,7 @@ static custom_string all_strings[] = {
     {TR_BRIEFING_FIRED_AFTER, "Fired after"},
     {TR_BRIEFING_SURVIVE_FOR, "Survive for"},
     {TR_TOO_MANY_FILES, "Too many files. Showing 128."},
+    {TR_GAME_PAUSED, "Game paused"},
 };
 
 static void set_strings(const custom_string *strings, int num_strings)
