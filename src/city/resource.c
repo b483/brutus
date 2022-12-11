@@ -294,7 +294,6 @@ void city_resource_consume_food(void)
 {
     calculate_available_food();
     city_data.resource.food_types_eaten = 0;
-    city_data.unused.unknown_00c0 = 0;
     int total_consumed = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
         building *b = building_get(i);

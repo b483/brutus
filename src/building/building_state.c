@@ -81,7 +81,6 @@ void building_state_save_to_buffer(buffer *buf, const building *b)
 {
     buffer_write_u8(buf, b->state);
     buffer_write_u8(buf, b->faction_id);
-    buffer_write_u8(buf, b->unknown_value);
     buffer_write_u8(buf, b->size);
     buffer_write_u8(buf, b->house_is_merged);
     buffer_write_u8(buf, b->house_size);
@@ -208,7 +207,6 @@ void building_state_load_from_buffer(buffer *buf, building *b)
 {
     b->state = buffer_read_u8(buf);
     b->faction_id = buffer_read_u8(buf);
-    b->unknown_value = buffer_read_u8(buf);
     b->size = buffer_read_u8(buf);
     b->house_is_merged = buffer_read_u8(buf);
     b->house_size = buffer_read_u8(buf);

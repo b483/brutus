@@ -37,10 +37,6 @@ typedef struct {
     int (*image_y_offset)(uint8_t c, int image_height, int line_height);
 } font_definition;
 
-/**
- * Sets the encoding for font drawing functions
- * @param encoding Encoding to use
- */
 void font_set_encoding(void);
 
 /**

@@ -100,7 +100,6 @@ typedef struct {
     int wait_ticks;
     int is_halted;
     int recent_fight;
-    int unknown_fired;
     int missile_fired;
     int missile_attack_timeout;
     int missile_attack_formation_id;

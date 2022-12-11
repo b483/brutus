@@ -17,9 +17,6 @@ typedef struct {
     int8_t blessing_done;
     int8_t small_curse_done;
     int32_t months_since_festival;
-    int8_t unused1;
-    int8_t unused2;
-    int8_t unused3;
 } god_status;
 
 extern struct city_data_t {
@@ -49,7 +46,6 @@ extern struct city_data_t {
         int16_t working_dock_ids[10];
         int32_t mission_post_operational;
         map_point main_native_meeting;
-        int8_t unknown_value;
     } building;
     struct {
         int16_t animals;
@@ -375,50 +371,6 @@ extern struct city_data_t {
         int32_t fired_message_shown;
         int32_t victory_message_shown;
     } mission;
-    struct {
-        int8_t other_player[18068];
-        int8_t unknown_00a0;
-        int8_t unknown_00a1;
-        int8_t unknown_00a2;
-        int8_t unknown_00a3;
-        int8_t unknown_00a4;
-        int8_t unknown_00a6;
-        int8_t unknown_00a7;
-        int32_t unknown_00c0;
-        int32_t unused_27d0;
-        int32_t unknown_27e0[4];
-        int16_t unknown_27f0;
-        int16_t unknown_27f4[18];
-        int16_t unknown_2828;
-        int16_t unused_28ca;
-        int8_t unknown_2924[272];
-        int32_t unknown_2b6c;
-        int32_t unknown_2c20[1400];
-        int32_t houses_requiring_unknown_to_evolve[8];
-        int32_t unknown_4238[4];
-        int32_t unknown_4284;
-        int32_t unknown_4294[2];
-        int32_t unknown_4334;
-        int32_t unknown_4374[2];
-        int16_t unknown_439c[3];
-        int8_t padding_43b2[2];
-        int32_t unknown_43d8[5];
-        int32_t unknown_43f0;
-        int32_t unused_4454;
-        int32_t unknown_446c[4];
-        int32_t unused_4488;
-        int32_t unused_native_force_attack;
-        int32_t unused_44e0[2];
-        int32_t unused_44ec;
-        int32_t unused_44f8;
-        int32_t unused_4524[11];
-        uint8_t unknown_458e;
-        int8_t unused_45a5[6];
-        int8_t unknown_464c[232];
-        int32_t unknown_order;
-        int32_t faction_id;
-        uint8_t faction_bytes[2];
-    } unused;
 } city_data;
 
 #endif // CITY_DATA_PRIVATE_H

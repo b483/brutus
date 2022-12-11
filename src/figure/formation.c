@@ -533,9 +533,7 @@ void formation_calculate_figures(void)
 static void update_direction(int formation_id, int first_figure_direction)
 {
     formation *f = &formations[formation_id];
-    if (f->unknown_fired) {
-        f->unknown_fired--;
-    } else if (f->missile_fired) {
+    if (f->missile_fired) {
         f->direction = first_figure_direction;
     } else if (f->layout == FORMATION_DOUBLE_LINE_1 || f->layout == FORMATION_SINGLE_LINE_1) {
         if (f->y_home < f->prev.y_home) {
@@ -660,7 +658,6 @@ void formations_save_state(buffer *buf, buffer *totals)
         buffer_write_u8(buf, f->direction);
         buffer_write_u8(buf, f->prev.x_home);
         buffer_write_u8(buf, f->prev.y_home);
-        buffer_write_u8(buf, f->unknown_fired);
         buffer_write_u8(buf, f->orientation);
         buffer_write_u8(buf, f->months_from_home);
         buffer_write_u8(buf, f->months_very_low_morale);
@@ -728,7 +725,6 @@ void formations_load_state(buffer *buf, buffer *totals)
         f->direction = buffer_read_u8(buf);
         f->prev.x_home = buffer_read_u8(buf);
         f->prev.y_home = buffer_read_u8(buf);
-        f->unknown_fired = buffer_read_u8(buf);
         f->orientation = buffer_read_u8(buf);
         f->months_from_home = buffer_read_u8(buf);
         f->months_very_low_morale = buffer_read_u8(buf);

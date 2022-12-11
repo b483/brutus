@@ -98,9 +98,7 @@ typedef struct {
     buffer *formations;
     buffer *formation_totals;
     buffer *city_data;
-    buffer *city_faction_unknown;
     buffer *player_name;
-    buffer *city_faction;
     buffer *buildings;
     buffer *city_view_orientation;
     buffer *game_time;
@@ -197,7 +195,7 @@ static void init_scenario_data(void)
     state->elevation = create_scenario_piece(26244);
     state->random_iv = create_scenario_piece(8);
     state->camera = create_scenario_piece(8);
-    state->scenario = create_scenario_piece(51972);
+    state->scenario = create_scenario_piece(51894);
     state->empire_object = create_scenario_piece(20600);
 }
 
@@ -228,27 +226,25 @@ static void init_savegame_data(void)
     state->figures = create_savegame_piece(124000, 1);
     state->route_figures = create_savegame_piece(1200, 1);
     state->route_paths = create_savegame_piece(300000, 1);
-    state->formations = create_savegame_piece(5500, 1);
+    state->formations = create_savegame_piece(5400, 1);
     state->formation_totals = create_savegame_piece(12, 0);
-    state->city_data = create_savegame_piece(36118, 1);
-    state->city_faction_unknown = create_savegame_piece(2, 0);
+    state->city_data = create_savegame_piece(11654, 1);
     state->player_name = create_savegame_piece(24, 0);
-    state->city_faction = create_savegame_piece(4, 0);
-    state->buildings = create_savegame_piece(244000, 1);
+    state->buildings = create_savegame_piece(164000, 1);
     state->city_view_orientation = create_savegame_piece(4, 0);
     state->game_time = create_savegame_piece(20, 0);
     state->building_extra_highest_id_ever = create_savegame_piece(4, 0);
     state->random_iv = create_savegame_piece(8, 0);
     state->city_view_camera = create_savegame_piece(8, 0);
     state->building_count_culture1 = create_savegame_piece(132, 0);
-    state->city_graph_order = create_savegame_piece(8, 0);
+    state->city_graph_order = create_savegame_piece(4, 0);
     state->empire = create_savegame_piece(8, 0);
     state->empire_objects = create_savegame_piece(20600, 1);
     state->building_count_industry = create_savegame_piece(128, 0);
     state->trade_prices = create_savegame_piece(128, 0);
     state->figure_names = create_savegame_piece(84, 0);
     state->culture_coverage = create_savegame_piece(60, 0);
-    state->scenario = create_savegame_piece(51972, 0);
+    state->scenario = create_savegame_piece(51894, 0);
     state->earthquake = create_savegame_piece(52, 0);
     state->messages = create_savegame_piece(14000, 1);
     state->message_extra = create_savegame_piece(12, 0);
@@ -335,8 +331,6 @@ static void savegame_load_from_state(savegame_state *state)
     formations_load_state(state->formations, state->formation_totals);
 
     city_data_load_state(state->city_data,
-                         state->city_faction,
-                         state->city_faction_unknown,
                          state->city_graph_order,
                          state->city_entry_exit_xy,
                          state->city_entry_exit_grid_offset);
@@ -404,8 +398,6 @@ static void savegame_save_to_state(savegame_state *state)
     formations_save_state(state->formations, state->formation_totals);
 
     city_data_save_state(state->city_data,
-                         state->city_faction,
-                         state->city_faction_unknown,
                          state->city_graph_order,
                          state->city_entry_exit_xy,
                          state->city_entry_exit_grid_offset);

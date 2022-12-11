@@ -11,7 +11,6 @@ typedef struct {
 
     unsigned char state;
     unsigned char faction_id;
-    unsigned char unknown_value;
     unsigned char size;
     unsigned char house_is_merged;
     unsigned char house_size;
