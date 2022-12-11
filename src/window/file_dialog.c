@@ -20,6 +20,7 @@
 #include "graphics/scrollbar.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
+#include "sound/effect.h"
 #include "widget/input_box.h"
 #include "window/city.h"
 #include "window/editor/map.h"
@@ -308,7 +309,7 @@ static void button_ok_cancel(int is_ok, __attribute__((unused)) int param2)
             }
         }
     }
-
+    sound_effect_play(SOUND_EFFECT_ICON);
     strncpy(data.file_data->last_loaded_file, filename, FILE_NAME_MAX - 1);
 }
 

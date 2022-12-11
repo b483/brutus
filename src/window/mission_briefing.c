@@ -87,7 +87,7 @@ static void draw_background(void)
 static void handle_input(const mouse *m, const hotkeys *h)
 {
     rich_text_handle_mouse(mouse_in_dialog(m));
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up || h->escape_pressed || h->enter_pressed) {
         rich_text_reset(0);
         sound_speech_stop();
         sound_music_update(1);
