@@ -117,7 +117,6 @@ static void prepare_map_for_editing(int map_is_new)
     figure_create_flotsam();
 
     map_tiles_update_all_elevation();
-    map_tiles_update_all_water();
     map_tiles_update_all_earthquake();
     map_tiles_update_all_rocks();
     map_tiles_update_all_empty_land();

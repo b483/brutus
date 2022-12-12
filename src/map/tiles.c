@@ -893,8 +893,6 @@ static void set_water_image(int x, int y, int grid_offset)
             }
         }
         map_image_set(grid_offset, image_id);
-        map_property_set_multi_tile_size(grid_offset, 1);
-        map_property_mark_draw_tile(grid_offset);
     }
 }
 
