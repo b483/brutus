@@ -56,7 +56,7 @@ void city_finance_process_export(int price)
 
 void city_finance_process_cheat(void)
 {
-    if (city_data.finance.treasury < 5000) {
+    if (city_data.finance.treasury < 50000) {
         city_data.finance.treasury += 1000;
         city_data.finance.cheated_money += 1000;
     }

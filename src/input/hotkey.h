@@ -22,7 +22,10 @@ typedef struct {
     int show_last_advisor;
     int show_empire_map;
     int show_messages;
+    int go_to_problem;
     int clone_building;
+    int cycle_buildings;
+    int cycle_buildings_reverse;
     int building;
     int show_overlay;
     int go_to_bookmark;

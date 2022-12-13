@@ -34,29 +34,79 @@ static const char *ini_keys[] = {
     "show_last_advisor",
     "show_empire_map",
     "show_messages",
+    "go_to_problem",
     "clone_building",
+    "cycle_buildings",
+    "cycle_buildings_reverse",
     "build_vacant_house",
     "build_clear_land",
     "build_road",
+    "build_reservoir",
+    "build_aqueduct",
     "build_fountain",
+    "build_well",
     "build_barber",
     "build_bathhouse",
     "build_doctor",
+    "build_hospital",
     "build_small_temples",
+    "build_large_temples",
+    "build_oracle",
     "build_school",
+    "build_academy",
     "build_library",
+    "build_mission_post",
     "build_theater",
     "build_amphitheater",
+    "build_colosseum",
+    "build_hippodrome",
     "build_gladiator_school",
+    "build_lion_house",
     "build_actor_colony",
+    "build_chariot_maker",
     "build_forum",
+    "build_senate",
+    "build_governor's house",
+    "build_governor's villa",
+    "build_governor's palace",
     "build_small_statue",
     "build_medium_statue",
+    "build_large_statue",
     "build_gardens",
     "build_plaza",
     "build_engineers_post",
+    "build_low_bridge",
+    "build_ship_bridge",
+    "build_shipyard",
+    "build_dock",
+    "build_wharf",
+    "build_wall",
+    "build_tower",
+    "build_gatehouse",
     "build_prefecture",
+    "build_fort_legionaries",
+    "build_fort_javelin",
+    "build_fort_mounted",
+    "build_military_academy",
+    "build_barracks",
+    "build_wheat_farm",
+    "build_vegetable_farm",
+    "build_fruit_farm",
+    "build_olive_farm",
+    "build_vines_farm",
+    "build_pig_farm",
+    "build_clay_pit",
+    "build_marble_quarry",
+    "build_iron_mine",
+    "build_timber_yard",
+    "build_wine_workshop",
+    "build_oil_workshop",
+    "build_weapons_workshop",
+    "build_furniture_workshop",
+    "build_pottery_workshop",
     "build_market",
+    "build_granary",
+    "build_granary",
     "show_overlay_water",
     "show_overlay_fire",
     "show_overlay_damage",
@@ -116,49 +166,56 @@ static void init_defaults(void)
     set_mapping(KEY_TYPE_L, KEY_MOD_CTRL, HOTKEY_LOAD_FILE);
     set_mapping(KEY_TYPE_S, KEY_MOD_CTRL, HOTKEY_SAVE_FILE);
     // City hotkeys
-    set_mapping(KEY_TYPE_D, KEY_MOD_NONE, HOTKEY_DECREASE_GAME_SPEED);
-    set_mapping(KEY_TYPE_F, KEY_MOD_NONE, HOTKEY_INCREASE_GAME_SPEED);
+    set_mapping(KEY_TYPE_1, KEY_MOD_ALT, HOTKEY_DECREASE_GAME_SPEED);
+    set_mapping(KEY_TYPE_2, KEY_MOD_ALT, HOTKEY_INCREASE_GAME_SPEED);
     set_mapping(KEY_TYPE_KP_MINUS, KEY_MOD_NONE, HOTKEY_DECREASE_GAME_SPEED);
     set_mapping(KEY_TYPE_KP_PLUS, KEY_MOD_NONE, HOTKEY_INCREASE_GAME_SPEED);
-    set_mapping(KEY_TYPE_SPACE, KEY_MOD_NONE, HOTKEY_TOGGLE_PAUSE);
+    set_mapping(KEY_TYPE_CAPSLOCK, KEY_MOD_NONE, HOTKEY_TOGGLE_PAUSE);
     set_mapping(KEY_TYPE_HOME, KEY_MOD_NONE, HOTKEY_ROTATE_MAP_LEFT);
     set_mapping(KEY_TYPE_END, KEY_MOD_NONE, HOTKEY_ROTATE_MAP_RIGHT);
     set_mapping(KEY_TYPE_R, KEY_MOD_CTRL, HOTKEY_REPLAY_MAP);
-    set_mapping(KEY_TYPE_TAB, KEY_MOD_NONE, HOTKEY_CYCLE_LEGION);
+    set_mapping(KEY_TYPE_SPACE, KEY_MOD_NONE, HOTKEY_CYCLE_LEGION);
     set_mapping(KEY_TYPE_B, KEY_MOD_NONE, HOTKEY_RETURN_LEGIONS_TO_FORT);
-    set_mapping(KEY_TYPE_D, KEY_MOD_ALT, HOTKEY_SHOW_LAST_ADVISOR);
-    set_mapping(KEY_TYPE_F, KEY_MOD_ALT, HOTKEY_SHOW_EMPIRE_MAP);
+    set_mapping(KEY_TYPE_1, KEY_MOD_NONE, HOTKEY_SHOW_LAST_ADVISOR);
+    set_mapping(KEY_TYPE_2, KEY_MOD_NONE, HOTKEY_SHOW_EMPIRE_MAP);
     set_mapping(KEY_TYPE_GRAVE, KEY_MOD_NONE, HOTKEY_SHOW_MESSAGES);
+    set_mapping(KEY_TYPE_GRAVE, KEY_MOD_ALT, HOTKEY_GO_TO_PROBLEM);
     // Construction hotkeys
-    set_mapping(KEY_TYPE_G, KEY_MOD_NONE, HOTKEY_BUILD_CLONE);
+    set_mapping(KEY_TYPE_Q, KEY_MOD_ALT, HOTKEY_BUILD_CLONE);
+    set_mapping(KEY_TYPE_TAB, KEY_MOD_NONE, HOTKEY_CYCLE_BUILDINGS);
+    set_mapping(KEY_TYPE_TAB, KEY_MOD_SHIFT, HOTKEY_CYCLE_BUILDINGS_REVERSE);
     set_mapping(KEY_TYPE_Q, KEY_MOD_NONE, HOTKEY_BUILD_VACANT_HOUSE);
     set_mapping(KEY_TYPE_W, KEY_MOD_NONE, HOTKEY_BUILD_CLEAR_LAND);
     set_mapping(KEY_TYPE_E, KEY_MOD_NONE, HOTKEY_BUILD_ROAD);
-    set_mapping(KEY_TYPE_R, KEY_MOD_NONE, HOTKEY_BUILD_FOUNTAIN);
-    set_mapping(KEY_TYPE_T, KEY_MOD_NONE, HOTKEY_BUILD_BARBER);
-    set_mapping(KEY_TYPE_A, KEY_MOD_NONE, HOTKEY_BUILD_BATHHOUSE);
-    set_mapping(KEY_TYPE_S, KEY_MOD_NONE, HOTKEY_BUILD_DOCTOR);
-    set_mapping(KEY_TYPE_Z, KEY_MOD_NONE, HOTKEY_BUILD_SMALL_TEMPLES);
-    set_mapping(KEY_TYPE_X, KEY_MOD_NONE, HOTKEY_BUILD_SCHOOL);
-    set_mapping(KEY_TYPE_C, KEY_MOD_NONE, HOTKEY_BUILD_LIBRARY);
-    set_mapping(KEY_TYPE_V, KEY_MOD_NONE, HOTKEY_BUILD_THEATER);
-    set_mapping(KEY_TYPE_Q, KEY_MOD_ALT, HOTKEY_BUILD_AMPHITHEATER);
-    set_mapping(KEY_TYPE_W, KEY_MOD_ALT, HOTKEY_BUILD_GLADIATOR_SCHOOL);
-    set_mapping(KEY_TYPE_E, KEY_MOD_ALT, HOTKEY_BUILD_ACTOR_COLONY);
-    set_mapping(KEY_TYPE_R, KEY_MOD_ALT, HOTKEY_BUILD_FORUM);
-    set_mapping(KEY_TYPE_T, KEY_MOD_ALT, HOTKEY_BUILD_SMALL_STATUE);
-    set_mapping(KEY_TYPE_A, KEY_MOD_ALT, HOTKEY_BUILD_MEDIUM_STATUE);
-    set_mapping(KEY_TYPE_S, KEY_MOD_ALT, HOTKEY_BUILD_GARDENS);
-    set_mapping(KEY_TYPE_Z, KEY_MOD_ALT, HOTKEY_BUILD_PLAZA);
-    set_mapping(KEY_TYPE_X, KEY_MOD_ALT, HOTKEY_BUILD_ENGINEERS_POST);
-    set_mapping(KEY_TYPE_C, KEY_MOD_ALT, HOTKEY_BUILD_PREFECTURE);
-    set_mapping(KEY_TYPE_V, KEY_MOD_ALT, HOTKEY_BUILD_MARKET);
+    set_mapping(KEY_TYPE_R, KEY_MOD_NONE, HOTKEY_BUILD_RESERVOIR);
+    set_mapping(KEY_TYPE_R, KEY_MOD_ALT, HOTKEY_BUILD_FOUNTAIN);
+    set_mapping(KEY_TYPE_G, KEY_MOD_ALT, HOTKEY_BUILD_BARBER);
+    set_mapping(KEY_TYPE_F, KEY_MOD_NONE, HOTKEY_BUILD_BATHHOUSE);
+    set_mapping(KEY_TYPE_S, KEY_MOD_ALT, HOTKEY_BUILD_DOCTOR);
+    set_mapping(KEY_TYPE_S, KEY_MOD_NONE, HOTKEY_BUILD_SMALL_TEMPLES);
+    set_mapping(KEY_TYPE_D, KEY_MOD_ALT, HOTKEY_BUILD_SCHOOL);
+    set_mapping(KEY_TYPE_G, KEY_MOD_NONE, HOTKEY_BUILD_LIBRARY);
+    set_mapping(KEY_TYPE_D, KEY_MOD_NONE, HOTKEY_BUILD_THEATER);
+    set_mapping(KEY_TYPE_F, KEY_MOD_ALT, HOTKEY_BUILD_AMPHITHEATER);
+    set_mapping(KEY_TYPE_Z, KEY_MOD_NONE, HOTKEY_BUILD_COLOSSEUM);
+    set_mapping(KEY_TYPE_Z, KEY_MOD_ALT, HOTKEY_BUILD_LION_HOUSE);
+    set_mapping(KEY_TYPE_T, KEY_MOD_NONE, HOTKEY_BUILD_FORUM);
+    set_mapping(KEY_TYPE_W, KEY_MOD_ALT, HOTKEY_BUILD_GARDENS);
+    set_mapping(KEY_TYPE_E, KEY_MOD_ALT, HOTKEY_BUILD_PLAZA);
+    set_mapping(KEY_TYPE_A, KEY_MOD_NONE, HOTKEY_BUILD_ENGINEERS_POST);
+    set_mapping(KEY_TYPE_A, KEY_MOD_ALT, HOTKEY_BUILD_PREFECTURE);
+    set_mapping(KEY_TYPE_X, KEY_MOD_ALT, HOTKEY_BUILD_WHEAT_FARM);
+    set_mapping(KEY_TYPE_C, KEY_MOD_NONE, HOTKEY_BUILD_CLAY_PIT);
+    set_mapping(KEY_TYPE_C, KEY_MOD_ALT, HOTKEY_BUILD_WINE_WORKSHOP);
+    set_mapping(KEY_TYPE_X, KEY_MOD_NONE, HOTKEY_BUILD_MARKET);
+    set_mapping(KEY_TYPE_V, KEY_MOD_NONE, HOTKEY_BUILD_GRANARY);
+    set_mapping(KEY_TYPE_V, KEY_MOD_ALT, HOTKEY_BUILD_WAREHOUSE);
     // Overlays
-    set_mapping(KEY_TYPE_1, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_WATER);
-    set_mapping(KEY_TYPE_2, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_FIRE);
-    set_mapping(KEY_TYPE_3, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_DAMAGE);
-    set_mapping(KEY_TYPE_4, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_CRIME);
-    set_mapping(KEY_TYPE_5, KEY_MOD_NONE, HOTKEY_SHOW_OVERLAY_PROBLEMS);
+    set_mapping(KEY_TYPE_W, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_WATER);
+    set_mapping(KEY_TYPE_F, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_FIRE);
+    set_mapping(KEY_TYPE_D, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_DAMAGE);
+    set_mapping(KEY_TYPE_C, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_CRIME);
+    set_mapping(KEY_TYPE_R, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_PROBLEMS);
     // City map bookmarks
     set_mapping(KEY_TYPE_F1, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_1);
     set_mapping(KEY_TYPE_F2, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_2);

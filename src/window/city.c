@@ -196,6 +196,939 @@ void replay_map(void)
     window_popup_dialog_show_confirmation(1, 2, replay_map_confirmed);
 }
 
+static void cycle_buildings(int reverse)
+{
+    int building_cycling_index = building_construction_type();
+
+    // TODO: simplify switches to -- ++ after fixing enum
+
+    // prevent game from hanging in corner case where all buildings are disabled
+    int retried = 0;
+
+    if (reverse) {
+    reverse_label:
+        switch (building_cycling_index) {
+            case BUILDING_DRAGGABLE_RESERVOIR:
+                if (scenario_building_allowed(BUILDING_WAREHOUSE)) {
+                    building_cycling_index = BUILDING_WAREHOUSE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_AQUEDUCT:
+                if (scenario_building_allowed(BUILDING_DRAGGABLE_RESERVOIR)) {
+                    building_cycling_index = BUILDING_DRAGGABLE_RESERVOIR;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_FOUNTAIN:
+                if (scenario_building_allowed(BUILDING_AQUEDUCT)) {
+                    building_cycling_index = BUILDING_AQUEDUCT;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_WELL:
+                if (scenario_building_allowed(BUILDING_FOUNTAIN)) {
+                    building_cycling_index = BUILDING_FOUNTAIN;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_BARBER:
+                if (scenario_building_allowed(BUILDING_WELL)) {
+                    building_cycling_index = BUILDING_WELL;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_BATHHOUSE:
+                if (scenario_building_allowed(BUILDING_BARBER)) {
+                    building_cycling_index = BUILDING_BARBER;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_DOCTOR:
+                if (scenario_building_allowed(BUILDING_BATHHOUSE)) {
+                    building_cycling_index = BUILDING_BATHHOUSE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_HOSPITAL:
+                if (scenario_building_allowed(BUILDING_DOCTOR)) {
+                    building_cycling_index = BUILDING_DOCTOR;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SMALL_TEMPLE_CERES:
+                if (scenario_building_allowed(BUILDING_HOSPITAL)) {
+                    building_cycling_index = BUILDING_HOSPITAL;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SMALL_TEMPLE_NEPTUNE:
+                if (scenario_building_allowed(BUILDING_SMALL_TEMPLE_CERES)) {
+                    building_cycling_index = BUILDING_SMALL_TEMPLE_CERES;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SMALL_TEMPLE_MERCURY:
+                if (scenario_building_allowed(BUILDING_SMALL_TEMPLE_NEPTUNE)) {
+                    building_cycling_index = BUILDING_SMALL_TEMPLE_NEPTUNE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SMALL_TEMPLE_MARS:
+                if (scenario_building_allowed(BUILDING_SMALL_TEMPLE_MERCURY)) {
+                    building_cycling_index = BUILDING_SMALL_TEMPLE_MERCURY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SMALL_TEMPLE_VENUS:
+                if (scenario_building_allowed(BUILDING_SMALL_TEMPLE_MARS)) {
+                    building_cycling_index = BUILDING_SMALL_TEMPLE_MARS;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LARGE_TEMPLE_CERES:
+                if (scenario_building_allowed(BUILDING_SMALL_TEMPLE_VENUS)) {
+                    building_cycling_index = BUILDING_SMALL_TEMPLE_VENUS;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LARGE_TEMPLE_NEPTUNE:
+                if (scenario_building_allowed(BUILDING_LARGE_TEMPLE_CERES)) {
+                    building_cycling_index = BUILDING_LARGE_TEMPLE_CERES;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LARGE_TEMPLE_MERCURY:
+                if (scenario_building_allowed(BUILDING_LARGE_TEMPLE_NEPTUNE)) {
+                    building_cycling_index = BUILDING_LARGE_TEMPLE_NEPTUNE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LARGE_TEMPLE_MARS:
+                if (scenario_building_allowed(BUILDING_LARGE_TEMPLE_MERCURY)) {
+                    building_cycling_index = BUILDING_LARGE_TEMPLE_MERCURY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LARGE_TEMPLE_VENUS:
+                if (scenario_building_allowed(BUILDING_LARGE_TEMPLE_MARS)) {
+                    building_cycling_index = BUILDING_LARGE_TEMPLE_MARS;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_ORACLE:
+                if (scenario_building_allowed(BUILDING_LARGE_TEMPLE_VENUS)) {
+                    building_cycling_index = BUILDING_LARGE_TEMPLE_VENUS;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SCHOOL:
+                if (scenario_building_allowed(BUILDING_ORACLE)) {
+                    building_cycling_index = BUILDING_ORACLE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_ACADEMY:
+                if (scenario_building_allowed(BUILDING_SCHOOL)) {
+                    building_cycling_index = BUILDING_SCHOOL;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LIBRARY:
+                if (scenario_building_allowed(BUILDING_ACADEMY)) {
+                    building_cycling_index = BUILDING_ACADEMY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_MISSION_POST:
+                if (scenario_building_allowed(BUILDING_LIBRARY)) {
+                    building_cycling_index = BUILDING_LIBRARY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_THEATER:
+                if (scenario_building_allowed(BUILDING_MISSION_POST)) {
+                    building_cycling_index = BUILDING_MISSION_POST;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_AMPHITHEATER:
+                if (scenario_building_allowed(BUILDING_THEATER)) {
+                    building_cycling_index = BUILDING_THEATER;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_COLOSSEUM:
+                if (scenario_building_allowed(BUILDING_AMPHITHEATER)) {
+                    building_cycling_index = BUILDING_AMPHITHEATER;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_HIPPODROME:
+                if (scenario_building_allowed(BUILDING_COLOSSEUM)) {
+                    building_cycling_index = BUILDING_COLOSSEUM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_GLADIATOR_SCHOOL:
+                if (scenario_building_allowed(BUILDING_HIPPODROME)) {
+                    building_cycling_index = BUILDING_HIPPODROME;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LION_HOUSE:
+                if (scenario_building_allowed(BUILDING_GLADIATOR_SCHOOL)) {
+                    building_cycling_index = BUILDING_GLADIATOR_SCHOOL;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_ACTOR_COLONY:
+                if (scenario_building_allowed(BUILDING_LION_HOUSE)) {
+                    building_cycling_index = BUILDING_LION_HOUSE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_CHARIOT_MAKER:
+                if (scenario_building_allowed(BUILDING_ACTOR_COLONY)) {
+                    building_cycling_index = BUILDING_ACTOR_COLONY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_FORUM:
+                if (scenario_building_allowed(BUILDING_CHARIOT_MAKER)) {
+                    building_cycling_index = BUILDING_CHARIOT_MAKER;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SENATE_UPGRADED:
+                if (scenario_building_allowed(BUILDING_FORUM)) {
+                    building_cycling_index = BUILDING_FORUM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_GOVERNORS_HOUSE:
+                if (scenario_building_allowed(BUILDING_SENATE_UPGRADED)) {
+                    building_cycling_index = BUILDING_SENATE_UPGRADED;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_GOVERNORS_VILLA:
+                if (scenario_building_allowed(BUILDING_GOVERNORS_HOUSE)) {
+                    building_cycling_index = BUILDING_GOVERNORS_HOUSE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_GOVERNORS_PALACE:
+                if (scenario_building_allowed(BUILDING_GOVERNORS_VILLA)) {
+                    building_cycling_index = BUILDING_GOVERNORS_VILLA;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SMALL_STATUE:
+                if (scenario_building_allowed(BUILDING_GOVERNORS_PALACE)) {
+                    building_cycling_index = BUILDING_GOVERNORS_PALACE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_MEDIUM_STATUE:
+                if (scenario_building_allowed(BUILDING_SMALL_STATUE)) {
+                    building_cycling_index = BUILDING_SMALL_STATUE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LARGE_STATUE:
+                if (scenario_building_allowed(BUILDING_MEDIUM_STATUE)) {
+                    building_cycling_index = BUILDING_MEDIUM_STATUE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_GARDENS:
+                if (scenario_building_allowed(BUILDING_LARGE_STATUE)) {
+                    building_cycling_index = BUILDING_LARGE_STATUE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_PLAZA:
+                if (scenario_building_allowed(BUILDING_GARDENS)) {
+                    building_cycling_index = BUILDING_GARDENS;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_ENGINEERS_POST:
+                if (scenario_building_allowed(BUILDING_PLAZA)) {
+                    building_cycling_index = BUILDING_PLAZA;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LOW_BRIDGE:
+                if (scenario_building_allowed(BUILDING_ENGINEERS_POST)) {
+                    building_cycling_index = BUILDING_ENGINEERS_POST;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SHIP_BRIDGE:
+                if (scenario_building_allowed(BUILDING_LOW_BRIDGE)) {
+                    building_cycling_index = BUILDING_LOW_BRIDGE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SHIPYARD:
+                if (scenario_building_allowed(BUILDING_SHIP_BRIDGE)) {
+                    building_cycling_index = BUILDING_SHIP_BRIDGE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_DOCK:
+                if (scenario_building_allowed(BUILDING_SHIPYARD)) {
+                    building_cycling_index = BUILDING_SHIPYARD;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_WHARF:
+                if (scenario_building_allowed(BUILDING_DOCK)) {
+                    building_cycling_index = BUILDING_DOCK;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_WALL:
+                if (scenario_building_allowed(BUILDING_WHARF)) {
+                    building_cycling_index = BUILDING_WHARF;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_TOWER:
+                if (scenario_building_allowed(BUILDING_WALL)) {
+                    building_cycling_index = BUILDING_WALL;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_GATEHOUSE:
+                if (scenario_building_allowed(BUILDING_TOWER)) {
+                    building_cycling_index = BUILDING_TOWER;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_PREFECTURE:
+                if (scenario_building_allowed(BUILDING_GATEHOUSE)) {
+                    building_cycling_index = BUILDING_GATEHOUSE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_FORT_LEGIONARIES:
+                if (scenario_building_allowed(BUILDING_PREFECTURE)) {
+                    building_cycling_index = BUILDING_PREFECTURE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_FORT_JAVELIN:
+                if (scenario_building_allowed(BUILDING_FORT_LEGIONARIES)) {
+                    building_cycling_index = BUILDING_FORT_LEGIONARIES;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_FORT_MOUNTED:
+                if (scenario_building_allowed(BUILDING_FORT_JAVELIN)) {
+                    building_cycling_index = BUILDING_FORT_JAVELIN;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_MILITARY_ACADEMY:
+                if (scenario_building_allowed(BUILDING_FORT_MOUNTED)) {
+                    building_cycling_index = BUILDING_FORT_MOUNTED;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_BARRACKS:
+                if (scenario_building_allowed(BUILDING_MILITARY_ACADEMY)) {
+                    building_cycling_index = BUILDING_MILITARY_ACADEMY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_WHEAT_FARM:
+                if (scenario_building_allowed(BUILDING_BARRACKS)) {
+                    building_cycling_index = BUILDING_BARRACKS;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_VEGETABLE_FARM:
+                if (scenario_building_allowed(BUILDING_WHEAT_FARM)) {
+                    building_cycling_index = BUILDING_WHEAT_FARM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_FRUIT_FARM:
+                if (scenario_building_allowed(BUILDING_VEGETABLE_FARM)) {
+                    building_cycling_index = BUILDING_VEGETABLE_FARM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_OLIVE_FARM:
+                if (scenario_building_allowed(BUILDING_FRUIT_FARM)) {
+                    building_cycling_index = BUILDING_FRUIT_FARM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_VINES_FARM:
+                if (scenario_building_allowed(BUILDING_OLIVE_FARM)) {
+                    building_cycling_index = BUILDING_OLIVE_FARM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_PIG_FARM:
+                if (scenario_building_allowed(BUILDING_VINES_FARM)) {
+                    building_cycling_index = BUILDING_VINES_FARM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_CLAY_PIT:
+                if (scenario_building_allowed(BUILDING_PIG_FARM)) {
+                    building_cycling_index = BUILDING_PIG_FARM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_MARBLE_QUARRY:
+                if (scenario_building_allowed(BUILDING_CLAY_PIT)) {
+                    building_cycling_index = BUILDING_CLAY_PIT;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_IRON_MINE:
+                if (scenario_building_allowed(BUILDING_MARBLE_QUARRY)) {
+                    building_cycling_index = BUILDING_MARBLE_QUARRY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_TIMBER_YARD:
+                if (scenario_building_allowed(BUILDING_IRON_MINE)) {
+                    building_cycling_index = BUILDING_IRON_MINE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_WINE_WORKSHOP:
+                if (scenario_building_allowed(BUILDING_TIMBER_YARD)) {
+                    building_cycling_index = BUILDING_TIMBER_YARD;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_OIL_WORKSHOP:
+                if (scenario_building_allowed(BUILDING_WINE_WORKSHOP)) {
+                    building_cycling_index = BUILDING_WINE_WORKSHOP;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_WEAPONS_WORKSHOP:
+                if (scenario_building_allowed(BUILDING_OIL_WORKSHOP)) {
+                    building_cycling_index = BUILDING_OIL_WORKSHOP;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_FURNITURE_WORKSHOP:
+                if (scenario_building_allowed(BUILDING_WEAPONS_WORKSHOP)) {
+                    building_cycling_index = BUILDING_WEAPONS_WORKSHOP;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_POTTERY_WORKSHOP:
+                if (scenario_building_allowed(BUILDING_FURNITURE_WORKSHOP)) {
+                    building_cycling_index = BUILDING_FURNITURE_WORKSHOP;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_MARKET:
+                if (scenario_building_allowed(BUILDING_POTTERY_WORKSHOP)) {
+                    building_cycling_index = BUILDING_POTTERY_WORKSHOP;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_GRANARY:
+                if (scenario_building_allowed(BUILDING_MARKET)) {
+                    building_cycling_index = BUILDING_MARKET;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_WAREHOUSE:
+                if (scenario_building_allowed(BUILDING_GRANARY)) {
+                    building_cycling_index = BUILDING_GRANARY;
+                    break;
+                }
+                /* fall through */
+            default:
+                if (scenario_building_allowed(BUILDING_WAREHOUSE)) {
+                    building_cycling_index = BUILDING_WAREHOUSE;
+                    break;
+                } else {
+                    if (retried) {
+                        return;
+                    } else {
+                        retried = 1;
+                        goto reverse_label;
+                    }
+                }
+        }
+    } else {
+        switch (building_cycling_index) {
+        obverse_label:
+            case BUILDING_DRAGGABLE_RESERVOIR:
+                if (scenario_building_allowed(BUILDING_AQUEDUCT)) {
+                    building_cycling_index = BUILDING_AQUEDUCT;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_AQUEDUCT:
+                if (scenario_building_allowed(BUILDING_FOUNTAIN)) {
+                    building_cycling_index = BUILDING_FOUNTAIN;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_FOUNTAIN:
+                if (scenario_building_allowed(BUILDING_WELL)) {
+                    building_cycling_index = BUILDING_WELL;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_WELL:
+                if (scenario_building_allowed(BUILDING_BARBER)) {
+                    building_cycling_index = BUILDING_BARBER;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_BARBER:
+                if (scenario_building_allowed(BUILDING_BATHHOUSE)) {
+                    building_cycling_index = BUILDING_BATHHOUSE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_BATHHOUSE:
+                if (scenario_building_allowed(BUILDING_DOCTOR)) {
+                    building_cycling_index = BUILDING_DOCTOR;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_DOCTOR:
+                if (scenario_building_allowed(BUILDING_HOSPITAL)) {
+                    building_cycling_index = BUILDING_HOSPITAL;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_HOSPITAL:
+                if (scenario_building_allowed(BUILDING_SMALL_TEMPLE_CERES)) {
+                    building_cycling_index = BUILDING_SMALL_TEMPLE_CERES;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SMALL_TEMPLE_CERES:
+                if (scenario_building_allowed(BUILDING_SMALL_TEMPLE_NEPTUNE)) {
+                    building_cycling_index = BUILDING_SMALL_TEMPLE_NEPTUNE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SMALL_TEMPLE_NEPTUNE:
+                if (scenario_building_allowed(BUILDING_SMALL_TEMPLE_MERCURY)) {
+                    building_cycling_index = BUILDING_SMALL_TEMPLE_MERCURY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SMALL_TEMPLE_MERCURY:
+                if (scenario_building_allowed(BUILDING_SMALL_TEMPLE_MARS)) {
+                    building_cycling_index = BUILDING_SMALL_TEMPLE_MARS;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SMALL_TEMPLE_MARS:
+                if (scenario_building_allowed(BUILDING_SMALL_TEMPLE_VENUS)) {
+                    building_cycling_index = BUILDING_SMALL_TEMPLE_VENUS;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SMALL_TEMPLE_VENUS:
+                if (scenario_building_allowed(BUILDING_LARGE_TEMPLE_CERES)) {
+                    building_cycling_index = BUILDING_LARGE_TEMPLE_CERES;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LARGE_TEMPLE_CERES:
+                if (scenario_building_allowed(BUILDING_LARGE_TEMPLE_NEPTUNE)) {
+                    building_cycling_index = BUILDING_LARGE_TEMPLE_NEPTUNE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LARGE_TEMPLE_NEPTUNE:
+                if (scenario_building_allowed(BUILDING_LARGE_TEMPLE_MERCURY)) {
+                    building_cycling_index = BUILDING_LARGE_TEMPLE_MERCURY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LARGE_TEMPLE_MERCURY:
+                if (scenario_building_allowed(BUILDING_LARGE_TEMPLE_MARS)) {
+                    building_cycling_index = BUILDING_LARGE_TEMPLE_MARS;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LARGE_TEMPLE_MARS:
+                if (scenario_building_allowed(BUILDING_LARGE_TEMPLE_VENUS)) {
+                    building_cycling_index = BUILDING_LARGE_TEMPLE_VENUS;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LARGE_TEMPLE_VENUS:
+                if (scenario_building_allowed(BUILDING_ORACLE)) {
+                    building_cycling_index = BUILDING_ORACLE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_ORACLE:
+                if (scenario_building_allowed(BUILDING_SCHOOL)) {
+                    building_cycling_index = BUILDING_SCHOOL;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SCHOOL:
+                if (scenario_building_allowed(BUILDING_ACADEMY)) {
+                    building_cycling_index = BUILDING_ACADEMY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_ACADEMY:
+                if (scenario_building_allowed(BUILDING_LIBRARY)) {
+                    building_cycling_index = BUILDING_LIBRARY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LIBRARY:
+                if (scenario_building_allowed(BUILDING_MISSION_POST)) {
+                    building_cycling_index = BUILDING_MISSION_POST;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_MISSION_POST:
+                if (scenario_building_allowed(BUILDING_THEATER)) {
+                    building_cycling_index = BUILDING_THEATER;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_THEATER:
+                if (scenario_building_allowed(BUILDING_AMPHITHEATER)) {
+                    building_cycling_index = BUILDING_AMPHITHEATER;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_AMPHITHEATER:
+                if (scenario_building_allowed(BUILDING_COLOSSEUM)) {
+                    building_cycling_index = BUILDING_COLOSSEUM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_COLOSSEUM:
+                if (scenario_building_allowed(BUILDING_HIPPODROME)) {
+                    building_cycling_index = BUILDING_HIPPODROME;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_HIPPODROME:
+                if (scenario_building_allowed(BUILDING_GLADIATOR_SCHOOL)) {
+                    building_cycling_index = BUILDING_GLADIATOR_SCHOOL;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_GLADIATOR_SCHOOL:
+                if (scenario_building_allowed(BUILDING_LION_HOUSE)) {
+                    building_cycling_index = BUILDING_LION_HOUSE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LION_HOUSE:
+                if (scenario_building_allowed(BUILDING_ACTOR_COLONY)) {
+                    building_cycling_index = BUILDING_ACTOR_COLONY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_ACTOR_COLONY:
+                if (scenario_building_allowed(BUILDING_CHARIOT_MAKER)) {
+                    building_cycling_index = BUILDING_CHARIOT_MAKER;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_CHARIOT_MAKER:
+                if (scenario_building_allowed(BUILDING_FORUM)) {
+                    building_cycling_index = BUILDING_FORUM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_FORUM:
+                if (scenario_building_allowed(BUILDING_SENATE_UPGRADED)) {
+                    building_cycling_index = BUILDING_SENATE_UPGRADED;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SENATE_UPGRADED:
+                if (scenario_building_allowed(BUILDING_GOVERNORS_HOUSE)) {
+                    building_cycling_index = BUILDING_GOVERNORS_HOUSE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_GOVERNORS_HOUSE:
+                if (scenario_building_allowed(BUILDING_GOVERNORS_VILLA)) {
+                    building_cycling_index = BUILDING_GOVERNORS_VILLA;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_GOVERNORS_VILLA:
+                if (scenario_building_allowed(BUILDING_GOVERNORS_PALACE)) {
+                    building_cycling_index = BUILDING_GOVERNORS_PALACE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_GOVERNORS_PALACE:
+                if (scenario_building_allowed(BUILDING_SMALL_STATUE)) {
+                    building_cycling_index = BUILDING_SMALL_STATUE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SMALL_STATUE:
+                if (scenario_building_allowed(BUILDING_MEDIUM_STATUE)) {
+                    building_cycling_index = BUILDING_MEDIUM_STATUE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_MEDIUM_STATUE:
+                if (scenario_building_allowed(BUILDING_LARGE_STATUE)) {
+                    building_cycling_index = BUILDING_LARGE_STATUE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LARGE_STATUE:
+                if (scenario_building_allowed(BUILDING_GARDENS)) {
+                    building_cycling_index = BUILDING_GARDENS;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_GARDENS:
+                if (scenario_building_allowed(BUILDING_PLAZA)) {
+                    building_cycling_index = BUILDING_PLAZA;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_PLAZA:
+                if (scenario_building_allowed(BUILDING_ENGINEERS_POST)) {
+                    building_cycling_index = BUILDING_ENGINEERS_POST;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_ENGINEERS_POST:
+                if (scenario_building_allowed(BUILDING_LOW_BRIDGE)) {
+                    building_cycling_index = BUILDING_LOW_BRIDGE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_LOW_BRIDGE:
+                if (scenario_building_allowed(BUILDING_SHIP_BRIDGE)) {
+                    building_cycling_index = BUILDING_SHIP_BRIDGE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SHIP_BRIDGE:
+                if (scenario_building_allowed(BUILDING_SHIPYARD)) {
+                    building_cycling_index = BUILDING_SHIPYARD;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_SHIPYARD:
+                if (scenario_building_allowed(BUILDING_DOCK)) {
+                    building_cycling_index = BUILDING_DOCK;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_DOCK:
+                if (scenario_building_allowed(BUILDING_WHARF)) {
+                    building_cycling_index = BUILDING_WHARF;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_WHARF:
+                if (scenario_building_allowed(BUILDING_WALL)) {
+                    building_cycling_index = BUILDING_WALL;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_WALL:
+                if (scenario_building_allowed(BUILDING_TOWER)) {
+                    building_cycling_index = BUILDING_TOWER;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_TOWER:
+                if (scenario_building_allowed(BUILDING_GATEHOUSE)) {
+                    building_cycling_index = BUILDING_GATEHOUSE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_GATEHOUSE:
+                if (scenario_building_allowed(BUILDING_PREFECTURE)) {
+                    building_cycling_index = BUILDING_PREFECTURE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_PREFECTURE:
+                if (scenario_building_allowed(BUILDING_FORT_LEGIONARIES)) {
+                    building_cycling_index = BUILDING_FORT_LEGIONARIES;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_FORT_LEGIONARIES:
+                if (scenario_building_allowed(BUILDING_FORT_JAVELIN)) {
+                    building_cycling_index = BUILDING_FORT_JAVELIN;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_FORT_JAVELIN:
+                if (scenario_building_allowed(BUILDING_FORT_MOUNTED)) {
+                    building_cycling_index = BUILDING_FORT_MOUNTED;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_FORT_MOUNTED:
+                if (scenario_building_allowed(BUILDING_MILITARY_ACADEMY)) {
+                    building_cycling_index = BUILDING_MILITARY_ACADEMY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_MILITARY_ACADEMY:
+                if (scenario_building_allowed(BUILDING_BARRACKS)) {
+                    building_cycling_index = BUILDING_BARRACKS;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_BARRACKS:
+                if (scenario_building_allowed(BUILDING_WHEAT_FARM)) {
+                    building_cycling_index = BUILDING_WHEAT_FARM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_WHEAT_FARM:
+                if (scenario_building_allowed(BUILDING_VEGETABLE_FARM)) {
+                    building_cycling_index = BUILDING_VEGETABLE_FARM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_VEGETABLE_FARM:
+                if (scenario_building_allowed(BUILDING_FRUIT_FARM)) {
+                    building_cycling_index = BUILDING_FRUIT_FARM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_FRUIT_FARM:
+                if (scenario_building_allowed(BUILDING_OLIVE_FARM)) {
+                    building_cycling_index = BUILDING_OLIVE_FARM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_OLIVE_FARM:
+                if (scenario_building_allowed(BUILDING_VINES_FARM)) {
+                    building_cycling_index = BUILDING_VINES_FARM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_VINES_FARM:
+                if (scenario_building_allowed(BUILDING_PIG_FARM)) {
+                    building_cycling_index = BUILDING_PIG_FARM;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_PIG_FARM:
+                if (scenario_building_allowed(BUILDING_CLAY_PIT)) {
+                    building_cycling_index = BUILDING_CLAY_PIT;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_CLAY_PIT:
+                if (scenario_building_allowed(BUILDING_MARBLE_QUARRY)) {
+                    building_cycling_index = BUILDING_MARBLE_QUARRY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_MARBLE_QUARRY:
+                if (scenario_building_allowed(BUILDING_IRON_MINE)) {
+                    building_cycling_index = BUILDING_IRON_MINE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_IRON_MINE:
+                if (scenario_building_allowed(BUILDING_TIMBER_YARD)) {
+                    building_cycling_index = BUILDING_TIMBER_YARD;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_TIMBER_YARD:
+                if (scenario_building_allowed(BUILDING_WINE_WORKSHOP)) {
+                    building_cycling_index = BUILDING_WINE_WORKSHOP;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_WINE_WORKSHOP:
+                if (scenario_building_allowed(BUILDING_OIL_WORKSHOP)) {
+                    building_cycling_index = BUILDING_OIL_WORKSHOP;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_OIL_WORKSHOP:
+                if (scenario_building_allowed(BUILDING_WEAPONS_WORKSHOP)) {
+                    building_cycling_index = BUILDING_WEAPONS_WORKSHOP;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_WEAPONS_WORKSHOP:
+                if (scenario_building_allowed(BUILDING_FURNITURE_WORKSHOP)) {
+                    building_cycling_index = BUILDING_FURNITURE_WORKSHOP;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_FURNITURE_WORKSHOP:
+                if (scenario_building_allowed(BUILDING_POTTERY_WORKSHOP)) {
+                    building_cycling_index = BUILDING_POTTERY_WORKSHOP;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_POTTERY_WORKSHOP:
+                if (scenario_building_allowed(BUILDING_MARKET)) {
+                    building_cycling_index = BUILDING_MARKET;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_MARKET:
+                if (scenario_building_allowed(BUILDING_GRANARY)) {
+                    building_cycling_index = BUILDING_GRANARY;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_GRANARY:
+                if (scenario_building_allowed(BUILDING_WAREHOUSE)) {
+                    building_cycling_index = BUILDING_WAREHOUSE;
+                    break;
+                }
+                /* fall through */
+            case BUILDING_WAREHOUSE:
+                if (scenario_building_allowed(BUILDING_DRAGGABLE_RESERVOIR)) {
+                    building_cycling_index = BUILDING_DRAGGABLE_RESERVOIR;
+                    break;
+                }
+                /* fall through */
+            default:
+                if (scenario_building_allowed(BUILDING_DRAGGABLE_RESERVOIR)) {
+                    building_cycling_index = BUILDING_DRAGGABLE_RESERVOIR;
+                    break;
+                } else {
+                    if (retried) {
+                        return;
+                    } else {
+                        retried = 1;
+                        goto obverse_label;
+                    }
+                }
+        }
+    }
+    set_construction_building_type(building_cycling_index);
+}
+
 static void handle_hotkeys(const hotkeys *h)
 {
     if (h->load_file) {
@@ -239,11 +1172,20 @@ static void handle_hotkeys(const hotkeys *h)
     if (h->show_messages) {
         window_message_list_show();
     }
+    if (h->go_to_problem) {
+        button_go_to_problem(0, 0);
+    }
     if (h->clone_building) {
         building_type type = building_clone_type_from_grid_offset(widget_city_current_grid_offset());
         if (type) {
             set_construction_building_type(type);
         }
+    }
+    if (h->cycle_buildings) {
+        cycle_buildings(0);
+    }
+    if (h->cycle_buildings_reverse) {
+        cycle_buildings(1);
     }
     if (h->building) {
         set_construction_building_type(h->building);

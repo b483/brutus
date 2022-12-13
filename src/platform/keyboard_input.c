@@ -61,6 +61,7 @@ static key_type get_key_from_scancode(SDL_Scancode scancode)
         case SDL_SCANCODE_COMMA: return KEY_TYPE_COMMA;
         case SDL_SCANCODE_PERIOD: return KEY_TYPE_PERIOD;
         case SDL_SCANCODE_SLASH: return KEY_TYPE_SLASH;
+        case SDL_SCANCODE_CAPSLOCK: return KEY_TYPE_CAPSLOCK;
         case SDL_SCANCODE_F1: return KEY_TYPE_F1;
         case SDL_SCANCODE_F2: return KEY_TYPE_F2;
         case SDL_SCANCODE_F3: return KEY_TYPE_F3;
@@ -159,6 +160,7 @@ static SDL_Scancode get_scancode_from_key(key_type key)
         case KEY_TYPE_COMMA: return SDL_SCANCODE_COMMA;
         case KEY_TYPE_PERIOD: return SDL_SCANCODE_PERIOD;
         case KEY_TYPE_SLASH: return SDL_SCANCODE_SLASH;
+        case KEY_TYPE_CAPSLOCK: return SDL_SCANCODE_CAPSLOCK;
         case KEY_TYPE_F1: return SDL_SCANCODE_F1;
         case KEY_TYPE_F2: return SDL_SCANCODE_F2;
         case KEY_TYPE_F3: return SDL_SCANCODE_F3;

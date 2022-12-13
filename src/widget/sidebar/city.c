@@ -39,7 +39,6 @@ static void button_build(int submenu, int param2);
 static void button_undo(int param1, int param2);
 static void button_messages(int param1, int param2);
 static void button_help(int param1, int param2);
-static void button_go_to_problem(int param1, int param2);
 static void button_advisors(int param1, int param2);
 static void button_empire(int param1, int param2);
 static void button_mission_briefing(int param1, int param2);
@@ -310,7 +309,7 @@ static void button_help(__attribute__((unused)) int param1, int param2)
     window_message_dialog_show(param2, window_city_draw_all);
 }
 
-static void button_go_to_problem(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
+void button_go_to_problem(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_build_menu_hide();
     int grid_offset = city_message_next_problem_area_grid_offset();

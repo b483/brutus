@@ -101,8 +101,19 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
         case HOTKEY_SHOW_MESSAGES:
             def->action = &data.hotkey_state.show_messages;
             break;
+        case HOTKEY_GO_TO_PROBLEM:
+            def->action = &data.hotkey_state.go_to_problem;
+            break;
         case HOTKEY_BUILD_CLONE:
             def->action = &data.hotkey_state.clone_building;
+            break;
+        case HOTKEY_CYCLE_BUILDINGS:
+            def->action = &data.hotkey_state.cycle_buildings;
+            def->repeatable = 1;
+            break;
+        case HOTKEY_CYCLE_BUILDINGS_REVERSE:
+            def->action = &data.hotkey_state.cycle_buildings_reverse;
+            def->repeatable = 1;
             break;
         case HOTKEY_BUILD_VACANT_HOUSE:
             def->action = &data.hotkey_state.building;
@@ -116,9 +127,21 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_ROAD;
             break;
+        case HOTKEY_BUILD_RESERVOIR:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_DRAGGABLE_RESERVOIR;
+            break;
+        case HOTKEY_BUILD_AQUEDUCT:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_AQUEDUCT;
+            break;
         case HOTKEY_BUILD_FOUNTAIN:
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_FOUNTAIN;
+            break;
+        case HOTKEY_BUILD_WELL:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_WELL;
             break;
         case HOTKEY_BUILD_BARBER:
             def->action = &data.hotkey_state.building;
@@ -132,17 +155,37 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_DOCTOR;
             break;
+        case HOTKEY_BUILD_HOSPITAL:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_HOSPITAL;
+            break;
         case HOTKEY_BUILD_SMALL_TEMPLES:
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_MENU_SMALL_TEMPLES;
+            break;
+        case HOTKEY_BUILD_LARGE_TEMPLES:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_MENU_LARGE_TEMPLES;
+            break;
+        case HOTKEY_BUILD_ORACLE:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_ORACLE;
             break;
         case HOTKEY_BUILD_SCHOOL:
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_SCHOOL;
             break;
+        case HOTKEY_BUILD_ACADEMY:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_ACADEMY;
+            break;
         case HOTKEY_BUILD_LIBRARY:
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_LIBRARY;
+            break;
+        case HOTKEY_BUILD_MISSION_POST:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_MISSION_POST;
             break;
         case HOTKEY_BUILD_THEATER:
             def->action = &data.hotkey_state.building;
@@ -152,17 +195,49 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_AMPHITHEATER;
             break;
+        case HOTKEY_BUILD_COLOSSEUM:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_COLOSSEUM;
+            break;
+        case HOTKEY_BUILD_HIPPODROME:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_HIPPODROME;
+            break;
         case HOTKEY_BUILD_GLADIATOR_SCHOOL:
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_GLADIATOR_SCHOOL;
+            break;
+        case HOTKEY_BUILD_LION_HOUSE:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_LION_HOUSE;
             break;
         case HOTKEY_BUILD_ACTOR_COLONY:
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_ACTOR_COLONY;
             break;
+        case HOTKEY_BUILD_CHARIOT_MAKER:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_CHARIOT_MAKER;
+            break;
         case HOTKEY_BUILD_FORUM:
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_FORUM;
+            break;
+        case HOTKEY_BUILD_SENATE:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_SENATE;
+            break;
+        case HOTKEY_BUILD_GOVERNORS_HOUSE:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_GOVERNORS_HOUSE;
+            break;
+        case HOTKEY_BUILD_GOVERNORS_VILLA:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_GOVERNORS_VILLA;
+            break;
+        case HOTKEY_BUILD_GOVERNORS_PALACE:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_GOVERNORS_PALACE;
             break;
         case HOTKEY_BUILD_SMALL_STATUE:
             def->action = &data.hotkey_state.building;
@@ -171,6 +246,10 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
         case HOTKEY_BUILD_MEDIUM_STATUE:
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_MEDIUM_STATUE;
+            break;
+        case HOTKEY_BUILD_LARGE_STATUE:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_LARGE_STATUE;
             break;
         case HOTKEY_BUILD_GARDENS:
             def->action = &data.hotkey_state.building;
@@ -184,13 +263,133 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_ENGINEERS_POST;
             break;
+        case HOTKEY_BUILD_LOW_BRIDGE:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_LOW_BRIDGE;
+            break;
+        case HOTKEY_BUILD_SHIP_BRIDGE:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_SHIP_BRIDGE;
+            break;
+        case HOTKEY_BUILD_SHIPYARD:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_SHIPYARD;
+            break;
+        case HOTKEY_BUILD_DOCK:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_DOCK;
+            break;
+        case HOTKEY_BUILD_WHARF:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_WHARF;
+            break;
+        case HOTKEY_BUILD_WALL:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_WALL;
+            break;
+        case HOTKEY_BUILD_TOWER:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_TOWER;
+            break;
+        case HOTKEY_BUILD_GATEHOUSE:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_GATEHOUSE;
+            break;
         case HOTKEY_BUILD_PREFECTURE:
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_PREFECTURE;
             break;
+        case HOTKEY_BUILD_FORT_LEGIONARIES:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_FORT_LEGIONARIES;
+            break;
+        case HOTKEY_BUILD_FORT_JAVELIN:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_FORT_JAVELIN;
+            break;
+        case HOTKEY_BUILD_FORT_MOUNTED:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_FORT_MOUNTED;
+            break;
+        case HOTKEY_BUILD_MILITARY_ACADEMY:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_MILITARY_ACADEMY;
+            break;
+        case HOTKEY_BUILD_BARRACKS:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_BARRACKS;
+            break;
+        case HOTKEY_BUILD_WHEAT_FARM:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_WHEAT_FARM;
+            break;
+        case HOTKEY_BUILD_VEGETABLE_FARM:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_VEGETABLE_FARM;
+            break;
+        case HOTKEY_BUILD_FRUIT_FARM:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_FRUIT_FARM;
+            break;
+        case HOTKEY_BUILD_OLIVE_FARM:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_OLIVE_FARM;
+            break;
+        case HOTKEY_BUILD_VINES_FARM:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_VINES_FARM;
+            break;
+        case HOTKEY_BUILD_PIG_FARM:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_PIG_FARM;
+            break;
+        case HOTKEY_BUILD_CLAY_PIT:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_CLAY_PIT;
+            break;
+        case HOTKEY_BUILD_MARBLE_QUARRY:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_MARBLE_QUARRY;
+            break;
+        case HOTKEY_BUILD_IRON_MINE:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_IRON_MINE;
+            break;
+        case HOTKEY_BUILD_TIMBER_YARD:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_TIMBER_YARD;
+            break;
+        case HOTKEY_BUILD_WINE_WORKSHOP:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_WINE_WORKSHOP;
+            break;
+        case HOTKEY_BUILD_OIL_WORKSHOP:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_OIL_WORKSHOP;
+            break;
+        case HOTKEY_BUILD_WEAPONS_WORKSHOP:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_WEAPONS_WORKSHOP;
+            break;
+        case HOTKEY_BUILD_FURNITURE_WORKSHOP:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_FURNITURE_WORKSHOP;
+            break;
+        case HOTKEY_BUILD_POTTERY_WORKSHOP:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_POTTERY_WORKSHOP;
+            break;
         case HOTKEY_BUILD_MARKET:
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_MARKET;
+            break;
+        case HOTKEY_BUILD_GRANARY:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_GRANARY;
+            break;
+        case HOTKEY_BUILD_WAREHOUSE:
+            def->action = &data.hotkey_state.building;
+            def->value = BUILDING_WAREHOUSE;
             break;
         case HOTKEY_SHOW_OVERLAY_WATER:
             def->action = &data.hotkey_state.show_overlay;
@@ -249,6 +448,7 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
             break;
         case HOTKEY_CHEAT_MONEY:
             def->action = &data.hotkey_state.cheat_money;
+            def->repeatable = 1;
             break;
         case HOTKEY_CHEAT_INVASION:
             def->action = &data.hotkey_state.cheat_invasion;
