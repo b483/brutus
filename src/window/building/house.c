@@ -83,8 +83,12 @@ static void draw_happiness_info(building_info_context *c, int y_offset)
 void window_building_draw_house(building_info_context *c)
 {
     c->help_id = 56;
-    window_building_play_sound(c, "wavs/housing.wav");
     building *b = building_get(c->building_id);
+    if (b->house_population == 0) {
+        window_building_play_sound(c, "wavs/empty_land.wav");
+    } else {
+        window_building_play_sound(c, "wavs/housing.wav");
+    }
     if (b->house_population <= 0) {
         draw_vacant_lot(c);
         return;
@@ -146,7 +150,7 @@ void window_building_draw_house(building_info_context *c)
             c->x_offset + 32, c->y_offset + 60, FONT_NORMAL_BLACK);
         width += lang_text_draw_colored(41, building_get(c->worst_desirability_building_id)->type,
             c->x_offset + 32 + width, c->y_offset + 60, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
-        text_draw((uint8_t*)")", c->x_offset + 32 + width, c->y_offset + 60, FONT_NORMAL_BLACK, 0);
+        text_draw((uint8_t *) ")", c->x_offset + 32 + width, c->y_offset + 60, FONT_NORMAL_BLACK, 0);
         lang_text_draw_multiline(127, 41 + b->data.house.evolve_text_id,
             c->x_offset + 32, c->y_offset + 76, BLOCK_SIZE * (c->width_blocks - 4), FONT_NORMAL_BLACK);
     } else {
