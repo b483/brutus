@@ -28,8 +28,6 @@ static void enemy_initial(figure *f, formation *m)
         if (f->is_ghost && f->index_in_formation == 0) {
             if (m->layout == FORMATION_ENEMY_MOB) {
                 sound_speech_play_file("wavs/drums.wav");
-            } else if (m->layout == FORMATION_ENEMY12) {
-                sound_speech_play_file("wavs/horn2.wav");
             } else {
                 sound_speech_play_file("wavs/horn1.wav");
             }
@@ -117,15 +115,9 @@ static void enemy_fighting(figure *f, const formation *m)
     if (!m->recent_fight) {
         f->action_state = FIGURE_ACTION_151_ENEMY_INITIAL;
     }
-    if (f->type != FIGURE_ENEMY46_CAMEL && f->type != FIGURE_ENEMY47_ELEPHANT) {
-        if (f->type == FIGURE_ENEMY48_CHARIOT || f->type == FIGURE_ENEMY52_MOUNTED_ARCHER) {
-            if (city_sound_update_march_horse()) {
-                sound_effect_play(SOUND_EFFECT_HORSE_MOVING);
-            }
-        } else {
-            if (city_sound_update_march_enemy()) {
-                sound_effect_play(SOUND_EFFECT_MARCHING);
-            }
+    if (f->type == FIGURE_ENEMY48_CHARIOT || f->type == FIGURE_ENEMY52_MOUNTED_ARCHER) {
+        if (city_sound_update_march_horse()) {
+            sound_effect_play(SOUND_EFFECT_HORSE_MOVING);
         }
     }
     int target_id = f->target_figure_id;

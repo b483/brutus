@@ -603,7 +603,7 @@ void building_construction_place(void)
         }
         if (enemy_type == 1) {
             if (city_sound_update_march_wolf()) {
-                sound_effect_play(SOUND_EFFECT_WOLF_HOWL);
+                sound_effect_play(SOUND_EFFECT_WOLF_ATTACK_2);
             }
         } else {
             city_warning_show(WARNING_ENEMY_NEARBY);

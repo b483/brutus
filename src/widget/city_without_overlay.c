@@ -107,25 +107,31 @@ static void draw_footprint(int x, int y, int grid_offset)
         // Valid grid_offset and leftmost tile -> draw
         int building_id = map_building_at(grid_offset);
         color_t color_mask = 0;
-        if (building_id) {
-            building *b = building_get(building_id);
-            if (draw_building_as_deleted(b)) {
-                color_mask = COLOR_MASK_RED;
-            }
+        if (building_id || map_terrain_is(grid_offset, TERRAIN_GARDEN)) {
             int view_x, view_y, view_width, view_height;
             city_view_get_viewport(&view_x, &view_y, &view_width, &view_height);
-            if (x < view_x + 100) {
-                sound_city_mark_building_view(b, SOUND_DIRECTION_LEFT);
-            } else if (x > view_x + view_width - 100) {
-                sound_city_mark_building_view(b, SOUND_DIRECTION_RIGHT);
-            } else {
-                sound_city_mark_building_view(b, SOUND_DIRECTION_CENTER);
+            if (building_id) {
+                building *b = building_get(building_id);
+                if (draw_building_as_deleted(b)) {
+                    color_mask = COLOR_MASK_RED;
+                }
+                if (x < view_x + 100) {
+                    sound_city_mark_building_view(b->type, b->num_workers, SOUND_DIRECTION_LEFT);
+                } else if (x > view_x + view_width - 100) {
+                    sound_city_mark_building_view(b->type, b->num_workers, SOUND_DIRECTION_RIGHT);
+                } else {
+                    sound_city_mark_building_view(b->type, b->num_workers, SOUND_DIRECTION_CENTER);
+                }
+            } else if (map_terrain_is(grid_offset, TERRAIN_GARDEN)) {
+                if (x < view_x + 100) {
+                    sound_city_mark_building_view(BUILDING_GARDENS, 0, SOUND_DIRECTION_LEFT);
+                } else if (x > view_x + view_width - 100) {
+                    sound_city_mark_building_view(BUILDING_GARDENS, 0, SOUND_DIRECTION_RIGHT);
+                } else {
+                    sound_city_mark_building_view(BUILDING_GARDENS, 0, SOUND_DIRECTION_CENTER);
+                }
             }
-        }
-        if (map_terrain_is(grid_offset, TERRAIN_GARDEN)) {
-            building *b = building_get(0); // abuse empty building
-            b->type = BUILDING_GARDENS;
-            sound_city_mark_building_view(b, SOUND_DIRECTION_CENTER);
+
         }
         int image_id = map_image_at(grid_offset);
         if (map_property_is_constructing(grid_offset)) {

@@ -11,7 +11,7 @@
 #define MAX_CHANNELS 70
 
 // for compatibility with the original game:
-#define CITY_CHANNEL_OFFSET 15
+#define CITY_CHANNEL_OFFSET 16
 
 enum {
     SOUND_CHANNEL_CITY_HOUSE_SLUM = 30,
@@ -197,28 +197,22 @@ void sound_city_set_volume(int percentage)
         sound_device_set_channel_volume(i, percentage);
     }
 }
-
-void sound_city_mark_building_view(building *b, int direction)
+void sound_city_mark_building_view(building_type type, int num_workers, int direction)
 {
-    if (b->state == BUILDING_STATE_UNUSED) {
-        return;
-    }
-    int type = b->type;
-    int channel = BUILDING_TYPE_TO_CHANNEL_ID[type];
-    if (!channel) {
-        return;
-    }
-    if (type == BUILDING_THEATER || type == BUILDING_AMPHITHEATER ||
-        type == BUILDING_GLADIATOR_SCHOOL || type == BUILDING_HIPPODROME) {
-        // entertainment is shut off when caesar invades
-        if (b->num_workers <= 0 || city_figures_imperial_soldiers() > 0) {
+    if (num_workers > 0 || type == BUILDING_GARDENS || type == BUILDING_FORT) {
+        // mute city sounds during invasion
+        if (city_figures_enemies()) {
             return;
         }
-    }
 
-    channels[channel].available = 1;
-    ++channels[channel].total_views;
-    ++channels[channel].direction_views[direction];
+        int channel = BUILDING_TYPE_TO_CHANNEL_ID[type];
+        if (!channel) {
+            return;
+        }
+        channels[channel].available = 1;
+        ++channels[channel].total_views;
+        ++channels[channel].direction_views[direction];
+    }
 }
 
 void sound_city_decay_views(void)
@@ -233,6 +227,32 @@ void sound_city_decay_views(void)
 
 static void play_channel(int channel, int direction)
 {
+    // allows using alternative building sounds that already exist in the game; index 3 means 4 sounds in the same group
+    int sound_variety_index = 0;
+
+    switch (channel) {
+        case SOUND_CHANNEL_CITY_HOUSE_SLUM:
+        case SOUND_CHANNEL_CITY_HOUSE_POOR:
+        case SOUND_CHANNEL_CITY_HOUSE_MEDIUM:
+        case SOUND_CHANNEL_CITY_HOUSE_GOOD:
+        case SOUND_CHANNEL_CITY_HOUSE_POSH:
+        case SOUND_CHANNEL_CITY_GARDEN:
+        case SOUND_CHANNEL_CITY_FORT:
+        case SOUND_CHANNEL_CITY_TOWER:
+        case SOUND_CHANNEL_CITY_MARKET:
+            sound_variety_index = 3;
+            break;
+        case SOUND_CHANNEL_CITY_GRANARY:
+        case SOUND_CHANNEL_CITY_WAREHOUSE:
+        case SOUND_CHANNEL_CITY_SHIPYARD:
+        case SOUND_CHANNEL_CITY_DOCK:
+        case SOUND_CHANNEL_CITY_WHARF:
+            sound_variety_index = 1;
+            break;
+        default:
+            break;
+    }
+
     channel += CITY_CHANNEL_OFFSET;
     if (!setting_sound(SOUND_CITY)->enabled) {
         return;
@@ -258,7 +278,7 @@ static void play_channel(int channel, int direction)
             left_pan = right_pan = 0;
             break;
     }
-    sound_device_play_channel_panned(channel, setting_sound(SOUND_CITY)->volume, left_pan, right_pan);
+    sound_device_play_channel_panned(channel, sound_variety_index, setting_sound(SOUND_CITY)->volume, left_pan, right_pan);
 }
 
 void sound_city_play(void)

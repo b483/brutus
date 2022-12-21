@@ -1,5 +1,6 @@
 #include "core/file.h"
 #include "core/log.h"
+#include "core/random.h"
 #include "sound/device.h"
 #include "game/settings.h"
 #include "platform/platform.h"
@@ -203,10 +204,15 @@ void sound_device_play_channel(int channel, int volume_pct)
     }
 }
 
-void sound_device_play_channel_panned(int channel, int volume_pct, int left_pct, int right_pct)
+void sound_device_play_channel_panned(int channel, int sound_variety_index, int volume_pct, int left_pct, int right_pct)
 {
     if (data.initialized) {
-        sound_channel *ch = &data.channels[channel];
+        int random_factor = 0;
+        if (sound_variety_index) {
+            random_generate_next();
+            random_factor = random_byte() % sound_variety_index;
+        }
+        sound_channel *ch = &data.channels[channel + random_factor];
         if (load_channel(ch)) {
             Mix_SetPanning(channel, left_pct * 255 / 100, right_pct * 255 / 100);
             sound_device_set_channel_volume(channel, volume_pct);

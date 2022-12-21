@@ -18,6 +18,7 @@
 #include "map/routing_path.h"
 #include "map/soldier_strength.h"
 #include "map/terrain.h"
+#include "sound/effect.h"
 
 static const int ENEMY_ATTACK_PRIORITY[4][100] = {
     {
@@ -527,6 +528,7 @@ static void update_enemy_formation(formation *m, int *roman_distance)
                 f->action_state != FIGURE_ACTION_148_FLEEING) {
                 f->action_state = FIGURE_ACTION_148_FLEEING;
                 figure_route_remove(f);
+                sound_effect_play(SOUND_EFFECT_HORN3);
             }
         }
         return;

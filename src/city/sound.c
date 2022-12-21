@@ -13,11 +13,6 @@ static int update_field(int8_t *field, int max_value)
     }
 }
 
-int city_sound_update_march_enemy(void)
-{
-    return update_field(&city_data.sound.march_enemy, 200);
-}
-
 int city_sound_update_march_horse(void)
 {
     return update_field(&city_data.sound.march_horse, 200);
