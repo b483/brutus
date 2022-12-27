@@ -2,8 +2,8 @@
 
 #include "building/count.h"
 #include "city/culture.h"
+#include "city/data_private.h"
 #include "city/entertainment.h"
-#include "city/festival.h"
 #include "city/gods.h"
 #include "city/houses.h"
 #include "graphics/generic_button.h"
@@ -44,18 +44,17 @@ static int get_entertainment_advice(void)
 
 static int get_festival_advice(void)
 {
-    int months_since_festival = city_festival_months_since_last();
-    if (months_since_festival <= 1) {
+    if (city_data.festival.months_since_festival <= 1) {
         return 0;
-    } else if (months_since_festival <= 6) {
+    } else if (city_data.festival.months_since_festival <= 6) {
         return 1;
-    } else if (months_since_festival <= 12) {
+    } else if (city_data.festival.months_since_festival <= 12) {
         return 2;
-    } else if (months_since_festival <= 18) {
+    } else if (city_data.festival.months_since_festival <= 18) {
         return 3;
-    } else if (months_since_festival <= 24) {
+    } else if (city_data.festival.months_since_festival <= 24) {
         return 4;
-    } else if (months_since_festival <= 30) {
+    } else if (city_data.festival.months_since_festival <= 30) {
         return 5;
     } else {
         return 6;
@@ -68,9 +67,9 @@ static void draw_festival_info(void)
     image_draw(image_group(GROUP_PANEL_WINDOWS) + 15, 460, 255);
     lang_text_draw(58, 17, 52, 224, FONT_LARGE_BLACK);
 
-    int width = lang_text_draw_amount(8, 4, city_festival_months_since_last(), 112, 260, FONT_NORMAL_WHITE);
+    int width = lang_text_draw_amount(8, 4, city_data.festival.months_since_festival, 112, 260, FONT_NORMAL_WHITE);
     lang_text_draw(58, 15, 112 + width, 260, FONT_NORMAL_WHITE);
-    if (city_festival_is_planned()) {
+    if (city_data.festival.size) {
         lang_text_draw_centered(58, 34, 102, 284, 300, FONT_NORMAL_WHITE);
     } else {
         lang_text_draw_centered(58, 16, 102, 284, 300, FONT_NORMAL_WHITE);
@@ -165,7 +164,7 @@ static int draw_background(void)
 
 static void draw_foreground(void)
 {
-    if (!city_festival_is_planned()) {
+    if (!city_data.festival.size) {
         button_border_draw(102, 280, 300, 20, focus_button_id == 1);
     }
 }
@@ -177,7 +176,7 @@ static int handle_mouse(const mouse *m)
 
 static void button_hold_festival(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    if (!city_festival_is_planned()) {
+    if (!city_data.festival.size) {
         window_hold_festival_show();
     }
 }

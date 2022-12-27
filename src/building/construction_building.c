@@ -9,6 +9,7 @@
 #include "building/properties.h"
 #include "building/storage.h"
 #include "city/buildings.h"
+#include "city/data_private.h"
 #include "city/view.h"
 #include "city/warning.h"
 #include "core/image.h"
@@ -50,7 +51,7 @@ static void add_hippodrome(building *b)
 {
     int image1 = image_group(GROUP_BUILDING_HIPPODROME_1);
     int image2 = image_group(GROUP_BUILDING_HIPPODROME_2);
-    city_buildings_add_hippodrome();
+    city_data.building.hippodrome_placed = 1;
 
     int orientation = city_view_orientation();
     building *part1 = b;
@@ -568,7 +569,7 @@ int building_construction_place_building(building_type type, int x, int y)
             return 0;
         }
         int warning_id;
-        if (!building_construction_can_place_on_terrain(x, y, &warning_id)) {
+        if (!check_building_terrain_requirements(x, y, &warning_id)) {
             city_warning_show(warning_id);
             return 0;
         }
@@ -584,7 +585,7 @@ int building_construction_place_building(building_type type, int x, int y)
         }
     }
     if (type == BUILDING_HIPPODROME) {
-        if (city_buildings_has_hippodrome()) {
+        if (city_data.building.hippodrome_placed) {
             city_warning_show(WARNING_ONE_BUILDING_OF_TYPE);
             return 0;
         }
@@ -594,7 +595,7 @@ int building_construction_place_building(building_type type, int x, int y)
             return 0;
         }
     }
-    if (type == BUILDING_SENATE_UPGRADED && city_buildings_has_senate()) {
+    if (type == BUILDING_SENATE_UPGRADED && city_data.building.senate_placed) {
         city_warning_show(WARNING_ONE_BUILDING_OF_TYPE);
         return 0;
     }

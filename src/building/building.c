@@ -5,6 +5,7 @@
 #include "building/properties.h"
 #include "building/storage.h"
 #include "city/buildings.h"
+#include "city/data_private.h"
 #include "city/population.h"
 #include "city/warning.h"
 #include "figure/formation_legion.h"
@@ -198,7 +199,7 @@ void building_clear_related_data(building *b)
         formation_legion_delete_for_fort(b);
     }
     if (b->type == BUILDING_HIPPODROME) {
-        city_buildings_remove_hippodrome();
+        city_data.building.hippodrome_placed = 0;
     }
 }
 

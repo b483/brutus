@@ -1,8 +1,8 @@
 #include "hold_festival.h"
 
+#include "building/warehouse.h"
 #include "city/constants.h"
 #include "city/data_private.h"
-#include "city/festival.h"
 #include "city/finance.h"
 #include "city/gods.h"
 #include "core/image_group.h"
@@ -18,7 +18,7 @@
 #include "window/message_dialog.h"
 
 static void button_select_god(int god, int param2);
-static void button_select_festival_size(int size, int param2);
+static void button_throw_festival(int size, int cost);
 static void button_help_resource_settings(int param1, int param2);
 
 static generic_button buttons_select_god[] = {
@@ -30,9 +30,9 @@ static generic_button buttons_select_god[] = {
 };
 
 static generic_button buttons_festival_size[] = {
-    {100, 183, 448, 26, button_select_festival_size, button_none, 1, 0},
-    {100, 213, 448, 26, button_select_festival_size, button_none, 2, 0},
-    {100, 243, 448, 26, button_select_festival_size, button_none, 3, 0},
+    {100, 183, 448, 26, button_throw_festival, button_none, 1, 0},
+    {100, 213, 448, 26, button_throw_festival, button_none, 2, 0},
+    {100, 243, 448, 26, button_throw_festival, button_none, 3, 0},
 };
 
 static image_button button_help_hold_festival[] = {
@@ -43,31 +43,36 @@ static int focus_id_gods_button;
 static int focus_id_festival_size_button;
 static int focus_help_button_id;
 
+static void init(void)
+{
+    buttons_festival_size[0].parameter2 = city_data.population.population / 20 + 10;
+    buttons_festival_size[1].parameter2 = city_data.population.population / 10 + 20;
+    buttons_festival_size[2].parameter2 = city_data.population.population / 5 + 40;
+}
+
 static void draw_buttons(void)
 {
     // Small festival
     button_border_draw(100, 183, 448, 26, focus_id_festival_size_button == 1);
     int width = lang_text_draw(58, 31, 116, 191, FONT_NORMAL_BLACK);
-    lang_text_draw_amount(8, 0, city_data.festival.small_cost, 116 + width, 191, FONT_NORMAL_BLACK);
+    lang_text_draw_amount(8, 0, city_data.population.population / 20 + 10, 116 + width, 191, FONT_NORMAL_BLACK);
 
     // Large festival
     button_border_draw(100, 213, 448, 26, focus_id_festival_size_button == 2);
     width = lang_text_draw(58, 32, 116, 221, FONT_NORMAL_BLACK);
-    lang_text_draw_amount(8, 0, city_data.festival.large_cost, 116 + width, 221, FONT_NORMAL_BLACK);
+    lang_text_draw_amount(8, 0, city_data.population.population / 10 + 20, 116 + width, 221, FONT_NORMAL_BLACK);
 
     // Grand festival
     button_border_draw(100, 243, 448, 26, focus_id_festival_size_button == 3);
     width = lang_text_draw(58, 33, 116, 251, FONT_NORMAL_BLACK);
-    width += lang_text_draw_amount(8, 0, city_data.festival.grand_cost, 116 + width, 251, FONT_NORMAL_BLACK);
-    width += lang_text_draw_amount(8, 10, city_data.festival.grand_wine, 126 + width, 251, FONT_NORMAL_BLACK);
+    width += lang_text_draw_amount(8, 0, city_data.population.population / 5 + 40, 116 + width, 251, FONT_NORMAL_BLACK);
+    width += lang_text_draw_amount(8, 10, city_data.population.population / 500 + 1, 126 + width, 251, FONT_NORMAL_BLACK);
     image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_WINE, 126 + width, 246);
 
     // greying out of buttons
-    if (city_finance_out_of_money()) {
-        graphics_shade_rect(102, 185, 444, 22, 0);
-        graphics_shade_rect(102, 215, 444, 22, 0);
-        graphics_shade_rect(102, 245, 444, 22, 0);
-    } else if (city_data.festival.not_enough_wine) {
+    if (!city_finance_can_afford(city_data.festival.cost)) {
+        graphics_shade_rect(102, (city_data.festival.size * 30 - 30) + 185, 444, 22, 0);
+    } else if (city_data.resource.stored_in_warehouses[RESOURCE_WINE] < city_data.population.population / 500 + 1) {
         graphics_shade_rect(102, 245, 444, 22, 0);
     }
 }
@@ -79,10 +84,10 @@ static void draw_foreground(void)
     outer_panel_draw(52, 12, 34, 18);
 
     // Hold festival to [selected god]
-    lang_text_draw_centered(58, 25 + city_data.festival.selected.god, 52, 28, 544, FONT_LARGE_BLACK);
+    lang_text_draw_centered(58, 25 + city_data.festival.god, 52, 28, 544, FONT_LARGE_BLACK);
 
     for (int god = 0; god < MAX_GODS; god++) {
-        if (god == city_data.festival.selected.god) {
+        if (god == city_data.festival.god) {
             image_draw(image_group(GROUP_PANEL_WINDOWS) + god + 21, 91 * god + 101, 76);
         } else {
             image_draw(image_group(GROUP_PANEL_WINDOWS) + god + 16, 91 * god + 101, 76);
@@ -121,17 +126,25 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 static void button_select_god(int god, __attribute__((unused)) int param2)
 {
-    city_data.festival.selected.god = god;
+    city_data.festival.god = god;
     window_invalidate();
 }
 
-static void button_select_festival_size(int size, __attribute__((unused)) int param2)
+static void button_throw_festival(int size, int cost)
 {
-    if (city_finance_out_of_money() || (size == FESTIVAL_GRAND && city_data.festival.not_enough_wine)) {
+    if (!city_finance_can_afford(cost) || (size == FESTIVAL_GRAND && city_data.resource.stored_in_warehouses[RESOURCE_WINE] < city_data.population.population / 500 + 1)) {
+        city_data.festival.size = FESTIVAL_NONE;
+        city_data.festival.cost = 0;
         return;
     } else {
-        city_data.festival.selected.size = size;
-        city_festival_schedule();
+        city_data.festival.size = size;
+        city_data.festival.cost = cost;
+        city_data.festival.months_to_go = city_data.festival.size + 1;
+        city_finance_process_sundry(city_data.festival.cost);
+        if (city_data.festival.size == FESTIVAL_GRAND) {
+            building_warehouses_remove_resource(RESOURCE_WINE, city_data.population.population / 500 + 1);
+        }
+
         window_advisors_show(ADVISOR_ENTERTAINMENT);
     }
 }
@@ -169,5 +182,6 @@ void window_hold_festival_show(void)
         handle_input,
         get_tooltip
     };
+    init();
     window_show(&window);
 }

@@ -27,7 +27,7 @@ void building_construction_update(int x, int y, int grid_offset);
 
 void building_construction_place(void);
 
-int building_construction_can_place_on_terrain(int x, int y, int *warning_id);
+int check_building_terrain_requirements(int x, int y, int *warning_id);
 
 void building_construction_update_road_orientation(void);
 int building_construction_road_orientation(void);

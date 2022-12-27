@@ -2,11 +2,6 @@
 
 #include "city/data_private.h"
 
-int city_buildings_has_senate(void)
-{
-    return city_data.building.senate_placed;
-}
-
 void city_buildings_add_senate(building *senate)
 {
     city_data.building.senate_placed = 1;
@@ -94,21 +89,6 @@ void city_buildings_set_trade_center(int building_id)
     city_data.building.trade_center_building_id = building_id;
 }
 
-int city_buildings_has_hippodrome(void)
-{
-    return city_data.building.hippodrome_placed;
-}
-
-void city_buildings_add_hippodrome(void)
-{
-    city_data.building.hippodrome_placed = 1;
-}
-
-void city_buildings_remove_hippodrome(void)
-{
-    city_data.building.hippodrome_placed = 0;
-}
-
 int city_buildings_triumphal_arch_available(void)
 {
     return city_data.building.triumphal_arches_available > city_data.building.triumphal_arches_placed;
@@ -187,12 +167,4 @@ void city_buildings_set_main_native_meeting_center(int x, int y)
     city_data.building.main_native_meeting.y = y;
 }
 
-int city_buildings_is_mission_post_operational(void)
-{
-    return city_data.building.mission_post_operational > 0;
-}
 
-void city_buildings_set_mission_post_operational(void)
-{
-    city_data.building.mission_post_operational = 1;
-}

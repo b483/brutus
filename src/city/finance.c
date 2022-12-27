@@ -13,9 +13,9 @@ int city_finance_treasury(void)
     return city_data.finance.treasury;
 }
 
-int city_finance_out_of_money(void)
+int city_finance_can_afford(int cost)
 {
-    return city_data.finance.treasury <= -5000;
+    return -cost + city_data.finance.treasury >= -5000;
 }
 
 int city_finance_tax_percentage(void)
@@ -249,7 +249,7 @@ static void pay_monthly_interest(void)
 
 static void pay_monthly_salary(void)
 {
-    if (!city_finance_out_of_money()) {
+    if (city_finance_can_afford(city_data.emperor.salary_amount)) {
         city_data.finance.salary_so_far += city_data.emperor.salary_amount;
         city_data.emperor.personal_savings += city_data.emperor.salary_amount;
         city_data.finance.treasury -= city_data.emperor.salary_amount;

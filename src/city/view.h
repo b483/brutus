@@ -7,6 +7,11 @@
 #define VIEW_X_MAX 165
 #define VIEW_Y_MAX 325
 
+#define TILE_WIDTH_PIXELS 60
+#define TILE_HEIGHT_PIXELS 30
+#define HALF_TILE_WIDTH_PIXELS 30
+#define HALF_TILE_HEIGHT_PIXELS 15
+
 typedef struct {
     int x;
     int y;
@@ -68,8 +73,6 @@ void city_view_load_scenario_state(buffer *camera);
 void city_view_foreach_map_tile(map_callback *callback);
 
 void city_view_foreach_valid_map_tile(map_callback *callback1, map_callback *callback2, map_callback *callback3);
-
-void city_view_foreach_tile_in_range(int grid_offset, int size, int radius, map_callback *callback);
 
 void city_view_foreach_minimap_tile(
     int x_offset, int y_offset, int absolute_x, int absolute_y,

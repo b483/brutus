@@ -13,7 +13,6 @@
 #include "building/warehouse.h"
 #include "city/culture.h"
 #include "city/emperor.h"
-#include "city/festival.h"
 #include "city/finance.h"
 #include "city/gods.h"
 #include "city/health.h"

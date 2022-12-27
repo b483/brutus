@@ -5,8 +5,9 @@
 #include "city/constants.h"
 #include "city/data_private.h"
 #include "city/entertainment.h"
-#include "city/festival.h"
+#include "city/message.h"
 #include "city/population.h"
+#include "city/sentiment.h"
 #include "core/calc.h"
 
 static struct {
@@ -109,29 +110,29 @@ void city_culture_update_coverage(void)
     // religion
     int oracles = building_count_total(BUILDING_ORACLE);
     coverage.religion[GOD_CERES] = top(calc_percentage(
-            500 * oracles +
-            750 * building_count_active(BUILDING_SMALL_TEMPLE_CERES) +
-            1500 * building_count_active(BUILDING_LARGE_TEMPLE_CERES),
+        500 * oracles +
+        750 * building_count_active(BUILDING_SMALL_TEMPLE_CERES) +
+        1500 * building_count_active(BUILDING_LARGE_TEMPLE_CERES),
         population));
     coverage.religion[GOD_NEPTUNE] = top(calc_percentage(
-            500 * oracles +
-            750 * building_count_active(BUILDING_SMALL_TEMPLE_NEPTUNE) +
-            1500 * building_count_active(BUILDING_LARGE_TEMPLE_NEPTUNE),
+        500 * oracles +
+        750 * building_count_active(BUILDING_SMALL_TEMPLE_NEPTUNE) +
+        1500 * building_count_active(BUILDING_LARGE_TEMPLE_NEPTUNE),
         population));
     coverage.religion[GOD_MERCURY] = top(calc_percentage(
-            500 * oracles +
-            750 * building_count_active(BUILDING_SMALL_TEMPLE_MERCURY) +
-            1500 * building_count_active(BUILDING_LARGE_TEMPLE_MERCURY),
+        500 * oracles +
+        750 * building_count_active(BUILDING_SMALL_TEMPLE_MERCURY) +
+        1500 * building_count_active(BUILDING_LARGE_TEMPLE_MERCURY),
         population));
     coverage.religion[GOD_MARS] = top(calc_percentage(
-            500 * oracles +
-            750 * building_count_active(BUILDING_SMALL_TEMPLE_MARS) +
-            1500 * building_count_active(BUILDING_LARGE_TEMPLE_MARS),
+        500 * oracles +
+        750 * building_count_active(BUILDING_SMALL_TEMPLE_MARS) +
+        1500 * building_count_active(BUILDING_LARGE_TEMPLE_MARS),
         population));
     coverage.religion[GOD_VENUS] = top(calc_percentage(
-            500 * oracles +
-            750 * building_count_active(BUILDING_SMALL_TEMPLE_VENUS) +
-            1500 * building_count_active(BUILDING_LARGE_TEMPLE_VENUS),
+        500 * oracles +
+        750 * building_count_active(BUILDING_SMALL_TEMPLE_VENUS) +
+        1500 * building_count_active(BUILDING_LARGE_TEMPLE_VENUS),
         population));
     coverage.oracle = top(calc_percentage(500 * oracles, population));
 
@@ -184,16 +185,58 @@ void city_culture_calculate(void)
     }
 
     city_entertainment_calculate_shows();
-    city_festival_calculate_costs();
+}
+
+static void throw_party(void)
+{
+    if (city_data.festival.first_festival_effect_months <= 0) {
+        city_data.festival.first_festival_effect_months = 12;
+        switch (city_data.festival.size) {
+            case FESTIVAL_SMALL: city_sentiment_change_happiness(7); break;
+            case FESTIVAL_LARGE: city_sentiment_change_happiness(9); break;
+            case FESTIVAL_GRAND: city_sentiment_change_happiness(12); break;
+        }
+    } else if (city_data.festival.second_festival_effect_months <= 0) {
+        city_data.festival.second_festival_effect_months = 12;
+        switch (city_data.festival.size) {
+            case FESTIVAL_SMALL: city_sentiment_change_happiness(2); break;
+            case FESTIVAL_LARGE: city_sentiment_change_happiness(3); break;
+            case FESTIVAL_GRAND: city_sentiment_change_happiness(5); break;
+        }
+    }
+    city_data.festival.months_since_festival = 1;
+    city_data.religion.gods[city_data.festival.god].months_since_festival = 0;
+    switch (city_data.festival.size) {
+        case FESTIVAL_SMALL: city_message_post(1, MESSAGE_SMALL_FESTIVAL, 0, 0); break;
+        case FESTIVAL_LARGE: city_message_post(1, MESSAGE_LARGE_FESTIVAL, 0, 0); break;
+        case FESTIVAL_GRAND: city_message_post(1, MESSAGE_GRAND_FESTIVAL, 0, 0); break;
+    }
+    city_data.festival.size = FESTIVAL_NONE;
+    city_data.festival.months_to_go = 0;
+}
+
+void city_festival_update(void)
+{
+    city_data.festival.months_since_festival++;
+    if (city_data.festival.first_festival_effect_months) {
+        --city_data.festival.first_festival_effect_months;
+    }
+    if (city_data.festival.second_festival_effect_months) {
+        --city_data.festival.second_festival_effect_months;
+    }
+    if (city_data.festival.size) {
+        city_data.festival.months_to_go--;
+        if (city_data.festival.months_to_go <= 0) {
+            throw_party();
+        }
+    }
 }
 
 void city_culture_save_state(buffer *buf)
 {
-    // Yes, hospital is saved twice
     buffer_write_i32(buf, coverage.theater);
     buffer_write_i32(buf, coverage.amphitheater);
     buffer_write_i32(buf, coverage.colosseum);
-    buffer_write_i32(buf, coverage.hospital);
     buffer_write_i32(buf, coverage.hippodrome);
     for (int i = GOD_CERES; i <= GOD_VENUS; i++) {
         buffer_write_i32(buf, coverage.religion[i]);
@@ -207,11 +250,9 @@ void city_culture_save_state(buffer *buf)
 
 void city_culture_load_state(buffer *buf)
 {
-    // Yes, hospital is saved twice
     coverage.theater = buffer_read_i32(buf);
     coverage.amphitheater = buffer_read_i32(buf);
     coverage.colosseum = buffer_read_i32(buf);
-    coverage.hospital = buffer_read_i32(buf);
     coverage.hippodrome = buffer_read_i32(buf);
     for (int i = GOD_CERES; i <= GOD_VENUS; i++) {
         coverage.religion[i] = buffer_read_i32(buf);

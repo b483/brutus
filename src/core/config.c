@@ -19,7 +19,6 @@ static const char *ini_keys[] = {
     "ui_disable_map_drag",
     "ui_visual_feedback_on_delete",
     "ui_allow_cycling_temples",
-    "ui_show_water_structure_range",
     "ui_show_construction_size",
     "ui_highlight_legions",
 };

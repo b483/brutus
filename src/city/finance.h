@@ -3,7 +3,7 @@
 
 int city_finance_treasury(void);
 
-int city_finance_out_of_money(void);
+int city_finance_can_afford(int building_cost);
 
 int city_finance_tax_percentage(void);
 

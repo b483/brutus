@@ -3,7 +3,6 @@
 
 #include "building/building.h"
 
-int city_buildings_has_senate(void);
 void city_buildings_add_senate(building *senate);
 void city_buildings_remove_senate(building *senate);
 
@@ -18,10 +17,6 @@ void city_buildings_remove_distribution_center(building *center);
 
 int city_buildings_get_trade_center(void);
 void city_buildings_set_trade_center(int building_id);
-
-int city_buildings_has_hippodrome(void);
-void city_buildings_add_hippodrome(void);
-void city_buildings_remove_hippodrome(void);
 
 int city_buildings_triumphal_arch_available(void);
 void city_buildings_earn_triumphal_arch(void);
@@ -39,8 +34,5 @@ int city_buildings_get_working_dock(int index);
 
 void city_buildings_main_native_meeting_center(int *x, int *y);
 void city_buildings_set_main_native_meeting_center(int x, int y);
-
-int city_buildings_is_mission_post_operational(void);
-void city_buildings_set_mission_post_operational(void);
 
 #endif // CITY_BUILDINGS_H

@@ -183,17 +183,6 @@ static void build_move(const map_tile *tile)
     building_construction_update(tile->x, tile->y, tile->grid_offset);
 }
 
-static void build_end(void)
-{
-    if (building_construction_in_progress()) {
-        if (building_construction_type() != BUILDING_NONE) {
-            sound_effect_play(SOUND_EFFECT_BUILD);
-        }
-        building_construction_place();
-        widget_minimap_invalidate();
-    }
-}
-
 static void scroll_map(const mouse *m)
 {
     pixel_offset delta;
@@ -239,7 +228,13 @@ static void handle_mouse(const mouse *m)
         build_move(tile);
     }
     if (m->left.went_up) {
-        build_end();
+        if (building_construction_in_progress()) {
+            if (building_construction_type() != BUILDING_NONE) {
+                sound_effect_play(SOUND_EFFECT_BUILD);
+            }
+            building_construction_place();
+            widget_minimap_invalidate();
+        }
     }
     if (m->right.went_down && input_coords_in_city(m->x, m->y) && !building_construction_type()) {
         scroll_drag_start();

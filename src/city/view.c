@@ -6,14 +6,6 @@
 #include "map/image.h"
 #include "widget/minimap.h"
 
-#define TILE_WIDTH_PIXELS 60
-#define TILE_HEIGHT_PIXELS 30
-#define HALF_TILE_WIDTH_PIXELS 30
-#define HALF_TILE_HEIGHT_PIXELS 15
-
-static const int X_DIRECTION_FOR_ORIENTATION[] = {1,  1, -1, -1};
-static const int Y_DIRECTION_FOR_ORIENTATION[] = {1, -1, -1,  1};
-
 static struct {
     int screen_width;
     int screen_height;
@@ -122,9 +114,9 @@ static void calculate_lookup(void)
         for (int x = 0; x < GRID_SIZE; x++) {
             int grid_offset = x + GRID_SIZE * y;
             if (map_image_at(grid_offset) < 6) {
-                view_to_grid_offset_lookup[x_view/2][y_view] = -1;
+                view_to_grid_offset_lookup[x_view / 2][y_view] = -1;
             } else {
-                view_to_grid_offset_lookup[x_view/2][y_view] = grid_offset;
+                view_to_grid_offset_lookup[x_view / 2][y_view] = grid_offset;
             }
             x_view += x_view_step;
             y_view += y_view_step;
@@ -546,89 +538,6 @@ void city_view_foreach_valid_map_tile(map_callback *callback1, map_callback *cal
         odd = 1 - odd;
         y_graphic += HALF_TILE_HEIGHT_PIXELS;
         y_view++;
-    }
-}
-
-static void do_valid_callback(int view_x, int view_y, int grid_offset, map_callback *callback)
-{
-    if (grid_offset >= 0 && map_image_at(grid_offset) >= 6) {
-        callback(view_x, view_y, grid_offset);
-    }
-}
-
-void city_view_foreach_tile_in_range(int grid_offset, int size, int radius, map_callback *callback)
-{
-    int x, y;
-    city_view_grid_offset_to_xy_view(grid_offset, &x, &y);
-    x = (x - data.camera.tile.x) * TILE_WIDTH_PIXELS
-        - (y & 1) * HALF_TILE_WIDTH_PIXELS - data.camera.pixel.x + data.viewport.x;
-    y = (y - data.camera.tile.y - 1) * HALF_TILE_HEIGHT_PIXELS - data.camera.pixel.y + data.viewport.y;
-    int orientation_x = X_DIRECTION_FOR_ORIENTATION[data.orientation / 2];
-    int orientation_y = Y_DIRECTION_FOR_ORIENTATION[data.orientation / 2];
-
-    // If we are rotated east or west, the pixel location needs to be rotated
-    // to match its corresponding grid_offset. Since for east and west
-    // only one of the orientations is negative, we can get a negative value
-    // which can then be used to properly offset the pixel positions
-    int pixel_rotation = orientation_x * orientation_y;
-
-    int rotation_delta = pixel_rotation == -1 ? (2 - size) : 1;
-    grid_offset += map_grid_delta(rotation_delta * orientation_x, rotation_delta * orientation_y);
-    int x_delta = HALF_TILE_WIDTH_PIXELS;
-    int y_delta = HALF_TILE_HEIGHT_PIXELS;
-    int x_offset = HALF_TILE_WIDTH_PIXELS;
-    int y_offset = TILE_HEIGHT_PIXELS;
-    if (size) {
-        --size;
-        y += HALF_TILE_HEIGHT_PIXELS * size;
-        x_offset += HALF_TILE_WIDTH_PIXELS * size;
-        y_offset += HALF_TILE_HEIGHT_PIXELS * size;
-    } else {
-        do_valid_callback(x, y, grid_offset, callback);
-    }
-    // Basic algorithm: we cycle the radius as successive rings
-    // Starting at the innermost ring (determined by size), we first cycle
-    // the top, left, right and bottom corners of the ring.
-    // Then we stretch from each corner of the ring to reach the next one, closing the ring
-    for (int ring = 0; ring < radius; ++ring) {
-        int offset_north = -ring - 2;
-        int offset_south = ring + size;
-        do_valid_callback(
-            x, y + y_offset * pixel_rotation,
-            map_grid_add_delta(grid_offset, offset_south * orientation_x, offset_south * orientation_y),
-            callback);
-        do_valid_callback(
-            x, y - y_offset * pixel_rotation,
-            map_grid_add_delta(grid_offset, offset_north * orientation_x, offset_north * orientation_y),
-            callback);
-        do_valid_callback(
-            x - x_offset - x_delta, y,
-            map_grid_add_delta(grid_offset, offset_north * orientation_x, offset_south * orientation_y),
-            callback);
-        do_valid_callback(
-            x + x_offset + x_delta, y,
-            map_grid_add_delta(grid_offset, offset_south * orientation_x, offset_north * orientation_y),
-            callback);
-        for (int tile = 1; tile < ring * 2 + size + 2; ++tile) {
-            do_valid_callback(
-                x + x_delta * tile, y - y_offset * pixel_rotation + y_delta * pixel_rotation * tile,
-                map_grid_add_delta(grid_offset, (tile + offset_north) * orientation_x, offset_north * orientation_y),
-                callback);
-            do_valid_callback(
-                x - x_delta * tile, y - y_offset * pixel_rotation + y_delta * pixel_rotation * tile,
-                map_grid_add_delta(grid_offset, offset_north * orientation_x, (tile + offset_north) * orientation_y),
-                callback);
-            do_valid_callback(
-                x + x_delta * tile, y + y_offset * pixel_rotation - y_delta * pixel_rotation * tile,
-                map_grid_add_delta(grid_offset, offset_south * orientation_x, (offset_south - tile) * orientation_y),
-                callback);
-            do_valid_callback(
-                x - x_delta * tile, y + y_offset * pixel_rotation - y_delta * pixel_rotation * tile,
-                map_grid_add_delta(grid_offset, (offset_south - tile) * orientation_x, offset_south * orientation_y),
-                callback);
-        }
-        x_offset += TILE_WIDTH_PIXELS;
-        y_offset += TILE_HEIGHT_PIXELS;
     }
 }
 
