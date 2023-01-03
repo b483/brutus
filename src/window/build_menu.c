@@ -184,9 +184,6 @@ static void draw_menu_buttons(void)
             lang_text_draw_centered(28, type, item_x_align, data.y_offset + MENU_Y_OFFSET + 3 + MENU_ITEM_HEIGHT * i,
                 MENU_ITEM_WIDTH, FONT_NORMAL_GREEN);
         }
-        if (type == BUILDING_DRAGGABLE_RESERVOIR) {
-            type = BUILDING_RESERVOIR;
-        }
         int cost = model_get_building(type)->cost;
         if (type == BUILDING_FORT) {
             cost = 0;

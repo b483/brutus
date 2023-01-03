@@ -113,7 +113,7 @@ static custom_string all_strings[] = {
     {TR_ALLOWED_BUILDING_HOUSE_VACANT_LOT, "Housing"},
     {TR_ALLOWED_BUILDING_CLEAR_TERRAIN, "Clear terrain"},
     {TR_ALLOWED_BUILDING_ROAD, "Road"},
-    {TR_ALLOWED_BUILDING_DRAGGABLE_RESERVOIR, "Reservoir"},
+    {TR_ALLOWED_BUILDING_RESERVOIR, "Reservoir"},
     {TR_ALLOWED_BUILDING_AQUEDUCT, "Aqueduct"},
     {TR_ALLOWED_BUILDING_FOUNTAIN, "Fountain"},
     {TR_ALLOWED_BUILDING_WELL, "Well"},

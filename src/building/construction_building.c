@@ -361,6 +361,9 @@ static void add_to_map(int type, building *b, int size,
             add_building(b, image_group(GROUP_BUILDING_FORUM));
             break;
         // water
+        case BUILDING_RESERVOIR:
+            add_building(b, image_group(GROUP_BUILDING_RESERVOIR));
+            break;
         case BUILDING_FOUNTAIN:
             add_building(b, image_group(GROUP_BUILDING_FOUNTAIN_1));
             break;

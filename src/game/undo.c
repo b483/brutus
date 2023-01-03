@@ -238,11 +238,6 @@ void game_undo_perform(void)
         map_property_restore();
         restore_map_images();
     } else if (data.num_buildings) {
-        if (data.type == BUILDING_DRAGGABLE_RESERVOIR) {
-            map_terrain_restore();
-            map_aqueduct_restore();
-            restore_map_images();
-        }
         for (int i = 0; i < data.num_buildings; i++) {
             if (data.buildings[i].id) {
                 building *b = building_get(data.buildings[i].id);

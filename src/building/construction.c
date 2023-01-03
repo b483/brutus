@@ -37,19 +37,6 @@
 #include "map/water.h"
 #include "sound/effect.h"
 
-struct reservoir_info {
-    int cost;
-    int place_reservoir_at_start;
-    int place_reservoir_at_end;
-};
-
-enum {
-    PLACE_RESERVOIR_BLOCKED = -1,
-    PLACE_RESERVOIR_NO = 0,
-    PLACE_RESERVOIR_YES = 1,
-    PLACE_RESERVOIR_EXISTS = 2
-};
-
 static struct {
     building_type type;
     building_type sub_type;
@@ -167,103 +154,6 @@ static int place_garden(int x_start, int y_start, int x_end, int y_end)
     }
     map_tiles_update_all_gardens();
     return items_placed;
-}
-
-static int place_reservoir_and_aqueducts(
-    int measure_only, int x_start, int y_start, int x_end, int y_end, struct reservoir_info *info)
-{
-    info->cost = 0;
-    info->place_reservoir_at_start = PLACE_RESERVOIR_NO;
-    info->place_reservoir_at_end = PLACE_RESERVOIR_NO;
-
-    game_undo_restore_map(0);
-
-    int distance = calc_maximum_distance(x_start, y_start, x_end, y_end);
-    if (measure_only && !data.in_progress) {
-        distance = 0;
-    }
-    if (distance > 0) {
-        if (map_building_is_reservoir(x_start - 1, y_start - 1)) {
-            info->place_reservoir_at_start = PLACE_RESERVOIR_EXISTS;
-        } else if (map_tiles_are_clear(x_start - 1, y_start - 1, 3, TERRAIN_ALL)) {
-            info->place_reservoir_at_start = PLACE_RESERVOIR_YES;
-        } else {
-            info->place_reservoir_at_start = PLACE_RESERVOIR_BLOCKED;
-        }
-    }
-    if (map_building_is_reservoir(x_end - 1, y_end - 1)) {
-        info->place_reservoir_at_end = PLACE_RESERVOIR_EXISTS;
-    } else if (map_tiles_are_clear(x_end - 1, y_end - 1, 3, TERRAIN_ALL)) {
-        info->place_reservoir_at_end = PLACE_RESERVOIR_YES;
-    } else {
-        info->place_reservoir_at_end = PLACE_RESERVOIR_BLOCKED;
-    }
-    if (info->place_reservoir_at_start == PLACE_RESERVOIR_BLOCKED
-        || info->place_reservoir_at_end == PLACE_RESERVOIR_BLOCKED) {
-        return 0;
-    }
-    if (info->place_reservoir_at_start == PLACE_RESERVOIR_YES
-        && info->place_reservoir_at_end == PLACE_RESERVOIR_YES && distance < 3) {
-        return 0;
-    }
-    if (!distance) {
-        if (info->place_reservoir_at_end == PLACE_RESERVOIR_YES) {
-            info->cost = model_get_building(BUILDING_RESERVOIR)->cost;
-        }
-        return 1;
-    }
-    if (!map_routing_calculate_distances_for_building(ROUTED_BUILDING_AQUEDUCT, x_start, y_start)) {
-        return 0;
-    }
-    if (info->place_reservoir_at_start != PLACE_RESERVOIR_NO) {
-        map_routing_block(x_start - 1, y_start - 1, 3);
-        mark_construction(x_start - 1, y_start - 1, 3, TERRAIN_ALL, 1);
-    }
-    if (info->place_reservoir_at_end != PLACE_RESERVOIR_NO) {
-        map_routing_block(x_end - 1, y_end - 1, 3);
-        mark_construction(x_end - 1, y_end - 1, 3, TERRAIN_ALL, 1);
-    }
-    const int aqueduct_offsets_x[] = { 0, 2, 0, -2 };
-    const int aqueduct_offsets_y[] = { -2, 0, 2, 0 };
-    int min_dist = 10000;
-    int min_dir_start = 0, min_dir_end = 0;
-    for (int dir_start = 0; dir_start < 4; dir_start++) {
-        int dx_start = aqueduct_offsets_x[dir_start];
-        int dy_start = aqueduct_offsets_y[dir_start];
-        for (int dir_end = 0; dir_end < 4; dir_end++) {
-            int dx_end = aqueduct_offsets_x[dir_end];
-            int dy_end = aqueduct_offsets_y[dir_end];
-            int dist;
-            if (building_construction_place_aqueduct_for_reservoir(1,
-                x_start + dx_start, y_start + dy_start, x_end + dx_end, y_end + dy_end, &dist)) {
-                if (dist && dist < min_dist) {
-                    min_dist = dist;
-                    min_dir_start = dir_start;
-                    min_dir_end = dir_end;
-                }
-            }
-        }
-    }
-    if (min_dist == 10000) {
-        return 0;
-    }
-    int x_aq_start = aqueduct_offsets_x[min_dir_start];
-    int y_aq_start = aqueduct_offsets_y[min_dir_start];
-    int x_aq_end = aqueduct_offsets_x[min_dir_end];
-    int y_aq_end = aqueduct_offsets_y[min_dir_end];
-    int aq_items;
-    building_construction_place_aqueduct_for_reservoir(0, x_start + x_aq_start, y_start + y_aq_start,
-        x_end + x_aq_end, y_end + y_aq_end, &aq_items);
-    if (info->place_reservoir_at_start == PLACE_RESERVOIR_YES) {
-        info->cost += model_get_building(BUILDING_RESERVOIR)->cost;
-    }
-    if (info->place_reservoir_at_end == PLACE_RESERVOIR_YES) {
-        info->cost += model_get_building(BUILDING_RESERVOIR)->cost;
-    }
-    if (aq_items) {
-        info->cost += aq_items * model_get_building(BUILDING_AQUEDUCT)->cost;
-    }
-    return 1;
 }
 
 void building_construction_set_cost(int cost)
@@ -389,7 +279,6 @@ void building_construction_start(int x, int y, int grid_offset)
                     ROUTED_BUILDING_ROAD, data.start.x, data.start.y);
                 break;
             case BUILDING_AQUEDUCT:
-            case BUILDING_DRAGGABLE_RESERVOIR:
                 can_start = map_routing_calculate_distances_for_building(
                     ROUTED_BUILDING_AQUEDUCT, data.start.x, data.start.y);
                 break;
@@ -412,7 +301,6 @@ int building_construction_is_updatable(void)
         case BUILDING_CLEAR_LAND:
         case BUILDING_ROAD:
         case BUILDING_AQUEDUCT:
-        case BUILDING_DRAGGABLE_RESERVOIR:
         case BUILDING_WALL:
         case BUILDING_PLAZA:
         case BUILDING_GARDENS:
@@ -474,12 +362,6 @@ void building_construction_update(int x, int y, int grid_offset)
     } else if (type == BUILDING_AQUEDUCT) {
         building_construction_place_aqueduct(data.start.x, data.start.y, x, y, &current_cost);
         map_tiles_update_all_aqueducts(0);
-    } else if (type == BUILDING_DRAGGABLE_RESERVOIR) {
-        struct reservoir_info info;
-        place_reservoir_and_aqueducts(1, data.start.x, data.start.y, x, y, &info);
-        current_cost = info.cost;
-        map_tiles_update_all_aqueducts(1);
-        data.draw_as_constructing = 0;
     } else if (type == BUILDING_HOUSE_VACANT_LOT) {
         int items_placed = place_houses(1, data.start.x, data.start.y, x, y);
         if (items_placed >= 0) current_cost *= items_placed;
@@ -655,34 +537,6 @@ void building_construction_place(void)
             return;
         }
         placement_cost = cost;
-        map_tiles_update_all_aqueducts(0);
-        map_routing_update_land();
-    } else if (type == BUILDING_DRAGGABLE_RESERVOIR) {
-        struct reservoir_info info;
-        if (!place_reservoir_and_aqueducts(0, x_start, y_start, x_end, y_end, &info)) {
-            map_property_clear_constructing_and_deleted();
-            city_warning_show(WARNING_CLEAR_LAND_NEEDED);
-            return;
-        }
-        if (info.place_reservoir_at_start == PLACE_RESERVOIR_YES) {
-            building *reservoir = building_create(BUILDING_RESERVOIR, x_start - 1, y_start - 1);
-            game_undo_add_building(reservoir);
-            map_building_tiles_add(reservoir->id, x_start - 1, y_start - 1, 3,
-                image_group(GROUP_BUILDING_RESERVOIR), TERRAIN_BUILDING);
-            map_aqueduct_set(map_grid_offset(x_start - 1, y_start - 1), 0);
-        }
-        if (info.place_reservoir_at_end == PLACE_RESERVOIR_YES) {
-            building *reservoir = building_create(BUILDING_RESERVOIR, x_end - 1, y_end - 1);
-            game_undo_add_building(reservoir);
-            map_building_tiles_add(reservoir->id, x_end - 1, y_end - 1, 3,
-                image_group(GROUP_BUILDING_RESERVOIR), TERRAIN_BUILDING);
-            map_aqueduct_set(map_grid_offset(x_end - 1, y_end - 1), 0);
-            if (!map_terrain_exists_tile_in_area_with_type(x_start - 2, y_start - 2, 5, TERRAIN_WATER)
-                && info.place_reservoir_at_start == PLACE_RESERVOIR_NO) {
-                building_construction_warning_check_reservoir(BUILDING_RESERVOIR);
-            }
-        }
-        placement_cost = info.cost;
         map_tiles_update_all_aqueducts(0);
         map_routing_update_land();
     } else if (type == BUILDING_HOUSE_VACANT_LOT) {

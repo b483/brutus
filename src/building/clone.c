@@ -8,8 +8,8 @@
 #include "map/terrain.h"
 
 /**
- * Takes a building and retrieve its proper type for cloning.
- * For example, given a fort, return the enumaration value corresponding to
+ * Takes a building and retrieves its proper type for cloning.
+ * For example, given a fort, return the enumeration value corresponding to
  * the specific type of fort rather than the general value
  *
  * @param building Building to examine
@@ -24,8 +24,6 @@ static building_type get_clone_type_from_building(building *building)
     }
 
     switch (clone_type) {
-        case BUILDING_RESERVOIR:
-            return BUILDING_DRAGGABLE_RESERVOIR;
         case BUILDING_FORT:
             switch (building->subtype.fort_figure_type) {
                 case FIGURE_FORT_LEGIONARY: return BUILDING_FORT_LEGIONARIES;
