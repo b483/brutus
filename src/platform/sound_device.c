@@ -17,7 +17,7 @@
 #define AUDIO_CHANNELS 2
 #define AUDIO_BUFFERS 1024
 
-#define MAX_CHANNELS 150
+#define MAX_CHANNELS 151
 
 #if SDL_VERSION_ATLEAST(2, 0, 7)
 #define USE_SDL_AUDIOSTREAM
@@ -211,8 +211,9 @@ void sound_device_play_channel_panned(int channel, int sound_variety_index, int 
         if (sound_variety_index) {
             random_generate_next();
             random_factor = random_byte() % sound_variety_index;
+            channel = channel + random_factor;
         }
-        sound_channel *ch = &data.channels[channel + random_factor];
+        sound_channel *ch = &data.channels[channel];
         if (load_channel(ch)) {
             Mix_SetPanning(channel, left_pct * 255 / 100, right_pct * 255 / 100);
             sound_device_set_channel_volume(channel, volume_pct);

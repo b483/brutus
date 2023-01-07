@@ -107,7 +107,7 @@ static void draw_footprint(int x, int y, int grid_offset)
         // Valid grid_offset and leftmost tile -> draw
         int building_id = map_building_at(grid_offset);
         color_t color_mask = 0;
-        if (building_id || map_terrain_is(grid_offset, TERRAIN_GARDEN)) {
+        if (building_id || map_terrain_is(grid_offset, TERRAIN_GARDEN) || map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
             int view_x, view_y, view_width, view_height;
             city_view_get_viewport(&view_x, &view_y, &view_width, &view_height);
             if (building_id) {
@@ -130,8 +130,15 @@ static void draw_footprint(int x, int y, int grid_offset)
                 } else {
                     sound_city_mark_building_view(BUILDING_GARDENS, 0, SOUND_DIRECTION_CENTER);
                 }
+            } else if (map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
+                if (x < view_x + 100) {
+                    sound_city_mark_building_view(BUILDING_AQUEDUCT, 0, SOUND_DIRECTION_LEFT);
+                } else if (x > view_x + view_width - 100) {
+                    sound_city_mark_building_view(BUILDING_AQUEDUCT, 0, SOUND_DIRECTION_RIGHT);
+                } else {
+                    sound_city_mark_building_view(BUILDING_AQUEDUCT, 0, SOUND_DIRECTION_CENTER);
+                }
             }
-
         }
         int image_id = map_image_at(grid_offset);
         if (map_property_is_constructing(grid_offset)) {

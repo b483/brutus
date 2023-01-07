@@ -10,7 +10,7 @@ enum {
 
     // city sounds (from buildings)
     SOUND_CHANNEL_CITY_MIN = 45,
-    SOUND_CHANNEL_CITY_MAX = 149,
+    SOUND_CHANNEL_CITY_MAX = 150,
 
     SOUND_CHANNEL_MAX = SOUND_CHANNEL_CITY_MAX + 1
 };
