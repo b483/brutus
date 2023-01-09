@@ -300,7 +300,7 @@ void city_building_ghost_draw(const map_tile *tile)
     city_view_get_selected_tile_pixels(&x, &y);
 
     const building_properties *building_props = building_properties_for_type(type);
-    int building_size = building_props->size;
+    int building_size = type == BUILDING_WAREHOUSE ? 3 : building_props->size;
     int num_tiles = building_size * building_size;
     int blocked_tiles[num_tiles];
     int orientation_index = city_view_orientation() / 2;
