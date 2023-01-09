@@ -239,9 +239,8 @@ int building_construction_cost(void)
 
 int building_construction_size(int *x, int *y)
 {
-    if (!config_get(CONFIG_UI_SHOW_CONSTRUCTION_SIZE) ||
-        !building_construction_is_updatable() || !data.in_progress ||
-        (data.type != BUILDING_CLEAR_LAND && !data.cost_preview)) {
+    if (!building_construction_is_updatable() || !data.in_progress
+        || (data.type != BUILDING_CLEAR_LAND && !data.cost_preview)) {
         return 0;
     }
     int size_x = data.end.x - data.start.x;
