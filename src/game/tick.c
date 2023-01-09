@@ -12,6 +12,7 @@
 #include "building/maintenance.h"
 #include "building/warehouse.h"
 #include "city/culture.h"
+#include "city/data_private.h"
 #include "city/emperor.h"
 #include "city/finance.h"
 #include "city/gods.h"
@@ -55,7 +56,7 @@ static void advance_year(void)
     empire_object_city_reset_yearly_trade_amounts();
     building_maintenance_update_fire_direction();
     city_ratings_update(1);
-    city_gods_reset_neptune_blessing();
+    city_data.religion.neptune_double_trade_active = 0;
 }
 
 static void advance_month(void)

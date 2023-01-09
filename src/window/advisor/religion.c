@@ -1,6 +1,7 @@
 #include "religion.h"
 
 #include "building/count.h"
+#include "city/data_private.h"
 #include "city/gods.h"
 #include "city/houses.h"
 #include "game/settings.h"
@@ -11,10 +12,9 @@
 
 static int get_religion_advice(void)
 {
-    int least_happy = city_god_least_happy();
     const house_demands *demands = city_houses_demands();
-    if (least_happy >= 0 && city_god_wrath_bolts(least_happy) > 4) {
-        return 6 + least_happy;
+    if (city_data.religion.least_happy_god - 1 >= 0 && city_data.religion.gods[city_data.religion.least_happy_god - 1].wrath_bolts > 4) {
+        return 6 + city_data.religion.least_happy_god - 1;
     } else if (demands->religion == 1) {
         return demands->requiring.religion ? 1 : 0;
     } else if (demands->religion == 2) {
@@ -23,8 +23,8 @@ static int get_religion_advice(void)
         return 3;
     } else if (!demands->requiring.religion) {
         return 4;
-    } else if (least_happy >= 0) {
-        return 6 + least_happy;
+    } else if (city_data.religion.least_happy_god - 1 >= 0) {
+        return 6 + city_data.religion.least_happy_god - 1;
     } else {
         return 5;
     }
@@ -36,9 +36,9 @@ static void draw_god_row(god_type god, int y_offset, building_type small_temple,
     lang_text_draw(59, 16 + god, 120, y_offset + 1, FONT_SMALL_PLAIN);
     text_draw_number_centered(building_count_total(small_temple), 230, y_offset, 50, FONT_NORMAL_WHITE);
     text_draw_number_centered(building_count_total(large_temple), 290, y_offset, 50, FONT_NORMAL_WHITE);
-    text_draw_number_centered(city_god_months_since_festival(god), 360, y_offset, 50, FONT_NORMAL_WHITE);
-    int width = lang_text_draw(59, 32 + city_god_happiness(god) / 10, 460, y_offset, FONT_NORMAL_WHITE);
-    int bolts = city_god_wrath_bolts(god);
+    text_draw_number_centered(city_data.religion.gods[god].months_since_festival, 360, y_offset, 50, FONT_NORMAL_WHITE);
+    int width = lang_text_draw(59, 32 + city_data.religion.gods[god].happiness / 10, 460, y_offset, FONT_NORMAL_WHITE);
+    int bolts = city_data.religion.gods[god].wrath_bolts;
     for (int i = 0; i < bolts / 10; i++) {
         image_draw(image_group(GROUP_GOD_BOLT), 10 * i + width + 460, y_offset - 4);
     }

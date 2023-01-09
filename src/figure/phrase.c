@@ -575,9 +575,8 @@ static int city_god_state(void)
 {
     int least_god_happiness = 100;
     for (int i = 0; i < MAX_GODS; i++) {
-        int happiness = city_god_happiness(i);
-        if (happiness < least_god_happiness) {
-            least_god_happiness = happiness;
+        if (city_data.religion.gods[i].happiness < least_god_happiness) {
+            least_god_happiness = city_data.religion.gods[i].happiness;
         }
     }
     if (least_god_happiness < 20) {

@@ -27,7 +27,15 @@ void city_data_init(void)
     city_data.emperor.gifts[GIFT_GENEROUS].cost = 0;
     city_data.emperor.gifts[GIFT_LAVISH].cost = 0;
 
-    city_gods_reset();
+    for (int i = 0; i < MAX_GODS; i++) {
+        city_data.religion.gods[i].target_happiness = 50;
+        city_data.religion.gods[i].happiness = 50;
+        city_data.religion.gods[i].wrath_bolts = 0;
+        city_data.religion.gods[i].blessing_done = 0;
+        city_data.religion.gods[i].small_curse_done = 0;
+        city_data.religion.gods[i].months_since_festival = 0;
+    }
+    city_data.religion.angry_message_delay = 0;
 }
 
 void city_data_init_scenario(void)

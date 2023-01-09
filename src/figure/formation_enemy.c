@@ -2,6 +2,7 @@
 
 #include "building/building.h"
 #include "city/buildings.h"
+#include "city/data_private.h"
 #include "city/figures.h"
 #include "city/gods.h"
 #include "city/message.h"
@@ -24,36 +25,46 @@ static const int ENEMY_ATTACK_PRIORITY[4][100] = {
     {
         BUILDING_GRANARY, BUILDING_WAREHOUSE, BUILDING_MARKET,
         BUILDING_WHEAT_FARM, BUILDING_VEGETABLE_FARM, BUILDING_FRUIT_FARM,
-        BUILDING_OLIVE_FARM, BUILDING_VINES_FARM, BUILDING_PIG_FARM, 0
+        BUILDING_OLIVE_FARM, BUILDING_VINES_FARM, BUILDING_PIG_FARM,
+        0
     },
     {
-        BUILDING_SENATE_UPGRADED, BUILDING_SENATE,
-        BUILDING_FORUM_UPGRADED, BUILDING_FORUM, 0
+        BUILDING_SENATE_UPGRADED, BUILDING_SENATE, BUILDING_FORUM_UPGRADED, BUILDING_FORUM,
+        0
     },
     {
+        BUILDING_TRIUMPHAL_ARCH, BUILDING_SENATE, BUILDING_SENATE_UPGRADED,
         BUILDING_GOVERNORS_PALACE, BUILDING_GOVERNORS_VILLA, BUILDING_GOVERNORS_HOUSE,
-        BUILDING_HOUSE_LUXURY_PALACE, BUILDING_HOUSE_LARGE_PALACE,
-        BUILDING_HOUSE_MEDIUM_PALACE, BUILDING_HOUSE_SMALL_PALACE,
-        BUILDING_HOUSE_GRAND_VILLA, BUILDING_HOUSE_LARGE_VILLA,
-        BUILDING_HOUSE_MEDIUM_VILLA, BUILDING_HOUSE_SMALL_VILLA,
-        BUILDING_HOUSE_GRAND_INSULA, BUILDING_HOUSE_LARGE_INSULA,
-        BUILDING_HOUSE_MEDIUM_INSULA, BUILDING_HOUSE_SMALL_INSULA,
-        BUILDING_HOUSE_LARGE_CASA, BUILDING_HOUSE_SMALL_CASA,
-        BUILDING_HOUSE_LARGE_HOVEL, BUILDING_HOUSE_SMALL_HOVEL,
-        BUILDING_HOUSE_LARGE_SHACK, BUILDING_HOUSE_SMALL_SHACK,
-        BUILDING_HOUSE_LARGE_TENT, BUILDING_HOUSE_SMALL_TENT, 0
+        BUILDING_HIPPODROME,
+        0
     },
     {
-        BUILDING_MILITARY_ACADEMY, BUILDING_PREFECTURE, 0
+        BUILDING_BARRACKS, BUILDING_MILITARY_ACADEMY, BUILDING_PREFECTURE, 0
     }
 };
 
 static const int RIOTER_ATTACK_PRIORITY[100] = {
-    79, 78, 77, 29, 28, 27, 26, 25, 85, 84, 32, 33, 98, 65, 66, 67,
-    68, 69, 87, 86, 30, 31, 47, 52, 46, 48, 53, 51, 24, 23, 22, 21,
-    20, 46, 48, 114, 113, 112, 111, 110, 71, 72, 70, 74, 75, 76, 60, 61,
-    62, 63, 64, 34, 36, 37, 35, 94, 19, 18, 17, 16, 15, 49, 106, 107,
-    109, 108, 90, 100, 101, 102, 103, 104, 105, 55, 81, 91, 92, 14, 13, 12, 11, 10, 0
+    BUILDING_GOVERNORS_PALACE, BUILDING_GOVERNORS_VILLA, BUILDING_GOVERNORS_HOUSE,
+    BUILDING_SENATE_UPGRADED, BUILDING_SENATE, BUILDING_FORUM_UPGRADED, BUILDING_FORUM,
+    BUILDING_HOUSE_LUXURY_PALACE, BUILDING_HOUSE_LARGE_PALACE, BUILDING_HOUSE_MEDIUM_PALACE, BUILDING_HOUSE_SMALL_PALACE,
+    BUILDING_HOUSE_GRAND_VILLA, BUILDING_HOUSE_LARGE_VILLA, BUILDING_HOUSE_MEDIUM_VILLA, BUILDING_HOUSE_SMALL_VILLA,
+    BUILDING_PREFECTURE,
+    BUILDING_ACADEMY, BUILDING_LIBRARY,
+    BUILDING_BATHHOUSE,
+    BUILDING_HIPPODROME, BUILDING_COLOSSEUM, BUILDING_AMPHITHEATER, BUILDING_THEATER, BUILDING_GLADIATOR_SCHOOL, BUILDING_ACTOR_COLONY, BUILDING_CHARIOT_MAKER, BUILDING_LION_HOUSE,
+    BUILDING_LARGE_TEMPLE_CERES, BUILDING_LARGE_TEMPLE_NEPTUNE, BUILDING_LARGE_TEMPLE_MERCURY, BUILDING_LARGE_TEMPLE_MARS, BUILDING_LARGE_TEMPLE_VENUS,
+    BUILDING_HOSPITAL,
+    BUILDING_HOUSE_GRAND_INSULA, BUILDING_HOUSE_LARGE_INSULA, BUILDING_HOUSE_MEDIUM_INSULA, BUILDING_HOUSE_SMALL_INSULA,
+    BUILDING_WINE_WORKSHOP, BUILDING_OIL_WORKSHOP, BUILDING_WEAPONS_WORKSHOP, BUILDING_FURNITURE_WORKSHOP, BUILDING_POTTERY_WORKSHOP,
+    BUILDING_GRANARY, BUILDING_WAREHOUSE, BUILDING_MARKET, BUILDING_DOCK,
+    BUILDING_ENGINEERS_POST,
+    BUILDING_HOUSE_LARGE_CASA, BUILDING_HOUSE_SMALL_CASA, BUILDING_HOUSE_LARGE_HOVEL, BUILDING_HOUSE_SMALL_HOVEL,
+    BUILDING_CLAY_PIT, BUILDING_MARBLE_QUARRY, BUILDING_IRON_MINE, BUILDING_TIMBER_YARD,
+    BUILDING_WHEAT_FARM, BUILDING_VEGETABLE_FARM, BUILDING_FRUIT_FARM, BUILDING_OLIVE_FARM, BUILDING_VINES_FARM, BUILDING_PIG_FARM,
+    BUILDING_SMALL_TEMPLE_CERES, BUILDING_SMALL_TEMPLE_NEPTUNE, BUILDING_SMALL_TEMPLE_MERCURY, BUILDING_SMALL_TEMPLE_MARS, BUILDING_SMALL_TEMPLE_VENUS, BUILDING_ORACLE,
+    BUILDING_RESERVOIR, BUILDING_FOUNTAIN, BUILDING_WELL,
+    BUILDING_HOUSE_LARGE_SHACK, BUILDING_HOUSE_SMALL_SHACK, BUILDING_HOUSE_LARGE_TENT, BUILDING_HOUSE_SMALL_TENT,
+    0
 };
 
 static const int LAYOUT_ORIENTATION_OFFSETS[13][4][40] = {
@@ -199,34 +210,23 @@ static void set_enemy_target_building(formation *m)
             }
         }
     }
-    if (!best_building) {
-        // no target buildings left: take rioter attack priority
-        for (int i = 1; i < MAX_BUILDINGS; i++) {
-            building *b = building_get(i);
-            if (b->state != BUILDING_STATE_IN_USE || map_soldier_strength_get(b->grid_offset)) {
-                continue;
-            }
-            for (int n = 0; n < 100 && n <= best_type_index && RIOTER_ATTACK_PRIORITY[n]; n++) {
-                if (b->type == RIOTER_ATTACK_PRIORITY[n]) {
-                    int distance = calc_maximum_distance(m->x_home, m->y_home, b->x, b->y);
-                    if (n < best_type_index) {
-                        best_type_index = n;
-                        best_building = b;
-                        min_distance = distance;
-                    } else if (distance < min_distance) {
-                        best_building = b;
-                        min_distance = distance;
-                    }
-                    break;
-                }
-            }
-        }
-    }
     if (best_building) {
         if (best_building->type == BUILDING_WAREHOUSE) {
             formation_set_destination_building(m, best_building->x + 1, best_building->y, best_building->id + 1);
         } else {
             formation_set_destination_building(m, best_building->x, best_building->y, best_building->id);
+        }
+    } else {
+        // no priority buildings left: target population
+        for (int i = 1; i < MAX_BUILDINGS; i++) {
+            building *b = building_get(i);
+            if (b->state != BUILDING_STATE_IN_USE || map_soldier_strength_get(b->grid_offset)) {
+                continue;
+            }
+            if (building_is_house(b->type)) {
+                formation_set_destination_building(m, b->x, b->y, b->id);
+                break;
+            }
         }
     }
 }
@@ -345,25 +345,24 @@ int formation_enemy_move_formation_to(const formation *m, int x, int y, int *x_t
 
 static void mars_kill_enemies(void)
 {
-    int to_kill = city_god_spirit_of_mars_power();
-    if (to_kill <= 0) {
+    if (city_data.religion.mars_spirit_power <= 0) {
         return;
     }
     int grid_offset = 0;
-    for (int i = 1; i < MAX_FIGURES && to_kill > 0; i++) {
+    for (int i = 1; i < MAX_FIGURES && city_data.religion.mars_spirit_power > 0; i++) {
         figure *f = figure_get(i);
         if (f->state != FIGURE_STATE_ALIVE) {
             continue;
         }
         if (figure_is_enemy(f) && f->type != FIGURE_ENEMY54_GLADIATOR) {
             f->action_state = FIGURE_ACTION_149_CORPSE;
-            to_kill--;
+            city_data.religion.mars_spirit_power--;
             if (!grid_offset) {
                 grid_offset = f->grid_offset;
             }
         }
     }
-    city_god_spirit_of_mars_mark_used();
+    city_data.religion.mars_spirit_power = 0;
     city_message_post(1, MESSAGE_SPIRIT_OF_MARS, 0, grid_offset);
 }
 

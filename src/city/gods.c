@@ -19,25 +19,6 @@
 
 #define TIE 10
 
-void city_gods_reset(void)
-{
-    for (int i = 0; i < MAX_GODS; i++) {
-        god_status *god = &city_data.religion.gods[i];
-        god->target_happiness = 50;
-        god->happiness = 50;
-        god->wrath_bolts = 0;
-        god->blessing_done = 0;
-        god->small_curse_done = 0;
-        god->months_since_festival = 0;
-    }
-    city_data.religion.angry_message_delay = 0;
-}
-
-void city_gods_reset_neptune_blessing(void)
-{
-    city_data.religion.neptune_double_trade_active = 0;
-}
-
 static void perform_blessing(god_type god)
 {
     switch (god) {
@@ -190,7 +171,6 @@ static void update_god_moods(void)
             god_id = city_data.religion.least_happy_god - 1;
         }
     }
-    // return here to disable gods
     if (god_id < MAX_GODS) {
         god_status *god = &city_data.religion.gods[god_id];
         if (god->happiness >= 100 && !god->blessing_done) {
@@ -342,36 +322,6 @@ int city_gods_calculate_least_happy(void)
     }
     city_data.religion.least_happy_god = max_god;
     return max_god > 0;
-}
-
-int city_god_happiness(int god_id)
-{
-    return city_data.religion.gods[god_id].happiness;
-}
-
-int city_god_wrath_bolts(int god_id)
-{
-    return city_data.religion.gods[god_id].wrath_bolts;
-}
-
-int city_god_months_since_festival(int god_id)
-{
-    return city_data.religion.gods[god_id].months_since_festival;
-}
-
-int city_god_least_happy(void)
-{
-    return city_data.religion.least_happy_god - 1;
-}
-
-int city_god_spirit_of_mars_power(void)
-{
-    return city_data.religion.mars_spirit_power;
-}
-
-void city_god_spirit_of_mars_mark_used(void)
-{
-    city_data.religion.mars_spirit_power = 0;
 }
 
 int city_god_neptune_create_shipwreck_flotsam(void)
