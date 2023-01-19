@@ -21,6 +21,7 @@ static void button_year(int param1, int param2);
 static void button_month(int param1, int param2);
 static void button_amount(int param1, int param2);
 static void button_type(int param1, int param2);
+static void button_enemy_type(int param1, int param2);
 static void button_from(int param1, int param2);
 static void button_attack_type(int param1, int param2);
 static void button_delete(int param1, int param2);
@@ -30,14 +31,16 @@ static generic_button buttons_edit_invasion[] = {
     {145, 182, 60, 25, button_month, button_none, 0, 0},
     {145, 212, 60, 25, button_amount, button_none, 0, 0},
     {145, 242, 200, 25, button_type, button_none, 0, 0},
-    {145, 272, 200, 25, button_from, button_none, 0, 0},
-    {145, 302, 200, 25, button_attack_type, button_none, 0, 0},
-    {90, 342, 200, 25, button_delete, button_none, 0, 0},
+    {145, 272, 200, 25, button_enemy_type, button_none, 0, 0},
+    {145, 302, 200, 25, button_from, button_none, 0, 0},
+    {145, 332, 200, 25, button_attack_type, button_none, 0, 0},
+    {90, 372, 200, 25, button_delete, button_none, 0, 0},
 };
 
 static struct {
     int id;
     const uint8_t *invasion_type_names[INVASION_TYPE_MAX_COUNT];
+    const uint8_t *enemy_type_names[ENEMY_TYPE_MAX_COUNT];
     int focus_button_id;
 } data;
 
@@ -46,6 +49,9 @@ static void init(int id)
     data.id = id;
     for (int i = TR_EDITOR_INVASION_TYPE_NO_INVADERS; i <= TR_EDITOR_INVASION_TYPE_DISTANT_BATTLE; i++) {
         data.invasion_type_names[i - TR_EDITOR_INVASION_TYPE_NO_INVADERS] = get_custom_string(i);
+    }
+    for (int i = TR_EDITOR_ENEMY_TYPE_BARBARIANS; i <= TR_EDITOR_ENEMY_TYPE_SELEUCIDS; i++) {
+        data.enemy_type_names[i - TR_EDITOR_ENEMY_TYPE_BARBARIANS] = get_custom_string(i);
     }
 }
 
@@ -58,7 +64,7 @@ static void draw_foreground(void)
 {
     graphics_in_dialog();
 
-    outer_panel_draw(0, 100, 24, 18);
+    outer_panel_draw(0, 100, 24, 20);
     // Scheduling an invasion
     lang_text_draw_centered(44, 22, 0, 116, 384, FONT_LARGE_BLACK);
 
@@ -89,21 +95,26 @@ static void draw_foreground(void)
     text_draw_centered(get_custom_string(TR_EDITOR_INVASION_TYPE_NO_INVADERS + scenario.invasions[data.id].type), 145, 248, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
 
     if (scenario.invasions[data.id].type != INVASION_TYPE_DISTANT_BATTLE) {
-        if (scenario.invasions[data.id].type != INVASION_TYPE_CAESAR) {
+        if (scenario.invasions[data.id].type == INVASION_TYPE_LOCAL_UPRISING || scenario.invasions[data.id].type == INVASION_TYPE_ENEMY_ARMY) {
+            if (scenario.invasions[data.id].type == INVASION_TYPE_ENEMY_ARMY) {
+                // Enemy type
+                button_border_draw(145, 272, 200, 25, data.focus_button_id == 5);
+                text_draw_centered(get_custom_string(TR_EDITOR_ENEMY_TYPE_BARBARIANS + scenario.invasions[data.id].enemy_type), 145, 278, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
+            }
             // From
-            text_draw(get_custom_string(TR_EDITOR_INVASION_FROM), 30, 278, FONT_NORMAL_BLACK, COLOR_BLACK);
-            button_border_draw(145, 272, 200, 25, data.focus_button_id == 5);
-            lang_text_draw_centered(35, scenario.invasions[data.id].from, 145, 278, 200, FONT_NORMAL_BLACK);
+            text_draw(get_custom_string(TR_EDITOR_INVASION_FROM), 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
+            button_border_draw(145, 302, 200, 25, data.focus_button_id == 6);
+            lang_text_draw_centered(35, scenario.invasions[data.id].from, 145, 308, 200, FONT_NORMAL_BLACK);
         }
         // Attack type
-        text_draw(get_custom_string(TR_EDITOR_INVASION_TARGET_TYPE), 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
-        button_border_draw(145, 302, 200, 25, data.focus_button_id == 6);
-        lang_text_draw_centered(36, scenario.invasions[data.id].target_type, 145, 308, 200, FONT_NORMAL_BLACK);
+        text_draw(get_custom_string(TR_EDITOR_INVASION_TARGET_TYPE), 30, 338, FONT_NORMAL_BLACK, COLOR_BLACK);
+        button_border_draw(145, 332, 200, 25, data.focus_button_id == 7);
+        lang_text_draw_centered(36, scenario.invasions[data.id].target_type, 145, 338, 200, FONT_NORMAL_BLACK);
     }
 
     // Unschedule invasion
-    button_border_draw(90, 342, 200, 25, data.focus_button_id == 7);
-    lang_text_draw_centered(44, 26, 90, 348, 200, FONT_NORMAL_BLACK);
+    button_border_draw(90, 372, 200, 25, data.focus_button_id == 8);
+    lang_text_draw_centered(44, 26, 90, 378, 200, FONT_NORMAL_BLACK);
 
     graphics_reset_dialog();
 }
@@ -180,7 +191,19 @@ static void set_type(int value)
 
 static void button_type(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_select_list_show_text(screen_dialog_offset_x() + 350, screen_dialog_offset_y() + 240, data.invasion_type_names, INVASION_TYPE_MAX_COUNT, set_type);
+    window_select_list_show_text(screen_dialog_offset_x() + 350, screen_dialog_offset_y() + 197, data.invasion_type_names, INVASION_TYPE_MAX_COUNT, set_type);
+}
+
+static void set_enemy_type(int value)
+{
+    scenario.invasions[data.id].enemy_type = value;
+}
+
+static void button_enemy_type(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
+{
+    if (scenario.invasions[data.id].type == INVASION_TYPE_ENEMY_ARMY) {
+        window_select_list_show_text(screen_dialog_offset_x() + 350, screen_dialog_offset_y() + 80, data.enemy_type_names, ENEMY_TYPE_MAX_COUNT, set_enemy_type);
+    }
 }
 
 static void set_from(int value)
@@ -191,7 +214,7 @@ static void set_from(int value)
 static void button_from(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (scenario.invasions[data.id].type != INVASION_TYPE_DISTANT_BATTLE && scenario.invasions[data.id].type != INVASION_TYPE_CAESAR) {
-        window_select_list_show(screen_dialog_offset_x() + 350, screen_dialog_offset_y() + 195, 35, 9, set_from);
+        window_select_list_show(screen_dialog_offset_x() + 350, screen_dialog_offset_y() + 225, 35, 9, set_from);
     }
 }
 
@@ -203,7 +226,7 @@ static void set_attack(int value)
 static void button_attack_type(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (scenario.invasions[data.id].type != INVASION_TYPE_DISTANT_BATTLE) {
-        window_select_list_show(screen_dialog_offset_x() + 350, screen_dialog_offset_y() + 215, 36, 5, set_attack);
+        window_select_list_show(screen_dialog_offset_x() + 350, screen_dialog_offset_y() + 285, 36, 5, set_attack);
     }
 }
 

@@ -149,18 +149,18 @@ int figure_name_get(figure_type type, enemy_type enemy)
     case FIGURE_ENEMY52_MOUNTED_ARCHER:
     case FIGURE_ENEMY53_AXE:
         switch (enemy) {
-        case ENEMY_8_GREEK:
+        case ENEMY_TYPE_GREEK:
             return get_next_name(&data.enemy_greek, 463, 32);
 
-        case ENEMY_9_EGYPTIAN:
+        case ENEMY_TYPE_EGYPTIAN:
             return get_next_name(&data.enemy_egyptian, 496, 32);
 
-        case ENEMY_1_NUMIDIAN:
-        case ENEMY_5_PERGAMUM:
-        case ENEMY_10_CARTHAGINIAN:
+        case ENEMY_TYPE_NUMIDIAN:
+        case ENEMY_TYPE_PERGAMUM:
+        case ENEMY_TYPE_CARTHAGINIAN:
             return get_next_name(&data.enemy_arabian, 529, 32);
 
-        case ENEMY_7_ETRUSCAN:
+        case ENEMY_TYPE_ETRUSCAN:
             return get_next_name(&data.prefect, 198, 32);
 
         default:

@@ -86,8 +86,13 @@ static void draw_foreground(void)
             int width = lang_text_draw(25, scenario.invasions[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
             width += lang_text_draw_year(scenario.start_year + scenario.invasions[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
             width += text_draw_number(scenario.invasions[i].amount, 0, 0, x + 12 + width, y + 6, FONT_NORMAL_BLACK);
-            uint8_t *invasions_type_text = get_custom_string(TR_EDITOR_INVASION_TYPE_NO_INVADERS + scenario.invasions[i].type);
-            text_draw(invasions_type_text, x - 12 + width + (290 - width - text_get_width(invasions_type_text, FONT_NORMAL_BLACK)), y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
+            if (scenario.invasions[i].type == INVASION_TYPE_ENEMY_ARMY) {
+                uint8_t *enemy_type_text = get_custom_string(TR_EDITOR_ENEMY_TYPE_BARBARIANS + scenario.invasions[i].enemy_type);
+                text_draw(enemy_type_text, x - 12 + width + (290 - width - text_get_width(enemy_type_text, FONT_NORMAL_BLACK)), y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
+            } else {
+                uint8_t *invasions_type_text = get_custom_string(TR_EDITOR_INVASION_TYPE_NO_INVADERS + scenario.invasions[i].type);
+                text_draw(invasions_type_text, x - 12 + width + (290 - width - text_get_width(invasions_type_text, FONT_NORMAL_BLACK)), y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
+            }
         } else {
             lang_text_draw_centered(44, 23, x, y + 6, 290, FONT_NORMAL_BLACK);
         }

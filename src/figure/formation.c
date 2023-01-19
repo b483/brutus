@@ -271,15 +271,15 @@ void formation_change_morale(formation *m, int amount)
         max_morale = m->has_military_training ? 80 : 60;
     } else {
         switch (m->enemy_type) {
-            case ENEMY_0_BARBARIAN:
-            case ENEMY_1_NUMIDIAN:
-            case ENEMY_2_GAUL:
-            case ENEMY_3_CELT:
-            case ENEMY_4_GOTH:
+            case ENEMY_TYPE_BARBARIAN:
+            case ENEMY_TYPE_NUMIDIAN:
+            case ENEMY_TYPE_GAUL:
+            case ENEMY_TYPE_CELT:
+            case ENEMY_TYPE_GOTH:
                 max_morale = 80;
                 break;
-            case ENEMY_8_GREEK:
-            case ENEMY_10_CARTHAGINIAN:
+            case ENEMY_TYPE_GREEK:
+            case ENEMY_TYPE_CARTHAGINIAN:
                 max_morale = 90;
                 break;
             default:

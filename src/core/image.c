@@ -17,6 +17,7 @@
 #define MAIN_INDEX_SIZE 660680
 #define ENEMY_INDEX_OFFSET HEADER_SIZE
 #define ENEMY_INDEX_SIZE ENTRY_SIZE * ENEMY_ENTRIES
+#define ENEMY_FILES_COUNT 11
 
 #define MAIN_DATA_SIZE 30000000
 #define EMPIRE_DATA_SIZE (2000*1000*4)
@@ -53,49 +54,31 @@ static const char EDITOR_GRAPHICS_555[][NAME_SIZE] = {
 };
 static const char EMPIRE_555[NAME_SIZE] = "The_empire.555";
 
-static const char ENEMY_GRAPHICS_SG2[][NAME_SIZE] = {
-    "goths.sg2",
-    "Etruscan.sg2",
-    "Etruscan.sg2",
+static const char ENEMY_GRAPHICS_SG2[ENEMY_FILES_COUNT][NAME_SIZE] = {
+    "carthage.sg2", // used for barbarians
     "carthage.sg2",
-    "Greek.sg2",
-    "Greek.sg2",
+    "celts.sg2",
     "egyptians.sg2",
+    "Etruscan.sg2",
+    "Gaul.sg2",
+    "goths.sg2",
+    "Greek.sg2",
+    "North African.sg2",
     "Persians.sg2",
     "Phoenician.sg2",
-    "celts.sg2",
-    "celts.sg2",
-    "celts.sg2",
-    "Gaul.sg2",
-    "Gaul.sg2",
-    "goths.sg2",
-    "goths.sg2",
-    "goths.sg2",
-    "Phoenician.sg2",
-    "North African.sg2",
-    "Phoenician.sg2",
 };
-static const char ENEMY_GRAPHICS_555[][NAME_SIZE] = {
-    "goths.555",
-    "Etruscan.555",
-    "Etruscan.555",
-    "carthage.555",
-    "Greek.555",
-    "Greek.555",
-    "egyptians.555",
-    "Persians.555",
-    "Phoenician.555",
-    "celts.555",
-    "celts.555",
-    "celts.555",
-    "Gaul.555",
-    "Gaul.555",
-    "goths.555",
-    "goths.555",
-    "goths.555",
-    "Phoenician.555",
-    "North African.555",
-    "Phoenician.555",
+static const char ENEMY_GRAPHICS_555[ENEMY_FILES_COUNT][NAME_SIZE] = {
+   "carthage.555", // used for barbarians
+   "carthage.555",
+   "celts.555",
+   "egyptians.555",
+   "Etruscan.555",
+   "Gaul.555",
+   "goths.555",
+   "Greek.555",
+   "North African.555",
+   "Persians.555",
+   "Phoenician.555",
 };
 
 static const image DUMMY_IMAGE;
@@ -109,25 +92,28 @@ static struct {
     uint16_t group_image_ids[300];
     char bitmaps[100][200];
     image main[MAIN_ENTRIES];
-    image enemy[ENEMY_ENTRIES];
+    image enemy[ENEMY_FILES_COUNT][ENEMY_ENTRIES];
     image *font;
     color_t *main_data;
     color_t *empire_data;
-    color_t *enemy_data;
+    color_t *enemy_data[ENEMY_FILES_COUNT];
     color_t *font_data;
     uint8_t *tmp_data;
 } data = { .current_climate = -1 };
 
 int image_init(void)
 {
-    data.enemy_data = (color_t *) malloc(ENEMY_DATA_SIZE);
+    for (int i = 0; i < ENEMY_FILES_COUNT; i++) {
+        data.enemy_data[i] = (color_t *) malloc(ENEMY_DATA_SIZE);
+    }
+
     data.main_data = (color_t *) malloc(MAIN_DATA_SIZE);
     data.empire_data = (color_t *) malloc(EMPIRE_DATA_SIZE);
     data.tmp_data = (uint8_t *) malloc(SCRATCH_DATA_SIZE);
-    if (!data.main_data || !data.empire_data || !data.enemy_data || !data.tmp_data) {
+    if (!data.main_data || !data.empire_data || !data.enemy_data[0] || !data.tmp_data) {
         free(data.main_data);
         free(data.empire_data);
-        free(data.enemy_data);
+        free(data.enemy_data[0]);
         free(data.tmp_data);
         return 0;
     }
@@ -302,26 +288,28 @@ int image_load_climate(int climate_id, int is_editor, int force_reload)
     return 1;
 }
 
-int image_load_enemy(int enemy_id)
+int image_load_enemy(void)
 {
-    const char *filename_bmp = ENEMY_GRAPHICS_555[enemy_id];
-    const char *filename_idx = ENEMY_GRAPHICS_SG2[enemy_id];
-
-    if (ENEMY_INDEX_SIZE != io_read_file_part_into_buffer(
-        filename_idx, data.tmp_data, ENEMY_INDEX_SIZE, ENEMY_INDEX_OFFSET)) {
-        return 0;
-    }
-
     buffer buf;
-    buffer_init(&buf, data.tmp_data, ENEMY_INDEX_SIZE);
-    read_index(&buf, data.enemy, ENEMY_ENTRIES);
+    for (int i = 0; i < ENEMY_FILES_COUNT; i++) {
+        const char *filename_idx = ENEMY_GRAPHICS_SG2[i];
 
-    int data_size = io_read_file_into_buffer(filename_bmp, data.tmp_data, SCRATCH_DATA_SIZE);
-    if (!data_size) {
-        return 0;
+        if (ENEMY_INDEX_SIZE != io_read_file_part_into_buffer(
+            filename_idx, data.tmp_data, ENEMY_INDEX_SIZE, ENEMY_INDEX_OFFSET)) {
+            return 0;
+        }
+        buffer_init(&buf, data.tmp_data, ENEMY_INDEX_SIZE);
+        read_index(&buf, data.enemy[i], ENEMY_ENTRIES);
+
+        const char *filename_bmp = ENEMY_GRAPHICS_555[i];
+        int data_size = io_read_file_into_buffer(filename_bmp, data.tmp_data, SCRATCH_DATA_SIZE);
+        if (!data_size) {
+            return 0;
+        }
+        buffer_init(&buf, data.tmp_data, data_size);
+        convert_images(data.enemy[i], ENEMY_ENTRIES, &buf, data.enemy_data[i]);
     }
-    buffer_init(&buf, data.tmp_data, data_size);
-    convert_images(data.enemy, ENEMY_ENTRIES, &buf, data.enemy_data);
+
     return 1;
 }
 
@@ -386,10 +374,10 @@ const image *image_letter(int letter_id)
     }
 }
 
-const image *image_get_enemy(int id)
+const image *image_get_enemy(int id, enemy_type enemy_image_type)
 {
     if (id >= 0 && id < ENEMY_ENTRIES) {
-        return &data.enemy[id];
+        return &data.enemy[enemy_image_type][id];
     } else {
         return NULL;
     }
@@ -423,10 +411,11 @@ const color_t *image_data_letter(int letter_id)
     }
 }
 
-const color_t *image_data_enemy(int id)
+const color_t *image_data_enemy(int id, enemy_type enemy_image_type)
 {
-    if (data.enemy[id].draw.offset > 0) {
-        return &data.enemy_data[data.enemy[id].draw.offset];
+    int offset = data.enemy[enemy_image_type][id].draw.offset;
+    if (offset > 0) {
+        return &data.enemy_data[enemy_image_type][offset];
     }
     return NULL;
 }

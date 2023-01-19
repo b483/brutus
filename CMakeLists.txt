@@ -213,7 +213,6 @@ set(FIGURETYPE_FILES
 )
 set(GAME_FILES
     ${PROJECT_SOURCE_DIR}/src/game/animation.c
-    ${PROJECT_SOURCE_DIR}/src/game/cheats.c
     ${PROJECT_SOURCE_DIR}/src/game/custom_strings.c
     ${PROJECT_SOURCE_DIR}/src/game/file.c
     ${PROJECT_SOURCE_DIR}/src/game/file_editor.c

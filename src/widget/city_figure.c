@@ -230,7 +230,7 @@ static void adjust_pixel_offset(const figure *f, int *pixel_x, int *pixel_y)
     x_offset += 29;
     y_offset += 15;
 
-    const image *img = f->is_enemy_image ? image_get_enemy(f->image_id) : image_get(f->image_id);
+    const image *img = f->is_enemy_image ? image_get_enemy(f->image_id, f->enemy_image_type) : image_get(f->image_id);
     *pixel_x += x_offset - img->sprite_offset_x;
     *pixel_y += y_offset - img->sprite_offset_y;
 }
@@ -263,7 +263,7 @@ static void draw_figure(const figure *f, int x, int y, int highlight)
         }
     } else {
         if (f->is_enemy_image) {
-            image_draw_enemy(f->image_id, x, y);
+            image_draw_enemy(f->image_id, f->enemy_image_type, x, y);
         } else {
             image_draw(f->image_id, x, y);
             if (highlight) {

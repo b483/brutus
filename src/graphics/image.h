@@ -2,11 +2,12 @@
 #define GRAPHICS_IMAGE_H
 
 #include "core/image.h"
+#include "figure/type.h"
 #include "graphics/color.h"
 #include "graphics/font.h"
 
 void image_draw(int image_id, int x, int y);
-void image_draw_enemy(int image_id, int x, int y);
+void image_draw_enemy(int image_id, enemy_type enemy_image_type, int x, int y);
 
 void image_draw_masked(int image_id, int x, int y, color_t color_mask);
 void image_draw_blend(int image_id, int x, int y, color_t color);

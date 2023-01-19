@@ -15,7 +15,8 @@ typedef struct {
     short cart_image_id;
     unsigned char image_offset;
     unsigned char is_enemy_image;
-
+    int enemy_image_type;
+    int enemy_image_type_detailed;
     unsigned char alternative_location_index;
     unsigned char flotsam_visible;
     short next_figure_id_on_same_tile;

@@ -7,6 +7,7 @@
 #include "figure/formation.h"
 #include "figure/phrase.h"
 #include "figure/trader.h"
+#include "game/custom_strings.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
@@ -173,49 +174,50 @@ static void draw_enemy(building_info_context *c, figure *f)
     switch (f->type) {
         case FIGURE_ENEMY43_SPEAR:
             switch (enemy_type) {
-                case ENEMY_5_PERGAMUM: image_id = 44; break;
-                case ENEMY_6_SELEUCID: image_id = 46; break;
-                case ENEMY_7_ETRUSCAN: image_id = 32; break;
-                case ENEMY_8_GREEK: image_id = 36; break;
+                case ENEMY_TYPE_PERGAMUM: image_id = 44; break;
+                case ENEMY_TYPE_PHOENICIAN: image_id = 46; break;
+                case ENEMY_TYPE_ETRUSCAN: image_id = 32; break;
+                case ENEMY_TYPE_GREEK: image_id = 36; break;
             }
             break;
         case FIGURE_ENEMY44_SWORD:
             switch (enemy_type) {
-                case ENEMY_5_PERGAMUM: image_id = 45; break;
-                case ENEMY_6_SELEUCID: image_id = 47; break;
-                case ENEMY_9_EGYPTIAN: image_id = 29; break;
+                case ENEMY_TYPE_PERGAMUM: image_id = 45; break;
+                case ENEMY_TYPE_PHOENICIAN: image_id = 47; break;
+                case ENEMY_TYPE_EGYPTIAN: image_id = 29; break;
             }
             break;
         case FIGURE_ENEMY45_SWORD:
             switch (enemy_type) {
-                case ENEMY_7_ETRUSCAN: image_id = 31; break;
-                case ENEMY_8_GREEK: image_id = 37; break;
-                case ENEMY_10_CARTHAGINIAN: image_id = 22; break;
+                case ENEMY_TYPE_ETRUSCAN: image_id = 31; break;
+                case ENEMY_TYPE_GREEK: image_id = 37; break;
+                case ENEMY_TYPE_CARTHAGINIAN: image_id = 22; break;
             }
             break;
         case FIGURE_ENEMY49_FAST_SWORD:
             switch (enemy_type) {
-                case ENEMY_0_BARBARIAN: image_id = 21; break;
-                case ENEMY_1_NUMIDIAN: image_id = 20; break;
-                case ENEMY_4_GOTH: image_id = 35; break;
+                case ENEMY_TYPE_BARBARIAN: image_id = 21; break;
+                case ENEMY_TYPE_NUMIDIAN: image_id = 20; break;
+                case ENEMY_TYPE_GOTH: image_id = 35; break;
             }
             break;
         case FIGURE_ENEMY50_SWORD:
             switch (enemy_type) {
-                case ENEMY_2_GAUL: image_id = 40; break;
-                case ENEMY_3_CELT: image_id = 24; break;
+                case ENEMY_TYPE_GAUL: image_id = 40; break;
+                case ENEMY_TYPE_CELT: image_id = 24; break;
             }
             break;
         case FIGURE_ENEMY51_SPEAR:
             switch (enemy_type) {
-                case ENEMY_1_NUMIDIAN: image_id = 20; break;
+                case ENEMY_TYPE_NUMIDIAN: image_id = 20; break;
             }
             break;
     }
     image_draw(image_group(GROUP_BIG_PEOPLE) + image_id - 1, c->x_offset + 28, c->y_offset + 112);
 
     lang_text_draw(65, f->name, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
-    lang_text_draw(37, scenario.enemy_id + 20, c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN);
+
+    text_draw(get_custom_string(TR_ENEMY_TYPE_BARBARIAN + f->enemy_image_type_detailed), c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
 }
 
 static void draw_animal(building_info_context *c, figure *f)

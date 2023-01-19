@@ -158,6 +158,8 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_u8(buf, f->alternative_location_index);
     buffer_write_u8(buf, f->image_offset);
     buffer_write_u8(buf, f->is_enemy_image);
+    buffer_write_i32(buf, f->enemy_image_type);
+    buffer_write_i32(buf, f->enemy_image_type_detailed);
     buffer_write_u8(buf, f->flotsam_visible);
     buffer_write_i16(buf, f->image_id);
     buffer_write_i16(buf, f->cart_image_id);
@@ -255,6 +257,8 @@ static void figure_load(buffer *buf, figure *f)
     f->alternative_location_index = buffer_read_u8(buf);
     f->image_offset = buffer_read_u8(buf);
     f->is_enemy_image = buffer_read_u8(buf);
+    f->enemy_image_type = buffer_read_i32(buf);
+    f->enemy_image_type_detailed = buffer_read_i32(buf);
     f->flotsam_visible = buffer_read_u8(buf);
     f->image_id = buffer_read_i16(buf);
     f->cart_image_id = buffer_read_i16(buf);

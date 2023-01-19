@@ -5,12 +5,12 @@
 #include "building/menu.h"
 #include "city/data_private.h"
 #include "city/message.h"
+#include "city/victory.h"
 #include "city/view.h"
 #include "city/warning.h"
 #include "core/config.h"
 #include "figure/formation.h"
 #include "figure/formation_legion.h"
-#include "game/cheats.h"
 #include "game/custom_strings.h"
 #include "game/file.h"
 #include "game/orientation.h"
@@ -1203,13 +1203,14 @@ static void handle_hotkeys(const hotkeys *h)
         map_bookmark_save(h->set_bookmark - 1);
     }
     if (h->cheat_money) {
-        game_cheat_money();
+        city_finance_process_cheat();
+        window_invalidate();
     }
     if (h->cheat_invasion) {
-        game_cheat_invasion();
+        scenario_invasion_start_from_cheat();
     }
     if (h->cheat_victory) {
-        game_cheat_victory();
+        city_victory_force_win();
     }
 }
 

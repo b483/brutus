@@ -60,10 +60,10 @@ static void enemy_initial(figure *f, formation *m)
         if (f->attack_image_offset) {
             figure_type missile_type;
             switch (m->enemy_type) {
-                case ENEMY_4_GOTH:
-                case ENEMY_5_PERGAMUM:
-                case ENEMY_9_EGYPTIAN:
-                case ENEMY_10_CARTHAGINIAN:
+                case ENEMY_TYPE_GOTH:
+                case ENEMY_TYPE_PERGAMUM:
+                case ENEMY_TYPE_EGYPTIAN:
+                case ENEMY_TYPE_CARTHAGINIAN:
                     missile_type = FIGURE_ARROW;
                     break;
                 default:
@@ -232,10 +232,10 @@ void figure_enemy43_spear_action(figure *f)
     f->is_enemy_image = 1;
 
     switch (m->enemy_type) {
-        case ENEMY_5_PERGAMUM:
-        case ENEMY_6_SELEUCID:
-        case ENEMY_7_ETRUSCAN:
-        case ENEMY_8_GREEK:
+        case ENEMY_TYPE_PERGAMUM:
+        case ENEMY_TYPE_PHOENICIAN:
+        case ENEMY_TYPE_ETRUSCAN:
+        case ENEMY_TYPE_GREEK:
             break;
         default:
             return;
@@ -270,9 +270,9 @@ void figure_enemy44_sword_action(figure *f)
     f->is_enemy_image = 1;
 
     switch (m->enemy_type) {
-        case ENEMY_5_PERGAMUM:
-        case ENEMY_6_SELEUCID:
-        case ENEMY_9_EGYPTIAN:
+        case ENEMY_TYPE_PERGAMUM:
+        case ENEMY_TYPE_PHOENICIAN:
+        case ENEMY_TYPE_EGYPTIAN:
             break;
         default:
             return;
@@ -305,9 +305,9 @@ void figure_enemy45_sword_action(figure *f)
     f->is_enemy_image = 1;
 
     switch (m->enemy_type) {
-        case ENEMY_7_ETRUSCAN:
-        case ENEMY_8_GREEK:
-        case ENEMY_10_CARTHAGINIAN:
+        case ENEMY_TYPE_ETRUSCAN:
+        case ENEMY_TYPE_GREEK:
+        case ENEMY_TYPE_CARTHAGINIAN:
             break;
         default:
             return;
@@ -405,15 +405,15 @@ void figure_enemy49_fast_sword_action(figure *f)
     f->is_enemy_image = 1;
 
     int attack_id, corpse_id, normal_id;
-    if (m->enemy_type == ENEMY_0_BARBARIAN) {
+    if (m->enemy_type == ENEMY_TYPE_BARBARIAN) {
         attack_id = 393;
         corpse_id = 441;
         normal_id = 297;
-    } else if (m->enemy_type == ENEMY_1_NUMIDIAN) {
+    } else if (m->enemy_type == ENEMY_TYPE_NUMIDIAN) {
         attack_id = 593;
         corpse_id = 641;
         normal_id = 449;
-    } else if (m->enemy_type == ENEMY_4_GOTH) {
+    } else if (m->enemy_type == ENEMY_TYPE_GOTH) {
         attack_id = 545;
         corpse_id = 593;
         normal_id = 449;
@@ -447,7 +447,7 @@ void figure_enemy50_sword_action(figure *f)
 
     f->is_enemy_image = 1;
 
-    if (m->enemy_type != ENEMY_2_GAUL && m->enemy_type != ENEMY_3_CELT) {
+    if (m->enemy_type != ENEMY_TYPE_GAUL && m->enemy_type != ENEMY_TYPE_CELT) {
         return;
     }
     if (f->action_state == FIGURE_ACTION_150_ATTACK) {
@@ -477,7 +477,7 @@ void figure_enemy51_spear_action(figure *f)
 
     f->is_enemy_image = 1;
 
-    if (m->enemy_type != ENEMY_1_NUMIDIAN) {
+    if (m->enemy_type != ENEMY_TYPE_NUMIDIAN) {
         return;
     }
     if (f->action_state == FIGURE_ACTION_150_ATTACK) {
@@ -534,7 +534,7 @@ void figure_enemy53_axe_action(figure *f)
 
     f->is_enemy_image = 1;
 
-    if (m->enemy_type != ENEMY_2_GAUL) {
+    if (m->enemy_type != ENEMY_TYPE_GAUL) {
         return;
     }
     if (f->action_state == FIGURE_ACTION_150_ATTACK) {

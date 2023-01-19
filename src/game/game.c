@@ -77,7 +77,7 @@ int game_init(void)
         errlog("unable to load main graphics");
         return 0;
     }
-    if (!image_load_enemy(ENEMY_0_BARBARIAN)) {
+    if (!image_load_enemy()) {
         errlog("unable to load enemy graphics");
         return 0;
     }

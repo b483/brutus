@@ -3,6 +3,7 @@
 
 #include "core/encoding.h"
 #include "core/image_group.h"
+#include "figure/type.h"
 #include "graphics/color.h"
 
 #define IMAGE_FONT_MULTIBYTE_OFFSET 10000
@@ -17,9 +18,9 @@ enum {
  * Image functions
  */
 
-/**
- * Image metadata
- */
+ /**
+  * Image metadata
+  */
 typedef struct {
     int width;
     int height;
@@ -54,12 +55,7 @@ int image_init(void);
  */
 int image_load_climate(int climate_id, int is_editor, int force_reload);
 
-/**
- * Loads the image collection for the specified enemy
- * @param enemy_id Enemy to load
- * @return boolean true on success, false on failure
- */
-int image_load_enemy(int enemy_id);
+int image_load_enemy(void);
 
 /**
  * Gets the image id of the first image in the group
@@ -87,7 +83,7 @@ const image *image_letter(int letter_id);
  * @param id Enemy image ID
  * @return Enemy image
  */
-const image *image_get_enemy(int id);
+const image *image_get_enemy(int id, enemy_type enemy_image_type);
 
 /**
  * Gets image pixel data by id
@@ -108,6 +104,6 @@ const color_t *image_data_letter(int letter_id);
  * @param id Enemy image ID
  * @return Pointer to data or null, short term use only.
  */
-const color_t *image_data_enemy(int id);
+const color_t *image_data_enemy(int id, enemy_type enemy_image_type);
 
 #endif // CORE_IMAGE_H

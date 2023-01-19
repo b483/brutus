@@ -6,9 +6,9 @@
  * Figure types.
  */
 
-/**
- * Figure types
- */
+ /**
+  * Figure types
+  */
 typedef enum {
     FIGURE_NONE = 0,
     FIGURE_IMMIGRANT = 1,
@@ -86,18 +86,18 @@ typedef enum {
 } figure_type;
 
 typedef enum {
-    ENEMY_0_BARBARIAN = 0,
-    ENEMY_1_NUMIDIAN = 1,
-    ENEMY_2_GAUL = 2,
-    ENEMY_3_CELT = 3,
-    ENEMY_4_GOTH = 4,
-    ENEMY_5_PERGAMUM = 5,
-    ENEMY_6_SELEUCID = 6,
-    ENEMY_7_ETRUSCAN = 7,
-    ENEMY_8_GREEK = 8,
-    ENEMY_9_EGYPTIAN = 9,
-    ENEMY_10_CARTHAGINIAN = 10,
-    ENEMY_11_CAESAR = 11
+    ENEMY_TYPE_BARBARIAN = 0,
+    ENEMY_TYPE_CARTHAGINIAN = 1,
+    ENEMY_TYPE_CELT = 2,
+    ENEMY_TYPE_EGYPTIAN = 3,
+    ENEMY_TYPE_ETRUSCAN = 4,
+    ENEMY_TYPE_GAUL = 5,
+    ENEMY_TYPE_GOTH = 6,
+    ENEMY_TYPE_GREEK = 7,
+    ENEMY_TYPE_NUMIDIAN = 8,
+    ENEMY_TYPE_PERGAMUM = 9,
+    ENEMY_TYPE_PHOENICIAN = 10,
+    ENEMY_TYPE_CAESAR = 11
 } enemy_type;
 
 enum {
