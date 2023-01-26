@@ -5,6 +5,7 @@
 #include "building/warehouse.h"
 #include "building/storage.h"
 #include "city/buildings.h"
+#include "city/data_private.h"
 #include "city/finance.h"
 #include "city/map.h"
 #include "city/message.h"
@@ -25,32 +26,6 @@
 #include "map/road_access.h"
 #include "scenario/data.h"
 #include "scenario/map.h"
-
-int figure_create_trade_caravan(int x, int y, int city_id)
-{
-    figure *caravan = figure_create(FIGURE_TRADE_CARAVAN, x, y, DIR_0_TOP);
-    caravan->empire_city_id = city_id;
-    caravan->action_state = FIGURE_ACTION_100_TRADE_CARAVAN_CREATED;
-    caravan->wait_ticks = 10;
-    // donkey 1
-    figure *donkey1 = figure_create(FIGURE_TRADE_CARAVAN_DONKEY, x, y, DIR_0_TOP);
-    donkey1->action_state = FIGURE_ACTION_100_TRADE_CARAVAN_CREATED;
-    donkey1->leading_figure_id = caravan->id;
-    // donkey 2
-    figure *donkey2 = figure_create(FIGURE_TRADE_CARAVAN_DONKEY, x, y, DIR_0_TOP);
-    donkey2->action_state = FIGURE_ACTION_100_TRADE_CARAVAN_CREATED;
-    donkey2->leading_figure_id = donkey1->id;
-    return caravan->id;
-}
-
-int figure_create_trade_ship(int x, int y, int city_id)
-{
-    figure *ship = figure_create(FIGURE_TRADE_SHIP, x, y, DIR_0_TOP);
-    ship->empire_city_id = city_id;
-    ship->action_state = FIGURE_ACTION_110_TRADE_SHIP_CREATED;
-    ship->wait_ticks = 10;
-    return ship->id;
-}
 
 int figure_trade_caravan_can_buy(figure *trader, int warehouse_id, int city_id)
 {
@@ -317,10 +292,9 @@ static void go_to_next_warehouse(figure *f, int x_src, int y_src, int distance_t
         f->destination_x = dst.x;
         f->destination_y = dst.y;
     } else {
-        const map_tile *exit = city_map_exit_point();
         f->action_state = FIGURE_ACTION_103_TRADE_CARAVAN_LEAVING;
-        f->destination_x = exit->x;
-        f->destination_y = exit->y;
+        f->destination_x = city_data.map.exit_point.x;
+        f->destination_y = city_data.map.exit_point.y;
     }
 }
 
@@ -382,7 +356,7 @@ void figure_trade_caravan_action(figure *f)
                 if (figure_trade_caravan_can_buy(f, f->destination_building_id, f->empire_city_id)) {
                     int resource = trader_get_buy_resource(f->destination_building_id, f->empire_city_id);
                     if (resource) {
-                        trade_route_increase_traded(empire_object_get_trade_route_id(f->empire_city_id), resource);
+                        trade_route_increase_traded(empire_objects[f->empire_city_id].trade_route_id, resource);
                         trader_record_bought_resource(f->trader_id, resource);
                         f->trader_amount_bought++;
                     } else {
@@ -394,7 +368,7 @@ void figure_trade_caravan_action(figure *f)
                 if (figure_trade_caravan_can_sell(f, f->destination_building_id, f->empire_city_id)) {
                     int resource = trader_get_sell_resource(f->destination_building_id, f->empire_city_id);
                     if (resource) {
-                        trade_route_increase_traded(empire_object_get_trade_route_id(f->empire_city_id), resource);
+                        trade_route_increase_traded(empire_objects[f->empire_city_id].trade_route_id, resource);
                         trader_record_sold_resource(f->trader_id, resource);
                         f->loads_sold_or_carrying++;
                     } else {

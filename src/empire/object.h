@@ -4,41 +4,65 @@
 #include "core/buffer.h"
 #include "game/resource.h"
 
-typedef struct {
-    int id;
-    int type;
-    int x;
-    int y;
-    int image_id;
+#define MAX_OBJECTS 200
+
+enum {
+    EMPIRE_OBJECT_ORNAMENT = 0,
+    EMPIRE_OBJECT_CITY = 1,
+    EMPIRE_OBJECT_BATTLE_ICON = 3,
+    EMPIRE_OBJECT_LAND_TRADE_ROUTE = 4,
+    EMPIRE_OBJECT_SEA_TRADE_ROUTE = 5,
+    EMPIRE_OBJECT_ROMAN_ARMY = 6,
+    EMPIRE_OBJECT_ENEMY_ARMY = 7,
+};
+
+enum {
+    EMPIRE_CITY_DISTANT_ROMAN = 0,
+    EMPIRE_CITY_OURS = 1,
+    EMPIRE_CITY_TRADE = 2,
+    EMPIRE_CITY_FUTURE_TRADE = 3,
+    EMPIRE_CITY_DISTANT_FOREIGN = 4,
+    EMPIRE_CITY_VULNERABLE_ROMAN = 5,
+    EMPIRE_CITY_FUTURE_ROMAN = 6,
+};
+
+struct empire_object_t {
+    int32_t id;
+    uint8_t type;
+    int16_t x;
+    int16_t y;
+    int16_t image_id;
     struct {
-        int x;
-        int y;
-        int image_id;
+        int16_t x;
+        int16_t y;
+        int16_t image_id;
     } expanded;
-    int width;
-    int height;
-    int animation_index;
-    int in_use;
-    int city_type;
-    int city_name_id;
-    int trade_route_id;
-    int trade_route_open;
-    int trade_route_cost;
-    int trader_entry_delay;
-    int is_sea_trade;
-    int trader_figure_ids[3];
+    int16_t width;
+    int16_t height;
+    uint8_t animation_index;
+    uint8_t in_use;
+    uint8_t city_type;
+    uint8_t city_name_id;
+    uint8_t trade_route_id;
+    uint8_t trade_route_open;
+    uint32_t trade_route_cost;
+    int16_t trader_entry_delay;
+    uint8_t is_sea_trade;
+    int16_t trader_figure_ids[3];
     struct {
-        int resource[RESOURCE_MAX];
-        int resource_limit[RESOURCE_MAX];
+        uint8_t resource[RESOURCE_MAX];
+        uint8_t resource_limit[RESOURCE_MAX];
     } resources_sell_list;
     struct {
-        int resource[RESOURCE_MAX];
-        int resource_limit[RESOURCE_MAX];
+        uint8_t resource[RESOURCE_MAX];
+        uint8_t resource_limit[RESOURCE_MAX];
     } resources_buy_list;
-    int invasion_path_id;
-    int invasion_years;
-    int distant_battle_travel_months;
-} empire_object;
+    uint8_t invasion_path_id;
+    uint8_t invasion_years;
+    uint8_t distant_battle_travel_months;
+};
+
+extern struct empire_object_t empire_objects[MAX_OBJECTS];
 
 // loads empire for new maps and on empire state change
 void empire_object_load_initial(buffer *buf);
@@ -52,25 +76,13 @@ void empire_object_init_cities(void);
 
 int empire_object_init_distant_battle_travel_months(int object_type);
 
-empire_object *empire_object_get(int object_id);
-
-int empire_object_get_trade_route_id(int object_id);
-
-empire_object *empire_object_get_for_trade_route(int trade_route_id);
-
-const empire_object *empire_object_get_battle_icon(int path_id, int year);
-
-int empire_object_get_max_invasion_path(void);
+struct empire_object_t *get_empire_object_by_trade_route(int trade_route_id);
 
 int empire_object_get_closest(int x, int y);
 
-empire_object *empire_object_get_our_city(void);
+struct empire_object_t *empire_object_get_our_city(void);
 
-void empire_object_foreach(void (*callback)(const empire_object *));
-
-void empire_object_set_expanded(void);
-
-int empire_object_update_animation(const empire_object *obj, int image_id);
+int empire_object_update_animation(struct empire_object_t *obj, int image_id);
 
 // sets all resources to sell for our city based on allowed buildings in the editor
 void empire_object_our_city_set_resources_sell(void);
@@ -78,37 +90,9 @@ void empire_object_our_city_set_resources_sell(void);
 // disables default resources that trade cities sell/buy
 void empire_object_trade_cities_disable_default_resources(void);
 
-// changes city type to disable trade with city or postpone it (via empire expansion)
-void empire_object_disable_postpone_trade_city(empire_object *object, int value);
-
-// toggle resource sell/buy status for empire city trade
-void empire_object_city_toggle_resource(empire_object *object, int resource, int selling);
-
-/**
- * Sets sell/buy limit (amount) for given resource
- * @param object empire object
- * @param resource resource type to set value for
- * @param resource_limit trade limit to set for given resource type
- * @param selling whether it's a resource to sell (1) or buy (0) from the trade city perspective
- */
-void empire_object_city_set_resource_limit(empire_object *object, int resource, int resource_limit, int selling);
-
-/**
- * Sets the cost to open trade route with city
- * @param object empire object
- * @param trade_route_cost cost to open trade route
- */
-void empire_object_city_set_trade_route_cost(empire_object *object, int trade_route_cost);
-
-void empire_object_open_trade(empire_object *object);
-
 int empire_object_trade_route_is_open(int trade_route_id);
 
 int empire_object_is_sea_trade_route(int route_id);
-
-void empire_object_city_reset_yearly_trade_amounts(void);
-
-int empire_object_city_count_wine_sources(void);
 
 int empire_can_import_resource(int resource);
 
@@ -117,15 +101,5 @@ int empire_can_export_resource(int resource);
 int empire_object_our_city_can_produce_resource(int resource);
 
 int empire_can_produce_resource(int resource);
-
-void empire_object_city_generate_trader(void);
-
-void empire_object_city_remove_trader(int city_id, int figure_id);
-
-int empire_object_get_vulnerable_roman_city(void);
-
-void empire_object_city_set_vulnerable(int object_id);
-
-void empire_object_city_set_foreign(int object_id);
 
 #endif // EMPIRE_OBJECT_H

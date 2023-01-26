@@ -161,8 +161,7 @@ static void draw_hippodrome_spectators(const building *b, int x, int y, color_t 
 {
     int subtype = b->subtype.orientation;
     int orientation = city_view_orientation();
-    int population = city_population();
-    if ((subtype == 0 || subtype == 3) && population > 2000) {
+    if ((subtype == 0 || subtype == 3) && city_data.population.population > 2000) {
         // first building part
         switch (orientation) {
             case DIR_0_TOP:
@@ -177,7 +176,7 @@ static void draw_hippodrome_spectators(const building *b, int x, int y, color_t 
             case DIR_6_LEFT:
                 image_draw_masked(image_group(GROUP_BUILDING_HIPPODROME_1) + 6, x, y - 72, color_mask);
         }
-    } else if ((subtype == 1 || subtype == 4) && population > 100) {
+    } else if ((subtype == 1 || subtype == 4) && city_data.population.population > 100) {
         // middle building part
         switch (orientation) {
             case DIR_0_TOP:
@@ -188,7 +187,7 @@ static void draw_hippodrome_spectators(const building *b, int x, int y, color_t 
             case DIR_6_LEFT:
                 image_draw_masked(image_group(GROUP_BUILDING_HIPPODROME_1) + 7, x, y - 80, color_mask);
         }
-    } else if ((subtype == 2 || subtype == 5) && population > 1000) {
+    } else if ((subtype == 2 || subtype == 5) && city_data.population.population > 1000) {
         // last building part
         switch (orientation) {
             case DIR_0_TOP:

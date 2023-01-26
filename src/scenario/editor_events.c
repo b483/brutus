@@ -11,11 +11,11 @@
 #include "city/ratings.h"
 #include "city/trade.h"
 #include "core/calc.h"
+#include "core/image.h"
 #include "core/random.h"
 #include "empire/object.h"
 #include "empire/trade_prices.h"
 #include "empire/trade_route.h"
-#include "empire/type.h"
 #include "figure/figure.h"
 #include "figure/formation.h"
 #include "figure/name.h"
@@ -31,8 +31,6 @@
 #include "sound/effect.h"
 
 #include <string.h>
-
-#define MAX_INVASION_WARNINGS 101
 
 static struct {
     int state;
@@ -109,25 +107,7 @@ static const struct {
     {100, 0, 0, {FIGURE_ENEMY_CAESAR_LEGIONARY, 0, 0}, FORMATION_COLUMN} // caesar
 };
 
-typedef struct {
-    int in_use;
-    int handled;
-    int invasion_path_id;
-    int warning_years;
-    int x;
-    int y;
-    int image_id;
-    int empire_object_id;
-    int year_notified;
-    int month_notified;
-    int months_to_go;
-    int invasion_id;
-} invasion_warning;
-
-static struct {
-    uint16_t last_internal_invasion_id;
-    invasion_warning warnings[MAX_INVASION_WARNINGS];
-} data_invasion;
+struct invasion_warning_t invasion_warnings[MAX_INVASION_WARNINGS];
 
 void scenario_empire_process_expansion(void)
 {
@@ -138,8 +118,20 @@ void scenario_empire_process_expansion(void)
         return;
     }
 
-    empire_object_set_expanded();
-
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (!empire_objects[i].in_use || empire_objects[i].type != EMPIRE_OBJECT_CITY) {
+            continue;
+        }
+        if (empire_objects[i].city_type == EMPIRE_CITY_FUTURE_TRADE) {
+            empire_objects[i].city_type = EMPIRE_CITY_TRADE;
+            empire_objects[i].expanded.image_id = image_group(GROUP_EMPIRE_CITY_TRADE);
+        } else if (empire_objects[i].city_type == EMPIRE_CITY_FUTURE_ROMAN) {
+            empire_objects[i].city_type = EMPIRE_CITY_DISTANT_ROMAN;
+            empire_objects[i].expanded.image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
+        } else {
+            continue;
+        }
+    }
     scenario.empire.is_expanded = 1;
     city_message_post(1, MESSAGE_EMPIRE_HAS_EXPANDED, 0, 0);
 }
@@ -466,85 +458,60 @@ void scenario_earthquake_load_state(buffer *buf)
     }
 }
 
-static void raise_wages(void)
-{
-    if (scenario.random_events.raise_wages) {
-        if (city_labor_raise_wages_rome()) {
-            city_message_post(1, MESSAGE_ROME_RAISES_WAGES, 0, 0);
-        }
-    }
-}
-
-static void lower_wages(void)
-{
-    if (scenario.random_events.lower_wages) {
-        if (city_labor_lower_wages_rome()) {
-            city_message_post(1, MESSAGE_ROME_LOWERS_WAGES, 0, 0);
-        }
-    }
-}
-
-static void disrupt_land_trade(void)
-{
-    if (scenario.random_events.land_trade_problem) {
-        if (city_trade_has_land_trade_route()) {
-            city_trade_start_land_trade_problems(48);
-            if (scenario.climate == CLIMATE_DESERT) {
-                city_message_post(1, MESSAGE_LAND_TRADE_DISRUPTED_SANDSTORMS, 0, 0);
-            } else {
-                city_message_post(1, MESSAGE_LAND_TRADE_DISRUPTED_LANDSLIDES, 0, 0);
-            }
-        }
-    }
-}
-
-static void disrupt_sea_trade(void)
-{
-    if (scenario.random_events.sea_trade_problem) {
-        if (city_trade_has_sea_trade_route()) {
-            city_trade_start_sea_trade_problems(48);
-            city_message_post(1, MESSAGE_SEA_TRADE_DISRUPTED, 0, 0);
-        }
-    }
-}
-
-static void contaminate_water(void)
-{
-    if (scenario.random_events.contaminated_water) {
-        if (city_population() > 200) {
-            int change;
-            int health_rate = city_health();
-            if (health_rate > 80) {
-                change = -50;
-            } else if (health_rate > 60) {
-                change = -40;
-            } else {
-                change = -25;
-            }
-            city_health_change(change);
-            city_message_post(1, MESSAGE_CONTAMINATED_WATER, 0, 0);
-        }
-    }
-}
-
 void scenario_random_event_process(void)
 {
     int event = RANDOM_EVENT_PROBABILITY[random_byte()];
     switch (event) {
         case EVENT_ROME_RAISES_WAGES:
-            raise_wages();
+            if (scenario.random_events.raise_wages) {
+                if (city_labor_raise_wages_rome()) {
+                    city_message_post(1, MESSAGE_ROME_RAISES_WAGES, 0, 0);
+                }
+            }
             break;
         case EVENT_ROME_LOWERS_WAGES:
-            lower_wages();
+            if (scenario.random_events.lower_wages) {
+                if (city_labor_lower_wages_rome()) {
+                    city_message_post(1, MESSAGE_ROME_LOWERS_WAGES, 0, 0);
+                }
+            }
             break;
         case EVENT_LAND_TRADE_DISRUPTED:
-            disrupt_land_trade();
+            if (scenario.random_events.land_trade_problem) {
+                if (city_trade_has_land_trade_route()) {
+                    city_trade_start_land_trade_problems(48);
+                    if (scenario.climate == CLIMATE_DESERT) {
+                        city_message_post(1, MESSAGE_LAND_TRADE_DISRUPTED_SANDSTORMS, 0, 0);
+                    } else {
+                        city_message_post(1, MESSAGE_LAND_TRADE_DISRUPTED_LANDSLIDES, 0, 0);
+                    }
+                }
+            }
             break;
         case EVENT_LAND_SEA_DISRUPTED:
-            disrupt_sea_trade();
+            if (scenario.random_events.sea_trade_problem) {
+                if (city_trade_has_sea_trade_route()) {
+                    city_trade_start_sea_trade_problems(48);
+                    city_message_post(1, MESSAGE_SEA_TRADE_DISRUPTED, 0, 0);
+                }
+            }
             break;
         case EVENT_CONTAMINATED_WATER:
-            contaminate_water();
+            if (scenario.random_events.contaminated_water) {
+                if (city_data.population.population > 200) {
+                    int change;
+                    int health_rate = city_health();
+                    if (health_rate > 80) {
+                        change = -50;
+                    } else if (health_rate > 60) {
+                        change = -40;
+                    } else {
+                        change = -25;
+                    }
+                    city_health_change(change);
+                    city_message_post(1, MESSAGE_CONTAMINATED_WATER, 0, 0);
+                }
+            }
             break;
     }
 }
@@ -652,20 +619,28 @@ void scenario_custom_messages_process(void)
 
 void scenario_invasion_clear(void)
 {
-    memset(data_invasion.warnings, 0, MAX_INVASION_WARNINGS * sizeof(invasion_warning));
+    memset(invasion_warnings, 0, MAX_INVASION_WARNINGS * sizeof(struct invasion_warning_t));
 }
 
 void scenario_invasion_init(void)
 {
     scenario_invasion_clear();
     int path_current = 1;
-    int path_max = empire_object_get_max_invasion_path();
+    int path_max = 0;
+
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (empire_objects[i].in_use && empire_objects[i].type == EMPIRE_OBJECT_BATTLE_ICON) {
+            if (empire_objects[i].invasion_path_id > path_max) {
+                path_max = empire_objects[i].invasion_path_id;
+            }
+        }
+    }
+
     if (path_max == 0) {
         return;
     }
-    invasion_warning *warning = &data_invasion.warnings[1];
+    struct invasion_warning_t *warning = &invasion_warnings[1];
     for (int i = 0; i < MAX_INVASIONS; i++) {
-        random_generate_next();
         if (!scenario.invasions[i].type) {
             continue;
         }
@@ -674,7 +649,16 @@ void scenario_invasion_init(void)
             continue;
         }
         for (int year = 1; year < 8; year++) {
-            const empire_object *obj = empire_object_get_battle_icon(path_current, year);
+            struct empire_object_t *obj = 0;
+            for (int index = 0; index < MAX_OBJECTS; index++) {
+                if (empire_objects[index].in_use
+                    && empire_objects[index].type == EMPIRE_OBJECT_BATTLE_ICON
+                    && empire_objects[index].invasion_path_id == path_current
+                    && empire_objects[index].invasion_years == year) {
+                    obj = &empire_objects[index];
+                }
+            }
+
             if (!obj) {
                 continue;
             }
@@ -713,20 +697,11 @@ void scenario_invasion_init(void)
 int scenario_invasion_exists_upcoming(void)
 {
     for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        if (data_invasion.warnings[i].in_use && data_invasion.warnings[i].handled) {
+        if (invasion_warnings[i].in_use && invasion_warnings[i].handled) {
             return 1;
         }
     }
     return 0;
-}
-
-void scenario_invasion_foreach_warning(void (*callback)(int x, int y, int image_id))
-{
-    for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        if (data_invasion.warnings[i].in_use && data_invasion.warnings[i].handled) {
-            callback(data_invasion.warnings[i].x, data_invasion.warnings[i].y, data_invasion.warnings[i].image_id);
-        }
-    }
 }
 
 static void determine_formations(int num_soldiers, int *num_formations, int soldiers_per_formation[])
@@ -848,8 +823,7 @@ static int start_invasion(int enemy_type, int enemy_type_detailed, int amount, i
         for (int i = 0; i < formations_per_type[type]; i++) {
             int formation_id = formation_create_enemy(
                 figure_type, x, y, ENEMY_PROPERTIES[enemy_type].formation_layout, orientation,
-                enemy_type, attack_type, invasion_id, data_invasion.last_internal_invasion_id
-            );
+                enemy_type, attack_type, invasion_id);
             if (formation_id <= 0) {
                 continue;
             }
@@ -874,11 +848,11 @@ static int start_invasion(int enemy_type, int enemy_type_detailed, int amount, i
 void scenario_invasion_process(void)
 {
     for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        if (!data_invasion.warnings[i].in_use) {
+        if (!invasion_warnings[i].in_use) {
             continue;
         }
         // update warnings
-        invasion_warning *warning = &data_invasion.warnings[i];
+        struct invasion_warning_t *warning = &invasion_warnings[i];
         warning->months_to_go--;
         if (warning->months_to_go <= 0) {
             if (warning->handled != 1) {
@@ -910,12 +884,11 @@ void scenario_invasion_process(void)
                     scenario.invasions[warning->invasion_id].from,
                     scenario.invasions[warning->invasion_id].target_type,
                     warning->invasion_id);
-                data_invasion.last_internal_invasion_id++;
                 if (grid_offset > 0) {
                     if (scenario.invasions[warning->invasion_id].enemy_type) {
-                        city_message_post(1, MESSAGE_ENEMY_ARMY_ATTACK, data_invasion.last_internal_invasion_id, grid_offset);
+                        city_message_post(1, MESSAGE_ENEMY_ARMY_ATTACK, 0, grid_offset);
                     } else {
-                        city_message_post(1, MESSAGE_BARBARIAN_ATTACK, data_invasion.last_internal_invasion_id, grid_offset);
+                        city_message_post(1, MESSAGE_BARBARIAN_ATTACK, 0, grid_offset);
                     }
                 }
             }
@@ -928,9 +901,8 @@ void scenario_invasion_process(void)
                     scenario.invasions[warning->invasion_id].from,
                     scenario.invasions[warning->invasion_id].target_type,
                     warning->invasion_id);
-                data_invasion.last_internal_invasion_id++;
                 if (grid_offset > 0) {
-                    city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, data_invasion.last_internal_invasion_id, grid_offset);
+                    city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, 0, grid_offset);
                 }
                 city_data.emperor.invasion.from_editor = 1;
                 city_data.emperor.invasion.size = scenario.invasions[warning->invasion_id].amount;
@@ -949,9 +921,8 @@ void scenario_invasion_process(void)
                     scenario.invasions[i].from,
                     scenario.invasions[i].target_type,
                     i);
-                data_invasion.last_internal_invasion_id++;
                 if (grid_offset > 0) {
-                    city_message_post(1, MESSAGE_LOCAL_UPRISING, data_invasion.last_internal_invasion_id, grid_offset);
+                    city_message_post(1, MESSAGE_LOCAL_UPRISING, 0, grid_offset);
                 }
             }
         }
@@ -962,7 +933,7 @@ void scenario_invasion_start_from_mars(void)
 {
     int grid_offset = start_invasion(ENEMY_TYPE_BARBARIAN, ENEMY_TYPE_BARBARIAN, 24, 8, FORMATION_ATTACK_FOOD_CHAIN, 23);
     if (grid_offset) {
-        city_message_post(1, MESSAGE_LOCAL_UPRISING_MARS, data_invasion.last_internal_invasion_id, grid_offset);
+        city_message_post(1, MESSAGE_LOCAL_UPRISING_MARS, 0, grid_offset);
     }
 }
 
@@ -970,7 +941,7 @@ int scenario_invasion_start_from_caesar(int size)
 {
     int grid_offset = start_invasion(ENEMY_TYPE_CAESAR, ENEMY_TYPE_CAESAR, size, 0, FORMATION_ATTACK_BEST_BUILDINGS, 24);
     if (grid_offset > 0) {
-        city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, data_invasion.last_internal_invasion_id, grid_offset);
+        city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, 0, grid_offset);
         return 1;
     }
     return 0;
@@ -983,12 +954,10 @@ void scenario_invasion_start_from_cheat(void)
     start_invasion(ENEMY_ID_TO_ENEMY_TYPE[enemy_id], enemy_id, 200, 8, FORMATION_ATTACK_FOOD_CHAIN, 23);
 }
 
-void scenario_invasion_save_state(buffer *invasion_id, buffer *warnings)
+void scenario_invasion_save_state(buffer *warnings)
 {
-    buffer_write_u16(invasion_id, data_invasion.last_internal_invasion_id);
-
     for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        const invasion_warning *w = &data_invasion.warnings[i];
+        struct invasion_warning_t *w = &invasion_warnings[i];
         buffer_write_u8(warnings, w->in_use);
         buffer_write_u8(warnings, w->handled);
         buffer_write_u8(warnings, w->invasion_path_id);
@@ -1004,12 +973,10 @@ void scenario_invasion_save_state(buffer *invasion_id, buffer *warnings)
     }
 }
 
-void scenario_invasion_load_state(buffer *invasion_id, buffer *warnings)
+void scenario_invasion_load_state(buffer *warnings)
 {
-    data_invasion.last_internal_invasion_id = buffer_read_u16(invasion_id);
-
     for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        invasion_warning *w = &data_invasion.warnings[i];
+        struct invasion_warning_t *w = &invasion_warnings[i];
         w->in_use = buffer_read_u8(warnings);
         w->handled = buffer_read_u8(warnings);
         w->invasion_path_id = buffer_read_u8(warnings);
@@ -1076,16 +1043,15 @@ void scenario_demand_change_process(void)
             game_time_month() != scenario.demand_changes[i].month) {
             continue;
         }
-        int route = scenario.demand_changes[i].route_id;
         int resource = scenario.demand_changes[i].resource;
-        empire_object *object = empire_object_get_for_trade_route(route);
+        struct empire_object_t *object = get_empire_object_by_trade_route(scenario.demand_changes[i].route_id);
         if (scenario.demand_changes[i].is_rise) {
-            if (trade_route_increase_limit(route, resource) && empire_object_trade_route_is_open(route)) {
+            if (trade_route_increase_limit(scenario.demand_changes[i].route_id, resource) && empire_object_trade_route_is_open(scenario.demand_changes[i].route_id)) {
                 city_message_post(1, MESSAGE_INCREASED_TRADING, object->id, resource);
             }
         } else {
-            if (trade_route_decrease_limit(route, resource) && empire_object_trade_route_is_open(route)) {
-                if (trade_route_limit(route, resource) > 0) {
+            if (trade_route_decrease_limit(scenario.demand_changes[i].route_id, resource) && empire_object_trade_route_is_open(scenario.demand_changes[i].route_id)) {
+                if (trade_route_limit(scenario.demand_changes[i].route_id, resource) > 0) {
                     city_message_post(1, MESSAGE_DECREASED_TRADING, object->id, resource);
                 } else {
                     city_message_post(1, MESSAGE_TRADE_STOPPED, object->id, resource);

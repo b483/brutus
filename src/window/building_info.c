@@ -4,6 +4,7 @@
 #include "building/house_evolution.h"
 #include "building/model.h"
 #include "building/warehouse.h"
+#include "city/data_private.h"
 #include "city/map.h"
 #include "city/resource.h"
 #include "city/view.h"
@@ -192,9 +193,9 @@ static void init(int grid_offset)
     } else if (map_terrain_is(grid_offset, TERRAIN_SHRUB)) {
         context.terrain_type = TERRAIN_INFO_TREE;
     } else if (map_terrain_is(grid_offset, TERRAIN_ROCK)) {
-        if (grid_offset == city_map_entry_flag()->grid_offset) {
+        if (grid_offset == city_data.map.entry_flag.grid_offset) {
             context.terrain_type = TERRAIN_INFO_ENTRY_FLAG;
-        } else if (grid_offset == city_map_exit_flag()->grid_offset) {
+        } else if (grid_offset == city_data.map.exit_flag.grid_offset) {
             context.terrain_type = TERRAIN_INFO_EXIT_FLAG;
         } else {
             context.terrain_type = TERRAIN_INFO_ROCK;

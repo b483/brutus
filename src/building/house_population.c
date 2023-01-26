@@ -3,6 +3,7 @@
 #include "building/building.h"
 #include "building/list.h"
 #include "building/model.h"
+#include "city/data_private.h"
 #include "city/labor.h"
 #include "city/message.h"
 #include "city/migration.h"
@@ -13,7 +14,7 @@
 int house_population_add_to_city(int num_people)
 {
     int added = 0;
-    int building_id = city_population_last_used_house_add();
+    int building_id = city_data.population.last_used_house_add;
     for (int i = 1; i < MAX_BUILDINGS && added < num_people; i++) {
         if (++building_id >= MAX_BUILDINGS) {
             building_id = 1;
@@ -21,7 +22,7 @@ int house_population_add_to_city(int num_people)
         building *b = building_get(building_id);
         if (b->state == BUILDING_STATE_IN_USE && b->house_size
             && b->distance_from_entry > 0 && b->house_population > 0) {
-            city_population_set_last_used_house_add(building_id);
+            city_data.population.last_used_house_add = building_id;
             int max_people = model_get_house(b->subtype.house_level)->max_people;
             if (b->house_is_merged) {
                 max_people *= 4;
@@ -39,14 +40,14 @@ int house_population_add_to_city(int num_people)
 int house_population_remove_from_city(int num_people)
 {
     int removed = 0;
-    int building_id = city_population_last_used_house_remove();
+    int building_id = city_data.population.last_used_house_remove;
     for (int i = 1; i < 4 * MAX_BUILDINGS && removed < num_people; i++) {
         if (++building_id >= MAX_BUILDINGS) {
             building_id = 1;
         }
         building *b = building_get(building_id);
         if (b->state == BUILDING_STATE_IN_USE && b->house_size) {
-            city_population_set_last_used_house_remove(building_id);
+            city_data.population.last_used_house_remove = building_id;
             if (b->house_population > 0) {
                 ++removed;
                 --b->house_population;
@@ -69,7 +70,8 @@ static void fill_building_list_with_houses(void)
 
 void house_population_update_room(void)
 {
-    city_population_clear_capacity();
+    city_data.population.total_capacity = 0;
+    city_data.population.room_in_houses = 0;
 
     fill_building_list_with_houses();
     int total_houses = building_list_large_size();
@@ -82,7 +84,8 @@ void house_population_update_room(void)
             if (b->house_is_merged) {
                 max_pop *= 4;
             }
-            city_population_add_capacity(b->house_population, max_pop);
+            city_data.population.total_capacity += max_pop;
+            city_data.population.room_in_houses += max_pop - b->house_population;
             b->house_population_room = max_pop - b->house_population;
             if (b->house_population > b->house_highest_population) {
                 b->house_highest_population = b->house_population;
@@ -189,32 +192,31 @@ void house_population_update_migration(void)
     city_population_yearly_update();
     calculate_working_population();
     // population messages
-    int population = city_population();
-    if (population >= 500 && city_message_mark_population_shown(500)) {
+    if (city_data.population.population >= 500 && city_message_mark_population_shown(500)) {
         city_message_post(1, MESSAGE_POPULATION_500, 0, 0);
     }
-    if (population >= 1000 && city_message_mark_population_shown(1000)) {
+    if (city_data.population.population >= 1000 && city_message_mark_population_shown(1000)) {
         city_message_post(1, MESSAGE_POPULATION_1000, 0, 0);
     }
-    if (population >= 2000 && city_message_mark_population_shown(2000)) {
+    if (city_data.population.population >= 2000 && city_message_mark_population_shown(2000)) {
         city_message_post(1, MESSAGE_POPULATION_2000, 0, 0);
     }
-    if (population >= 3000 && city_message_mark_population_shown(3000)) {
+    if (city_data.population.population >= 3000 && city_message_mark_population_shown(3000)) {
         city_message_post(1, MESSAGE_POPULATION_3000, 0, 0);
     }
-    if (population >= 5000 && city_message_mark_population_shown(5000)) {
+    if (city_data.population.population >= 5000 && city_message_mark_population_shown(5000)) {
         city_message_post(1, MESSAGE_POPULATION_5000, 0, 0);
     }
-    if (population >= 10000 && city_message_mark_population_shown(10000)) {
+    if (city_data.population.population >= 10000 && city_message_mark_population_shown(10000)) {
         city_message_post(1, MESSAGE_POPULATION_10000, 0, 0);
     }
-    if (population >= 15000 && city_message_mark_population_shown(15000)) {
+    if (city_data.population.population >= 15000 && city_message_mark_population_shown(15000)) {
         city_message_post(1, MESSAGE_POPULATION_15000, 0, 0);
     }
-    if (population >= 20000 && city_message_mark_population_shown(20000)) {
+    if (city_data.population.population >= 20000 && city_message_mark_population_shown(20000)) {
         city_message_post(1, MESSAGE_POPULATION_20000, 0, 0);
     }
-    if (population >= 25000 && city_message_mark_population_shown(25000)) {
+    if (city_data.population.population >= 25000 && city_message_mark_population_shown(25000)) {
         city_message_post(1, MESSAGE_POPULATION_25000, 0, 0);
     }
 }

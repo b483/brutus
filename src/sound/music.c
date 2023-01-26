@@ -1,8 +1,9 @@
 #include "music.h"
 
-#include "core/dir.h"
+#include "city/data_private.h"
 #include "city/figures.h"
 #include "city/population.h"
+#include "core/dir.h"
 #include "game/settings.h"
 #include "sound/device.h"
 
@@ -22,7 +23,7 @@ enum {
 static struct {
     int current_track;
     int next_check;
-} data = {TRACK_NONE, 0};
+} data = { TRACK_NONE, 0 };
 
 static const char tracks[][32] = {
     "",
@@ -91,19 +92,18 @@ void sound_music_update(int force)
         return;
     }
     int track;
-    int population = city_population();
     int total_enemies = city_figures_total_invading_enemies();
     if (total_enemies >= 32) {
         track = TRACK_COMBAT_LONG;
     } else if (total_enemies > 0) {
         track = TRACK_COMBAT_SHORT;
-    } else if (population < 1000) {
+    } else if (city_data.population.population < 1000) {
         track = TRACK_CITY_1;
-    } else if (population < 2000) {
+    } else if (city_data.population.population < 2000) {
         track = TRACK_CITY_2;
-    } else if (population < 5000) {
+    } else if (city_data.population.population < 5000) {
         track = TRACK_CITY_3;
-    } else if (population < 7000) {
+    } else if (city_data.population.population < 7000) {
         track = TRACK_CITY_4;
     } else {
         track = TRACK_CITY_5;

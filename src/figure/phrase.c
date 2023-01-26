@@ -614,7 +614,7 @@ static int phrase_based_on_city_state(figure *f)
             unemployment_pct <= 5 &&
             city_culture_average_health() > 0 &&
             city_culture_average_education() > 0) {
-        if (city_population() < 500) {
+        if (city_data.population.population < 500) {
             return 5;
         } else {
             return 6;

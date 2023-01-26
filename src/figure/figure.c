@@ -101,7 +101,12 @@ void figure_delete(figure *f)
             break;
     }
     if (f->empire_city_id) {
-        empire_object_city_remove_trader(f->empire_city_id, f->id);
+        // remove trader
+        for (int i = 0; i < 3; i++) {
+            if (empire_objects[f->empire_city_id].trader_figure_ids[i] == f->id) {
+                empire_objects[f->empire_city_id].trader_figure_ids[i] = 0;
+            }
+        }
     }
     if (f->immigrant_building_id) {
         b->immigrant_figure_id = 0;

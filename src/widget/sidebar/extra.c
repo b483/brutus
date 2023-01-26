@@ -158,7 +158,7 @@ static int update_extra_info(int is_background)
         changed |= update_extra_info_value(city_rating_prosperity(), &data.prosperity.value);
         changed |= update_extra_info_value(city_rating_peace(), &data.peace.value);
         changed |= update_extra_info_value(city_rating_favor(), &data.favor.value);
-        changed |= update_extra_info_value(city_population(), &data.population.value);
+        changed |= update_extra_info_value(city_data.population.population, &data.population.value);
     }
     return changed;
 }

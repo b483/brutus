@@ -30,6 +30,7 @@
 #include "core/random.h"
 #include "editor/editor.h"
 #include "empire/object.h"
+#include "empire/trade_route.h"
 #include "figure/formation.h"
 #include "figuretype/crime.h"
 #include "game/file_io.h"
@@ -53,7 +54,14 @@ static void advance_year(void)
     scenario_empire_process_expansion();
     city_population_request_yearly_update();
     city_finance_handle_year_change();
-    empire_object_city_reset_yearly_trade_amounts();
+
+    // reset yearly trade amounts
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (empire_objects[i].in_use && empire_objects[i].trade_route_open) {
+            trade_route_reset_traded(empire_objects[i].trade_route_id);
+        }
+    }
+
     building_maintenance_update_fire_direction();
     city_ratings_update(1);
     city_data.religion.neptune_double_trade_active = 0;
@@ -87,7 +95,12 @@ static void advance_month(void)
     scenario_demand_change_process();
     scenario_invasion_process();
     scenario_distant_battle_process();
-    city_population_record_monthly();
+    // record monthly population
+    city_data.population.monthly.values[city_data.population.monthly.next_index++] = city_data.population.population;
+    if (city_data.population.monthly.next_index >= 2400) {
+        city_data.population.monthly.next_index = 0;
+    }
+    ++city_data.population.monthly.count;
     city_festival_update();
     if (setting_monthly_autosave()) {
         game_file_io_write_saved_game(SAVES_DIR_PATH, "autosave.sav");

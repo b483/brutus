@@ -79,13 +79,12 @@ static void draw_requests(void)
         button_border_draw(38, 96, 550, 40, 0);
         image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_WEAPONS, 50, 106);
         int width = lang_text_draw(52, 72, 80, 102, FONT_NORMAL_WHITE);
-        lang_text_draw(21, empire_object_get(city_military_distant_battle_city())->city_name_id,
+        lang_text_draw(21, empire_objects[city_data.distant_battle.city].city_name_id,
             80 + width, 102, FONT_NORMAL_WHITE);
         int strength_text_id;
-        int enemy_strength = city_military_distant_battle_enemy_strength();
-        if (enemy_strength < 46) {
+        if (city_data.distant_battle.enemy_strength < 46) {
             strength_text_id = 73;
-        } else if (enemy_strength < 89) {
+        } else if (city_data.distant_battle.enemy_strength < 89) {
             strength_text_id = 74;
         } else {
             strength_text_id = 75;

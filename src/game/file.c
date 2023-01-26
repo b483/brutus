@@ -21,7 +21,6 @@
 #include "core/string.h"
 #include "empire/empire.h"
 #include "empire/trade_prices.h"
-#include "empire/type.h"
 #include "figure/enemy_army.h"
 #include "figure/formation.h"
 #include "figure/name.h"

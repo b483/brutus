@@ -184,7 +184,7 @@ static void draw_city_message_text(const lang_message *msg)
         }
         case MESSAGE_TYPE_TRADE_CHANGE:
             image_draw(resource_image(player_message.param2), data.x + 64, data.y_text + 40);
-            lang_text_draw(21, empire_object_get(player_message.param1)->city_name_id,
+            lang_text_draw(21, empire_objects[player_message.param1].city_name_id,
                 data.x + 100, data.y_text + 44, FONT_NORMAL_WHITE);
             rich_text_draw(msg->content.text,
                 data.x_text + 8, data.y_text + 86, BLOCK_SIZE * (data.text_width_blocks - 1),
@@ -594,7 +594,7 @@ static void button_go_to_problem(__attribute__((unused)) int param1, __attribute
     const lang_message *msg = lang_get_message(data.text_id);
     int grid_offset = player_message.param2;
     if (msg->message_type == MESSAGE_TYPE_INVASION) {
-        int invasion_grid_offset = formation_grid_offset_for_invasion(player_message.param1);
+        int invasion_grid_offset = formation_grid_offset_for_invasion();
         if (invasion_grid_offset > 0) {
             grid_offset = invasion_grid_offset;
         }

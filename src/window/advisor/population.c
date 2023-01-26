@@ -1,5 +1,6 @@
 #include "population.h"
 
+#include "city/data_private.h"
 #include "city/migration.h"
 #include "city/population.h"
 #include "city/resource.h"
@@ -40,7 +41,7 @@ static void get_y_axis(int max_value, int *y_max, int *y_shift)
 
 static void get_min_max_month_year(int max_months, int *start_month, int *start_year, int *end_month, int *end_year)
 {
-    if (city_population_monthly_count() > max_months) {
+    if (city_data.population.monthly.count > max_months) {
         *end_month = game_time_month() - 1;
         *end_year = game_time_year();
         if (*end_month < 0) {
@@ -59,14 +60,13 @@ static void get_min_max_month_year(int max_months, int *start_month, int *start_
 static void draw_history_graph(int full_size, int x, int y)
 {
     int max_months;
-    int month_count = city_population_monthly_count();
-    if (month_count <= 20) {
+    if (city_data.population.monthly.count <= 20) {
         max_months = 20;
-    } else if (month_count <= 40) {
+    } else if (city_data.population.monthly.count <= 40) {
         max_months = 40;
-    } else if (month_count <= 100) {
+    } else if (city_data.population.monthly.count <= 100) {
         max_months = 100;
-    } else if (month_count <= 200) {
+    } else if (city_data.population.monthly.count <= 200) {
         max_months = 200;
     } else {
         max_months = 400;
@@ -154,9 +154,8 @@ static void draw_census_graph(int full_size, int x, int y)
 {
     int max_value = 0;
     for (int i = 0; i < 100; i++) {
-        int value = city_population_at_age(i);
-        if (value > max_value) {
-            max_value = value;
+        if (city_data.population.at_age[i] > max_value) {
+            max_value = city_data.population.at_age[i];
         }
     }
     int y_max, y_shift;
@@ -175,12 +174,11 @@ static void draw_census_graph(int full_size, int x, int y)
     if (full_size) {
         graphics_set_clip_rectangle(0, 0, 640, y + 200);
         for (int i = 0; i < 100; i++) {
-            int pop = city_population_at_age(i);
             int val;
             if (y_shift == -1) {
-                val = 2 * pop;
+                val = 2 * city_data.population.at_age[i];
             } else {
-                val = pop >> y_shift;
+                val = city_data.population.at_age[i] >> y_shift;
             }
             if (val > 0) {
                 image_draw(image_group(GROUP_POPULATION_GRAPH_BAR) + 2, x + 4 * i, y + 200 - val);
@@ -190,7 +188,7 @@ static void draw_census_graph(int full_size, int x, int y)
     } else {
         y_shift += 2;
         for (int i = 0; i < 100; i++) {
-            int val = city_population_at_age(i) >> y_shift;
+            int val = city_data.population.at_age[i] >> y_shift;
             if (val > 0) {
                 graphics_draw_vertical_line(x + i, y + 50 - val, y + 50, COLOR_RED);
             }
@@ -202,9 +200,8 @@ static void draw_society_graph(int full_size, int x, int y)
 {
     int max_value = 0;
     for (int i = 0; i < 20; i++) {
-        int value = city_population_at_level(i);
-        if (value > max_value) {
-            max_value = value;
+        if (city_data.population.at_level[i] > max_value) {
+            max_value = city_data.population.at_level[i];
         }
     }
     int y_max, y_shift;
@@ -222,12 +219,11 @@ static void draw_society_graph(int full_size, int x, int y)
     if (full_size) {
         graphics_set_clip_rectangle(0, 0, 640, y + 200);
         for (int i = 0; i < 20; i++) {
-            int pop = city_population_at_level(i);
             int val;
             if (y_shift == -1) {
-                val = 2 * pop;
+                val = 2 * city_data.population.at_level[i];
             } else {
-                val = pop >> y_shift;
+                val = city_data.population.at_level[i] >> y_shift;
             }
             if (val > 0) {
                 image_draw(image_group(GROUP_POPULATION_GRAPH_BAR), x + 20 * i, y + 200 - val);
@@ -237,7 +233,7 @@ static void draw_society_graph(int full_size, int x, int y)
     } else {
         y_shift += 2;
         for (int i = 0; i < 20; i++) {
-            int val = city_population_at_level(i) >> y_shift;
+            int val = city_data.population.at_level[i] >> y_shift;
             if (val > 0) {
                 graphics_fill_rect(x + 5 * i, y + 50 - val, 4, val + 1, COLOR_RED);
             }
@@ -250,11 +246,10 @@ static int draw_background(void)
     outer_panel_draw(0, 0, 40, ADVISOR_HEIGHT);
     image_draw(image_group(GROUP_ADVISOR_ICONS) + 5, 10, 10);
 
-    int graph_order = city_population_graph_order();
     // Title: depends on big graph shown
-    if (graph_order < 2) {
+    if (city_data.population.graph_order < 2) {
         lang_text_draw(55, 0, 60, 12, FONT_LARGE_BLACK);
-    } else if (graph_order < 4) {
+    } else if (city_data.population.graph_order < 4) {
         lang_text_draw(55, 1, 60, 12, FONT_LARGE_BLACK);
     } else {
         lang_text_draw(55, 2, 60, 12, FONT_LARGE_BLACK);
@@ -266,7 +261,7 @@ static int draw_background(void)
     void (*big_graph)(int, int, int);
     void (*top_graph)(int, int, int);
     void (*bot_graph)(int, int, int);
-    switch (graph_order) {
+    switch (city_data.population.graph_order) {
         default:
         case 0:
             big_text = 6;
@@ -413,7 +408,7 @@ static int handle_mouse(const mouse *m)
 static void button_graph(int param1, __attribute__((unused)) int param2)
 {
     int new_order;
-    switch (city_population_graph_order()) {
+    switch (city_data.population.graph_order) {
         default:
         case 0:
             new_order = param1 ? 5 : 2;
@@ -434,7 +429,7 @@ static void button_graph(int param1, __attribute__((unused)) int param2)
             new_order = param1 ? 0 : 3;
             break;
     }
-    city_population_set_graph_order(new_order);
+    city_data.population.graph_order = new_order;
     window_invalidate();
 }
 

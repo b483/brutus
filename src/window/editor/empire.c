@@ -4,7 +4,6 @@
 #include "empire/empire.h"
 #include "empire/object.h"
 #include "empire/trade_route.h"
-#include "empire/type.h"
 #include "game/custom_strings.h"
 #include "graphics/arrow_button.h"
 #include "graphics/generic_button.h"
@@ -23,7 +22,7 @@
 #define MAX_HEIGHT 1136
 
 static void button_change_empire(int value, int param2);
-static void set_city_type(int value, int param2);
+static void set_city_type(int param1, int param2);
 static void toggle_sell_resource(int resource, int param2);
 static void set_resource_sell_limit(int resource, int param2);
 static void toggle_buy_resource(int resource, int param2);
@@ -36,8 +35,7 @@ static arrow_button arrow_buttons_empire[] = {
     {52, -52, 15, 24, button_change_empire, 1, 0, 0, 0}
 };
 static arrow_button arrow_buttons_set_city_type[] = {
-    {0, 0, 17, 24, set_city_type, -1, 0, 0, 0},
-    {24, 0, 15, 24, set_city_type, 1, 0, 0, 0}
+    {0, 0, 21, 24, set_city_type, 0, 0, 0, 0}
 };
 static generic_button button_toggle_sell_resource[] = {
     {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
@@ -115,12 +113,11 @@ static generic_button button_set_expansion_year[] = {
 };
 
 static struct {
-    empire_object *selected_object;
+    struct empire_object_t *selected_object;
     int x_min, x_max, y_min, y_max;
     int x_draw_offset, y_draw_offset;
     int focus_trade_route_cost_button_id;
     int focus_expansion_year_button_id;
-    int finished_scroll;
     int show_battle_objects;
 } data;
 
@@ -197,49 +194,40 @@ static void draw_shadowed_number(int value, int x, int y, color_t color)
     text_draw_number_colored(value, '@', " ", x, y, FONT_SMALL_PLAIN, color);
 }
 
-static void draw_empire_object(const empire_object *obj)
+static void draw_empire_objects(void)
 {
-    int x = obj->x;
-    int y = obj->y;
-    int image_id = obj->image_id;
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (empire_objects[i].in_use) {
+            // don't draw trade route if trade city switched to non-trade city
+            if (empire_objects[i].type == EMPIRE_OBJECT_LAND_TRADE_ROUTE || empire_objects[i].type == EMPIRE_OBJECT_SEA_TRADE_ROUTE) {
+                struct empire_object_t *object_with_route_id = get_empire_object_by_trade_route(empire_objects[i].trade_route_id);
+                if (object_with_route_id->city_type != EMPIRE_CITY_TRADE && object_with_route_id->city_type != EMPIRE_CITY_FUTURE_TRADE) {
+                    continue;;
+                }
+            }
 
-    // don't draw trade route if trade city switched to non-trade city
-    if (obj->type == EMPIRE_OBJECT_LAND_TRADE_ROUTE || obj->type == EMPIRE_OBJECT_SEA_TRADE_ROUTE) {
-        empire_object *object_with_route_id = empire_object_get_for_trade_route(obj->trade_route_id);
-        if (object_with_route_id->city_type != EMPIRE_CITY_TRADE && object_with_route_id->city_type != EMPIRE_CITY_FUTURE_TRADE) {
-            return;
+            if (!data.show_battle_objects && (
+                empire_objects[i].type == EMPIRE_OBJECT_BATTLE_ICON ||
+                empire_objects[i].type == EMPIRE_OBJECT_ROMAN_ARMY ||
+                empire_objects[i].type == EMPIRE_OBJECT_ENEMY_ARMY)) {
+                continue;
+            }
+
+            if (empire_objects[i].type == EMPIRE_OBJECT_BATTLE_ICON) {
+                draw_shadowed_number(empire_objects[i].invasion_path_id, data.x_draw_offset + empire_objects[i].x - 9, data.y_draw_offset + empire_objects[i].y - 9, COLOR_WHITE);
+                draw_shadowed_number(empire_objects[i].invasion_years, data.x_draw_offset + empire_objects[i].x + 15, data.y_draw_offset + empire_objects[i].y - 9, COLOR_FONT_RED);
+            } else if (empire_objects[i].type == EMPIRE_OBJECT_ROMAN_ARMY || empire_objects[i].type == EMPIRE_OBJECT_ENEMY_ARMY) {
+                draw_shadowed_number(empire_objects[i].distant_battle_travel_months, data.x_draw_offset + empire_objects[i].x + 7, data.y_draw_offset + empire_objects[i].y - 9,
+                    empire_objects[i].type == EMPIRE_OBJECT_ROMAN_ARMY ? COLOR_WHITE : COLOR_FONT_RED);
+            }
+            image_draw(empire_objects[i].image_id, data.x_draw_offset + empire_objects[i].x, data.y_draw_offset + empire_objects[i].y);
+            const image *img = image_get(empire_objects[i].image_id);
+            if (img->animation_speed_id) {
+                image_draw(empire_objects[i].image_id + empire_object_update_animation(&empire_objects[i], empire_objects[i].image_id),
+                    data.x_draw_offset + empire_objects[i].x + img->sprite_offset_x,
+                    data.y_draw_offset + empire_objects[i].y + img->sprite_offset_y);
+            }
         }
-    }
-
-    if (!data.show_battle_objects && (
-        obj->type == EMPIRE_OBJECT_BATTLE_ICON ||
-        obj->type == EMPIRE_OBJECT_ROMAN_ARMY ||
-        obj->type == EMPIRE_OBJECT_ENEMY_ARMY)) {
-        return;
-    }
-
-    if (obj->type == EMPIRE_OBJECT_CITY) {
-        if (obj->city_type == EMPIRE_CITY_DISTANT_FOREIGN ||
-            obj->city_type == EMPIRE_CITY_FUTURE_ROMAN) {
-            image_id = image_group(GROUP_EDITOR_EMPIRE_FOREIGN_CITY);
-        }
-    } else if (obj->type == EMPIRE_OBJECT_BATTLE_ICON) {
-        draw_shadowed_number(obj->invasion_path_id,
-            data.x_draw_offset + x - 9, data.y_draw_offset + y - 9, COLOR_WHITE);
-        draw_shadowed_number(obj->invasion_years,
-            data.x_draw_offset + x + 15, data.y_draw_offset + y - 9, COLOR_FONT_RED);
-    } else if (obj->type == EMPIRE_OBJECT_ROMAN_ARMY || obj->type == EMPIRE_OBJECT_ENEMY_ARMY) {
-        draw_shadowed_number(obj->distant_battle_travel_months,
-            data.x_draw_offset + x + 7, data.y_draw_offset + y - 9,
-            obj->type == EMPIRE_OBJECT_ROMAN_ARMY ? COLOR_WHITE : COLOR_FONT_RED);
-    }
-    image_draw(image_id, data.x_draw_offset + x, data.y_draw_offset + y);
-    const image *img = image_get(image_id);
-    if (img->animation_speed_id) {
-        int new_animation = empire_object_update_animation(obj, image_id);
-        image_draw(image_id + new_animation,
-            data.x_draw_offset + x + img->sprite_offset_x,
-            data.y_draw_offset + y + img->sprite_offset_y);
     }
 }
 
@@ -256,7 +244,7 @@ static void draw_map(void)
     empire_adjust_scroll(&data.x_draw_offset, &data.y_draw_offset);
     image_draw(image_group(GROUP_EDITOR_EMPIRE_MAP), data.x_draw_offset, data.y_draw_offset);
 
-    empire_object_foreach(draw_empire_object);
+    draw_empire_objects();
 
     graphics_reset_clip_rectangle();
 }
@@ -288,8 +276,7 @@ static void draw_trade_city_info(int x_offset, int y_offset, int width)
 {
     // draw arrow buttons for city type switching
     arrow_buttons_set_city_type[0].x_offset = x_offset + 20 + width;
-    arrow_buttons_set_city_type[1].x_offset = 24 + x_offset + 20 + width;
-    arrow_buttons_draw(0, 0, arrow_buttons_set_city_type, 2);
+    arrow_buttons_draw(0, 0, arrow_buttons_set_city_type, 1);
 
     // draw "Sells" and the resources to sell
     width += lang_text_draw(47, 5, x_offset + 100 + width, y_offset, FONT_NORMAL_GREEN);
@@ -344,7 +331,6 @@ static void draw_city_info(void)
 
     int width = lang_text_draw(21, data.selected_object->city_name_id, x_offset, y_offset, FONT_NORMAL_WHITE);
     arrow_buttons_set_city_type[0].y_offset = y_offset - 8;
-    arrow_buttons_set_city_type[1].y_offset = y_offset - 8;
 
     switch (data.selected_object->city_type) {
         case EMPIRE_CITY_DISTANT_ROMAN:
@@ -352,8 +338,7 @@ static void draw_city_info(void)
             width += lang_text_draw(47, 12, x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN);
             if (data.selected_object->trade_route_id) {
                 arrow_buttons_set_city_type[0].x_offset = x_offset + 20 + width;
-                arrow_buttons_set_city_type[1].x_offset = 24 + x_offset + 20 + width;
-                arrow_buttons_draw(0, 0, arrow_buttons_set_city_type, 2);
+                arrow_buttons_draw(0, 0, arrow_buttons_set_city_type, 1);
             }
             break;
         case EMPIRE_CITY_FUTURE_TRADE:
@@ -417,16 +402,6 @@ static int is_outside_map(int x, int y)
             y < data.y_min + 16 || y >= data.y_max - 120);
 }
 
-static void determine_selected_object(const mouse *m)
-{
-    if (!m->left.went_up || data.finished_scroll || is_outside_map(m->x, m->y)) {
-        data.finished_scroll = 0;
-        return;
-    }
-    data.selected_object = empire_select_object(m->x - data.x_min - 16, m->y - data.y_min - 16);
-    window_invalidate();
-}
-
 static void handle_input(const mouse *m, const hotkeys *h)
 {
     pixel_offset position;
@@ -442,10 +417,13 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (arrow_buttons_handle_mouse(m, data.x_min, data.y_max, arrow_buttons_empire, 2, 0)) {
         return;
     }
-    determine_selected_object(m);
+    if (m->left.went_up && !is_outside_map(m->x, m->y)) {
+        data.selected_object = empire_select_object(m->x - data.x_min - 16, m->y - data.y_min - 16);
+        window_invalidate();
+    }
     if (data.selected_object && data.selected_object->type == EMPIRE_OBJECT_CITY) {
         if (data.selected_object->trade_route_id) {
-            arrow_buttons_handle_mouse(m, 0, 0, arrow_buttons_set_city_type, 2, 0);
+            arrow_buttons_handle_mouse(m, 0, 0, arrow_buttons_set_city_type, 1, 0);
             if (generic_buttons_handle_mouse(m, 0, 0, button_toggle_sell_resource_limit, sizeof(button_toggle_sell_resource) / sizeof(generic_button), 0)) {
                 return;
             }
@@ -495,42 +473,78 @@ static void button_change_empire(int value, __attribute__((unused)) int param2)
     window_request_refresh();
 }
 
-static void set_city_type(int value, __attribute__((unused)) int param2)
+static void set_city_type(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    empire_object_disable_postpone_trade_city(data.selected_object, value);
+    if (data.selected_object->city_type == EMPIRE_CITY_DISTANT_ROMAN) {
+        data.selected_object->city_type = EMPIRE_CITY_TRADE;
+    } else if (data.selected_object->city_type == EMPIRE_CITY_TRADE) {
+        data.selected_object->city_type = EMPIRE_CITY_FUTURE_TRADE;
+    } else {
+        data.selected_object->city_type = EMPIRE_CITY_DISTANT_ROMAN;
+    }
+
+    // fix graphics for city sprite and flag color when changing city types
+    if (data.selected_object->city_type == EMPIRE_CITY_TRADE || data.selected_object->city_type == EMPIRE_CITY_FUTURE_TRADE) {
+        data.selected_object->image_id = image_group(GROUP_EMPIRE_CITY_TRADE);
+        data.selected_object->expanded.image_id = image_group(GROUP_EMPIRE_CITY_TRADE);
+    } else if (data.selected_object->city_type == EMPIRE_CITY_DISTANT_ROMAN) {
+        data.selected_object->image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
+        data.selected_object->expanded.image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
+    }
+
     window_request_refresh();
 }
 
 
 static void toggle_sell_resource(int resource, __attribute__((unused)) int param2)
 {
-    empire_object_city_toggle_resource(data.selected_object, resource, 1);
+    // if resource to sell already enabled, disable
+    if (data.selected_object->resources_sell_list.resource[resource]) {
+        data.selected_object->resources_sell_list.resource[resource] = 0;
+    } else {
+        // if not enabled, enable by setting resource value in its index place
+        data.selected_object->resources_sell_list.resource[resource] = resource;
+        // don't allow simultaneous selling and buying of the same resource
+        if (data.selected_object->resources_buy_list.resource[resource]) {
+            data.selected_object->resources_buy_list.resource[resource] = 0;
+        }
+    }
 }
 
 
 static void set_resource_sell_limit(int resource, __attribute__((unused)) int param2)
 {
     int resource_limit = trade_route_cycle_limit(data.selected_object->trade_route_id, resource);
-    empire_object_city_set_resource_limit(data.selected_object, resource, resource_limit, 1);
+    data.selected_object->resources_sell_list.resource_limit[resource] = resource_limit;
 }
 
 
 static void toggle_buy_resource(int resource, __attribute__((unused)) int param2)
 {
-    empire_object_city_toggle_resource(data.selected_object, resource, 0);
+    // if resource to buy already enabled, disable
+    if (data.selected_object->resources_buy_list.resource[resource]) {
+        data.selected_object->resources_buy_list.resource[resource] = 0;
+    } else {
+        // if not enabled, enable by setting resource value in its index place
+        data.selected_object->resources_buy_list.resource[resource] = resource;
+        // don't allow simultaneous selling and buying of the same resource
+        if (data.selected_object->resources_sell_list.resource[resource]) {
+            data.selected_object->resources_sell_list.resource[resource] = 0;
+        }
+    }
 }
 
 
 static void set_resource_buy_limit(int resource, __attribute__((unused)) int param2)
 {
     int resource_limit = trade_route_cycle_limit(data.selected_object->trade_route_id, resource);
-    empire_object_city_set_resource_limit(data.selected_object, resource, resource_limit, 0);
+    data.selected_object->resources_buy_list.resource_limit[resource] = resource_limit;
 }
 
 
 static void set_trade_route_cost_callback(int value)
 {
-    empire_object_city_set_trade_route_cost(data.selected_object, value);
+    data.selected_object->trade_route_cost = value;
 }
 
 

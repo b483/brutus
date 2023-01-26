@@ -2,6 +2,7 @@
 
 #include "building/building.h"
 #include "building/destruction.h"
+#include "city/data_private.h"
 #include "city/figures.h"
 #include "city/finance.h"
 #include "city/message.h"
@@ -31,16 +32,15 @@ static void generate_rioter(building *b)
     }
     city_sentiment_add_criminal();
     int people_in_mob;
-    int population = city_population();
-    if (population <= 150) {
+    if (city_data.population.population <= 150) {
         people_in_mob = 1;
-    } else if (population <= 300) {
+    } else if (city_data.population.population <= 300) {
         people_in_mob = 2;
-    } else if (population <= 800) {
+    } else if (city_data.population.population <= 800) {
         people_in_mob = 3;
-    } else if (population <= 1200) {
+    } else if (city_data.population.population <= 1200) {
         people_in_mob = 4;
-    } else if (population <= 2000) {
+    } else if (city_data.population.population <= 2000) {
         people_in_mob = 5;
     } else {
         people_in_mob = 6;

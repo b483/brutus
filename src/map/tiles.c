@@ -1,5 +1,6 @@
 #include "tiles.h"
 
+#include "city/data_private.h"
 #include "city/map.h"
 #include "city/view.h"
 #include "core/direction.h"
@@ -1196,6 +1197,6 @@ static void remove_entry_exit_flag(const map_tile *tile)
 
 void map_tiles_remove_entry_exit_flags(void)
 {
-    remove_entry_exit_flag(city_map_entry_flag());
-    remove_entry_exit_flag(city_map_exit_flag());
+    remove_entry_exit_flag(&city_data.map.entry_flag);
+    remove_entry_exit_flag(&city_data.map.exit_flag);
 }

@@ -41,7 +41,7 @@ static void check_labor_problem(building *b)
 
 static void generate_labor_seeker(building *b, int x, int y)
 {
-    if (city_population() <= 0) {
+    if (city_data.population.population <= 0) {
         return;
     }
     if (b->figure_id2) {
@@ -951,7 +951,7 @@ static void spawn_figure_mission_post(building *b)
     }
     map_point road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
-        if (city_population() > 0) {
+        if (city_data.population.population > 0) {
             city_data.building.mission_post_operational = 1;
             b->figure_spawn_delay++;
             if (b->figure_spawn_delay > 1) {

@@ -3,6 +3,7 @@
 #include "building/building.h"
 #include "building/list.h"
 #include "city/buildings.h"
+#include "city/data_private.h"
 #include "city/military.h"
 #include "core/calc.h"
 #include "core/image.h"
@@ -217,7 +218,7 @@ void map_natives_check_land(void)
         if (b->sentiment.native_anger >= 100) {
             mark_native_land(b->x, b->y, size, radius);
             if (has_building_on_native_land(b->x, b->y, size, radius)) {
-                city_military_start_native_attack();
+                city_data.military.native_attack_duration = 2;
             }
         } else {
             b->sentiment.native_anger++;

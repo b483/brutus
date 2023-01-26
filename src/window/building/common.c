@@ -2,6 +2,7 @@
 
 #include "building/building.h"
 #include "building/model.h"
+#include "city/data_private.h"
 #include "city/labor.h"
 #include "city/population.h"
 #include "city/view.h"
@@ -59,7 +60,7 @@ static int draw_employment_info(building *b, int consider_house_covering)
     int text_id;
     if (b->num_workers >= model_get_building(b->type)->laborers) {
         text_id = 0;
-    } else if (city_population() <= 0) {
+    } else if (city_data.population.population <= 0) {
         text_id = 16; // no people in city
     } else if (!consider_house_covering) {
         text_id = 19;

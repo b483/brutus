@@ -1,5 +1,6 @@
 #include "soldier.h"
 
+#include "city/data_private.h"
 #include "city/figures.h"
 #include "city/map.h"
 #include "core/calc.h"
@@ -16,7 +17,7 @@
 #include "map/grid.h"
 #include "map/point.h"
 
-static const map_point ALTERNATIVE_POINTS[] = {{-1, -6},
+static const map_point ALTERNATIVE_POINTS[] = { {-1, -6},
     {0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1},
     {0, -2}, {1, -2}, {2, -2}, {2, -1}, {2, 0}, {2, 1}, {2, 2}, {1, 2},
     {0, 2}, {-1, 2}, {-2, 2}, {-2, 1}, {-2, 0}, {-2, -1}, {-2, -2}, {-1, -2},
@@ -83,7 +84,7 @@ void figure_military_standard_action(figure *f)
 
 static void javelin_launch_missile(figure *f)
 {
-    map_point tile = {-1, -1};
+    map_point tile = { -1, -1 };
     f->wait_ticks_missile++;
     if (f->wait_ticks_missile > figure_properties_for_type(f->type)->missile_delay) {
         f->wait_ticks_missile = 0;
@@ -365,11 +366,11 @@ void figure_soldier_action(figure *f)
                 }
             }
             break;
-        case FIGURE_ACTION_87_SOLDIER_GOING_TO_DISTANT_BATTLE: {
-            const map_tile *exit = city_map_exit_point();
+        case FIGURE_ACTION_87_SOLDIER_GOING_TO_DISTANT_BATTLE:
+        {
             f->formation_at_rest = 0;
-            f->destination_x = exit->x;
-            f->destination_y = exit->y;
+            f->destination_x = city_data.map.exit_point.x;
+            f->destination_y = city_data.map.exit_point.y;
             figure_movement_move_ticks(f, speed_factor);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                 f->action_state = FIGURE_ACTION_89_SOLDIER_AT_DISTANT_BATTLE;

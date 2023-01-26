@@ -3,6 +3,6 @@
 
 #include "empire/object.h"
 
-void window_trade_opened_show(empire_object *trade_city);
+void window_trade_opened_show(struct empire_object_t *trade_city);
 
 #endif // WINDOW_TRADE_OPENED_H

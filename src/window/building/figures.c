@@ -78,9 +78,8 @@ static figure *get_head_of_caravan(figure *f)
 static void draw_trader(building_info_context *c, figure *f)
 {
     f = get_head_of_caravan(f);
-    const empire_object *city = empire_object_get(f->empire_city_id);
     int width = lang_text_draw(64, f->type, c->x_offset + 40, c->y_offset + 110, FONT_NORMAL_BROWN);
-    lang_text_draw(21, city->city_name_id, c->x_offset + 40 + width, c->y_offset + 110, FONT_NORMAL_BROWN);
+    lang_text_draw(21, empire_objects[f->empire_city_id].city_name_id, c->x_offset + 40 + width, c->y_offset + 110, FONT_NORMAL_BROWN);
 
     width = lang_text_draw(129, 1, c->x_offset + 40, c->y_offset + 132, FONT_NORMAL_BROWN);
     lang_text_draw_amount(8, 10, f->type == FIGURE_TRADE_SHIP ? 12 : 8,
@@ -148,7 +147,7 @@ static void draw_trader(building_info_context *c, figure *f)
         int y_base = c->y_offset + 180;
         width = lang_text_draw(129, 2, c->x_offset + 40, y_base, FONT_NORMAL_BROWN);
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            if (city->resources_buy_list.resource[r]) {
+            if (empire_objects[f->empire_city_id].resources_buy_list.resource[r]) {
                 int image_id = image_group(GROUP_RESOURCE_ICONS) + r + resource_image_offset(r, RESOURCE_IMAGE_ICON);
                 image_draw(image_id, c->x_offset + 40 + width, y_base - 3);
                 width += 25;
@@ -158,7 +157,7 @@ static void draw_trader(building_info_context *c, figure *f)
         y_base = c->y_offset + 210;
         width = lang_text_draw(129, 3, c->x_offset + 40, y_base, FONT_NORMAL_BROWN);
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            if (city->resources_sell_list.resource[r]) {
+            if (empire_objects[f->empire_city_id].resources_sell_list.resource[r]) {
                 int image_id = image_group(GROUP_RESOURCE_ICONS) + r + resource_image_offset(r, RESOURCE_IMAGE_ICON);
                 image_draw(image_id, c->x_offset + 40 + width, y_base - 3);
                 width += 25;

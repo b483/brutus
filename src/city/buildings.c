@@ -145,11 +145,6 @@ int city_buildings_shipyard_boats_requested(void)
     return city_data.building.shipyard_boats_requested;
 }
 
-int city_buildings_has_working_dock(void)
-{
-    return city_data.building.working_docks > 0;
-}
-
 int city_buildings_get_working_dock(int index)
 {
     return city_data.building.working_dock_ids[index];

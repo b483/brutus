@@ -1,6 +1,7 @@
 #include "top_menu.h"
 
 #include "building/construction.h"
+#include "city/data_private.h"
 #include "city/finance.h"
 #include "city/population.h"
 #include "game/settings.h"
@@ -191,7 +192,7 @@ static void refresh_background(void)
 void widget_top_menu_draw(int force)
 {
     if (!force && drawn.treasury == city_finance_treasury() &&
-        drawn.population == city_population() &&
+        drawn.population == city_data.population.population &&
         drawn.month == game_time_month()) {
         return;
     }
@@ -215,7 +216,7 @@ void widget_top_menu_draw(int force)
         text_draw_number_colored(treasury, '@', " ", 346 + width, 5, FONT_NORMAL_PLAIN, treasure_color);
 
         width = lang_text_draw(6, 1, 458, 5, FONT_NORMAL_GREEN);
-        text_draw_number(city_population(), '@', " ", 450 + width, 5, FONT_NORMAL_GREEN);
+        text_draw_number(city_data.population.population, '@', " ", 450 + width, 5, FONT_NORMAL_GREEN);
 
         lang_text_draw_month_year_max_width(game_time_month(), game_time_year(), 540, 5, 100, FONT_NORMAL_GREEN, 0);
     } else if (s_width < 1024) {
@@ -227,7 +228,7 @@ void widget_top_menu_draw(int force)
         text_draw_number_colored(treasury, '@', " ", 346 + width, 5, FONT_NORMAL_PLAIN, treasure_color);
 
         width = lang_text_draw_colored(6, 1, 470, 5, FONT_NORMAL_PLAIN, COLOR_WHITE);
-        text_draw_number_colored(city_population(), '@', " ", 466 + width, 5, FONT_NORMAL_PLAIN, COLOR_WHITE);
+        text_draw_number_colored(city_data.population.population, '@', " ", 466 + width, 5, FONT_NORMAL_PLAIN, COLOR_WHITE);
 
         lang_text_draw_month_year_max_width(game_time_month(), game_time_year(),
             655, 5, 110, FONT_NORMAL_PLAIN, COLOR_FONT_YELLOW);
@@ -240,13 +241,13 @@ void widget_top_menu_draw(int force)
         text_draw_number_colored(treasury, '@', " ", 501 + width, 5, FONT_NORMAL_PLAIN, treasure_color);
 
         width = lang_text_draw_colored(6, 1, 645, 5, FONT_NORMAL_PLAIN, COLOR_WHITE);
-        text_draw_number_colored(city_population(), '@', " ", 651 + width, 5, FONT_NORMAL_PLAIN, COLOR_WHITE);
+        text_draw_number_colored(city_data.population.population, '@', " ", 651 + width, 5, FONT_NORMAL_PLAIN, COLOR_WHITE);
 
         lang_text_draw_month_year_max_width(game_time_month(), game_time_year(),
             850, 5, 110, FONT_NORMAL_PLAIN, COLOR_FONT_YELLOW);
     }
     drawn.treasury = treasury;
-    drawn.population = city_population();
+    drawn.population = city_data.population.population;
     drawn.month = game_time_month();
 }
 

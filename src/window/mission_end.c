@@ -1,5 +1,6 @@
 #include "mission_end.h"
 
+#include "city/data_private.h"
 #include "city/finance.h"
 #include "city/population.h"
 #include "city/ratings.h"
@@ -50,7 +51,7 @@ static void draw_won(void)
     text_draw_number(city_rating_favor(), '@', " ", right_offset + width, 328, FONT_NORMAL_BLACK);
 
     width = lang_text_draw(148, 4, left_offset, 348, FONT_NORMAL_BLACK);
-    text_draw_number(city_population(), '@', " ", left_offset + width, 348, FONT_NORMAL_BLACK);
+    text_draw_number(city_data.population.population, '@', " ", left_offset + width, 348, FONT_NORMAL_BLACK);
 
     width = lang_text_draw(148, 5, right_offset, 348, FONT_NORMAL_BLACK);
     text_draw_number(city_finance_treasury(), '@', " ", right_offset + width, 348, FONT_NORMAL_BLACK);

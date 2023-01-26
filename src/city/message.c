@@ -471,7 +471,7 @@ static int has_problem_area(const city_message *msg, lang_message_type lang_msg_
         return 1;
     }
     if (lang_msg_type == MESSAGE_TYPE_INVASION) {
-        if (formation_grid_offset_for_invasion(msg->param1)) {
+        if (formation_grid_offset_for_invasion()) {
             return 1;
         }
         // Formations have not been updated yet because the invasion just started.
@@ -523,7 +523,7 @@ int city_message_next_problem_area_grid_offset(void)
                     data.problem_index++;
                     int grid_offset = msg->param2;
                     if (lang_msg_type == MESSAGE_TYPE_INVASION) {
-                        int formation_grid_offset = formation_grid_offset_for_invasion(msg->param1);
+                        int formation_grid_offset = formation_grid_offset_for_invasion();
                         if (formation_grid_offset) {
                             grid_offset = formation_grid_offset;
                         }

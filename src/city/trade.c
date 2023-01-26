@@ -3,7 +3,104 @@
 #include "building/count.h"
 #include "city/constants.h"
 #include "city/data_private.h"
+#include "city/message.h"
 #include "empire/object.h"
+#include "empire/trade_route.h"
+#include "figure/figure.h"
+#include "scenario/data.h"
+#include "scenario/map.h"
+
+static int generate_trader(struct empire_object_t *city)
+{
+    int max_traders = 0;
+    int num_resources = 0;
+    for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+        if (city->resources_buy_list.resource[r] || city->resources_sell_list.resource[r]) {
+            ++num_resources;
+            switch (trade_route_limit(city->trade_route_id, r)) {
+                case 15: max_traders += 1; break;
+                case 25: max_traders += 2; break;
+                case 40: max_traders += 3; break;
+            }
+        }
+    }
+    if (num_resources > 1) {
+        if (max_traders % num_resources) {
+            max_traders = max_traders / num_resources + 1;
+        } else {
+            max_traders = max_traders / num_resources;
+        }
+    }
+    if (max_traders <= 0) {
+        return 0;
+    }
+
+    int index;
+    if (max_traders == 1) {
+        if (!city->trader_figure_ids[0]) {
+            index = 0;
+        } else {
+            return 0;
+        }
+    } else if (max_traders == 2) {
+        if (!city->trader_figure_ids[0]) {
+            index = 0;
+        } else if (!city->trader_figure_ids[1]) {
+            index = 1;
+        } else {
+            return 0;
+        }
+    } else { // 3
+        if (!city->trader_figure_ids[0]) {
+            index = 0;
+        } else if (!city->trader_figure_ids[1]) {
+            index = 1;
+        } else if (!city->trader_figure_ids[2]) {
+            index = 2;
+        } else {
+            return 0;
+        }
+    }
+
+    if (city->trader_entry_delay > 0) {
+        city->trader_entry_delay--;
+        return 0;
+    }
+    city->trader_entry_delay = city->is_sea_trade ? 30 : 4;
+
+    if (city->is_sea_trade) {
+        // generate ship
+        if (city_data.building.working_docks && scenario_map_has_river_entry() && !city_trade_has_sea_trade_problems()) {
+            figure *ship = figure_create(FIGURE_TRADE_SHIP, scenario.river_entry_point.x, scenario.river_entry_point.y, DIR_0_TOP);
+            ship->empire_city_id = city->id;
+            ship->action_state = FIGURE_ACTION_110_TRADE_SHIP_CREATED;
+            ship->wait_ticks = 10;
+            city->trader_figure_ids[index] = ship->id;
+            return 1;
+        }
+    } else {
+        // generate caravan and donkeys
+        if (!city_trade_has_land_trade_problems()) {
+            // caravan head
+            figure *caravan = figure_create(FIGURE_TRADE_CARAVAN, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
+            caravan->empire_city_id = city->id;
+            caravan->action_state = FIGURE_ACTION_100_TRADE_CARAVAN_CREATED;
+            caravan->wait_ticks = 10;
+            // donkey 1
+            figure *donkey1 = figure_create(FIGURE_TRADE_CARAVAN_DONKEY, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
+            donkey1->action_state = FIGURE_ACTION_100_TRADE_CARAVAN_CREATED;
+            donkey1->leading_figure_id = caravan->id;
+            // donkey 2
+            figure *donkey2 = figure_create(FIGURE_TRADE_CARAVAN_DONKEY, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
+            donkey2->action_state = FIGURE_ACTION_100_TRADE_CARAVAN_CREATED;
+            donkey2->leading_figure_id = donkey1->id;
+            city->trader_figure_ids[index] = caravan->id;
+
+            return 1;
+        }
+    }
+    return 0;
+}
 
 void city_trade_update(void)
 {
@@ -12,7 +109,13 @@ void city_trade_update(void)
     // Wine types
     city_data.resource.wine_types_available = building_count_industry_total(RESOURCE_WINE) > 0 ? 1 : 0;
     if (city_data.resource.trade_status[RESOURCE_WINE] == TRADE_STATUS_IMPORT) {
-        city_data.resource.wine_types_available += empire_object_city_count_wine_sources();
+        for (int i = 0; i < MAX_OBJECTS; i++) {
+            if (empire_objects[i].in_use
+                && empire_objects[i].trade_route_open
+                && empire_objects[i].resources_sell_list.resource[RESOURCE_WINE]) {
+                city_data.resource.wine_types_available++;
+            }
+        }
     }
     // Update trade problems
     if (city_data.trade.land_trade_problem_duration > 0) {
@@ -25,7 +128,28 @@ void city_trade_update(void)
     } else {
         city_data.trade.sea_trade_problem_duration = 0;
     }
-    empire_object_city_generate_trader();
+
+    for (int i = 1; i < MAX_OBJECTS; i++) {
+        if (!empire_objects[i].in_use || !empire_objects[i].trade_route_open) {
+            continue;
+        }
+        if (empire_objects[i].is_sea_trade) {
+            if (!city_data.building.working_docks) {
+                // delay of 384 = 1 year
+                city_message_post_with_message_delay(MESSAGE_CAT_NO_WORKING_DOCK, 1, MESSAGE_NO_WORKING_DOCK, 384);
+                continue;
+            }
+            if (!scenario_map_has_river_entry()) {
+                continue;
+            }
+            city_trade_add_sea_trade_route();
+        } else {
+            city_trade_add_land_trade_route();
+        }
+        if (generate_trader(&empire_objects[i])) {
+            break;
+        }
+    }
 }
 
 void city_trade_add_land_trade_route(void)

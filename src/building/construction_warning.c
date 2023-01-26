@@ -276,7 +276,7 @@ void building_construction_warning_check_all(building_type type, int x, int y, i
 void building_construction_warning_check_food_stocks(building_type type)
 {
     if (!has_warning && type == BUILDING_HOUSE_VACANT_LOT) {
-        if (city_population() >= 200 && !scenario.rome_supplies_wheat) {
+        if (city_data.population.population >= 200 && !scenario.rome_supplies_wheat) {
             if (city_resource_food_percentage_produced() <= 95) {
                 show(WARNING_MORE_FOOD_NEEDED);
             }

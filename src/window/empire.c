@@ -1,13 +1,13 @@
 #include "empire.h"
 
 #include "building/menu.h"
+#include "city/data_private.h"
 #include "city/military.h"
 #include "city/warning.h"
 #include "core/image_group.h"
 #include "empire/empire.h"
 #include "empire/object.h"
 #include "empire/trade_route.h"
-#include "empire/type.h"
 #include "game/settings.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -67,12 +67,11 @@ static generic_button generic_button_open_trade[] = {
 };
 
 static struct {
-    empire_object *selected_object;
+    struct empire_object_t *selected_object;
     int selected_button;
     int x_min, x_max, y_min, y_max;
     int x_draw_offset, y_draw_offset;
     int focus_button_id;
-    int finished_scroll;
     int focus_resource;
 } data;
 
@@ -239,7 +238,7 @@ static void draw_city_info(void)
             lang_text_draw_centered(47, 12, x_offset, y_offset, 240, FONT_NORMAL_GREEN);
             break;
         case EMPIRE_CITY_VULNERABLE_ROMAN:
-            if (city_military_distant_battle_city_is_roman()) {
+            if (city_data.distant_battle.city_foreign_months_left <= 0) {
                 lang_text_draw_centered(47, 12, x_offset, y_offset, 240, FONT_NORMAL_GREEN);
             } else {
                 lang_text_draw_centered(47, 13, x_offset, y_offset, 240, FONT_NORMAL_GREEN);
@@ -326,70 +325,61 @@ static void draw_background(void)
     }
 }
 
-static void draw_empire_object(const empire_object *obj)
+static void draw_empire_objects(void)
 {
-    if (obj->type == EMPIRE_OBJECT_LAND_TRADE_ROUTE || obj->type == EMPIRE_OBJECT_SEA_TRADE_ROUTE) {
-        if (!empire_object_trade_route_is_open(obj->trade_route_id)) {
-            return;
-        }
-    }
-    int x, y, image_id;
-    if (scenario.empire.is_expanded) {
-        x = obj->expanded.x;
-        y = obj->expanded.y;
-        image_id = obj->expanded.image_id;
-    } else {
-        x = obj->x;
-        y = obj->y;
-        image_id = obj->image_id;
-    }
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (empire_objects[i].in_use) {
+            if (empire_objects[i].type == EMPIRE_OBJECT_LAND_TRADE_ROUTE || empire_objects[i].type == EMPIRE_OBJECT_SEA_TRADE_ROUTE) {
+                if (!empire_object_trade_route_is_open(empire_objects[i].trade_route_id)) {
+                    continue;
+                }
+            }
+            if (empire_objects[i].type == EMPIRE_OBJECT_BATTLE_ICON) {
+                // handled later
+                continue;
+            }
+            if (empire_objects[i].type == EMPIRE_OBJECT_ENEMY_ARMY) {
+                if (city_military_months_until_distant_battle() <= 0) {
+                    continue;
+                }
+                if (city_military_distant_battle_enemy_months_traveled() != empire_objects[i].distant_battle_travel_months) {
+                    continue;
+                }
+            }
+            if (empire_objects[i].type == EMPIRE_OBJECT_ROMAN_ARMY) {
+                if (!city_military_distant_battle_roman_army_is_traveling()) {
+                    continue;
+                }
+                if (city_military_distant_battle_roman_months_traveled() != empire_objects[i].distant_battle_travel_months) {
+                    continue;
+                }
+            }
 
-    if (obj->type == EMPIRE_OBJECT_CITY) {
-        if (obj->city_type == EMPIRE_CITY_DISTANT_FOREIGN ||
-            obj->city_type == EMPIRE_CITY_FUTURE_ROMAN) {
-            image_id = image_group(GROUP_EMPIRE_FOREIGN_CITY);
-        } else if (obj->city_type == EMPIRE_CITY_TRADE) {
-            // Fix cases where empire map still gives a blue flag for new trade cities
-            // (e.g. Massilia in campaign Lugdunum)
-            image_id = image_group(GROUP_EMPIRE_CITY_TRADE);
-        } else if (obj->city_type == EMPIRE_CITY_FUTURE_TRADE) {
-            // Fix case where future trade city (as specified in the editor) is drawn as a trade city before expansion
-            image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
-        }
-    }
-    if (obj->type == EMPIRE_OBJECT_BATTLE_ICON) {
-        // handled later
-        return;
-    }
-    if (obj->type == EMPIRE_OBJECT_ENEMY_ARMY) {
-        if (city_military_months_until_distant_battle() <= 0) {
-            return;
-        }
-        if (city_military_distant_battle_enemy_months_traveled() != obj->distant_battle_travel_months) {
-            return;
-        }
-    }
-    if (obj->type == EMPIRE_OBJECT_ROMAN_ARMY) {
-        if (!city_military_distant_battle_roman_army_is_traveling()) {
-            return;
-        }
-        if (city_military_distant_battle_roman_months_traveled() != obj->distant_battle_travel_months) {
-            return;
-        }
-    }
-    image_draw(image_id, data.x_draw_offset + x, data.y_draw_offset + y);
-    const image *img = image_get(image_id);
-    if (img->animation_speed_id) {
-        int new_animation = empire_object_update_animation(obj, image_id);
-        image_draw(image_id + new_animation,
-            data.x_draw_offset + x + img->sprite_offset_x,
-            data.y_draw_offset + y + img->sprite_offset_y);
-    }
-}
+            int x, y, image_id;
+            if (scenario.empire.is_expanded) {
+                x = empire_objects[i].expanded.x;
+                y = empire_objects[i].expanded.y;
+                image_id = empire_objects[i].expanded.image_id;
+            } else {
+                x = empire_objects[i].x;
+                y = empire_objects[i].y;
+                image_id = empire_objects[i].image_id;
+            }
 
-static void draw_invasion_warning(int x, int y, int image_id)
-{
-    image_draw(image_id, data.x_draw_offset + x, data.y_draw_offset + y);
+            if (empire_objects[i].city_type == EMPIRE_CITY_FUTURE_TRADE) {
+                // Fix case where future trade city (as specified in the editor) is drawn as a trade city before expansion
+                image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
+            }
+
+            image_draw(image_id, data.x_draw_offset + x, data.y_draw_offset + y);
+            const image *img = image_get(image_id);
+            if (img->animation_speed_id) {
+                image_draw(image_id + empire_object_update_animation(&empire_objects[i], image_id),
+                    data.x_draw_offset + x + img->sprite_offset_x,
+                    data.y_draw_offset + y + img->sprite_offset_y);
+            }
+        }
+    }
 }
 
 static void draw_map(void)
@@ -404,9 +394,13 @@ static void draw_map(void)
     empire_adjust_scroll(&data.x_draw_offset, &data.y_draw_offset);
     image_draw(image_group(GROUP_EMPIRE_MAP), data.x_draw_offset, data.y_draw_offset);
 
-    empire_object_foreach(draw_empire_object);
+    draw_empire_objects();
 
-    scenario_invasion_foreach_warning(draw_invasion_warning);
+    for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
+        if (invasion_warnings[i].in_use && invasion_warnings[i].handled) {
+            image_draw(invasion_warnings[i].image_id, data.x_draw_offset + invasion_warnings[i].x, data.y_draw_offset + invasion_warnings[i].y);
+        }
+    }
 
     graphics_reset_clip_rectangle();
 }
@@ -436,16 +430,6 @@ static int is_outside_map(int x, int y)
 {
     return (x < data.x_min + 16 || x >= data.x_max - 16 ||
             y < data.y_min + 16 || y >= data.y_max - 120);
-}
-
-static void determine_selected_object(const mouse *m)
-{
-    if (!m->left.went_up || data.finished_scroll || is_outside_map(m->x, m->y)) {
-        data.finished_scroll = 0;
-        return;
-    }
-    data.selected_object = empire_select_object(m->x - data.x_min - 16, m->y - data.y_min - 16);
-    window_invalidate();
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)
@@ -481,8 +465,11 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
 
-    determine_selected_object(m);
+    if (m->left.went_up && !is_outside_map(m->x, m->y)) {
+        data.selected_object = empire_select_object(m->x - data.x_min - 16, m->y - data.y_min - 16);
+    }
     if (data.selected_object) {
+        window_invalidate();
         if (data.selected_object->city_type == EMPIRE_CITY_TRADE) {
             if (data.selected_object->trade_route_open) {
                 int x_offset = (data.x_min + data.x_max - 500) / 2;
@@ -655,7 +642,8 @@ static void button_show_resource_window(int resource, __attribute__((unused)) in
 
 static void confirmed_open_trade(void)
 {
-    empire_object_open_trade(data.selected_object);
+    city_finance_process_construction(data.selected_object->trade_route_cost);
+    data.selected_object->trade_route_open = 1;
     building_menu_update();
     window_trade_opened_show(data.selected_object);
 }

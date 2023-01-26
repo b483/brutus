@@ -25,53 +25,6 @@ static const int DEATHS_PER_HEALTH_PER_AGE_DECENNIUM[11][10] = {
     {0, 0, 0, 0, 0, 0, 0, 2, 5, 10}
 };
 
-int city_population(void)
-{
-    return city_data.population.population;
-}
-
-int city_population_school_age(void)
-{
-    return city_data.population.school_age;
-}
-
-int city_population_academy_age(void)
-{
-    return city_data.population.academy_age;
-}
-
-int city_population_last_used_house_add(void)
-{
-    return city_data.population.last_used_house_add;
-}
-
-void city_population_set_last_used_house_add(int building_id)
-{
-    city_data.population.last_used_house_add = building_id;
-}
-
-int city_population_last_used_house_remove(void)
-{
-    return city_data.population.last_used_house_remove;
-}
-
-void city_population_set_last_used_house_remove(int building_id)
-{
-    city_data.population.last_used_house_remove = building_id;
-}
-
-void city_population_clear_capacity(void)
-{
-    city_data.population.total_capacity = 0;
-    city_data.population.room_in_houses = 0;
-}
-
-void city_population_add_capacity(int people_in_house, int max_people)
-{
-    city_data.population.total_capacity += max_people;
-    city_data.population.room_in_houses += max_people - people_in_house;
-}
-
 static void recalculate_population(void)
 {
     city_data.population.population = 0;
@@ -225,20 +178,6 @@ void city_population_calculate_educational_age(void)
     city_data.population.academy_age = get_people_aged_between(14, 21);
 }
 
-void city_population_record_monthly(void)
-{
-    city_data.population.monthly.values[city_data.population.monthly.next_index++] = city_data.population.population;
-    if (city_data.population.monthly.next_index >= 2400) {
-        city_data.population.monthly.next_index = 0;
-    }
-    ++city_data.population.monthly.count;
-}
-
-int city_population_monthly_count(void)
-{
-    return city_data.population.monthly.count;
-}
-
 int city_population_at_month(int max_months, int month)
 {
     int start_offset = 0;
@@ -247,16 +186,6 @@ int city_population_at_month(int max_months, int month)
     }
     int index = (start_offset + month) % 2400;
     return city_data.population.monthly.values[index];
-}
-
-int city_population_at_age(int age)
-{
-    return city_data.population.at_age[age];
-}
-
-int city_population_at_level(int house_level)
-{
-    return city_data.population.at_level[house_level];
 }
 
 static void yearly_advance_ages_and_calculate_deaths(void)
@@ -360,12 +289,3 @@ void city_population_check_consistency(void)
     }
 }
 
-int city_population_graph_order(void)
-{
-    return city_data.population.graph_order;
-}
-
-void city_population_set_graph_order(int order)
-{
-    city_data.population.graph_order = order;
-}

@@ -2,6 +2,7 @@
 
 #include "building/house.h"
 #include "building/model.h"
+#include "city/data_private.h"
 #include "city/map.h"
 #include "city/population.h"
 #include "core/calc.h"
@@ -14,8 +15,7 @@
 
 void figure_create_immigrant(building *house, int num_people)
 {
-    const map_tile *entry = city_map_entry_point();
-    figure *f = figure_create(FIGURE_IMMIGRANT, entry->x, entry->y, DIR_0_TOP);
+    figure *f = figure_create(FIGURE_IMMIGRANT, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
     f->action_state = FIGURE_ACTION_1_IMMIGRANT_CREATED;
     f->immigrant_building_id = house->id;
     house->immigrant_figure_id = f->id;
@@ -198,10 +198,9 @@ void figure_emigrant_action(figure *f)
             f->use_cross_country = 1;
             f->is_ghost = 1;
             if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
-                const map_tile *entry = city_map_entry_point();
                 f->action_state = FIGURE_ACTION_6_EMIGRANT_LEAVING;
-                f->destination_x = entry->x;
-                f->destination_y = entry->y;
+                f->destination_x = city_data.map.entry_point.x;
+                f->destination_y = city_data.map.entry_point.y;
                 f->roam_length = 0;
                 f->progress_on_tile = 15;
             }
@@ -252,10 +251,9 @@ void figure_homeless_action(figure *f)
                         f->state = FIGURE_STATE_DEAD;
                     }
                 } else {
-                    const map_tile *exit = city_map_exit_point();
                     f->action_state = FIGURE_ACTION_10_HOMELESS_LEAVING;
-                    f->destination_x = exit->x;
-                    f->destination_y = exit->y;
+                    f->destination_x = city_data.map.exit_point.x;
+                    f->destination_y = city_data.map.exit_point.y;
                     f->roam_length = 0;
                     f->wait_ticks = 0;
                 }

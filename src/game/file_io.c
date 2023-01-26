@@ -142,7 +142,6 @@ typedef struct {
     buffer *building_count_culture3;
     buffer *enemy_armies;
     buffer *city_entry_exit_xy;
-    buffer *last_invasion_id;
     buffer *building_extra_corrupt_houses;
     buffer *bookmarks;
     buffer *city_entry_exit_grid_offset;
@@ -273,7 +272,6 @@ static void init_savegame_data(void)
     state->building_count_culture3 = create_savegame_piece(40, 0);
     state->enemy_armies = create_savegame_piece(900, 0);
     state->city_entry_exit_xy = create_savegame_piece(16, 0);
-    state->last_invasion_id = create_savegame_piece(2, 0);
     state->building_extra_corrupt_houses = create_savegame_piece(8, 0);
     state->bookmarks = create_savegame_piece(32, 0);
     state->city_entry_exit_grid_offset = create_savegame_piece(8, 0);
@@ -372,7 +370,7 @@ static void savegame_load_from_state(savegame_state *state)
     trade_routes_load_state(state->trade_route_limit, state->trade_route_traded);
     map_routing_load_state(state->routing_counters);
     enemy_armies_load_state(state->enemy_armies, state->enemy_army_totals);
-    scenario_invasion_load_state(state->last_invasion_id, state->invasion_warnings);
+    scenario_invasion_load_state(state->invasion_warnings);
     map_bookmark_load_state(state->bookmarks);
 }
 
@@ -439,7 +437,7 @@ static void savegame_save_to_state(savegame_state *state)
     trade_routes_save_state(state->trade_route_limit, state->trade_route_traded);
     map_routing_save_state(state->routing_counters);
     enemy_armies_save_state(state->enemy_armies, state->enemy_army_totals);
-    scenario_invasion_save_state(state->last_invasion_id, state->invasion_warnings);
+    scenario_invasion_save_state(state->invasion_warnings);
     map_bookmark_save_state(state->bookmarks);
 }
 

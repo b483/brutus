@@ -69,11 +69,6 @@ int city_military_is_native_attack_active(void)
     return city_data.military.native_attack_duration > 0;
 }
 
-void city_military_start_native_attack(void)
-{
-    city_data.military.native_attack_duration = 2;
-}
-
 void city_military_decrease_native_attack_duration(void)
 {
     if (city_data.military.native_attack_duration) {
@@ -83,22 +78,11 @@ void city_military_decrease_native_attack_duration(void)
 
 void city_military_determine_distant_battle_city(void)
 {
-    city_data.distant_battle.city = empire_object_get_vulnerable_roman_city();
-}
-
-int city_military_distant_battle_city(void)
-{
-    return city_data.distant_battle.city;
-}
-
-int city_military_distant_battle_city_is_roman(void)
-{
-    return city_data.distant_battle.city_foreign_months_left <= 0;
-}
-
-int city_military_distant_battle_enemy_strength(void)
-{
-    return city_data.distant_battle.enemy_strength;
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (empire_objects[i].in_use && empire_objects[i].city_type == EMPIRE_CITY_VULNERABLE_ROMAN) {
+            city_data.distant_battle.city = i;
+        }
+    }
 }
 
 void city_military_dispatch_to_distant_battle(int roman_strength)
@@ -186,17 +170,10 @@ static void update_time_traveled(void)
     }
 }
 
-static void set_city_vulnerable(void)
-{
-    if (city_data.distant_battle.city) {
-        empire_object_city_set_vulnerable(city_data.distant_battle.city);
-    }
-}
-
 static void set_city_foreign(void)
 {
     if (city_data.distant_battle.city) {
-        empire_object_city_set_foreign(city_data.distant_battle.city);
+        empire_objects[city_data.distant_battle.city].city_type = EMPIRE_CITY_DISTANT_FOREIGN;
     }
     city_data.distant_battle.city_foreign_months_left = 24;
 }
@@ -288,7 +265,9 @@ static void update_aftermath(void)
         city_data.distant_battle.city_foreign_months_left--;
         if (city_data.distant_battle.city_foreign_months_left <= 0) {
             city_message_post(1, MESSAGE_DISTANT_BATTLE_CITY_RETAKEN, 0, 0);
-            set_city_vulnerable();
+            if (city_data.distant_battle.city) {
+                empire_objects[city_data.distant_battle.city].city_type = EMPIRE_CITY_VULNERABLE_ROMAN;
+            }
         }
     }
 }

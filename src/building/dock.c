@@ -1,6 +1,7 @@
 #include "dock.h"
 
 #include "city/buildings.h"
+#include "city/data_private.h"
 #include "map/figure.h"
 #include "map/grid.h"
 #include "map/routing.h"
@@ -50,7 +51,7 @@ int building_dock_is_connected_to_open_water(int x, int y)
 
 int building_dock_get_free_destination(int ship_id, map_point *tile)
 {
-    if (!city_buildings_has_working_dock()) {
+    if (!city_data.building.working_docks) {
         return 0;
     }
     int dock_id = 0;
@@ -81,7 +82,7 @@ int building_dock_get_free_destination(int ship_id, map_point *tile)
 
 int building_dock_get_queue_destination(map_point *tile)
 {
-    if (!city_buildings_has_working_dock()) {
+    if (!city_data.building.working_docks) {
         return 0;
     }
     // first queue position

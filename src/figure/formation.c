@@ -117,7 +117,7 @@ int formation_create_herd(int figure_type, int x, int y, int num_animals)
 }
 
 int formation_create_enemy(int figure_type, int x, int y, int layout, int orientation,
-                           int enemy_type, int attack_type, int invasion_id, int invasion_sequence)
+                           int enemy_type, int attack_type, int invasion_id)
 {
     int formation_id = formation_create(figure_type, layout, orientation, x, y);
     if (!formation_id) {
@@ -128,7 +128,6 @@ int formation_create_enemy(int figure_type, int x, int y, int layout, int orient
     f->orientation = orientation;
     f->enemy_type = enemy_type;
     f->invasion_id = invasion_id;
-    f->invasion_sequence = invasion_sequence;
     return formation_id;
 }
 
@@ -168,11 +167,11 @@ void formation_record_fight(formation *m)
     m->recent_fight = 6;
 }
 
-int formation_grid_offset_for_invasion(int invasion_sequence)
+int formation_grid_offset_for_invasion(void)
 {
     for (int i = 1; i < MAX_FORMATIONS; i++) {
         formation *m = &formations[i];
-        if (m->in_use == 1 && !m->is_legion && !m->is_herd && m->invasion_sequence == invasion_sequence) {
+        if (m->in_use == 1 && !m->is_legion && !m->is_herd) {
             if (m->x_home > 0 || m->y_home > 0) {
                 return map_grid_offset(m->x_home, m->y_home);
             } else {
@@ -663,7 +662,6 @@ void formations_save_state(buffer *buf, buffer *totals)
         buffer_write_u8(buf, f->months_very_low_morale);
         buffer_write_u8(buf, f->invasion_id);
         buffer_write_u8(buf, f->herd_wolf_spawn_delay);
-        buffer_write_i16(buf, f->invasion_sequence);
     }
 }
 
@@ -730,6 +728,5 @@ void formations_load_state(buffer *buf, buffer *totals)
         f->months_very_low_morale = buffer_read_u8(buf);
         f->invasion_id = buffer_read_u8(buf);
         f->herd_wolf_spawn_delay = buffer_read_u8(buf);
-        f->invasion_sequence = buffer_read_i16(buf);
     }
 }

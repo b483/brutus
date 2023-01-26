@@ -13,14 +13,9 @@ void city_military_clear_empire_service_legions(void);
 void city_military_update_totals(void);
 
 int city_military_is_native_attack_active(void);
-void city_military_start_native_attack(void);
 void city_military_decrease_native_attack_duration(void);
 
 void city_military_determine_distant_battle_city(void);
-int city_military_distant_battle_city(void);
-int city_military_distant_battle_city_is_roman(void);
-
-int city_military_distant_battle_enemy_strength(void);
 
 void city_military_dispatch_to_distant_battle(int roman_strength);
 int city_military_distant_battle_roman_army_is_traveling(void);

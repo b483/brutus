@@ -117,7 +117,6 @@ typedef struct {
     int enemy_legion_index;
     int attack_type;
     int invasion_id;
-    int invasion_sequence;
     formation_state enemy_state;
 
     /* Herd-related */
@@ -137,7 +136,7 @@ void formation_clear(int formation_id);
 formation *formation_create_legion(int building_id, int x, int y, figure_type type);
 int formation_create_herd(int figure_type, int x, int y, int num_animals);
 int formation_create_enemy(int figure_type, int x, int y, int layout, int orientation,
-                           int enemy_type, int attack_type, int invasion_id, int invasion_sequence);
+                           int enemy_type, int attack_type, int invasion_id);
 
 formation *formation_get(int formation_id);
 
@@ -150,7 +149,7 @@ void formation_record_missile_fired(formation *m);
 void formation_record_missile_attack(formation *m, int from_formation_id);
 void formation_record_fight(formation *m);
 
-int formation_grid_offset_for_invasion(int invasion_sequence);
+int formation_grid_offset_for_invasion(void);
 
 void formation_caesar_pause(void);
 

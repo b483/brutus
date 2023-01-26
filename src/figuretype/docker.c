@@ -24,14 +24,13 @@ static int try_import_resource(int building_id, int resource, int city_id)
         return 0;
     }
 
-    int route_id = empire_object_get_trade_route_id(city_id);
     // try existing storage bay with the same resource
     building *space = warehouse;
     for (int i = 0; i < 8; i++) {
         space = building_next(space);
         if (space->id > 0) {
             if (space->loads_stored && space->loads_stored < 4 && space->subtype.warehouse_resource_id == resource) {
-                trade_route_increase_traded(route_id, resource);
+                trade_route_increase_traded(empire_objects[city_id].trade_route_id, resource);
                 building_warehouse_space_add_import(space, resource);
                 return 1;
             }
@@ -43,7 +42,7 @@ static int try_import_resource(int building_id, int resource, int city_id)
         space = building_next(space);
         if (space->id > 0) {
             if (space->subtype.warehouse_resource_id == RESOURCE_NONE) {
-                trade_route_increase_traded(route_id, resource);
+                trade_route_increase_traded(empire_objects[city_id].trade_route_id, resource);
                 building_warehouse_space_add_import(space, resource);
                 return 1;
             }
@@ -64,7 +63,7 @@ static int try_export_resource(int building_id, int resource, int city_id)
         space = building_next(space);
         if (space->id > 0) {
             if (space->loads_stored && space->subtype.warehouse_resource_id == resource) {
-                trade_route_increase_traded(empire_object_get_trade_route_id(city_id), resource);
+                trade_route_increase_traded(empire_objects[city_id].trade_route_id, resource);
                 building_warehouse_space_remove_export(space, resource);
                 return 1;
             }

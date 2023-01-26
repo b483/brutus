@@ -18,7 +18,7 @@ static image_button image_buttons[] = {
     {522, 252, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1, 0, 0, 0},
 };
 
-static empire_object *selected_trade_city = 0;
+static struct empire_object_t *selected_trade_city = 0;
 
 static void draw_background(void)
 {
@@ -64,7 +64,7 @@ static void button_close(__attribute__((unused)) int param1, __attribute__((unus
     window_empire_show();
 }
 
-void window_trade_opened_show(empire_object *trade_city)
+void window_trade_opened_show(struct empire_object_t *trade_city)
 {
     window_type window = {
         WINDOW_TRADE_OPENED,
