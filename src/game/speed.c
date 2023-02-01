@@ -37,7 +37,8 @@ int game_speed_get_elapsed_ticks(void)
         case WINDOW_SLIDING_SIDEBAR:
         case WINDOW_OVERLAY_MENU:
         case WINDOW_MILITARY_MENU:
-        case WINDOW_BUILD_MENU: {
+        case WINDOW_BUILD_MENU:
+        {
             int speed = setting_game_speed();
             if (speed < 10) {
                 return 0;
@@ -56,9 +57,6 @@ int game_speed_get_elapsed_ticks(void)
             break;
     }
     if (building_construction_in_progress()) {
-        return 0;
-    }
-    if (scroll_in_progress() && !scroll_is_smooth()) {
         return 0;
     }
 

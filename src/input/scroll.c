@@ -137,11 +137,6 @@ static int get_scroll_speed_factor(void)
     return calc_bound((100 - setting_scroll_speed()) / 10, 0, 10);
 }
 
-int scroll_is_smooth(void)
-{
-    return data.drag.active;
-}
-
 static int direction_from_sides(int top, int left, int bottom, int right)
 {
     // two sides
