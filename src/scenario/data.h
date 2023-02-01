@@ -163,7 +163,7 @@ struct editor_custom_messages_t {
 };
 
 struct invasion_t {
-    int16_t year;
+    int16_t year_offset;
     int16_t amount;
     int8_t month;
     int8_t type;
@@ -252,6 +252,7 @@ extern struct scenario_t {
     struct request_t requests[MAX_REQUESTS];
     struct editor_custom_messages_t editor_custom_messages[MAX_EDITOR_CUSTOM_MESSAGES];
     struct invasion_t invasions[MAX_INVASIONS];
+    int8_t invasion_upcoming;
     struct price_change_t price_changes[MAX_PRICE_CHANGES];
     struct demand_change_t demand_changes[MAX_DEMAND_CHANGES];
 

@@ -66,7 +66,6 @@ void game_file_editor_clear_data(void)
     figure_route_clear_all();
     traders_clear();
     game_time_init(2098);
-    scenario_invasion_clear();
 }
 
 static void clear_map_data(void)

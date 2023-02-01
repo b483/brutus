@@ -122,7 +122,6 @@ typedef struct {
     buffer *message_delays;
     buffer *building_list_burning_totals;
     buffer *figure_sequence;
-    buffer *invasion_warnings;
     buffer *city_sounds;
     buffer *building_extra_highest_id;
     buffer *figure_traders;
@@ -194,7 +193,7 @@ static void init_scenario_data(void)
     state->elevation = create_scenario_piece(26244);
     state->random_iv = create_scenario_piece(8);
     state->camera = create_scenario_piece(8);
-    state->scenario = create_scenario_piece(51933);
+    state->scenario = create_scenario_piece(51934);
     state->empire_object = create_scenario_piece(20600);
 }
 
@@ -243,7 +242,7 @@ static void init_savegame_data(void)
     state->trade_prices = create_savegame_piece(128, 0);
     state->figure_names = create_savegame_piece(84, 0);
     state->culture_coverage = create_savegame_piece(56, 0);
-    state->scenario = create_savegame_piece(51933, 0);
+    state->scenario = create_savegame_piece(51934, 0);
     state->earthquake = create_savegame_piece(52, 0);
     state->messages = create_savegame_piece(14000, 1);
     state->message_extra = create_savegame_piece(12, 0);
@@ -252,7 +251,6 @@ static void init_savegame_data(void)
     state->message_delays = create_savegame_piece(80, 0);
     state->building_list_burning_totals = create_savegame_piece(8, 0);
     state->figure_sequence = create_savegame_piece(4, 0);
-    state->invasion_warnings = create_savegame_piece(2121, 1);
     state->city_sounds = create_savegame_piece(3920, 0);
     state->building_extra_highest_id = create_savegame_piece(4, 0);
     state->figure_traders = create_savegame_piece(4804, 0);
@@ -370,7 +368,6 @@ static void savegame_load_from_state(savegame_state *state)
     trade_routes_load_state(state->trade_route_limit, state->trade_route_traded);
     map_routing_load_state(state->routing_counters);
     enemy_armies_load_state(state->enemy_armies, state->enemy_army_totals);
-    scenario_invasion_load_state(state->invasion_warnings);
     map_bookmark_load_state(state->bookmarks);
 }
 
@@ -437,7 +434,6 @@ static void savegame_save_to_state(savegame_state *state)
     trade_routes_save_state(state->trade_route_limit, state->trade_route_traded);
     map_routing_save_state(state->routing_counters);
     enemy_armies_save_state(state->enemy_armies, state->enemy_army_totals);
-    scenario_invasion_save_state(state->invasion_warnings);
     map_bookmark_save_state(state->bookmarks);
 }
 

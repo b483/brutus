@@ -96,7 +96,7 @@ void scenario_editor_create(int map_size)
 
     // Invasions
     for (int i = 0; i < MAX_INVASIONS; i++) {
-        scenario.invasions[i].year = 1;
+        scenario.invasions[i].year_offset = 1;
         scenario.invasions[i].from = 8;
     }
 
@@ -258,7 +258,7 @@ void scenario_save_state(buffer *buf)
 
     // Invasions
     for (int i = 0; i < MAX_INVASIONS; i++) {
-        buffer_write_i16(buf, scenario.invasions[i].year);
+        buffer_write_i16(buf, scenario.invasions[i].year_offset);
     }
     for (int i = 0; i < MAX_INVASIONS; i++) {
         buffer_write_i8(buf, scenario.invasions[i].month);
@@ -278,6 +278,8 @@ void scenario_save_state(buffer *buf)
     for (int i = 0; i < MAX_INVASIONS; i++) {
         buffer_write_i8(buf, scenario.invasions[i].target_type);
     }
+
+    buffer_write_i8(buf, scenario.invasion_upcoming);
 
     // Price changes
     for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
@@ -491,7 +493,7 @@ void scenario_load_state(buffer *buf)
 
     // Invasions
     for (int i = 0; i < MAX_INVASIONS; i++) {
-        scenario.invasions[i].year = buffer_read_i16(buf);
+        scenario.invasions[i].year_offset = buffer_read_i16(buf);
     }
     for (int i = 0; i < MAX_INVASIONS; i++) {
         scenario.invasions[i].month = buffer_read_i8(buf);
@@ -511,6 +513,8 @@ void scenario_load_state(buffer *buf)
     for (int i = 0; i < MAX_INVASIONS; i++) {
         scenario.invasions[i].target_type = buffer_read_i8(buf);
     }
+
+    scenario.invasion_upcoming = buffer_read_i8(buf);
 
     // Price changes
     for (int i = 0; i < MAX_PRICE_CHANGES; i++) {

@@ -142,7 +142,6 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
 
     empire_init_scenario();
     traders_clear();
-    scenario_invasion_init();
     city_military_determine_distant_battle_city();
     building_menu_update();
     image_load_climate(scenario.climate, 0, 0);

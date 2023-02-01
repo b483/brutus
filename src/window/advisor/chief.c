@@ -15,7 +15,6 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "scenario/data.h"
-#include "scenario/editor_events.h"
 
 #define ADVISOR_HEIGHT 23
 #define X_OFFSET 232
@@ -130,7 +129,7 @@ static int draw_background(void)
         lang_text_draw(61, 76, X_OFFSET, 166, FONT_NORMAL_RED);
     } else if (city_figures_enemies()) {
         lang_text_draw(61, 75, X_OFFSET, 166, FONT_NORMAL_RED);
-    } else if (scenario_invasion_exists_upcoming()) {
+    } else if (scenario.invasion_upcoming) {
         lang_text_draw(61, 74, X_OFFSET, 166, FONT_NORMAL_RED);
     } else if (city_military_distant_battle_roman_army_is_traveling()) {
         lang_text_draw(61, 78, X_OFFSET, 166, FONT_NORMAL_GREEN);

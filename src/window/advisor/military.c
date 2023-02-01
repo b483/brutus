@@ -11,7 +11,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "map/grid.h"
-#include "scenario/editor_events.h"
+#include "scenario/data.h"
 #include "window/city.h"
 
 #define ADVISOR_HEIGHT 26
@@ -65,7 +65,7 @@ static int draw_background(void)
         enemy_text_id = 10;
     } else if (city_figures_imperial_soldiers()) {
         enemy_text_id = 11;
-    } else if (scenario_invasion_exists_upcoming()) {
+    } else if (scenario.invasion_upcoming) {
         enemy_text_id = 9;
     } else {
         enemy_text_id = 8;

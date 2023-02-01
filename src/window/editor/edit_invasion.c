@@ -71,8 +71,8 @@ static void draw_foreground(void)
     // Year offset
     text_draw(get_custom_string(TR_EDITOR_OFFSET_YEAR), 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(145, 152, 60, 25, data.focus_button_id == 1);
-    text_draw_number_centered_prefix(scenario.invasions[data.id].year, '+', 147, 158, 60, FONT_NORMAL_BLACK);
-    lang_text_draw_year(scenario.start_year + scenario.invasions[data.id].year, 215, 158, FONT_NORMAL_BLACK);
+    text_draw_number_centered_prefix(scenario.invasions[data.id].year_offset, '+', 147, 158, 60, FONT_NORMAL_BLACK);
+    lang_text_draw_year(scenario.start_year + scenario.invasions[data.id].year_offset, 215, 158, FONT_NORMAL_BLACK);
 
     // Month
     text_draw(get_custom_string(TR_EDITOR_MONTH), 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
@@ -80,7 +80,7 @@ static void draw_foreground(void)
     text_draw_number_centered(scenario.invasions[data.id].month + 1, 145, 188, 60, FONT_NORMAL_BLACK);
 
     // Invalid year/month combination
-    if (scenario.invasions[data.id].year == 0 && scenario.invasions[data.id].month == 0) {
+    if (scenario.invasions[data.id].year_offset == 0 && scenario.invasions[data.id].month == 0) {
         text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 220, 188, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 
@@ -125,8 +125,8 @@ static void scenario_editor_sort_invasions(void)
         for (int j = MAX_INVASIONS - 1; j > 0; j--) {
             if (scenario.invasions[j].type) {
                 // if no previous invasion scheduled, move current back until first; if previous invasion is later than current, swap
-                if (!scenario.invasions[j - 1].type || scenario.invasions[j - 1].year > scenario.invasions[j].year
-                || (scenario.invasions[j - 1].year == scenario.invasions[j].year && scenario.invasions[j - 1].month > scenario.invasions[j].month)) {
+                if (!scenario.invasions[j - 1].type || scenario.invasions[j - 1].year_offset > scenario.invasions[j].year_offset
+                || (scenario.invasions[j - 1].year_offset == scenario.invasions[j].year_offset && scenario.invasions[j - 1].month > scenario.invasions[j].month)) {
                     struct invasion_t tmp = scenario.invasions[j];
                     scenario.invasions[j] = scenario.invasions[j - 1];
                     scenario.invasions[j - 1] = tmp;
@@ -150,7 +150,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 static void set_year(int value)
 {
-    scenario.invasions[data.id].year = value;
+    scenario.invasions[data.id].year_offset = value;
 }
 
 static void button_year(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
@@ -232,7 +232,7 @@ static void button_attack_type(__attribute__((unused)) int param1, __attribute__
 
 static void button_delete(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    scenario.invasions[data.id].year = 1;
+    scenario.invasions[data.id].year_offset = 1;
     scenario.invasions[data.id].month = 0;
     scenario.invasions[data.id].amount = 0;
     scenario.invasions[data.id].type = 0;

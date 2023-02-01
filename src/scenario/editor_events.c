@@ -107,8 +107,6 @@ static const struct {
     {100, 0, 0, {FIGURE_ENEMY_CAESAR_LEGIONARY, 0, 0}, FORMATION_COLUMN} // caesar
 };
 
-struct invasion_warning_t invasion_warnings[MAX_INVASION_WARNINGS];
-
 void scenario_empire_process_expansion(void)
 {
     if (scenario.empire.is_expanded || scenario.empire.expansion_year <= 0) {
@@ -617,93 +615,6 @@ void scenario_custom_messages_process(void)
     }
 }
 
-void scenario_invasion_clear(void)
-{
-    memset(invasion_warnings, 0, MAX_INVASION_WARNINGS * sizeof(struct invasion_warning_t));
-}
-
-void scenario_invasion_init(void)
-{
-    scenario_invasion_clear();
-    int path_current = 1;
-    int path_max = 0;
-
-    for (int i = 0; i < MAX_OBJECTS; i++) {
-        if (empire_objects[i].in_use && empire_objects[i].type == EMPIRE_OBJECT_BATTLE_ICON) {
-            if (empire_objects[i].invasion_path_id > path_max) {
-                path_max = empire_objects[i].invasion_path_id;
-            }
-        }
-    }
-
-    if (path_max == 0) {
-        return;
-    }
-    struct invasion_warning_t *warning = &invasion_warnings[1];
-    for (int i = 0; i < MAX_INVASIONS; i++) {
-        if (!scenario.invasions[i].type) {
-            continue;
-        }
-        if (scenario.invasions[i].type == INVASION_TYPE_LOCAL_UPRISING ||
-            scenario.invasions[i].type == INVASION_TYPE_DISTANT_BATTLE) {
-            continue;
-        }
-        for (int year = 1; year < 8; year++) {
-            struct empire_object_t *obj = 0;
-            for (int index = 0; index < MAX_OBJECTS; index++) {
-                if (empire_objects[index].in_use
-                    && empire_objects[index].type == EMPIRE_OBJECT_BATTLE_ICON
-                    && empire_objects[index].invasion_path_id == path_current
-                    && empire_objects[index].invasion_years == year) {
-                    obj = &empire_objects[index];
-                }
-            }
-
-            if (!obj) {
-                continue;
-            }
-            // don't overlap messages if enemy is near enough from the beginning
-            if (scenario.invasions[i].year) {
-                if (obj->invasion_years > scenario.invasions[i].year) {
-                    continue;
-                }
-            } else { // handles first year (year 0) invasions
-                if (obj->invasion_path_id == (warning - 1)->invasion_path_id) {
-                    continue;
-                }
-            }
-            warning->in_use = 1;
-            warning->invasion_path_id = obj->invasion_path_id;
-            warning->warning_years = obj->invasion_years;
-            warning->x = obj->x;
-            warning->y = obj->y;
-            warning->image_id = obj->image_id;
-            warning->invasion_id = i;
-            warning->empire_object_id = obj->id;
-            warning->month_notified = 0;
-            warning->year_notified = 0;
-            warning->months_to_go = 12 * scenario.invasions[i].year;
-            warning->months_to_go += scenario.invasions[i].month;
-            warning->months_to_go -= 12 * year;
-            ++warning;
-        }
-        path_current++;
-        if (path_current > path_max) {
-            path_current = 1;
-        }
-    }
-}
-
-int scenario_invasion_exists_upcoming(void)
-{
-    for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        if (invasion_warnings[i].in_use && invasion_warnings[i].handled) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
 static void determine_formations(int num_soldiers, int *num_formations, int soldiers_per_formation[])
 {
     if (num_soldiers > 0) {
@@ -847,45 +758,32 @@ static int start_invasion(int enemy_type, int enemy_type_detailed, int amount, i
 
 void scenario_invasion_process(void)
 {
-    for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        if (!invasion_warnings[i].in_use) {
-            continue;
-        }
-        // update warnings
-        struct invasion_warning_t *warning = &invasion_warnings[i];
-        warning->months_to_go--;
-        if (warning->months_to_go <= 0) {
-            if (warning->handled != 1) {
-                warning->handled = 1;
-                warning->year_notified = game_time_year();
-                warning->month_notified = game_time_month();
-                if (warning->warning_years > 2) {
-                    city_message_post(0, MESSAGE_DISTANT_BATTLE, 0, 0);
-                } else if (warning->warning_years > 1) {
-                    city_message_post(0, MESSAGE_ENEMIES_CLOSING, 0, 0);
-                } else {
-                    city_message_post(0, MESSAGE_ENEMIES_AT_THE_DOOR, 0, 0);
-                }
+    // handle warnings
+    for (int i = 0; i < MAX_INVASIONS; i++) {
+        for (int j = 3; j > 0; j--) {
+            if (scenario.invasions[i].type == INVASION_TYPE_ENEMY_ARMY
+            && (game_time_year() == scenario.start_year + scenario.invasions[i].year_offset - j && game_time_month() == scenario.invasions[i].month)) {
+                scenario.invasion_upcoming = 1;
+                city_message_post(0, MESSAGE_ENEMIES_AT_THE_DOOR + 1 - j, 0, 0);
             }
         }
-        if (game_time_year() >= scenario.start_year + scenario.invasions[warning->invasion_id].year &&
-            game_time_month() >= scenario.invasions[warning->invasion_id].month) {
-            // invasion attack time has come
-            warning->in_use = 0;
-            if (warning->warning_years > 1) {
-                continue;
-            }
-            // enemy invasions
-            if (scenario.invasions[warning->invasion_id].type == INVASION_TYPE_ENEMY_ARMY) {
+
+    }
+
+    // trigger invasions
+    for (int i = 0; i < MAX_INVASIONS; i++) {
+        if (game_time_year() == scenario.start_year + scenario.invasions[i].year_offset && game_time_month() == scenario.invasions[i].month) {
+            // enemy army
+            if (scenario.invasions[i].type == INVASION_TYPE_ENEMY_ARMY) {
                 int grid_offset = start_invasion(
-                    ENEMY_ID_TO_ENEMY_TYPE[scenario.invasions[warning->invasion_id].enemy_type],
-                    scenario.invasions[warning->invasion_id].enemy_type,
-                    scenario.invasions[warning->invasion_id].amount,
-                    scenario.invasions[warning->invasion_id].from,
-                    scenario.invasions[warning->invasion_id].target_type,
-                    warning->invasion_id);
+                    ENEMY_ID_TO_ENEMY_TYPE[scenario.invasions[i].enemy_type],
+                    scenario.invasions[i].enemy_type,
+                    scenario.invasions[i].amount,
+                    scenario.invasions[i].from,
+                    scenario.invasions[i].target_type,
+                    i);
                 if (grid_offset > 0) {
-                    if (scenario.invasions[warning->invasion_id].enemy_type) {
+                    if (scenario.invasions[i].enemy_type) {
                         city_message_post(1, MESSAGE_ENEMY_ARMY_ATTACK, 0, grid_offset);
                     } else {
                         city_message_post(1, MESSAGE_BARBARIAN_ATTACK, 0, grid_offset);
@@ -893,27 +791,22 @@ void scenario_invasion_process(void)
                 }
             }
             // editor scheduled invasion by Caesar
-            if (scenario.invasions[warning->invasion_id].type == INVASION_TYPE_CAESAR) {
+            if (scenario.invasions[i].type == INVASION_TYPE_CAESAR) {
                 int grid_offset = start_invasion(
                     ENEMY_TYPE_CAESAR,
-                    scenario.invasions[warning->invasion_id].enemy_type,
-                    scenario.invasions[warning->invasion_id].amount,
-                    scenario.invasions[warning->invasion_id].from,
-                    scenario.invasions[warning->invasion_id].target_type,
-                    warning->invasion_id);
+                    scenario.invasions[i].enemy_type,
+                    scenario.invasions[i].amount,
+                    scenario.invasions[i].from,
+                    scenario.invasions[i].target_type,
+                    i);
                 if (grid_offset > 0) {
                     city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, 0, grid_offset);
                 }
                 city_data.emperor.invasion.from_editor = 1;
-                city_data.emperor.invasion.size = scenario.invasions[warning->invasion_id].amount;
+                city_data.emperor.invasion.size = scenario.invasions[i].amount;
             }
-        }
-    }
-    // local uprisings
-    for (int i = 0; i < MAX_INVASIONS; i++) {
-        if (scenario.invasions[i].type == INVASION_TYPE_LOCAL_UPRISING) {
-            if (game_time_year() == scenario.start_year + scenario.invasions[i].year &&
-                game_time_month() == scenario.invasions[i].month) {
+            // local uprisings
+            if (scenario.invasions[i].type == INVASION_TYPE_LOCAL_UPRISING) {
                 int grid_offset = start_invasion(
                     ENEMY_TYPE_BARBARIAN,
                     ENEMY_TYPE_BARBARIAN,
@@ -925,6 +818,7 @@ void scenario_invasion_process(void)
                     city_message_post(1, MESSAGE_LOCAL_UPRISING, 0, grid_offset);
                 }
             }
+            scenario.invasion_upcoming = 0;
         }
     }
 }
@@ -954,49 +848,11 @@ void scenario_invasion_start_from_cheat(void)
     start_invasion(ENEMY_ID_TO_ENEMY_TYPE[enemy_id], enemy_id, 200, 8, FORMATION_ATTACK_FOOD_CHAIN, 23);
 }
 
-void scenario_invasion_save_state(buffer *warnings)
-{
-    for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        struct invasion_warning_t *w = &invasion_warnings[i];
-        buffer_write_u8(warnings, w->in_use);
-        buffer_write_u8(warnings, w->handled);
-        buffer_write_u8(warnings, w->invasion_path_id);
-        buffer_write_u8(warnings, w->warning_years);
-        buffer_write_i16(warnings, w->x);
-        buffer_write_i16(warnings, w->y);
-        buffer_write_i16(warnings, w->image_id);
-        buffer_write_i16(warnings, w->empire_object_id);
-        buffer_write_i16(warnings, w->month_notified);
-        buffer_write_i16(warnings, w->year_notified);
-        buffer_write_i32(warnings, w->months_to_go);
-        buffer_write_u8(warnings, w->invasion_id);
-    }
-}
-
-void scenario_invasion_load_state(buffer *warnings)
-{
-    for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        struct invasion_warning_t *w = &invasion_warnings[i];
-        w->in_use = buffer_read_u8(warnings);
-        w->handled = buffer_read_u8(warnings);
-        w->invasion_path_id = buffer_read_u8(warnings);
-        w->warning_years = buffer_read_u8(warnings);
-        w->x = buffer_read_i16(warnings);
-        w->y = buffer_read_i16(warnings);
-        w->image_id = buffer_read_i16(warnings);
-        w->empire_object_id = buffer_read_i16(warnings);
-        w->month_notified = buffer_read_i16(warnings);
-        w->year_notified = buffer_read_i16(warnings);
-        w->months_to_go = buffer_read_i32(warnings);
-        w->invasion_id = buffer_read_u8(warnings);
-    }
-}
-
 void scenario_distant_battle_process(void)
 {
     for (int i = 0; i < MAX_INVASIONS; i++) {
         if (scenario.invasions[i].type == INVASION_TYPE_DISTANT_BATTLE &&
-            game_time_year() == scenario.invasions[i].year + scenario.start_year &&
+            game_time_year() == scenario.invasions[i].year_offset + scenario.start_year &&
             game_time_month() == scenario.invasions[i].month &&
             scenario.empire.distant_battle_enemy_travel_months > 4 &&
             scenario.empire.distant_battle_roman_travel_months > 4 &&

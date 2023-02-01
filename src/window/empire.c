@@ -9,6 +9,7 @@
 #include "empire/object.h"
 #include "empire/trade_route.h"
 #include "game/settings.h"
+#include "game/time.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
@@ -335,7 +336,23 @@ static void draw_empire_objects(void)
                 }
             }
             if (empire_objects[i].type == EMPIRE_OBJECT_BATTLE_ICON) {
-                // handled later
+                for (int j = 0; j < MAX_INVASIONS; j++) {
+                    int battle_icon_year_abs = game_time_year() + empire_objects[i].invasion_years;
+                    int invasion_year_abs = scenario.start_year + scenario.invasions[j].year_offset;
+                    // check that invasion is yet to come
+                    if (scenario.invasions[j].type == INVASION_TYPE_ENEMY_ARMY
+                    && (game_time_year() < invasion_year_abs
+                        || (game_time_year() == invasion_year_abs && game_time_month() < scenario.invasions[j].month))) {
+                        // draw up to 3 battle icons per invasion, 1 per year
+                        if (empire_objects[i].invasion_path_id == (j % 3) + 1
+                        && (battle_icon_year_abs > invasion_year_abs
+                            || (battle_icon_year_abs == invasion_year_abs && game_time_month() >= scenario.invasions[j].month))
+                        ) {
+                            image_draw(empire_objects[i].image_id, data.x_draw_offset + empire_objects[i].x, data.y_draw_offset + empire_objects[i].y);
+                        }
+                    }
+
+                }
                 continue;
             }
             if (empire_objects[i].type == EMPIRE_OBJECT_ENEMY_ARMY) {
@@ -395,12 +412,6 @@ static void draw_map(void)
     image_draw(image_group(GROUP_EMPIRE_MAP), data.x_draw_offset, data.y_draw_offset);
 
     draw_empire_objects();
-
-    for (int i = 0; i < MAX_INVASION_WARNINGS; i++) {
-        if (invasion_warnings[i].in_use && invasion_warnings[i].handled) {
-            image_draw(invasion_warnings[i].image_id, data.x_draw_offset + invasion_warnings[i].x, data.y_draw_offset + invasion_warnings[i].y);
-        }
-    }
 
     graphics_reset_clip_rectangle();
 }
