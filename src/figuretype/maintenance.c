@@ -98,7 +98,7 @@ static int get_nearest_enemy(int x, int y, int *distance)
     int min_dist = 10000;
     for (int i = 1; i < MAX_FIGURES; i++) {
         figure *f = figure_get(i);
-        if (f->state != FIGURE_STATE_ALIVE || f->targeted_by_figure_id) {
+        if (f->state != FIGURE_STATE_ALIVE) {
             continue;
         }
         int dist;
@@ -122,44 +122,6 @@ static int get_nearest_enemy(int x, int y, int *distance)
     return min_enemy_id;
 }
 
-static int fight_enemy(figure *f)
-{
-    if (!city_figures_has_security_breach() && enemy_army_total_enemy_formations() <= 0) {
-        return 0;
-    }
-    switch (f->action_state) {
-        case FIGURE_ACTION_150_ATTACK:
-        case FIGURE_ACTION_149_CORPSE:
-        case FIGURE_ACTION_70_PREFECT_CREATED:
-        case FIGURE_ACTION_71_PREFECT_ENTERING_EXITING:
-        case FIGURE_ACTION_74_PREFECT_GOING_TO_FIRE:
-        case FIGURE_ACTION_75_PREFECT_AT_FIRE:
-        case FIGURE_ACTION_76_PREFECT_GOING_TO_ENEMY:
-        case FIGURE_ACTION_77_PREFECT_AT_ENEMY:
-            return 0;
-    }
-    f->wait_ticks_next_target++;
-    if (f->wait_ticks_next_target < 10) {
-        return 0;
-    }
-    f->wait_ticks_next_target = 0;
-    int distance;
-    int enemy_id = get_nearest_enemy(f->x, f->y, &distance);
-    if (enemy_id > 0 && distance <= 30) {
-        figure *enemy = figure_get(enemy_id);
-        f->wait_ticks_next_target = 0;
-        f->action_state = FIGURE_ACTION_76_PREFECT_GOING_TO_ENEMY;
-        f->destination_x = enemy->x;
-        f->destination_y = enemy->y;
-        f->target_figure_id = enemy_id;
-        enemy->targeted_by_figure_id = f->id;
-        f->target_figure_created_sequence = enemy->created_sequence;
-        figure_route_remove(f);
-        return 1;
-    }
-    return 0;
-}
-
 static int fight_fire(figure *f)
 {
     if (building_list_burning_size() <= 0) {
@@ -172,8 +134,6 @@ static int fight_fire(figure *f)
         case FIGURE_ACTION_71_PREFECT_ENTERING_EXITING:
         case FIGURE_ACTION_74_PREFECT_GOING_TO_FIRE:
         case FIGURE_ACTION_75_PREFECT_AT_FIRE:
-        case FIGURE_ACTION_76_PREFECT_GOING_TO_ENEMY:
-        case FIGURE_ACTION_77_PREFECT_AT_ENEMY:
             return 0;
     }
     f->wait_ticks_missile++;
@@ -243,19 +203,48 @@ static int target_is_alive(figure *f)
 void figure_prefect_action(figure *f)
 {
     building *b = building_get(f->building_id);
+    if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
+        f->state = FIGURE_STATE_DEAD;
+    }
 
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
     f->max_roam_length = 640;
-    if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
-        f->state = FIGURE_STATE_DEAD;
-    }
+
     figure_image_increase_offset(f, 12);
 
-    // special actions
-    if (!fight_enemy(f)) {
-        fight_fire(f);
+    if (city_figures_has_security_breach() || enemy_army_total_enemy_formations()) {
+        if (f->action_state == FIGURE_ACTION_72_PREFECT_ROAMING || f->action_state == FIGURE_ACTION_73_PREFECT_RETURNING || f->action_state == FIGURE_ACTION_76_PREFECT_GOING_TO_ENEMY) {
+            f->wait_ticks_next_target++;
+            if (f->wait_ticks_next_target < 10) {
+                f->wait_ticks_next_target = 0;
+                int distance;
+                int enemy_id = get_nearest_enemy(f->x, f->y, &distance);
+                if (enemy_id) {
+                    figure *enemy = figure_get(enemy_id);
+                    if (distance <= 30) {
+                        if (!enemy->targeted_by_figure_id) {
+                            f->wait_ticks_next_target = 0;
+                            f->action_state = FIGURE_ACTION_76_PREFECT_GOING_TO_ENEMY;
+                            f->destination_x = enemy->x;
+                            f->destination_y = enemy->y;
+                            f->target_figure_id = enemy_id;
+                            enemy->targeted_by_figure_id = f->id;
+                            f->target_figure_created_sequence = enemy->created_sequence;
+                            figure_route_remove(f);
+                        } else if (enemy->targeted_by_figure_id == f->id) {
+                            f->destination_x = enemy->x;
+                            f->destination_y = enemy->y;
+                            figure_route_remove(f);
+                        }
+                    }
+                }
+            }
+        }
     }
+
+    fight_fire(f);
+
     switch (f->action_state) {
         case FIGURE_ACTION_150_ATTACK:
             figure_combat_handle_attack(f);
