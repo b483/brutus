@@ -2,9 +2,9 @@
 
 #include "building/house_population.h"
 #include "city/data_private.h"
-#include "city/figures.h"
 #include "city/message.h"
 #include "core/calc.h"
+#include "figure/figure.h"
 
 static void update_status(void)
 {

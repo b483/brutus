@@ -1,6 +1,6 @@
 #include "enemy.h"
 
-#include "city/figures.h"
+#include "city/data_private.h"
 #include "city/sound.h"
 #include "core/calc.h"
 #include "core/image.h"
@@ -50,7 +50,7 @@ static void enemy_initial(figure *f, formation *m)
         map_point tile = { 0, 0 };
         if (f->wait_ticks_missile > figure_properties_for_type(f->type)->missile_delay) {
             f->wait_ticks_missile = 0;
-            if (figure_combat_get_missile_target_for_enemy(f, 10, city_figures_soldiers() < 4, &tile)) {
+            if (get_missile_target(f, 10, &tile)) {
                 f->attack_image_offset = 1;
                 f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
             } else {
@@ -120,31 +120,10 @@ static void enemy_fighting(figure *f, const formation *m)
             sound_effect_play(SOUND_EFFECT_HORSE_MOVING);
         }
     }
-    int target_id = f->target_figure_id;
-    if (figure_is_dead(figure_get(target_id))) {
-        f->target_figure_id = 0;
-        target_id = 0;
-    }
-    if (target_id <= 0) {
-        target_id = figure_combat_get_target_for_enemy(f->x, f->y);
-        if (target_id) {
-            figure *target = figure_get(target_id);
-            f->destination_x = target->x;
-            f->destination_y = target->y;
-            f->target_figure_id = target_id;
-            f->target_figure_created_sequence = target->created_sequence;
-            target->targeted_by_figure_id = f->id;
-            figure_route_remove(f);
-        }
-    }
-    if (target_id > 0) {
+    figure *target = set_closest_eligible_target(f);
+    if (target) {
         figure_movement_move_ticks(f, f->speed_multiplier);
-        if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-            figure *target = figure_get(f->target_figure_id);
-            f->destination_x = target->x;
-            f->destination_y = target->y;
-            figure_route_remove(f);
-        } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+        if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
             f->action_state = FIGURE_ACTION_151_ENEMY_INITIAL;
             f->target_figure_id = 0;
         }
@@ -156,7 +135,7 @@ static void enemy_fighting(figure *f, const formation *m)
 
 static void enemy_action(figure *f, formation *m)
 {
-    city_figures_add_enemy();
+    city_data.figure.enemies++;
     f->terrain_usage = TERRAIN_USAGE_ENEMY;
     f->formation_position_x.enemy = formation_layout_position_x(m->layout, f->index_in_formation);
     f->formation_position_y.enemy = formation_layout_position_y(m->layout, f->index_in_formation);
@@ -592,7 +571,7 @@ void figure_enemy_gladiator_action(figure *f)
             }
             break;
         case FIGURE_ACTION_159_NATIVE_ATTACKING:
-            city_figures_set_gladiator_revolt();
+            city_data.figure.attacking_natives = 10;
             f->terrain_usage = TERRAIN_USAGE_ENEMY;
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION ||
@@ -624,7 +603,7 @@ void figure_enemy_gladiator_action(figure *f)
 void figure_enemy_caesar_legionary_action(figure *f)
 {
     formation *m = formation_get(f->formation_id);
-    city_figures_add_imperial_soldier();
+    city_data.figure.imperial_soldiers++;
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     f->speed_multiplier = 1;

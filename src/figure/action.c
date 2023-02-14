@@ -1,7 +1,7 @@
 #include "action.h"
 
+#include "city/data_private.h"
 #include "city/entertainment.h"
-#include "city/figures.h"
 #include "figure/figure.h"
 #include "figuretype/animal.h"
 #include "figuretype/cartpusher.h"
@@ -109,20 +109,16 @@ static void (*figure_action_callbacks[])(figure *f) = {
 
 void figure_action_handle(void)
 {
-    city_figures_reset();
+    city_data.figure.enemies = 0;
+    city_data.figure.rioters = 0;
+    city_data.figure.attacking_natives = 0;
+    city_data.figure.animals = 0;
+    city_data.figure.imperial_soldiers = 0;
+    city_data.figure.soldiers = 0;
     city_entertainment_set_hippodrome_has_race(0);
     for (int i = 1; i < MAX_FIGURES; i++) {
         figure *f = figure_get(i);
         if (f->state) {
-            if (f->targeted_by_figure_id) {
-                figure *attacker = figure_get(f->targeted_by_figure_id);
-                if (attacker->state != FIGURE_STATE_ALIVE) {
-                    f->targeted_by_figure_id = 0;
-                }
-                if (attacker->target_figure_id != i) {
-                    f->targeted_by_figure_id = 0;
-                }
-            }
             figure_action_callbacks[f->type](f);
             if (f->state == FIGURE_STATE_DEAD) {
                 figure_delete(f);

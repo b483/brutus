@@ -1,8 +1,8 @@
 #include "animal.h"
 
 #include "building/building.h"
+#include "city/data_private.h"
 #include "city/entertainment.h"
-#include "city/figures.h"
 #include "city/sound.h"
 #include "city/view.h"
 #include "core/calc.h"
@@ -120,54 +120,13 @@ void figure_seagulls_action(figure *f)
     }
 }
 
-static int get_target_for_wolf(int x, int y, int max_distance)
-{
-    int min_figure_id = 0;
-    int min_distance = 10000;
-    for (int i = 1; i < MAX_FIGURES; i++) {
-        figure *f = figure_get(i);
-        if (figure_is_dead(f) || !f->type) {
-            continue;
-        }
-        switch (f->type) {
-            case FIGURE_EXPLOSION:
-            case FIGURE_FORT_STANDARD:
-            case FIGURE_TRADE_SHIP:
-            case FIGURE_FISHING_BOAT:
-            case FIGURE_MAP_FLAG:
-            case FIGURE_FLOTSAM:
-            case FIGURE_SHIPWRECK:
-            case FIGURE_TOWER_SENTRY:
-            case FIGURE_ARROW:
-            case FIGURE_JAVELIN:
-            case FIGURE_BOLT:
-            case FIGURE_BALLISTA:
-            case FIGURE_CREATURE:
-            case FIGURE_WOLF:
-                continue;
-        }
-        int distance = calc_maximum_distance(x, y, f->x, f->y);
-        if (f->targeted_by_figure_id) {
-            distance *= 2;
-        }
-        if (distance < min_distance) {
-            min_distance = distance;
-            min_figure_id = i;
-        }
-    }
-    if (min_distance <= max_distance && min_figure_id) {
-        return min_figure_id;
-    }
-    return 0;
-}
-
 void figure_wolf_action(figure *f)
 {
     formation *m = formation_get(f->formation_id);
     f->terrain_usage = TERRAIN_USAGE_ANIMAL;
     f->use_cross_country = 0;
     f->is_ghost = 0;
-    city_figures_add_animal();
+    city_data.figure.animals++;
     figure_image_increase_offset(f, 12);
 
     switch (f->action_state) {
@@ -178,7 +137,7 @@ void figure_wolf_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_196_HERD_ANIMAL_AT_REST:
-            if (m->missile_attack_formation_id || get_target_for_wolf(f->x, f->y, 5)) {
+            if (m->missile_attack_formation_id || set_closest_eligible_target(f)) {
                 f->action_state = FIGURE_ACTION_197_HERD_ANIMAL_MOVING;
                 break;
             } else {
@@ -202,18 +161,11 @@ void figure_wolf_action(figure *f)
             }
             break;
         case FIGURE_ACTION_197_HERD_ANIMAL_MOVING:
-            int target_id = get_target_for_wolf(f->x, f->y, 5);
-            if (target_id) {
-                figure_route_remove(f);
-                figure *target = figure_get(target_id);
-                f->destination_x = target->x;
-                f->destination_y = target->y;
+            figure *target = set_closest_eligible_target(f);
+            if (target) {
                 m->destination_x = target->x;
                 m->destination_y = target->y;
                 m->missile_attack_formation_id = 0;
-                f->target_figure_id = target_id;
-                target->targeted_by_figure_id = f->id;
-                f->target_figure_created_sequence = target->created_sequence;
                 figure_movement_move_ticks(f, 2);
                 random_generate_next();
                 if (city_sound_update_march_wolf() && (random_byte() < 3)) {
@@ -265,7 +217,7 @@ void figure_sheep_action(figure *f)
     f->terrain_usage = TERRAIN_USAGE_ANIMAL;
     f->use_cross_country = 0;
     f->is_ghost = 0;
-    city_figures_add_animal();
+    city_data.figure.animals++;
     figure_image_increase_offset(f, 6);
 
     switch (f->action_state) {
@@ -321,7 +273,7 @@ void figure_zebra_action(figure *f)
     f->terrain_usage = TERRAIN_USAGE_ANIMAL;
     f->use_cross_country = 0;
     f->is_ghost = 0;
-    city_figures_add_animal();
+    city_data.figure.animals++;
     figure_image_increase_offset(f, 12);
 
     switch (f->action_state) {

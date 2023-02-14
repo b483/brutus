@@ -1,6 +1,7 @@
 #include "figure/figure.h"
 
 #include "building/building.h"
+#include "city/data_private.h"
 #include "city/emperor.h"
 #include "core/random.h"
 #include "empire/object.h"
@@ -149,6 +150,11 @@ int figure_is_herd(const figure *f)
     return f->type >= FIGURE_SHEEP && f->type <= FIGURE_ZEBRA;
 }
 
+int city_figures_total_invading_enemies(void)
+{
+    return city_data.figure.imperial_soldiers + city_data.figure.enemies;
+}
+
 void figure_init_scenario(void)
 {
     for (int i = 0; i < MAX_FIGURES; i++) {
@@ -245,16 +251,19 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_i8(buf, f->phrase_id);
     buffer_write_u8(buf, f->phrase_sequence_city);
     buffer_write_u8(buf, f->trader_id);
-    buffer_write_u8(buf, f->wait_ticks_next_target);
-    buffer_write_i16(buf, f->target_figure_id);
-    buffer_write_i16(buf, f->targeted_by_figure_id);
+    buffer_write_u8(buf, f->prefect_recent_guard_duty);
     buffer_write_u16(buf, f->created_sequence);
-    buffer_write_u16(buf, f->target_figure_created_sequence);
     buffer_write_u8(buf, f->figures_on_same_tile_index);
-    buffer_write_u8(buf, f->num_attackers);
-    buffer_write_i16(buf, f->attacker_id1);
-    buffer_write_i16(buf, f->attacker_id2);
-    buffer_write_i16(buf, f->opponent_id);
+    buffer_write_u16(buf, f->target_figure_id);
+    for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
+        buffer_write_u16(buf, f->targeter_ids[i]);
+    }
+    buffer_write_u8(buf, f->num_melee_targeters);
+    buffer_write_u16(buf, f->primary_melee_combatant_id);
+    for (int i = 0; i < MAX_MELEE_COMBATANTS_PER_UNIT; i++) {
+        buffer_write_u16(buf, f->melee_combatant_ids[i]);
+    }
+    buffer_write_u8(buf, f->num_melee_combatants);
 }
 
 static void figure_load(buffer *buf, figure *f)
@@ -344,16 +353,19 @@ static void figure_load(buffer *buf, figure *f)
     f->phrase_id = buffer_read_i8(buf);
     f->phrase_sequence_city = buffer_read_u8(buf);
     f->trader_id = buffer_read_u8(buf);
-    f->wait_ticks_next_target = buffer_read_u8(buf);
-    f->target_figure_id = buffer_read_i16(buf);
-    f->targeted_by_figure_id = buffer_read_i16(buf);
+    f->prefect_recent_guard_duty = buffer_read_u8(buf);
     f->created_sequence = buffer_read_u16(buf);
-    f->target_figure_created_sequence = buffer_read_u16(buf);
     f->figures_on_same_tile_index = buffer_read_u8(buf);
-    f->num_attackers = buffer_read_u8(buf);
-    f->attacker_id1 = buffer_read_i16(buf);
-    f->attacker_id2 = buffer_read_i16(buf);
-    f->opponent_id = buffer_read_i16(buf);
+    f->target_figure_id = buffer_read_u16(buf);
+    for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
+        f->targeter_ids[i] = buffer_read_u16(buf);
+    }
+    f->num_melee_targeters = buffer_read_u8(buf);
+    f->primary_melee_combatant_id = buffer_read_u16(buf);
+    for (int i = 0; i < MAX_MELEE_COMBATANTS_PER_UNIT; i++) {
+        f->melee_combatant_ids[i] = buffer_read_u16(buf);
+    }
+    f->num_melee_combatants = buffer_read_u8(buf);
 }
 
 void figure_save_state(buffer *list, buffer *seq)

@@ -360,16 +360,6 @@ void map_routing_delete_first_wall_or_aqueduct(int x, int y)
     route_queue_until(map_grid_offset(x, y), callback_delete_wall_aqueduct);
 }
 
-static int is_fighting_friendly(figure *f)
-{
-    return f->is_friendly && f->action_state == FIGURE_ACTION_150_ATTACK;
-}
-
-static int has_fighting_friendly(int grid_offset)
-{
-    return map_figure_foreach_until(grid_offset, is_fighting_friendly);
-}
-
 static int is_fighting_enemy(figure *f)
 {
     return !f->is_friendly && f->action_state == FIGURE_ACTION_150_ATTACK;
@@ -382,7 +372,7 @@ static int has_fighting_enemy(int grid_offset)
 
 static void callback_travel_citizen_land(int next_offset, int dist)
 {
-    if (terrain_land_citizen.items[next_offset] >= 0 && !has_fighting_friendly(next_offset)) {
+    if (terrain_land_citizen.items[next_offset] >= 0) {
         enqueue(next_offset, dist);
     }
 }

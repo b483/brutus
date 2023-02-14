@@ -7,10 +7,11 @@
 #include "figure/type.h"
 
 #define MAX_FIGURES 1000
+#define MAX_MELEE_TARGETERS_PER_UNIT 4
+#define MAX_MELEE_COMBATANTS_PER_UNIT 4
 
 typedef struct {
     int id;
-
     short image_id;
     short cart_image_id;
     unsigned char image_offset;
@@ -102,16 +103,15 @@ typedef struct {
     signed char phrase_id;
     unsigned char phrase_sequence_city;
     unsigned char trader_id;
-    unsigned char wait_ticks_next_target;
-    short target_figure_id;
-    short targeted_by_figure_id;
+    uint8_t prefect_recent_guard_duty;
     unsigned short created_sequence;
-    unsigned short target_figure_created_sequence;
     unsigned char figures_on_same_tile_index;
-    unsigned char num_attackers;
-    short attacker_id1;
-    short attacker_id2;
-    short opponent_id;
+    uint16_t target_figure_id;
+    uint16_t targeter_ids[MAX_MELEE_TARGETERS_PER_UNIT];
+    uint8_t num_melee_targeters;
+    uint16_t primary_melee_combatant_id;
+    uint16_t melee_combatant_ids[MAX_MELEE_COMBATANTS_PER_UNIT];
+    uint8_t num_melee_combatants;
 } figure;
 
 figure *figure_get(int id);
@@ -139,6 +139,8 @@ int figure_is_caesar_legion(const figure *f);
 int figure_is_native(const figure *f);
 
 int figure_is_herd(const figure *f);
+
+int city_figures_total_invading_enemies(void);
 
 void figure_init_scenario(void);
 

@@ -1,6 +1,6 @@
 #include "formation_herd.h"
 
-#include "city/figures.h"
+#include "city/data_private.h"
 #include "city/sound.h"
 #include "core/random.h"
 #include "figure/combat.h"
@@ -92,7 +92,7 @@ static int set_herd_roaming_destination(formation *m, int roam_distance)
 
 void formation_herd_update(void)
 {
-    if (city_figures_animals() <= 0) {
+    if (city_data.figure.animals <= 0) {
         return;
     }
     for (int i = 1; i < MAX_FORMATIONS; i++) {

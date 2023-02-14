@@ -326,7 +326,6 @@ static void save_main_data(buffer *main)
     buffer_write_i32(main, city_data.sentiment.previous_value);
     buffer_write_i32(main, city_data.sentiment.message_delay);
     buffer_write_i32(main, city_data.sentiment.low_mood_cause);
-    buffer_write_i32(main, city_data.figure.security_breach_duration);
     buffer_write_i32(main, city_data.emperor.selected_gift_size);
     buffer_write_i32(main, city_data.emperor.months_since_gift);
     buffer_write_i32(main, city_data.emperor.gift_overdose_penalty);
@@ -712,7 +711,6 @@ static void load_main_data(buffer *main)
     city_data.sentiment.previous_value = buffer_read_i32(main);
     city_data.sentiment.message_delay = buffer_read_i32(main);
     city_data.sentiment.low_mood_cause = buffer_read_i32(main);
-    city_data.figure.security_breach_duration = buffer_read_i32(main);
     city_data.emperor.selected_gift_size = buffer_read_i32(main);
     city_data.emperor.months_since_gift = buffer_read_i32(main);
     city_data.emperor.gift_overdose_penalty = buffer_read_i32(main);

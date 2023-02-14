@@ -3,7 +3,6 @@
 #include "building/building.h"
 #include "building/destruction.h"
 #include "city/data_private.h"
-#include "city/figures.h"
 #include "city/finance.h"
 #include "city/message.h"
 #include "city/population.h"
@@ -192,7 +191,7 @@ void figure_criminal_action(figure *f)
 
 void figure_rioter_action(figure *f)
 {
-    city_figures_add_rioter(!f->targeted_by_figure_id);
+    city_data.figure.rioters++;
     f->terrain_usage = TERRAIN_USAGE_ENEMY;
     f->max_roam_length = 480;
     f->cart_image_id = 0;

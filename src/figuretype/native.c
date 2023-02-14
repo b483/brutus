@@ -1,7 +1,7 @@
 #include "native.h"
 
 #include "building/building.h"
-#include "city/figures.h"
+#include "city/data_private.h"
 #include "city/military.h"
 #include "figure/combat.h"
 #include "figure/formation.h"
@@ -70,7 +70,7 @@ void figure_indigenous_native_action(figure *f)
             }
             break;
         case FIGURE_ACTION_159_NATIVE_ATTACKING:
-            city_figures_add_attacking_native();
+            city_data.figure.attacking_natives++;
             f->terrain_usage = TERRAIN_USAGE_ENEMY;
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION ||

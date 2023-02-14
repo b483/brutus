@@ -2,10 +2,10 @@
 
 #include "building/construction.h"
 #include "city/data_private.h"
-#include "city/figures.h"
 #include "city/finance.h"
 #include "city/message.h"
 #include "core/config.h"
+#include "figure/figure.h"
 #include "game/time.h"
 #include "scenario/data.h"
 #include "sound/music.h"

@@ -1,9 +1,9 @@
 #include "music.h"
 
 #include "city/data_private.h"
-#include "city/figures.h"
 #include "city/population.h"
 #include "core/dir.h"
+#include "figure/figure.h"
 #include "game/settings.h"
 #include "sound/device.h"
 

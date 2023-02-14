@@ -5,7 +5,6 @@
 #include "city/constants.h"
 #include "city/culture.h"
 #include "city/data_private.h"
-#include "city/figures.h"
 #include "city/gods.h"
 #include "city/population.h"
 #include "city/resource.h"
@@ -436,12 +435,11 @@ static int tower_sentry_phrase(figure *f)
     if (++f->phrase_sequence_exact >= 2) {
         f->phrase_sequence_exact = 0;
     }
-    int enemies = city_figures_enemies();
-    if (!enemies) {
+    if (!city_data.figure.enemies) {
         return 7 + f->phrase_sequence_exact;
-    } else if (enemies <= 10) {
+    } else if (city_data.figure.enemies <= 10) {
         return 9;
-    } else if (enemies <= 30) {
+    } else if (city_data.figure.enemies <= 30) {
         return 10;
     } else {
         return 11;
@@ -450,12 +448,11 @@ static int tower_sentry_phrase(figure *f)
 
 static int soldier_phrase(void)
 {
-    int enemies = city_figures_enemies();
-    if (enemies >= 40) {
+    if (city_data.figure.enemies >= 40) {
         return 11;
-    } else if (enemies > 20) {
+    } else if (city_data.figure.enemies > 20) {
         return 10;
-    } else if (enemies) {
+    } else if (city_data.figure.enemies) {
         return 9;
     }
     return 0;

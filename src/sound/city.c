@@ -1,6 +1,6 @@
 #include "city.h"
 
-#include "city/figures.h"
+#include "city/data_private.h"
 #include "core/time.h"
 #include "game/settings.h"
 #include "sound/channel.h"
@@ -199,7 +199,7 @@ void sound_city_mark_building_view(building_type type, int num_workers, int dire
 {
     if (num_workers > 0 || type == BUILDING_RESERVOIR || type == BUILDING_AQUEDUCT || type == BUILDING_GARDENS || type == BUILDING_FORT || building_is_house(type)) {
         // mute city sounds during invasion
-        if (city_figures_enemies()) {
+        if (city_data.figure.enemies) {
             return;
         }
 

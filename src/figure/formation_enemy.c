@@ -3,7 +3,6 @@
 #include "building/building.h"
 #include "city/buildings.h"
 #include "city/data_private.h"
-#include "city/figures.h"
 #include "city/gods.h"
 #include "city/message.h"
 #include "core/calc.h"
@@ -507,13 +506,13 @@ static void update_enemy_formation(formation *m, int *roman_distance)
         }
     }
     formation_decrease_monthly_counters(m);
-    if (city_figures_soldiers() <= 0) {
+    if (city_data.figure.soldiers <= 0) {
         formation_clear_monthly_counters(m);
     }
     for (int n = 0; n < MAX_FORMATION_FIGURES; n++) {
         figure *f = figure_get(m->figures[n]);
         if (f->action_state == FIGURE_ACTION_150_ATTACK) {
-            figure *opponent = figure_get(f->opponent_id);
+            figure *opponent = figure_get(f->primary_melee_combatant_id);
             if (!figure_is_dead(opponent) && figure_is_legion(opponent)) {
                 formation_record_fight(m);
             }

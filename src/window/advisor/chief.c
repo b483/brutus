@@ -1,7 +1,6 @@
 #include "chief.h"
 
 #include "city/data_private.h"
-#include "city/figures.h"
 #include "city/finance.h"
 #include "city/health.h"
 #include "city/houses.h"
@@ -10,6 +9,7 @@
 #include "city/resource.h"
 #include "city/sentiment.h"
 #include "core/calc.h"
+#include "figure/figure.h"
 #include "graphics/image.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
@@ -125,9 +125,9 @@ static int draw_background(void)
 
     // military
     draw_title(166, 5);
-    if (city_figures_imperial_soldiers()) {
+    if (city_data.figure.imperial_soldiers) {
         lang_text_draw(61, 76, X_OFFSET, 166, FONT_NORMAL_RED);
-    } else if (city_figures_enemies()) {
+    } else if (city_data.figure.enemies) {
         lang_text_draw(61, 75, X_OFFSET, 166, FONT_NORMAL_RED);
     } else if (scenario.invasion_upcoming) {
         lang_text_draw(61, 74, X_OFFSET, 166, FONT_NORMAL_RED);
@@ -135,7 +135,7 @@ static int draw_background(void)
         lang_text_draw(61, 78, X_OFFSET, 166, FONT_NORMAL_GREEN);
     } else if (city_military_months_until_distant_battle() > 0) {
         lang_text_draw(61, 77, X_OFFSET, 166, FONT_NORMAL_RED);
-    } else if (city_figures_soldiers() > 0) {
+    } else if (city_data.figure.soldiers) {
         lang_text_draw(61, 73, X_OFFSET, 166, FONT_NORMAL_GREEN);
     } else {
         lang_text_draw(61, 72, X_OFFSET, 166, FONT_NORMAL_GREEN);
@@ -143,7 +143,7 @@ static int draw_background(void)
 
     // crime
     draw_title(186, 6);
-    if (city_figures_rioters()) {
+    if (city_data.figure.rioters) {
         lang_text_draw(61, 33, X_OFFSET, 186, FONT_NORMAL_RED);
     } else if (city_sentiment_criminals() > 10) {
         lang_text_draw(61, 32, X_OFFSET, 186, FONT_NORMAL_RED);

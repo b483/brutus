@@ -221,12 +221,12 @@ static void init_savegame_data(void)
     state->building_damage_grid = create_savegame_piece(26244, 1);
     state->aqueduct_backup_grid = create_savegame_piece(26244, 1);
     state->sprite_backup_grid = create_savegame_piece(26244, 1);
-    state->figures = create_savegame_piece(132000, 1);
+    state->figures = create_savegame_piece(141000, 1);
     state->route_figures = create_savegame_piece(1200, 1);
     state->route_paths = create_savegame_piece(300000, 1);
     state->formations = create_savegame_piece(5400, 1);
     state->formation_totals = create_savegame_piece(12, 0);
-    state->city_data = create_savegame_piece(11624, 1);
+    state->city_data = create_savegame_piece(11620, 1);
     state->player_name = create_savegame_piece(24, 0);
     state->buildings = create_savegame_piece(164000, 1);
     state->city_view_orientation = create_savegame_piece(4, 0);
