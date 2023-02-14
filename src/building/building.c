@@ -192,9 +192,6 @@ void building_clear_related_data(building *b)
     if (b->type == BUILDING_BARRACKS) {
         city_buildings_remove_barracks(b);
     }
-    if (b->type == BUILDING_DISTRIBUTION_CENTER_UNUSED) {
-        city_buildings_remove_distribution_center(b);
-    }
     if (b->type == BUILDING_FORT) {
         formation_legion_delete_for_fort(b);
     }

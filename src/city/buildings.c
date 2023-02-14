@@ -53,32 +53,6 @@ void city_buildings_set_barracks(int building_id)
     city_data.building.barracks_building_id = building_id;
 }
 
-int city_buildings_has_distribution_center(void)
-{
-    return city_data.building.distribution_center_placed;
-}
-
-void city_buildings_add_distribution_center(building *center)
-{
-    city_data.building.distribution_center_placed = 1;
-    if (!city_data.building.distribution_center_grid_offset) {
-        city_data.building.distribution_center_building_id = center->id;
-        city_data.building.distribution_center_x = center->x;
-        city_data.building.distribution_center_y = center->y;
-        city_data.building.distribution_center_grid_offset = center->grid_offset;
-    }
-}
-
-void city_buildings_remove_distribution_center(building *center)
-{
-    if (center->grid_offset == city_data.building.distribution_center_grid_offset) {
-        city_data.building.distribution_center_grid_offset = 0;
-        city_data.building.distribution_center_x = 0;
-        city_data.building.distribution_center_y = 0;
-        city_data.building.distribution_center_placed = 0;
-    }
-}
-
 int city_buildings_get_trade_center(void)
 {
     return city_data.building.trade_center_building_id;

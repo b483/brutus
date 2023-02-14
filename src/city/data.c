@@ -357,11 +357,6 @@ static void save_main_data(buffer *main)
     buffer_write_i32(main, city_data.resource.food_produced_this_month);
     buffer_write_i32(main, city_data.ratings.peace_riot_cause);
     buffer_write_i32(main, city_data.finance.estimated_tax_income);
-    buffer_write_i8(main, city_data.building.distribution_center_x);
-    buffer_write_i8(main, city_data.building.distribution_center_y);
-    buffer_write_i16(main, city_data.building.distribution_center_grid_offset);
-    buffer_write_i32(main, city_data.building.distribution_center_building_id);
-    buffer_write_i32(main, city_data.building.distribution_center_placed);
     buffer_write_i32(main, city_data.building.shipyard_boats_requested);
     buffer_write_i32(main, city_data.figure.enemies);
     buffer_write_i32(main, city_data.sentiment.wages);
@@ -742,11 +737,6 @@ static void load_main_data(buffer *main)
     city_data.resource.food_produced_this_month = buffer_read_i32(main);
     city_data.ratings.peace_riot_cause = buffer_read_i32(main);
     city_data.finance.estimated_tax_income = buffer_read_i32(main);
-    city_data.building.distribution_center_x = buffer_read_i8(main);
-    city_data.building.distribution_center_y = buffer_read_i8(main);
-    city_data.building.distribution_center_grid_offset = buffer_read_i16(main);
-    city_data.building.distribution_center_building_id = buffer_read_i32(main);
-    city_data.building.distribution_center_placed = buffer_read_i32(main);
     city_data.building.shipyard_boats_requested = buffer_read_i32(main);
     city_data.figure.enemies = buffer_read_i32(main);
     city_data.sentiment.wages = buffer_read_i32(main);

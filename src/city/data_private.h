@@ -32,11 +32,6 @@ extern struct city_data_t {
         int16_t barracks_grid_offset;
         int32_t barracks_building_id;
         int32_t barracks_placed;
-        int8_t distribution_center_x;
-        int8_t distribution_center_y;
-        int16_t distribution_center_grid_offset;
-        int32_t distribution_center_building_id;
-        int32_t distribution_center_placed;
         int32_t trade_center_building_id;
         int8_t triumphal_arches_available;
         int8_t triumphal_arches_placed;

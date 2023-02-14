@@ -490,10 +490,6 @@ static void add_to_map(int type, building *b, int size,
         case BUILDING_NATIVE_CROPS:
             add_building(b, image_group(GROUP_BUILDING_FARM_CROPS));
             break;
-        // distribution center (also unused)
-        case BUILDING_DISTRIBUTION_CENTER_UNUSED:
-            city_buildings_add_distribution_center(b);
-            break;
     }
     map_routing_update_land();
     map_routing_update_walls();
