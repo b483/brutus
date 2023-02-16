@@ -24,7 +24,9 @@ void figure_editor_flag_action(figure *f)
     int id = f->resource_id;
     int image_base = image_group(GROUP_FIGURE_MAP_FLAG_ICONS);
     if (id == MAP_FLAG_EARTHQUAKE) {
-        point = scenario.earthquake_point;
+        // [0].y is offset
+        point.x = scenario.earthquake.branch_coordinates[0].x;
+        point.y = scenario.earthquake.branch_coordinates[1].y;
         f->cart_image_id = image_base;
     } else if (id == MAP_FLAG_ENTRY) {
         point.x = scenario.entry_point.x;

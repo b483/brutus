@@ -25,6 +25,7 @@
 #define MAX_CUSTOM_MESSAGE_TITLE 30
 #define MAX_CUSTOM_MESSAGE_TEXT 1000
 #define MAX_CUSTOM_MESSAGE_VIDEO_TEXT 24
+#define MAX_EARTHQUAKE_BRANCHES 4
 
 enum {
     CLIMATE_CENTRAL = 0,
@@ -114,13 +115,6 @@ enum {
 };
 
 enum {
-    EARTHQUAKE_NONE = 0,
-    EARTHQUAKE_SMALL = 1,
-    EARTHQUAKE_MEDIUM = 2,
-    EARTHQUAKE_LARGE = 3
-};
-
-enum {
     EVENT_DISABLED = 0,
     EVENT_NOT_STARTED = 1,
     EVENT_IN_PROGRESS = 2,
@@ -188,7 +182,7 @@ struct demand_change_t {
     int8_t is_rise;
 };
 
-extern struct scenario_t {
+struct scenario_t {
     struct {
         int16_t width;
         int16_t height;
@@ -233,9 +227,15 @@ extern struct scenario_t {
     } survival_time_win_criteria;
     int8_t allowed_buildings[MAX_ALLOWED_BUILDINGS];
     struct {
-        int8_t severity;
-        int8_t month;
-        int16_t year;
+        uint8_t state;
+        uint8_t severity;
+        uint8_t month;
+        uint16_t year;
+        uint16_t duration;
+        uint16_t max_duration;
+        uint8_t delay;
+        uint8_t max_delay;
+        map_point branch_coordinates[MAX_EARTHQUAKE_BRANCHES];
     } earthquake;
     struct {
         int8_t state;
@@ -256,7 +256,6 @@ extern struct scenario_t {
     struct price_change_t price_changes[MAX_PRICE_CHANGES];
     struct demand_change_t demand_changes[MAX_DEMAND_CHANGES];
 
-    map_point earthquake_point;
     map_point invasion_points[MAX_INVASION_POINTS];
     map_point entry_point;
     map_point exit_point;
@@ -273,10 +272,14 @@ extern struct scenario_t {
     } native_images;
 
     int8_t is_saved;
-} scenario;
+};
 
-extern struct scenario_settings {
+extern struct scenario_t scenario;
+
+struct scenario_settings_t {
     unsigned char player_name[MAX_PLAYER_NAME];
-} scenario_settings;
+};
+
+extern struct scenario_settings_t scenario_settings;
 
 #endif // SCENARIO_DATA_H

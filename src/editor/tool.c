@@ -7,6 +7,7 @@
 #include "editor/tool_restriction.h"
 #include "figuretype/water.h"
 #include "game/undo.h"
+#include "graphics/window.h"
 #include "map/building_tiles.h"
 #include "map/elevation.h"
 #include "map/grid.h"
@@ -298,11 +299,19 @@ static void place_earthquake_flag(const map_tile *tile)
 {
     int warning = 0;
     if (editor_tool_can_place_flag(data.type, tile, &warning)) {
-        if (scenario.earthquake.severity) {
-            scenario.earthquake_point.x = tile->x;
-            scenario.earthquake_point.y = tile->y;
-            scenario.is_saved = 0;
-        } else {
+        // leave a gap at the epicenter to prevent total map block-off and allow for more interesting building patterns
+        scenario.earthquake.branch_coordinates[0].x = tile->x;
+        scenario.earthquake.branch_coordinates[0].y = tile->y - 2;
+        scenario.earthquake.branch_coordinates[1].x = tile->x + 2;
+        scenario.earthquake.branch_coordinates[1].y = tile->y;
+        scenario.earthquake.branch_coordinates[2].x = tile->x;
+        scenario.earthquake.branch_coordinates[2].y = tile->y + 2;
+        scenario.earthquake.branch_coordinates[3].x = tile->x - 2;
+        scenario.earthquake.branch_coordinates[3].y = tile->y;
+        window_request_refresh();
+
+        scenario.is_saved = 0;
+        if (!scenario.earthquake.state) {
             city_warning_show(WARNING_EDITOR_NO_EARTHQUAKE_SCHEDULED);
         }
     } else {

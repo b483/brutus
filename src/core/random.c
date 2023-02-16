@@ -1,6 +1,8 @@
 #include "core/random.h"
 
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define MAX_RANDOM 100
 
@@ -20,6 +22,7 @@ void random_init(void)
     memset(&data, 0, sizeof(data));
     data.iv1 = 0x54657687;
     data.iv2 = 0x72641663;
+    srand(time(NULL));
 }
 
 void random_generate_next(void)

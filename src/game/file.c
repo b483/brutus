@@ -137,7 +137,6 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
     game_time_init(scenario.start_year);
 
     // set up events
-    scenario_earthquake_init();
     load_custom_messages();
 
     empire_init_scenario();

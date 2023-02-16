@@ -21,7 +21,7 @@ static const struct {
 };
 
 struct scenario_t scenario;
-struct scenario_settings scenario_settings;
+struct scenario_settings_t scenario_settings;
 
 static void init_point(map_point *point)
 {
@@ -49,8 +49,6 @@ void scenario_editor_create(int map_size)
     scenario.initial_favor = 40;
     scenario.initial_funds = 1000;
     scenario.rescue_loan = 500;
-    scenario.initial_personal_savings = 0;
-    scenario.rome_supplies_wheat = 0;
 
     // Win criteria
     scenario.culture_win_criteria.enabled = 1;
@@ -61,20 +59,11 @@ void scenario_editor_create(int map_size)
     scenario.peace_win_criteria.goal = 10;
     scenario.favor_win_criteria.enabled = 1;
     scenario.favor_win_criteria.goal = 10;
-    scenario.population_win_criteria.enabled = 0;
-    scenario.population_win_criteria.goal = 0;
-    scenario.time_limit_win_criteria.enabled = 0;
-    scenario.time_limit_win_criteria.years = 0;
-    scenario.survival_time_win_criteria.enabled = 0;
-    scenario.survival_time_win_criteria.years = 0;
 
     // Buildings allowed
     for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
         scenario.allowed_buildings[i] = 1;
     }
-
-    scenario.earthquake.severity = 0;
-    scenario.earthquake.year = 0;
 
     // Special events
     scenario.earthquake.year = 1;
@@ -111,7 +100,10 @@ void scenario_editor_create(int map_size)
         scenario.demand_changes[i].year = 1;
     }
 
-    init_point(&scenario.earthquake_point);
+    for (int i = 0; i < MAX_EARTHQUAKE_BRANCHES; i++) {
+        scenario.earthquake.branch_coordinates[i].x = -1;
+        scenario.earthquake.branch_coordinates[i].y = -1;
+    }
     for (int i = 0; i < MAX_INVASION_POINTS; i++) {
         init_point(&scenario.invasion_points[i]);
     }
@@ -188,9 +180,18 @@ void scenario_save_state(buffer *buf)
     }
 
     // Special events
-    buffer_write_i8(buf, scenario.earthquake.severity);
-    buffer_write_i8(buf, scenario.earthquake.month);
-    buffer_write_i16(buf, scenario.earthquake.year);
+    buffer_write_u8(buf, scenario.earthquake.state);
+    buffer_write_u8(buf, scenario.earthquake.severity);
+    buffer_write_u8(buf, scenario.earthquake.month);
+    buffer_write_u16(buf, scenario.earthquake.year);
+    buffer_write_u16(buf, scenario.earthquake.duration);
+    buffer_write_u16(buf, scenario.earthquake.max_duration);
+    buffer_write_u8(buf, scenario.earthquake.delay);
+    buffer_write_u8(buf, scenario.earthquake.max_delay);
+    for (int i = 0; i < MAX_EARTHQUAKE_BRANCHES; i++) {
+        buffer_write_i32(buf, scenario.earthquake.branch_coordinates[i].x);
+        buffer_write_i32(buf, scenario.earthquake.branch_coordinates[i].y);
+    }
     buffer_write_i8(buf, scenario.gladiator_revolt.state);
     buffer_write_i8(buf, scenario.gladiator_revolt.month);
     buffer_write_i16(buf, scenario.gladiator_revolt.year);
@@ -315,10 +316,6 @@ void scenario_save_state(buffer *buf)
         buffer_write_i8(buf, scenario.demand_changes[i].is_rise);
     }
 
-    // Earthquake points
-    buffer_write_i16(buf, scenario.earthquake_point.x);
-    buffer_write_i16(buf, scenario.earthquake_point.y);
-
     // Invasion points
     for (int i = 0; i < MAX_INVASION_POINTS; i++) {
         buffer_write_i16(buf, scenario.invasion_points[i].x);
@@ -423,9 +420,18 @@ void scenario_load_state(buffer *buf)
     }
 
     // Special events
-    scenario.earthquake.severity = buffer_read_i8(buf);
-    scenario.earthquake.month = buffer_read_i8(buf);
-    scenario.earthquake.year = buffer_read_i16(buf);
+    scenario.earthquake.state = buffer_read_u8(buf);
+    scenario.earthquake.severity = buffer_read_u8(buf);
+    scenario.earthquake.month = buffer_read_u8(buf);
+    scenario.earthquake.year = buffer_read_u16(buf);
+    scenario.earthquake.duration = buffer_read_u16(buf);
+    scenario.earthquake.max_duration = buffer_read_u16(buf);
+    scenario.earthquake.delay = buffer_read_u8(buf);
+    scenario.earthquake.max_delay = buffer_read_u8(buf);
+    for (int i = 0; i < MAX_EARTHQUAKE_BRANCHES; i++) {
+        scenario.earthquake.branch_coordinates[i].x = buffer_read_i32(buf);
+        scenario.earthquake.branch_coordinates[i].y = buffer_read_i32(buf);
+    }
     scenario.gladiator_revolt.state = buffer_read_i8(buf);
     scenario.gladiator_revolt.month = buffer_read_i8(buf);
     scenario.gladiator_revolt.year = buffer_read_i16(buf);
@@ -549,10 +555,6 @@ void scenario_load_state(buffer *buf)
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
         scenario.demand_changes[i].is_rise = buffer_read_i8(buf);
     }
-
-    // Earthquake points
-    scenario.earthquake_point.x = buffer_read_i16(buf);
-    scenario.earthquake_point.y = buffer_read_i16(buf);
 
     // Invasion points
     for (int i = 0; i < MAX_INVASION_POINTS; i++) {

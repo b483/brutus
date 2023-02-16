@@ -1,5 +1,6 @@
 #include "special_events.h"
 
+#include "core/random.h"
 #include "game/custom_strings.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
@@ -136,8 +137,28 @@ static void handle_input(const mouse *m, const hotkeys *h)
 static void button_earthquake_severity(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario.earthquake.severity++;
-    if (scenario.earthquake.severity > EARTHQUAKE_LARGE) {
-        scenario.earthquake.severity = EARTHQUAKE_NONE;
+    switch (scenario.earthquake.severity) {
+        case 1:
+            scenario.earthquake.state = 1;
+            scenario.earthquake.max_duration = 25 + (random_byte() & 0x1f);
+            scenario.earthquake.max_delay = 10;
+            break;
+        case 2:
+            scenario.earthquake.state = 1;
+            scenario.earthquake.max_duration = 100 + (random_byte() & 0x3f);
+            scenario.earthquake.max_delay = 8;
+            break;
+        case 3:
+            scenario.earthquake.state = 1;
+            scenario.earthquake.max_duration = 250 + random_byte();
+            scenario.earthquake.max_delay = 6;
+            break;
+        default:
+            scenario.earthquake.state = 0;
+            scenario.earthquake.severity = 0;
+            scenario.earthquake.max_duration = 0;
+            scenario.earthquake.max_delay = 0;
+            break;
     }
     scenario.is_saved = 0;
     window_request_refresh();

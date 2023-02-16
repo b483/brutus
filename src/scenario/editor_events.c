@@ -30,19 +30,7 @@
 #include "scenario/map.h"
 #include "sound/effect.h"
 
-#include <string.h>
-
-static struct {
-    int state;
-    int duration;
-    int max_duration;
-    int delay;
-    int max_delay;
-    struct {
-        int x;
-        int y;
-    } expand[4];
-} data_earthquake;
+#include <stdlib.h>
 
 enum {
     EVENT_ROME_RAISES_WAGES = 1,
@@ -319,40 +307,12 @@ void scenario_gladiator_revolt_process(void)
     }
 }
 
-void scenario_earthquake_init(void)
-{
-    switch (scenario.earthquake.severity) {
-        default:
-            data_earthquake.max_duration = 0;
-            data_earthquake.max_delay = 0;
-            break;
-        case EARTHQUAKE_SMALL:
-            data_earthquake.max_duration = 25 + (random_byte() & 0x1f);
-            data_earthquake.max_delay = 10;
-            break;
-        case EARTHQUAKE_MEDIUM:
-            data_earthquake.max_duration = 100 + (random_byte() & 0x3f);
-            data_earthquake.max_delay = 8;
-            break;
-        case EARTHQUAKE_LARGE:
-            data_earthquake.max_duration = 250 + random_byte();
-            data_earthquake.max_delay = 6;
-            break;
-    }
-    data_earthquake.state = EVENT_NOT_STARTED;
-    for (int i = 0; i < 4; i++) {
-        data_earthquake.expand[i].x = scenario.earthquake_point.x;
-        data_earthquake.expand[i].y = scenario.earthquake_point.y;
-    }
-}
-
 static void advance_earthquake_to_tile(int x, int y)
 {
     int grid_offset = map_grid_offset(x, y);
     int building_id = map_building_at(grid_offset);
     if (building_id) {
-        building_destroy_by_fire(building_get(building_id));
-        sound_effect_play(SOUND_EFFECT_EXPLOSION);
+        building_destroy_by_collapse(building_get(building_id));
         int ruin_id = map_building_at(grid_offset);
         if (ruin_id) {
             building_get(ruin_id)->state = BUILDING_STATE_DELETED_BY_GAME;
@@ -368,91 +328,63 @@ static void advance_earthquake_to_tile(int x, int y)
     map_routing_update_land();
     map_routing_update_walls();
 
+    sound_effect_play(SOUND_EFFECT_EXPLOSION);
     figure_create_explosion_cloud(x, y, 1);
 }
 
 void scenario_earthquake_process(void)
 {
-    if (scenario.earthquake.severity == EARTHQUAKE_NONE
-        || scenario.earthquake_point.x == -1 || scenario.earthquake_point.y == -1) {
+    if (!scenario.earthquake.state || scenario.earthquake.branch_coordinates[0].x == -1 || scenario.earthquake.branch_coordinates[0].y == -1) {
         return;
     }
-    if (data_earthquake.state == EVENT_NOT_STARTED) {
+    if (scenario.earthquake.state == EVENT_NOT_STARTED) {
         if (scenario.start_year + scenario.earthquake.year == game_time_year() && scenario.earthquake.month == game_time_month()) {
-            data_earthquake.state = EVENT_IN_PROGRESS;
-            data_earthquake.duration = 0;
-            data_earthquake.delay = 0;
-            advance_earthquake_to_tile(data_earthquake.expand[0].x, data_earthquake.expand[0].y);
-            city_message_post(1, MESSAGE_EARTHQUAKE, 0,
-                map_grid_offset(data_earthquake.expand[0].x, data_earthquake.expand[0].y));
+            scenario.earthquake.state = EVENT_IN_PROGRESS;
+            city_message_post(1, MESSAGE_EARTHQUAKE, 0, map_grid_offset(scenario.earthquake.branch_coordinates[0].x, scenario.earthquake.branch_coordinates[1].y));
         }
-    } else if (data_earthquake.state == EVENT_IN_PROGRESS) {
-        data_earthquake.delay++;
-        if (data_earthquake.delay >= data_earthquake.max_delay) {
-            data_earthquake.delay = 0;
-            data_earthquake.duration++;
-            if (data_earthquake.duration >= data_earthquake.max_duration) {
-                data_earthquake.state = EVENT_FINISHED;
+    } else if (scenario.earthquake.state == EVENT_IN_PROGRESS) {
+        scenario.earthquake.delay++;
+        if (scenario.earthquake.delay >= scenario.earthquake.max_delay) {
+            scenario.earthquake.delay = 0;
+            scenario.earthquake.duration++;
+            if (scenario.earthquake.duration >= scenario.earthquake.max_duration) {
+                scenario.earthquake.state = EVENT_FINISHED;
             }
-            int dx, dy, index;
-            switch (random_byte() & 0xf) {
-                case 0: index = 0; dx = 0; dy = -1; break;
-                case 1: index = 1; dx = 1; dy = 0; break;
-                case 2: index = 2; dx = 0; dy = 1; break;
-                case 3: index = 3; dx = -1; dy = 0; break;
-                case 4: index = 0; dx = 0; dy = -1; break;
-                case 5: index = 0; dx = -1; dy = 0; break;
-                case 6: index = 0; dx = 1; dy = 0; break;
-                case 7: index = 1; dx = 1; dy = 0; break;
-                case 8: index = 1; dx = 0; dy = -1; break;
-                case 9: index = 1; dx = 0; dy = 1; break;
-                case 10: index = 2; dx = 0; dy = 1; break;
-                case 11: index = 2; dx = -1; dy = 0; break;
-                case 12: index = 2; dx = 1; dy = 0; break;
-                case 13: index = 3; dx = -1; dy = 0; break;
-                case 14: index = 3; dx = 0; dy = -1; break;
-                case 15: index = 3; dx = 0; dy = 1; break;
-                default: return;
+            int index = rand() % 4;
+            int dx = 0;
+            int dy = 0;
+            switch (index) {
+                case 0:
+                    // ~north
+                    dx = rand() % 3 - 1;
+                    dy = dx ? 0 : -1;
+                    break;
+                case 1:
+                    // ~east
+                    dy = rand() % 3 - 1;
+                    dx = dy ? 0 : 1;
+                    break;
+                case 2:
+                    // ~south
+                    dx = rand() % 3 - 1;
+                    dy = dx ? 0 : 1;
+                    break;
+                case 3:
+                    // ~west
+                    dy = rand() % 3 - 1;
+                    dx = dy ? 0 : -1;
+                    break;
+                default:
+                    break;
             }
-            int x = calc_bound(data_earthquake.expand[index].x + dx, 0, scenario.map.width - 1);
-            int y = calc_bound(data_earthquake.expand[index].y + dy, 0, scenario.map.height - 1);
+            int x = calc_bound(scenario.earthquake.branch_coordinates[index].x + dx, 0, scenario.map.width - 1);
+            int y = calc_bound(scenario.earthquake.branch_coordinates[index].y + dy, 0, scenario.map.height - 1);
             if (!map_terrain_is(map_grid_offset(x, y), TERRAIN_ELEVATION | TERRAIN_ROCK | TERRAIN_WATER)) {
-                data_earthquake.expand[index].x = x;
-                data_earthquake.expand[index].y = y;
+                scenario.earthquake.branch_coordinates[index].x = x;
+                scenario.earthquake.branch_coordinates[index].y = y;
                 advance_earthquake_to_tile(x, y);
             }
         }
-    }
-}
-
-int scenario_earthquake_is_in_progress(void)
-{
-    return data_earthquake.state == EVENT_IN_PROGRESS;
-}
-
-void scenario_earthquake_save_state(buffer *buf)
-{
-    buffer_write_i32(buf, data_earthquake.state);
-    buffer_write_i32(buf, data_earthquake.duration);
-    buffer_write_i32(buf, data_earthquake.max_duration);
-    buffer_write_i32(buf, data_earthquake.max_delay);
-    buffer_write_i32(buf, data_earthquake.delay);
-    for (int i = 0; i < 4; i++) {
-        buffer_write_i32(buf, data_earthquake.expand[i].x);
-        buffer_write_i32(buf, data_earthquake.expand[i].y);
-    }
-}
-
-void scenario_earthquake_load_state(buffer *buf)
-{
-    data_earthquake.state = buffer_read_i32(buf);
-    data_earthquake.duration = buffer_read_i32(buf);
-    data_earthquake.max_duration = buffer_read_i32(buf);
-    data_earthquake.max_delay = buffer_read_i32(buf);
-    data_earthquake.delay = buffer_read_i32(buf);
-    for (int i = 0; i < 4; i++) {
-        data_earthquake.expand[i].x = buffer_read_i32(buf);
-        data_earthquake.expand[i].y = buffer_read_i32(buf);
     }
 }
 

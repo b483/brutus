@@ -10,9 +10,9 @@
 #include "map/point.h"
 #include "sound/effect.h"
 
-static const int CLOUD_TILE_OFFSETS[] = {0, 0, 0, 1, 1, 2};
+static const int CLOUD_TILE_OFFSETS[] = { 0, 0, 0, 1, 1, 2 };
 
-static const int CLOUD_CC_OFFSETS[] = {0, 7, 14, 7, 14, 7};
+static const int CLOUD_CC_OFFSETS[] = { 0, 7, 14, 7, 14, 7 };
 
 static const int CLOUD_SPEED[] = {
     1, 2, 1, 3, 2, 1, 3, 2, 1, 1, 2, 1, 2, 1, 3, 1
@@ -47,7 +47,6 @@ void figure_create_explosion_cloud(int x, int y, int size)
             f->speed_multiplier = CLOUD_SPEED[i];
         }
     }
-    sound_effect_play(SOUND_EFFECT_EXPLOSION);
 }
 
 void figure_create_missile(int building_id, int x, int y, int x_dst, int y_dst, figure_type type)
@@ -112,7 +111,7 @@ void figure_explosion_cloud_action(figure *f)
     figure_movement_move_ticks_cross_country(f, f->speed_multiplier);
     if (f->progress_on_tile < 48) {
         f->image_id = image_group(GROUP_FIGURE_EXPLOSION) +
-                       CLOUD_IMAGE_OFFSETS[f->progress_on_tile / 2];
+            CLOUD_IMAGE_OFFSETS[f->progress_on_tile / 2];
     } else {
         f->image_id = image_group(GROUP_FIGURE_EXPLOSION) + 7;
     }

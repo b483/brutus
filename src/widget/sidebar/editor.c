@@ -123,9 +123,8 @@ static void draw_status(void)
         }
     }
 
-    if (scenario.earthquake.severity > 0) {
-        map_point earthquake = scenario.earthquake_point;
-        if (earthquake.x == -1 || earthquake.y == -1) {
+    if (scenario.earthquake.state) {
+        if (scenario.earthquake.branch_coordinates[0].x == -1 || scenario.earthquake.branch_coordinates[0].y == -1) {
             lang_text_draw(44, 57, text_offset, 269, FONT_NORMAL_RED);
         } else {
             lang_text_draw(44, 58, text_offset, 269, FONT_NORMAL_GREEN);

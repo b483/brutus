@@ -142,6 +142,7 @@ void building_destroy_by_collapse(building *b)
     map_building_tiles_set_rubble(b->id, b->x, b->y, b->size);
     figure_create_explosion_cloud(b->x, b->y, b->size);
     destroy_linked_parts(b, 0);
+    sound_effect_play(SOUND_EFFECT_EXPLOSION);
 }
 
 void building_destroy_by_fire(building *b)
