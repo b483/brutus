@@ -125,7 +125,7 @@ void window_building_draw_military_academy(building_info_context *c)
         window_building_draw_description(c, 69, 25);
     } else if (b->num_workers <= 0) {
         window_building_draw_description(c, 135, 2);
-    } else if (c->worker_percentage >= 100) {
+    } else if (c->worker_percentage < 100) {
         window_building_draw_description(c, 135, 1);
     } else {
         window_building_draw_description(c, 135, 3);
@@ -150,15 +150,13 @@ void window_building_draw_legion_info(building_info_context *c)
     const formation *m = formation_get(c->formation_id);
     c->help_id = 87;
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
-    lang_text_draw_centered(138, m->legion_id, c->x_offset, c->y_offset + 10,
-        BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
-
-    // standard icon at the top
+    // legion name
+    lang_text_draw_centered(138, m->legion_id, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
+    // animal symbol at the top of banner pole
     int icon_image_id = image_group(GROUP_FIGURE_FORT_STANDARD_ICONS) + m->legion_id;
     const image *icon_image = image_get(icon_image_id);
-    int icon_height = icon_image->height;
     image_draw(icon_image_id, c->x_offset + 16 + (40 - icon_image->width) / 2, c->y_offset + 16);
-    // standard flag
+    // legion banner
     int flag_image_id = image_group(GROUP_FIGURE_FORT_FLAGS);
     if (m->figure_type == FIGURE_FORT_JAVELIN) {
         flag_image_id += 9;
@@ -169,16 +167,13 @@ void window_building_draw_legion_info(building_info_context *c)
         flag_image_id += 8;
     }
     const image *flag_image = image_get(flag_image_id);
-    int flag_height = flag_image->height;
-    image_draw(flag_image_id, c->x_offset + 16 + (40 - flag_image->width) / 2, c->y_offset + 16 + icon_height);
-    // standard pole and morale ball
+    image_draw(flag_image_id, c->x_offset + 16 + (40 - flag_image->width) / 2, c->y_offset + 16 + icon_image->height);
+    // banner pole and morale ball
     int pole_image_id = image_group(GROUP_FIGURE_FORT_STANDARD_POLE) + 20 - m->morale / 5;
-    image_draw(pole_image_id,
-        c->x_offset + 16 + (40 - image_get(pole_image_id)->width) / 2, c->y_offset + 16 + icon_height + flag_height);
-
+    image_draw(pole_image_id, c->x_offset + 16 + (40 - image_get(pole_image_id)->width) / 2, c->y_offset + 16 + icon_image->height + flag_image->height);
     // number of soldiers
     lang_text_draw(138, 23, c->x_offset + 100, c->y_offset + 60, FONT_NORMAL_BLACK);
-    text_draw_number(m->num_figures, '@', " ", c->x_offset + 294, c->y_offset + 60, FONT_NORMAL_BLACK);
+    text_draw_number(m->num_figures, ' ', "", c->x_offset + 294, c->y_offset + 60, FONT_NORMAL_BLACK);
     // health
     lang_text_draw(138, 24, c->x_offset + 100, c->y_offset + 80, FONT_NORMAL_BLACK);
     int health = calc_percentage(m->total_damage, m->max_total_damage);
@@ -211,25 +206,32 @@ void window_building_draw_legion_info(building_info_context *c)
     if (m->num_figures) {
         // layout
         static const int OFFSETS_LEGIONARY[2][5] = {
-            {0, 0, 2, 3, 4}, {0, 0, 3, 2, 4},
+            {0, 0, 2, 3, 4},
+            {0, 0, 3, 2, 4},
         };
         static const int OFFSETS_OTHER[2][5] = {
-            {5, 6, 2, 3, 4}, {6, 5, 3, 2, 4},
+            {5, 6, 2, 3, 4},
+            {6, 5, 3, 2, 4},
         };
         const int *offsets;
-        int index = 0;
+        int rotation_index = 0;
         if (city_view_orientation() == DIR_6_LEFT || city_view_orientation() == DIR_2_RIGHT) {
-            index = 1;
+            rotation_index = 1;
         }
         if (m->figure_type == FIGURE_FORT_LEGIONARY) {
-            offsets = OFFSETS_LEGIONARY[index];
+            offsets = OFFSETS_LEGIONARY[rotation_index];
         } else {
-            offsets = OFFSETS_OTHER[index];
+            offsets = OFFSETS_OTHER[rotation_index];
         }
-        for (int i = 5 - c->formation_types; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
+            // for legionaries, draw tortoise formation in first position if academy trained, skip second position
+            if (m->figure_type == FIGURE_FORT_LEGIONARY) {
+                if ((i == 0 && !m->has_military_training) || i == 1) {
+                    continue;
+                }
+            }
             image_draw(image_group(GROUP_FORT_FORMATIONS) + offsets[i], c->x_offset + 21 + 85 * i, c->y_offset + 141);
         }
-        window_building_draw_legion_info_foreground(c);
     } else {
         // no soldiers
         int group_id;
@@ -253,46 +255,22 @@ void window_building_draw_legion_info_foreground(building_info_context *c)
     if (!m->num_figures) {
         return;
     }
-    for (int i = 5 - c->formation_types; i < 5; i++) {
-        int has_focus = 0;
-        if (data.focus_button_id) {
-            if (data.focus_button_id - 1 == i) {
-                has_focus = 1;
-            }
-        } else if (m->figure_type == FIGURE_FORT_LEGIONARY) {
-            if (i == 0 && m->layout == FORMATION_TORTOISE) {
-                has_focus = 1;
-            } else if (i == 1 && m->layout == FORMATION_COLUMN) {
-                has_focus = 1;
-            } else if (i == 2 && m->layout == FORMATION_DOUBLE_LINE_1) {
-                has_focus = 1;
-            } else if (i == 3 && m->layout == FORMATION_DOUBLE_LINE_2) {
-                has_focus = 1;
-            } else if (i == 4 && m->layout == FORMATION_MOP_UP) {
-                has_focus = 1;
-            }
-        } else { // mounted/javelin
-            if (i == 0 && m->layout == FORMATION_SINGLE_LINE_1) {
-                has_focus = 1;
-            } else if (i == 1 && m->layout == FORMATION_SINGLE_LINE_2) {
-                has_focus = 1;
-            } else if (i == 2 && m->layout == FORMATION_DOUBLE_LINE_1) {
-                has_focus = 1;
-            } else if (i == 3 && m->layout == FORMATION_DOUBLE_LINE_2) {
-                has_focus = 1;
-            } else if (i == 4 && m->layout == FORMATION_MOP_UP) {
-                has_focus = 1;
+    for (int i = 0; i < 5; i++) {
+        // for legionaries, draw tortoise formation border in first position if academy trained, skip second position
+        if (m->figure_type == FIGURE_FORT_LEGIONARY) {
+            if ((i == 0 && !m->has_military_training) || i == 1) {
+                continue;
             }
         }
-        button_border_draw(c->x_offset + 19 + 85 * i, c->y_offset + 139, 84, 84, has_focus);
+        button_border_draw(c->x_offset + 19 + 85 * i, c->y_offset + 139, 84, 84, data.focus_button_id == i + 1);
     }
+
     inner_panel_draw(c->x_offset + 16, c->y_offset + 230, c->width_blocks - 2, 4);
 
     int title_id;
     int text_id;
     switch (data.focus_button_id) {
-        // single line or testudo
-        case 1:
+        case 1: // tortoise formation for legionaries, single line for aux
             if (m->figure_type == FIGURE_FORT_LEGIONARY) {
                 title_id = 12;
                 text_id = m->has_military_training ? 18 : 17;
@@ -301,18 +279,16 @@ void window_building_draw_legion_info_foreground(building_info_context *c)
                 text_id = 22;
             }
             break;
-        case 2:
+        case 2: // skip for legionaries, single line for aux
             if (m->figure_type == FIGURE_FORT_LEGIONARY) {
-                title_id = 13;
-                text_id = m->has_military_training ? 19 : 17;
+                goto default_label;
             } else {
                 title_id = 16;
                 text_id = 22;
             }
             break;
-        // double line
-        case 3:
-        case 4:
+        case 3: // double line
+        case 4: // double line
             title_id = 14;
             text_id = 20;
             break;
@@ -320,9 +296,14 @@ void window_building_draw_legion_info_foreground(building_info_context *c)
             title_id = 15;
             text_id = 21;
             break;
+        default_label:
         default:
             // no button selected: go for formation layout
             switch (m->layout) {
+                case FORMATION_TORTOISE:
+                    title_id = 12;
+                    text_id = 18;
+                    break;
                 case FORMATION_SINGLE_LINE_1:
                 case FORMATION_SINGLE_LINE_2:
                     title_id = 16;
@@ -333,17 +314,9 @@ void window_building_draw_legion_info_foreground(building_info_context *c)
                     title_id = 14;
                     text_id = 20;
                     break;
-                case FORMATION_TORTOISE:
-                    title_id = 12;
-                    text_id = 18;
-                    break;
                 case FORMATION_MOP_UP:
                     title_id = 15;
                     text_id = 21;
-                    break;
-                case FORMATION_COLUMN:
-                    title_id = 13;
-                    text_id = 19;
                     break;
                 default:
                     title_id = 16;
@@ -353,24 +326,23 @@ void window_building_draw_legion_info_foreground(building_info_context *c)
             }
             break;
     }
+    // draw formation info
     lang_text_draw(138, title_id, c->x_offset + 24, c->y_offset + 236, FONT_NORMAL_WHITE);
-    lang_text_draw_multiline(138, text_id, c->x_offset + 24, c->y_offset + 252,
-        BLOCK_SIZE * (c->width_blocks - 4), FONT_NORMAL_GREEN);
+    lang_text_draw_multiline(138, text_id, c->x_offset + 24, c->y_offset + 252, BLOCK_SIZE * (c->width_blocks - 4), FONT_NORMAL_GREEN);
 
+    // Return to fort
     if (!m->is_at_fort && !m->in_distant_battle) {
-        button_border_draw(c->x_offset + BLOCK_SIZE * (c->width_blocks - 18) / 2,
-            c->y_offset + BLOCK_SIZE * c->height_blocks - 48, 288, 32, data.return_button_id == 1);
-        lang_text_draw_centered(138, 58, c->x_offset + BLOCK_SIZE * (c->width_blocks - 18) / 2,
-            c->y_offset + BLOCK_SIZE * c->height_blocks - 39, 288, FONT_NORMAL_BLACK);
+        button_border_draw(c->x_offset + BLOCK_SIZE * (c->width_blocks - 18) / 2, c->y_offset + BLOCK_SIZE * c->height_blocks - 48, 288, 32, data.return_button_id == 1);
+        lang_text_draw_centered(138, 58, c->x_offset + BLOCK_SIZE * (c->width_blocks - 18) / 2, c->y_offset + BLOCK_SIZE * c->height_blocks - 39, 288, FONT_NORMAL_BLACK);
     }
 }
 
 int window_building_handle_mouse_legion_info(const mouse *m, building_info_context *c)
 {
     data.context_for_callback = c;
-    int handled = generic_buttons_handle_mouse(m, c->x_offset, c->y_offset, layout_buttons, 5, &data.focus_button_id);
+    int handled = generic_buttons_handle_mouse(m, c->x_offset, c->y_offset, layout_buttons, sizeof(layout_buttons) / sizeof(generic_button), &data.focus_button_id);
     if (formation_get(c->formation_id)->figure_type == FIGURE_FORT_LEGIONARY) {
-        if (data.focus_button_id == 1 || (data.focus_button_id == 2 && c->formation_types == 3)) {
+        if (data.focus_button_id == 2 || (data.focus_button_id == 1 && c->formation_types == 3)) {
             data.focus_button_id = 0;
         }
     }
@@ -397,21 +369,22 @@ static void button_layout(int index, __attribute__((unused)) int param2)
     if (m->in_distant_battle) {
         return;
     }
-    if (index == 0 && data.context_for_callback->formation_types < 5) {
-        return;
-    }
-    if (index == 1 && data.context_for_callback->formation_types < 4) {
-        return;
-    }
+
     // store layout in case of mop up
     int new_layout = m->layout;
     if (m->figure_type == FIGURE_FORT_LEGIONARY) {
         switch (index) {
-            case 0: new_layout = FORMATION_TORTOISE; break;
-            case 1: new_layout = FORMATION_COLUMN; break;
+            case 0:
+                if (m->has_military_training) {
+                    new_layout = FORMATION_TORTOISE; break;
+                } else {
+                    return;
+                }
+            case 1: return;
             case 2: new_layout = FORMATION_DOUBLE_LINE_1; break;
             case 3: new_layout = FORMATION_DOUBLE_LINE_2; break;
             case 4: new_layout = FORMATION_MOP_UP; break;
+            default: break;
         }
     } else {
         switch (index) {
@@ -420,9 +393,13 @@ static void button_layout(int index, __attribute__((unused)) int param2)
             case 2: new_layout = FORMATION_DOUBLE_LINE_1; break;
             case 3: new_layout = FORMATION_DOUBLE_LINE_2; break;
             case 4: new_layout = FORMATION_MOP_UP; break;
+            default: break;
         }
     }
-    formation_legion_change_layout(m, new_layout);
+    if (new_layout == FORMATION_MOP_UP && m->layout != FORMATION_MOP_UP) {
+        m->prev.layout = m->layout;
+    }
+    m->layout = new_layout;
     switch (index) {
         case 0: sound_speech_play_file("wavs/cohort1.wav"); break;
         case 1: sound_speech_play_file("wavs/cohort2.wav"); break;

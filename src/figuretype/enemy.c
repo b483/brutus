@@ -34,7 +34,7 @@ static void enemy_initial(figure *f, formation *m)
         }
         f->is_ghost = 0;
         if (m->recent_fight) {
-            f->action_state = FIGURE_ACTION_154_ENEMY_FIGHTING;
+            f->action_state = FIGURE_ACTION_154_ENEMY_ENGAGED;
         } else {
             f->destination_x = m->destination_x + f->formation_position_x.enemy;
             f->destination_y = m->destination_y + f->formation_position_y.enemy;
@@ -75,7 +75,7 @@ static void enemy_initial(figure *f, formation *m)
                     map_point_get_last_result(&tile);
                 }
                 figure_create_missile(f->id, f->x, f->y, tile.x, tile.y, missile_type);
-                formation_record_missile_fired(m);
+                m->missile_fired = 6;
             }
             if (missile_type == FIGURE_ARROW && city_sound_update_shoot_arrow()) {
                 sound_effect_play(SOUND_EFFECT_ARROW);
@@ -110,7 +110,7 @@ static void enemy_marching(figure *f, const formation *m)
     }
 }
 
-static void enemy_fighting(figure *f, const formation *m)
+static void engage_enemy(figure *f, const formation *m)
 {
     if (!m->recent_fight) {
         f->action_state = FIGURE_ACTION_151_ENEMY_INITIAL;
@@ -141,11 +141,11 @@ static void enemy_action(figure *f, formation *m)
     f->formation_position_y.enemy = formation_layout_position_y(m->layout, f->index_in_formation);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_150_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
         case FIGURE_ACTION_149_CORPSE:
             figure_combat_handle_corpse(f);
+            break;
+        case FIGURE_ACTION_150_ATTACK:
+            figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_148_FLEEING:
             f->destination_x = f->source_x;
@@ -160,14 +160,11 @@ static void enemy_action(figure *f, formation *m)
         case FIGURE_ACTION_151_ENEMY_INITIAL:
             enemy_initial(f, m);
             break;
-        case FIGURE_ACTION_152_ENEMY_WAITING:
-            map_figure_update(f);
-            break;
         case FIGURE_ACTION_153_ENEMY_MARCHING:
             enemy_marching(f, m);
             break;
-        case FIGURE_ACTION_154_ENEMY_FIGHTING:
-            enemy_fighting(f, m);
+        case FIGURE_ACTION_154_ENEMY_ENGAGED:
+            engage_enemy(f, m);
             break;
     }
 }
@@ -610,33 +607,29 @@ void figure_enemy_caesar_legionary_action(figure *f)
     enemy_action(f, m);
 
     int dir = get_direction(f);
+    int img_group_base_id = image_group(GROUP_FIGURE_CAESAR_LEGIONARY);
 
     if (f->direction == DIR_FIGURE_ATTACK) {
-        f->image_id = image_group(GROUP_FIGURE_CAESAR_LEGIONARY) + dir +
-            8 * ((f->attack_image_offset - 12) / 2);
+        f->image_id = img_group_base_id + dir + 8 * ((f->attack_image_offset - 12) / 2);
     }
     switch (f->action_state) {
+        case FIGURE_ACTION_149_CORPSE:
+            f->image_id = img_group_base_id + figure_image_corpse_offset(f) + 152;
+            break;
         case FIGURE_ACTION_150_ATTACK:
             if (f->attack_image_offset >= 12) {
-                f->image_id = image_group(GROUP_FIGURE_CAESAR_LEGIONARY) + dir +
+                f->image_id = img_group_base_id + dir +
                     8 * ((f->attack_image_offset - 12) / 2);
             } else {
-                f->image_id = image_group(GROUP_FIGURE_CAESAR_LEGIONARY) + dir;
-            }
-            break;
-        case FIGURE_ACTION_149_CORPSE:
-            f->image_id = image_group(GROUP_FIGURE_CAESAR_LEGIONARY) +
-                figure_image_corpse_offset(f) + 152;
-            break;
-        case FIGURE_ACTION_84_SOLDIER_AT_STANDARD:
-            if (m->is_halted && m->layout == FORMATION_COLUMN && m->missile_attack_timeout) {
-                f->image_id = image_group(GROUP_BUILDING_FORT_LEGIONARY) + dir + 144;
-            } else {
-                f->image_id = image_group(GROUP_BUILDING_FORT_LEGIONARY) + dir;
+                f->image_id = img_group_base_id + dir;
             }
             break;
         default:
-            f->image_id = image_group(GROUP_FIGURE_CAESAR_LEGIONARY) + 48 + dir + 8 * f->image_offset;
+            if (m->is_halted && m->missile_attack_timeout) {
+                f->image_id = img_group_base_id + 144 + dir + 8 * f->image_offset;
+            } else {
+                f->image_id = img_group_base_id + 48 + dir + 8 * f->image_offset;
+            }
             break;
     }
 }

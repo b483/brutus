@@ -14,14 +14,14 @@
 #define UNTIL_STOP 0
 #define UNTIL_CONTINUE 1
 
-static const int ROUTE_OFFSETS[] = {-162, 1, 162, -1, -161, 163, 161, -163};
+static const int ROUTE_OFFSETS[] = { -162, 1, 162, -1, -161, 163, 161, -163 };
 
 static grid_i16 routing_distance;
 
 static struct {
     int total_routes_calculated;
     int enemy_routes_calculated;
-} stats = {0, 0};
+} stats = { 0, 0 };
 
 static struct {
     int head;
@@ -360,16 +360,6 @@ void map_routing_delete_first_wall_or_aqueduct(int x, int y)
     route_queue_until(map_grid_offset(x, y), callback_delete_wall_aqueduct);
 }
 
-static int is_fighting_enemy(figure *f)
-{
-    return !f->is_friendly && f->action_state == FIGURE_ACTION_150_ATTACK;
-}
-
-static int has_fighting_enemy(int grid_offset)
-{
-    return map_figure_foreach_until(grid_offset, is_fighting_enemy);
-}
-
 static void callback_travel_citizen_land(int next_offset, int dist)
 {
     if (terrain_land_citizen.items[next_offset] >= 0) {
@@ -422,23 +412,19 @@ int map_routing_can_travel_over_walls(int src_x, int src_y, int dst_x, int dst_y
 
 static void callback_travel_noncitizen_land_through_building(int next_offset, int dist)
 {
-    if (!has_fighting_enemy(next_offset)) {
-        if (terrain_land_noncitizen.items[next_offset] == NONCITIZEN_0_PASSABLE ||
-            terrain_land_noncitizen.items[next_offset] == NONCITIZEN_2_CLEARABLE ||
-            (terrain_land_noncitizen.items[next_offset] == NONCITIZEN_1_BUILDING &&
-                map_building_at(next_offset) == state.through_building_id)) {
-            enqueue(next_offset, dist);
-        }
+    if (terrain_land_noncitizen.items[next_offset] == NONCITIZEN_0_PASSABLE ||
+        terrain_land_noncitizen.items[next_offset] == NONCITIZEN_2_CLEARABLE ||
+        (terrain_land_noncitizen.items[next_offset] == NONCITIZEN_1_BUILDING &&
+            map_building_at(next_offset) == state.through_building_id)) {
+        enqueue(next_offset, dist);
     }
 }
 
 static void callback_travel_noncitizen_land(int next_offset, int dist)
 {
-    if (!has_fighting_enemy(next_offset)) {
-        if (terrain_land_noncitizen.items[next_offset] >= NONCITIZEN_0_PASSABLE &&
-            terrain_land_noncitizen.items[next_offset] <= NONCITIZEN_5_FORT) {
-            enqueue(next_offset, dist);
-        }
+    if (terrain_land_noncitizen.items[next_offset] >= NONCITIZEN_0_PASSABLE &&
+        terrain_land_noncitizen.items[next_offset] <= NONCITIZEN_5_FORT) {
+        enqueue(next_offset, dist);
     }
 }
 
@@ -481,7 +467,7 @@ void map_routing_block(int x, int y, int size)
     }
     for (int dy = 0; dy < size; dy++) {
         for (int dx = 0; dx < size; dx++) {
-            routing_distance.items[map_grid_offset(x+dx, y+dy)] = 0;
+            routing_distance.items[map_grid_offset(x + dx, y + dy)] = 0;
         }
     }
 }

@@ -69,7 +69,7 @@ static void hit_opponent(figure *f)
                 opponent_formation->figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY)) {
         if (!attack_is_same_direction(opponent->attack_direction, opponent_formation->direction)) {
             opponent_defense -= 4; // opponent not attacking in coordinated formation
-        } else if (opponent_formation->layout == FORMATION_COLUMN) {
+        } else if (opponent_formation->layout == FORMATION_TORTOISE) {
             opponent_defense += 7;
         } else if (opponent_formation->layout == FORMATION_DOUBLE_LINE_1 ||
                    opponent_formation->layout == FORMATION_DOUBLE_LINE_2) {

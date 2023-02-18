@@ -214,17 +214,6 @@ static void adjust_pixel_offset(const figure *f, int *pixel_x, int *pixel_y)
         int direction = figure_image_normalize_direction(f->direction);
         tile_progress_to_pixel_offset(direction, f->progress_on_tile, &x_offset, &y_offset);
         y_offset -= f->current_height;
-        if (f->figures_on_same_tile_index && f->type != FIGURE_BALLISTA) {
-            // an attempt to not let people walk through each other
-            static const int BUSY_ROAD_X_OFFSETS[] = {
-                0, 8, 8, -8, -8, 0, 16, 0, -16, 8, -8, 16, -16, 16, -16, 8, -8, 0, 24, 0, -24, 0, 0, 0
-            };
-            static const int BUSY_ROAD_Y_OFFSETS[] = {
-                0, 0, 8, 8, -8, -16, 0, 16, 0, -16, 16, 8, -8, -8, 8, 16, -16, -24, 0, 24, 0, 0, 0, 0
-            };
-            x_offset += BUSY_ROAD_X_OFFSETS[f->figures_on_same_tile_index];
-            y_offset += BUSY_ROAD_Y_OFFSETS[f->figures_on_same_tile_index];
-        }
     }
 
     x_offset += 29;

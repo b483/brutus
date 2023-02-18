@@ -89,7 +89,6 @@ static int formation_create(int figure_type, int layout, int orientation, int x,
     f->in_use = 1;
     f->is_legion = 0;
     f->figure_type = figure_type;
-    f->legion_id = formation_id - 10;
     f->morale = 100;
     if (layout == FORMATION_ENEMY_DOUBLE_LINE) {
         if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
@@ -151,20 +150,10 @@ void formation_toggle_empire_service(int formation_id)
     formations[formation_id].empire_service = formations[formation_id].empire_service ? 0 : 1;
 }
 
-void formation_record_missile_fired(formation *m)
-{
-    m->missile_fired = 6;
-}
-
 void formation_record_missile_attack(formation *m, int from_formation_id)
 {
     m->missile_attack_timeout = 6;
     m->missile_attack_formation_id = from_formation_id;
-}
-
-void formation_record_fight(formation *m)
-{
-    m->recent_fight = 6;
 }
 
 int formation_grid_offset_for_invasion(void)
@@ -546,7 +535,7 @@ static void update_direction(int formation_id, int first_figure_direction)
         } else if (f->x_home > f->prev.x_home) {
             f->direction = DIR_2_RIGHT;
         }
-    } else if (f->layout == FORMATION_TORTOISE || f->layout == FORMATION_COLUMN) {
+    } else if (f->layout == FORMATION_TORTOISE) {
         int dx = (f->x_home < f->prev.x_home) ? (f->prev.x_home - f->x_home) : (f->x_home - f->prev.x_home);
         int dy = (f->y_home < f->prev.y_home) ? (f->prev.y_home - f->y_home) : (f->y_home - f->prev.y_home);
         if (dx > dy) {
@@ -567,16 +556,6 @@ static void update_direction(int formation_id, int first_figure_direction)
     f->prev.y_home = f->y_home;
 }
 
-static void update_directions(void)
-{
-    for (int i = 1; i < MAX_FORMATIONS; i++) {
-        formation *m = &formations[i];
-        if (m->in_use && !m->is_herd) {
-            update_direction(m->id, figure_get(m->figures[0])->direction);
-        }
-    }
-}
-
 static void set_legion_max_figures(void)
 {
     for (int i = 1; i < MAX_FORMATIONS; i++) {
@@ -590,7 +569,12 @@ void formation_update_all(int second_time)
 {
     formation_calculate_legion_totals();
     formation_calculate_figures();
-    update_directions();
+    for (int i = 1; i < MAX_FORMATIONS; i++) {
+        formation *m = &formations[i];
+        if (m->in_use && !m->is_herd) {
+            update_direction(m->id, figure_get(m->figures[0])->direction);
+        }
+    }
     formation_legion_decrease_damage();
     if (!second_time) {
         formation_update_monthly_morale_deployed();

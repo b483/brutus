@@ -32,20 +32,18 @@ enum {
 };
 
 enum {
-    FORMATION_COLUMN = 0,
+    FORMATION_TORTOISE = 0,
     FORMATION_DOUBLE_LINE_1 = 1,
     FORMATION_DOUBLE_LINE_2 = 2,
     FORMATION_SINGLE_LINE_1 = 3,
     FORMATION_SINGLE_LINE_2 = 4,
-    FORMATION_TORTOISE = 5,
-    FORMATION_MOP_UP = 6,
-    FORMATION_AT_REST = 7,
-    FORMATION_ENEMY_MOB = 8,
-    FORMATION_HERD = 9,
-    FORMATION_ENEMY_DOUBLE_LINE = 10,
-    FORMATION_ENEMY_WIDE_COLUMN = 11,
-    FORMATION_ENEMY12 = 12,
-    FORMATION_MAX = 13
+    FORMATION_MOP_UP = 5,
+    FORMATION_AT_REST = 6,
+    FORMATION_ENEMY_MOB = 7,
+    FORMATION_ENEMY_DOUBLE_LINE = 8,
+    FORMATION_ENEMY_WIDE_COLUMN = 9,
+    FORMATION_HERD = 10,
+    FORMATION_MAX = 11
 };
 
 typedef struct {
@@ -145,9 +143,7 @@ void formation_set_selected(int formation_id);
 
 void formation_toggle_empire_service(int formation_id);
 
-void formation_record_missile_fired(formation *m);
 void formation_record_missile_attack(formation *m, int from_formation_id);
-void formation_record_fight(formation *m);
 
 int formation_grid_offset_for_invasion(void);
 

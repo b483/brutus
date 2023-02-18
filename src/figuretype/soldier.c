@@ -100,7 +100,7 @@ static void javelin_launch_missile(figure *f)
                 map_point_get_last_result(&tile);
             }
             figure_create_missile(f->id, f->x, f->y, tile.x, tile.y, FIGURE_JAVELIN);
-            formation_record_missile_fired(formation_get(f->formation_id));
+            formation_get(f->formation_id)->missile_fired = 6;
         }
         f->attack_image_offset++;
         if (f->attack_image_offset > 100) {
@@ -171,7 +171,7 @@ static void update_image_legionary(figure *f, const formation *m, int dir)
     } else if (f->action_state == FIGURE_ACTION_149_CORPSE) {
         f->image_id = image_id + 152 + figure_image_corpse_offset(f);
     } else if (f->action_state == FIGURE_ACTION_84_SOLDIER_AT_STANDARD) {
-        if (m->is_halted && m->layout == FORMATION_COLUMN && m->missile_attack_timeout) {
+        if (m->is_halted && m->layout == FORMATION_TORTOISE && m->missile_attack_timeout) {
             f->image_id = image_id + dir + 144;
         } else {
             f->image_id = image_id + dir;

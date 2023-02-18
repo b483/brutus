@@ -129,7 +129,7 @@ static void missile_hit_target(figure *f, int target_id, figure_type legionary_t
     if (damage_inflicted < 0) {
         damage_inflicted = 0;
     }
-    if (target->type == legionary_type && m->is_halted && m->layout == FORMATION_COLUMN) {
+    if (target->type == legionary_type && m->is_halted && m->layout == FORMATION_TORTOISE) {
         damage_inflicted = 1;
     }
     int target_damage = damage_inflicted + target->damage;

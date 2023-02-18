@@ -81,14 +81,6 @@ void formation_legion_update_recruit_status(building *fort)
     }
 }
 
-void formation_legion_change_layout(formation *m, int new_layout)
-{
-    if (new_layout == FORMATION_MOP_UP && m->layout != FORMATION_MOP_UP) {
-        m->prev.layout = m->layout;
-    }
-    m->layout = new_layout;
-}
-
 void formation_legion_restore_layout(formation *m)
 {
     if (m->layout == FORMATION_MOP_UP) {
@@ -333,7 +325,7 @@ void formation_legion_update(void)
         }
         for (int n = 0; n < MAX_FORMATION_FIGURES; n++) {
             if (figure_get(m->figures[n])->action_state == FIGURE_ACTION_150_ATTACK) {
-                formation_record_fight(m);
+                m->recent_fight = 6;
             }
         }
         if (formation_has_low_morale(m)) {

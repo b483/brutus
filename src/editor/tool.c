@@ -295,50 +295,6 @@ void editor_tool_update_use(const map_tile *tile)
     widget_minimap_invalidate();
 }
 
-static void place_earthquake_flag(const map_tile *tile)
-{
-    int warning = 0;
-    if (editor_tool_can_place_flag(data.type, tile, &warning)) {
-        // leave a gap at the epicenter to prevent total map block-off and allow for more interesting building patterns
-        scenario.earthquake.branch_coordinates[0].x = tile->x;
-        scenario.earthquake.branch_coordinates[0].y = tile->y - 2;
-        scenario.earthquake.branch_coordinates[1].x = tile->x + 2;
-        scenario.earthquake.branch_coordinates[1].y = tile->y;
-        scenario.earthquake.branch_coordinates[2].x = tile->x;
-        scenario.earthquake.branch_coordinates[2].y = tile->y + 2;
-        scenario.earthquake.branch_coordinates[3].x = tile->x - 2;
-        scenario.earthquake.branch_coordinates[3].y = tile->y;
-        window_request_refresh();
-
-        scenario.is_saved = 0;
-        if (!scenario.earthquake.state) {
-            city_warning_show(WARNING_EDITOR_NO_EARTHQUAKE_SCHEDULED);
-        }
-    } else {
-        city_warning_show(warning);
-    }
-}
-
-static void place_flag(const map_tile *tile, void (*update)(int x, int y))
-{
-    int warning = 0;
-    if (editor_tool_can_place_flag(data.type, tile, &warning)) {
-        update(tile->x, tile->y);
-    } else {
-        city_warning_show(warning);
-    }
-}
-
-static void place_flag_with_id(const map_tile *tile, void (*update)(int id, int x, int y))
-{
-    int warning = 0;
-    if (editor_tool_can_place_flag(data.type, tile, &warning)) {
-        update(data.id, tile->x, tile->y);
-    } else {
-        city_warning_show(warning);
-    }
-}
-
 static void place_building(const map_tile *tile)
 {
     int image_id;
@@ -413,66 +369,6 @@ static void place_access_ramp(const map_tile *tile)
     }
 }
 
-static void place_road(const map_tile *start_tile, const map_tile *end_tile)
-{
-    if (building_construction_place_road(0, start_tile->x, start_tile->y, end_tile->x, end_tile->y)) {
-        scenario.is_saved = 0;
-    }
-}
-
-static void set_entry_point(int x, int y)
-{
-    scenario.entry_point.x = x;
-    scenario.entry_point.y = y;
-    scenario.is_saved = 0;
-}
-
-static void set_exit_point(int x, int y)
-{
-    scenario.exit_point.x = x;
-    scenario.exit_point.y = y;
-    scenario.is_saved = 0;
-}
-
-static void set_river_entry_point(int x, int y)
-{
-    scenario.river_entry_point.x = x;
-    scenario.river_entry_point.y = y;
-    scenario.is_saved = 0;
-    figure_create_flotsam();
-    map_routing_update_water();
-}
-
-static void set_river_exit_point(int x, int y)
-{
-    scenario.river_exit_point.x = x;
-    scenario.river_exit_point.y = y;
-    scenario.is_saved = 0;
-    figure_create_flotsam();
-    map_routing_update_water();
-}
-
-static void set_herd_point(int id, int x, int y)
-{
-    scenario.herd_points[id].x = x;
-    scenario.herd_points[id].y = y;
-    scenario.is_saved = 0;
-}
-
-static void set_invasion_point(int id, int x, int y)
-{
-    scenario.invasion_points[id].x = x;
-    scenario.invasion_points[id].y = y;
-    scenario.is_saved = 0;
-}
-
-static void set_fishing_point(int id, int x, int y)
-{
-    scenario.fishing_points[id].x = x;
-    scenario.fishing_points[id].y = y;
-    scenario.is_saved = 0;
-}
-
 void editor_tool_end_use(const map_tile *tile)
 {
     if (!data.build_in_progress) {
@@ -482,30 +378,79 @@ void editor_tool_end_use(const map_tile *tile)
     if (!tile->grid_offset) {
         return;
     }
+
+    int warning = 0;
     switch (data.type) {
         case TOOL_EARTHQUAKE_POINT:
-            place_earthquake_flag(tile);
+            if (editor_tool_can_place_flag(data.type, tile, &warning)) {
+                // leave a gap at the epicenter to prevent total map block-off and allow for more interesting building patterns
+                scenario.earthquake.branch_coordinates[0].x = tile->x;
+                scenario.earthquake.branch_coordinates[0].y = tile->y - 2;
+                scenario.earthquake.branch_coordinates[1].x = tile->x + 2;
+                scenario.earthquake.branch_coordinates[1].y = tile->y;
+                scenario.earthquake.branch_coordinates[2].x = tile->x;
+                scenario.earthquake.branch_coordinates[2].y = tile->y + 2;
+                scenario.earthquake.branch_coordinates[3].x = tile->x - 2;
+                scenario.earthquake.branch_coordinates[3].y = tile->y;
+                window_request_refresh();
+                scenario.is_saved = 0;
+                if (!scenario.earthquake.state) {
+                    city_warning_show(WARNING_EDITOR_NO_EARTHQUAKE_SCHEDULED);
+                }
+            }
             break;
         case TOOL_ENTRY_POINT:
-            place_flag(tile, set_entry_point);
+            if (editor_tool_can_place_flag(data.type, tile, &warning)) {
+                scenario.entry_point.x = tile->x;
+                scenario.entry_point.y = tile->y;
+                scenario.is_saved = 0;
+            }
             break;
         case TOOL_EXIT_POINT:
-            place_flag(tile, set_exit_point);
+            if (editor_tool_can_place_flag(data.type, tile, &warning)) {
+                scenario.exit_point.x = tile->x;
+                scenario.exit_point.y = tile->y;
+                scenario.is_saved = 0;
+            }
             break;
         case TOOL_RIVER_ENTRY_POINT:
-            place_flag(tile, set_river_entry_point);
+            if (editor_tool_can_place_flag(data.type, tile, &warning)) {
+                scenario.river_entry_point.x = tile->x;
+                scenario.river_entry_point.y = tile->y;
+                scenario.is_saved = 0;
+                figure_create_flotsam();
+                map_routing_update_water();
+            }
             break;
         case TOOL_RIVER_EXIT_POINT:
-            place_flag(tile, set_river_exit_point);
+            if (editor_tool_can_place_flag(data.type, tile, &warning)) {
+                scenario.river_exit_point.x = tile->x;
+                scenario.river_exit_point.y = tile->y;
+                scenario.is_saved = 0;
+                figure_create_flotsam();
+                map_routing_update_water();
+            }
             break;
         case TOOL_INVASION_POINT:
-            place_flag_with_id(tile, set_invasion_point);
+            if (editor_tool_can_place_flag(data.type, tile, &warning)) {
+                scenario.invasion_points[data.id].x = tile->x;
+                scenario.invasion_points[data.id].y = tile->y;
+                scenario.is_saved = 0;
+            }
             break;
         case TOOL_FISHING_POINT:
-            place_flag_with_id(tile, set_fishing_point);
+            if (editor_tool_can_place_flag(data.type, tile, &warning)) {
+                scenario.fishing_points[data.id].x = tile->x;
+                scenario.fishing_points[data.id].y = tile->y;
+                scenario.is_saved = 0;
+            }
             break;
         case TOOL_HERD_POINT:
-            place_flag_with_id(tile, set_herd_point);
+            if (editor_tool_can_place_flag(data.type, tile, &warning)) {
+                scenario.herd_points[data.id].x = tile->x;
+                scenario.herd_points[data.id].y = tile->y;
+                scenario.is_saved = 0;
+            }
             break;
         case TOOL_NATIVE_CENTER:
         case TOOL_NATIVE_FIELD:
@@ -521,9 +466,14 @@ void editor_tool_end_use(const map_tile *tile)
             place_access_ramp(tile);
             break;
         case TOOL_ROAD:
-            place_road(&data.start_tile, tile);
+            if (building_construction_place_road(0, data.start_tile.x, data.start_tile.y, tile->x, tile->y)) {
+                scenario.is_saved = 0;
+            }
             break;
         default:
             break;
+    }
+    if (warning) {
+        city_warning_show(warning);
     }
 }

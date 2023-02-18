@@ -297,9 +297,8 @@ int formation_enemy_move_formation_to(const formation *m, int x, int y, int *x_t
     int base_offset = map_grid_offset(
         formation_layout_position_x(m->layout, 0),
         formation_layout_position_y(m->layout, 0));
-    int figure_offsets[68];
-    figure_offsets[0] = 0;
-    for (int i = 1; i < m->num_figures; i++) {
+    int figure_offsets[MAX_FORMATION_FIGURES];
+    for (int i = 0; i < m->num_figures; i++) {
         figure_offsets[i] = map_grid_offset(
             formation_layout_position_x(m->layout, i),
             formation_layout_position_y(m->layout, i)) - base_offset;
@@ -388,7 +387,7 @@ static void update_enemy_movement(formation *m, int roman_distance)
         advance = 1;
     } else {
         int halt_duration, advance_duration, regroup_duration;
-        if (army->layout == FORMATION_ENEMY_MOB || army->layout == FORMATION_ENEMY12) {
+        if (army->layout == FORMATION_ENEMY_MOB) {
             switch (m->enemy_legion_index) {
                 case 0:
                 case 1:
@@ -514,7 +513,7 @@ static void update_enemy_formation(formation *m, int *roman_distance)
         if (f->action_state == FIGURE_ACTION_150_ATTACK) {
             figure *opponent = figure_get(f->primary_melee_combatant_id);
             if (!figure_is_dead(opponent) && figure_is_legion(opponent)) {
-                formation_record_fight(m);
+                m->recent_fight = 6;
             }
         }
     }
