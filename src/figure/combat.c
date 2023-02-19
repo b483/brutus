@@ -158,7 +158,7 @@ figure *set_closest_eligible_target(figure *f)
     int closest_target_distance;
     switch (f->type) {
         case FIGURE_PREFECT:
-            closest_target_distance = 20;
+            closest_target_distance = PREFECT_TARGET_ACQUISITION_RANGE;
             break;
         case FIGURE_WOLF:
             closest_target_distance = 5;

@@ -14,6 +14,8 @@
 #include "map/road_access.h"
 #include "sound/effect.h"
 
+#define PREFECT_LEASH_RANGE 25
+
 void figure_engineer_action(figure *f)
 {
     building *b = building_get(f->building_id);
@@ -210,14 +212,13 @@ void figure_prefect_action(figure *f)
         case FIGURE_ACTION_72_PREFECT_ROAMING:
             f->is_ghost = 0;
             figure *target = set_closest_eligible_target(f);
-            if (target) {
+            if (target && calc_maximum_distance(f->x, f->y, b->x, b->y) < PREFECT_LEASH_RANGE) {
                 f->terrain_usage = TERRAIN_USAGE_ANY;
                 f->roam_length = f->max_roam_length;
                 f->prefect_recent_guard_duty = 1;
                 figure_movement_move_ticks(f, f->speed_multiplier);
                 if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
                     f->action_state = FIGURE_ACTION_73_PREFECT_RETURNING;
-                    f->target_figure_id = 0;
                 }
                 break;
             }
@@ -246,6 +247,7 @@ void figure_prefect_action(figure *f)
                 figure_movement_set_cross_country_destination(f, b->x, b->y);
                 f->roam_length = 0;
                 f->prefect_recent_guard_duty = 0;
+                f->target_figure_id = 0;
             } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
                 f->state = FIGURE_STATE_DEAD;
             }
