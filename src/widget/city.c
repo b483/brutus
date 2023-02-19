@@ -220,7 +220,7 @@ static void handle_mouse(const mouse *m)
         if (handle_legion_click(tile)) {
             return;
         }
-        if (!building_construction_in_progress()) {
+        if (!building_construction_in_progress() && building_construction_type() != BUILDING_NONE) {
             build_start(tile);
         }
         build_move(tile);
