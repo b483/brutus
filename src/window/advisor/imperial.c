@@ -6,6 +6,7 @@
 #include "city/ratings.h"
 #include "city/resource.h"
 #include "empire/object.h"
+#include "figure/figure.h"
 #include "figure/formation_legion.h"
 #include "graphics/generic_button.h"
 #include "graphics/image.h"
@@ -73,8 +74,8 @@ static void draw_requests(void)
     int request_index = 0;
 
     // draw distant battle army request
-    if (city_military_months_until_distant_battle() > 0
-        && !city_military_distant_battle_roman_army_is_traveling_forth()) {
+    if (city_data.distant_battle.months_until_battle
+        && !city_data.distant_battle.roman_months_to_travel_forth) {
         // can send to distant battle
         button_border_draw(38, 96, 550, 40, 0);
         image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_WEAPONS, 50, 106);
@@ -90,7 +91,7 @@ static void draw_requests(void)
             strength_text_id = 75;
         }
         width = lang_text_draw(52, strength_text_id, 80, 120, FONT_NORMAL_WHITE);
-        lang_text_draw_amount(8, 4, city_military_months_until_distant_battle(), 80 + width, 120, FONT_NORMAL_WHITE);
+        lang_text_draw_amount(8, 4, city_data.distant_battle.months_until_battle, 80 + width, 120, FONT_NORMAL_WHITE);
         request_index = 1;
     }
 
@@ -175,13 +176,13 @@ static int draw_background(void)
 static int get_request_status(int index)
 {
     int num_requests = 0;
-    if (city_military_months_until_distant_battle() > 0
-        && !city_military_distant_battle_roman_army_is_traveling_forth()) {
+    if (city_data.distant_battle.months_until_battle
+        && !city_data.distant_battle.roman_months_to_travel_forth) {
         num_requests = 1;
         if (index == 0) {
-            if (city_military_total_legions() <= 0) {
+            if (!city_data.military.total_legions) {
                 return STATUS_NO_LEGIONS_AVAILABLE;
-            } else if (city_military_empire_service_legions() <= 0) {
+            } else if (!city_data.military.empire_service_legions) {
                 return STATUS_NO_LEGIONS_SELECTED;
             } else {
                 return STATUS_CONFIRM_SEND_LEGIONS;
@@ -289,8 +290,35 @@ static void confirm_nothing(void)
 
 static void confirm_send_troops(void)
 {
-    formation_legions_dispatch_to_distant_battle();
-    city_military_clear_empire_service_legions();
+    int legions_sent = 0;
+    int roman_strength = 0;
+    for (int i = 1; i < MAX_FORMATIONS; i++) {
+        if (formations[i].in_use && formations[i].is_legion && formations[i].empire_service && formations[i].num_figures > 0) {
+            formations[i].in_distant_battle = 1;
+            formations[i].is_at_fort = 0;
+            for (int fig = 0; fig < formations[i].num_figures; fig++) {
+                if (formations[i].figures[fig] > 0) {
+                    figure *f = figure_get(formations[i].figures[fig]);
+                    if (!figure_is_dead(f)) {
+                        f->action_state = FIGURE_ACTION_87_SOLDIER_GOING_TO_DISTANT_BATTLE;
+                    }
+                }
+            }
+            int strength_factor;
+            if (formations[i].has_military_training) {
+                strength_factor = formations[i].figure_type == FIGURE_FORT_LEGIONARY ? 3 : 2;
+            } else {
+                strength_factor = formations[i].figure_type == FIGURE_FORT_LEGIONARY ? 2 : 1;
+            }
+            roman_strength += strength_factor * formations[i].num_figures;
+            legions_sent++;
+        }
+    }
+    if (legions_sent > 0) {
+        city_data.distant_battle.roman_months_to_travel_forth = scenario.empire.distant_battle_roman_travel_months;
+        city_data.distant_battle.roman_strength = roman_strength;
+    }
+    city_data.military.empire_service_legions = 0;
     window_empire_show();
 }
 

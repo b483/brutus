@@ -1,4 +1,4 @@
-#include "core/calc.h"
+#include "calc.h"
 
 int calc_adjust_with_percentage(int value, int percentage)
 {

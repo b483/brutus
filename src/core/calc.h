@@ -1,7 +1,7 @@
 #ifndef CORE_CALC_H
 #define CORE_CALC_H
 
-#include "core/direction.h"
+#include "game/orientation.h"
 
 #include <stdint.h>
 

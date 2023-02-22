@@ -4,6 +4,7 @@
 #include "building/storage.h"
 #include "building/warehouse.h"
 #include "city/buildings.h"
+#include "city/data_private.h"
 #include "city/resource.h"
 #include "figure/figure.h"
 #include "game/resource.h"
@@ -59,7 +60,7 @@ static struct {
     int orders_focus_button_id;
     int resource_focus_button_id;
     int building_id;
-} data = {0, 0, 0, 0};
+} data = { 0, 0, 0, 0 };
 
 void window_building_draw_dock(building_info_context *c)
 {
@@ -245,7 +246,7 @@ void window_building_draw_granary_orders(building_info_context *c)
 
 static void draw_accept_none_button(int x, int y, int focused)
 {
-    uint8_t refuse_button_text[] = {'x', 0};
+    uint8_t refuse_button_text[] = { 'x', 0 };
     button_border_draw(x, y, 20, 20, focused ? 1 : 0);
     text_draw_centered(refuse_button_text, x + 1, y + 4, 20, FONT_NORMAL_BLACK, 0);
 }
@@ -413,7 +414,7 @@ void window_building_draw_warehouse_orders_foreground(building_info_context *c)
     // trade center
     button_border_draw(c->x_offset + 80, y_offset + 382, BLOCK_SIZE * (c->width_blocks - 10),
         20, data.orders_focus_button_id == 2 ? 1 : 0);
-    int is_trade_center = c->building_id == city_buildings_get_trade_center();
+    int is_trade_center = c->building_id == city_data.building.trade_center_building_id;
     lang_text_draw_centered(99, is_trade_center ? 11 : 12, c->x_offset + 80, y_offset + 386,
         BLOCK_SIZE * (c->width_blocks - 10), FONT_NORMAL_BLACK);
 
@@ -474,9 +475,9 @@ static void toggle_resource_state(int index, __attribute__((unused)) int param2)
     building *b = building_get(data.building_id);
     int resource;
     if (b->type == BUILDING_WAREHOUSE) {
-        resource = city_resource_get_available()->items[index-1];
+        resource = city_resource_get_available()->items[index - 1];
     } else {
-        resource = city_resource_get_available_foods()->items[index-1];
+        resource = city_resource_get_available_foods()->items[index - 1];
     }
     building_storage_cycle_resource_state(b->storage_id, resource);
     window_invalidate();
@@ -499,7 +500,7 @@ static void warehouse_orders(int index, __attribute__((unused)) int param2)
         int storage_id = building_get(data.building_id)->storage_id;
         building_storage_toggle_empty_all(storage_id);
     } else if (index == 1) {
-        city_buildings_set_trade_center(data.building_id);
+        city_data.building.trade_center_building_id = data.building_id;
     } else if (index == 2) {
         int storage_id = building_get(data.building_id)->storage_id;
         building_storage_accept_none(storage_id);

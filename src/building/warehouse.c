@@ -461,9 +461,9 @@ int building_warehouse_determine_worker_task(building *warehouse, int *resource)
         }
     }
     // deliver weapons to barracks
-    if (building_count_active(BUILDING_BARRACKS) > 0 && city_military_has_legionary_legions() &&
+    if (building_count_active(BUILDING_BARRACKS) > 0 && city_data.military.legionary_legions &&
         !city_data.resource.stockpiled[RESOURCE_WEAPONS]) {
-        building *barracks = building_get(city_buildings_get_barracks());
+        building *barracks = building_get(city_data.building.barracks_building_id);
         if (barracks->loads_stored < 4 &&
                 warehouse->road_network_id == barracks->road_network_id) {
             space = warehouse;

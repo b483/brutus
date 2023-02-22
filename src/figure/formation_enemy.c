@@ -180,9 +180,9 @@ int formation_rioter_get_target_building(int *x_tile, int *y_tile)
     }
 }
 
-static void set_enemy_target_building(formation *m)
+static void set_enemy_target_building(struct formation_t *m)
 {
-    int attack = m->attack_type;
+    int attack = m->attack_priority;
     if (attack == FORMATION_ATTACK_RANDOM) {
         attack = random_byte() & 3;
     }
@@ -230,10 +230,8 @@ static void set_enemy_target_building(formation *m)
     }
 }
 
-static void set_native_target_building(formation *m)
+static void set_native_target_building(struct formation_t *m)
 {
-    int meeting_x, meeting_y;
-    city_buildings_main_native_meeting_center(&meeting_x, &meeting_y);
     building *min_building = 0;
     int min_distance = 10000;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
@@ -251,7 +249,7 @@ static void set_native_target_building(formation *m)
                 break;
             default:
             {
-                int distance = calc_maximum_distance(meeting_x, meeting_y, b->x, b->y);
+                int distance = calc_maximum_distance(city_data.building.main_native_meeting.x, city_data.building.main_native_meeting.y, b->x, b->y);
                 if (distance < min_distance) {
                     min_building = b;
                     min_distance = distance;
@@ -264,7 +262,7 @@ static void set_native_target_building(formation *m)
     }
 }
 
-static void approach_target(formation *m)
+static void approach_target(struct formation_t *m)
 {
     if (map_routing_noncitizen_can_travel_over_land(m->x_home, m->y_home,
         m->destination_x, m->destination_y, m->destination_building_id, 400) ||
@@ -278,7 +276,7 @@ static void approach_target(formation *m)
     }
 }
 
-static void set_figures_to_initial(const formation *m)
+static void set_figures_to_initial(const struct formation_t *m)
 {
     for (int i = 0; i < MAX_FORMATION_FIGURES; i++) {
         if (m->figures[i] > 0) {
@@ -292,7 +290,7 @@ static void set_figures_to_initial(const formation *m)
     }
 }
 
-int formation_enemy_move_formation_to(const formation *m, int x, int y, int *x_tile, int *y_tile)
+int formation_enemy_move_formation_to(const struct formation_t *m, int x, int y, int *x_tile, int *y_tile)
 {
     int base_offset = map_grid_offset(
         formation_layout_position_x(m->layout, 0),
@@ -364,7 +362,7 @@ static void mars_kill_enemies(void)
     city_message_post(1, MESSAGE_SPIRIT_OF_MARS, 0, grid_offset);
 }
 
-static void update_enemy_movement(formation *m, int roman_distance)
+static void update_enemy_movement(struct formation_t *m, int roman_distance)
 {
     const enemy_army *army = enemy_army_get(m->invasion_id);
     formation_state *state = &m->enemy_state;
@@ -466,9 +464,8 @@ static void update_enemy_movement(formation *m, int roman_distance)
         formation_set_destination(m, m->x_home, m->y_home);
     } else if (pursue_target) {
         if (target_formation_id > 0) {
-            const formation *target = formation_get(target_formation_id);
-            if (target->num_figures > 0) {
-                formation_set_destination(m, target->x_home, target->y_home);
+            if (formations[target_formation_id].num_figures > 0) {
+                formation_set_destination(m, formations[target_formation_id].x_home, formations[target_formation_id].y_home);
             }
         } else {
             formation_set_destination(m, army->destination_x, army->destination_y);
@@ -496,7 +493,7 @@ static void update_enemy_movement(formation *m, int roman_distance)
     }
 }
 
-static void update_enemy_formation(formation *m, int *roman_distance)
+static void update_enemy_formation(struct formation_t *m, int *roman_distance)
 {
     enemy_army *army = enemy_army_get_editable(m->invasion_id);
     if (enemy_army_is_stronger_than_legions()) {
@@ -517,7 +514,7 @@ static void update_enemy_formation(formation *m, int *roman_distance)
             }
         }
     }
-    if (formation_has_low_morale(m)) {
+    if (m->months_low_morale || m->months_very_low_morale) {
         for (int n = 0; n < MAX_FORMATION_FIGURES; n++) {
             figure *f = figure_get(m->figures[n]);
             if (f->action_state != FIGURE_ACTION_150_ATTACK &&
@@ -582,11 +579,10 @@ void formation_enemy_update(void)
         enemy_armies_clear_formations();
         int roman_distance = 0;
         for (int i = 1; i < MAX_FORMATIONS; i++) {
-            formation *m = formation_get(i);
-            if (m->in_use && !m->is_herd && !m->is_legion) {
-                update_enemy_formation(m, &roman_distance);
+            if (formations[i].in_use && !formations[i].is_herd && !formations[i].is_legion) {
+                update_enemy_formation(&formations[i], &roman_distance);
             }
         }
     }
-    set_native_target_building(formation_get(0));
+    set_native_target_building(&formations[0]);
 }

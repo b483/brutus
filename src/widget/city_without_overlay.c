@@ -345,7 +345,7 @@ static void draw_dock_workers(const building *b, int x, int y, color_t color_mas
 static void draw_warehouse_ornaments(const building *b, int x, int y, color_t color_mask)
 {
     image_draw_masked(image_group(GROUP_BUILDING_WAREHOUSE) + 17, x - 4, y - 42, color_mask);
-    if (b->id == city_buildings_get_trade_center()) {
+    if (b->id == city_data.building.trade_center_building_id) {
         image_draw_masked(image_group(GROUP_BUILDING_TRADE_CENTER_FLAG), x + 19, y - 56, color_mask);
     }
 }
@@ -519,12 +519,12 @@ void city_without_overlay_draw(int selected_figure_id, pixel_coordinate *figure_
     int highlighted_formation = 0;
     if (config_get(CONFIG_UI_HIGHLIGHT_LEGIONS)) {
         highlighted_formation = formation_legion_at_grid_offset(tile->grid_offset);
-        if (highlighted_formation > 0) {
+        if (highlighted_formation) {
             int selected_formation = formation_get_selected();
             if (selected_formation && highlighted_formation != selected_formation) {
                 highlighted_formation = 0;
             }
-            if (formation_get(highlighted_formation)->in_distant_battle) {
+            if (formations[highlighted_formation].in_distant_battle) {
                 highlighted_formation = 0;
             }
         }

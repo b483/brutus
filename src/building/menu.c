@@ -1,6 +1,8 @@
-#include "city/buildings.h"
-#include "core/config.h"
 #include "menu.h"
+
+#include "city/buildings.h"
+#include "city/data_private.h"
+#include "core/config.h"
 #include "scenario/editor_events.h"
 
 #define BUILD_MENU_ITEM_MAX 30
@@ -173,7 +175,7 @@ static void enable_normal(int *enabled, building_type type)
     enable_if_allowed(enabled, type, BUILDING_MEDIUM_STATUE);
     enable_if_allowed(enabled, type, BUILDING_LARGE_STATUE);
     if (type == BUILDING_TRIUMPHAL_ARCH) {
-        if (city_buildings_triumphal_arch_available()) {
+        if (city_data.building.triumphal_arches_available > city_data.building.triumphal_arches_placed) {
             enable_if_allowed(enabled, type, BUILDING_TRIUMPHAL_ARCH);
         }
     }

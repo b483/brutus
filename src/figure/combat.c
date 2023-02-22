@@ -40,9 +40,9 @@ static int attack_is_same_direction(int dir1, int dir2)
 
 static void hit_opponent(figure *f)
 {
-    const formation *m = formation_get(f->formation_id);
+    const struct formation_t *m = &formations[f->formation_id];
     figure *opponent = figure_get(f->primary_melee_combatant_id);
-    formation *opponent_formation = formation_get(opponent->formation_id);
+    struct formation_t *opponent_formation = &formations[opponent->formation_id];
 
     const figure_properties *props = figure_properties_for_type(f->type);
     const figure_properties *opponent_props = figure_properties_for_type(opponent->type);

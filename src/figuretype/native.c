@@ -50,7 +50,7 @@ void figure_indigenous_native_action(figure *f)
             f->wait_ticks++;
             if (f->wait_ticks > 10 + (f->id & 3)) {
                 f->wait_ticks = 0;
-                if (!city_military_is_native_attack_active()) {
+                if (!city_data.military.native_attack_duration) {
                     int x_tile, y_tile;
                     building *meeting = building_get(b->subtype.native_meeting_center_id);
                     if (map_terrain_get_adjacent_road_or_clear_land(
@@ -60,11 +60,10 @@ void figure_indigenous_native_action(figure *f)
                         f->destination_y = y_tile;
                     }
                 } else {
-                    const formation *m = formation_get(0);
                     f->action_state = FIGURE_ACTION_159_NATIVE_ATTACKING;
-                    f->destination_x = m->destination_x;
-                    f->destination_y = m->destination_y;
-                    f->destination_building_id = m->destination_building_id;
+                    f->destination_x = formations[0].destination_x;
+                    f->destination_y = formations[0].destination_y;
+                    f->destination_building_id = formations[0].destination_building_id;
                 }
                 figure_route_remove(f);
             }

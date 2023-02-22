@@ -4,7 +4,6 @@
 #include "city/message.h"
 #include "city/view.h"
 #include "city/warning.h"
-#include "core/direction.h"
 #include "game/orientation.h"
 #include "game/settings.h"
 #include "game/state.h"

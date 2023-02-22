@@ -2,7 +2,6 @@
 
 #include "core/calc.h"
 #include "core/config.h"
-#include "core/direction.h"
 #include "core/speed.h"
 #include "core/time.h"
 #include "game/settings.h"

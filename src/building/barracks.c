@@ -28,8 +28,8 @@ int building_get_barracks_for_weapon(int resource, int road_network_id, map_poin
     if (building_count_active(BUILDING_BARRACKS) <= 0) {
         return 0;
     }
-    building *b = building_get(city_buildings_get_barracks());
-    if (b->loads_stored < 5 && city_military_has_legionary_legions()) {
+    building *b = building_get(city_data.building.barracks_building_id);
+    if (b->loads_stored < 5 && city_data.military.legionary_legions) {
         if (map_has_road_access(b->x, b->y, b->size, dst) && b->road_network_id == road_network_id) {
             return b->id;
         }
@@ -50,22 +50,21 @@ static int get_closest_legion_needing_soldiers(const building *barracks)
     int min_formation_id = 0;
     int min_distance = INFINITE;
     for (int i = 1; i < MAX_FORMATIONS; i++) {
-        formation *m = formation_get(i);
-        if (!m->in_use || !m->is_legion) {
+        if (!formations[i].in_use || !formations[i].is_legion) {
             continue;
         }
-        if (m->in_distant_battle || m->legion_recruit_type == LEGION_RECRUIT_NONE) {
+        if (formations[i].in_distant_battle || formations[i].legion_recruit_type == LEGION_RECRUIT_NONE) {
             continue;
         }
-        if (m->legion_recruit_type == LEGION_RECRUIT_LEGIONARY && barracks->loads_stored <= 0) {
+        if (formations[i].legion_recruit_type == LEGION_RECRUIT_LEGIONARY && barracks->loads_stored <= 0) {
             continue;
         }
-        building *fort = building_get(m->building_id);
+        building *fort = building_get(formations[i].building_id);
         int dist = calc_maximum_distance(barracks->x, barracks->y, fort->x, fort->y);
-        if (m->legion_recruit_type > recruit_type ||
-            (m->legion_recruit_type == recruit_type && dist < min_distance)) {
-            recruit_type = m->legion_recruit_type;
-            min_formation_id = m->id;
+        if (formations[i].legion_recruit_type > recruit_type ||
+            (formations[i].legion_recruit_type == recruit_type && dist < min_distance)) {
+            recruit_type = formations[i].legion_recruit_type;
+            min_formation_id = formations[i].id;
             min_distance = dist;
         }
     }
@@ -94,16 +93,15 @@ int building_barracks_create_soldier(building *barracks, int x, int y)
 {
     int formation_id = get_closest_legion_needing_soldiers(barracks);
     if (formation_id > 0) {
-        const formation *m = formation_get(formation_id);
-        figure *f = figure_create(m->figure_type, x, y, DIR_0_TOP);
+        figure *f = figure_create(formations[formation_id].figure_type, x, y, DIR_0_TOP);
         f->formation_id = formation_id;
         f->formation_at_rest = 1;
-        if (m->figure_type == FIGURE_FORT_LEGIONARY) {
+        if (formations[formation_id].figure_type == FIGURE_FORT_LEGIONARY) {
             if (barracks->loads_stored > 0) {
                 barracks->loads_stored--;
             }
         }
-        int academy_id = get_closest_military_academy(building_get(m->building_id));
+        int academy_id = get_closest_military_academy(building_get(formations[formation_id].building_id));
         if (academy_id) {
             map_point road;
             building *academy = building_get(academy_id);

@@ -4,6 +4,7 @@
 #include "building/storage.h"
 #include "building/warehouse.h"
 #include "city/buildings.h"
+#include "city/data_private.h"
 #include "city/trade.h"
 #include "core/calc.h"
 #include "core/image.h"
@@ -199,9 +200,8 @@ static int get_closest_warehouse_for_export(int x, int y, int city_id, int dista
 
 static void get_trade_center_location(const figure *f, int *x, int *y)
 {
-    int trade_center_id = city_buildings_get_trade_center();
-    if (trade_center_id) {
-        building *trade_center = building_get(trade_center_id);
+    if (city_data.building.trade_center_building_id) {
+        building *trade_center = building_get(city_data.building.trade_center_building_id);
         *x = trade_center->x;
         *y = trade_center->y;
     } else {

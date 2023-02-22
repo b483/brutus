@@ -547,7 +547,7 @@ void scenario_custom_messages_process(void)
     }
 }
 
-static int start_invasion(int enemy_type, int enemy_type_detailed, int amount, int invasion_point, int attack_type, int invasion_id)
+static int start_invasion(int enemy_type, int enemy_type_detailed, int amount, int invasion_point, int enemy_attack_priority, int invasion_id)
 {
     if (amount <= 0) {
         return -1;
@@ -591,20 +591,6 @@ static int start_invasion(int enemy_type, int enemy_type_detailed, int amount, i
         }
     }
 
-    int orientation;
-    // determine orientation
-    if (y == 0) {
-        orientation = DIR_4_BOTTOM;
-    } else if (y >= scenario.map.height - 1) {
-        orientation = DIR_0_TOP;
-    } else if (x == 0) {
-        orientation = DIR_2_RIGHT;
-    } else if (x >= scenario.map.width - 1) {
-        orientation = DIR_6_LEFT;
-    } else {
-        orientation = DIR_4_BOTTOM;
-    }
-
     // check terrain
     int grid_offset = map_grid_offset(x, y);
     if (map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ROCK | TERRAIN_SHRUB)) {
@@ -618,6 +604,20 @@ static int start_invasion(int enemy_type, int enemy_type_detailed, int amount, i
         building_destroy_by_enemy(x, y, grid_offset);
     }
 
+    // determine orientation
+    int orientation;
+    if (y == 0) {
+        orientation = DIR_4_BOTTOM;
+    } else if (y >= scenario.map.height - 1) {
+        orientation = DIR_0_TOP;
+    } else if (x == 0) {
+        orientation = DIR_2_RIGHT;
+    } else if (x >= scenario.map.width - 1) {
+        orientation = DIR_6_LEFT;
+    } else {
+        orientation = DIR_4_BOTTOM;
+    }
+
     int enemy_count_per_type[MAX_ENEMY_TYPES_PER_ARMY];
     for (int i = 0; i < MAX_ENEMY_TYPES_PER_ARMY; i++) {
         enemy_count_per_type[i] = calc_adjust_with_percentage(amount, ENEMY_PROPERTIES[enemy_type].pct_type[i]);
@@ -629,17 +629,14 @@ static int start_invasion(int enemy_type, int enemy_type_detailed, int amount, i
         int figure_type = ENEMY_PROPERTIES[enemy_type].figure_types[i];
         while (enemy_count_per_type[i]) {
             if (enemy_count_per_type[i] >= MAX_FORMATION_FIGURES) {
-                int formation_id = formation_create_enemy(figure_type, x, y, ENEMY_PROPERTIES[enemy_type].formation_layout, orientation, enemy_type, attack_type, invasion_id);
-                if (formation_id <= 0) {
-                    continue;
-                }
+                struct formation_t *m = formation_create_enemy(figure_type, enemy_count_per_type[i], x, y, ENEMY_PROPERTIES[enemy_type].formation_layout, orientation, enemy_type, enemy_attack_priority, invasion_id);
                 for (int fig = 0; fig < MAX_FORMATION_FIGURES; fig++) {
                     figure *f = figure_create(figure_type, x, y, orientation);
                     f->faction_id = 0;
                     f->is_friendly = 0;
                     f->action_state = FIGURE_ACTION_151_ENEMY_INITIAL;
                     f->wait_ticks = 40 * spawn_delay_offset + 10 * fig + 10;
-                    f->formation_id = formation_id;
+                    f->formation_id = m->id;
                     f->name = figure_name_get(figure_type, enemy_type);
                     f->enemy_image_type = enemy_type;
                     f->enemy_image_type_detailed = enemy_type_detailed;
@@ -648,17 +645,14 @@ static int start_invasion(int enemy_type, int enemy_type_detailed, int amount, i
                 enemy_count_per_type[i] -= MAX_FORMATION_FIGURES;
                 spawn_delay_offset++;
             } else {
-                int formation_id = formation_create_enemy(figure_type, x, y, ENEMY_PROPERTIES[enemy_type].formation_layout, orientation, enemy_type, attack_type, invasion_id);
-                if (formation_id <= 0) {
-                    continue;
-                }
+                struct formation_t *m = formation_create_enemy(figure_type, enemy_count_per_type[i], x, y, ENEMY_PROPERTIES[enemy_type].formation_layout, orientation, enemy_type, enemy_attack_priority, invasion_id);
                 for (int fig = 0; fig < enemy_count_per_type[i]; fig++) {
                     figure *f = figure_create(figure_type, x, y, orientation);
                     f->faction_id = 0;
                     f->is_friendly = 0;
                     f->action_state = FIGURE_ACTION_151_ENEMY_INITIAL;
                     f->wait_ticks = 40 * spawn_delay_offset + 10 * fig + 10;
-                    f->formation_id = formation_id;
+                    f->formation_id = m->id;
                     f->name = figure_name_get(figure_type, enemy_type);
                     f->enemy_image_type = enemy_type;
                     f->enemy_image_type_detailed = enemy_type_detailed;

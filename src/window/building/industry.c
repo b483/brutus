@@ -233,7 +233,7 @@ void window_building_draw_shipyard(building_info_context *c)
         int width = lang_text_draw(100, 2, c->x_offset + 32, c->y_offset + 56, FONT_NORMAL_BLACK);
         width += text_draw_percentage(pct_done, c->x_offset + 32 + width, c->y_offset + 56, FONT_NORMAL_BLACK);
         lang_text_draw(100, 3, c->x_offset + 32 + width, c->y_offset + 56, FONT_NORMAL_BLACK);
-        if (city_buildings_shipyard_boats_requested()) {
+        if (city_data.building.shipyard_boats_requested) {
             lang_text_draw_multiline(100, 5, c->x_offset + 32, c->y_offset + 80,
                 BLOCK_SIZE * (c->width_blocks - 6), FONT_NORMAL_BLACK);
         } else {

@@ -2,7 +2,6 @@
 
 #include "city/view.h"
 #include "city/warning.h"
-#include "core/direction.h"
 #include "map/orientation.h"
 #include "widget/minimap.h"
 

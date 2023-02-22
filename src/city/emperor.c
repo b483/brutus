@@ -81,10 +81,20 @@ static void process_caesar_invasion(void)
         // caesar invasion in progress
         city_data.emperor.invasion.duration_day_countdown--;
         if (city_data.ratings.favor >= 35 && city_data.emperor.invasion.duration_day_countdown < 176) {
-            formation_caesar_pause();
+            // pause legions
+            for (int i = 1; i < MAX_FORMATIONS; i++) {
+                if (formations[i].in_use == 1 && formations[i].figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY) {
+                    formations[i].wait_ticks = 20;
+                }
+            }
         } else if (city_data.ratings.favor >= 22) {
             if (city_data.emperor.invasion.duration_day_countdown > 0) {
-                formation_caesar_retreat();
+                // retreat
+                for (int i = 1; i < MAX_FORMATIONS; i++) {
+                    if (formations[i].in_use == 1 && formations[i].figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY) {
+                        formations[i].months_low_morale = 1;
+                    }
+                }
                 if (!city_data.emperor.invasion.retreat_message_shown) {
                     city_data.emperor.invasion.retreat_message_shown = 1;
                     city_message_post(1, MESSAGE_CAESAR_ARMY_RETREAT, 0, 0);

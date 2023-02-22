@@ -169,10 +169,9 @@ static void draw_trader(building_info_context *c, figure *f)
 static void draw_enemy(building_info_context *c, figure *f)
 {
     int image_id = FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[f->type];
-    int enemy_type = formation_get(f->formation_id)->enemy_type;
     switch (f->type) {
         case FIGURE_ENEMY43_SPEAR:
-            switch (enemy_type) {
+            switch (formations[f->formation_id].enemy_img_group) {
                 case ENEMY_TYPE_PERGAMUM: image_id = 44; break;
                 case ENEMY_TYPE_PHOENICIAN: image_id = 46; break;
                 case ENEMY_TYPE_ETRUSCAN: image_id = 32; break;
@@ -180,34 +179,34 @@ static void draw_enemy(building_info_context *c, figure *f)
             }
             break;
         case FIGURE_ENEMY44_SWORD:
-            switch (enemy_type) {
+            switch (formations[f->formation_id].enemy_img_group) {
                 case ENEMY_TYPE_PERGAMUM: image_id = 45; break;
                 case ENEMY_TYPE_PHOENICIAN: image_id = 47; break;
                 case ENEMY_TYPE_EGYPTIAN: image_id = 29; break;
             }
             break;
         case FIGURE_ENEMY45_SWORD:
-            switch (enemy_type) {
+            switch (formations[f->formation_id].enemy_img_group) {
                 case ENEMY_TYPE_ETRUSCAN: image_id = 31; break;
                 case ENEMY_TYPE_GREEK: image_id = 37; break;
                 case ENEMY_TYPE_CARTHAGINIAN: image_id = 22; break;
             }
             break;
         case FIGURE_ENEMY49_FAST_SWORD:
-            switch (enemy_type) {
+            switch (formations[f->formation_id].enemy_img_group) {
                 case ENEMY_TYPE_BARBARIAN: image_id = 21; break;
                 case ENEMY_TYPE_NUMIDIAN: image_id = 20; break;
                 case ENEMY_TYPE_GOTH: image_id = 35; break;
             }
             break;
         case FIGURE_ENEMY50_SWORD:
-            switch (enemy_type) {
+            switch (formations[f->formation_id].enemy_img_group) {
                 case ENEMY_TYPE_GAUL: image_id = 40; break;
                 case ENEMY_TYPE_CELT: image_id = 24; break;
             }
             break;
         case FIGURE_ENEMY51_SPEAR:
-            switch (enemy_type) {
+            switch (formations[f->formation_id].enemy_img_group) {
                 case ENEMY_TYPE_NUMIDIAN: image_id = 20; break;
             }
             break;

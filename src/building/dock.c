@@ -56,7 +56,7 @@ int building_dock_get_free_destination(int ship_id, map_point *tile)
     }
     int dock_id = 0;
     for (int i = 0; i < 10; i++) {
-        dock_id = city_buildings_get_working_dock(i);
+        dock_id = city_data.building.working_dock_ids[i];
         if (!dock_id) continue;
         building *dock = building_get(dock_id);
         if (!dock->data.dock.trade_ship_id || dock->data.dock.trade_ship_id == ship_id) {
@@ -87,7 +87,7 @@ int building_dock_get_queue_destination(map_point *tile)
     }
     // first queue position
     for (int i = 0; i < 10; i++) {
-        int dock_id = city_buildings_get_working_dock(i);
+        int dock_id = city_data.building.working_dock_ids[i];
         if (!dock_id) continue;
         building *dock = building_get(dock_id);
         int dx, dy;
@@ -104,7 +104,7 @@ int building_dock_get_queue_destination(map_point *tile)
     }
     // second queue position
     for (int i = 0; i < 10; i++) {
-        int dock_id = city_buildings_get_working_dock(i);
+        int dock_id = city_data.building.working_dock_ids[i];
         if (!dock_id) continue;
         building *dock = building_get(dock_id);
         int dx, dy;

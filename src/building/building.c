@@ -8,6 +8,7 @@
 #include "city/data_private.h"
 #include "city/population.h"
 #include "city/warning.h"
+#include "figure/figure.h"
 #include "figure/formation_legion.h"
 #include "game/resource.h"
 #include "game/undo.h"
@@ -187,13 +188,21 @@ void building_clear_related_data(building *b)
         city_buildings_remove_senate(b);
     }
     if (b->type == BUILDING_DOCK) {
-        city_buildings_remove_dock();
+        city_data.building.working_docks--;
     }
     if (b->type == BUILDING_BARRACKS) {
         city_buildings_remove_barracks(b);
     }
     if (b->type == BUILDING_FORT) {
-        formation_legion_delete_for_fort(b);
+        if (b->formation_id > 0) {
+            if (formations[b->formation_id].in_use) {
+                if (formations[b->formation_id].standard_figure_id) {
+                    figure_delete(figure_get(formations[b->formation_id].standard_figure_id));
+                }
+                formation_clear(b->formation_id);
+                formation_calculate_legion_totals();
+            }
+        }
     }
     if (b->type == BUILDING_HIPPODROME) {
         city_data.building.hippodrome_placed = 0;

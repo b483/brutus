@@ -557,7 +557,7 @@ void city_building_ghost_draw(const map_tile *tile)
             int fort_ground_size = building_properties_for_type(BUILDING_FORT_GROUND)->size;
             int num_fort_ground_tiles = fort_ground_size * fort_ground_size;
             int blocked_tiles_ground[MAX_TILES];
-            if (formation_get_num_legions_cached() >= MAX_LEGIONS) {
+            if (formation_get_num_legions() >= MAX_LEGIONS) {
                 draw_blocked_building_preview(x, y, num_tiles, blocked_tiles, 1);
                 draw_blocked_building_preview(x + FORT_GROUND_X_VIEW_OFFSETS[orientation_index], y + FORT_GROUND_Y_VIEW_OFFSETS[orientation_index], num_fort_ground_tiles, blocked_tiles_ground, 1);
                 return;

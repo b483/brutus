@@ -133,7 +133,8 @@ void map_natives_init(void)
                     map_building_set(grid_offset + map_grid_delta(1, 1), b->id);
                     mark_native_land(b->x, b->y, 2, 6);
                     if (!meeting_center_set) {
-                        city_buildings_set_main_native_meeting_center(b->x, b->y);
+                        city_data.building.main_native_meeting.x = b->x;
+                        city_data.building.main_native_meeting.y = b->y;
                     }
                     break;
                 case BUILDING_NATIVE_HUT:
@@ -198,7 +199,9 @@ void map_natives_init_editor(void)
 void map_natives_check_land(void)
 {
     map_property_clear_all_native_land();
-    city_military_decrease_native_attack_duration();
+    if (city_data.military.native_attack_duration) {
+        city_data.military.native_attack_duration--;
+    }
 
     for (int i = 1; i < MAX_BUILDINGS; i++) {
         building *b = building_get(i);

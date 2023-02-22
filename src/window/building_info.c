@@ -233,7 +233,12 @@ static void init(int grid_offset)
                 context.building_id = b->id;
                 break;
             case BUILDING_BARRACKS:
-                context.barracks_soldiers_requested = formation_legion_recruits_needed();
+                for (int i = 1; i < MAX_FORMATIONS; i++) {
+                    if (formations[i].in_use && formations[i].is_legion && formations[i].legion_recruit_type != LEGION_RECRUIT_NONE) {
+                        context.barracks_soldiers_requested = 1;
+                        break;
+                    }
+                }
                 context.barracks_soldiers_requested += building_barracks_has_tower_sentry_request();
                 break;
             default:
@@ -317,10 +322,9 @@ static void init(int grid_offset)
         if (f->type == FIGURE_FORT_STANDARD || figure_is_legion(f)) {
             context.type = BUILDING_INFO_LEGION;
             context.formation_id = f->formation_id;
-            const formation *m = formation_get(context.formation_id);
-            if (m->figure_type != FIGURE_FORT_LEGIONARY) {
+            if (formations[context.formation_id].figure_type != FIGURE_FORT_LEGIONARY) {
                 context.formation_types = 5;
-            } else if (m->has_military_training) {
+            } else if (formations[context.formation_id].has_military_training) {
                 context.formation_types = 4;
             } else {
                 context.formation_types = 3;

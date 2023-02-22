@@ -125,11 +125,10 @@ static void missile_hit_target(figure *f, int target_id, figure_type legionary_t
     int damage_inflicted =
         figure_properties_for_type(f->type)->missile_attack_value -
         target_props->missile_defense_value;
-    formation *m = formation_get(target->formation_id);
     if (damage_inflicted < 0) {
         damage_inflicted = 0;
     }
-    if (target->type == legionary_type && m->is_halted && m->layout == FORMATION_TORTOISE) {
+    if (target->type == legionary_type && formations[target->formation_id].is_halted && formations[target->formation_id].layout == FORMATION_TORTOISE) {
         damage_inflicted = 1;
     }
     int target_damage = damage_inflicted + target->damage;
@@ -140,12 +139,13 @@ static void missile_hit_target(figure *f, int target_id, figure_type legionary_t
         target->action_state = FIGURE_ACTION_149_CORPSE;
         target->wait_ticks = 0;
         figure_play_die_sound(target);
-        formation_update_morale_after_death(m);
+        formation_update_morale_after_death(&formations[target->formation_id]);
     }
     f->state = FIGURE_STATE_DEAD;
     // for missiles: building_id contains the figure who shot it
     int missile_formation = figure_get(f->building_id)->formation_id;
-    formation_record_missile_attack(m, missile_formation);
+    formations[target->formation_id].missile_attack_timeout = 6;
+    formations[target->formation_id].missile_attack_formation_id = missile_formation;
 }
 
 void figure_arrow_action(figure *f)
@@ -232,7 +232,7 @@ void figure_bolt_action(figure *f)
             target->action_state = FIGURE_ACTION_149_CORPSE;
             target->wait_ticks = 0;
             figure_play_die_sound(target);
-            formation_update_morale_after_death(formation_get(target->formation_id));
+            formation_update_morale_after_death(&formations[target->formation_id]);
         }
         sound_effect_play(SOUND_EFFECT_BALLISTA_HIT_PERSON);
         f->state = FIGURE_STATE_DEAD;

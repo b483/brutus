@@ -7,45 +7,11 @@
 #include "city/ratings.h"
 #include "core/calc.h"
 #include "empire/object.h"
+#include "figure/figure.h"
 #include "figure/formation.h"
 #include "figure/formation_legion.h"
 #include "scenario/data.h"
 #include "scenario/editor_events.h"
-
-void city_military_clear_legionary_legions(void)
-{
-    city_data.military.legionary_legions = 0;
-}
-
-void city_military_add_legionary_legion(void)
-{
-    city_data.military.legionary_legions++;
-}
-
-int city_military_has_legionary_legions(void)
-{
-    return city_data.military.legionary_legions > 0;
-}
-
-int city_military_total_legions(void)
-{
-    return city_data.military.total_legions;
-}
-
-int city_military_total_soldiers(void)
-{
-    return city_data.military.total_soldiers;
-}
-
-int city_military_empire_service_legions(void)
-{
-    return city_data.military.empire_service_legions;
-}
-
-void city_military_clear_empire_service_legions(void)
-{
-    city_data.military.empire_service_legions = 0;
-}
 
 void city_military_update_totals(void)
 {
@@ -53,26 +19,13 @@ void city_military_update_totals(void)
     city_data.military.total_soldiers = 0;
     city_data.military.total_legions = 0;
     for (int i = 1; i < MAX_FORMATIONS; i++) {
-        const formation *m = formation_get(i);
-        if (m->in_use && m->is_legion) {
+        if (formations[i].in_use && formations[i].is_legion) {
             city_data.military.total_legions++;
-            city_data.military.total_soldiers += m->num_figures;
-            if (m->empire_service && m->num_figures > 0) {
+            city_data.military.total_soldiers += formations[i].num_figures;
+            if (formations[i].empire_service && formations[i].num_figures > 0) {
                 city_data.military.empire_service_legions++;
             }
         }
-    }
-}
-
-int city_military_is_native_attack_active(void)
-{
-    return city_data.military.native_attack_duration > 0;
-}
-
-void city_military_decrease_native_attack_duration(void)
-{
-    if (city_data.military.native_attack_duration) {
-        city_data.military.native_attack_duration--;
     }
 }
 
@@ -85,36 +38,10 @@ void city_military_determine_distant_battle_city(void)
     }
 }
 
-void city_military_dispatch_to_distant_battle(int roman_strength)
-{
-    city_data.distant_battle.roman_months_to_travel_forth = scenario.empire.distant_battle_roman_travel_months;
-    city_data.distant_battle.roman_strength = roman_strength;
-}
-
 int city_military_distant_battle_roman_army_is_traveling(void)
 {
     return city_data.distant_battle.roman_months_to_travel_forth > 0 ||
         city_data.distant_battle.roman_months_to_travel_back > 0;
-}
-
-int city_military_distant_battle_roman_army_is_traveling_forth(void)
-{
-    return city_data.distant_battle.roman_months_to_travel_forth > 0;
-}
-
-int city_military_distant_battle_roman_army_is_traveling_back(void)
-{
-    return city_data.distant_battle.roman_months_to_travel_back > 0;
-}
-
-int city_military_distant_battle_enemy_months_traveled(void)
-{
-    return city_data.distant_battle.enemy_months_traveled;
-}
-
-int city_military_distant_battle_roman_months_traveled(void)
-{
-    return city_data.distant_battle.roman_months_traveled;
 }
 
 int city_military_has_distant_battle(void)
@@ -123,11 +50,6 @@ int city_military_has_distant_battle(void)
         city_data.distant_battle.roman_months_to_travel_back > 0 ||
         city_data.distant_battle.roman_months_to_travel_forth > 0 ||
         city_data.distant_battle.city_foreign_months_left > 0;
-}
-
-int city_military_months_until_distant_battle(void)
-{
-    return city_data.distant_battle.months_until_battle;
 }
 
 void city_military_init_distant_battle(int enemy_strength)
@@ -206,7 +128,37 @@ static int player_has_won(void)
             pct_loss = 0;
         }
     }
-    formation_legions_kill_in_distant_battle(pct_loss);
+    // apply legion losses
+    for (int i = 1; i < MAX_FORMATIONS; i++) {
+        if (formations[i].in_use && formations[i].is_legion && formations[i].in_distant_battle) {
+            formation_change_morale(&formations[i], -75);
+            int soldiers_total = 0;
+            for (int fig = 0; fig < formations[i].num_figures; fig++) {
+                if (formations[i].figures[fig] > 0) {
+                    figure *f = figure_get(formations[i].figures[fig]);
+                    if (!figure_is_dead(f)) {
+                        soldiers_total++;
+                    }
+                }
+            }
+            int soldiers_to_kill = calc_adjust_with_percentage(soldiers_total, pct_loss);
+            if (soldiers_to_kill >= soldiers_total) {
+                formations[i].is_at_fort = 1;
+                formations[i].in_distant_battle = 0;
+            }
+            for (int fig = 0; fig < formations[i].num_figures; fig++) {
+                if (formations[i].figures[fig] > 0) {
+                    figure *f = figure_get(formations[i].figures[fig]);
+                    if (!figure_is_dead(f)) {
+                        if (soldiers_to_kill) {
+                            soldiers_to_kill--;
+                            f->state = FIGURE_STATE_DEAD;
+                        }
+                    }
+                }
+            }
+        }
+    }
     return won;
 }
 
@@ -230,7 +182,7 @@ static void fight_distant_battle(void)
     } else {
         if (scenario_building_allowed(BUILDING_TRIUMPHAL_ARCH)) {
             city_message_post(1, MESSAGE_DISTANT_BATTLE_WON, 0, 0);
-            city_buildings_earn_triumphal_arch();
+            city_data.building.triumphal_arches_available++;
             building_menu_update();
         } else {
             city_message_post(1, MESSAGE_DISTANT_BATTLE_WON_TRIUMPHAL_ARCH_DISABLED, 0, 0);
@@ -259,7 +211,21 @@ static void update_aftermath(void)
                 city_message_post(1, MESSAGE_TROOPS_RETURN_VICTORIOUS, 0, city_data.map.exit_point.grid_offset);
             }
             city_data.distant_battle.roman_months_traveled = 0;
-            formation_legions_return_from_distant_battle();
+            // return soldiers
+            for (int i = 1; i < MAX_FORMATIONS; i++) {
+                if (formations[i].in_use && formations[i].is_legion && formations[i].in_distant_battle) {
+                    formations[i].in_distant_battle = 0;
+                    for (int fig = 0; fig < formations[i].num_figures; fig++) {
+                        if (formations[i].figures[fig] > 0) {
+                            figure *f = figure_get(formations[i].figures[fig]);
+                            if (!figure_is_dead(f)) {
+                                f->action_state = FIGURE_ACTION_88_SOLDIER_RETURNING_FROM_DISTANT_BATTLE;
+                                f->formation_at_rest = 1;
+                            }
+                        }
+                    }
+                }
+            }
         }
     } else if (city_data.distant_battle.city_foreign_months_left > 0) {
         city_data.distant_battle.city_foreign_months_left--;

@@ -2,6 +2,7 @@
 #define FIGURE_FORMATION_H
 
 #include "core/buffer.h"
+#include "game/orientation.h"
 #include "figure/type.h"
 
 #define MAX_FORMATIONS 50
@@ -55,7 +56,7 @@ typedef struct {
 /**
  * Formation data
  */
-typedef struct {
+struct formation_t {
     int id; /**< ID of the formation */
     int faction_id; /**< 1 = player, 0 = everyone else */
 
@@ -111,9 +112,9 @@ typedef struct {
     int is_at_fort; /**< Flag to indicate this legion is resting at the fort */
 
     /* Enemy-related */
-    int enemy_type;
+    int enemy_img_group;
     int enemy_legion_index;
-    int attack_type;
+    int attack_priority;
     int invasion_id;
     formation_state enemy_state;
 
@@ -125,51 +126,41 @@ typedef struct {
         int x_home;
         int y_home;
     } prev;
-} formation;
+};
+
+extern struct formation_t formations[MAX_FORMATIONS];
 
 void formations_clear(void);
 
 void formation_clear(int formation_id);
 
-formation *formation_create_legion(int building_id, int x, int y, figure_type type);
-int formation_create_herd(int figure_type, int x, int y, int num_animals);
-int formation_create_enemy(int figure_type, int x, int y, int layout, int orientation,
-                           int enemy_type, int attack_type, int invasion_id);
+struct formation_t *create_formation_type(figure_type type);
 
-formation *formation_get(int formation_id);
+struct formation_t *formation_create_enemy(figure_type figure_type, int max_num_figures, int x, int y, int layout, direction_type orientation,
+    int enemy_type, int attack_type, int invasion_id);
 
 int formation_get_selected(void);
 void formation_set_selected(int formation_id);
 
-void formation_toggle_empire_service(int formation_id);
-
-void formation_record_missile_attack(formation *m, int from_formation_id);
-
 int formation_grid_offset_for_invasion(void);
 
-void formation_caesar_pause(void);
-
-void formation_caesar_retreat(void);
-
-int formation_get_num_legions_cached(void);
 void formation_calculate_legion_totals(void);
 
 int formation_get_num_legions(void);
 
 int formation_for_legion(int legion_index);
 
-void formation_change_morale(formation *m, int amount);
-int formation_has_low_morale(formation *m);
-void formation_update_morale_after_death(formation *m);
+void formation_change_morale(struct formation_t *m, int amount);
+void formation_update_morale_after_death(struct formation_t *m);
 
 void formation_update_monthly_morale_deployed(void);
 void formation_update_monthly_morale_at_rest(void);
-void formation_decrease_monthly_counters(formation *m);
-void formation_clear_monthly_counters(formation *m);
+void formation_decrease_monthly_counters(struct formation_t *m);
+void formation_clear_monthly_counters(struct formation_t *m);
 
-void formation_set_destination(formation *m, int x, int y);
-void formation_set_destination_building(formation *m, int x, int y, int building_id);
-void formation_set_home(formation *m, int x, int y);
+void formation_set_destination(struct formation_t *m, int x, int y);
+void formation_set_destination_building(struct formation_t *m, int x, int y, int building_id);
+void formation_set_home(struct formation_t *m, int x, int y);
 
 void formation_move_herds_away(int x, int y);
 
@@ -177,7 +168,7 @@ void formation_calculate_figures(void);
 
 void formation_update_all(int second_time);
 
-void formations_save_state(buffer *buf, buffer *totals);
-void formations_load_state(buffer *buf, buffer *totals);
+void formations_save_state(buffer *buf);
+void formations_load_state(buffer *buf);
 
 #endif // FIGURE_FORMATION_H

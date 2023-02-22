@@ -116,7 +116,7 @@ static void show_overlay(int overlay)
 
 static void cycle_legion(void)
 {
-    int n_legions = formation_get_num_legions_cached();
+    int n_legions = formation_get_num_legions();
     // check if any legions (forts) exist
     if (!n_legions) {
         return;
@@ -133,8 +133,7 @@ static void cycle_legion(void)
     while (current_selected_legion_index <= n_legions) {
         // formation id needed to prevent mismatch with index if forts deleted
         current_selected_legion_formation_id = formation_for_legion(current_selected_legion_index);
-        formation *m = formation_get(current_selected_legion_formation_id);
-        if (m->in_distant_battle || !m->num_figures) {
+        if (formations[current_selected_legion_formation_id].in_distant_battle || !formations[current_selected_legion_formation_id].num_figures) {
             // wrap around if last legion can't be selected but any other had been available previously
             if ((current_selected_legion_index == n_legions) && any_selected_legion_index) {
                 current_selected_legion_index = 1;
@@ -149,17 +148,6 @@ static void cycle_legion(void)
                 any_selected_legion_index = current_selected_legion_index;
             }
             return;
-        }
-    }
-}
-
-static void return_legions_to_fort(void)
-{
-    int n_legions = formation_get_num_legions_cached();
-    for (int i = 0; i < n_legions; i++) {
-        formation *m = formation_get(formation_for_legion(i + 1));
-        if (!m->in_distant_battle && !m->is_at_fort) {
-            formation_legion_return_home(m);
         }
     }
 }
@@ -1161,7 +1149,11 @@ static void handle_hotkeys(const hotkeys *h)
         cycle_legion();
     }
     if (h->return_legions_to_fort) {
-        return_legions_to_fort();
+        for (int i = 1; i < MAX_FORMATIONS; i++) {
+            if (formations[i].in_use && formations[i].is_legion && !formations[i].in_distant_battle && !formations[i].is_at_fort) {
+                formation_legion_return_home(&formations[i]);
+            }
+        }
     }
     if (h->show_last_advisor) {
         window_advisors_show(setting_last_advisor());

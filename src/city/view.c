@@ -1,6 +1,6 @@
 #include "view.h"
 
-#include "core/direction.h"
+#include "game/orientation.h"
 #include "graphics/menu.h"
 #include "map/grid.h"
 #include "map/image.h"

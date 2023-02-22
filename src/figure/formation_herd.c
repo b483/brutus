@@ -15,7 +15,7 @@
 #include "map/soldier_strength.h"
 #include "map/terrain.h"
 
-static int set_herd_roaming_destination(formation *m, int roam_distance)
+static int set_herd_roaming_destination(struct formation_t *m, int roam_distance)
 {
     random_generate_next();
     int target_direction = random_byte() % 8;
@@ -96,13 +96,12 @@ void formation_herd_update(void)
         return;
     }
     for (int i = 1; i < MAX_FORMATIONS; i++) {
-        formation *m = formation_get(i);
-        if (m->in_use && m->is_herd && m->num_figures > 0) {
+        if (formations[i].in_use && formations[i].is_herd && formations[i].num_figures > 0) {
             random_generate_next();
             int random_factor = random_byte();
             int roam_distance;
             int roam_delay;
-            switch (m->figure_type) {
+            switch (formations[i].figure_type) {
                 case FIGURE_WOLF:
                     roam_distance = (random_factor % MAX_WOLF_ROAM_DISTANCE) >= MAX_WOLF_ROAM_DISTANCE / 2 ? (random_factor % MAX_WOLF_ROAM_DISTANCE) : MAX_WOLF_ROAM_DISTANCE;
                     roam_delay = 12;
@@ -118,10 +117,10 @@ void formation_herd_update(void)
                 default:
                     return;
             }
-            m->wait_ticks++;
-            if (m->wait_ticks > roam_delay) {
-                if (set_herd_roaming_destination(m, roam_distance)) {
-                    m->wait_ticks = 0;
+            formations[i].wait_ticks++;
+            if (formations[i].wait_ticks > roam_delay) {
+                if (set_herd_roaming_destination(&formations[i], roam_distance)) {
+                    formations[i].wait_ticks = 0;
                 }
             }
         }

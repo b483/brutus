@@ -1,5 +1,6 @@
 #include "formation.h"
 
+#include "city/data_private.h"
 #include "city/military.h"
 #include "core/calc.h"
 #include "figure/enemy_army.h"
@@ -8,161 +9,83 @@
 #include "figure/formation_herd.h"
 #include "figure/formation_legion.h"
 #include "figure/properties.h"
+#include "figure/route.h"
 #include "map/grid.h"
 #include "sound/effect.h"
 
 #include <string.h>
 
-static formation formations[MAX_FORMATIONS];
+struct formation_t formations[MAX_FORMATIONS];
 
-static struct {
-    int id_last_in_use;
-    int id_last_legion;
-    int num_legions;
-    int selected_formation;
-} data;
+static int selected_formation;
 
 void formations_clear(void)
 {
     for (int i = 0; i < MAX_FORMATIONS; i++) {
-        memset(&formations[i], 0, sizeof(formation));
+        memset(&formations[i], 0, sizeof(struct formation_t));
         formations[i].id = i;
     }
-    data.id_last_in_use = 0;
-    data.id_last_legion = 0;
-    data.num_legions = 0;
-    data.selected_formation = 0;
+    selected_formation = 0;
 }
 
 void formation_clear(int formation_id)
 {
-    memset(&formations[formation_id], 0, sizeof(formation));
+    memset(&formations[formation_id], 0, sizeof(struct formation_t));
     formations[formation_id].id = formation_id;
 }
 
-static int get_free_formation(int start_index)
+struct formation_t *create_formation_type(figure_type type)
 {
-    for (int i = start_index; i < MAX_FORMATIONS; i++) {
+    for (int i = 1; i < MAX_FORMATIONS; i++) {
         if (!formations[i].in_use) {
-            return i;
+            formations[i].in_use = 1;
+            formations[i].figure_type = type;
+            return &formations[i];
         }
     }
     return 0;
 }
 
-formation *formation_create_legion(int building_id, int x, int y, figure_type type)
+struct formation_t *formation_create_enemy(figure_type type, int max_num_figures, int x, int y, int layout, direction_type orientation, int enemy_type, int attack_priority, int invasion_id)
 {
-    int formation_id = get_free_formation(1);
-    if (!formation_id) {
-        return &formations[0];
-    }
-    formation *m = &formations[formation_id];
-    m->faction_id = 1;
-    m->in_use = 1;
-    m->is_legion = 1;
-    m->figure_type = type;
-    m->building_id = building_id;
-    m->layout = FORMATION_DOUBLE_LINE_1;
-    m->morale = 50;
-    m->is_at_fort = 1;
-    m->legion_id = formation_id - 1;
-    m->x = m->standard_x = m->x_home = x + 3;
-    m->y = m->standard_y = m->y_home = y - 1;
-
-    data.num_legions++;
-    if (formation_id > data.id_last_in_use) {
-        data.id_last_in_use = formation_id;
-    }
-    return m;
-}
-
-static int formation_create(int figure_type, int layout, int orientation, int x, int y)
-{
-    int formation_id = get_free_formation(10);
-    if (!formation_id) {
-        return 0;
-    }
-    formation *f = &formations[formation_id];
-    f->faction_id = 0;
-    f->x = x;
-    f->y = y;
-    f->in_use = 1;
-    f->is_legion = 0;
-    f->figure_type = figure_type;
-    f->morale = 100;
+    struct formation_t *m = create_formation_type(type);
+    m->faction_id = 0;
     if (layout == FORMATION_ENEMY_DOUBLE_LINE) {
         if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
-            f->layout = FORMATION_DOUBLE_LINE_1;
+            m->layout = FORMATION_DOUBLE_LINE_1;
         } else {
-            f->layout = FORMATION_DOUBLE_LINE_2;
+            m->layout = FORMATION_DOUBLE_LINE_2;
         }
     } else {
-        f->layout = layout;
+        m->layout = layout;
     }
-    return formation_id;
-}
-
-int formation_create_herd(int figure_type, int x, int y, int num_animals)
-{
-    int formation_id = formation_create(figure_type, FORMATION_HERD, 0, x, y);
-    if (!formation_id) {
-        return 0;
-    }
-    formation *f = &formations[formation_id];
-    f->is_herd = 1;
-    f->wait_ticks = 24;
-    f->max_figures = num_animals;
-    return formation_id;
-}
-
-int formation_create_enemy(int figure_type, int x, int y, int layout, int orientation,
-                           int enemy_type, int attack_type, int invasion_id)
-{
-    int formation_id = formation_create(figure_type, layout, orientation, x, y);
-    if (!formation_id) {
-        return 0;
-    }
-    formation *f = &formations[formation_id];
-    f->attack_type = attack_type;
-    f->orientation = orientation;
-    f->enemy_type = enemy_type;
-    f->invasion_id = invasion_id;
-    return formation_id;
-}
-
-formation *formation_get(int formation_id)
-{
-    return &formations[formation_id];
+    m->orientation = orientation;
+    m->morale = 100;
+    m->max_figures = max_num_figures;
+    m->x = x;
+    m->y = y;
+    m->enemy_img_group = enemy_type;
+    m->attack_priority = attack_priority;
+    m->invasion_id = invasion_id;
+    return &formations[m->id];
 }
 
 int formation_get_selected(void)
 {
-    return data.selected_formation;
+    return selected_formation;
 }
 
 void formation_set_selected(int formation_id)
 {
-    data.selected_formation = formation_id;
-}
-
-void formation_toggle_empire_service(int formation_id)
-{
-    formations[formation_id].empire_service = formations[formation_id].empire_service ? 0 : 1;
-}
-
-void formation_record_missile_attack(formation *m, int from_formation_id)
-{
-    m->missile_attack_timeout = 6;
-    m->missile_attack_formation_id = from_formation_id;
+    selected_formation = formation_id;
 }
 
 int formation_grid_offset_for_invasion(void)
 {
     for (int i = 1; i < MAX_FORMATIONS; i++) {
-        formation *m = &formations[i];
-        if (m->in_use == 1 && !m->is_legion && !m->is_herd) {
-            if (m->x_home > 0 || m->y_home > 0) {
-                return map_grid_offset(m->x_home, m->y_home);
+        if (formations[i].in_use == 1 && formations[i].is_legion && formations[i].is_herd) {
+            if (formations[i].x_home > 0 || formations[i].y_home > 0) {
+                return map_grid_offset(formations[i].x_home, formations[i].y_home);
             } else {
                 return 0;
             }
@@ -171,53 +94,20 @@ int formation_grid_offset_for_invasion(void)
     return 0;
 }
 
-void formation_caesar_pause(void)
-{
-    for (int i = 1; i < MAX_FORMATIONS; i++) {
-        if (formations[i].in_use == 1 && formations[i].figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY) {
-            formations[i].wait_ticks = 20;
-        }
-    }
-}
-
-void formation_caesar_retreat(void)
-{
-    for (int i = 1; i < MAX_FORMATIONS; i++) {
-        if (formations[i].in_use == 1 && formations[i].figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY) {
-            formations[i].months_low_morale = 1;
-        }
-    }
-}
-
-int formation_has_low_morale(formation *m)
-{
-    return m->months_low_morale || m->months_very_low_morale;
-}
-
-int formation_get_num_legions_cached(void)
-{
-    return data.num_legions;
-}
-
 void formation_calculate_legion_totals(void)
 {
-    data.id_last_legion = 0;
-    data.num_legions = 0;
-    city_military_clear_legionary_legions();
+    city_data.military.legionary_legions = 0;
     for (int i = 1; i < MAX_FORMATIONS; i++) {
-        formation *m = formation_get(i);
-        if (m->in_use) {
-            if (m->is_legion) {
-                data.id_last_legion = i;
-                data.num_legions++;
-                if (m->figure_type == FIGURE_FORT_LEGIONARY) {
-                    city_military_add_legionary_legion();
+        if (formations[i].in_use) {
+            if (formations[i].is_legion) {
+                if (formations[i].figure_type == FIGURE_FORT_LEGIONARY) {
+                    city_data.military.legionary_legions++;
                 }
             }
-            if (m->missile_attack_timeout <= 0 && m->figures[0]) {
-                figure *f = figure_get(m->figures[0]);
+            if (formations[i].missile_attack_timeout <= 0 && formations[i].figures[0]) {
+                figure *f = figure_get(formations[i].figures[0]);
                 if (f->state == FIGURE_STATE_ALIVE) {
-                    formation_set_home(m, f->x, f->y);
+                    formation_set_home(&formations[i], f->x, f->y);
                 }
             }
         }
@@ -248,7 +138,7 @@ int formation_for_legion(int legion_index)
     return 0;
 }
 
-void formation_change_morale(formation *m, int amount)
+void formation_change_morale(struct formation_t *m, int amount)
 {
     int max_morale;
     if (m->figure_type == FIGURE_FORT_LEGIONARY) {
@@ -258,7 +148,7 @@ void formation_change_morale(formation *m, int amount)
     } else if (m->figure_type == FIGURE_FORT_JAVELIN || m->figure_type == FIGURE_FORT_MOUNTED) {
         max_morale = m->has_military_training ? 80 : 60;
     } else {
-        switch (m->enemy_type) {
+        switch (m->enemy_img_group) {
             case ENEMY_TYPE_BARBARIAN:
             case ENEMY_TYPE_NUMIDIAN:
             case ENEMY_TYPE_GAUL:
@@ -278,7 +168,7 @@ void formation_change_morale(formation *m, int amount)
     m->morale = calc_bound(m->morale + amount, 0, max_morale);
 }
 
-void formation_update_morale_after_death(formation *m)
+void formation_update_morale_after_death(struct formation_t *m)
 {
     formation_calculate_figures();
     int pct_dead = calc_percentage(1, m->num_figures);
@@ -301,13 +191,12 @@ void formation_update_morale_after_death(formation *m)
 
 static void change_all_morale(int legion, int enemy)
 {
-    for (int i = 1; i < MAX_FORMATIONS; i++) {
-        formation *m = &formations[i];
-        if (m->in_use && !m->is_herd) {
-            if (m->is_legion) {
-                formation_change_morale(m, legion);
+    for (int j = 1; j < MAX_FORMATIONS; j++) {
+        if (formations[j].in_use && !formations[j].is_herd) {
+            if (formations[j].is_legion) {
+                formation_change_morale(&formations[j], legion);
             } else {
-                formation_change_morale(m, enemy);
+                formation_change_morale(&formations[j], enemy);
             }
         }
     }
@@ -316,29 +205,28 @@ static void change_all_morale(int legion, int enemy)
 void formation_update_monthly_morale_deployed(void)
 {
     for (int i = 1; i < MAX_FORMATIONS; i++) {
-        formation *f = &formations[i];
-        if (f->in_use != 1 || f->is_herd) {
+        if (!formations[i].in_use || formations[i].is_herd) {
             continue;
         }
-        if (f->is_legion) {
-            if (!f->is_at_fort && !f->in_distant_battle) {
-                if (f->morale <= 20 && !f->months_low_morale && !f->months_very_low_morale) {
+        if (formations[i].is_legion) {
+            if (!formations[i].is_at_fort && !formations[i].in_distant_battle) {
+                if (formations[i].morale <= 20 && !formations[i].months_low_morale && !formations[i].months_very_low_morale) {
                     change_all_morale(-10, 10);
                 }
-                if (f->morale <= 10) {
-                    f->months_very_low_morale++;
-                } else if (f->morale <= 20) {
-                    f->months_low_morale++;
+                if (formations[i].morale <= 10) {
+                    formations[i].months_very_low_morale++;
+                } else if (formations[i].morale <= 20) {
+                    formations[i].months_low_morale++;
                 }
             }
         } else { // enemy
-            if (f->morale <= 20 && !f->months_low_morale && !f->months_very_low_morale) {
+            if (formations[i].morale <= 20 && !formations[i].months_low_morale && !formations[i].months_very_low_morale) {
                 change_all_morale(10, -10);
             }
-            if (f->morale <= 10) {
-                f->months_very_low_morale++;
-            } else if (f->morale <= 20) {
-                f->months_low_morale++;
+            if (formations[i].morale <= 10) {
+                formations[i].months_very_low_morale++;
+            } else if (formations[i].morale <= 20) {
+                formations[i].months_low_morale++;
             }
         }
     }
@@ -347,33 +235,32 @@ void formation_update_monthly_morale_deployed(void)
 void formation_update_monthly_morale_at_rest(void)
 {
     for (int i = 1; i < MAX_FORMATIONS; i++) {
-        formation *m = &formations[i];
-        if (m->in_use != 1 || m->is_herd) {
+        if (!formations[i].in_use || formations[i].is_herd) {
             continue;
         }
-        if (m->is_legion) {
-            if (m->is_at_fort) {
-                m->months_from_home = 0;
-                m->months_very_low_morale = 0;
-                m->months_low_morale = 0;
-                formation_change_morale(m, 5);
-                formation_legion_restore_layout(m);
-            } else if (!m->recent_fight) {
-                m->months_from_home++;
-                if (m->months_from_home > 3) {
-                    if (m->months_from_home > 100) {
-                        m->months_from_home = 100;
+        if (formations[i].is_legion) {
+            if (formations[i].is_at_fort) {
+                formations[i].months_from_home = 0;
+                formations[i].months_very_low_morale = 0;
+                formations[i].months_low_morale = 0;
+                formation_change_morale(&formations[i], 5);
+                formation_legion_restore_layout(&formations[i]);
+            } else if (!formations[i].recent_fight) {
+                formations[i].months_from_home++;
+                if (formations[i].months_from_home > 3) {
+                    if (formations[i].months_from_home > 100) {
+                        formations[i].months_from_home = 100;
                     }
-                    formation_change_morale(m, -5);
+                    formation_change_morale(&formations[i], -5);
                 }
             }
         } else {
-            formation_change_morale(m, 0);
+            formation_change_morale(&formations[i], 0);
         }
     }
 }
 
-void formation_decrease_monthly_counters(formation *m)
+void formation_decrease_monthly_counters(struct formation_t *m)
 {
     if (m->is_legion) {
         if (m->cursed_by_mars) {
@@ -391,62 +278,30 @@ void formation_decrease_monthly_counters(formation *m)
     }
 }
 
-void formation_clear_monthly_counters(formation *m)
+void formation_clear_monthly_counters(struct formation_t *m)
 {
     m->missile_fired = 0;
     m->missile_attack_timeout = 0;
     m->recent_fight = 0;
 }
 
-void formation_set_destination(formation *m, int x, int y)
+void formation_set_destination(struct formation_t *m, int x, int y)
 {
     m->destination_x = x;
     m->destination_y = y;
 }
 
-void formation_set_destination_building(formation *m, int x, int y, int building_id)
+void formation_set_destination_building(struct formation_t *m, int x, int y, int building_id)
 {
     m->destination_x = x;
     m->destination_y = y;
     m->destination_building_id = building_id;
 }
 
-void formation_set_home(formation *m, int x, int y)
+void formation_set_home(struct formation_t *m, int x, int y)
 {
     m->x_home = x;
     m->y_home = y;
-}
-
-static void clear_figures(void)
-{
-    for (int i = 1; i < MAX_FORMATIONS; i++) {
-        formation *f = &formations[i];
-        for (int fig = 0; fig < MAX_FORMATION_FIGURES; fig++) {
-            f->figures[fig] = 0;
-        }
-        f->num_figures = 0;
-        f->is_at_fort = 1;
-        f->total_damage = 0;
-        f->max_total_damage = 0;
-    }
-}
-
-static int add_figure(int formation_id, int figure_id, int deployed, int damage, int max_damage)
-{
-    formation *f = &formations[formation_id];
-    f->num_figures++;
-    f->total_damage += damage;
-    f->max_total_damage += max_damage;
-    if (deployed) {
-        f->is_at_fort = 0;
-    }
-    for (int fig = 0; fig < MAX_FORMATION_FIGURES; fig++) {
-        if (!f->figures[fig]) {
-            f->figures[fig] = figure_id;
-            return fig;
-        }
-    }
-    return 0; // shouldn't happen
 }
 
 void formation_move_herds_away(int from_x, int from_y)
@@ -461,9 +316,37 @@ void formation_move_herds_away(int from_x, int from_y)
     }
 }
 
+// static int add_figure(int formation_id, int figure_id, int deployed, int damage, int max_damage)
+// {
+//     struct formation_t *f = &formations[formation_id];
+//     f->num_figures++;
+//     f->total_damage += damage;
+//     f->max_total_damage += max_damage;
+//     if (deployed) {
+//         f->is_at_fort = 0;
+//     }
+//     for (int fig = 0; fig < MAX_FORMATION_FIGURES; fig++) {
+//         if (!f->figures[fig]) {
+//             f->figures[fig] = figure_id;
+//             return fig;
+//         }
+//     }
+//     return 0; // shouldn't happen
+// }
+
 void formation_calculate_figures(void)
 {
-    clear_figures();
+    // clear figures
+    for (int i = 1; i < MAX_FORMATIONS; i++) {
+        for (int fig = 0; fig < MAX_FORMATION_FIGURES; fig++) {
+            formations[i].figures[fig] = 0;
+        }
+        formations[i].num_figures = 0;
+        formations[i].is_at_fort = 1;
+        formations[i].total_damage = 0;
+        formations[i].max_total_damage = 0;
+    }
+
     for (int i = 1; i < MAX_FIGURES; i++) {
         figure *f = figure_get(i);
         if (f->state != FIGURE_STATE_ALIVE) {
@@ -472,44 +355,54 @@ void formation_calculate_figures(void)
         if (!figure_is_legion(f) && !figure_is_enemy(f) && !figure_is_herd(f)) {
             continue;
         }
-        int index = add_figure(f->formation_id, i,
-            f->formation_at_rest != 1, f->damage,
-            figure_properties_for_type(f->type)->max_damage
-        );
-        f->index_in_formation = index;
+        formations[f->formation_id].num_figures++;
+        formations[f->formation_id].total_damage += f->damage;
+        formations[f->formation_id].max_total_damage += figure_properties_for_type(f->type)->max_damage;
+        if (!f->formation_at_rest) {
+            formations[f->formation_id].is_at_fort = 0;
+        }
+        for (int fig = 0; fig < formations[f->formation_id].max_figures; fig++) {
+            if (!formations[f->formation_id].figures[fig]) {
+                formations[f->formation_id].figures[fig] = f->id;
+                f->index_in_formation = fig;
+                break;
+            }
+        }
+
+        // int index = add_figure(f->formation_id, i, f->formation_at_rest != 1, f->damage, figure_properties_for_type(f->type)->max_damage);
+        // f->index_in_formation = index;
     }
 
     enemy_army_totals_clear();
     for (int i = 1; i < MAX_FORMATIONS; i++) {
-        formation *m = formation_get(i);
-        if (m->in_use && !m->is_herd) {
-            if (m->is_legion) {
-                if (m->num_figures > 0) {
-                    int was_halted = m->is_halted;
-                    m->is_halted = 1;
-                    for (int fig = 0; fig < m->num_figures; fig++) {
-                        int figure_id = m->figures[fig];
+        if (formations[i].in_use && !formations[i].is_herd) {
+            if (formations[i].is_legion) {
+                if (formations[i].num_figures > 0) {
+                    int was_halted = formations[i].is_halted;
+                    formations[i].is_halted = 1;
+                    for (int fig = 0; fig < formations[i].num_figures; fig++) {
+                        int figure_id = formations[i].figures[fig];
                         if (figure_id && figure_get(figure_id)->direction != DIR_8_NONE) {
-                            m->is_halted = 0;
+                            formations[i].is_halted = 0;
                         }
                     }
-                    int total_strength = m->num_figures;
-                    if (m->figure_type == FIGURE_FORT_LEGIONARY) {
-                        total_strength += m->num_figures / 2;
+                    int total_strength = formations[i].num_figures;
+                    if (formations[i].figure_type == FIGURE_FORT_LEGIONARY) {
+                        total_strength += formations[i].num_figures / 2;
                     }
                     enemy_army_totals_add_legion_formation(total_strength);
-                    if (m->figure_type == FIGURE_FORT_LEGIONARY) {
-                        if (!was_halted && m->is_halted) {
+                    if (formations[i].figure_type == FIGURE_FORT_LEGIONARY) {
+                        if (!was_halted && formations[i].is_halted) {
                             sound_effect_play(SOUND_EFFECT_FORMATION_SHIELD);
                         }
                     }
                 }
             } else {
                 // enemy
-                if (m->num_figures <= 0) {
-                    formation_clear(m->id);
+                if (formations[i].num_figures <= 0) {
+                    formation_clear(formations[i].id);
                 } else {
-                    enemy_army_totals_add_enemy_formation(m->num_figures);
+                    enemy_army_totals_add_enemy_formation(formations[i].num_figures);
                 }
             }
         }
@@ -520,47 +413,84 @@ void formation_calculate_figures(void)
 
 static void update_direction(int formation_id, int first_figure_direction)
 {
-    formation *f = &formations[formation_id];
-    if (f->missile_fired) {
-        f->direction = first_figure_direction;
-    } else if (f->layout == FORMATION_DOUBLE_LINE_1 || f->layout == FORMATION_SINGLE_LINE_1) {
-        if (f->y_home < f->prev.y_home) {
-            f->direction = DIR_0_TOP;
-        } else if (f->y_home > f->prev.y_home) {
-            f->direction = DIR_4_BOTTOM;
+    struct formation_t *m = &formations[formation_id];
+    if (m->missile_fired) {
+        m->direction = first_figure_direction;
+    } else if (m->layout == FORMATION_DOUBLE_LINE_1 || m->layout == FORMATION_SINGLE_LINE_1) {
+        if (m->y_home < m->prev.y_home) {
+            m->direction = DIR_0_TOP;
+        } else if (m->y_home > m->prev.y_home) {
+            m->direction = DIR_4_BOTTOM;
         }
-    } else if (f->layout == FORMATION_DOUBLE_LINE_2 || f->layout == FORMATION_SINGLE_LINE_2) {
-        if (f->x_home < f->prev.x_home) {
-            f->direction = DIR_6_LEFT;
-        } else if (f->x_home > f->prev.x_home) {
-            f->direction = DIR_2_RIGHT;
+    } else if (m->layout == FORMATION_DOUBLE_LINE_2 || m->layout == FORMATION_SINGLE_LINE_2) {
+        if (m->x_home < m->prev.x_home) {
+            m->direction = DIR_6_LEFT;
+        } else if (m->x_home > m->prev.x_home) {
+            m->direction = DIR_2_RIGHT;
         }
-    } else if (f->layout == FORMATION_TORTOISE) {
-        int dx = (f->x_home < f->prev.x_home) ? (f->prev.x_home - f->x_home) : (f->x_home - f->prev.x_home);
-        int dy = (f->y_home < f->prev.y_home) ? (f->prev.y_home - f->y_home) : (f->y_home - f->prev.y_home);
+    } else if (m->layout == FORMATION_TORTOISE) {
+        int dx = (m->x_home < m->prev.x_home) ? (m->prev.x_home - m->x_home) : (m->x_home - m->prev.x_home);
+        int dy = (m->y_home < m->prev.y_home) ? (m->prev.y_home - m->y_home) : (m->y_home - m->prev.y_home);
         if (dx > dy) {
-            if (f->x_home < f->prev.x_home) {
-                f->direction = DIR_6_LEFT;
-            } else if (f->x_home > f->prev.x_home) {
-                f->direction = DIR_2_RIGHT;
+            if (m->x_home < m->prev.x_home) {
+                m->direction = DIR_6_LEFT;
+            } else if (m->x_home > m->prev.x_home) {
+                m->direction = DIR_2_RIGHT;
             }
         } else {
-            if (f->y_home < f->prev.y_home) {
-                f->direction = DIR_0_TOP;
-            } else if (f->y_home > f->prev.y_home) {
-                f->direction = DIR_4_BOTTOM;
+            if (m->y_home < m->prev.y_home) {
+                m->direction = DIR_0_TOP;
+            } else if (m->y_home > m->prev.y_home) {
+                m->direction = DIR_4_BOTTOM;
             }
         }
     }
-    f->prev.x_home = f->x_home;
-    f->prev.y_home = f->y_home;
+    m->prev.x_home = m->x_home;
+    m->prev.y_home = m->y_home;
 }
 
-static void set_legion_max_figures(void)
+static void formation_legion_update(void)
 {
-    for (int i = 1; i < MAX_FORMATIONS; i++) {
-        if (formations[i].in_use && formations[i].is_legion) {
-            formations[i].max_figures = 16;
+    for (int i = 1; i <= MAX_LEGIONS; i++) {
+        if (formations[i].in_use != 1 || !formations[i].is_legion) {
+            continue;
+        }
+        formation_decrease_monthly_counters(&formations[i]);
+        if (city_data.figure.enemies <= 0) {
+            formation_clear_monthly_counters(&formations[i]);
+        }
+        for (int n = 0; n < MAX_FORMATION_FIGURES; n++) {
+            if (figure_get(formations[i].figures[n])->action_state == FIGURE_ACTION_150_ATTACK) {
+                formations[i].recent_fight = 6;
+            }
+        }
+        if (formations[i].months_low_morale || formations[i].months_very_low_morale) {
+            // flee back to fort
+            for (int n = 0; n < MAX_FORMATION_FIGURES; n++) {
+                figure *f = figure_get(formations[i].figures[n]);
+                if (f->action_state != FIGURE_ACTION_150_ATTACK &&
+                    f->action_state != FIGURE_ACTION_149_CORPSE &&
+                    f->action_state != FIGURE_ACTION_148_FLEEING) {
+                    f->action_state = FIGURE_ACTION_148_FLEEING;
+                    figure_route_remove(f);
+                }
+            }
+        } else if (formations[i].layout == FORMATION_MOP_UP) {
+            if (enemy_army_total_enemy_formations() +
+                city_data.figure.rioters +
+                city_data.figure.attacking_natives > 0) {
+                for (int n = 0; n < MAX_FORMATION_FIGURES; n++) {
+                    if (formations[i].figures[n] != 0) {
+                        figure *f = figure_get(formations[i].figures[n]);
+                        if (f->action_state != FIGURE_ACTION_150_ATTACK &&
+                            f->action_state != FIGURE_ACTION_149_CORPSE) {
+                            f->action_state = FIGURE_ACTION_86_SOLDIER_MOPPING_UP;
+                        }
+                    }
+                }
+            } else {
+                formation_legion_restore_layout(&formations[i]);
+            }
         }
     }
 }
@@ -570,147 +500,139 @@ void formation_update_all(int second_time)
     formation_calculate_legion_totals();
     formation_calculate_figures();
     for (int i = 1; i < MAX_FORMATIONS; i++) {
-        formation *m = &formations[i];
-        if (m->in_use && !m->is_herd) {
-            update_direction(m->id, figure_get(m->figures[0])->direction);
+        if (formations[i].in_use && !formations[i].is_herd) {
+            update_direction(formations[i].id, figure_get(formations[i].figures[0])->direction);
         }
     }
     formation_legion_decrease_damage();
     if (!second_time) {
         formation_update_monthly_morale_deployed();
     }
-    set_legion_max_figures();
     formation_legion_update();
     formation_enemy_update();
     formation_herd_update();
 }
 
-void formations_save_state(buffer *buf, buffer *totals)
+void formations_save_state(buffer *buf)
 {
-    buffer_write_i32(totals, data.id_last_in_use);
-    buffer_write_i32(totals, data.id_last_legion);
-    buffer_write_i32(totals, data.num_legions);
     for (int i = 0; i < MAX_FORMATIONS; i++) {
-        formation *f = &formations[i];
-        buffer_write_u8(buf, f->in_use);
-        buffer_write_u8(buf, f->faction_id);
-        buffer_write_u8(buf, f->legion_id);
-        buffer_write_u8(buf, f->is_at_fort);
-        buffer_write_i16(buf, f->figure_type);
-        buffer_write_i16(buf, f->building_id);
+        struct formation_t *m = &formations[i];
+        buffer_write_u8(buf, m->in_use);
+        buffer_write_u8(buf, m->faction_id);
+        buffer_write_u8(buf, m->legion_id);
+        buffer_write_u8(buf, m->is_at_fort);
+        buffer_write_i16(buf, m->figure_type);
+        buffer_write_i16(buf, m->building_id);
         for (int fig = 0; fig < MAX_FORMATION_FIGURES; fig++) {
-            buffer_write_i16(buf, f->figures[fig]);
+            buffer_write_i16(buf, m->figures[fig]);
         }
-        buffer_write_u8(buf, f->num_figures);
-        buffer_write_u8(buf, f->max_figures);
-        buffer_write_i16(buf, f->layout);
-        buffer_write_i16(buf, f->morale);
-        buffer_write_u8(buf, f->x_home);
-        buffer_write_u8(buf, f->y_home);
-        buffer_write_u8(buf, f->standard_x);
-        buffer_write_u8(buf, f->standard_y);
-        buffer_write_u8(buf, f->x);
-        buffer_write_u8(buf, f->y);
-        buffer_write_u8(buf, f->destination_x);
-        buffer_write_u8(buf, f->destination_y);
-        buffer_write_i16(buf, f->destination_building_id);
-        buffer_write_i16(buf, f->standard_figure_id);
-        buffer_write_u8(buf, f->is_legion);
-        buffer_write_i16(buf, f->attack_type);
-        buffer_write_i16(buf, f->legion_recruit_type);
-        buffer_write_i16(buf, f->has_military_training);
-        buffer_write_i16(buf, f->total_damage);
-        buffer_write_i16(buf, f->max_total_damage);
-        buffer_write_i16(buf, f->wait_ticks);
-        buffer_write_i16(buf, f->recent_fight);
-        buffer_write_i16(buf, f->enemy_state.duration_advance);
-        buffer_write_i16(buf, f->enemy_state.duration_regroup);
-        buffer_write_i16(buf, f->enemy_state.duration_halt);
-        buffer_write_i16(buf, f->enemy_legion_index);
-        buffer_write_i16(buf, f->is_halted);
-        buffer_write_i16(buf, f->missile_fired);
-        buffer_write_i16(buf, f->missile_attack_timeout);
-        buffer_write_i16(buf, f->missile_attack_formation_id);
-        buffer_write_i16(buf, f->prev.layout);
-        buffer_write_i16(buf, f->cursed_by_mars);
-        buffer_write_u8(buf, f->months_low_morale);
-        buffer_write_u8(buf, f->empire_service);
-        buffer_write_u8(buf, f->in_distant_battle);
-        buffer_write_u8(buf, f->is_herd);
-        buffer_write_u8(buf, f->enemy_type);
-        buffer_write_u8(buf, f->direction);
-        buffer_write_u8(buf, f->prev.x_home);
-        buffer_write_u8(buf, f->prev.y_home);
-        buffer_write_u8(buf, f->orientation);
-        buffer_write_u8(buf, f->months_from_home);
-        buffer_write_u8(buf, f->months_very_low_morale);
-        buffer_write_u8(buf, f->invasion_id);
-        buffer_write_u8(buf, f->herd_wolf_spawn_delay);
+        buffer_write_u8(buf, m->num_figures);
+        buffer_write_u8(buf, m->max_figures);
+        buffer_write_i16(buf, m->layout);
+        buffer_write_i16(buf, m->morale);
+        buffer_write_u8(buf, m->x_home);
+        buffer_write_u8(buf, m->y_home);
+        buffer_write_u8(buf, m->standard_x);
+        buffer_write_u8(buf, m->standard_y);
+        buffer_write_u8(buf, m->x);
+        buffer_write_u8(buf, m->y);
+        buffer_write_u8(buf, m->destination_x);
+        buffer_write_u8(buf, m->destination_y);
+        buffer_write_i16(buf, m->destination_building_id);
+        buffer_write_i16(buf, m->standard_figure_id);
+        buffer_write_u8(buf, m->is_legion);
+        buffer_write_i16(buf, m->attack_priority);
+        buffer_write_i16(buf, m->legion_recruit_type);
+        buffer_write_i16(buf, m->has_military_training);
+        buffer_write_i16(buf, m->total_damage);
+        buffer_write_i16(buf, m->max_total_damage);
+        buffer_write_i16(buf, m->wait_ticks);
+        buffer_write_i16(buf, m->recent_fight);
+        buffer_write_i16(buf, m->enemy_state.duration_advance);
+        buffer_write_i16(buf, m->enemy_state.duration_regroup);
+        buffer_write_i16(buf, m->enemy_state.duration_halt);
+        buffer_write_i16(buf, m->enemy_legion_index);
+        buffer_write_i16(buf, m->is_halted);
+        buffer_write_i16(buf, m->missile_fired);
+        buffer_write_i16(buf, m->missile_attack_timeout);
+        buffer_write_i16(buf, m->missile_attack_formation_id);
+        buffer_write_i16(buf, m->prev.layout);
+        buffer_write_i16(buf, m->cursed_by_mars);
+        buffer_write_u8(buf, m->months_low_morale);
+        buffer_write_u8(buf, m->empire_service);
+        buffer_write_u8(buf, m->in_distant_battle);
+        buffer_write_u8(buf, m->is_herd);
+        buffer_write_u8(buf, m->enemy_img_group);
+        buffer_write_u8(buf, m->direction);
+        buffer_write_u8(buf, m->prev.x_home);
+        buffer_write_u8(buf, m->prev.y_home);
+        buffer_write_u8(buf, m->orientation);
+        buffer_write_u8(buf, m->months_from_home);
+        buffer_write_u8(buf, m->months_very_low_morale);
+        buffer_write_u8(buf, m->invasion_id);
+        buffer_write_u8(buf, m->herd_wolf_spawn_delay);
     }
 }
 
-void formations_load_state(buffer *buf, buffer *totals)
+void formations_load_state(buffer *buf)
 {
-    data.id_last_in_use = buffer_read_i32(totals);
-    data.id_last_legion = buffer_read_i32(totals);
-    data.num_legions = buffer_read_i32(totals);
-    data.selected_formation = 0;
+    selected_formation = 0;
     for (int i = 0; i < MAX_FORMATIONS; i++) {
-        formation *f = &formations[i];
-        f->id = i;
-        f->in_use = buffer_read_u8(buf);
-        f->faction_id = buffer_read_u8(buf);
-        f->legion_id = buffer_read_u8(buf);
-        f->is_at_fort = buffer_read_u8(buf);
-        f->figure_type = buffer_read_i16(buf);
-        f->building_id = buffer_read_i16(buf);
+        struct formation_t *m = &formations[i];
+        m->id = i;
+        m->in_use = buffer_read_u8(buf);
+        m->faction_id = buffer_read_u8(buf);
+        m->legion_id = buffer_read_u8(buf);
+        m->is_at_fort = buffer_read_u8(buf);
+        m->figure_type = buffer_read_i16(buf);
+        m->building_id = buffer_read_i16(buf);
         for (int fig = 0; fig < MAX_FORMATION_FIGURES; fig++) {
-            f->figures[fig] = buffer_read_i16(buf);
+            m->figures[fig] = buffer_read_i16(buf);
         }
-        f->num_figures = buffer_read_u8(buf);
-        f->max_figures = buffer_read_u8(buf);
-        f->layout = buffer_read_i16(buf);
-        f->morale = buffer_read_i16(buf);
-        f->x_home = buffer_read_u8(buf);
-        f->y_home = buffer_read_u8(buf);
-        f->standard_x = buffer_read_u8(buf);
-        f->standard_y = buffer_read_u8(buf);
-        f->x = buffer_read_u8(buf);
-        f->y = buffer_read_u8(buf);
-        f->destination_x = buffer_read_u8(buf);
-        f->destination_y = buffer_read_u8(buf);
-        f->destination_building_id = buffer_read_i16(buf);
-        f->standard_figure_id = buffer_read_i16(buf);
-        f->is_legion = buffer_read_u8(buf);
-        f->attack_type = buffer_read_i16(buf);
-        f->legion_recruit_type = buffer_read_i16(buf);
-        f->has_military_training = buffer_read_i16(buf);
-        f->total_damage = buffer_read_i16(buf);
-        f->max_total_damage = buffer_read_i16(buf);
-        f->wait_ticks = buffer_read_i16(buf);
-        f->recent_fight = buffer_read_i16(buf);
-        f->enemy_state.duration_advance = buffer_read_i16(buf);
-        f->enemy_state.duration_regroup = buffer_read_i16(buf);
-        f->enemy_state.duration_halt = buffer_read_i16(buf);
-        f->enemy_legion_index = buffer_read_i16(buf);
-        f->is_halted = buffer_read_i16(buf);
-        f->missile_fired = buffer_read_i16(buf);
-        f->missile_attack_timeout = buffer_read_i16(buf);
-        f->missile_attack_formation_id = buffer_read_i16(buf);
-        f->prev.layout = buffer_read_i16(buf);
-        f->cursed_by_mars = buffer_read_i16(buf);
-        f->months_low_morale = buffer_read_u8(buf);
-        f->empire_service = buffer_read_u8(buf);
-        f->in_distant_battle = buffer_read_u8(buf);
-        f->is_herd = buffer_read_u8(buf);
-        f->enemy_type = buffer_read_u8(buf);
-        f->direction = buffer_read_u8(buf);
-        f->prev.x_home = buffer_read_u8(buf);
-        f->prev.y_home = buffer_read_u8(buf);
-        f->orientation = buffer_read_u8(buf);
-        f->months_from_home = buffer_read_u8(buf);
-        f->months_very_low_morale = buffer_read_u8(buf);
-        f->invasion_id = buffer_read_u8(buf);
-        f->herd_wolf_spawn_delay = buffer_read_u8(buf);
+        m->num_figures = buffer_read_u8(buf);
+        m->max_figures = buffer_read_u8(buf);
+        m->layout = buffer_read_i16(buf);
+        m->morale = buffer_read_i16(buf);
+        m->x_home = buffer_read_u8(buf);
+        m->y_home = buffer_read_u8(buf);
+        m->standard_x = buffer_read_u8(buf);
+        m->standard_y = buffer_read_u8(buf);
+        m->x = buffer_read_u8(buf);
+        m->y = buffer_read_u8(buf);
+        m->destination_x = buffer_read_u8(buf);
+        m->destination_y = buffer_read_u8(buf);
+        m->destination_building_id = buffer_read_i16(buf);
+        m->standard_figure_id = buffer_read_i16(buf);
+        m->is_legion = buffer_read_u8(buf);
+        m->attack_priority = buffer_read_i16(buf);
+        m->legion_recruit_type = buffer_read_i16(buf);
+        m->has_military_training = buffer_read_i16(buf);
+        m->total_damage = buffer_read_i16(buf);
+        m->max_total_damage = buffer_read_i16(buf);
+        m->wait_ticks = buffer_read_i16(buf);
+        m->recent_fight = buffer_read_i16(buf);
+        m->enemy_state.duration_advance = buffer_read_i16(buf);
+        m->enemy_state.duration_regroup = buffer_read_i16(buf);
+        m->enemy_state.duration_halt = buffer_read_i16(buf);
+        m->enemy_legion_index = buffer_read_i16(buf);
+        m->is_halted = buffer_read_i16(buf);
+        m->missile_fired = buffer_read_i16(buf);
+        m->missile_attack_timeout = buffer_read_i16(buf);
+        m->missile_attack_formation_id = buffer_read_i16(buf);
+        m->prev.layout = buffer_read_i16(buf);
+        m->cursed_by_mars = buffer_read_i16(buf);
+        m->months_low_morale = buffer_read_u8(buf);
+        m->empire_service = buffer_read_u8(buf);
+        m->in_distant_battle = buffer_read_u8(buf);
+        m->is_herd = buffer_read_u8(buf);
+        m->enemy_img_group = buffer_read_u8(buf);
+        m->direction = buffer_read_u8(buf);
+        m->prev.x_home = buffer_read_u8(buf);
+        m->prev.y_home = buffer_read_u8(buf);
+        m->orientation = buffer_read_u8(buf);
+        m->months_from_home = buffer_read_u8(buf);
+        m->months_very_low_morale = buffer_read_u8(buf);
+        m->invasion_id = buffer_read_u8(buf);
+        m->herd_wolf_spawn_delay = buffer_read_u8(buf);
     }
 }

@@ -95,27 +95,26 @@ void enemy_army_calculate_roman_influence(void)
     }
     map_soldier_strength_clear();
     for (int i = 1; i < MAX_FORMATIONS; i++) {
-        const formation *m = formation_get(i);
-        if (m->in_use != 1 || !m->is_legion) {
+        if (formations[i].in_use != 1 || !formations[i].is_legion) {
             continue;
         }
-        if (m->num_figures > 0) {
-            map_soldier_strength_add(m->x_home, m->y_home, 7, 1);
+        if (formations[i].num_figures > 0) {
+            map_soldier_strength_add(formations[i].x_home, formations[i].y_home, 7, 1);
         }
-        if (m->num_figures > 3) {
-            map_soldier_strength_add(m->x_home, m->y_home, 6, 1);
+        if (formations[i].num_figures > 3) {
+            map_soldier_strength_add(formations[i].x_home, formations[i].y_home, 6, 1);
         }
-        if (m->num_figures > 6) {
-            map_soldier_strength_add(m->x_home, m->y_home, 5, 1);
+        if (formations[i].num_figures > 6) {
+            map_soldier_strength_add(formations[i].x_home, formations[i].y_home, 5, 1);
         }
-        if (m->num_figures > 9) {
-            map_soldier_strength_add(m->x_home, m->y_home, 4, 1);
+        if (formations[i].num_figures > 9) {
+            map_soldier_strength_add(formations[i].x_home, formations[i].y_home, 4, 1);
         }
-        if (m->num_figures > 12) {
-            map_soldier_strength_add(m->x_home, m->y_home, 3, 1);
+        if (formations[i].num_figures > 12) {
+            map_soldier_strength_add(formations[i].x_home, formations[i].y_home, 3, 1);
         }
-        if (m->num_figures > 15) {
-            map_soldier_strength_add(m->x_home, m->y_home, 2, 1);
+        if (formations[i].num_figures > 15) {
+            map_soldier_strength_add(formations[i].x_home, formations[i].y_home, 2, 1);
         }
     }
 }

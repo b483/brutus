@@ -2,7 +2,7 @@
 #define FIGURE_FIGURE_H
 
 #include "core/buffer.h"
-#include "core/direction.h"
+#include "game/orientation.h"
 #include "figure/action.h"
 #include "figure/type.h"
 

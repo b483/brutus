@@ -263,7 +263,7 @@ static void draw_roman_army_info(void)
     int x_offset = (data.x_min + data.x_max - 240) / 2;
     int y_offset = data.y_max - 68;
     int text_id;
-    if (city_military_distant_battle_roman_army_is_traveling_forth()) {
+    if (city_data.distant_battle.roman_months_to_travel_forth) {
         text_id = 15;
     } else {
         text_id = 16;
@@ -290,15 +290,15 @@ static void draw_object_info(void)
                 break;
             case EMPIRE_OBJECT_ROMAN_ARMY:
                 if (city_military_distant_battle_roman_army_is_traveling()) {
-                    if (city_military_distant_battle_roman_months_traveled() == data.selected_object->distant_battle_travel_months) {
+                    if (city_data.distant_battle.roman_months_traveled == data.selected_object->distant_battle_travel_months) {
                         draw_roman_army_info();
                         break;
                     }
                 }
                 /* fall through */
             case EMPIRE_OBJECT_ENEMY_ARMY:
-                if (city_military_months_until_distant_battle() > 0) {
-                    if (city_military_distant_battle_enemy_months_traveled() == data.selected_object->distant_battle_travel_months) {
+                if (city_data.distant_battle.months_until_battle) {
+                    if (city_data.distant_battle.enemy_months_traveled == data.selected_object->distant_battle_travel_months) {
                         draw_enemy_army_info();
                         break;
                     }
@@ -356,10 +356,10 @@ static void draw_empire_objects(void)
                 continue;
             }
             if (empire_objects[i].type == EMPIRE_OBJECT_ENEMY_ARMY) {
-                if (city_military_months_until_distant_battle() <= 0) {
+                if (!city_data.distant_battle.months_until_battle) {
                     continue;
                 }
-                if (city_military_distant_battle_enemy_months_traveled() != empire_objects[i].distant_battle_travel_months) {
+                if (city_data.distant_battle.enemy_months_traveled != empire_objects[i].distant_battle_travel_months) {
                     continue;
                 }
             }
@@ -367,7 +367,7 @@ static void draw_empire_objects(void)
                 if (!city_military_distant_battle_roman_army_is_traveling()) {
                     continue;
                 }
-                if (city_military_distant_battle_roman_months_traveled() != empire_objects[i].distant_battle_travel_months) {
+                if (city_data.distant_battle.roman_months_traveled != empire_objects[i].distant_battle_travel_months) {
                     continue;
                 }
             }
@@ -521,7 +521,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
                     break;
                 case EMPIRE_OBJECT_ROMAN_ARMY:
                     if (city_military_distant_battle_roman_army_is_traveling()) {
-                        if (city_military_distant_battle_roman_months_traveled() == data.selected_object->distant_battle_travel_months) {
+                        if (city_data.distant_battle.roman_months_traveled == data.selected_object->distant_battle_travel_months) {
                             data.selected_object = 0;
                             window_invalidate();
                             break;
@@ -529,8 +529,8 @@ static void handle_input(const mouse *m, const hotkeys *h)
                     }
                     /* fall through */
                 case EMPIRE_OBJECT_ENEMY_ARMY:
-                    if (city_military_months_until_distant_battle() > 0) {
-                        if (city_military_distant_battle_enemy_months_traveled() == data.selected_object->distant_battle_travel_months) {
+                    if (city_data.distant_battle.months_until_battle) {
+                        if (city_data.distant_battle.enemy_months_traveled == data.selected_object->distant_battle_travel_months) {
                             data.selected_object = 0;
                             window_invalidate();
                             break;

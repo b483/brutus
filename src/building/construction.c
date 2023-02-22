@@ -371,7 +371,7 @@ void building_construction_update(int x, int y, int grid_offset)
     } else if (type == BUILDING_WAREHOUSE) {
         mark_construction(x, y, 3, TERRAIN_ALL, 0);
     } else if (building_is_fort(type)) {
-        if (formation_get_num_legions_cached() < 6) {
+        if (formation_get_num_legions() < MAX_LEGIONS) {
             const int offsets_x[] = { 3, 4, 4, 3 };
             const int offsets_y[] = { -1, -1, 0, 0 };
             int orient_index = city_view_orientation() / 2;

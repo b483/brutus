@@ -1,7 +1,6 @@
 #include "bridge.h"
 
 #include "city/view.h"
-#include "core/direction.h"
 #include "map/data.h"
 #include "map/figure.h"
 #include "map/grid.h"

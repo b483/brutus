@@ -85,13 +85,22 @@ void figure_create_herds(void)
                 default:
                     return;
             }
-            int formation_id = formation_create_herd(herd_type, scenario.herd_points[i].x, scenario.herd_points[i].y, num_animals);
-            if (formation_id > 0) {
-                for (int fig = 0; fig < num_animals; fig++) {
-                    figure *f = figure_create(herd_type, scenario.herd_points[i].x, scenario.herd_points[i].y, DIR_0_TOP);
-                    f->action_state = FIGURE_ACTION_196_HERD_ANIMAL_AT_REST;
-                    f->formation_id = formation_id;
-                }
+
+            // create herd formation
+            struct formation_t *m = create_formation_type(herd_type);
+            m->faction_id = 0;
+            m->is_herd = 1;
+            m->layout = FORMATION_HERD;
+            m->max_figures = num_animals;
+            m->x = scenario.herd_points[i].x;
+            m->y = scenario.herd_points[i].y;
+            m->wait_ticks = 24;
+
+            // create animal figures and assign to formation
+            for (int fig = 0; fig < num_animals; fig++) {
+                figure *f = figure_create(herd_type, scenario.herd_points[i].x, scenario.herd_points[i].y, DIR_0_TOP);
+                f->action_state = FIGURE_ACTION_196_HERD_ANIMAL_AT_REST;
+                f->formation_id = m->id;
             }
         }
     }
@@ -122,7 +131,7 @@ void figure_seagulls_action(figure *f)
 
 void figure_wolf_action(figure *f)
 {
-    formation *m = formation_get(f->formation_id);
+    struct formation_t *m = &formations[f->formation_id];
     f->terrain_usage = TERRAIN_USAGE_ANIMAL;
     f->use_cross_country = 0;
     f->is_ghost = 0;
@@ -173,7 +182,7 @@ void figure_wolf_action(figure *f)
                 }
             } else if (m->missile_attack_formation_id) {
                 figure_route_remove(f);
-                formation *target_formation = formation_get(m->missile_attack_formation_id);
+                struct formation_t *target_formation = &formations[m->missile_attack_formation_id];
                 f->destination_x = target_formation->x_home;
                 f->destination_y = target_formation->y_home;
                 m->destination_x = target_formation->x_home;
@@ -213,7 +222,6 @@ void figure_wolf_action(figure *f)
 
 void figure_sheep_action(figure *f)
 {
-    formation *m = formation_get(f->formation_id);
     f->terrain_usage = TERRAIN_USAGE_ANIMAL;
     f->use_cross_country = 0;
     f->is_ghost = 0;
@@ -229,7 +237,7 @@ void figure_sheep_action(figure *f)
             break;
         case FIGURE_ACTION_196_HERD_ANIMAL_AT_REST:
             f->wait_ticks++;
-            if (m->wait_ticks == 0) {
+            if (formations[f->formation_id].wait_ticks == 0) {
                 f->wait_ticks = f->id & 0x1f;
                 f->action_state = FIGURE_ACTION_197_HERD_ANIMAL_MOVING;
             }
@@ -245,11 +253,11 @@ void figure_sheep_action(figure *f)
                 figure_route_remove(f);
             } else if (f->routing_path_current_tile > MAX_SHEEP_ROAM_DISTANCE * 2) {
                 figure_route_remove(f);
-                m->destination_x = f->x;
-                m->destination_y = f->y;
+                formations[f->formation_id].destination_x = f->x;
+                formations[f->formation_id].destination_y = f->y;
             }
-            f->destination_x = m->destination_x + formation_layout_position_x(FORMATION_HERD, f->index_in_formation);
-            f->destination_y = m->destination_y + formation_layout_position_y(FORMATION_HERD, f->index_in_formation);
+            f->destination_x = formations[f->formation_id].destination_x + formation_layout_position_x(FORMATION_HERD, f->index_in_formation);
+            f->destination_y = formations[f->formation_id].destination_y + formation_layout_position_y(FORMATION_HERD, f->index_in_formation);
             figure_movement_move_ticks(f, 2);
             break;
     }
@@ -269,7 +277,6 @@ void figure_sheep_action(figure *f)
 
 void figure_zebra_action(figure *f)
 {
-    formation *m = formation_get(f->formation_id);
     f->terrain_usage = TERRAIN_USAGE_ANIMAL;
     f->use_cross_country = 0;
     f->is_ghost = 0;
@@ -284,7 +291,7 @@ void figure_zebra_action(figure *f)
             figure_combat_handle_corpse(f);
             break;
         case FIGURE_ACTION_196_HERD_ANIMAL_AT_REST:
-            if (m->wait_ticks == 0) {
+            if (formations[f->formation_id].wait_ticks == 0) {
                 f->action_state = FIGURE_ACTION_197_HERD_ANIMAL_MOVING;
             }
             break;
@@ -299,11 +306,11 @@ void figure_zebra_action(figure *f)
                 figure_route_remove(f);
             } else if (f->routing_path_current_tile > MAX_ZEBRA_ROAM_DISTANCE * 2) {
                 figure_route_remove(f);
-                m->destination_x = f->x;
-                m->destination_y = f->y;
+                formations[f->formation_id].destination_x = f->x;
+                formations[f->formation_id].destination_y = f->y;
             }
-            f->destination_x = m->destination_x + formation_layout_position_x(FORMATION_HERD, f->index_in_formation);
-            f->destination_y = m->destination_y + formation_layout_position_y(FORMATION_HERD, f->index_in_formation);
+            f->destination_x = formations[f->formation_id].destination_x + formation_layout_position_x(FORMATION_HERD, f->index_in_formation);
+            f->destination_y = formations[f->formation_id].destination_y + formation_layout_position_y(FORMATION_HERD, f->index_in_formation);
             figure_movement_move_ticks(f, 2);
             break;
     }

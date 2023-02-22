@@ -249,8 +249,8 @@ void building_maintenance_check_rome_access(void)
                 }
             }
         } else if (b->type == BUILDING_WAREHOUSE) {
-            if (!city_buildings_get_trade_center()) {
-                city_buildings_set_trade_center(i);
+            if (!city_data.building.trade_center_building_id) {
+                city_data.building.trade_center_building_id = i;
             }
             b->distance_from_entry = 0;
             int x_road, y_road;

@@ -420,7 +420,7 @@ static void add_to_map(int type, building *b, int size,
                 image_group(GROUP_BUILDING_WHARF) + waterside_orientation_rel);
             break;
         case BUILDING_DOCK:
-            city_buildings_add_dock();
+            city_data.building.working_docks++;
             b->data.dock.orientation = waterside_orientation_abs;
             {
                 int image_id;
@@ -457,7 +457,7 @@ static void add_to_map(int type, building *b, int size,
             map_terrain_add_triumphal_arch_roads(b->x, b->y, orientation);
             map_tiles_update_area_roads(b->x, b->y, 5);
             map_tiles_update_all_plazas();
-            city_buildings_build_triumphal_arch();
+            city_data.building.triumphal_arches_placed++;
             building_menu_update();
             building_construction_clear_type();
             break;
@@ -578,7 +578,7 @@ int building_construction_place_building(building_type type, int x, int y)
             city_warning_show(WARNING_CLEAR_LAND_NEEDED);
             return 0;
         }
-        if (formation_get_num_legions_cached() >= MAX_LEGIONS) {
+        if (formation_get_num_legions() >= MAX_LEGIONS) {
             city_warning_show(WARNING_MAX_LEGIONS_REACHED);
             return 0;
         }

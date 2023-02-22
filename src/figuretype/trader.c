@@ -317,9 +317,8 @@ void figure_trade_caravan_action(figure *f)
             if (f->wait_ticks > 20) {
                 f->wait_ticks = 0;
                 int x_base, y_base;
-                int trade_center_id = city_buildings_get_trade_center();
-                if (trade_center_id) {
-                    building *trade_center = building_get(trade_center_id);
+                if (city_data.building.trade_center_building_id) {
+                    building *trade_center = building_get(city_data.building.trade_center_building_id);
                     x_base = trade_center->x;
                     y_base = trade_center->y;
                 } else {

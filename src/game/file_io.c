@@ -46,11 +46,7 @@
 #define COMPRESS_BUFFER_SIZE 600000
 #define UNCOMPRESSED 0x80000000
 
-static const int SAVE_GAME_VERSION = 0x66;
-
 static char compress_buffer[COMPRESS_BUFFER_SIZE];
-
-static int savegame_version;
 
 typedef struct {
     buffer buf;
@@ -96,7 +92,6 @@ typedef struct {
     buffer *route_figures;
     buffer *route_paths;
     buffer *formations;
-    buffer *formation_totals;
     buffer *city_data;
     buffer *player_name;
     buffer *buildings;
@@ -223,8 +218,7 @@ static void init_savegame_data(void)
     state->figures = create_savegame_piece(141000, 1);
     state->route_figures = create_savegame_piece(1200, 1);
     state->route_paths = create_savegame_piece(300000, 1);
-    state->formations = create_savegame_piece(5400, 1);
-    state->formation_totals = create_savegame_piece(12, 0);
+    state->formations = create_savegame_piece(5300, 1);
     state->city_data = create_savegame_piece(11608, 1);
     state->player_name = create_savegame_piece(24, 0);
     state->buildings = create_savegame_piece(164000, 1);
@@ -241,7 +235,7 @@ static void init_savegame_data(void)
     state->trade_prices = create_savegame_piece(128, 0);
     state->figure_names = create_savegame_piece(84, 0);
     state->culture_coverage = create_savegame_piece(56, 0);
-    state->scenario = create_savegame_piece(51934, 0);
+    state->scenario = create_savegame_piece(51969, 0);
     state->messages = create_savegame_piece(14000, 1);
     state->message_extra = create_savegame_piece(12, 0);
     state->population_messages = create_savegame_piece(9, 0);
@@ -305,8 +299,6 @@ static void scenario_save_to_state(scenario_state *file)
 
 static void savegame_load_from_state(savegame_state *state)
 {
-    savegame_version = buffer_read_i32(state->file_version);
-
     scenario_settings_load_state(state->player_name);
 
     map_image_load_state(state->image_grid);
@@ -322,7 +314,7 @@ static void savegame_load_from_state(savegame_state *state)
 
     figure_load_state(state->figures, state->figure_sequence);
     figure_route_load_state(state->route_figures, state->route_paths);
-    formations_load_state(state->formations, state->formation_totals);
+    formations_load_state(state->formations);
 
     city_data_load_state(state->city_data,
                          state->city_graph_order,
@@ -370,8 +362,6 @@ static void savegame_load_from_state(savegame_state *state)
 
 static void savegame_save_to_state(savegame_state *state)
 {
-    buffer_write_i32(state->file_version, savegame_version);
-
     scenario_settings_save_state(state->player_name);
 
     map_image_save_state(state->image_grid);
@@ -387,7 +377,7 @@ static void savegame_save_to_state(savegame_state *state)
 
     figure_save_state(state->figures, state->figure_sequence);
     figure_route_save_state(state->route_figures, state->route_paths);
-    formations_save_state(state->formations, state->formation_totals);
+    formations_save_state(state->formations);
 
     city_data_save_state(state->city_data,
                          state->city_graph_order,
@@ -597,7 +587,6 @@ int game_file_io_write_saved_game(const char *dir, const char *filename)
     init_savegame_data();
 
     log_info("Saving game", filename, 0);
-    savegame_version = SAVE_GAME_VERSION;
     savegame_save_to_state(&savegame_data.state);
 
     static char dir_prepended_filepath[FILE_NAME_MAX];

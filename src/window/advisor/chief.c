@@ -133,7 +133,7 @@ static int draw_background(void)
         lang_text_draw(61, 74, X_OFFSET, 166, FONT_NORMAL_RED);
     } else if (city_military_distant_battle_roman_army_is_traveling()) {
         lang_text_draw(61, 78, X_OFFSET, 166, FONT_NORMAL_GREEN);
-    } else if (city_military_months_until_distant_battle() > 0) {
+    } else if (city_data.distant_battle.months_until_battle) {
         lang_text_draw(61, 77, X_OFFSET, 166, FONT_NORMAL_RED);
     } else if (city_data.figure.soldiers) {
         lang_text_draw(61, 73, X_OFFSET, 166, FONT_NORMAL_GREEN);

@@ -98,12 +98,33 @@ static int perform_large_curse(god_type god)
             building_granary_warehouse_curse(1);
             break;
         case GOD_MARS:
-            if (formation_legion_curse()) {
+            struct formation_t *best_legion = 0;
+            int best_legion_weight = 0;
+            for (int i = 1; i <= MAX_FORMATIONS; i++) {
+                if (formations[i].in_use && formations[i].is_legion) {
+                    int weight = formations[i].num_figures;
+                    if (formations[i].figure_type == FIGURE_FORT_LEGIONARY) {
+                        weight *= 2;
+                    }
+                    if (weight > best_legion_weight) {
+                        best_legion_weight = weight;
+                        best_legion = &formations[i];
+                    }
+                }
+            }
+            if (best_legion) {
+                for (int i = 0; i < best_legion->max_figures; i++) {
+                    if (best_legion->figures[i]) {
+                        figure_get(best_legion->figures[i])->action_state = FIGURE_ACTION_82_SOLDIER_RETURNING_TO_BARRACKS;
+                    }
+                }
+                best_legion->cursed_by_mars = 96;
+                formation_calculate_figures();
                 city_message_post(1, MESSAGE_WRATH_OF_MARS, 0, 0);
-                scenario_invasion_start_from_mars();
             } else {
                 city_message_post(1, MESSAGE_WRATH_OF_MARS_NO_MILITARY, 0, 0);
             }
+            scenario_invasion_start_from_mars();
             break;
         case GOD_VENUS:
             city_message_post(1, MESSAGE_WRATH_OF_VENUS, 0, 0);
