@@ -30,11 +30,11 @@ void scenario_request_dispatch(int id);
 
 void scenario_custom_messages_process(void);
 
+int start_invasion(int enemy_type, int enemy_type_detailed, int amount, int invasion_point, int enemy_attack_priority, int invasion_id);
+
 void scenario_price_change_process(void);
 
 void scenario_demand_change_process(void);
-
-void scenario_invasion_start_from_mars(void);
 
 int scenario_invasion_start_from_caesar(int size);
 

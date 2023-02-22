@@ -547,7 +547,7 @@ void scenario_custom_messages_process(void)
     }
 }
 
-static int start_invasion(int enemy_type, int enemy_type_detailed, int amount, int invasion_point, int enemy_attack_priority, int invasion_id)
+int start_invasion(int enemy_type, int enemy_type_detailed, int amount, int invasion_point, int enemy_attack_priority, int invasion_id)
 {
     if (amount <= 0) {
         return -1;
@@ -629,7 +629,7 @@ static int start_invasion(int enemy_type, int enemy_type_detailed, int amount, i
         int figure_type = ENEMY_PROPERTIES[enemy_type].figure_types[i];
         while (enemy_count_per_type[i]) {
             if (enemy_count_per_type[i] >= MAX_FORMATION_FIGURES) {
-                struct formation_t *m = formation_create_enemy(figure_type, enemy_count_per_type[i], x, y, ENEMY_PROPERTIES[enemy_type].formation_layout, orientation, enemy_type, enemy_attack_priority, invasion_id);
+                struct formation_t *m = formation_create_enemy(figure_type, MAX_FORMATION_FIGURES, x, y, ENEMY_PROPERTIES[enemy_type].formation_layout, orientation, enemy_type, enemy_attack_priority, invasion_id);
                 for (int fig = 0; fig < MAX_FORMATION_FIGURES; fig++) {
                     figure *f = figure_create(figure_type, x, y, orientation);
                     f->faction_id = 0;
@@ -730,14 +730,6 @@ void scenario_invasion_process(void)
             }
             scenario.invasion_upcoming = 0;
         }
-    }
-}
-
-void scenario_invasion_start_from_mars(void)
-{
-    int grid_offset = start_invasion(ENEMY_TYPE_BARBARIAN, ENEMY_TYPE_BARBARIAN, 24, MAX_INVASION_POINTS, FORMATION_ATTACK_FOOD_CHAIN, 23);
-    if (grid_offset > 0) {
-        city_message_post(1, MESSAGE_LOCAL_UPRISING_MARS, 0, grid_offset);
     }
 }
 
