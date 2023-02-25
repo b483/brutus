@@ -317,7 +317,6 @@ extern struct city_data_t {
         int8_t march_enemy;
         int8_t march_horse;
         int8_t march_wolf;
-        int8_t shoot_arrow;
         int8_t hit_soldier;
         int8_t hit_spear;
         int8_t hit_club;

@@ -2,6 +2,7 @@
 
 #include "city/view.h"
 #include "core/image.h"
+#include "figure/combat.h"
 #include "figure/formation.h"
 #include "figure/movement.h"
 #include "figure/properties.h"
@@ -49,17 +50,20 @@ void figure_create_explosion_cloud(int x, int y, int size)
     }
 }
 
-void figure_create_missile(int building_id, int x, int y, int x_dst, int y_dst, figure_type type)
+void figure_create_missile(figure *shooter, map_point *target_tile, figure_type type)
 {
-    figure *f = figure_create(type, x, y, DIR_0_TOP);
-    if (f->id) {
-        f->missile_damage = type == FIGURE_BOLT ? 60 : 10;
-        f->building_id = building_id;
-        f->destination_x = x_dst;
-        f->destination_y = y_dst;
-        figure_movement_set_cross_country_direction(
-            f, f->cross_country_x, f->cross_country_y,
-            15 * x_dst, 15 * y_dst, 1);
+    figure *missile = figure_create(type, shooter->x, shooter->y, DIR_0_TOP);
+    if (missile->id) {
+        missile->missile_offset = type == FIGURE_BOLT ? 60 : 10;
+        missile->building_id = shooter->id;
+        missile->destination_x = target_tile->x;
+        missile->destination_y = target_tile->y;
+        figure_movement_set_cross_country_direction(missile, missile->cross_country_x, missile->cross_country_y, 15 * target_tile->x, 15 * target_tile->y, 1);
+
+        // clear targeting
+        figure *target = figure_get(shooter->target_figure_id);
+        figure__remove_ranged_targeter_from_list(target, shooter);
+        shooter->target_figure_id = 0;
     }
 }
 
@@ -117,9 +121,8 @@ void figure_explosion_cloud_action(figure *f)
     }
 }
 
-static void missile_hit_target(figure *f, int target_id, figure_type legionary_type)
+static void missile_hit_target(figure *f, figure *target)
 {
-    figure *target = figure_get(target_id);
     const figure_properties *target_props = figure_properties_for_type(target->type);
     int max_damage = target_props->max_damage;
     int damage_inflicted =
@@ -128,7 +131,9 @@ static void missile_hit_target(figure *f, int target_id, figure_type legionary_t
     if (damage_inflicted < 0) {
         damage_inflicted = 0;
     }
-    if (target->type == legionary_type && formations[target->formation_id].is_halted && formations[target->formation_id].layout == FORMATION_TORTOISE) {
+    if ((target->type == FIGURE_FORT_LEGIONARY || target->type == FIGURE_ENEMY_CAESAR_LEGIONARY)
+        && formations[target->formation_id].is_halted
+        && formations[target->formation_id].layout == FORMATION_TORTOISE) {
         damage_inflicted = 1;
     }
     int target_damage = damage_inflicted + target->damage;
@@ -158,7 +163,8 @@ void figure_arrow_action(figure *f)
     int should_die = figure_movement_move_ticks_cross_country(f, 4);
     int target_id = get_citizen_on_tile(f->grid_offset);
     if (target_id) {
-        missile_hit_target(f, target_id, FIGURE_FORT_LEGIONARY);
+        figure *target = figure_get(target_id);
+        missile_hit_target(f, target);
         sound_effect_play(SOUND_EFFECT_ARROW_HIT);
     } else if (should_die) {
         f->state = FIGURE_STATE_DEAD;
@@ -177,7 +183,8 @@ void figure_spear_action(figure *f)
     int should_die = figure_movement_move_ticks_cross_country(f, 4);
     int target_id = get_citizen_on_tile(f->grid_offset);
     if (target_id) {
-        missile_hit_target(f, target_id, FIGURE_FORT_LEGIONARY);
+        figure *target = figure_get(target_id);
+        missile_hit_target(f, target);
         sound_effect_play(SOUND_EFFECT_JAVELIN);
     } else if (should_die) {
         f->state = FIGURE_STATE_DEAD;
@@ -196,7 +203,8 @@ void figure_javelin_action(figure *f)
     int should_die = figure_movement_move_ticks_cross_country(f, 4);
     int target_id = get_non_citizen_on_tile(f->grid_offset);
     if (target_id) {
-        missile_hit_target(f, target_id, FIGURE_ENEMY_CAESAR_LEGIONARY);
+        figure *target = figure_get(target_id);
+        missile_hit_target(f, target);
         sound_effect_play(SOUND_EFFECT_JAVELIN);
     } else if (should_die) {
         f->state = FIGURE_STATE_DEAD;

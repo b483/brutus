@@ -85,7 +85,7 @@ static void javelin_launch_missile(figure *f)
     f->wait_ticks_missile++;
     if (f->wait_ticks_missile > figure_properties_for_type(f->type)->missile_delay) {
         f->wait_ticks_missile = 0;
-        if (get_missile_target(f, 10, &tile)) {
+        if (get_missile_target(f, &tile, 1) || get_missile_target(f, &tile, 0)) {
             f->attack_image_offset = 1;
             f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
         } else {
@@ -97,7 +97,7 @@ static void javelin_launch_missile(figure *f)
             if (tile.x == -1 || tile.y == -1) {
                 map_point_get_last_result(&tile);
             }
-            figure_create_missile(f->id, f->x, f->y, tile.x, tile.y, FIGURE_JAVELIN);
+            figure_create_missile(f, &tile, FIGURE_JAVELIN);
             formations[f->formation_id].missile_fired = 6;
         }
         f->attack_image_offset++;
@@ -109,7 +109,7 @@ static void javelin_launch_missile(figure *f)
 
 static void mop_up_enemies(figure *f)
 {
-    figure *target = set_closest_eligible_target(f);
+    figure *target = melee_unit__set_closest_target(f);
     if (target) {
         figure_movement_move_ticks(f, f->speed_multiplier);
         if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
@@ -201,6 +201,7 @@ void figure_soldier_action(figure *f)
         f->speed_multiplier = 3;
     } else if (f->type == FIGURE_FORT_JAVELIN) {
         f->speed_multiplier = 2;
+        f->max_range = 10;
     } else {
         f->speed_multiplier = 1;
     }
@@ -212,11 +213,11 @@ void figure_soldier_action(figure *f)
     f->formation_position_y.soldier = formations[f->formation_id].y + formation_layout_position_y(layout, f->index_in_formation);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_150_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
         case FIGURE_ACTION_149_CORPSE:
             figure_combat_handle_corpse(f);
+            break;
+        case FIGURE_ACTION_150_ATTACK:
+            figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_80_SOLDIER_AT_REST:
             map_figure_update(f);

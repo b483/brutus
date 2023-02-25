@@ -388,7 +388,6 @@ static void save_main_data(buffer *main)
     buffer_write_i8(main, city_data.building.triumphal_arches_placed);
     buffer_write_i8(main, city_data.sound.die_citizen);
     buffer_write_i8(main, city_data.sound.die_soldier);
-    buffer_write_i8(main, city_data.sound.shoot_arrow);
     buffer_write_i32(main, city_data.building.trade_center_building_id);
     buffer_write_i32(main, city_data.figure.soldiers);
     buffer_write_i8(main, city_data.sound.hit_soldier);
@@ -768,7 +767,6 @@ static void load_main_data(buffer *main)
     city_data.building.triumphal_arches_placed = buffer_read_i8(main);
     city_data.sound.die_citizen = buffer_read_i8(main);
     city_data.sound.die_soldier = buffer_read_i8(main);
-    city_data.sound.shoot_arrow = buffer_read_i8(main);
     city_data.building.trade_center_building_id = buffer_read_i32(main);
     city_data.figure.soldiers = buffer_read_i32(main);
     city_data.sound.hit_soldier = buffer_read_i8(main);

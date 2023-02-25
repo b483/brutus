@@ -146,7 +146,7 @@ void figure_wolf_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_196_HERD_ANIMAL_AT_REST:
-            if (m->missile_attack_formation_id || set_closest_eligible_target(f)) {
+            if (m->missile_attack_formation_id || melee_unit__set_closest_target(f)) {
                 f->action_state = FIGURE_ACTION_197_HERD_ANIMAL_MOVING;
                 break;
             } else {
@@ -170,7 +170,7 @@ void figure_wolf_action(figure *f)
             }
             break;
         case FIGURE_ACTION_197_HERD_ANIMAL_MOVING:
-            figure *target = set_closest_eligible_target(f);
+            figure *target = melee_unit__set_closest_target(f);
             if (target) {
                 m->destination_x = target->x;
                 m->destination_y = target->y;

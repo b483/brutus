@@ -93,26 +93,46 @@ static void hit_opponent(figure *f)
     }
 }
 
+void figure__remove_ranged_targeter_from_list(figure *f, figure *ranged_targeter)
+{
+    for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
+        if (f->ranged_targeter_ids[i] == ranged_targeter->id) {
+            f->ranged_targeter_ids[i] = 0;
+        }
+    }
+}
+
+static void figure__remove_melee_targeter_from_list(figure *f, figure *melee_targeter)
+{
+    for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
+        if (f->melee_targeter_ids[i] == melee_targeter->id) {
+            f->melee_targeter_ids[i] = 0;
+        }
+    }
+}
+
 void figure_combat_handle_attack(figure *f)
 {
     figure_movement_advance_attack(f);
 
-    // remove dead opponent from figure's targeter and melee attacker lists
+    // synchronize melee target list to melee attacker list as they can diverge when units move around/engage and retarget
+    for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
+        f->melee_targeter_ids[i] = f->melee_combatant_ids[i];
+    }
+
+    // remove dead opponent from figure's melee targeter/attacker lists
     figure *opponent = figure_get(f->primary_melee_combatant_id);
     if (opponent->action_state == FIGURE_ACTION_149_CORPSE) {
-        for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
-            if (f->targeter_ids[i] == opponent->id) {
-                f->targeter_ids[i] = 0;
-                f->num_melee_targeters--;
-                break;
-            }
-        }
+        figure__remove_melee_targeter_from_list(f, opponent);
         for (int i = 0; i < MAX_MELEE_COMBATANTS_PER_UNIT; i++) {
             if (f->melee_combatant_ids[i] == opponent->id) {
                 f->melee_combatant_ids[i] = 0;
                 f->num_melee_combatants--;
-                break;
             }
+        }
+        if (opponent->max_range) {
+            // if opponent is a ranged unit [that was engaged in melee with figure], remove it from figure's ranged targeters list as well
+            figure__remove_ranged_targeter_from_list(f, opponent);
         }
     }
 
@@ -138,21 +158,27 @@ void figure_combat_handle_attack(figure *f)
     return;
 }
 
-static int set_targeter_for_target(figure *targeter, figure *target)
+static int figure__targeted_by_ranged_unit(figure *f, figure *ranged_targeter)
 {
-    for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
-        if (target->targeter_ids[i] == targeter->id) {
+    for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
+        if (f->ranged_targeter_ids[i] == ranged_targeter->id) {
             return 1;
-        } else if (!target->targeter_ids[i]) {
-            target->targeter_ids[i] = targeter->id;
-            target->num_melee_targeters++;
-            return 1;
-        };
+        }
     }
     return 0;
 }
 
-figure *set_closest_eligible_target(figure *f)
+static int figure__targeted_by_melee_unit(figure *f, figure *melee_targeter)
+{
+    for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
+        if (f->melee_targeter_ids[i] == melee_targeter->id) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+figure *melee_unit__set_closest_target(figure *f)
 {
     figure *closest_eligible_target = 0;
     int closest_target_distance;
@@ -174,17 +200,23 @@ figure *set_closest_eligible_target(figure *f)
         }
         int potential_target_distance = calc_maximum_distance(f->x, f->y, potential_target->x, potential_target->y);
         if (potential_target_distance < closest_target_distance) {
-            // skip potential enemy target if its targeter list is full, unless the current targeter is already in
-            // this prevents swarming while also keeping target eligible
-            if (potential_target->num_melee_targeters >= MAX_MELEE_TARGETERS_PER_UNIT) {
-                for (int j = 0; j < MAX_MELEE_TARGETERS_PER_UNIT; j++) {
-                    if (potential_target->targeter_ids[j] == f->id) {
-                        closest_target_distance = potential_target_distance;
-                        closest_eligible_target = potential_target;
-                        break;
-                    }
+            // skip potential enemy target if its targeter list is full, unless the current targeter is already in it
+            int potential_target_melee_targeter_list_full = 1;
+            for (int j = 0; j < MAX_MELEE_TARGETERS_PER_UNIT; j++) {
+                if (!potential_target->melee_targeter_ids[j]) {
+                    potential_target_melee_targeter_list_full = 0;
+                    break;
                 }
-                continue;
+            }
+            if (potential_target_melee_targeter_list_full) {
+                if (figure__targeted_by_melee_unit(potential_target, f)) {
+                    closest_target_distance = potential_target_distance;
+                    closest_eligible_target = potential_target;
+                    // the remaining criteria (friendly, enemy) have already been checked on previous targeting, continue to next potential target
+                    continue;
+                } else {
+                    continue;
+                }
             }
             int targeter_figure_category = figure_properties_for_type(f->type)->category;
             int potential_target_figure_category = figure_properties_for_type(potential_target->type)->category;
@@ -194,6 +226,7 @@ figure *set_closest_eligible_target(figure *f)
                 || (potential_target->type == FIGURE_INDIGENOUS_NATIVE && potential_target->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING)) {
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
+                    continue;
                 }
             } else if (f->type == FIGURE_WOLF) {
                 switch (potential_target->type) {
@@ -215,34 +248,49 @@ figure *set_closest_eligible_target(figure *f)
                 }
                 closest_target_distance = potential_target_distance;
                 closest_eligible_target = potential_target;
+                continue;
             } else {
                 // targeter is enemy unit
                 if ((potential_target_figure_category == FIGURE_CATEGORY_ARMED && potential_target->type != FIGURE_TOWER_SENTRY)
                 || potential_target->type == FIGURE_WOLF
+                || (figure_is_caesar_legion(potential_target) && !figure_is_caesar_legion(f))
                 || potential_target->type == FIGURE_NATIVE_TRADER
                 || (potential_target->type == FIGURE_INDIGENOUS_NATIVE && potential_target->action_state != FIGURE_ACTION_159_NATIVE_ATTACKING)
                 ) {
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
+                    continue;
                 }
             }
         }
     }
-    // set target and destination for figure 
     if (closest_eligible_target) {
+        // set target and destination for figure
+        if (f->target_figure_id && f->target_figure_id != closest_eligible_target->id) {
+            // if switching targets, remove targeter from previous target's melee targeters list
+            figure *previous_target = figure_get(f->target_figure_id);
+            figure__remove_melee_targeter_from_list(previous_target, f);
+        }
         f->target_figure_id = closest_eligible_target->id;
         f->destination_x = closest_eligible_target->x;
         f->destination_y = closest_eligible_target->y;
         figure_route_remove(f);
-        set_targeter_for_target(f, closest_eligible_target);
+        if (!figure__targeted_by_melee_unit(closest_eligible_target, f)) {
+            // update new target's melee targeter list
+            for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
+                if (!closest_eligible_target->melee_targeter_ids[i]) {
+                    closest_eligible_target->melee_targeter_ids[i] = f->id;
+                    break;
+                }
+            };
+        }
     }
-
     return closest_eligible_target;
 }
 
-int get_missile_target(figure *shooter, int max_range, map_point *tile)
+int get_missile_target(figure *shooter, map_point *tile, int limit_max_targeters)
 {
-    int closest_target_distance = max_range;
+    int closest_target_distance = shooter->max_range;
     figure *closest_eligible_target = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
         figure *potential_target = figure_get(i);
@@ -251,6 +299,25 @@ int get_missile_target(figure *shooter, int max_range, map_point *tile)
         }
         int potential_target_distance = calc_maximum_distance(shooter->x, shooter->y, potential_target->x, potential_target->y);
         if (potential_target_distance < closest_target_distance && figure_movement_can_launch_cross_country_missile(shooter->x, shooter->y, potential_target->x, potential_target->y)) {
+            // if potential target is the current target, it's eligible (could still end up being switched for a nearer one)
+            if (figure__targeted_by_ranged_unit(potential_target, shooter)) {
+                closest_target_distance = potential_target_distance;
+                closest_eligible_target = potential_target;
+                continue;
+            }
+            if (limit_max_targeters) {
+                // if ranged targeter list of potential enemy target is full, skip potential target
+                int potential_target_ranged_targeter_list_full = 1;
+                for (int j = 0; j < MAX_RANGED_TARGETERS_PER_UNIT; j++) {
+                    if (!potential_target->ranged_targeter_ids[j]) {
+                        potential_target_ranged_targeter_list_full = 0;
+                        break;
+                    }
+                }
+                if (potential_target_ranged_targeter_list_full) {
+                    continue;
+                }
+            }
             int potential_target_figure_category = figure_properties_for_type(potential_target->type)->category;
             if (shooter->is_friendly) {
                 if (potential_target_figure_category == FIGURE_CATEGORY_HOSTILE
@@ -258,6 +325,7 @@ int get_missile_target(figure *shooter, int max_range, map_point *tile)
                 || (potential_target->type == FIGURE_INDIGENOUS_NATIVE && potential_target->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING)) {
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
+                    continue;
                 }
             } else {
                 // shooter is enemy unit
@@ -281,8 +349,9 @@ int get_missile_target(figure *shooter, int max_range, map_point *tile)
                 }
                 if ((potential_target_figure_category == FIGURE_CATEGORY_ARMED && potential_target->type != FIGURE_TOWER_SENTRY)
                 || potential_target->type == FIGURE_WOLF
+                || (figure_is_caesar_legion(potential_target) && !figure_is_caesar_legion(shooter))
                 || potential_target_figure_category == FIGURE_CATEGORY_CITIZEN
-                // target only trader natives so as to not get stuck in place shooting while fighters respawn
+                // target only trader natives so as to not get stuck in place shooting respawning fighters
                 || potential_target->type == FIGURE_NATIVE_TRADER) {
                     // skip (closer) civilian/native trader if defender or wolf an eligible target
                     if ((potential_target_figure_category == FIGURE_CATEGORY_CITIZEN || potential_target->type == FIGURE_NATIVE_TRADER)
@@ -292,15 +361,31 @@ int get_missile_target(figure *shooter, int max_range, map_point *tile)
                     }
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
-
+                    continue;
                 }
             }
         }
     }
     if (closest_eligible_target) {
+        if (shooter->target_figure_id && shooter->target_figure_id != closest_eligible_target->id) {
+            // if switching targets, remove targeter from previous target's ranged targeters list
+            figure *previous_target = figure_get(shooter->target_figure_id);
+            figure__remove_ranged_targeter_from_list(previous_target, shooter);
+        }
+        shooter->target_figure_id = closest_eligible_target->id;
+        if (!figure__targeted_by_ranged_unit(closest_eligible_target, shooter)) {
+            // update new target's ranged targeters list
+            for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
+                if (!closest_eligible_target->ranged_targeter_ids[i]) {
+                    closest_eligible_target->ranged_targeter_ids[i] = shooter->id;
+                    break;
+                }
+            };
+        }
         map_point_store_result(closest_eligible_target->x, closest_eligible_target->y, tile);
         return closest_eligible_target->id;
     }
+
     return 0;
 }
 
@@ -374,12 +459,12 @@ void figure_combat_attack_figure_at(figure *f, int grid_offset)
         if (attack) {
             f->action_state_before_attack = f->action_state;
             f->action_state = FIGURE_ACTION_150_ATTACK;
-
-            // if attacker's target list full but opponent not in it, overwrite first entry
-            if (!set_targeter_for_target(opponent, f)) {
-                f->targeter_ids[0] = opponent->id;
+            // if ranged unit engages in melee combat, remove it from its (previous) target's ranged targeter list
+            if (f->max_range && f->target_figure_id) {
+                figure *target_of_ranged_unit = figure_get(f->target_figure_id);
+                figure__remove_ranged_targeter_from_list(target_of_ranged_unit, f);
             }
-
+            f->target_figure_id = primary_melee_combatant_id;
             f->primary_melee_combatant_id = primary_melee_combatant_id;
             f->melee_combatant_ids[0] = primary_melee_combatant_id;
             f->num_melee_combatants++;
@@ -398,6 +483,12 @@ void figure_combat_attack_figure_at(figure *f, int grid_offset)
             if (opponent->action_state != FIGURE_ACTION_150_ATTACK) {
                 opponent->action_state_before_attack = opponent->action_state;
                 opponent->action_state = FIGURE_ACTION_150_ATTACK;
+                // if opponent ranged unit engaged in melee combat, remove it from its (previous) target's ranged targeter list
+                if (opponent->max_range && opponent->target_figure_id) {
+                    figure *target_of_opponent_ranged_unit = figure_get(opponent->target_figure_id);
+                    figure__remove_ranged_targeter_from_list(target_of_opponent_ranged_unit, opponent);
+                }
+                opponent->target_figure_id = f->id;
                 opponent->primary_melee_combatant_id = f->id;
                 opponent->attack_image_offset = 0;
                 opponent->attack_direction = (f->attack_direction + 4) % 8;
@@ -410,8 +501,6 @@ void figure_combat_attack_figure_at(figure *f, int grid_offset)
                 }
             }
             opponent->num_melee_combatants++;
-
-            set_targeter_for_target(f, opponent);
 
             return;
         }

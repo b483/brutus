@@ -7,6 +7,7 @@
 #include "figure/type.h"
 
 #define MAX_FIGURES 1000
+#define MAX_RANGED_TARGETERS_PER_UNIT 4
 #define MAX_MELEE_TARGETERS_PER_UNIT 4
 #define MAX_MELEE_COMBATANTS_PER_UNIT 4
 
@@ -35,7 +36,7 @@ typedef struct {
     unsigned char y;
     unsigned char previous_tile_x;
     unsigned char previous_tile_y;
-    unsigned char missile_damage;
+    unsigned char missile_offset;
     unsigned char damage;
     short grid_offset;
     unsigned char destination_x;
@@ -106,9 +107,10 @@ typedef struct {
     uint8_t prefect_recent_guard_duty;
     unsigned short created_sequence;
     unsigned char figures_on_same_tile_index;
+    uint8_t max_range;
+    uint16_t ranged_targeter_ids[MAX_RANGED_TARGETERS_PER_UNIT];
     uint16_t target_figure_id;
-    uint16_t targeter_ids[MAX_MELEE_TARGETERS_PER_UNIT];
-    uint8_t num_melee_targeters;
+    uint16_t melee_targeter_ids[MAX_MELEE_TARGETERS_PER_UNIT];
     uint16_t primary_melee_combatant_id;
     uint16_t melee_combatant_ids[MAX_MELEE_COMBATANTS_PER_UNIT];
     uint8_t num_melee_combatants;

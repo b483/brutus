@@ -47,6 +47,7 @@ void figure_ballista_action(figure *f)
     f->is_ghost = 1;
     f->height_adjusted_ticks = 10;
     f->current_height = 45;
+    f->max_range = 15;
 
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id4 != f->id) {
         f->state = FIGURE_STATE_DEAD;
@@ -73,7 +74,7 @@ void figure_ballista_action(figure *f)
             if (f->wait_ticks > 20) {
                 f->wait_ticks = 0;
                 map_point tile;
-                if (get_missile_target(f, 15, &tile)) {
+                if (get_missile_target(f, &tile, 1) || get_missile_target(f, &tile, 0)) {
                     f->action_state = FIGURE_ACTION_181_BALLISTA_FIRING;
                     f->wait_ticks_missile = figure_properties_for_type(f->type)->missile_delay;
                 }
@@ -83,10 +84,10 @@ void figure_ballista_action(figure *f)
             f->wait_ticks_missile++;
             if (f->wait_ticks_missile > figure_properties_for_type(f->type)->missile_delay) {
                 map_point tile;
-                if (get_missile_target(f, 15, &tile)) {
+                if (get_missile_target(f, &tile, 1) || get_missile_target(f, &tile, 0)) {
                     f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
                     f->wait_ticks_missile = 0;
-                    figure_create_missile(f->id, f->x, f->y, tile.x, tile.y, FIGURE_BOLT);
+                    figure_create_missile(f, &tile, FIGURE_BOLT);
                     sound_effect_play(SOUND_EFFECT_BALLISTA_SHOOT);
                 } else {
                     f->action_state = FIGURE_ACTION_180_BALLISTA_CREATED;
@@ -113,7 +114,7 @@ static void tower_sentry_pick_target(figure *f)
         return;
     }
     map_point tile;
-    if (get_missile_target(f, 12, &tile)) {
+    if (get_missile_target(f, &tile, 1) || get_missile_target(f, &tile, 0)) {
         f->action_state = FIGURE_ACTION_172_TOWER_SENTRY_FIRING;
         f->destination_x = f->x;
         f->destination_y = f->y;
@@ -166,6 +167,7 @@ void figure_tower_sentry_action(figure *f)
     f->is_ghost = 1;
     f->height_adjusted_ticks = 10;
     f->max_roam_length = 800;
+    f->max_range = 12;
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
@@ -209,10 +211,10 @@ void figure_tower_sentry_action(figure *f)
             f->wait_ticks_missile++;
             if (f->wait_ticks_missile > figure_properties_for_type(f->type)->missile_delay) {
                 map_point tile;
-                if (get_missile_target(f, 12, &tile)) {
+                if (get_missile_target(f, &tile, 1) || get_missile_target(f, &tile, 0)) {
                     f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
                     f->wait_ticks_missile = 0;
-                    figure_create_missile(f->id, f->x, f->y, tile.x, tile.y, FIGURE_JAVELIN);
+                    figure_create_missile(f, &tile, FIGURE_JAVELIN);
                 } else {
                     f->action_state = FIGURE_ACTION_173_TOWER_SENTRY_RETURNING;
                     f->destination_x = f->source_x;

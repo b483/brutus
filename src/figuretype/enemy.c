@@ -18,6 +18,48 @@
 #include "sound/effect.h"
 #include "sound/speech.h"
 
+static void shoot_enemy_missile(figure *f, struct formation_t *m)
+{
+    f->wait_ticks_missile++;
+    map_point tile = { 0, 0 };
+    if (f->wait_ticks_missile > figure_properties_for_type(f->type)->missile_delay) {
+        f->wait_ticks_missile = 0;
+        if (get_missile_target(f, &tile, 1) || get_missile_target(f, &tile, 0)) {
+            f->attack_image_offset = 1;
+            f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
+        } else {
+            f->attack_image_offset = 0;
+        }
+    }
+    if (f->attack_image_offset) {
+        figure_type missile_type;
+        switch (f->type) {
+            case FIGURE_ENEMY46_CAMEL:
+            case FIGURE_ENEMY47_ELEPHANT:
+            case FIGURE_ENEMY52_MOUNTED_ARCHER:
+                missile_type = FIGURE_ARROW;
+                break;
+            default:
+                missile_type = FIGURE_SPEAR;
+                break;
+        }
+        if (f->attack_image_offset == 1) {
+            if (tile.x == -1 || tile.y == -1) {
+                map_point_get_last_result(&tile);
+            }
+            figure_create_missile(f, &tile, missile_type);
+            m->missile_fired = 6;
+        }
+        if (missile_type == FIGURE_ARROW) {
+            sound_effect_play(SOUND_EFFECT_ARROW);
+        }
+        f->attack_image_offset++;
+        if (f->attack_image_offset > 100) {
+            f->attack_image_offset = 0;
+        }
+    }
+}
+
 static void enemy_initial(figure *f, struct formation_t *m)
 {
     map_figure_update(f);
@@ -43,48 +85,9 @@ static void enemy_initial(figure *f, struct formation_t *m)
             }
         }
     }
-    if (f->type == FIGURE_ENEMY43_SPEAR || f->type == FIGURE_ENEMY46_CAMEL ||
-        f->type == FIGURE_ENEMY51_SPEAR || f->type == FIGURE_ENEMY52_MOUNTED_ARCHER) {
-        // missile throwers
-        f->wait_ticks_missile++;
-        map_point tile = { 0, 0 };
-        if (f->wait_ticks_missile > figure_properties_for_type(f->type)->missile_delay) {
-            f->wait_ticks_missile = 0;
-            if (get_missile_target(f, 10, &tile)) {
-                f->attack_image_offset = 1;
-                f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
-            } else {
-                f->attack_image_offset = 0;
-            }
-        }
-        if (f->attack_image_offset) {
-            figure_type missile_type;
-            switch (m->enemy_img_group) {
-                case ENEMY_TYPE_GOTH:
-                case ENEMY_TYPE_PERGAMUM:
-                case ENEMY_TYPE_EGYPTIAN:
-                case ENEMY_TYPE_CARTHAGINIAN:
-                    missile_type = FIGURE_ARROW;
-                    break;
-                default:
-                    missile_type = FIGURE_SPEAR;
-                    break;
-            }
-            if (f->attack_image_offset == 1) {
-                if (tile.x == -1 || tile.y == -1) {
-                    map_point_get_last_result(&tile);
-                }
-                figure_create_missile(f->id, f->x, f->y, tile.x, tile.y, missile_type);
-                m->missile_fired = 6;
-            }
-            if (missile_type == FIGURE_ARROW && city_sound_update_shoot_arrow()) {
-                sound_effect_play(SOUND_EFFECT_ARROW);
-            }
-            f->attack_image_offset++;
-            if (f->attack_image_offset > 100) {
-                f->attack_image_offset = 0;
-            }
-        }
+    if (f->max_range) {
+        // ranged enemies
+        shoot_enemy_missile(f, m);
     }
 }
 
@@ -110,7 +113,7 @@ static void enemy_marching(figure *f, const struct formation_t *m)
     }
 }
 
-static void engage_enemy(figure *f, const struct formation_t *m)
+static void engage_enemy(figure *f, struct formation_t *m)
 {
     if (!m->recent_fight) {
         f->action_state = FIGURE_ACTION_151_ENEMY_INITIAL;
@@ -120,16 +123,20 @@ static void engage_enemy(figure *f, const struct formation_t *m)
             sound_effect_play(SOUND_EFFECT_HORSE_MOVING);
         }
     }
-    figure *target = set_closest_eligible_target(f);
-    if (target) {
-        figure_movement_move_ticks(f, f->speed_multiplier);
-        if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
-            f->action_state = FIGURE_ACTION_151_ENEMY_INITIAL;
-            f->target_figure_id = 0;
-        }
+    if (f->max_range) {
+        shoot_enemy_missile(f, m);
     } else {
-        f->action_state = FIGURE_ACTION_151_ENEMY_INITIAL;
-        f->wait_ticks = 50;
+        figure *target = melee_unit__set_closest_target(f);
+        if (target) {
+            figure_movement_move_ticks(f, f->speed_multiplier);
+            if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                f->action_state = FIGURE_ACTION_151_ENEMY_INITIAL;
+                f->target_figure_id = 0;
+            }
+        } else {
+            f->action_state = FIGURE_ACTION_151_ENEMY_INITIAL;
+            f->wait_ticks = 50;
+        }
     }
 }
 
@@ -200,6 +207,7 @@ void figure_enemy43_spear_action(figure *f)
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     f->speed_multiplier = 1;
+    f->max_range = 10;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_missile_direction(f, &formations[f->formation_id]);
@@ -305,6 +313,7 @@ void figure_enemy_camel_action(figure *f)
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     f->speed_multiplier = 1;
+    f->max_range = 15;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_missile_direction(f, &formations[f->formation_id]);
@@ -329,6 +338,7 @@ void figure_enemy_elephant_action(figure *f)
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     f->speed_multiplier = 1;
+    f->max_range = 15;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_direction(f);
@@ -440,6 +450,7 @@ void figure_enemy51_spear_action(figure *f)
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     f->speed_multiplier = 2;
+    f->max_range = 10;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_missile_direction(f, &formations[f->formation_id]);
@@ -471,6 +482,7 @@ void figure_enemy52_mounted_archer_action(figure *f)
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     f->speed_multiplier = 3;
+    f->max_range = 15;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_missile_direction(f, &formations[f->formation_id]);

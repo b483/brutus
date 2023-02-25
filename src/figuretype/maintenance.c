@@ -211,7 +211,7 @@ void figure_prefect_action(figure *f)
             break;
         case FIGURE_ACTION_72_PREFECT_ROAMING:
             f->is_ghost = 0;
-            figure *target = set_closest_eligible_target(f);
+            figure *target = melee_unit__set_closest_target(f);
             if (target && calc_maximum_distance(f->x, f->y, b->x, b->y) < PREFECT_LEASH_RANGE) {
                 f->terrain_usage = TERRAIN_USAGE_ANY;
                 f->roam_length = f->max_roam_length;

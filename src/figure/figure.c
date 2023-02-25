@@ -189,7 +189,7 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_u8(buf, f->y);
     buffer_write_u8(buf, f->previous_tile_x);
     buffer_write_u8(buf, f->previous_tile_y);
-    buffer_write_u8(buf, f->missile_damage);
+    buffer_write_u8(buf, f->missile_offset);
     buffer_write_u8(buf, f->damage);
     buffer_write_i16(buf, f->grid_offset);
     buffer_write_u8(buf, f->destination_x);
@@ -254,11 +254,14 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_u8(buf, f->prefect_recent_guard_duty);
     buffer_write_u16(buf, f->created_sequence);
     buffer_write_u8(buf, f->figures_on_same_tile_index);
+    buffer_write_u8(buf, f->max_range);
+    for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
+        buffer_write_u16(buf, f->ranged_targeter_ids[i]);
+    }
     buffer_write_u16(buf, f->target_figure_id);
     for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
-        buffer_write_u16(buf, f->targeter_ids[i]);
+        buffer_write_u16(buf, f->melee_targeter_ids[i]);
     }
-    buffer_write_u8(buf, f->num_melee_targeters);
     buffer_write_u16(buf, f->primary_melee_combatant_id);
     for (int i = 0; i < MAX_MELEE_COMBATANTS_PER_UNIT; i++) {
         buffer_write_u16(buf, f->melee_combatant_ids[i]);
@@ -291,7 +294,7 @@ static void figure_load(buffer *buf, figure *f)
     f->y = buffer_read_u8(buf);
     f->previous_tile_x = buffer_read_u8(buf);
     f->previous_tile_y = buffer_read_u8(buf);
-    f->missile_damage = buffer_read_u8(buf);
+    f->missile_offset = buffer_read_u8(buf);
     f->damage = buffer_read_u8(buf);
     f->grid_offset = buffer_read_i16(buf);
     f->destination_x = buffer_read_u8(buf);
@@ -356,11 +359,14 @@ static void figure_load(buffer *buf, figure *f)
     f->prefect_recent_guard_duty = buffer_read_u8(buf);
     f->created_sequence = buffer_read_u16(buf);
     f->figures_on_same_tile_index = buffer_read_u8(buf);
+    f->max_range = buffer_read_u8(buf);
+    for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
+        f->ranged_targeter_ids[i] = buffer_read_u16(buf);
+    }
     f->target_figure_id = buffer_read_u16(buf);
     for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
-        f->targeter_ids[i] = buffer_read_u16(buf);
+        f->melee_targeter_ids[i] = buffer_read_u16(buf);
     }
-    f->num_melee_targeters = buffer_read_u8(buf);
     f->primary_melee_combatant_id = buffer_read_u16(buf);
     for (int i = 0; i < MAX_MELEE_COMBATANTS_PER_UNIT; i++) {
         f->melee_combatant_ids[i] = buffer_read_u16(buf);

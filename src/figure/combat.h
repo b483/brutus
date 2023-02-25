@@ -7,11 +7,14 @@
 #define PREFECT_TARGET_ACQUISITION_RANGE 20
 
 void figure_combat_handle_corpse(figure *f);
+
+void figure__remove_ranged_targeter_from_list(figure *f, figure *targeter);
+
 void figure_combat_handle_attack(figure *f);
 
-figure *set_closest_eligible_target(figure *f);
+figure *melee_unit__set_closest_target(figure *f);
 
-int get_missile_target(figure *shooter, int max_range, map_point *tile);
+int get_missile_target(figure *shooter, map_point *tile, int limit_max_targeters);
 
 void figure_combat_attack_figure_at(figure *f, int grid_offset);
 

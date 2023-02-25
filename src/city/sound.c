@@ -23,11 +23,6 @@ int city_sound_update_march_wolf(void)
     return update_field(&city_data.sound.march_wolf, 12);
 }
 
-int city_sound_update_shoot_arrow(void)
-{
-    return update_field(&city_data.sound.shoot_arrow, 10);
-}
-
 int city_sound_update_hit_wolf(void)
 {
     return update_field(&city_data.sound.hit_wolf, 4);
