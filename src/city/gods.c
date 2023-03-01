@@ -99,7 +99,7 @@ static int perform_large_curse(god_type god)
                 city_message_post(1, MESSAGE_WRATH_OF_NEPTUNE, 0, 0);
                 figure_sink_all_ships();
                 city_data.religion.neptune_sank_ships = 1;
-                city_trade_start_sea_trade_problems(80);
+                city_data.trade.sea_trade_problem_duration = 80;
             }
             break;
         case GOD_MERCURY:

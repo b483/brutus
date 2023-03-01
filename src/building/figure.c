@@ -503,7 +503,7 @@ static void spawn_figure_hippodrome(building *b)
             b->figure_id = f->id;
             figure_movement_init_roaming(f);
 
-            if (!city_entertainment_hippodrome_has_race()) {
+            if (!city_data.entertainment.hippodrome_has_race) {
                 // create mini-horses
                 figure *horse1 = figure_create(FIGURE_HIPPODROME_HORSES, b->x + 2, b->y + 1, DIR_2_RIGHT);
                 horse1->action_state = FIGURE_ACTION_200_HIPPODROME_HORSE_CREATED;

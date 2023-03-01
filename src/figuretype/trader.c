@@ -14,9 +14,7 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "empire/object.h"
-#include "empire/empire.h"
 #include "empire/trade_prices.h"
-#include "empire/trade_route.h"
 #include "figure/combat.h"
 #include "figure/image.h"
 #include "figure/movement.h"
@@ -40,7 +38,7 @@ int figure_trade_caravan_can_buy(figure *trader, int warehouse_id, int city_id)
     for (int i = 0; i < 8; i++) {
         space = building_next(space);
         if (space->id > 0 && space->loads_stored > 0 &&
-            empire_can_export_resource_to_city(city_id, space->subtype.warehouse_resource_id)) {
+            can_export_resource_to_trade_city(city_id, space->subtype.warehouse_resource_id)) {
             return 1;
         }
     }
@@ -63,7 +61,7 @@ int figure_trade_caravan_can_sell(figure *trader, int warehouse_id, int city_id)
     int num_importable = 0;
     for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
         if (storage->resource_state[r] != BUILDING_STORAGE_STATE_NOT_ACCEPTING) {
-            if (empire_can_import_resource_from_city(city_id, r)) {
+            if (can_import_resource_from_trade_city(city_id, r)) {
                 num_importable++;
             }
         }
@@ -72,15 +70,15 @@ int figure_trade_caravan_can_sell(figure *trader, int warehouse_id, int city_id)
         return 0;
     }
     int can_import = 0;
-    int resource = city_trade_current_caravan_import_resource();
+    int resource = city_data.trade.caravan_import_resource;
     if (storage->resource_state[resource] != BUILDING_STORAGE_STATE_NOT_ACCEPTING &&
-        empire_can_import_resource_from_city(city_id, resource)) {
+        can_import_resource_from_trade_city(city_id, resource)) {
         can_import = 1;
     } else {
         for (int i = RESOURCE_MIN; i < RESOURCE_MAX; i++) {
             resource = city_trade_next_caravan_import_resource();
             if (storage->resource_state[resource] != BUILDING_STORAGE_STATE_NOT_ACCEPTING &&
-                    empire_can_import_resource_from_city(city_id, resource)) {
+                    can_import_resource_from_trade_city(city_id, resource)) {
                 can_import = 1;
                 break;
             }
@@ -97,7 +95,7 @@ int figure_trade_caravan_can_sell(figure *trader, int warehouse_id, int city_id)
                     // empty space
                     return 1;
                 }
-                if (empire_can_import_resource_from_city(city_id, space->subtype.warehouse_resource_id)) {
+                if (can_import_resource_from_trade_city(city_id, space->subtype.warehouse_resource_id)) {
                     return 1;
                 }
             }
@@ -119,7 +117,7 @@ static int trader_get_buy_resource(int warehouse_id, int city_id)
             continue;
         }
         int resource = space->subtype.warehouse_resource_id;
-        if (space->loads_stored > 0 && empire_can_export_resource_to_city(city_id, resource)) {
+        if (space->loads_stored > 0 && can_export_resource_to_trade_city(city_id, resource)) {
             // update stocks
             city_resource_remove_from_warehouse(resource, 1);
             space->loads_stored--;
@@ -143,9 +141,9 @@ static int trader_get_sell_resource(int warehouse_id, int city_id)
     if (warehouse->type != BUILDING_WAREHOUSE) {
         return 0;
     }
-    int resource_to_import = city_trade_current_caravan_import_resource();
+    int resource_to_import = city_data.trade.caravan_import_resource;
     int imp = RESOURCE_MIN;
-    while (imp < RESOURCE_MAX && !empire_can_import_resource_from_city(city_id, resource_to_import)) {
+    while (imp < RESOURCE_MAX && !can_import_resource_from_trade_city(city_id, resource_to_import)) {
         imp++;
         resource_to_import = city_trade_next_caravan_import_resource();
     }
@@ -176,7 +174,7 @@ static int trader_get_sell_resource(int warehouse_id, int city_id)
     // find another importable resource that can be added to this warehouse
     for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
         resource_to_import = city_trade_next_caravan_backup_import_resource();
-        if (empire_can_import_resource_from_city(city_id, resource_to_import)) {
+        if (can_import_resource_from_trade_city(city_id, resource_to_import)) {
             space = warehouse;
             for (int i = 0; i < 8; i++) {
                 space = building_next(space);
@@ -199,12 +197,12 @@ static int get_closest_warehouse(
     exportable[RESOURCE_NONE] = 0;
     importable[RESOURCE_NONE] = 0;
     for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-        exportable[r] = empire_can_export_resource_to_city(city_id, r);
+        exportable[r] = can_export_resource_to_trade_city(city_id, r);
         if (f->trader_amount_bought >= 8) {
             exportable[r] = 0;
         }
         if (city_id) {
-            importable[r] = empire_can_import_resource_from_city(city_id, r);
+            importable[r] = can_import_resource_from_trade_city(city_id, r);
         } else { // Don't import goods from native traders
             importable[r] = 0;
         }
@@ -232,7 +230,7 @@ static int get_closest_warehouse(
         int num_imports_for_warehouse = 0;
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
             if (s->resource_state[r] != BUILDING_STORAGE_STATE_NOT_ACCEPTING
-                && empire_can_import_resource_from_city(city_id, r)) {
+                && can_import_resource_from_trade_city(city_id, r)) {
                 num_imports_for_warehouse++;
             }
         }
@@ -250,7 +248,7 @@ static int get_closest_warehouse(
                         break;
                     }
                 }
-                int resource = city_trade_current_caravan_import_resource();
+                int resource = city_data.trade.caravan_import_resource;
                 if (s->resource_state[resource] != BUILDING_STORAGE_STATE_NOT_ACCEPTING) {
                     if (space->subtype.warehouse_resource_id == RESOURCE_NONE) {
                         distance_penalty -= 16;
@@ -355,7 +353,7 @@ void figure_trade_caravan_action(figure *f)
                 if (figure_trade_caravan_can_buy(f, f->destination_building_id, f->empire_city_id)) {
                     int resource = trader_get_buy_resource(f->destination_building_id, f->empire_city_id);
                     if (resource) {
-                        trade_route_increase_traded(empire_objects[f->empire_city_id].trade_route_id, resource);
+                        empire_objects[f->empire_city_id].resource_bought[resource]++;
                         trader_record_bought_resource(f->trader_id, resource);
                         f->trader_amount_bought++;
                     } else {
@@ -367,7 +365,7 @@ void figure_trade_caravan_action(figure *f)
                 if (figure_trade_caravan_can_sell(f, f->destination_building_id, f->empire_city_id)) {
                     int resource = trader_get_sell_resource(f->destination_building_id, f->empire_city_id);
                     if (resource) {
-                        trade_route_increase_traded(empire_objects[f->empire_city_id].trade_route_id, resource);
+                        empire_objects[f->empire_city_id].resource_sold[resource]++;
                         trader_record_sold_resource(f->trader_id, resource);
                         f->loads_sold_or_carrying++;
                     } else {

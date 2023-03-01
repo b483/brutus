@@ -310,7 +310,7 @@ void scenario_save_state(buffer *buf)
         buffer_write_i8(buf, scenario.demand_changes[i].resource);
     }
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
-        buffer_write_i8(buf, scenario.demand_changes[i].route_id);
+        buffer_write_u8(buf, scenario.demand_changes[i].trade_city_id);
     }
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
         buffer_write_i8(buf, scenario.demand_changes[i].is_rise);
@@ -550,7 +550,7 @@ void scenario_load_state(buffer *buf)
         scenario.demand_changes[i].resource = buffer_read_i8(buf);
     }
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
-        scenario.demand_changes[i].route_id = buffer_read_i8(buf);
+        scenario.demand_changes[i].trade_city_id = buffer_read_u8(buf);
     }
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
         scenario.demand_changes[i].is_rise = buffer_read_i8(buf);

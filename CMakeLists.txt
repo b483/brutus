@@ -169,7 +169,6 @@ set(EMPIRE_FILES
     ${PROJECT_SOURCE_DIR}/src/empire/empire.c
     ${PROJECT_SOURCE_DIR}/src/empire/object.c
     ${PROJECT_SOURCE_DIR}/src/empire/trade_prices.c
-    ${PROJECT_SOURCE_DIR}/src/empire/trade_route.c
 )
 set(FIGURE_FILES
     ${PROJECT_SOURCE_DIR}/src/figure/action.c

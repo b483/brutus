@@ -15,7 +15,6 @@
 #include "core/random.h"
 #include "empire/object.h"
 #include "empire/trade_prices.h"
-#include "empire/trade_route.h"
 #include "figure/figure.h"
 #include "figure/formation.h"
 #include "figure/name.h"
@@ -408,8 +407,8 @@ void scenario_random_event_process(void)
             break;
         case EVENT_LAND_TRADE_DISRUPTED:
             if (scenario.random_events.land_trade_problem) {
-                if (city_trade_has_land_trade_route()) {
-                    city_trade_start_land_trade_problems(48);
+                if (city_data.trade.num_land_routes) {
+                    city_data.trade.land_trade_problem_duration = 48;
                     if (scenario.climate == CLIMATE_DESERT) {
                         city_message_post(1, MESSAGE_LAND_TRADE_DISRUPTED_SANDSTORMS, 0, 0);
                     } else {
@@ -420,8 +419,8 @@ void scenario_random_event_process(void)
             break;
         case EVENT_LAND_SEA_DISRUPTED:
             if (scenario.random_events.sea_trade_problem) {
-                if (city_trade_has_sea_trade_route()) {
-                    city_trade_start_sea_trade_problems(48);
+                if (city_data.trade.num_sea_routes) {
+                    city_data.trade.sea_trade_problem_duration = 48;
                     city_message_post(1, MESSAGE_SEA_TRADE_DISRUPTED, 0, 0);
                 }
             }
@@ -791,28 +790,107 @@ void scenario_price_change_process(void)
     }
 }
 
+static void increase_resource_buy_limit(struct empire_object_t *trade_city, resource_type resource)
+{
+    switch (trade_city->resource_buy_limit[resource]) {
+        case 0:
+            trade_city->resource_buy_limit[resource] = 15;
+            city_message_post(1, MESSAGE_INCREASED_TRADING, trade_city->id, resource);
+            break;
+        case 15:
+            trade_city->resource_buy_limit[resource] = 25;
+            city_message_post(1, MESSAGE_INCREASED_TRADING, trade_city->id, resource);
+            break;
+        case 25:
+            trade_city->resource_buy_limit[resource] = 40;
+            city_message_post(1, MESSAGE_INCREASED_TRADING, trade_city->id, resource);
+            break;
+        default:
+            break;
+    }
+}
+
+static void decrease_resource_buy_limit(struct empire_object_t *trade_city, resource_type resource)
+{
+    switch (trade_city->resource_buy_limit[resource]) {
+        case 40:
+            trade_city->resource_buy_limit[resource] = 25;
+            city_message_post(1, MESSAGE_DECREASED_TRADING, trade_city->id, resource);
+            break;
+        case 25:
+            trade_city->resource_buy_limit[resource] = 15;
+            city_message_post(1, MESSAGE_DECREASED_TRADING, trade_city->id, resource);
+            break;
+        case 15:
+            trade_city->resource_buy_limit[resource] = 0;
+            city_message_post(1, MESSAGE_TRADE_STOPPED, trade_city->id, resource);
+            break;
+        default:
+            break;
+    }
+}
+
+static void increase_resource_sell_limit(struct empire_object_t *trade_city, resource_type resource)
+{
+    switch (trade_city->resource_sell_limit[resource]) {
+        case 0:
+            trade_city->resource_sell_limit[resource] = 15;
+            city_message_post(1, MESSAGE_INCREASED_TRADING, trade_city->id, resource);
+            break;
+        case 15:
+            trade_city->resource_sell_limit[resource] = 25;
+            city_message_post(1, MESSAGE_INCREASED_TRADING, trade_city->id, resource);
+            break;
+        case 25:
+            trade_city->resource_sell_limit[resource] = 40;
+            city_message_post(1, MESSAGE_INCREASED_TRADING, trade_city->id, resource);
+            break;
+        default:
+            break;
+    }
+}
+
+static void decrease_resource_sell_limit(struct empire_object_t *trade_city, resource_type resource)
+{
+    switch (trade_city->resource_sell_limit[resource]) {
+        case 40:
+            trade_city->resource_sell_limit[resource] = 25;
+            city_message_post(1, MESSAGE_DECREASED_TRADING, trade_city->id, resource);
+            break;
+        case 25:
+            trade_city->resource_sell_limit[resource] = 15;
+            city_message_post(1, MESSAGE_DECREASED_TRADING, trade_city->id, resource);
+            break;
+        case 15:
+            trade_city->resource_sell_limit[resource] = 0;
+            city_message_post(1, MESSAGE_TRADE_STOPPED, trade_city->id, resource);
+            break;
+        default:
+            break;
+    }
+}
+
 void scenario_demand_change_process(void)
 {
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
-        if (!scenario.demand_changes[i].resource || !scenario.demand_changes[i].route_id) {
-            continue;
-        }
-        if (game_time_year() != scenario.demand_changes[i].year + scenario.start_year ||
-            game_time_month() != scenario.demand_changes[i].month) {
-            continue;
-        }
-        int resource = scenario.demand_changes[i].resource;
-        struct empire_object_t *object = get_empire_object_by_trade_route(scenario.demand_changes[i].route_id);
-        if (scenario.demand_changes[i].is_rise) {
-            if (trade_route_increase_limit(scenario.demand_changes[i].route_id, resource) && empire_object_trade_route_is_open(scenario.demand_changes[i].route_id)) {
-                city_message_post(1, MESSAGE_INCREASED_TRADING, object->id, resource);
-            }
-        } else {
-            if (trade_route_decrease_limit(scenario.demand_changes[i].route_id, resource) && empire_object_trade_route_is_open(scenario.demand_changes[i].route_id)) {
-                if (trade_route_limit(scenario.demand_changes[i].route_id, resource) > 0) {
-                    city_message_post(1, MESSAGE_DECREASED_TRADING, object->id, resource);
+        if (scenario.demand_changes[i].resource && scenario.demand_changes[i].trade_city_id
+            && game_time_year() == scenario.demand_changes[i].year + scenario.start_year
+            && game_time_month() == scenario.demand_changes[i].month) {
+            struct empire_object_t *trade_city = &empire_objects[scenario.demand_changes[i].trade_city_id];
+            if (trade_city->trade_route_open) {
+                if (scenario.demand_changes[i].is_rise) {
+                    if (trade_city->resource_buy_limit[scenario.demand_changes[i].resource]) {
+                        increase_resource_buy_limit(trade_city, scenario.demand_changes[i].resource);
+                    } else if (trade_city->resource_sell_limit[scenario.demand_changes[i].resource]) {
+                        increase_resource_sell_limit(trade_city, scenario.demand_changes[i].resource);
+                    }
                 } else {
-                    city_message_post(1, MESSAGE_TRADE_STOPPED, object->id, resource);
+                    if (trade_city->resource_buy_limit[scenario.demand_changes[i].resource]) {
+                        decrease_resource_buy_limit(trade_city, scenario.demand_changes[i].resource);
+                    }
+                    if (trade_city->resource_sell_limit[scenario.demand_changes[i].resource]) {
+                        decrease_resource_sell_limit(trade_city, scenario.demand_changes[i].resource);
+                    }
                 }
             }
         }

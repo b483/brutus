@@ -7,7 +7,6 @@
 #include "core/image_group.h"
 #include "empire/empire.h"
 #include "empire/object.h"
-#include "empire/trade_route.h"
 #include "game/settings.h"
 #include "game/time.h"
 #include "graphics/generic_button.h"
@@ -152,12 +151,12 @@ static void draw_trade_city_info(void)
         lang_text_draw(47, 10, x_offset, y_offset + 40, FONT_NORMAL_GREEN);
         int index = 0;
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            if (!data.selected_object->resources_sell_list.resource[r]) {
+            if (!data.selected_object->resource_sell_limit[r]) {
                 continue;
             }
-            int trade_max = trade_route_limit(data.selected_object->trade_route_id, r);
+            int trade_max = data.selected_object->resource_sell_limit[r];
             draw_trade_resource(r, trade_max, x_offset + 104 * index + 76, y_offset + 31);
-            int trade_now = trade_route_traded(data.selected_object->trade_route_id, r);
+            int trade_now = data.selected_object->resource_sold[r];
             if (trade_now > trade_max) {
                 trade_max = trade_now;
             }
@@ -173,12 +172,12 @@ static void draw_trade_city_info(void)
         lang_text_draw(47, 9, x_offset, y_offset + 71, FONT_NORMAL_GREEN);
         index = 0;
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            if (!data.selected_object->resources_buy_list.resource[r]) {
+            if (!data.selected_object->resource_buy_limit[r]) {
                 continue;
             }
-            int trade_max = trade_route_limit(data.selected_object->trade_route_id, r);
+            int trade_max = data.selected_object->resource_buy_limit[r];
             draw_trade_resource(r, trade_max, x_offset + 104 * index + 76, y_offset + 62);
-            int trade_now = trade_route_traded(data.selected_object->trade_route_id, r);
+            int trade_now = data.selected_object->resource_bought[r];
             if (trade_now > trade_max) {
                 trade_max = trade_now;
             }
@@ -193,27 +192,27 @@ static void draw_trade_city_info(void)
     } else { // trade is closed
         int index = lang_text_draw(47, 5, x_offset + 35, y_offset + 42, FONT_NORMAL_GREEN);
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            if (!data.selected_object->resources_sell_list.resource[r]) {
+            if (!data.selected_object->resource_sell_limit[r]) {
                 continue;
             }
-            int trade_max = trade_route_limit(data.selected_object->trade_route_id, r);
+            int trade_max = data.selected_object->resource_sell_limit[r];
             draw_trade_resource(r, trade_max, x_offset + index + 45, y_offset + 33);
             index += 32;
         }
         index += lang_text_draw(47, 4, x_offset + index + 85, y_offset + 42, FONT_NORMAL_GREEN);
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            if (!data.selected_object->resources_buy_list.resource[r]) {
+            if (!data.selected_object->resource_buy_limit[r]) {
                 continue;
             }
-            int trade_max = trade_route_limit(data.selected_object->trade_route_id, r);
+            int trade_max = data.selected_object->resource_buy_limit[r];
             draw_trade_resource(r, trade_max, x_offset + index + 95, y_offset + 33);
             index += 32;
         }
         index = lang_text_draw_amount(8, 0, data.selected_object->trade_route_cost,
             x_offset + 40, y_offset + 73, FONT_NORMAL_GREEN);
         lang_text_draw(47, 6, x_offset + index + 40, y_offset + 73, FONT_NORMAL_GREEN);
-        int image_id = image_group(GROUP_EMPIRE_TRADE_ROUTE_TYPE) + 1 - empire_object_is_sea_trade_route(data.selected_object->trade_route_id);
-        image_draw(image_id, x_offset + 430, y_offset + 65 + 2 * empire_object_is_sea_trade_route(data.selected_object->trade_route_id));
+        int image_id = image_group(GROUP_EMPIRE_TRADE_ROUTE_TYPE) + 1 - data.selected_object->is_sea_trade;
+        image_draw(image_id, x_offset + 430, y_offset + 65 + 2 * data.selected_object->is_sea_trade);
     }
 }
 
@@ -330,8 +329,10 @@ static void draw_empire_objects(void)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
         if (empire_objects[i].in_use) {
+            // don't draw trade routes that aren't open
             if (empire_objects[i].type == EMPIRE_OBJECT_LAND_TRADE_ROUTE || empire_objects[i].type == EMPIRE_OBJECT_SEA_TRADE_ROUTE) {
-                if (!empire_object_trade_route_is_open(empire_objects[i].trade_route_id)) {
+                struct empire_object_t *trade_city = get_trade_city_by_trade_route(empire_objects[i].trade_route_id);
+                if (!trade_city->trade_route_open) {
                     continue;
                 }
             }
@@ -371,7 +372,6 @@ static void draw_empire_objects(void)
                     continue;
                 }
             }
-
             int x, y, image_id;
             if (scenario.empire.is_expanded) {
                 x = empire_objects[i].expanded.x;
@@ -382,12 +382,10 @@ static void draw_empire_objects(void)
                 y = empire_objects[i].y;
                 image_id = empire_objects[i].image_id;
             }
-
             if (empire_objects[i].city_type == EMPIRE_CITY_FUTURE_TRADE) {
                 // Fix case where future trade city (as specified in the editor) is drawn as a trade city before expansion
                 image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
             }
-
             image_draw(image_id, data.x_draw_offset + x, data.y_draw_offset + y);
             const image *img = image_get(image_id);
             if (img->animation_speed_id) {
@@ -490,11 +488,11 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
                 // we only want to handle resource buttons that the selected city trades
                 for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-                    if (data.selected_object->resources_sell_list.resource[r]) {
+                    if (data.selected_object->resource_sell_limit[r]) {
                         generic_buttons_handle_mouse(m, x_offset + 75 + 104 * index_sell, y_offset + 31,
                             generic_button_trade_resource + r - 1, 1, &button_id);
                         index_sell++;
-                    } else if (data.selected_object->resources_buy_list.resource[r]) {
+                    } else if (data.selected_object->resource_buy_limit[r]) {
                         generic_buttons_handle_mouse(m, x_offset + 75 + 104 * index_buy, y_offset + 62,
                             generic_button_trade_resource + r - 1, 1, &button_id);
                         index_buy++;
@@ -568,7 +566,7 @@ static int get_tooltip_resource(tooltip_context *c)
 
     int item_offset = lang_text_get_width(47, 5, FONT_NORMAL_GREEN);
     for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-        if (data.selected_object->resources_sell_list.resource[r]) {
+        if (data.selected_object->resource_sell_limit[r]) {
             if (is_mouse_hit(c, x_offset + 45 + item_offset, y_offset + 33, 26)) {
                 return r;
             }
@@ -577,7 +575,7 @@ static int get_tooltip_resource(tooltip_context *c)
     }
     item_offset += lang_text_get_width(47, 4, FONT_NORMAL_GREEN);
     for (int r = RESOURCE_MIN; r <= RESOURCE_MAX; r++) {
-        if (data.selected_object->resources_buy_list.resource[r]) {
+        if (data.selected_object->resource_buy_limit[r]) {
             if (is_mouse_hit(c, x_offset + 95 + item_offset, y_offset + 33, 26)) {
                 return r;
             }
@@ -600,12 +598,12 @@ static void get_tooltip_trade_route_type(tooltip_context *c)
 
     int x_offset = (data.x_min + data.x_max + 300) / 2;
     int y_offset = data.y_max - 41;
-    int y_offset_max = y_offset + 22 - 2 * empire_object_is_sea_trade_route(data.selected_object->trade_route_id);
+    int y_offset_max = y_offset + 22 - 2 * data.selected_object->is_sea_trade;
     if (c->mouse_x >= x_offset && c->mouse_x < x_offset + 32 &&
         c->mouse_y >= y_offset && c->mouse_y < y_offset_max) {
         c->type = TOOLTIP_BUTTON;
         c->text_group = 44;
-        c->text_id = 28 + empire_object_is_sea_trade_route(data.selected_object->trade_route_id);
+        c->text_id = 28 + data.selected_object->is_sea_trade;
     }
 }
 

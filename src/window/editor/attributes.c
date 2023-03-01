@@ -156,7 +156,7 @@ static void draw_foreground(void)
 
     // Demand changes
     button_border_draw(213, 340, 195, 30, data.focus_button_id == 11);
-    if (scenario.demand_changes[0].resource && scenario.demand_changes[0].route_id) {
+    if (scenario.demand_changes[0].resource && scenario.demand_changes[0].trade_city_id) {
         text_draw_centered(get_custom_string(TR_EDITOR_DEMAND_CHANGE_SCHEDULED), 213, 349, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
     } else {
         text_draw_centered(get_custom_string(TR_EDITOR_NO_DEMAND_CHANGE), 213, 349, 195, FONT_NORMAL_BLACK, COLOR_BLACK);

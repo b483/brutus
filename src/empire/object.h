@@ -49,14 +49,10 @@ struct empire_object_t {
     int16_t trader_entry_delay;
     uint8_t is_sea_trade;
     int16_t trader_figure_ids[3];
-    struct {
-        uint8_t resource[RESOURCE_MAX];
-        uint8_t resource_limit[RESOURCE_MAX];
-    } resources_sell_list;
-    struct {
-        uint8_t resource[RESOURCE_MAX];
-        uint8_t resource_limit[RESOURCE_MAX];
-    } resources_buy_list;
+    uint8_t resource_buy_limit[RESOURCE_MAX];
+    uint8_t resource_sell_limit[RESOURCE_MAX];
+    uint8_t resource_bought[RESOURCE_MAX];
+    uint8_t resource_sold[RESOURCE_MAX];
     uint8_t invasion_path_id;
     uint8_t invasion_years;
     uint8_t distant_battle_travel_months;
@@ -72,11 +68,9 @@ void empire_object_load_state(buffer *buf);
 // saves empire map for custom maps
 void empire_object_save_state(buffer *buf);
 
-void empire_object_init_cities(void);
-
 int empire_object_init_distant_battle_travel_months(int object_type);
 
-struct empire_object_t *get_empire_object_by_trade_route(int trade_route_id);
+struct empire_object_t *get_trade_city_by_trade_route(int trade_route_id);
 
 int empire_object_get_closest(int x, int y);
 
@@ -87,18 +81,12 @@ int empire_object_update_animation(struct empire_object_t *obj, int image_id);
 // sets all resources to sell for our city based on allowed buildings in the editor
 void empire_object_our_city_set_resources_sell(void);
 
-// disables default resources that trade cities sell/buy
-void empire_object_trade_cities_disable_default_resources(void);
+int resource_import_trade_route_open(resource_type resource);
+int resource_export_trade_route_open(resource_type resource);
+int can_export_resource_to_trade_city(int city_id, int resource);
+int can_import_resource_from_trade_city(int city_id, int resource);
 
-int empire_object_trade_route_is_open(int trade_route_id);
-
-int empire_object_is_sea_trade_route(int route_id);
-
-int empire_can_import_resource(int resource);
-
-int empire_can_export_resource(int resource);
-
-int empire_object_our_city_can_produce_resource(int resource);
+int our_city_can_produce_resource(int resource);
 
 int empire_can_produce_resource(int resource);
 

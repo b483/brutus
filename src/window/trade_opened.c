@@ -26,7 +26,7 @@ static void draw_background(void)
 
     outer_panel_draw(80, 64, 30, 14);
     lang_text_draw_centered(142, 0, 80, 80, 480, FONT_LARGE_BLACK);
-    if (empire_object_is_sea_trade_route(selected_trade_city->trade_route_id)) {
+    if (selected_trade_city->is_sea_trade) {
         lang_text_draw_multiline(142, 1, 112, 120, 416, FONT_NORMAL_BLACK);
         lang_text_draw_multiline(142, 3, 112, 184, 416, FONT_NORMAL_BLACK);
     } else {

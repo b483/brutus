@@ -9,7 +9,6 @@
 #include "core/log.h"
 #include "core/io.h"
 #include "empire/object.h"
-#include "empire/trade_route.h"
 
 #include <string.h>
 
@@ -30,6 +29,18 @@ static struct {
     int viewport_height;
 } data;
 
+static void disable_trade_cities_initial_resources(void)
+{
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (empire_objects[i].in_use
+        && (empire_objects[i].city_type == EMPIRE_CITY_TRADE || empire_objects[i].city_type == EMPIRE_CITY_FUTURE_TRADE)) {
+        }
+        for (int r = 0; r < RESOURCE_MAX; r++) {
+            empire_objects[i].resource_buy_limit[r] = 0;
+            empire_objects[i].resource_sell_limit[r] = 0;
+        }
+    }
+}
 
 void empire_load(int empire_id)
 {
@@ -55,6 +66,7 @@ void empire_load(int empire_id)
     }
     buffer_init(&buf, raw_data, EMPIRE_DATA_SIZE);
     empire_object_load_initial(&buf);
+    disable_trade_cities_initial_resources();
 }
 
 static void check_scroll_boundaries(void)
@@ -69,9 +81,7 @@ static void check_scroll_boundaries(void)
 void empire_load_editor(int empire_id, int viewport_width, int viewport_height)
 {
     empire_load(empire_id);
-    empire_object_init_cities();
     empire_object_our_city_set_resources_sell();
-    empire_object_trade_cities_disable_default_resources();
 
     struct empire_object_t *our_city = empire_object_get_our_city();
 
@@ -93,8 +103,6 @@ void empire_init_scenario(void)
     data.scroll_y = data.initial_scroll_y;
     data.viewport_width = EMPIRE_WIDTH;
     data.viewport_height = EMPIRE_HEIGHT;
-
-    empire_object_init_cities();
 }
 
 void empire_set_viewport(int width, int height)
@@ -124,91 +132,6 @@ struct empire_object_t *empire_select_object(int x, int y)
     int closest_object_id = empire_object_get_closest(map_x, map_y) - 1;
     // -1 here means "nothing selected" because the first element (0) is a city/not empty
     return (closest_object_id == -1) ? 0 : &empire_objects[closest_object_id];
-}
-
-int empire_can_export_resource_to_city(int city_id, int resource)
-{
-    if (city_id && trade_route_limit_reached(empire_objects[city_id].trade_route_id, resource)) {
-        // quota reached
-        return 0;
-    }
-    if (city_data.resource.stored_in_warehouses[resource] <= city_data.resource.export_over[resource]) {
-        // stocks too low
-        return 0;
-    }
-    if (city_id == 0 || empire_objects[city_id].resources_buy_list.resource[resource]) {
-        return city_data.resource.trade_status[resource] == TRADE_STATUS_EXPORT;
-    } else {
-        return 0;
-    }
-}
-
-static int get_max_stock_for_population(void)
-{
-    if (city_data.population.population < 2000) {
-        return 10;
-    } else if (city_data.population.population < 4000) {
-        return 20;
-    } else if (city_data.population.population < 6000) {
-        return 30;
-    } else {
-        return 40;
-    }
-}
-
-int empire_can_import_resource_from_city(int city_id, int resource)
-{
-    if (!empire_objects[city_id].resources_sell_list.resource[resource]) {
-        return 0;
-    }
-    if (city_data.resource.trade_status[resource] != TRADE_STATUS_IMPORT) {
-        return 0;
-    }
-    if (trade_route_limit_reached(empire_objects[city_id].trade_route_id, resource)) {
-        return 0;
-    }
-
-    int in_stock = city_data.resource.stored_in_warehouses[resource];
-    int max_in_stock = 0;
-    int finished_good = RESOURCE_NONE;
-    switch (resource) {
-        // food and finished materials
-        case RESOURCE_WHEAT:
-        case RESOURCE_VEGETABLES:
-        case RESOURCE_FRUIT:
-        case RESOURCE_MEAT:
-        case RESOURCE_POTTERY:
-        case RESOURCE_FURNITURE:
-        case RESOURCE_OIL:
-        case RESOURCE_WINE:
-            max_in_stock = get_max_stock_for_population();
-            break;
-
-        case RESOURCE_MARBLE:
-        case RESOURCE_WEAPONS:
-            max_in_stock = 10;
-            break;
-
-        case RESOURCE_CLAY:
-            finished_good = RESOURCE_POTTERY;
-            break;
-        case RESOURCE_TIMBER:
-            finished_good = RESOURCE_FURNITURE;
-            break;
-        case RESOURCE_OLIVES:
-            finished_good = RESOURCE_OIL;
-            break;
-        case RESOURCE_VINES:
-            finished_good = RESOURCE_WINE;
-            break;
-        case RESOURCE_IRON:
-            finished_good = RESOURCE_WEAPONS;
-            break;
-    }
-    if (finished_good) {
-        max_in_stock = 2 + 2 * building_count_industry_active(finished_good);
-    }
-    return in_stock < max_in_stock ? 1 : 0;
 }
 
 void empire_save_state(buffer *buf)

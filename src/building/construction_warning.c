@@ -163,89 +163,16 @@ static void check_charioteer_access(int type)
     }
 }
 
-static void check_iron_access(int type)
+static int empire_offers_resource(resource_type resource)
 {
-    if (type == BUILDING_WEAPONS_WORKSHOP &&
-        building_count_industry_active(RESOURCE_IRON) <= 0) {
-        if (city_data.resource.stored_in_warehouses[RESOURCE_WEAPONS] <= 0 && city_data.resource.stored_in_warehouses[RESOURCE_IRON] <= 0) {
-            show(WARNING_IRON_NEEDED);
-            if (empire_object_our_city_can_produce_resource(RESOURCE_IRON)) {
-                show(WARNING_BUILD_IRON_MINE);
-            } else if (!empire_can_import_resource(RESOURCE_IRON)) {
-                show(WARNING_OPEN_TRADE_TO_IMPORT);
-            } else if (city_data.resource.trade_status[RESOURCE_IRON] != TRADE_STATUS_IMPORT) {
-                show(WARNING_TRADE_IMPORT_RESOURCE);
-            }
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        if (empire_objects[i].in_use
+            && empire_objects[i].city_type == EMPIRE_CITY_TRADE
+            && empire_objects[i].resource_sell_limit[resource]) {
+            return 1;
         }
     }
-}
-
-static void check_vines_access(int type)
-{
-    if (type == BUILDING_WINE_WORKSHOP &&
-        building_count_industry_active(RESOURCE_VINES) <= 0) {
-        if (city_data.resource.stored_in_warehouses[RESOURCE_WINE] <= 0 && city_data.resource.stored_in_warehouses[RESOURCE_VINES] <= 0) {
-            show(WARNING_VINES_NEEDED);
-            if (empire_object_our_city_can_produce_resource(RESOURCE_VINES)) {
-                show(WARNING_BUILD_VINES_FARM);
-            } else if (!empire_can_import_resource(RESOURCE_VINES)) {
-                show(WARNING_OPEN_TRADE_TO_IMPORT);
-            } else if (city_data.resource.trade_status[RESOURCE_VINES] != TRADE_STATUS_IMPORT) {
-                show(WARNING_TRADE_IMPORT_RESOURCE);
-            }
-        }
-    }
-}
-
-static void check_olives_access(int type)
-{
-    if (type == BUILDING_OIL_WORKSHOP &&
-        building_count_industry_active(RESOURCE_OLIVES) <= 0) {
-        if (city_data.resource.stored_in_warehouses[RESOURCE_OIL] <= 0 && city_data.resource.stored_in_warehouses[RESOURCE_OLIVES] <= 0) {
-            show(WARNING_OLIVES_NEEDED);
-            if (empire_object_our_city_can_produce_resource(RESOURCE_OLIVES)) {
-                show(WARNING_BUILD_OLIVE_FARM);
-            } else if (!empire_can_import_resource(RESOURCE_OLIVES)) {
-                show(WARNING_OPEN_TRADE_TO_IMPORT);
-            } else if (city_data.resource.trade_status[RESOURCE_OLIVES] != TRADE_STATUS_IMPORT) {
-                show(WARNING_TRADE_IMPORT_RESOURCE);
-            }
-        }
-    }
-}
-
-static void check_timber_access(int type)
-{
-    if (type == BUILDING_FURNITURE_WORKSHOP &&
-        building_count_industry_active(RESOURCE_TIMBER) <= 0) {
-        if (city_data.resource.stored_in_warehouses[RESOURCE_FURNITURE] <= 0 && city_data.resource.stored_in_warehouses[RESOURCE_TIMBER] <= 0) {
-            show(WARNING_TIMBER_NEEDED);
-            if (empire_object_our_city_can_produce_resource(RESOURCE_TIMBER)) {
-                show(WARNING_BUILD_TIMBER_YARD);
-            } else if (!empire_can_import_resource(RESOURCE_TIMBER)) {
-                show(WARNING_OPEN_TRADE_TO_IMPORT);
-            } else if (city_data.resource.trade_status[RESOURCE_TIMBER] != TRADE_STATUS_IMPORT) {
-                show(WARNING_TRADE_IMPORT_RESOURCE);
-            }
-        }
-    }
-}
-
-static void check_clay_access(int type)
-{
-    if (type == BUILDING_POTTERY_WORKSHOP &&
-        building_count_industry_active(RESOURCE_CLAY) <= 0) {
-        if (city_data.resource.stored_in_warehouses[RESOURCE_POTTERY] <= 0 && city_data.resource.stored_in_warehouses[RESOURCE_CLAY] <= 0) {
-            show(WARNING_CLAY_NEEDED);
-            if (empire_object_our_city_can_produce_resource(RESOURCE_CLAY)) {
-                show(WARNING_BUILD_CLAY_PIT);
-            } else if (!empire_can_import_resource(RESOURCE_CLAY)) {
-                show(WARNING_OPEN_TRADE_TO_IMPORT);
-            } else if (city_data.resource.trade_status[RESOURCE_CLAY] != TRADE_STATUS_IMPORT) {
-                show(WARNING_TRADE_IMPORT_RESOURCE);
-            }
-        }
-    }
+    return 0;
 }
 
 void building_construction_warning_check_all(building_type type, int x, int y, int size)
@@ -263,14 +190,59 @@ void building_construction_warning_check_all(building_type type, int x, int y, i
 
     check_wall(type, x, y, size);
     check_water(type, x, y);
-
-    check_iron_access(type);
-    check_vines_access(type);
-    check_olives_access(type);
-    check_timber_access(type);
-    check_clay_access(type);
-
     check_road_access(type, x, y, size);
+
+    // check raw resources availability
+    resource_type raw_resource = 0;
+    resource_type finished_good = 0;
+    warning_type warning_resource_needed = 0;
+    warning_type warning_resource_building = 0;
+    switch (type) {
+        case BUILDING_OIL_WORKSHOP:
+            raw_resource = RESOURCE_OLIVES;
+            finished_good = RESOURCE_OIL;
+            warning_resource_needed = WARNING_OLIVES_NEEDED;
+            warning_resource_building = WARNING_BUILD_OLIVE_FARM;
+            break;
+        case BUILDING_WINE_WORKSHOP:
+            raw_resource = RESOURCE_VINES;
+            finished_good = RESOURCE_WINE;
+            warning_resource_needed = WARNING_VINES_NEEDED;
+            warning_resource_building = WARNING_BUILD_VINES_FARM;
+            break;
+        case BUILDING_WEAPONS_WORKSHOP:
+            raw_resource = RESOURCE_IRON;
+            finished_good = RESOURCE_WEAPONS;
+            warning_resource_needed = WARNING_IRON_NEEDED;
+            warning_resource_building = WARNING_BUILD_IRON_MINE;
+            break;
+        case BUILDING_FURNITURE_WORKSHOP:
+            raw_resource = RESOURCE_TIMBER;
+            finished_good = RESOURCE_FURNITURE;
+            warning_resource_needed = WARNING_TIMBER_NEEDED;
+            warning_resource_building = WARNING_BUILD_TIMBER_YARD;
+            break;
+        case BUILDING_POTTERY_WORKSHOP:
+            raw_resource = RESOURCE_CLAY;
+            finished_good = RESOURCE_POTTERY;
+            warning_resource_needed = WARNING_CLAY_NEEDED;
+            warning_resource_building = WARNING_BUILD_CLAY_PIT;
+            break;
+        default:
+            return;
+    }
+    if (building_count_industry_active(raw_resource) <= 0) {
+        if (city_data.resource.stored_in_warehouses[finished_good] <= 0 && city_data.resource.stored_in_warehouses[raw_resource] <= 0) {
+            show(warning_resource_needed);
+            if (our_city_can_produce_resource(raw_resource)) {
+                show(warning_resource_building);
+            } else if (empire_offers_resource(raw_resource) && !resource_import_trade_route_open(raw_resource)) {
+                show(WARNING_OPEN_TRADE_TO_IMPORT);
+            } else if (city_data.resource.trade_status[raw_resource] != TRADE_STATUS_IMPORT) {
+                show(WARNING_TRADE_IMPORT_RESOURCE);
+            }
+        }
+    }
 }
 
 void building_construction_warning_check_food_stocks(building_type type)

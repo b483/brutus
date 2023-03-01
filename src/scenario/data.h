@@ -178,7 +178,7 @@ struct demand_change_t {
     int16_t year;
     int8_t month;
     int8_t resource;
-    int8_t route_id;
+    uint8_t trade_city_id;
     int8_t is_rise;
 };
 

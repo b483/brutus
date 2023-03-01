@@ -107,10 +107,10 @@ static void draw_foreground(void)
     // Import/Export
     int trade_flags = TRADE_STATUS_NONE;
     int trade_status = city_data.resource.trade_status[data.resource];
-    if (empire_can_import_resource(data.resource)) {
+    if (resource_import_trade_route_open(data.resource)) {
         trade_flags |= TRADE_STATUS_IMPORT;
     }
-    if (empire_can_export_resource(data.resource)) {
+    if (resource_export_trade_route_open(data.resource)) {
         trade_flags |= TRADE_STATUS_EXPORT;
     }
     if (!trade_flags) {

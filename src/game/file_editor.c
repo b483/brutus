@@ -106,10 +106,7 @@ static void prepare_map_for_editing(int map_is_new)
     if (map_is_new) {
         empire_load(0);
         empire_object_our_city_set_resources_sell();
-        empire_object_trade_cities_disable_default_resources();
     }
-
-    empire_object_init_cities();
 
     figure_init_scenario();
     figure_create_editor_flags();

@@ -16,7 +16,6 @@
 #include "empire/empire.h"
 #include "empire/object.h"
 #include "empire/trade_prices.h"
-#include "empire/trade_route.h"
 #include "figure/enemy_army.h"
 #include "figure/formation.h"
 #include "figure/name.h"
@@ -63,7 +62,7 @@ typedef struct {
     buffer *random_iv;
     buffer *camera;
     buffer *scenario;
-    buffer *empire_object;
+    buffer *empire_objects;
 } scenario_state;
 
 static struct {
@@ -127,8 +126,6 @@ typedef struct {
     buffer *building_storages;
     buffer *building_count_culture2;
     buffer *building_count_support;
-    buffer *trade_route_limit;
-    buffer *trade_route_traded;
     buffer *building_barracks_tower_sentry;
     buffer *building_extra_sequence;
     buffer *routing_counters;
@@ -188,7 +185,7 @@ static void init_scenario_data(void)
     state->random_iv = create_scenario_piece(8);
     state->camera = create_scenario_piece(8);
     state->scenario = create_scenario_piece(51969);
-    state->empire_object = create_scenario_piece(20600);
+    state->empire_objects = create_scenario_piece(20600);
 }
 
 static void init_savegame_data(void)
@@ -254,8 +251,6 @@ static void init_savegame_data(void)
     state->building_storages = create_savegame_piece(4400, 0);
     state->building_count_culture2 = create_savegame_piece(32, 0);
     state->building_count_support = create_savegame_piece(24, 0);
-    state->trade_route_limit = create_savegame_piece(1280, 1);
-    state->trade_route_traded = create_savegame_piece(1280, 1);
     state->building_barracks_tower_sentry = create_savegame_piece(4, 0);
     state->building_extra_sequence = create_savegame_piece(4, 0);
     state->routing_counters = create_savegame_piece(8, 0);
@@ -279,7 +274,7 @@ static void scenario_load_from_state(scenario_state *file)
     random_load_state(file->random_iv);
 
     scenario_load_state(file->scenario);
-    empire_object_load_state(file->empire_object);
+    empire_object_load_state(file->empire_objects);
 }
 
 static void scenario_save_to_state(scenario_state *file)
@@ -294,7 +289,7 @@ static void scenario_save_to_state(scenario_state *file)
     random_save_state(file->random_iv);
 
     scenario_save_state(file->scenario);
-    empire_object_save_state(file->empire_object);
+    empire_object_save_state(file->empire_objects);
 }
 
 static void savegame_load_from_state(savegame_state *state)
@@ -354,7 +349,6 @@ static void savegame_load_from_state(savegame_state *state)
                              state->building_list_burning, state->building_list_burning_totals);
 
     building_storage_load_state(state->building_storages);
-    trade_routes_load_state(state->trade_route_limit, state->trade_route_traded);
     map_routing_load_state(state->routing_counters);
     enemy_armies_load_state(state->enemy_armies, state->enemy_army_totals);
     map_bookmark_load_state(state->bookmarks);
@@ -417,7 +411,6 @@ static void savegame_save_to_state(savegame_state *state)
                              state->building_list_burning, state->building_list_burning_totals);
 
     building_storage_save_state(state->building_storages);
-    trade_routes_save_state(state->trade_route_limit, state->trade_route_traded);
     map_routing_save_state(state->routing_counters);
     enemy_armies_save_state(state->enemy_armies, state->enemy_army_totals);
     map_bookmark_save_state(state->bookmarks);

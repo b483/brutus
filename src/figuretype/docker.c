@@ -9,8 +9,6 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "empire/object.h"
-#include "empire/empire.h"
-#include "empire/trade_route.h"
 #include "figure/combat.h"
 #include "figure/image.h"
 #include "figure/movement.h"
@@ -31,7 +29,7 @@ static int try_import_resource(int building_id, int resource, int city_id)
         space = building_next(space);
         if (space->id > 0) {
             if (space->loads_stored && space->loads_stored < 4 && space->subtype.warehouse_resource_id == resource) {
-                trade_route_increase_traded(empire_objects[city_id].trade_route_id, resource);
+                empire_objects[city_id].resource_sold[resource]++;
                 building_warehouse_space_add_import(space, resource);
                 return 1;
             }
@@ -43,7 +41,7 @@ static int try_import_resource(int building_id, int resource, int city_id)
         space = building_next(space);
         if (space->id > 0) {
             if (space->subtype.warehouse_resource_id == RESOURCE_NONE) {
-                trade_route_increase_traded(empire_objects[city_id].trade_route_id, resource);
+                empire_objects[city_id].resource_sold[resource]++;
                 building_warehouse_space_add_import(space, resource);
                 return 1;
             }
@@ -64,7 +62,7 @@ static int try_export_resource(int building_id, int resource, int city_id)
         space = building_next(space);
         if (space->id > 0) {
             if (space->loads_stored && space->subtype.warehouse_resource_id == resource) {
-                trade_route_increase_traded(empire_objects[city_id].trade_route_id, resource);
+                empire_objects[city_id].resource_bought[resource]++;
                 building_warehouse_space_remove_export(space, resource);
                 return 1;
             }
@@ -79,7 +77,7 @@ static int get_closest_warehouse_for_import(int x, int y, int city_id, int dista
     int importable[16];
     importable[RESOURCE_NONE] = 0;
     for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-        importable[r] = empire_can_import_resource_from_city(city_id, r);
+        importable[r] = can_import_resource_from_trade_city(city_id, r);
     }
     int resource = city_trade_next_docker_import_resource();
     for (int i = RESOURCE_MIN; i < RESOURCE_MAX && !importable[resource]; i++) {
@@ -145,7 +143,7 @@ static int get_closest_warehouse_for_export(int x, int y, int city_id, int dista
     int exportable[16];
     exportable[RESOURCE_NONE] = 0;
     for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-        exportable[r] = empire_can_export_resource_to_city(city_id, r);
+        exportable[r] = can_export_resource_to_trade_city(city_id, r);
     }
     int resource = city_trade_next_docker_export_resource();
     for (int i = RESOURCE_MIN; i < RESOURCE_MAX && !exportable[resource]; i++) {

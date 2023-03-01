@@ -30,7 +30,6 @@
 #include "core/random.h"
 #include "editor/editor.h"
 #include "empire/object.h"
-#include "empire/trade_route.h"
 #include "figure/formation.h"
 #include "figuretype/crime.h"
 #include "game/file_io.h"
@@ -58,7 +57,10 @@ static void advance_year(void)
     // reset yearly trade amounts
     for (int i = 0; i < MAX_OBJECTS; i++) {
         if (empire_objects[i].in_use && empire_objects[i].trade_route_open) {
-            trade_route_reset_traded(empire_objects[i].trade_route_id);
+            for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+                empire_objects[i].resource_bought[r] = 0;
+                empire_objects[i].resource_sold[r] = 0;
+            }
         }
     }
 

@@ -77,11 +77,11 @@ void city_resource_cycle_trade_status(resource_type resource)
     }
 
     if (city_data.resource.trade_status[resource] == TRADE_STATUS_IMPORT &&
-        !empire_can_import_resource(resource)) {
+        !resource_import_trade_route_open(resource)) {
         city_data.resource.trade_status[resource] = TRADE_STATUS_EXPORT;
     }
     if (city_data.resource.trade_status[resource] == TRADE_STATUS_EXPORT &&
-        !empire_can_export_resource(resource)) {
+        !resource_export_trade_route_open(resource)) {
         city_data.resource.trade_status[resource] = TRADE_STATUS_NONE;
     }
     if (city_data.resource.trade_status[resource] == TRADE_STATUS_EXPORT) {

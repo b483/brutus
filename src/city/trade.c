@@ -5,7 +5,6 @@
 #include "city/data_private.h"
 #include "city/message.h"
 #include "empire/object.h"
-#include "empire/trade_route.h"
 #include "figure/figure.h"
 #include "scenario/data.h"
 #include "scenario/map.h"
@@ -15,9 +14,16 @@ static int generate_trader(struct empire_object_t *city)
     int max_traders = 0;
     int num_resources = 0;
     for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-        if (city->resources_buy_list.resource[r] || city->resources_sell_list.resource[r]) {
+        if (city->resource_buy_limit[r]) {
             ++num_resources;
-            switch (trade_route_limit(city->trade_route_id, r)) {
+            switch (city->resource_buy_limit[r]) {
+                case 15: max_traders += 1; break;
+                case 25: max_traders += 2; break;
+                case 40: max_traders += 3; break;
+            }
+        } else if (city->resource_sell_limit[r]) {
+            ++num_resources;
+            switch (city->resource_sell_limit[r]) {
                 case 15: max_traders += 1; break;
                 case 25: max_traders += 2; break;
                 case 40: max_traders += 3; break;
@@ -70,7 +76,7 @@ static int generate_trader(struct empire_object_t *city)
 
     if (city->is_sea_trade) {
         // generate ship
-        if (city_data.building.working_docks && scenario_map_has_river_entry() && !city_trade_has_sea_trade_problems()) {
+        if (city_data.building.working_docks && scenario_map_has_river_entry() && !city_data.trade.sea_trade_problem_duration) {
             figure *ship = figure_create(FIGURE_TRADE_SHIP, scenario.river_entry_point.x, scenario.river_entry_point.y, DIR_0_TOP);
             ship->empire_city_id = city->id;
             ship->action_state = FIGURE_ACTION_110_TRADE_SHIP_CREATED;
@@ -80,7 +86,7 @@ static int generate_trader(struct empire_object_t *city)
         }
     } else {
         // generate caravan and donkeys
-        if (!city_trade_has_land_trade_problems()) {
+        if (!city_data.trade.land_trade_problem_duration) {
             // caravan head
             figure *caravan = figure_create(FIGURE_TRADE_CARAVAN, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
             caravan->empire_city_id = city->id;
@@ -112,7 +118,7 @@ void city_trade_update(void)
         for (int i = 0; i < MAX_OBJECTS; i++) {
             if (empire_objects[i].in_use
                 && empire_objects[i].trade_route_open
-                && empire_objects[i].resources_sell_list.resource[RESOURCE_WINE]) {
+                && empire_objects[i].resource_sell_limit[RESOURCE_WINE]) {
                 city_data.resource.wine_types_available++;
             }
         }
@@ -142,59 +148,14 @@ void city_trade_update(void)
             if (!scenario_map_has_river_entry()) {
                 continue;
             }
-            city_trade_add_sea_trade_route();
+            city_data.trade.num_sea_routes++;
         } else {
-            city_trade_add_land_trade_route();
+            city_data.trade.num_land_routes++;
         }
         if (generate_trader(&empire_objects[i])) {
             break;
         }
     }
-}
-
-void city_trade_add_land_trade_route(void)
-{
-    city_data.trade.num_land_routes++;
-}
-
-void city_trade_add_sea_trade_route(void)
-{
-    city_data.trade.num_sea_routes++;
-}
-
-int city_trade_has_land_trade_route(void)
-{
-    return city_data.trade.num_land_routes > 0;
-}
-
-int city_trade_has_sea_trade_route(void)
-{
-    return city_data.trade.num_sea_routes > 0;
-}
-
-void city_trade_start_land_trade_problems(int duration)
-{
-    city_data.trade.land_trade_problem_duration = duration;
-}
-
-void city_trade_start_sea_trade_problems(int duration)
-{
-    city_data.trade.sea_trade_problem_duration = duration;
-}
-
-int city_trade_has_land_trade_problems(void)
-{
-    return city_data.trade.land_trade_problem_duration > 0;
-}
-
-int city_trade_has_sea_trade_problems(void)
-{
-    return city_data.trade.sea_trade_problem_duration > 0;
-}
-
-int city_trade_current_caravan_import_resource(void)
-{
-    return city_data.trade.caravan_import_resource;
 }
 
 int city_trade_next_caravan_import_resource(void)

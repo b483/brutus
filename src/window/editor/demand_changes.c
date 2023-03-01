@@ -86,12 +86,12 @@ static void draw_foreground(void)
         }
         button_border_draw(x, y, 290, 25, focus_button_id == i + 1);
 
-        if (scenario.demand_changes[i].resource && scenario.demand_changes[i].route_id) {
+        if (scenario.demand_changes[i].resource && scenario.demand_changes[i].trade_city_id) {
             int width = lang_text_draw(25, scenario.demand_changes[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
             width += lang_text_draw_year(scenario.start_year + scenario.demand_changes[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
             image_draw(image_group(GROUP_EDITOR_RESOURCE_ICONS) + scenario.demand_changes[i].resource + resource_image_offset(scenario.demand_changes[i].resource, RESOURCE_IMAGE_ICON), x + 12 + width, y + 3);
             width += lang_text_draw(44, 97, x + 45 + width, y + 6, FONT_NORMAL_BLACK);
-            width += text_draw_number(scenario.demand_changes[i].route_id, 0, 0, x + 48 + width, y + 6, FONT_NORMAL_BLACK);
+            width += text_draw_number(scenario.demand_changes[i].trade_city_id, 0, 0, x + 48 + width, y + 6, FONT_NORMAL_BLACK);
             lang_text_draw(44, scenario.demand_changes[i].is_rise ? 99 : 98, x + 48 + width, y + 6, FONT_NORMAL_BLACK);
         } else {
             lang_text_draw_centered(44, 96, x, y + 6, 290, FONT_NORMAL_BLACK);

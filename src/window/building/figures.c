@@ -147,7 +147,7 @@ static void draw_trader(building_info_context *c, figure *f)
         int y_base = c->y_offset + 180;
         width = lang_text_draw(129, 2, c->x_offset + 40, y_base, FONT_NORMAL_BROWN);
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            if (empire_objects[f->empire_city_id].resources_buy_list.resource[r]) {
+            if (empire_objects[f->empire_city_id].resource_buy_limit[r]) {
                 int image_id = image_group(GROUP_RESOURCE_ICONS) + r + resource_image_offset(r, RESOURCE_IMAGE_ICON);
                 image_draw(image_id, c->x_offset + 40 + width, y_base - 3);
                 width += 25;
@@ -157,7 +157,7 @@ static void draw_trader(building_info_context *c, figure *f)
         y_base = c->y_offset + 210;
         width = lang_text_draw(129, 3, c->x_offset + 40, y_base, FONT_NORMAL_BROWN);
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-            if (empire_objects[f->empire_city_id].resources_sell_list.resource[r]) {
+            if (empire_objects[f->empire_city_id].resource_sell_limit[r]) {
                 int image_id = image_group(GROUP_RESOURCE_ICONS) + r + resource_image_offset(r, RESOURCE_IMAGE_ICON);
                 image_draw(image_id, c->x_offset + 40 + width, y_base - 3);
                 width += 25;

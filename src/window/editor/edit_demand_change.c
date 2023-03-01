@@ -50,10 +50,10 @@ static struct {
 static void create_route_names(void)
 {
     data.num_routes = 0;
-    for (int i = 1; i < MAX_ROUTES; i++) {
-        struct empire_object_t *object = get_empire_object_by_trade_route(i);
+    for (int i = 0; i < MAX_OBJECTS; i++) {
+        struct empire_object_t *object = &empire_objects[i];
         if (object && (object->city_type == EMPIRE_CITY_TRADE || object->city_type == EMPIRE_CITY_FUTURE_TRADE)) {
-            if (object->resources_buy_list.resource[scenario.demand_changes[data.id].resource] || object->resources_sell_list.resource[scenario.demand_changes[data.id].resource]) {
+            if (object->resource_sell_limit[scenario.demand_changes[data.id].resource]) {
                 uint8_t *dst = route_display_names[i];
                 int offset = string_from_int(dst, i, 0);
                 dst[offset++] = ' ';
@@ -111,8 +111,8 @@ static void draw_foreground(void)
     // in route
     lang_text_draw(44, 97, 30, 248, FONT_NORMAL_BLACK);
     button_border_draw(130, 242, 200, 25, data.focus_button_id == 4);
-    if (scenario.demand_changes[data.id].route_id) {
-        text_draw_centered(route_display_names[scenario.demand_changes[data.id].route_id], 130, 248, 200, FONT_NORMAL_BLACK, 0);
+    if (scenario.demand_changes[data.id].trade_city_id) {
+        text_draw_centered(route_display_names[scenario.demand_changes[data.id].trade_city_id], 130, 248, 200, FONT_NORMAL_BLACK, 0);
     }
 
     // demand for this good rises/falls
@@ -131,9 +131,9 @@ static void scenario_editor_sort_demand_changes(void)
 {
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
         for (int j = MAX_DEMAND_CHANGES - 1; j > 0; j--) {
-            if (scenario.demand_changes[j].resource && scenario.demand_changes[j].route_id) {
+            if (scenario.demand_changes[j].resource && scenario.demand_changes[j].trade_city_id) {
                 // if no previous demand change scheduled, move current back until first; if previous demand change is later than current, swap
-                if (!scenario.demand_changes[j - 1].resource || !scenario.demand_changes[j - 1].route_id || scenario.demand_changes[j - 1].year > scenario.demand_changes[j].year
+                if (!scenario.demand_changes[j - 1].resource || !scenario.demand_changes[j - 1].trade_city_id || scenario.demand_changes[j - 1].year > scenario.demand_changes[j].year
                 || (scenario.demand_changes[j - 1].year == scenario.demand_changes[j].year && scenario.demand_changes[j - 1].month > scenario.demand_changes[j].month)) {
                     struct demand_change_t tmp = scenario.demand_changes[j];
                     scenario.demand_changes[j] = scenario.demand_changes[j - 1];
@@ -183,8 +183,8 @@ static void button_month(__attribute__((unused)) int param1, __attribute__((unus
 
 static void set_resource(int value)
 {
-    // reset route_id to force re-selection (upon which valid routes for the resource are determined)
-    scenario.demand_changes[data.id].route_id = 0;
+    // reset trade_city_id to force re-selection (upon which valid routes for the resource are determined)
+    scenario.demand_changes[data.id].trade_city_id = 0;
 
     scenario.demand_changes[data.id].resource = value;
 }
@@ -196,7 +196,7 @@ static void button_resource(__attribute__((unused)) int param1, __attribute__((u
 
 static void set_route_id(int index)
 {
-    scenario.demand_changes[data.id].route_id = data.route_ids[index];
+    scenario.demand_changes[data.id].trade_city_id = data.route_ids[index];
 }
 
 static void button_route(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
@@ -207,7 +207,7 @@ static void button_route(__attribute__((unused)) int param1, __attribute__((unus
     if (!data.num_routes) {
         data.route_ids[0] = 0;
         data.route_names[0] = route_display_names[0];
-        data.num_routes++;
+        data.num_routes = 1;
     }
 
     window_select_list_show_text(screen_dialog_offset_x() + 330, screen_dialog_offset_y() + 205,
@@ -224,7 +224,7 @@ static void button_delete(__attribute__((unused)) int param1, __attribute__((unu
     scenario.demand_changes[data.id].year = 1;
     scenario.demand_changes[data.id].month = 0;
     scenario.demand_changes[data.id].resource = 0;
-    scenario.demand_changes[data.id].route_id = 0;
+    scenario.demand_changes[data.id].trade_city_id = 0;
     scenario.demand_changes[data.id].is_rise = 0;
     scenario_editor_sort_demand_changes();
     window_editor_demand_changes_show();

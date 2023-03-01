@@ -3,7 +3,6 @@
 #include "core/image_group_editor.h"
 #include "empire/empire.h"
 #include "empire/object.h"
-#include "empire/trade_route.h"
 #include "game/custom_strings.h"
 #include "graphics/arrow_button.h"
 #include "graphics/generic_button.h"
@@ -23,9 +22,7 @@
 
 static void button_change_empire(int value, int param2);
 static void set_city_type(int param1, int param2);
-static void toggle_sell_resource(int resource, int param2);
 static void set_resource_sell_limit(int resource, int param2);
-static void toggle_buy_resource(int resource, int param2);
 static void set_resource_buy_limit(int resource, int param2);
 static void set_trade_route_cost(int param1, int param2);
 static void set_expansion_year_offset(int param1, int param2);
@@ -37,73 +34,39 @@ static arrow_button arrow_buttons_empire[] = {
 static arrow_button arrow_buttons_set_city_type[] = {
     {0, 0, 21, 24, set_city_type, 0, 0, 0, 0}
 };
-static generic_button button_toggle_sell_resource[] = {
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_sell_resource, button_none, 0, 0},
-};
 static generic_button button_toggle_sell_resource_limit[] = {
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_sell_limit, button_none, 0, 0},
-};
-static generic_button button_toggle_buy_resource[] = {
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
-    {0, 0, 26, 26, toggle_buy_resource, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
 };
 static generic_button button_toggle_buy_resource_limit[] = {
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
-    {0, 0, 12, 12, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
+    {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
 };
 static generic_button button_set_trade_route_cost[] = {
     {0, 0, 65, 26, set_trade_route_cost, button_none, 0, 0},
@@ -200,9 +163,9 @@ static void draw_empire_objects(void)
         if (empire_objects[i].in_use) {
             // don't draw trade route if trade city switched to non-trade city
             if (empire_objects[i].type == EMPIRE_OBJECT_LAND_TRADE_ROUTE || empire_objects[i].type == EMPIRE_OBJECT_SEA_TRADE_ROUTE) {
-                struct empire_object_t *object_with_route_id = get_empire_object_by_trade_route(empire_objects[i].trade_route_id);
-                if (object_with_route_id->city_type != EMPIRE_CITY_TRADE && object_with_route_id->city_type != EMPIRE_CITY_FUTURE_TRADE) {
-                    continue;;
+                struct empire_object_t *trade_city = get_trade_city_by_trade_route(empire_objects[i].trade_route_id);
+                if (!trade_city) {
+                    continue;
                 }
             }
 
@@ -282,14 +245,11 @@ static void draw_trade_city_info(int x_offset, int y_offset, int width)
     width += lang_text_draw(47, 5, x_offset + 100 + width, y_offset, FONT_NORMAL_GREEN);
     int resource_x_offset = x_offset + 110 + width;
     for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-        button_toggle_sell_resource[r - 1].x = resource_x_offset;
-        button_toggle_sell_resource[r - 1].y = y_offset - 9;
-        button_toggle_sell_resource[r - 1].parameter1 = r;
-        button_toggle_sell_resource_limit[r - 1].x = resource_x_offset + 12;
-        button_toggle_sell_resource_limit[r - 1].y = y_offset - 12;
+        button_toggle_sell_resource_limit[r - 1].x = resource_x_offset;
+        button_toggle_sell_resource_limit[r - 1].y = y_offset - 9;
         button_toggle_sell_resource_limit[r - 1].parameter1 = r;
-        if (data.selected_object->resources_sell_list.resource[r]) {
-            draw_resource_trade_city(r, trade_route_limit(data.selected_object->trade_route_id, r), resource_x_offset + 1, y_offset - 8);
+        if (data.selected_object->resource_sell_limit[r]) {
+            draw_resource_trade_city(r, data.selected_object->resource_sell_limit[r], resource_x_offset + 1, y_offset - 8);
         } else {
             image_draw_blend(871, resource_x_offset + 1, y_offset - 8, COLOR_MOUSE_DARK_GRAY);
         }
@@ -301,14 +261,11 @@ static void draw_trade_city_info(int x_offset, int y_offset, int width)
     resource_x_offset += lang_text_draw(47, 4, resource_x_offset, y_offset, FONT_NORMAL_GREEN);
     resource_x_offset += 10;
     for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-        button_toggle_buy_resource[r - 1].x = resource_x_offset;
-        button_toggle_buy_resource[r - 1].y = y_offset - 9;
-        button_toggle_buy_resource[r - 1].parameter1 = r;
-        button_toggle_buy_resource_limit[r - 1].x = resource_x_offset + 12;
-        button_toggle_buy_resource_limit[r - 1].y = y_offset - 12;
+        button_toggle_buy_resource_limit[r - 1].x = resource_x_offset;
+        button_toggle_buy_resource_limit[r - 1].y = y_offset - 9;
         button_toggle_buy_resource_limit[r - 1].parameter1 = r;
-        if (data.selected_object->resources_buy_list.resource[r]) {
-            draw_resource_trade_city(r, trade_route_limit(data.selected_object->trade_route_id, r), resource_x_offset + 1, y_offset - 8);
+        if (data.selected_object->resource_buy_limit[r]) {
+            draw_resource_trade_city(r, data.selected_object->resource_buy_limit[r], resource_x_offset + 1, y_offset - 8);
         } else {
             image_draw_blend(871, resource_x_offset + 1, y_offset - 8, COLOR_MOUSE_DARK_GRAY);
         }
@@ -360,7 +317,7 @@ static void draw_city_info(void)
             // draw icons for available resources based on the "Buildings allowed" menu
             int resource_x_offset = x_offset + 30 + width;
             for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
-                if (data.selected_object->resources_sell_list.resource[r]) {
+                if (data.selected_object->resource_sell_limit[r]) {
                     graphics_draw_inset_rect(resource_x_offset, y_offset - 9, 26, 26);
                     int image_id = r + image_group(GROUP_EDITOR_EMPIRE_RESOURCES);
                     int resource_offset = resource_image_offset(r, RESOURCE_IMAGE_ICON);
@@ -424,16 +381,10 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (data.selected_object && data.selected_object->type == EMPIRE_OBJECT_CITY) {
         if (data.selected_object->trade_route_id) {
             arrow_buttons_handle_mouse(m, 0, 0, arrow_buttons_set_city_type, 1, 0);
-            if (generic_buttons_handle_mouse(m, 0, 0, button_toggle_sell_resource_limit, sizeof(button_toggle_sell_resource) / sizeof(generic_button), 0)) {
-                return;
-            }
-            if (generic_buttons_handle_mouse(m, 0, 0, button_toggle_sell_resource, sizeof(button_toggle_sell_resource) / sizeof(generic_button), 0)) {
+            if (generic_buttons_handle_mouse(m, 0, 0, button_toggle_sell_resource_limit, sizeof(button_toggle_sell_resource_limit) / sizeof(generic_button), 0)) {
                 return;
             }
             if (generic_buttons_handle_mouse(m, 0, 0, button_toggle_buy_resource_limit, sizeof(button_toggle_buy_resource_limit) / sizeof(generic_button), 0)) {
-                return;
-            }
-            if (generic_buttons_handle_mouse(m, 0, 0, button_toggle_buy_resource, sizeof(button_toggle_buy_resource_limit) / sizeof(generic_button), 0)) {
                 return;
             }
             if (generic_buttons_handle_mouse(m, 0, 0, button_set_trade_route_cost, 1, &data.focus_trade_route_cost_button_id)) {
@@ -467,7 +418,7 @@ static void button_change_empire(int value, __attribute__((unused)) int param2)
 
     // reset demand changes to prevent possible city/resource mixups
     for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
-        scenario.demand_changes[i].route_id = 0;
+        scenario.demand_changes[i].trade_city_id = 0;
     }
 
     window_request_refresh();
@@ -495,58 +446,48 @@ static void set_city_type(__attribute__((unused)) int param1, __attribute__((unu
     window_request_refresh();
 }
 
-
-static void toggle_sell_resource(int resource, __attribute__((unused)) int param2)
-{
-    // if resource to sell already enabled, disable
-    if (data.selected_object->resources_sell_list.resource[resource]) {
-        data.selected_object->resources_sell_list.resource[resource] = 0;
-    } else {
-        // if not enabled, enable by setting resource value in its index place
-        data.selected_object->resources_sell_list.resource[resource] = resource;
-        // don't allow simultaneous selling and buying of the same resource
-        if (data.selected_object->resources_buy_list.resource[resource]) {
-            data.selected_object->resources_buy_list.resource[resource] = 0;
-        }
-    }
-}
-
-
 static void set_resource_sell_limit(int resource, __attribute__((unused)) int param2)
 {
-    int resource_limit = trade_route_cycle_limit(data.selected_object->trade_route_id, resource);
-    data.selected_object->resources_sell_list.resource_limit[resource] = resource_limit;
-}
-
-
-static void toggle_buy_resource(int resource, __attribute__((unused)) int param2)
-{
-    // if resource to buy already enabled, disable
-    if (data.selected_object->resources_buy_list.resource[resource]) {
-        data.selected_object->resources_buy_list.resource[resource] = 0;
-    } else {
-        // if not enabled, enable by setting resource value in its index place
-        data.selected_object->resources_buy_list.resource[resource] = resource;
-        // don't allow simultaneous selling and buying of the same resource
-        if (data.selected_object->resources_sell_list.resource[resource]) {
-            data.selected_object->resources_sell_list.resource[resource] = 0;
-        }
+    switch (data.selected_object->resource_sell_limit[resource]) {
+        case 0:
+            data.selected_object->resource_sell_limit[resource] = 15;
+            break;
+        case 15:
+            data.selected_object->resource_sell_limit[resource] = 25;
+            break;
+        case 25:
+            data.selected_object->resource_sell_limit[resource] = 40;
+            break;
+        default:
+            data.selected_object->resource_sell_limit[resource] = 0;
     }
+    // if resource to buy already enabled, disable
+    data.selected_object->resource_buy_limit[resource] = 0;
 }
-
 
 static void set_resource_buy_limit(int resource, __attribute__((unused)) int param2)
 {
-    int resource_limit = trade_route_cycle_limit(data.selected_object->trade_route_id, resource);
-    data.selected_object->resources_buy_list.resource_limit[resource] = resource_limit;
+    switch (data.selected_object->resource_buy_limit[resource]) {
+        case 0:
+            data.selected_object->resource_buy_limit[resource] = 15;
+            break;
+        case 15:
+            data.selected_object->resource_buy_limit[resource] = 25;
+            break;
+        case 25:
+            data.selected_object->resource_buy_limit[resource] = 40;
+            break;
+        default:
+            data.selected_object->resource_buy_limit[resource] = 0;
+    }
+    // if resource to sell already enabled, disable
+    data.selected_object->resource_sell_limit[resource] = 0;
 }
-
 
 static void set_trade_route_cost_callback(int value)
 {
     data.selected_object->trade_route_cost = value;
 }
-
 
 static void set_trade_route_cost(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
@@ -559,12 +500,10 @@ static void set_expansion_year_offset_callback(int value)
     scenario.empire.expansion_year = value;
 }
 
-
 static void set_expansion_year_offset(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_numeric_input_show(data.x_min + 500, data.y_max - 250, 3, 500, set_expansion_year_offset_callback);
 }
-
 
 void window_editor_empire_show(void)
 {

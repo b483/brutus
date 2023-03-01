@@ -115,7 +115,7 @@ void figure_action_handle(void)
     city_data.figure.animals = 0;
     city_data.figure.imperial_soldiers = 0;
     city_data.figure.soldiers = 0;
-    city_entertainment_set_hippodrome_has_race(0);
+    city_data.entertainment.hippodrome_has_race = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
         figure *f = figure_get(i);
         if (f->state) {
