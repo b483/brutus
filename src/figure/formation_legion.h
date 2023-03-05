@@ -3,12 +3,13 @@
 
 #include "building/building.h"
 #include "figure/formation.h"
+#include "map/point.h"
 
 int formation_legion_create_for_fort(building *fort);
 
 void formation_legion_restore_layout(struct formation_t *m);
 
-void formation_legion_move_to(struct formation_t *m, int x, int y);
+void formation_legion_move_to(struct formation_t *m, map_tile *tile);
 
 void formation_legion_return_home(struct formation_t *m);
 

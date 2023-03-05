@@ -299,7 +299,7 @@ void widget_city_handle_input_military(const mouse *m, const hotkeys *h, int leg
             if (other_formation_id && other_formation_id == legion_formation_id) {
                 formation_legion_return_home(&formations[legion_formation_id]);
             } else {
-                formation_legion_move_to(&formations[legion_formation_id], tile->x, tile->y);
+                formation_legion_move_to(&formations[legion_formation_id], tile);
                 sound_speech_play_file("wavs/cohort5.wav");
             }
             window_city_show();

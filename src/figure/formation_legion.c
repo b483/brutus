@@ -45,47 +45,56 @@ void formation_legion_restore_layout(struct formation_t *m)
     }
 }
 
-static int prepare_to_move(struct formation_t *m)
+static int is_legion_standard__callback(figure *f)
 {
-    if (m->months_very_low_morale || m->months_low_morale > 1) {
-        return 0;
+    if (f->type == FIGURE_FORT_STANDARD) {
+        return 1;
     }
-    if (m->months_low_morale == 1) {
-        formation_change_morale(m, 10); // yay, we can move!
-    }
-    return 1;
+    return 0;
 }
 
-void formation_legion_move_to(struct formation_t *m, int x, int y)
+void formation_legion_move_to(struct formation_t *m, map_tile *tile)
 {
     map_routing_calculate_distances(m->x_home, m->y_home);
-    if (map_routing_distance(map_grid_offset(x, y)) <= 0) {
+    if (map_routing_distance(tile->grid_offset) <= 0) {
         return; // unable to route there
     }
-    if (x == m->x_home && y == m->y_home) {
+    if (tile->x == m->x_home && tile->y == m->y_home) {
         return; // use formation_legion_return_home
     }
     if (m->cursed_by_mars) {
         return;
     }
-    m->standard_x = x;
-    m->standard_y = y;
+
+    if (m->months_very_low_morale || m->months_low_morale > 1) {
+        city_warning_show(WARNING_LEGION_MORALE_TOO_LOW);
+        return;
+    }
+    if (m->months_low_morale == 1) {
+        formation_change_morale(m, 10); // yay, we can move!
+    }
+
+    m->standard_x = tile->x;
+    m->standard_y = tile->y;
+    // prevent legion stacking
+    while (map_figure_foreach_until(map_grid_offset(m->standard_x, m->standard_y), is_legion_standard__callback)) {
+        if (map_grid_is_inside(m->standard_x, m->standard_y + 1, 1) && map_grid_is_valid_offset(map_grid_offset(m->standard_x, m->standard_y + 1))) {
+            m->standard_y = m->standard_y + 1;
+        } else {
+            formation_legion_return_home(m);
+            return;
+        }
+    }
     m->is_at_fort = 0;
 
-    if (m->morale <= 20) {
-        city_warning_show(WARNING_LEGION_MORALE_TOO_LOW);
-    }
     for (int i = 0; i < MAX_FORMATION_FIGURES && m->figures[i]; i++) {
         figure *f = figure_get(m->figures[i]);
         if (f->action_state == FIGURE_ACTION_149_CORPSE ||
             f->action_state == FIGURE_ACTION_150_ATTACK) {
             continue;
         }
-        if (prepare_to_move(m)) {
-            f->alternative_location_index = 0;
-            f->action_state = FIGURE_ACTION_83_SOLDIER_GOING_TO_STANDARD;
-            figure_route_remove(f);
-        }
+        f->action_state = FIGURE_ACTION_83_SOLDIER_GOING_TO_STANDARD;
+        figure_route_remove(f);
     }
 }
 
@@ -106,10 +115,8 @@ void formation_legion_return_home(struct formation_t *m)
             f->action_state == FIGURE_ACTION_150_ATTACK) {
             continue;
         }
-        if (prepare_to_move(m)) {
-            f->action_state = FIGURE_ACTION_81_SOLDIER_GOING_TO_FORT;
-            figure_route_remove(f);
-        }
+        f->action_state = FIGURE_ACTION_81_SOLDIER_GOING_TO_FORT;
+        figure_route_remove(f);
     }
 }
 
