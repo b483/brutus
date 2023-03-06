@@ -20,7 +20,7 @@
 
 #define MAX_QUEUE 1000
 
-static const int ADJACENT_OFFSETS[] = {-GRID_SIZE, 1, GRID_SIZE, -1};
+static const int ADJACENT_OFFSETS[] = { -GRID_SIZE, 1, GRID_SIZE, -1 };
 
 static struct {
     int items[MAX_QUEUE];
@@ -165,7 +165,7 @@ void map_water_supply_update_reservoir_fountain(void)
     const int *reservoirs = building_list_large_items();
     // fill reservoirs from full ones
     int changed = 1;
-    static const int CONNECTOR_OFFSETS[] = {OFFSET(1,-1), OFFSET(3,1), OFFSET(1,3), OFFSET(-1,1)};
+    static const int CONNECTOR_OFFSETS[] = { OFFSET(1,-1), OFFSET(3,1), OFFSET(1,3), OFFSET(-1,1) };
     while (changed == 1) {
         changed = 0;
         for (int i = 0; i < total_reservoirs; i++) {
@@ -212,6 +212,14 @@ void map_water_supply_update_reservoir_fountain(void)
         } else {
             b->has_water_access = 0;
         }
+    }
+    // wells (to show range in water overlay)
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        building *b = building_get(i);
+        if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WELL) {
+            continue;
+        }
+        map_terrain_add_with_radius(b->x, b->y, 1, 2, TERRAIN_FOUNTAIN_RANGE);
     }
 }
 
