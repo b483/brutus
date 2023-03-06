@@ -376,6 +376,24 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
     if (m->left.went_up && !is_outside_map(m->x, m->y)) {
         data.selected_object = empire_select_object(m->x - data.x_min - 16, m->y - data.y_min - 16);
+        // place border flag on empty map spot
+        if (!data.selected_object
+        || !data.selected_object->in_use
+        || (data.selected_object->type == EMPIRE_OBJECT_ORNAMENT && data.selected_object->image_id != 3323)) {
+            for (int i = 0; i < MAX_OBJECTS; i++) {
+                if (!empire_objects[i].in_use) {
+                    empire_objects[i].in_use = 1;
+                    empire_objects[i].image_id = 3323;
+                    empire_objects[i].x = m->x - data.x_min - 16;
+                    empire_objects[i].y = m->y - data.y_min - 16;
+                    return;
+                }
+            }
+        }
+        // if border flag selected, remove it
+        if (data.selected_object && data.selected_object->image_id == 3323) {
+            data.selected_object->in_use = 0;
+        }
         window_invalidate();
     }
     if (data.selected_object && data.selected_object->type == EMPIRE_OBJECT_CITY) {

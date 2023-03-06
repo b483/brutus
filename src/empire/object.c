@@ -195,7 +195,7 @@ int empire_object_get_closest(int x, int y)
 {
     int min_dist = 10000;
     int min_obj_id = 0;
-    for (int i = 0; i < MAX_OBJECTS && empire_objects[i].in_use; i++) {
+    for (int i = 0; i < MAX_OBJECTS; i++) {
         int obj_x, obj_y;
         if (scenario.empire.is_expanded) {
             obj_x = empire_objects[i].expanded.x;
