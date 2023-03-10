@@ -131,7 +131,7 @@ static int player_has_won(void)
     // apply legion losses
     for (int i = 1; i < MAX_FORMATIONS; i++) {
         if (formations[i].in_use && formations[i].is_legion && formations[i].in_distant_battle) {
-            formation_change_morale(&formations[i], -75);
+            formations[i].morale = calc_bound(formations[i].morale - 75, 0, formations[i].max_morale);
             int soldiers_total = 0;
             for (int fig = 0; fig < formations[i].num_figures; fig++) {
                 if (formations[i].figures[fig] > 0) {

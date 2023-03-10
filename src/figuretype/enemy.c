@@ -206,8 +206,6 @@ void figure_enemy43_spear_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
-    f->speed_multiplier = 1;
-    f->max_range = 10;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_missile_direction(f, &formations[f->formation_id]);
@@ -244,7 +242,6 @@ void figure_enemy44_sword_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
-    f->speed_multiplier = 1;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_direction(f);
@@ -278,7 +275,6 @@ void figure_enemy45_sword_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
-    f->speed_multiplier = 1;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_direction(f);
@@ -312,8 +308,6 @@ void figure_enemy_camel_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
-    f->speed_multiplier = 1;
-    f->max_range = 15;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_missile_direction(f, &formations[f->formation_id]);
@@ -337,8 +331,6 @@ void figure_enemy_elephant_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
-    f->speed_multiplier = 1;
-    f->max_range = 15;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_direction(f);
@@ -358,7 +350,6 @@ void figure_enemy_chariot_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
-    f->speed_multiplier = 3;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_direction(f);
@@ -378,7 +369,6 @@ void figure_enemy49_fast_sword_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
-    f->speed_multiplier = 2;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_direction(f);
@@ -420,7 +410,6 @@ void figure_enemy50_sword_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
-    f->speed_multiplier = 1;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_direction(f);
@@ -449,8 +438,6 @@ void figure_enemy51_spear_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
-    f->speed_multiplier = 2;
-    f->max_range = 10;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_missile_direction(f, &formations[f->formation_id]);
@@ -481,8 +468,6 @@ void figure_enemy52_mounted_archer_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
-    f->speed_multiplier = 3;
-    f->max_range = 15;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_missile_direction(f, &formations[f->formation_id]);
@@ -506,7 +491,6 @@ void figure_enemy53_axe_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
-    f->speed_multiplier = 1;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_direction(f);
@@ -605,7 +589,6 @@ void figure_enemy_caesar_legionary_action(figure *f)
     city_data.figure.imperial_soldiers++;
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
-    f->speed_multiplier = 1;
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_direction(f);

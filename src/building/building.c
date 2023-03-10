@@ -196,9 +196,6 @@ void building_clear_related_data(building *b)
     if (b->type == BUILDING_FORT) {
         if (b->formation_id > 0) {
             if (formations[b->formation_id].in_use) {
-                if (formations[b->formation_id].standard_figure_id) {
-                    figure_delete(figure_get(formations[b->formation_id].standard_figure_id));
-                }
                 formation_clear(b->formation_id);
                 formation_calculate_legion_totals();
             }

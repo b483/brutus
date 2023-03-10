@@ -194,23 +194,16 @@ void figure_soldier_action(figure *f)
     f->terrain_usage = TERRAIN_USAGE_ANY;
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
-    if (!formations[f->formation_id].in_use) {
+    struct formation_t *legion_formation = &formations[f->formation_id];
+    if (!legion_formation->in_use) {
         f->action_state = FIGURE_ACTION_149_CORPSE;
     }
-    if (f->type == FIGURE_FORT_MOUNTED) {
-        f->speed_multiplier = 3;
-    } else if (f->type == FIGURE_FORT_JAVELIN) {
-        f->speed_multiplier = 2;
-        f->max_range = 10;
-    } else {
-        f->speed_multiplier = 1;
-    }
-    int layout = formations[f->formation_id].layout;
+    int layout = legion_formation->layout;
     if (f->formation_at_rest || f->action_state == FIGURE_ACTION_81_SOLDIER_GOING_TO_FORT) {
         layout = FORMATION_AT_REST;
     }
-    f->formation_position_x.soldier = formations[f->formation_id].x + formation_layout_position_x(layout, f->index_in_formation);
-    f->formation_position_y.soldier = formations[f->formation_id].y + formation_layout_position_y(layout, f->index_in_formation);
+    f->formation_position_x.soldier = legion_formation->x + formation_layout_position_x(layout, f->index_in_formation);
+    f->formation_position_y.soldier = legion_formation->y + formation_layout_position_y(layout, f->index_in_formation);
 
     switch (f->action_state) {
         case FIGURE_ACTION_149_CORPSE:
@@ -257,8 +250,8 @@ void figure_soldier_action(figure *f)
             break;
         case FIGURE_ACTION_83_SOLDIER_GOING_TO_STANDARD:
             f->formation_at_rest = 0;
-            f->destination_x = formations[f->formation_id].standard_x + formation_layout_position_x(formations[f->formation_id].layout, f->index_in_formation);
-            f->destination_y = formations[f->formation_id].standard_y + formation_layout_position_y(formations[f->formation_id].layout, f->index_in_formation);
+            f->destination_x = legion_formation->standard_x + formation_layout_position_x(legion_formation->layout, f->index_in_formation);
+            f->destination_y = legion_formation->standard_y + formation_layout_position_y(legion_formation->layout, f->index_in_formation);
             if (f->alternative_location_index) {
                 f->destination_x += ALTERNATIVE_POINTS[f->alternative_location_index].x;
                 f->destination_y += ALTERNATIVE_POINTS[f->alternative_location_index].y;
@@ -282,14 +275,14 @@ void figure_soldier_action(figure *f)
             f->formation_at_rest = 0;
             f->image_offset = 0;
             map_figure_update(f);
-            f->destination_x = formations[f->formation_id].standard_x + formation_layout_position_x(formations[f->formation_id].layout, f->index_in_formation);
-            f->destination_y = formations[f->formation_id].standard_y + formation_layout_position_y(formations[f->formation_id].layout, f->index_in_formation);
+            f->destination_x = legion_formation->standard_x + formation_layout_position_x(legion_formation->layout, f->index_in_formation);
+            f->destination_y = legion_formation->standard_y + formation_layout_position_y(legion_formation->layout, f->index_in_formation);
             if (f->alternative_location_index) {
                 f->destination_x += ALTERNATIVE_POINTS[f->alternative_location_index].x;
                 f->destination_y += ALTERNATIVE_POINTS[f->alternative_location_index].y;
             }
             if (f->x != f->destination_x || f->y != f->destination_y) {
-                if (formations[f->formation_id].missile_fired <= 0 && formations[f->formation_id].recent_fight <= 0 && formations[f->formation_id].missile_attack_timeout <= 0) {
+                if (legion_formation->missile_fired <= 0 && legion_formation->recent_fight <= 0 && legion_formation->missile_attack_timeout <= 0) {
                     f->action_state = FIGURE_ACTION_83_SOLDIER_GOING_TO_STANDARD;
                     f->alternative_location_index = 0;
                 }
@@ -306,7 +299,12 @@ void figure_soldier_action(figure *f)
             }
             break;
         case FIGURE_ACTION_85_SOLDIER_GOING_TO_MILITARY_ACADEMY:
-            formations[f->formation_id].has_military_training = 1;
+            legion_formation->has_military_training = 1;
+            if (f->type == FIGURE_FORT_LEGIONARY) {
+                legion_formation->max_morale = 100;
+            } else {
+                legion_formation->max_morale = 80;
+            }
             f->formation_at_rest = 1;
             figure_movement_move_ticks(f, f->speed_multiplier);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {

@@ -96,10 +96,19 @@ int building_barracks_create_soldier(building *barracks, int x, int y)
         figure *f = figure_create(formations[formation_id].figure_type, x, y, DIR_0_TOP);
         f->formation_id = formation_id;
         f->formation_at_rest = 1;
-        if (formations[formation_id].figure_type == FIGURE_FORT_LEGIONARY) {
-            if (barracks->loads_stored > 0) {
-                barracks->loads_stored--;
-            }
+        switch (f->type) {
+            case FIGURE_FORT_LEGIONARY:
+                if (barracks->loads_stored > 0) {
+                    barracks->loads_stored--;
+                }
+                break;
+            case FIGURE_FORT_JAVELIN:
+                f->speed_multiplier = 2;
+                f->max_range = 10;
+                break;
+            case FIGURE_FORT_MOUNTED:
+                f->speed_multiplier = 3;
+                break;
         }
         int academy_id = get_closest_military_academy(building_get(formations[formation_id].building_id));
         if (academy_id) {
@@ -140,6 +149,7 @@ int building_barracks_create_tower_sentry(building *barracks, int x, int y)
     }
     figure *f = figure_create(FIGURE_TOWER_SENTRY, x, y, DIR_0_TOP);
     f->action_state = FIGURE_ACTION_174_TOWER_SENTRY_GOING_TO_TOWER;
+    f->max_range = 12;
     map_point road;
     if (map_has_road_access(tower->x, tower->y, tower->size, &road)) {
         f->destination_x = road.x;

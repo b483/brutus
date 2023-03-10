@@ -9,6 +9,7 @@
 
 #define MAX_LEGIONS 6
 #define MAX_FORMATION_FIGURES 16
+#define ROUT_MORALE_THRESHOLD 20
 
 #define WOLF_PACK_SIZE 8
 #define SHEEP_HERD_SIZE 10
@@ -70,9 +71,9 @@ struct formation_t {
     int orientation;
 
     int morale;
-    int months_from_home;
-    int months_low_morale;
-    int months_very_low_morale;
+    uint8_t max_morale;
+    int deployed_duration_months;
+    uint8_t routed;
 
     /* Figures */
     int figure_type; /**< Type of figure in this formation */
@@ -90,7 +91,6 @@ struct formation_t {
     int building_id;
     int standard_x;
     int standard_y;
-    int standard_figure_id;
     int destination_x;
     int destination_y;
     int destination_building_id;
@@ -136,25 +136,14 @@ void formation_clear(int formation_id);
 
 struct formation_t *create_formation_type(figure_type type);
 
-struct formation_t *formation_create_enemy(figure_type figure_type, int max_num_figures, int x, int y, int layout, direction_type orientation,
-    int enemy_type, int attack_type, int invasion_id);
-
 int formation_get_selected(void);
 void formation_set_selected(int formation_id);
 
 int formation_grid_offset_for_invasion(void);
 
-void formation_calculate_legion_totals(void);
-
-int formation_get_num_legions(void);
-
-int formation_for_legion(int legion_index);
-
-void formation_change_morale(struct formation_t *m, int amount);
 void formation_update_morale_after_death(struct formation_t *m);
 
-void formation_update_monthly_morale_deployed(void);
-void formation_update_monthly_morale_at_rest(void);
+void legions_update_morale_monthly(void);
 void formation_decrease_monthly_counters(struct formation_t *m);
 void formation_clear_monthly_counters(struct formation_t *m);
 
@@ -162,11 +151,9 @@ void formation_set_destination(struct formation_t *m, int x, int y);
 void formation_set_destination_building(struct formation_t *m, int x, int y, int building_id);
 void formation_set_home(struct formation_t *m, int x, int y);
 
-void formation_move_herds_away(int x, int y);
-
 void formation_calculate_figures(void);
 
-void formation_update_all(int second_time);
+void formation_update_all(void);
 
 void formations_save_state(buffer *buf);
 void formations_load_state(buffer *buf);

@@ -215,7 +215,7 @@ static void init_savegame_data(void)
     state->figures = create_savegame_piece(149000, 1);
     state->route_figures = create_savegame_piece(1200, 1);
     state->route_paths = create_savegame_piece(300000, 1);
-    state->formations = create_savegame_piece(5300, 1);
+    state->formations = create_savegame_piece(5200, 1);
     state->city_data = create_savegame_piece(11607, 1);
     state->player_name = create_savegame_piece(24, 0);
     state->buildings = create_savegame_piece(164000, 1);

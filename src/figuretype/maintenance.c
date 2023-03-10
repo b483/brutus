@@ -169,7 +169,6 @@ void figure_prefect_action(figure *f)
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
     f->max_roam_length = 640;
-    f->speed_multiplier = 1;
 
     figure_image_increase_offset(f, 12);
 

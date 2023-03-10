@@ -40,6 +40,7 @@ figure *figure_create(figure_type type, int x, int y, direction_type dir)
     f->faction_id = 1;
     f->type = type;
     f->use_cross_country = 0;
+    f->speed_multiplier = 1;
     f->is_friendly = 1;
     f->created_sequence = data.created_sequence++;
     f->direction = dir;
@@ -79,7 +80,7 @@ void figure_delete(figure *f)
             }
             break;
         case FIGURE_ENEMY_CAESAR_LEGIONARY:
-            city_emperor_mark_soldier_killed();
+            city_data.emperor.invasion.soldiers_killed++;
             break;
         case FIGURE_EXPLOSION:
         case FIGURE_FORT_STANDARD:

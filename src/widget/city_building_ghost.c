@@ -10,7 +10,7 @@
 #include "city/finance.h"
 #include "city/view.h"
 #include "core/config.h"
-#include "figure/formation.h"
+#include "figure/formation_legion.h"
 #include "graphics/image.h"
 #include "input/scroll.h"
 #include "map/bridge.h"

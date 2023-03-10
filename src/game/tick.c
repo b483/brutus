@@ -77,7 +77,7 @@ static void advance_month(void)
     city_finance_handle_month_change();
     city_resource_consume_food();
     city_victory_update_months_to_govern();
-    formation_update_monthly_morale_at_rest();
+    legions_update_morale_monthly();
     city_message_decrease_delays();
 
     map_tiles_update_all_roads();
@@ -122,13 +122,16 @@ static void advance_day(void)
 static void advance_tick(void)
 {
     // NB: these ticks are noop:
-    // 0, 9, 11, 13, 14, 15, 26, 41, 42, 47
+    // 0, 9, 11, 13, 14, 15, 26, 29, 41, 42, 47
     switch (game_time_tick()) {
         case 1: city_gods_calculate_moods(1); break;
         case 2: sound_music_update(0); break;
         case 3: widget_minimap_invalidate(); break;
-        case 4: city_emperor_update(); break;
-        case 5: formation_update_all(0); break;
+        case 4:
+            update_debt_state();
+            process_caesar_invasion();
+            break;
+        case 5: formation_update_all(); break;
         case 6: map_natives_check_land(); break;
         case 7: map_road_network_update(); break;
         case 8: building_granaries_calculate_stocks(); break;
@@ -146,7 +149,6 @@ static void advance_tick(void)
         case 25: city_labor_update(); break;
         case 27: map_water_supply_update_reservoir_fountain(); break;
         case 28: map_water_supply_update_houses(); break;
-        case 29: formation_update_all(1); break;
         case 30: widget_minimap_invalidate(); break;
         case 31: building_figure_generate(); break;
         case 32: city_trade_update(); break;

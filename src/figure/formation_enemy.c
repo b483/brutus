@@ -147,6 +147,52 @@ static const int LAYOUT_ORIENTATION_OFFSETS[13][4][40] = {
     }
 };
 
+struct formation_t *formation_create_enemy(figure_type type, int max_num_figures, int x, int y, int layout, direction_type orientation, int enemy_type, int attack_priority, int invasion_id)
+{
+    struct formation_t *m = create_formation_type(type);
+    if (!m) {
+        return 0;
+    }
+    m->faction_id = 0;
+    if (layout == FORMATION_ENEMY_DOUBLE_LINE) {
+        if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
+            m->layout = FORMATION_DOUBLE_LINE_1;
+        } else {
+            m->layout = FORMATION_DOUBLE_LINE_2;
+        }
+    } else {
+        m->layout = layout;
+    }
+    m->orientation = orientation;
+    switch (m->enemy_img_group) {
+        case ENEMY_TYPE_BARBARIAN:
+        case ENEMY_TYPE_NUMIDIAN:
+        case ENEMY_TYPE_GAUL:
+        case ENEMY_TYPE_CELT:
+        case ENEMY_TYPE_GOTH:
+            m->max_morale = 80;
+            break;
+        case ENEMY_TYPE_GREEK:
+        case ENEMY_TYPE_CARTHAGINIAN:
+            m->max_morale = 90;
+            break;
+        case ENEMY_TYPE_CAESAR:
+            m->max_morale = 100;
+            break;
+        default:
+            m->max_morale = 70;
+            break;
+    }
+    m->morale = m->max_morale;
+    m->max_figures = max_num_figures;
+    m->x = x;
+    m->y = y;
+    m->enemy_img_group = enemy_type;
+    m->attack_priority = attack_priority;
+    m->invasion_id = invasion_id;
+    return &formations[m->id];
+}
+
 int formation_rioter_get_target_building(int *x_tile, int *y_tile)
 {
     int best_type_index = 100;
@@ -514,7 +560,7 @@ static void update_enemy_formation(struct formation_t *m, int *roman_distance)
             }
         }
     }
-    if (m->months_low_morale || m->months_very_low_morale) {
+    if (m->morale <= ROUT_MORALE_THRESHOLD) {
         for (int n = 0; n < MAX_FORMATION_FIGURES; n++) {
             figure *f = figure_get(m->figures[n]);
             if (f->action_state != FIGURE_ACTION_150_ATTACK &&
@@ -524,6 +570,19 @@ static void update_enemy_formation(struct formation_t *m, int *roman_distance)
                 figure_route_remove(f);
                 sound_effect_play(SOUND_EFFECT_HORN3);
             }
+        }
+        // reduce morale of all enemy formations, improve morale of all legions
+        if (!m->routed) {
+            for (int j = 1; j < MAX_FORMATIONS; j++) {
+                if (formations[j].in_use && !formations[j].is_herd) {
+                    if (formations[j].is_legion) {
+                        formations[j].morale = calc_bound(formations[j].morale + 5, 0, formations[j].max_morale);
+                    } else {
+                        formations[j].morale = calc_bound(formations[j].morale - 5, 0, formations[j].max_morale);
+                    }
+                }
+            }
+            m->routed = 1;
         }
         return;
     }

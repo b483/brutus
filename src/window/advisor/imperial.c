@@ -235,7 +235,7 @@ static void draw_foreground(void)
     lang_text_draw(32, city_data.emperor.player_rank, 64, 338, FONT_LARGE_BROWN);
 
     int width = lang_text_draw(52, 1, 64, 372, FONT_NORMAL_WHITE);
-    text_draw_money(city_emperor_personal_savings(), 72 + width, 372, FONT_NORMAL_WHITE);
+    text_draw_money(city_data.emperor.personal_savings, 72 + width, 372, FONT_NORMAL_WHITE);
 
     // Send a gift
     button_border_draw(312, 341, 250, 20, focus_button_id == 6);
@@ -248,7 +248,7 @@ static void draw_foreground(void)
     // Set salary
     button_border_draw(62, 393, 500, 20, focus_button_id == 8);
     width = lang_text_draw(52, city_data.emperor.salary_rank + 4, 112, 398, FONT_NORMAL_WHITE);
-    width += text_draw_number(city_emperor_salary_amount(), '@', " ", 112 + width, 398, FONT_NORMAL_WHITE);
+    width += text_draw_number(city_data.emperor.salary_amount, '@', " ", 112 + width, 398, FONT_NORMAL_WHITE);
     lang_text_draw(52, 3, 112 + width, 398, FONT_NORMAL_WHITE);
 
     scrollbar_draw(&scrollbar);

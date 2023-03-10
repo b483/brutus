@@ -19,7 +19,7 @@
 #include "core/config.h"
 #include "core/image.h"
 #include "core/time.h"
-#include "figure/formation.h"
+#include "figure/formation_legion.h"
 #include "game/undo.h"
 #include "graphics/window.h"
 #include "map/aqueduct.h"
@@ -558,7 +558,15 @@ void building_construction_place(void)
         }
     }
     city_finance_process_construction(placement_cost);
-    formation_move_herds_away(x_end, y_end);
+    // move herds away
+    for (int i = 1; i < MAX_FORMATIONS; i++) {
+        if (formations[i].in_use && (formations[i].figure_type == FIGURE_SHEEP || formations[i].figure_type == FIGURE_ZEBRA) && formations[i].num_figures > 0) {
+            if (calc_maximum_distance(x_end, y_end, formations[i].destination_x, formations[i].destination_y) <= 6) {
+                // force new roaming destination search
+                formations[i].wait_ticks = 50;
+            }
+        }
+    }
 
     if (type != BUILDING_TRIUMPHAL_ARCH) {
         game_undo_finish_build(placement_cost);

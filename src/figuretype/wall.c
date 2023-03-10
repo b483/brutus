@@ -47,7 +47,6 @@ void figure_ballista_action(figure *f)
     f->is_ghost = 1;
     f->height_adjusted_ticks = 10;
     f->current_height = 45;
-    f->max_range = 15;
 
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id4 != f->id) {
         f->state = FIGURE_STATE_DEAD;
@@ -167,7 +166,6 @@ void figure_tower_sentry_action(figure *f)
     f->is_ghost = 1;
     f->height_adjusted_ticks = 10;
     f->max_roam_length = 800;
-    f->max_range = 12;
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }

@@ -20,7 +20,7 @@ void city_emperor_init_scenario(void)
     city_emperor_set_salary_rank(city_data.emperor.player_rank);
 }
 
-static void update_debt_state(void)
+void update_debt_state(void)
 {
     if (city_data.finance.treasury >= 0) {
         city_data.emperor.months_in_debt = -1;
@@ -75,7 +75,7 @@ static void update_debt_state(void)
     }
 }
 
-static void process_caesar_invasion(void)
+void process_caesar_invasion(void)
 {
     if (city_data.figure.imperial_soldiers && !city_data.emperor.invasion.from_editor) {
         // caesar invasion in progress
@@ -91,8 +91,8 @@ static void process_caesar_invasion(void)
             if (city_data.emperor.invasion.duration_day_countdown > 0) {
                 // retreat
                 for (int i = 1; i < MAX_FORMATIONS; i++) {
-                    if (formations[i].in_use == 1 && formations[i].figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY) {
-                        formations[i].months_low_morale = 1;
+                    if (formations[i].in_use && formations[i].figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY) {
+                        formations[i].morale = 0;
                     }
                 }
                 if (!city_data.emperor.invasion.retreat_message_shown) {
@@ -156,12 +156,6 @@ static void process_caesar_invasion(void)
             }
         }
     }
-}
-
-void city_emperor_update(void)
-{
-    update_debt_state();
-    process_caesar_invasion();
 }
 
 void city_emperor_send_gift(void)
@@ -235,17 +229,3 @@ void city_emperor_set_salary_rank(int player_rank)
     city_data.emperor.salary_amount = SALARY_FOR_RANK[player_rank];
 }
 
-int city_emperor_salary_amount(void)
-{
-    return city_data.emperor.salary_amount;
-}
-
-int city_emperor_personal_savings(void)
-{
-    return city_data.emperor.personal_savings;
-}
-
-void city_emperor_mark_soldier_killed(void)
-{
-    city_data.emperor.invasion.soldiers_killed++;
-}
