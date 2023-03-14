@@ -600,38 +600,3 @@ int figure_movement_move_ticks_cross_country(figure *f, int num_ticks)
     map_figure_add(f);
     return is_at_destination;
 }
-
-int figure_movement_can_launch_cross_country_missile(int x_src, int y_src, int x_dst, int y_dst)
-{
-    int height = 0;
-    figure *f = figure_get(0); // abuse unused figure 0 as scratch
-    f->cross_country_x = 15 * x_src;
-    f->cross_country_y = 15 * y_src;
-    if (map_terrain_is(map_grid_offset(x_src, y_src), TERRAIN_WALL_OR_GATEHOUSE)) {
-        height = 6;
-    }
-    figure_movement_set_cross_country_direction(f, 15 * x_src, 15 * y_src, 15 * x_dst, 15 * y_dst, 0);
-
-    for (int guard = 0; guard < 1000; guard++) {
-        for (int i = 0; i < 8; i++) {
-            if (f->cc_delta_x + f->cc_delta_y <= 0) {
-                return 1;
-            }
-            cross_country_advance(f);
-        }
-        f->x = f->cross_country_x / 15;
-        f->y = f->cross_country_y / 15;
-        if (height) {
-            height--;
-        } else {
-            int grid_offset = map_grid_offset(f->x, f->y);
-            if (map_terrain_is(grid_offset, TERRAIN_WALL | TERRAIN_GATEHOUSE | TERRAIN_SHRUB)) {
-                break;
-            }
-            if (map_terrain_is(grid_offset, TERRAIN_BUILDING) && (map_property_multi_tile_size(grid_offset) > 1) && (building_get(map_building_at(grid_offset))->type != BUILDING_FORT_GROUND)) {
-                break;
-            }
-        }
-    }
-    return 0;
-}

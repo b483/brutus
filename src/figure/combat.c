@@ -1,14 +1,24 @@
 #include "combat.h"
 
+#include "building/building.h"
 #include "city/data_private.h"
 #include "core/calc.h"
+#include "core/image.h"
 #include "figure/formation.h"
 #include "figure/movement.h"
 #include "figure/properties.h"
 #include "figure/route.h"
 #include "figure/sound.h"
+#include "map/building.h"
+#include "map/elevation.h"
 #include "map/figure.h"
+#include "map/grid.h"
+#include "map/image.h"
+#include "map/terrain.h"
+#include "scenario/data.h"
 #include "sound/effect.h"
+
+#include <stdlib.h>
 
 void figure_combat_handle_corpse(figure *f)
 {
@@ -288,6 +298,105 @@ figure *melee_unit__set_closest_target(figure *f)
     return closest_eligible_target;
 }
 
+static int tile_obstructed(int grid_offset)
+{
+    int map_terrain_at_offset = map_terrain_get(grid_offset);
+    int map_img_at_offset = map_image_at(grid_offset);
+
+    // low elevation between targets does not obstruct
+    if (map_elevation_at(grid_offset) > 1) {
+        return 1;
+    }
+    // shrubs lower to the ground do not obstruct
+    if (map_terrain_at_offset == TERRAIN_SHRUB) {
+        int shrub_first_img_id = image_group(GROUP_TERRAIN_SHRUB);
+        if (((scenario.climate == CLIMATE_CENTRAL || scenario.climate == CLIMATE_NORTHERN) && map_img_at_offset >= shrub_first_img_id + 8)
+        || (scenario.climate == CLIMATE_DESERT && map_img_at_offset >= shrub_first_img_id + 24)) {
+            return 1;
+        }
+    }
+    // rocks lower to the ground do not obstruct
+    if (map_terrain_at_offset == TERRAIN_ROCK) {
+        int rock_first_img_id = image_group(GROUP_TERRAIN_ROCK);
+        if (map_img_at_offset >= rock_first_img_id + 8) {
+            return 1;
+        }
+    }
+    if (map_terrain_at_offset == TERRAIN_TREE
+    || map_terrain_at_offset == TERRAIN_WALL
+    || map_terrain_at_offset == (TERRAIN_BUILDING | TERRAIN_ROAD | TERRAIN_GATEHOUSE) // gatehouse
+    || map_terrain_at_offset == (TERRAIN_BUILDING | TERRAIN_GATEHOUSE) // tower
+    ) {
+        return 1;
+    }
+    if (map_terrain_at_offset == TERRAIN_BUILDING) {
+        building *b = building_get(map_building_at(grid_offset));
+        if (b->type != BUILDING_FORT_GROUND && b->type != BUILDING_CLAY_PIT && b->type != BUILDING_MARBLE_QUARRY) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static int missile_trajectory_clear(figure *shooter, figure *target)
+{
+    int shooter_elevation = 0;
+    if (map_elevation_at(shooter->grid_offset)) {
+        shooter_elevation += map_elevation_at(shooter->grid_offset);
+    }
+    if (map_terrain_is(shooter->grid_offset, TERRAIN_WALL_OR_GATEHOUSE)) {
+        shooter_elevation += 6;
+    }
+    int target_elevation = 0;
+    if (map_elevation_at(target->grid_offset)) {
+        target_elevation += map_elevation_at(target->grid_offset);
+    }
+
+    int x_delta = abs(shooter->x - target->x);
+    int y_delta = abs(shooter->y - target->y);
+    double slope;
+    int x_check;
+    int y_check;
+    int delta;
+    if (x_delta > y_delta) {
+        slope = (double) (target->y - shooter->y) / (double) (target->x - shooter->x);
+        x_check = shooter->x;
+        delta = x_delta;
+    } else {
+        slope = (double) (target->x - shooter->x) / (double) (target->y - shooter->y);
+        y_check = shooter->y;
+        delta = y_delta;
+    }
+    while (delta > 1) {
+        delta--;
+        if (x_delta > y_delta) {
+            if (shooter->x < target->x) {
+                x_check++;
+            } else {
+                x_check--;
+            }
+            y_check = slope * (x_check - shooter->x) + shooter->y;
+        } else {
+            if (shooter->y < target->y) {
+                y_check++;
+            } else {
+                y_check--;
+            }
+            x_check = slope * (y_check - shooter->y) + shooter->x;
+        }
+        if (shooter_elevation > target_elevation) {
+            shooter_elevation--;
+            continue;
+        }
+        if (tile_obstructed(map_grid_offset(x_check, y_check))) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
 int get_missile_target(figure *shooter, map_point *tile, int limit_max_targeters)
 {
     int closest_target_distance = shooter->max_range;
@@ -298,7 +407,7 @@ int get_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
             continue;
         }
         int potential_target_distance = calc_maximum_distance(shooter->x, shooter->y, potential_target->x, potential_target->y);
-        if (potential_target_distance < closest_target_distance && figure_movement_can_launch_cross_country_missile(shooter->x, shooter->y, potential_target->x, potential_target->y)) {
+        if (potential_target_distance < closest_target_distance) {
             // if potential target is the current target, it's eligible (could still end up being switched for a nearer one)
             if (figure__targeted_by_ranged_unit(potential_target, shooter)) {
                 closest_target_distance = potential_target_distance;
@@ -323,9 +432,12 @@ int get_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
                 if (potential_target_figure_category == FIGURE_CATEGORY_HOSTILE
                 || potential_target_figure_category == FIGURE_CATEGORY_CRIMINAL
                 || (potential_target->type == FIGURE_INDIGENOUS_NATIVE && potential_target->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING)) {
-                    closest_target_distance = potential_target_distance;
-                    closest_eligible_target = potential_target;
-                    continue;
+                    if (missile_trajectory_clear(shooter, potential_target)) {
+                        closest_target_distance = potential_target_distance;
+                        closest_eligible_target = potential_target;
+                        continue;
+                    }
+
                 }
             } else {
                 // shooter is enemy unit
@@ -359,9 +471,11 @@ int get_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
                     && (figure_properties_for_type(closest_eligible_target->type)->category == FIGURE_CATEGORY_ARMED || closest_eligible_target->type == FIGURE_WOLF)) {
                         continue;
                     }
-                    closest_target_distance = potential_target_distance;
-                    closest_eligible_target = potential_target;
-                    continue;
+                    if (missile_trajectory_clear(shooter, potential_target)) {
+                        closest_target_distance = potential_target_distance;
+                        closest_eligible_target = potential_target;
+                        continue;
+                    }
                 }
             }
         }
