@@ -393,8 +393,6 @@ static void save_main_data(buffer *main)
     buffer_write_i8(main, city_data.sound.hit_soldier);
     buffer_write_i8(main, city_data.sound.hit_spear);
     buffer_write_i8(main, city_data.sound.hit_club);
-    buffer_write_i8(main, city_data.sound.march_enemy);
-    buffer_write_i8(main, city_data.sound.march_horse);
     buffer_write_i8(main, city_data.sound.hit_elephant);
     buffer_write_i8(main, city_data.sound.hit_axe);
     buffer_write_i8(main, city_data.sound.hit_wolf);
@@ -772,8 +770,6 @@ static void load_main_data(buffer *main)
     city_data.sound.hit_soldier = buffer_read_i8(main);
     city_data.sound.hit_spear = buffer_read_i8(main);
     city_data.sound.hit_club = buffer_read_i8(main);
-    city_data.sound.march_enemy = buffer_read_i8(main);
-    city_data.sound.march_horse = buffer_read_i8(main);
     city_data.sound.hit_elephant = buffer_read_i8(main);
     city_data.sound.hit_axe = buffer_read_i8(main);
     city_data.sound.hit_wolf = buffer_read_i8(main);

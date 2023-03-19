@@ -24,7 +24,13 @@ static void shoot_enemy_missile(figure *f, struct formation_t *m)
     map_point tile = { 0, 0 };
     if (f->wait_ticks_missile > figure_properties_for_type(f->type)->missile_delay) {
         f->wait_ticks_missile = 0;
-        if (get_missile_target(f, &tile, 1) || get_missile_target(f, &tile, 0)) {
+        int target_acquired = 0;
+        if (f->type == FIGURE_ENEMY43_SPEAR && f->enemy_image_type != ENEMY_TYPE_PERGAMUM) {
+            target_acquired = set_missile_target(f, &tile, 1) || set_missile_target(f, &tile, 0);
+        } else {
+            target_acquired = set_missile_target(f, &tile, 0);
+        }
+        if (target_acquired) {
             f->attack_image_offset = 1;
             f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
         } else {
@@ -32,15 +38,24 @@ static void shoot_enemy_missile(figure *f, struct formation_t *m)
         }
     }
     if (f->attack_image_offset) {
-        figure_type missile_type;
+        figure_type missile_type = 0;
         switch (f->type) {
+            case FIGURE_ENEMY43_SPEAR:
+                if (f->enemy_image_type == ENEMY_TYPE_PERGAMUM) {
+                    missile_type = FIGURE_ARROW;
+                } else {
+                    missile_type = FIGURE_SPEAR;
+                }
+                break;
             case FIGURE_ENEMY46_CAMEL:
             case FIGURE_ENEMY47_ELEPHANT:
             case FIGURE_ENEMY52_MOUNTED_ARCHER:
                 missile_type = FIGURE_ARROW;
                 break;
-            default:
+            case FIGURE_ENEMY51_SPEAR:
                 missile_type = FIGURE_SPEAR;
+                break;
+            default:
                 break;
         }
         if (f->attack_image_offset == 1) {
@@ -117,11 +132,6 @@ static void engage_enemy(figure *f, struct formation_t *m)
 {
     if (!m->recent_fight) {
         f->action_state = FIGURE_ACTION_151_ENEMY_INITIAL;
-    }
-    if (f->type == FIGURE_ENEMY48_CHARIOT || f->type == FIGURE_ENEMY52_MOUNTED_ARCHER) {
-        if (city_sound_update_march_horse()) {
-            sound_effect_play(SOUND_EFFECT_HORSE_MOVING);
-        }
     }
     if (f->max_range) {
         shoot_enemy_missile(f, m);

@@ -1,8 +1,6 @@
 #ifndef CITY_SOUND_H
 #define CITY_SOUND_H
 
-int city_sound_update_march_horse(void);
-
 int city_sound_update_march_wolf(void);
 
 int city_sound_update_hit_wolf(void);

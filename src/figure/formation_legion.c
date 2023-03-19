@@ -23,7 +23,7 @@ int formation_legion_create_for_fort(building *fort)
     struct formation_t *m = create_formation_type(fort->subtype.fort_figure_type);
     m->faction_id = 1;
     m->is_legion = 1;
-    m->legion_id = m->id - 1;
+    m->legion_id = formation_get_num_legions() - 1;
     m->layout = FORMATION_DOUBLE_LINE_1;
     if (fort->subtype.fort_figure_type == FIGURE_FORT_LEGIONARY) {
         m->max_morale = 80;
@@ -207,16 +207,36 @@ void formation_legion_update(void)
             if (formations[i].morale > ROUT_MORALE_THRESHOLD) {
                 formations[i].routed = 0;
             }
+            int formation_military_training = 1;
             for (int n = 0; n < formations[i].max_figures; n++) {
                 figure *f = figure_get(formations[i].figures[n]);
-                if (f->action_state == FIGURE_ACTION_150_ATTACK) {
-                    formations[i].recent_fight = 6;
-                }
-                // decrease damage
-                if (f->state == FIGURE_STATE_ALIVE && f->action_state == FIGURE_ACTION_80_SOLDIER_AT_REST) {
-                    if (f->damage) {
-                        f->damage--;
+                if (f->id) {
+                    if (!f->is_military_trained) {
+                        formation_military_training = 0;
+                        formations[i].has_military_training = 0;
+                        if (formations[i].figure_type == FIGURE_FORT_LEGIONARY) {
+                            formations[i].max_morale = 80;
+                        } else {
+                            formations[i].max_morale = 60;
+                        }
                     }
+                    if (f->action_state == FIGURE_ACTION_150_ATTACK) {
+                        formations[i].recent_fight = 6;
+                    }
+                    // decrease damage
+                    if (f->state == FIGURE_STATE_ALIVE && f->action_state == FIGURE_ACTION_80_SOLDIER_AT_REST) {
+                        if (f->damage) {
+                            f->damage--;
+                        }
+                    }
+                }
+            }
+            if (formation_military_training) {
+                formations[i].has_military_training = 1;
+                if (formations[i].figure_type == FIGURE_FORT_LEGIONARY) {
+                    formations[i].max_morale = 100;
+                } else {
+                    formations[i].max_morale = 80;
                 }
             }
             if (formations[i].morale <= ROUT_MORALE_THRESHOLD) {
@@ -230,7 +250,7 @@ void formation_legion_update(void)
                         figure_route_remove(f);
                     }
                 }
-                // reduce morale of all legions, improve morale of all enemy formations
+                // on formation rout, reduce morale of all legions, improve morale of all enemy formations
                 if (!formations[i].routed) {
                     for (int j = 1; j < MAX_FORMATIONS; j++) {
                         if (formations[j].in_use && !formations[j].is_herd) {

@@ -111,39 +111,39 @@ static int draw_background(void)
     for (int i = 1; i < MAX_FORMATIONS; i++) {
         struct formation_t *m = &formations[i];
         if (m->in_use && m->is_legion) {
-            button_border_draw(38, 33 + 44 * i, 560, 40, 0);
-            image_draw(image_group(GROUP_FIGURE_FORT_STANDARD_ICONS) + m->legion_id, 48, 38 + 44 * i);
-            lang_text_draw(138, m->legion_id, 100, 39 + 44 * i, FONT_NORMAL_WHITE);
-            int width = text_draw_number(m->num_figures, ' ', "", 100, 56 + 44 * i, FONT_NORMAL_GREEN);
+            button_border_draw(38, 33 + 44 * (m->legion_id + 1), 560, 40, 0);
+            image_draw(image_group(GROUP_FIGURE_FORT_STANDARD_ICONS) + m->legion_id, 48, 38 + 44 * (m->legion_id + 1));
+            lang_text_draw(138, m->legion_id, 100, 39 + 44 * (m->legion_id + 1), FONT_NORMAL_WHITE);
+            int width = text_draw_number(m->num_figures, ' ', "", 100, 56 + 44 * (m->legion_id + 1), FONT_NORMAL_GREEN);
             switch (m->figure_type) {
                 case FIGURE_FORT_LEGIONARY:
-                    lang_text_draw(138, 33, 100 + width, 56 + 44 * i, FONT_NORMAL_GREEN);
+                    lang_text_draw(138, 33, 100 + width, 56 + 44 * (m->legion_id + 1), FONT_NORMAL_GREEN);
                     break;
                 case FIGURE_FORT_MOUNTED:
-                    lang_text_draw(138, 34, 100 + width, 56 + 44 * i, FONT_NORMAL_GREEN);
+                    lang_text_draw(138, 34, 100 + width, 56 + 44 * (m->legion_id + 1), FONT_NORMAL_GREEN);
                     break;
                 case FIGURE_FORT_JAVELIN:
-                    lang_text_draw(138, 35, 100 + width, 56 + 44 * i, FONT_NORMAL_GREEN);
+                    lang_text_draw(138, 35, 100 + width, 56 + 44 * (m->legion_id + 1), FONT_NORMAL_GREEN);
                     break;
             }
-            lang_text_draw_centered(138, 37 + m->morale / 5, 240, 47 + 44 * i, 150, FONT_NORMAL_GREEN);
+            lang_text_draw_centered(138, 37 + m->morale / 5, 240, 47 + 44 * (m->legion_id + 1), 150, FONT_NORMAL_GREEN);
 
             int image_id = image_group(GROUP_FORT_ICONS);
-            button_border_draw(400, 39 + 44 * i, 30, 30, 0);
-            image_draw(image_id, 403, 42 + 44 * i);
+            button_border_draw(400, 39 + 44 * (m->legion_id + 1), 30, 30, 0);
+            image_draw(image_id, 403, 42 + 44 * (m->legion_id + 1));
 
-            button_border_draw(480, 39 + 44 * i, 30, 30, 0);
+            button_border_draw(480, 39 + 44 * (m->legion_id + 1), 30, 30, 0);
             if (m->is_at_fort || m->in_distant_battle) {
-                image_draw(image_id + 2, 483, 42 + 44 * i);
+                image_draw(image_id + 2, 483, 42 + 44 * (m->legion_id + 1));
             } else {
-                image_draw(image_id + 1, 483, 42 + 44 * i);
+                image_draw(image_id + 1, 483, 42 + 44 * (m->legion_id + 1));
             }
 
-            button_border_draw(560, 39 + 44 * i, 30, 30, 0);
+            button_border_draw(560, 39 + 44 * (m->legion_id + 1), 30, 30, 0);
             if (m->empire_service) {
-                image_draw(image_id + 3, 563, 42 + 44 * i);
+                image_draw(image_id + 3, 563, 42 + 44 * (m->legion_id + 1));
             } else {
-                image_draw(image_id + 4, 563, 42 + 44 * i);
+                image_draw(image_id + 4, 563, 42 + 44 * (m->legion_id + 1));
             }
         }
     }

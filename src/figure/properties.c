@@ -14,7 +14,7 @@ static const figure_properties properties[] = {
         {1,  20,   0,   0,   0,   0,   0},  // FIGURE_WAREHOUSEMAN
         {2,  50,   5,   0,   0,   0,   0},  // FIGURE_PREFECT
         {2,  70,   4,   0,   0,   4, 100},  // FIGURE_FORT_JAVELIN
-        {2, 140,   9,   0,   0,   0,   0},  // FIGURE_FORT_MOUNTED
+        {2, 110,   6,   0,   0,   0,   0},  // FIGURE_FORT_MOUNTED
         {2, 150,  10,   0,   0,   0,   0},  // FIGURE_FORT_LEGIONARY
         {0,   0,   0,   0,   0,   0,   0},  // FIGURE_FORT_STANDARD
         {1,  20,   0,   0,   0,   0,   0},  // FIGURE_ACTOR

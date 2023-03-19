@@ -148,7 +148,9 @@ void figure_combat_handle_attack(figure *f)
 
     if (f->num_melee_combatants) {
         f->attack_image_offset++;
-        if (f->attack_image_offset >= 24) {
+        if (f->attack_image_offset >= 24
+            || (!formations[f->formation_id].is_halted && f->mounted_charge_ticks
+                && opponent->type != FIGURE_FORT_MOUNTED && opponent->type != FIGURE_ENEMY46_CAMEL && opponent->type != FIGURE_ENEMY47_ELEPHANT && opponent->type != FIGURE_ENEMY48_CHARIOT && opponent->type != FIGURE_ENEMY52_MOUNTED_ARCHER)) {
             // select next target from list
             for (int i = 0; i < MAX_MELEE_COMBATANTS_PER_UNIT; i++) {
                 if (f->melee_combatant_ids[i]) {
@@ -158,6 +160,10 @@ void figure_combat_handle_attack(figure *f)
                 }
             }
             hit_opponent(f);
+            if (f->mounted_charge_ticks) {
+                sound_effect_play(SOUND_EFFECT_HORSE_MOVING);
+                f->mounted_charge_ticks--;
+            }
         }
     } else {
         f->action_state = f->action_state_before_attack;
@@ -247,7 +253,6 @@ figure *melee_unit__set_closest_target(figure *f)
                     case FIGURE_MAP_FLAG:
                     case FIGURE_FLOTSAM:
                     case FIGURE_SHIPWRECK:
-                    case FIGURE_TOWER_SENTRY:
                     case FIGURE_ARROW:
                     case FIGURE_JAVELIN:
                     case FIGURE_BOLT:
@@ -256,12 +261,18 @@ figure *melee_unit__set_closest_target(figure *f)
                     case FIGURE_WOLF:
                         continue;
                 }
+                if (potential_target->type == FIGURE_TOWER_SENTRY && potential_target->terrain_usage == TERRAIN_USAGE_WALLS) {
+                    continue;
+                }
                 closest_target_distance = potential_target_distance;
                 closest_eligible_target = potential_target;
                 continue;
             } else {
                 // targeter is enemy unit
-                if ((potential_target_figure_category == FIGURE_CATEGORY_ARMED && potential_target->type != FIGURE_TOWER_SENTRY)
+                if (potential_target->type == FIGURE_TOWER_SENTRY && potential_target->terrain_usage == TERRAIN_USAGE_WALLS) {
+                    continue;
+                }
+                if ((potential_target_figure_category == FIGURE_CATEGORY_ARMED)
                 || potential_target->type == FIGURE_WOLF
                 || (figure_is_caesar_legion(potential_target) && !figure_is_caesar_legion(f))
                 || potential_target->type == FIGURE_NATIVE_TRADER
@@ -397,7 +408,7 @@ static int missile_trajectory_clear(figure *shooter, figure *target)
     return 1;
 }
 
-int get_missile_target(figure *shooter, map_point *tile, int limit_max_targeters)
+int set_missile_target(figure *shooter, map_point *tile, int limit_max_targeters)
 {
     int closest_target_distance = shooter->max_range;
     figure *closest_eligible_target = 0;
@@ -459,7 +470,10 @@ int get_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
                     case FIGURE_SPEAR:
                         continue;
                 }
-                if ((potential_target_figure_category == FIGURE_CATEGORY_ARMED && potential_target->type != FIGURE_TOWER_SENTRY)
+                if (potential_target->type == FIGURE_TOWER_SENTRY && potential_target->terrain_usage == TERRAIN_USAGE_WALLS) {
+                    continue;
+                }
+                if ((potential_target_figure_category == FIGURE_CATEGORY_ARMED)
                 || potential_target->type == FIGURE_WOLF
                 || (figure_is_caesar_legion(potential_target) && !figure_is_caesar_legion(shooter))
                 || potential_target_figure_category == FIGURE_CATEGORY_CITIZEN
@@ -497,7 +511,7 @@ int get_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
             };
         }
         map_point_store_result(closest_eligible_target->x, closest_eligible_target->y, tile);
-        return closest_eligible_target->id;
+        return 1;
     }
 
     return 0;

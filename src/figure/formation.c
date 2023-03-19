@@ -187,6 +187,10 @@ void formation_calculate_figures(void)
                 break;
             }
         }
+        if (formations[f->formation_id].figure_type == FIGURE_FORT_MOUNTED && formations[f->formation_id].is_at_fort
+            && f->mounted_charge_ticks < f->mounted_charge_ticks_max) {
+            f->mounted_charge_ticks++;
+        }
     }
 
     enemy_army_totals_clear();

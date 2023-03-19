@@ -314,8 +314,6 @@ extern struct city_data_t {
         int16_t last_used_warehouse;
     } resource;
     struct {
-        int8_t march_enemy;
-        int8_t march_horse;
         int8_t march_wolf;
         int8_t hit_soldier;
         int8_t hit_spear;

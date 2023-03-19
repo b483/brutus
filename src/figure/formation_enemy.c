@@ -571,7 +571,7 @@ static void update_enemy_formation(struct formation_t *m, int *roman_distance)
                 sound_effect_play(SOUND_EFFECT_HORN3);
             }
         }
-        // reduce morale of all enemy formations, improve morale of all legions
+        // on formation rout, reduce morale of all enemy formations, improve morale of all legions
         if (!m->routed) {
             for (int j = 1; j < MAX_FORMATIONS; j++) {
                 if (formations[j].in_use && !formations[j].is_herd) {

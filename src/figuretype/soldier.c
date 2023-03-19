@@ -1,5 +1,6 @@
 #include "soldier.h"
 
+#include "building/barracks.h"
 #include "city/data_private.h"
 #include "city/map.h"
 #include "core/calc.h"
@@ -75,34 +76,6 @@ void figure_military_standard_action(figure *f)
             f->cart_image_id = image_group(GROUP_FIGURE_FORT_FLAGS) + 17;
         } else {
             f->cart_image_id = image_group(GROUP_FIGURE_FORT_FLAGS) + 9 + f->image_offset / 2;
-        }
-    }
-}
-
-static void javelin_launch_missile(figure *f)
-{
-    map_point tile = { -1, -1 };
-    f->wait_ticks_missile++;
-    if (f->wait_ticks_missile > figure_properties_for_type(f->type)->missile_delay) {
-        f->wait_ticks_missile = 0;
-        if (get_missile_target(f, &tile, 1) || get_missile_target(f, &tile, 0)) {
-            f->attack_image_offset = 1;
-            f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
-        } else {
-            f->attack_image_offset = 0;
-        }
-    }
-    if (f->attack_image_offset) {
-        if (f->attack_image_offset == 1) {
-            if (tile.x == -1 || tile.y == -1) {
-                map_point_get_last_result(&tile);
-            }
-            figure_create_missile(f, &tile, FIGURE_JAVELIN);
-            formations[f->formation_id].missile_fired = 6;
-        }
-        f->attack_image_offset++;
-        if (f->attack_image_offset > 100) {
-            f->attack_image_offset = 0;
         }
     }
 }
@@ -213,8 +186,17 @@ void figure_soldier_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_80_SOLDIER_AT_REST:
+            if (!f->is_military_trained) {
+                map_point mil_acad_road = { 0 };
+                set_closest_military_academy_road_tile(&mil_acad_road, f->building_id);
+                if (mil_acad_road.x) {
+                    f->destination_x = mil_acad_road.x;
+                    f->destination_y = mil_acad_road.y;
+                    f->action_state = FIGURE_ACTION_85_SOLDIER_GOING_TO_MILITARY_ACADEMY;
+                    return;
+                }
+            }
             map_figure_update(f);
-            f->wait_ticks = 0;
             f->formation_at_rest = 1;
             f->image_offset = 0;
             if (f->x != f->formation_position_x.soldier || f->y != f->formation_position_y.soldier) {
@@ -223,7 +205,6 @@ void figure_soldier_action(figure *f)
             break;
         case FIGURE_ACTION_81_SOLDIER_GOING_TO_FORT:
         case FIGURE_ACTION_148_FLEEING:
-            f->wait_ticks = 0;
             f->formation_at_rest = 1;
             f->destination_x = f->formation_position_x.soldier;
             f->destination_y = f->formation_position_y.soldier;
@@ -287,23 +268,49 @@ void figure_soldier_action(figure *f)
                     f->alternative_location_index = 0;
                 }
             }
-            if (f->action_state != FIGURE_ACTION_83_SOLDIER_GOING_TO_STANDARD) {
-                if (f->type == FIGURE_FORT_JAVELIN) {
-                    javelin_launch_missile(f);
-                } else if (f->type == FIGURE_FORT_LEGIONARY) {
-                    // attack adjacent enemy
-                    for (int i = 0; i < 8 && f->action_state != FIGURE_ACTION_150_ATTACK; i++) {
-                        figure_combat_attack_figure_at(f, f->grid_offset + map_grid_direction_delta(i));
+            if (f->type == FIGURE_FORT_JAVELIN) {
+                map_point tile = { -1, -1 };
+                f->wait_ticks_missile++;
+                if (f->wait_ticks_missile > figure_properties_for_type(f->type)->missile_delay) {
+                    f->wait_ticks_missile = 0;
+                    int target_acquired = 0;
+                    if (f->is_military_trained) {
+                        target_acquired = set_missile_target(f, &tile, 1) || set_missile_target(f, &tile, 0);
+                    } else {
+                        target_acquired = set_missile_target(f, &tile, 0);
                     }
+                    if (target_acquired) {
+                        f->attack_image_offset = 1;
+                        f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
+                    } else {
+                        f->attack_image_offset = 0;
+                    }
+                }
+                if (f->attack_image_offset) {
+                    if (f->attack_image_offset == 1) {
+                        if (tile.x == -1 || tile.y == -1) {
+                            map_point_get_last_result(&tile);
+                        }
+                        figure_create_missile(f, &tile, FIGURE_JAVELIN);
+                        formations[f->formation_id].missile_fired = 6;
+                    }
+                    f->attack_image_offset++;
+                    if (f->attack_image_offset > 100) {
+                        f->attack_image_offset = 0;
+                    }
+                }
+            } else if (f->type == FIGURE_FORT_LEGIONARY) {
+                // attack adjacent enemy
+                for (int i = 0; i < 8 && f->action_state != FIGURE_ACTION_150_ATTACK; i++) {
+                    figure_combat_attack_figure_at(f, f->grid_offset + map_grid_direction_delta(i));
                 }
             }
             break;
         case FIGURE_ACTION_85_SOLDIER_GOING_TO_MILITARY_ACADEMY:
-            legion_formation->has_military_training = 1;
-            if (f->type == FIGURE_FORT_LEGIONARY) {
-                legion_formation->max_morale = 100;
-            } else {
-                legion_formation->max_morale = 80;
+            f->is_military_trained = 1;
+            if (f->type == FIGURE_FORT_MOUNTED) {
+                f->mounted_charge_ticks = 20;
+                f->mounted_charge_ticks_max = 20;
             }
             f->formation_at_rest = 1;
             figure_movement_move_ticks(f, f->speed_multiplier);
@@ -337,7 +344,6 @@ void figure_soldier_action(figure *f)
         }
         case FIGURE_ACTION_88_SOLDIER_RETURNING_FROM_DISTANT_BATTLE:
             f->is_ghost = 0;
-            f->wait_ticks = 0;
             f->formation_at_rest = 1;
             f->destination_x = f->formation_position_x.soldier;
             f->destination_y = f->formation_position_y.soldier;

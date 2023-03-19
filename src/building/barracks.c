@@ -71,22 +71,21 @@ static int get_closest_legion_needing_soldiers(const building *barracks)
     return min_formation_id;
 }
 
-static int get_closest_military_academy(const building *fort)
+void set_closest_military_academy_road_tile(map_point *building_road_tile, int final_destination_building_id)
 {
-    int min_building_id = 0;
     int min_distance = INFINITE;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
         building *b = building_get(i);
-        if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_MILITARY_ACADEMY &&
-            b->num_workers >= model_get_building(BUILDING_MILITARY_ACADEMY)->laborers) {
-            int dist = calc_maximum_distance(fort->x, fort->y, b->x, b->y);
+        if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_MILITARY_ACADEMY && b->num_workers >= model_get_building(BUILDING_MILITARY_ACADEMY)->laborers) {
+            building *final_dest_building = building_get(final_destination_building_id);
+            int dist = calc_maximum_distance(final_dest_building->x, final_dest_building->y, b->x, b->y);
             if (dist < min_distance) {
-                min_distance = dist;
-                min_building_id = i;
+                if (map_has_road_access(b->x, b->y, b->size, building_road_tile)) {
+                    min_distance = dist;
+                }
             }
         }
     }
-    return min_building_id;
 }
 
 int building_barracks_create_soldier(building *barracks, int x, int y)
@@ -110,18 +109,18 @@ int building_barracks_create_soldier(building *barracks, int x, int y)
                 f->speed_multiplier = 3;
                 break;
         }
-        int academy_id = get_closest_military_academy(building_get(formations[formation_id].building_id));
-        if (academy_id) {
-            map_point road;
-            building *academy = building_get(academy_id);
-            if (map_has_road_access(academy->x, academy->y, academy->size, &road)) {
-                f->action_state = FIGURE_ACTION_85_SOLDIER_GOING_TO_MILITARY_ACADEMY;
-                f->destination_x = road.x;
-                f->destination_y = road.y;
-                f->destination_grid_offset = map_grid_offset(f->destination_x, f->destination_y);
-            } else {
-                f->action_state = FIGURE_ACTION_81_SOLDIER_GOING_TO_FORT;
-            }
+        f->building_id = formations[formation_id].building_id;
+        if (f->type == FIGURE_FORT_MOUNTED) {
+            f->mounted_charge_ticks = 10;
+            f->mounted_charge_ticks_max = 10;
+        }
+        map_point mil_acad_road = { 0 };
+        set_closest_military_academy_road_tile(&mil_acad_road, formations[formation_id].building_id);
+        if (mil_acad_road.x) {
+            f->action_state = FIGURE_ACTION_85_SOLDIER_GOING_TO_MILITARY_ACADEMY;
+            f->destination_x = mil_acad_road.x;
+            f->destination_y = mil_acad_road.y;
+            f->destination_grid_offset = map_grid_offset(f->destination_x, f->destination_y);
         } else {
             f->action_state = FIGURE_ACTION_81_SOLDIER_GOING_TO_FORT;
         }
@@ -147,18 +146,24 @@ int building_barracks_create_tower_sentry(building *barracks, int x, int y)
     if (!tower) {
         return 0;
     }
-    figure *f = figure_create(FIGURE_TOWER_SENTRY, x, y, DIR_0_TOP);
-    f->action_state = FIGURE_ACTION_174_TOWER_SENTRY_GOING_TO_TOWER;
-    f->max_range = 12;
-    map_point road;
-    if (map_has_road_access(tower->x, tower->y, tower->size, &road)) {
-        f->destination_x = road.x;
-        f->destination_y = road.y;
-    } else {
-        f->state = FIGURE_STATE_DEAD;
+    map_point tower_road;
+    if (!map_has_road_access(tower->x, tower->y, tower->size, &tower_road)) {
+        return 0;
     }
+    figure *f = figure_create(FIGURE_TOWER_SENTRY, x, y, DIR_0_TOP);
+    f->max_range = 12;
     tower->figure_id = f->id;
     f->building_id = tower->id;
+    map_point mil_acad_road = { 0 };
+    set_closest_military_academy_road_tile(&mil_acad_road, tower->id);
+    if (mil_acad_road.x) {
+        f->action_state = FIGURE_ACTION_85_SOLDIER_GOING_TO_MILITARY_ACADEMY;
+        f->destination_x = mil_acad_road.x;
+        f->destination_y = mil_acad_road.y;
+        f->destination_grid_offset = map_grid_offset(f->destination_x, f->destination_y);
+    } else {
+        f->action_state = FIGURE_ACTION_174_TOWER_SENTRY_GOING_TO_TOWER;
+    }
     return 1;
 }
 

@@ -19,6 +19,7 @@ typedef struct {
     unsigned char is_enemy_image;
     int enemy_image_type;
     int enemy_image_type_detailed;
+    uint8_t is_military_trained;
     unsigned char alternative_location_index;
     unsigned char flotsam_visible;
     short next_figure_id_on_same_tile;
@@ -86,6 +87,8 @@ typedef struct {
     unsigned char min_max_seen;
     short leading_figure_id;
     unsigned char attack_image_offset;
+    uint8_t mounted_charge_ticks;
+    uint8_t mounted_charge_ticks_max;
     unsigned char wait_ticks_missile;
     signed char x_offset_cart;
     signed char y_offset_cart;

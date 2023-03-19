@@ -14,7 +14,7 @@ void figure_combat_handle_attack(figure *f);
 
 figure *melee_unit__set_closest_target(figure *f);
 
-int get_missile_target(figure *shooter, map_point *tile, int limit_max_targeters);
+int set_missile_target(figure *shooter, map_point *tile, int limit_max_targeters);
 
 void figure_combat_attack_figure_at(figure *f, int grid_offset);
 

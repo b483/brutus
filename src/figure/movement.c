@@ -312,19 +312,6 @@ void figure_movement_move_ticks(figure *f, int num_ticks)
     walk_ticks(f, num_ticks, 0);
 }
 
-void figure_movement_move_ticks_tower_sentry(figure *f, int num_ticks)
-{
-    while (num_ticks > 0) {
-        num_ticks--;
-        f->progress_on_tile++;
-        if (f->progress_on_tile < 15) {
-            advance_tick(f);
-        } else {
-            f->progress_on_tile = 15;
-        }
-    }
-}
-
 void figure_movement_follow_ticks(figure *f, int num_ticks)
 {
     const figure *leader = figure_get(f->leading_figure_id);

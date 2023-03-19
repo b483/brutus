@@ -8,6 +8,8 @@ int building_get_barracks_for_weapon(int resource, int road_network_id, map_poin
 
 void building_barracks_add_weapon(building *barracks);
 
+void set_closest_military_academy_road_tile(map_point *building_road_tile, int final_destination_building_id);
+
 int building_barracks_create_soldier(building *barracks, int x, int y);
 
 int building_barracks_create_tower_sentry(building *barracks, int x, int y);

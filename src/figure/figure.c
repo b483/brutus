@@ -172,6 +172,7 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_u8(buf, f->is_enemy_image);
     buffer_write_i32(buf, f->enemy_image_type);
     buffer_write_i32(buf, f->enemy_image_type_detailed);
+    buffer_write_u8(buf, f->is_military_trained);
     buffer_write_u8(buf, f->flotsam_visible);
     buffer_write_i16(buf, f->image_id);
     buffer_write_i16(buf, f->cart_image_id);
@@ -234,6 +235,8 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_u8(buf, f->min_max_seen);
     buffer_write_i16(buf, f->leading_figure_id);
     buffer_write_u8(buf, f->attack_image_offset);
+    buffer_write_u8(buf, f->mounted_charge_ticks);
+    buffer_write_u8(buf, f->mounted_charge_ticks_max);
     buffer_write_u8(buf, f->wait_ticks_missile);
     buffer_write_i8(buf, f->x_offset_cart);
     buffer_write_i8(buf, f->y_offset_cart);
@@ -277,6 +280,7 @@ static void figure_load(buffer *buf, figure *f)
     f->is_enemy_image = buffer_read_u8(buf);
     f->enemy_image_type = buffer_read_i32(buf);
     f->enemy_image_type_detailed = buffer_read_i32(buf);
+    f->is_military_trained = buffer_read_u8(buf);
     f->flotsam_visible = buffer_read_u8(buf);
     f->image_id = buffer_read_i16(buf);
     f->cart_image_id = buffer_read_i16(buf);
@@ -339,6 +343,8 @@ static void figure_load(buffer *buf, figure *f)
     f->min_max_seen = buffer_read_u8(buf);
     f->leading_figure_id = buffer_read_i16(buf);
     f->attack_image_offset = buffer_read_u8(buf);
+    f->mounted_charge_ticks = buffer_read_u8(buf);
+    f->mounted_charge_ticks_max = buffer_read_u8(buf);
     f->wait_ticks_missile = buffer_read_u8(buf);
     f->x_offset_cart = buffer_read_i8(buf);
     f->y_offset_cart = buffer_read_i8(buf);
