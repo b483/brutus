@@ -43,11 +43,11 @@ const struct dir_listing *dir_list_files(const char *extension)
 void prepend_dir_to_path(const char *dir_to_prepend, const char *filepath, char *resulting_string)
 {
     size_t dir_len = strlen(dir_to_prepend) + 1;
-    strncpy(resulting_string, dir_to_prepend, FILE_NAME_MAX);
+    strncpy(resulting_string, dir_to_prepend, DIR_PATH_MAX);
 #ifdef _WIN32
     resulting_string[dir_len - 1] = '\\';
 #elif(__linux__)
     resulting_string[dir_len - 1] = '/';
 #endif
-    strncpy(&resulting_string[dir_len], filepath, FILE_NAME_MAX - dir_len - 1);
+    strncpy(&resulting_string[dir_len], filepath, DIR_PATH_MAX - dir_len - 1);
 }

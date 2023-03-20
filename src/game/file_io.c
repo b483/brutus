@@ -421,7 +421,7 @@ int game_file_io_read_scenario(const char *dir, const char *filename)
     log_info("Loading scenario", filename, 0);
     init_scenario_data();
 
-    static char dir_prepended_filepath[FILE_NAME_MAX];
+    static char dir_prepended_filepath[DIR_PATH_MAX];
     prepend_dir_to_path(dir, filename, dir_prepended_filepath);
 
     FILE *fp = fopen(dir_prepended_filepath, "rb");
@@ -448,7 +448,7 @@ int game_file_io_write_scenario(const char *dir, const char *filename)
     init_scenario_data();
     scenario_save_to_state(&scenario_data.state);
 
-    static char dir_prepended_filepath[FILE_NAME_MAX];
+    static char dir_prepended_filepath[DIR_PATH_MAX];
     prepend_dir_to_path(dir, filename, dir_prepended_filepath);
 
     FILE *fp = fopen(dir_prepended_filepath, "wb");
@@ -554,7 +554,7 @@ int game_file_io_read_saved_game(const char *dir, const char *filename, int offs
     init_savegame_data();
 
     log_info("Loading saved game", filename, 0);
-    static char dir_prepended_filepath[FILE_NAME_MAX];
+    static char dir_prepended_filepath[DIR_PATH_MAX];
     prepend_dir_to_path(dir, filename, dir_prepended_filepath);
 
     FILE *fp = fopen(dir_prepended_filepath, "rb");
@@ -582,7 +582,7 @@ int game_file_io_write_saved_game(const char *dir, const char *filename)
     log_info("Saving game", filename, 0);
     savegame_save_to_state(&savegame_data.state);
 
-    static char dir_prepended_filepath[FILE_NAME_MAX];
+    static char dir_prepended_filepath[DIR_PATH_MAX];
     prepend_dir_to_path(dir, filename, dir_prepended_filepath);
 
     FILE *fp = fopen(dir_prepended_filepath, "wb");
@@ -598,7 +598,7 @@ int game_file_io_write_saved_game(const char *dir, const char *filename)
 int game_file_io_delete_saved_game(const char *filename)
 {
     log_info("Deleting game", filename, 0);
-    static char dir_prepended_filepath[FILE_NAME_MAX];
+    static char dir_prepended_filepath[DIR_PATH_MAX];
     prepend_dir_to_path(SAVES_DIR_PATH, filename, dir_prepended_filepath);
     int result = remove(dir_prepended_filepath);
 
