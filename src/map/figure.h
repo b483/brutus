@@ -3,6 +3,9 @@
 
 #include "core/buffer.h"
 #include "figure/figure.h"
+#include "map/grid.h"
+
+extern grid_u16 map_figures;
 
 /**
  * Returns the first figure at the given offset
@@ -23,13 +26,6 @@ void map_figure_add(figure *f);
 void map_figure_update(figure *f);
 
 void map_figure_delete(figure *f);
-
-int map_figure_foreach_until(int grid_offset, int (*callback)(figure *f));
-
-/**
- * Clears the map
- */
-void map_figure_clear(void);
 
 void map_figure_save_state(buffer *buf);
 

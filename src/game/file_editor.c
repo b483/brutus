@@ -74,7 +74,7 @@ static void clear_map_data(void)
     map_building_clear();
     map_terrain_clear();
     map_aqueduct_clear();
-    map_figure_clear();
+    map_grid_clear_u16(map_figures.items);
     map_property_clear();
     map_sprite_clear();
     map_random_clear();

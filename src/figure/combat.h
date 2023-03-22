@@ -4,7 +4,7 @@
 #include "figure/figure.h"
 #include "map/point.h"
 
-#define PREFECT_TARGET_ACQUISITION_RANGE 20
+#define PREFECT_TARGET_ACQUISITION_RANGE 15
 
 void figure_combat_handle_corpse(figure *f);
 

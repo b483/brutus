@@ -5,7 +5,6 @@
 #include "figure/combat.h"
 #include "figure/formation.h"
 #include "figure/movement.h"
-#include "figure/properties.h"
 #include "figure/sound.h"
 #include "map/figure.h"
 #include "map/point.h"
@@ -59,50 +58,33 @@ void figure_create_missile(figure *shooter, map_point *target_tile, figure_type 
         missile->destination_x = target_tile->x;
         missile->destination_y = target_tile->y;
         figure_movement_set_cross_country_direction(missile, missile->cross_country_x, missile->cross_country_y, 15 * target_tile->x, 15 * target_tile->y, 1);
-
-        // clear targeting
-        figure *target = figure_get(shooter->target_figure_id);
-        figure__remove_ranged_targeter_from_list(target, shooter);
-        shooter->target_figure_id = 0;
     }
 }
 
-static int is_citizen(figure *f)
+static int get_target_on_tile(figure *projectile)
 {
-    if (f->action_state != FIGURE_ACTION_149_CORPSE) {
-        if (f->type && f->type != FIGURE_EXPLOSION && f->type != FIGURE_FORT_STANDARD &&
-            f->type != FIGURE_MAP_FLAG && f->type != FIGURE_FLOTSAM && f->type < FIGURE_INDIGENOUS_NATIVE) {
-            return f->id;
+    figure *shooter = figure_get(projectile->building_id);
+    if (map_figures.items[projectile->grid_offset] > 0) {
+        int figure_id = map_figures.items[projectile->grid_offset];
+        while (figure_id) {
+            figure *f = figure_get(figure_id);
+            if (f->action_state != FIGURE_ACTION_149_CORPSE && f->is_targetable) {
+                if (shooter->is_friendly_armed_unit) {
+                    if (f->is_enemy_unit
+                    || (f->type == FIGURE_INDIGENOUS_NATIVE && f->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING)
+                    || f->is_herd_animal) {
+                        return f->id;
+                    }
+                } else {
+                    if (f->is_unarmed_civilian_unit || f->is_friendly_armed_unit || f->is_caesar_legion_unit || (f->is_native_unit && f->action_state != FIGURE_ACTION_159_NATIVE_ATTACKING) || f->type == FIGURE_WOLF) {
+                        return f->id;
+                    }
+                }
+            }
+            figure_id = f->next_figure_id_on_same_tile;
         }
     }
     return 0;
-}
-
-static int get_citizen_on_tile(int grid_offset)
-{
-    return map_figure_foreach_until(grid_offset, is_citizen);
-}
-
-static int is_non_citizen(figure *f)
-{
-    if (f->action_state == FIGURE_ACTION_149_CORPSE) {
-        return 0;
-    }
-    if (figure_is_enemy(f)) {
-        return f->id;
-    }
-    if (f->type == FIGURE_INDIGENOUS_NATIVE && f->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING) {
-        return f->id;
-    }
-    if (f->type == FIGURE_WOLF || f->type == FIGURE_SHEEP || f->type == FIGURE_ZEBRA) {
-        return f->id;
-    }
-    return 0;
-}
-
-static int get_non_citizen_on_tile(int grid_offset)
-{
-    return map_figure_foreach_until(grid_offset, is_non_citizen);
 }
 
 void figure_explosion_cloud_action(figure *f)
@@ -121,13 +103,9 @@ void figure_explosion_cloud_action(figure *f)
     }
 }
 
-static void missile_hit_target(figure *f, figure *target)
+static void missile_hit_target(figure *projectile, figure *target)
 {
-    const figure_properties *target_props = figure_properties_for_type(target->type);
-    int max_damage = target_props->max_damage;
-    int damage_inflicted =
-        figure_properties_for_type(f->type)->missile_attack_value -
-        target_props->missile_defense_value;
+    int damage_inflicted = projectile->missile_attack_value - target->missile_defense_value;
     if (damage_inflicted < 0) {
         damage_inflicted = 0;
     }
@@ -137,117 +115,99 @@ static void missile_hit_target(figure *f, figure *target)
         damage_inflicted = 1;
     }
     int target_damage = damage_inflicted + target->damage;
-    if (target_damage <= max_damage) {
+    if (target_damage <= target->max_damage) {
         target->damage = target_damage;
     } else { // kill target
-        target->damage = max_damage + 1;
+        target->damage = target->max_damage + 1;
         target->action_state = FIGURE_ACTION_149_CORPSE;
         target->wait_ticks = 0;
         figure_play_die_sound(target);
         formation_update_morale_after_death(&formations[target->formation_id]);
     }
-    f->state = FIGURE_STATE_DEAD;
+    projectile->state = FIGURE_STATE_DEAD;
     // for missiles: building_id contains the figure who shot it
-    int missile_formation = figure_get(f->building_id)->formation_id;
+    figure *shooter = figure_get(projectile->building_id);
+    int missile_formation = shooter->formation_id;
     formations[target->formation_id].missile_attack_timeout = 6;
     formations[target->formation_id].missile_attack_formation_id = missile_formation;
+    // clear targeting
+    shooter->target_figure_id = 0;
+    figure__remove_ranged_targeter_from_list(target, shooter);
 }
 
-void figure_arrow_action(figure *f)
+void figure_arrow_action(figure *projectile)
 {
-    f->use_cross_country = 1;
-    f->progress_on_tile++;
-    if (f->progress_on_tile > 120) {
-        f->state = FIGURE_STATE_DEAD;
+    projectile->use_cross_country = 1;
+    projectile->progress_on_tile++;
+    if (projectile->progress_on_tile > 120) {
+        projectile->state = FIGURE_STATE_DEAD;
     }
-    int should_die = figure_movement_move_ticks_cross_country(f, 4);
-    int target_id = get_citizen_on_tile(f->grid_offset);
+    int should_die = figure_movement_move_ticks_cross_country(projectile, 4);
+    int target_id = get_target_on_tile(projectile);
     if (target_id) {
         figure *target = figure_get(target_id);
-        missile_hit_target(f, target);
+        missile_hit_target(projectile, target);
         sound_effect_play(SOUND_EFFECT_ARROW_HIT);
     } else if (should_die) {
-        f->state = FIGURE_STATE_DEAD;
+        projectile->state = FIGURE_STATE_DEAD;
     }
-    int dir = (16 + f->direction - 2 * city_view_orientation()) % 16;
-    f->image_id = image_group(GROUP_FIGURE_MISSILE) + 16 + dir;
+    int dir = (16 + projectile->direction - 2 * city_view_orientation()) % 16;
+    projectile->image_id = image_group(GROUP_FIGURE_MISSILE) + 16 + dir;
 }
 
-void figure_spear_action(figure *f)
+void figure_javelin_action(figure *projectile)
 {
-    f->use_cross_country = 1;
-    f->progress_on_tile++;
-    if (f->progress_on_tile > 120) {
-        f->state = FIGURE_STATE_DEAD;
+    projectile->use_cross_country = 1;
+    projectile->progress_on_tile++;
+    if (projectile->progress_on_tile > 120) {
+        projectile->state = FIGURE_STATE_DEAD;
     }
-    int should_die = figure_movement_move_ticks_cross_country(f, 4);
-    int target_id = get_citizen_on_tile(f->grid_offset);
+    int should_die = figure_movement_move_ticks_cross_country(projectile, 4);
+
+    int target_id = get_target_on_tile(projectile);
+
     if (target_id) {
         figure *target = figure_get(target_id);
-        missile_hit_target(f, target);
+        missile_hit_target(projectile, target);
         sound_effect_play(SOUND_EFFECT_JAVELIN);
     } else if (should_die) {
-        f->state = FIGURE_STATE_DEAD;
+        projectile->state = FIGURE_STATE_DEAD;
     }
-    int dir = (16 + f->direction - 2 * city_view_orientation()) % 16;
-    f->image_id = image_group(GROUP_FIGURE_MISSILE) + dir;
+    int dir = (16 + projectile->direction - 2 * city_view_orientation()) % 16;
+    projectile->image_id = image_group(GROUP_FIGURE_MISSILE) + dir;
 }
 
-void figure_javelin_action(figure *f)
+void figure_bolt_action(figure *projectile)
 {
-    f->use_cross_country = 1;
-    f->progress_on_tile++;
-    if (f->progress_on_tile > 120) {
-        f->state = FIGURE_STATE_DEAD;
+    projectile->use_cross_country = 1;
+    projectile->progress_on_tile++;
+    if (projectile->progress_on_tile > 120) {
+        projectile->state = FIGURE_STATE_DEAD;
     }
-    int should_die = figure_movement_move_ticks_cross_country(f, 4);
-    int target_id = get_non_citizen_on_tile(f->grid_offset);
+    int should_die = figure_movement_move_ticks_cross_country(projectile, 4);
+    int target_id = get_target_on_tile(projectile);
     if (target_id) {
         figure *target = figure_get(target_id);
-        missile_hit_target(f, target);
-        sound_effect_play(SOUND_EFFECT_JAVELIN);
-    } else if (should_die) {
-        f->state = FIGURE_STATE_DEAD;
-    }
-    int dir = (16 + f->direction - 2 * city_view_orientation()) % 16;
-    f->image_id = image_group(GROUP_FIGURE_MISSILE) + dir;
-}
-
-void figure_bolt_action(figure *f)
-{
-    f->use_cross_country = 1;
-    f->progress_on_tile++;
-    if (f->progress_on_tile > 120) {
-        f->state = FIGURE_STATE_DEAD;
-    }
-    int should_die = figure_movement_move_ticks_cross_country(f, 4);
-    int target_id = get_non_citizen_on_tile(f->grid_offset);
-    if (target_id) {
-        figure *target = figure_get(target_id);
-        const figure_properties *target_props = figure_properties_for_type(target->type);
-        int max_damage = target_props->max_damage;
-        int damage_inflicted =
-            figure_properties_for_type(f->type)->missile_attack_value -
-            target_props->missile_defense_value;
+        int damage_inflicted = projectile->missile_attack_value - target->missile_defense_value;
         if (damage_inflicted < 0) {
             damage_inflicted = 0;
         }
         int target_damage = damage_inflicted + target->damage;
-        if (target_damage <= max_damage) {
+        if (target_damage <= target->max_damage) {
             target->damage = target_damage;
         } else { // kill target
-            target->damage = max_damage + 1;
+            target->damage = target->max_damage + 1;
             target->action_state = FIGURE_ACTION_149_CORPSE;
             target->wait_ticks = 0;
             figure_play_die_sound(target);
             formation_update_morale_after_death(&formations[target->formation_id]);
         }
         sound_effect_play(SOUND_EFFECT_BALLISTA_HIT_PERSON);
-        f->state = FIGURE_STATE_DEAD;
+        projectile->state = FIGURE_STATE_DEAD;
     } else if (should_die) {
-        f->state = FIGURE_STATE_DEAD;
+        projectile->state = FIGURE_STATE_DEAD;
         sound_effect_play(SOUND_EFFECT_BALLISTA_HIT_GROUND);
     }
-    int dir = (16 + f->direction - 2 * city_view_orientation()) % 16;
-    f->image_id = image_group(GROUP_FIGURE_MISSILE) + 32 + dir;
+    int dir = (16 + projectile->direction - 2 * city_view_orientation()) % 16;
+    projectile->image_id = image_group(GROUP_FIGURE_MISSILE) + 32 + dir;
 }

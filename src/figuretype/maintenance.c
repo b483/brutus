@@ -14,7 +14,7 @@
 #include "map/road_access.h"
 #include "sound/effect.h"
 
-#define PREFECT_LEASH_RANGE 25
+#define PREFECT_LEASH_RANGE 20
 
 void figure_engineer_action(figure *f)
 {
@@ -303,16 +303,5 @@ void figure_prefect_action(figure *f)
             f->image_id = image_group(GROUP_FIGURE_PREFECT) +
                 dir + 8 * f->image_offset;
             break;
-    }
-}
-
-void figure_worker_action(figure *f)
-{
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
-    f->use_cross_country = 0;
-    f->max_roam_length = 384;
-    building *b = building_get(f->building_id);
-    if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
-        f->state = FIGURE_STATE_DEAD;
     }
 }

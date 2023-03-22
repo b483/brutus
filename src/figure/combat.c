@@ -6,7 +6,6 @@
 #include "core/image.h"
 #include "figure/formation.h"
 #include "figure/movement.h"
-#include "figure/properties.h"
 #include "figure/route.h"
 #include "figure/sound.h"
 #include "map/building.h"
@@ -54,15 +53,13 @@ static void hit_opponent(figure *f)
     figure *opponent = figure_get(f->primary_melee_combatant_id);
     struct formation_t *opponent_formation = &formations[opponent->formation_id];
 
-    const figure_properties *props = figure_properties_for_type(f->type);
-    const figure_properties *opponent_props = figure_properties_for_type(opponent->type);
-    if (opponent_props->category == FIGURE_CATEGORY_CITIZEN || opponent_props->category == FIGURE_CATEGORY_CRIMINAL) {
+    if (opponent->is_unarmed_civilian_unit || opponent->is_criminal_unit) {
         f->attack_image_offset = 12;
     } else {
         f->attack_image_offset = 0;
     }
-    int figure_attack = props->attack_value;
-    int opponent_defense = opponent_props->defense_value;
+    int figure_attack = f->melee_attack_value;
+    int opponent_defense = f->melee_defense_value;
 
     if (opponent->primary_melee_combatant_id != f->id && m->figure_type != FIGURE_FORT_LEGIONARY &&
             attack_is_same_direction(f->attack_direction, opponent->attack_direction)) {
@@ -87,13 +84,12 @@ static void hit_opponent(figure *f)
         }
     }
 
-    int max_damage = opponent_props->max_damage;
     int net_attack = figure_attack - opponent_defense;
     if (net_attack < 0) {
         net_attack = 0;
     }
     opponent->damage += net_attack;
-    if (opponent->damage <= max_damage) {
+    if (opponent->damage <= opponent->max_damage) {
         figure_play_hit_sound(f->type);
     } else {
         opponent->action_state = FIGURE_ACTION_149_CORPSE;
@@ -119,6 +115,13 @@ static void figure__remove_melee_targeter_from_list(figure *f, figure *melee_tar
             f->melee_targeter_ids[i] = 0;
         }
     }
+}
+
+static int unit_is_charging_opponent(figure *f, figure *opponent)
+{
+    return f->mounted_charge_ticks
+        && !formations[f->formation_id].is_halted
+        && opponent->type != FIGURE_FORT_MOUNTED && opponent->type != FIGURE_ENEMY46_CAMEL && opponent->type != FIGURE_ENEMY47_ELEPHANT && opponent->type != FIGURE_ENEMY48_CHARIOT && opponent->type != FIGURE_ENEMY52_MOUNTED_ARCHER;
 }
 
 void figure_combat_handle_attack(figure *f)
@@ -148,9 +151,7 @@ void figure_combat_handle_attack(figure *f)
 
     if (f->num_melee_combatants) {
         f->attack_image_offset++;
-        if (f->attack_image_offset >= 24
-            || (!formations[f->formation_id].is_halted && f->mounted_charge_ticks
-                && opponent->type != FIGURE_FORT_MOUNTED && opponent->type != FIGURE_ENEMY46_CAMEL && opponent->type != FIGURE_ENEMY47_ELEPHANT && opponent->type != FIGURE_ENEMY48_CHARIOT && opponent->type != FIGURE_ENEMY52_MOUNTED_ARCHER)) {
+        if (f->attack_image_offset >= 24 || unit_is_charging_opponent(f, opponent)) {
             // select next target from list
             for (int i = 0; i < MAX_MELEE_COMBATANTS_PER_UNIT; i++) {
                 if (f->melee_combatant_ids[i]) {
@@ -160,7 +161,7 @@ void figure_combat_handle_attack(figure *f)
                 }
             }
             hit_opponent(f);
-            if (f->mounted_charge_ticks) {
+            if (unit_is_charging_opponent(f, opponent)) {
                 sound_effect_play(SOUND_EFFECT_HORSE_MOVING);
                 f->mounted_charge_ticks--;
             }
@@ -211,7 +212,7 @@ figure *melee_unit__set_closest_target(figure *f)
     }
     for (int i = 1; i < MAX_FIGURES; i++) {
         figure *potential_target = figure_get(i);
-        if (figure_is_dead(potential_target)) {
+        if (figure_is_dead(potential_target) || !potential_target->is_targetable) {
             continue;
         }
         int potential_target_distance = calc_maximum_distance(f->x, f->y, potential_target->x, potential_target->y);
@@ -234,47 +235,27 @@ figure *melee_unit__set_closest_target(figure *f)
                     continue;
                 }
             }
-            int targeter_figure_category = figure_properties_for_type(f->type)->category;
-            int potential_target_figure_category = figure_properties_for_type(potential_target->type)->category;
-            if (targeter_figure_category == FIGURE_CATEGORY_ARMED) {
-                if (potential_target_figure_category == FIGURE_CATEGORY_HOSTILE
-                || potential_target_figure_category == FIGURE_CRIMINAL
+            if (f->is_friendly_armed_unit) {
+                if (potential_target->is_enemy_unit
+                || potential_target->type == FIGURE_WOLF
+                || potential_target->is_criminal_unit
                 || (potential_target->type == FIGURE_INDIGENOUS_NATIVE && potential_target->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING)) {
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
                     continue;
                 }
             } else if (f->type == FIGURE_WOLF) {
-                switch (potential_target->type) {
-                    case FIGURE_EXPLOSION:
-                    case FIGURE_FORT_STANDARD:
-                    case FIGURE_TRADE_SHIP:
-                    case FIGURE_FISHING_BOAT:
-                    case FIGURE_MAP_FLAG:
-                    case FIGURE_FLOTSAM:
-                    case FIGURE_SHIPWRECK:
-                    case FIGURE_ARROW:
-                    case FIGURE_JAVELIN:
-                    case FIGURE_BOLT:
-                    case FIGURE_BALLISTA:
-                    case FIGURE_CREATURE:
-                    case FIGURE_WOLF:
-                        continue;
-                }
-                if (potential_target->type == FIGURE_TOWER_SENTRY && potential_target->terrain_usage == TERRAIN_USAGE_WALLS) {
+                if (potential_target->type != FIGURE_WOLF) {
+                    closest_target_distance = potential_target_distance;
+                    closest_eligible_target = potential_target;
                     continue;
                 }
-                closest_target_distance = potential_target_distance;
-                closest_eligible_target = potential_target;
-                continue;
+
             } else {
                 // targeter is enemy unit
-                if (potential_target->type == FIGURE_TOWER_SENTRY && potential_target->terrain_usage == TERRAIN_USAGE_WALLS) {
-                    continue;
-                }
-                if ((potential_target_figure_category == FIGURE_CATEGORY_ARMED)
+                if ((potential_target->is_friendly_armed_unit)
                 || potential_target->type == FIGURE_WOLF
-                || (figure_is_caesar_legion(potential_target) && !figure_is_caesar_legion(f))
+                || ((f->is_caesar_legion_unit && !potential_target->is_caesar_legion_unit) || (potential_target->is_caesar_legion_unit && !f->is_caesar_legion_unit))
                 || potential_target->type == FIGURE_NATIVE_TRADER
                 || (potential_target->type == FIGURE_INDIGENOUS_NATIVE && potential_target->action_state != FIGURE_ACTION_159_NATIVE_ATTACKING)
                 ) {
@@ -367,8 +348,8 @@ static int missile_trajectory_clear(figure *shooter, figure *target)
     int x_delta = abs(shooter->x - target->x);
     int y_delta = abs(shooter->y - target->y);
     double slope;
-    int x_check;
-    int y_check;
+    int x_check = 0;
+    int y_check = 0;
     int delta;
     if (x_delta > y_delta) {
         slope = (double) (target->y - shooter->y) / (double) (target->x - shooter->x);
@@ -414,7 +395,7 @@ int set_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
     figure *closest_eligible_target = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
         figure *potential_target = figure_get(i);
-        if (figure_is_dead(potential_target)) {
+        if (figure_is_dead(potential_target) || !potential_target->is_targetable) {
             continue;
         }
         int potential_target_distance = calc_maximum_distance(shooter->x, shooter->y, potential_target->x, potential_target->y);
@@ -438,10 +419,10 @@ int set_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
                     continue;
                 }
             }
-            int potential_target_figure_category = figure_properties_for_type(potential_target->type)->category;
-            if (shooter->is_friendly) {
-                if (potential_target_figure_category == FIGURE_CATEGORY_HOSTILE
-                || potential_target_figure_category == FIGURE_CATEGORY_CRIMINAL
+            if (shooter->is_friendly_armed_unit) {
+                if (potential_target->is_enemy_unit
+                || potential_target->type == FIGURE_WOLF
+                || potential_target->is_criminal_unit
                 || (potential_target->type == FIGURE_INDIGENOUS_NATIVE && potential_target->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING)) {
                     if (missile_trajectory_clear(shooter, potential_target)) {
                         closest_target_distance = potential_target_distance;
@@ -452,37 +433,16 @@ int set_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
                 }
             } else {
                 // shooter is enemy unit
-                switch (potential_target->type) {
-                    case FIGURE_EXPLOSION:
-                    case FIGURE_FORT_STANDARD:
-                    case FIGURE_MAP_FLAG:
-                    case FIGURE_FLOTSAM:
-                    case FIGURE_INDIGENOUS_NATIVE:
-                    case FIGURE_ARROW:
-                    case FIGURE_JAVELIN:
-                    case FIGURE_BOLT:
-                    case FIGURE_BALLISTA:
-                    case FIGURE_CREATURE:
-                    case FIGURE_FISH_GULLS:
-                    case FIGURE_SHIPWRECK:
-                    case FIGURE_SHEEP:
-                    case FIGURE_ZEBRA:
-                    case FIGURE_SPEAR:
-                        continue;
-                }
-                if (potential_target->type == FIGURE_TOWER_SENTRY && potential_target->terrain_usage == TERRAIN_USAGE_WALLS) {
-                    continue;
-                }
-                if ((potential_target_figure_category == FIGURE_CATEGORY_ARMED)
+                if (potential_target->is_friendly_armed_unit
                 || potential_target->type == FIGURE_WOLF
-                || (figure_is_caesar_legion(potential_target) && !figure_is_caesar_legion(shooter))
-                || potential_target_figure_category == FIGURE_CATEGORY_CITIZEN
+                || (potential_target->is_caesar_legion_unit && !shooter->is_caesar_legion_unit)
+                || potential_target->is_unarmed_civilian_unit
                 // target only trader natives so as to not get stuck in place shooting respawning fighters
                 || potential_target->type == FIGURE_NATIVE_TRADER) {
                     // skip (closer) civilian/native trader if defender or wolf an eligible target
-                    if ((potential_target_figure_category == FIGURE_CATEGORY_CITIZEN || potential_target->type == FIGURE_NATIVE_TRADER)
+                    if ((potential_target->is_unarmed_civilian_unit || potential_target->type == FIGURE_NATIVE_TRADER)
                     && closest_eligible_target
-                    && (figure_properties_for_type(closest_eligible_target->type)->category == FIGURE_CATEGORY_ARMED || closest_eligible_target->type == FIGURE_WOLF)) {
+                    && (closest_eligible_target->is_friendly_armed_unit || closest_eligible_target->type == FIGURE_WOLF)) {
                         continue;
                     }
                     if (missile_trajectory_clear(shooter, potential_target)) {
@@ -519,8 +479,7 @@ int set_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
 
 void figure_combat_attack_figure_at(figure *f, int grid_offset)
 {
-    int figure_category = figure_properties_for_type(f->type)->category;
-    if (figure_category <= FIGURE_CATEGORY_INACTIVE || figure_category >= FIGURE_CATEGORY_CRIMINAL || f->action_state == FIGURE_ACTION_150_ATTACK) {
+    if (f->action_state == FIGURE_ACTION_150_ATTACK) {
         return;
     }
     int guard = 0;
@@ -535,29 +494,28 @@ void figure_combat_attack_figure_at(figure *f, int grid_offset)
             continue;
         }
 
-        int opponent_category = figure_properties_for_type(opponent->type)->category;
         int attack = 0;
         if (opponent->state != FIGURE_STATE_ALIVE) {
             attack = 0;
         } else if (opponent->action_state == FIGURE_ACTION_149_CORPSE) {
             attack = 0;
-        } else if (figure_category == FIGURE_CATEGORY_ARMED && opponent_category == FIGURE_CATEGORY_HOSTILE) {
+        } else if (f->is_friendly_armed_unit && (opponent->is_enemy_unit || opponent->type == FIGURE_WOLF)) {
             attack = 1;
-        } else if (figure_category == FIGURE_CATEGORY_ARMED && opponent_category == FIGURE_CATEGORY_CRIMINAL) {
+        } else if (f->is_friendly_armed_unit && opponent->is_criminal_unit) {
             attack = 1;
-        } else if (figure_category == FIGURE_CATEGORY_ARMED && opponent_category == FIGURE_CATEGORY_ANIMAL) {
+        } else if (f->is_friendly_armed_unit && opponent->is_herd_animal) {
             attack = 1;
-        } else if (figure_category == FIGURE_CATEGORY_ARMED && opponent_category == FIGURE_CATEGORY_NATIVE) {
+        } else if (f->is_friendly_armed_unit && opponent->is_native_unit) {
             if (opponent->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING) {
                 attack = 1;
             }
-        } else if (figure_category == FIGURE_CATEGORY_HOSTILE && opponent_category == FIGURE_CATEGORY_CITIZEN) {
+        } else if ((f->is_enemy_unit || f->type == FIGURE_WOLF) && opponent->is_unarmed_civilian_unit) {
             attack = 1;
-        } else if (figure_category == FIGURE_CATEGORY_HOSTILE && opponent_category == FIGURE_CATEGORY_ARMED) {
+        } else if ((f->is_enemy_unit || f->type == FIGURE_WOLF) && opponent->is_friendly_armed_unit) {
             attack = 1;
-        } else if (figure_category == FIGURE_CATEGORY_HOSTILE && opponent_category == FIGURE_CATEGORY_CRIMINAL) {
+        } else if ((f->is_enemy_unit || f->type == FIGURE_WOLF) && opponent->is_criminal_unit) {
             attack = 1;
-        } else if (figure_category == FIGURE_CATEGORY_HOSTILE && opponent_category == FIGURE_CATEGORY_NATIVE) {
+        } else if ((f->is_enemy_unit || f->type == FIGURE_WOLF) && opponent->is_native_unit) {
             // wolves attack natives
             if (f->type == FIGURE_WOLF) {
                 attack = 1;
@@ -566,16 +524,16 @@ void figure_combat_attack_figure_at(figure *f, int grid_offset)
             else if (opponent->action_state != FIGURE_ACTION_159_NATIVE_ATTACKING) {
                 attack = 1;
             }
-        } else if (figure_category == FIGURE_CATEGORY_HOSTILE && opponent_category == FIGURE_CATEGORY_ANIMAL) {
+        } else if ((f->is_enemy_unit || f->type == FIGURE_WOLF) && opponent->is_herd_animal) {
             attack = 1;
-        } else if (figure_category == FIGURE_CATEGORY_HOSTILE && opponent_category == FIGURE_CATEGORY_HOSTILE) {
+        } else if ((f->is_enemy_unit || f->type == FIGURE_WOLF) && (opponent->is_enemy_unit || opponent->type == FIGURE_WOLF)) {
             // wolves attack every hostile unit not a wolf
             if (f->type == FIGURE_WOLF && opponent->type != FIGURE_WOLF) {
                 attack = 1;
             } else if
                 // invaders and caesar's legions attack each other
-                ((!figure_is_caesar_legion(f) && figure_is_caesar_legion(opponent))
-                || (figure_is_caesar_legion(f) && !figure_is_caesar_legion(opponent))) {
+                ((!f->is_caesar_legion_unit && opponent->is_caesar_legion_unit)
+                || (f->is_caesar_legion_unit && !opponent->is_caesar_legion_unit)) {
                 attack = 1;
             }
         }

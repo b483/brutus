@@ -314,13 +314,7 @@ extern struct city_data_t {
         int16_t last_used_warehouse;
     } resource;
     struct {
-        int8_t march_wolf;
-        int8_t hit_soldier;
-        int8_t hit_spear;
-        int8_t hit_club;
         int8_t hit_elephant;
-        int8_t hit_axe;
-        int8_t hit_wolf;
         int8_t die_citizen;
         int8_t die_soldier;
     } sound;

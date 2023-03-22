@@ -89,7 +89,6 @@ void figure_indigenous_native_action(figure *f)
     }
     dir = figure_image_normalize_direction(dir);
 
-    f->is_enemy_image = 1;
     if (f->action_state == FIGURE_ACTION_150_ATTACK) {
         if (f->attack_image_offset >= 12) {
             f->image_id = 393 + dir + 8 * ((f->attack_image_offset - 12) / 2);

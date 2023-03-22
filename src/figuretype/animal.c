@@ -3,7 +3,6 @@
 #include "building/building.h"
 #include "city/data_private.h"
 #include "city/entertainment.h"
-#include "city/sound.h"
 #include "city/view.h"
 #include "core/calc.h"
 #include "core/image.h"
@@ -88,7 +87,6 @@ void figure_create_herds(void)
 
             // create herd formation
             struct formation_t *m = create_formation_type(herd_type);
-            m->faction_id = 0;
             m->is_herd = 1;
             m->layout = FORMATION_HERD;
             m->max_figures = num_animals;
@@ -159,7 +157,7 @@ void figure_wolf_action(figure *f)
                         m->herd_wolf_spawn_delay++;
                         int spawn_location_x = m->destination_x + formation_layout_position_x(FORMATION_HERD, WOLF_PACK_SIZE - 1);
                         int spawn_location_y = m->destination_y + formation_layout_position_y(FORMATION_HERD, WOLF_PACK_SIZE - 1);
-                        if (m->herd_wolf_spawn_delay > 1500 && !map_terrain_is(map_grid_offset(spawn_location_x, spawn_location_y), TERRAIN_IMPASSABLE_HERD)) {
+                        if (m->herd_wolf_spawn_delay > 1500 && !map_terrain_is(map_grid_offset(spawn_location_x, spawn_location_y), TERRAIN_IMPASSABLE)) {
                             figure *wolf = figure_create(m->figure_type, spawn_location_x, spawn_location_y, f->direction);
                             wolf->action_state = FIGURE_ACTION_196_HERD_ANIMAL_AT_REST;
                             wolf->formation_id = m->id;
@@ -177,7 +175,7 @@ void figure_wolf_action(figure *f)
                 m->missile_attack_formation_id = 0;
                 figure_movement_move_ticks(f, 2);
                 random_generate_next();
-                if (city_sound_update_march_wolf() && (random_byte() < 3)) {
+                if (random_byte() < 3) {
                     sound_effect_play(SOUND_EFFECT_WOLF_HOWL);
                 }
             } else if (m->missile_attack_formation_id) {

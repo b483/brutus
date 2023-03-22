@@ -108,7 +108,6 @@ int figure_name_get(figure_type type, enemy_type enemy)
     case FIGURE_SCHOOL_CHILD:
     case FIGURE_DELIVERY_BOY:
     case FIGURE_BARBER:
-    case FIGURE_WORKER:
     default:
         return get_next_name(&data.citizen_male, 1, 64);
 
@@ -170,7 +169,6 @@ int figure_name_get(figure_type type, enemy_type enemy)
     case FIGURE_EXPLOSION:
     case FIGURE_FORT_STANDARD:
     case FIGURE_FISH_GULLS:
-    case FIGURE_CREATURE:
     case FIGURE_HIPPODROME_HORSES:
         return 0;
     }

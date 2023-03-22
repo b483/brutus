@@ -102,11 +102,8 @@ int building_barracks_create_soldier(building *barracks, int x, int y)
                 }
                 break;
             case FIGURE_FORT_JAVELIN:
-                f->speed_multiplier = 2;
-                f->max_range = 10;
                 break;
             case FIGURE_FORT_MOUNTED:
-                f->speed_multiplier = 3;
                 break;
         }
         f->building_id = formations[formation_id].building_id;
@@ -151,7 +148,6 @@ int building_barracks_create_tower_sentry(building *barracks, int x, int y)
         return 0;
     }
     figure *f = figure_create(FIGURE_TOWER_SENTRY, x, y, DIR_0_TOP);
-    f->max_range = 12;
     tower->figure_id = f->id;
     f->building_id = tower->id;
     map_point mil_acad_road = { 0 };

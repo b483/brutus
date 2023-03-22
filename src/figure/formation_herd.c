@@ -1,7 +1,6 @@
 #include "formation_herd.h"
 
 #include "city/data_private.h"
-#include "city/sound.h"
 #include "core/random.h"
 #include "figure/combat.h"
 #include "figure/figure.h"
@@ -78,7 +77,7 @@ static int set_herd_roaming_destination(struct formation_t *m, int roam_distance
         if (!map_grid_is_valid_offset(fig_target_loc_grid_offset)) {
             return 0;
         }
-        if (map_terrain_is(fig_target_loc_grid_offset, TERRAIN_IMPASSABLE_HERD)) {
+        if (map_terrain_is(fig_target_loc_grid_offset, TERRAIN_IMPASSABLE)) {
             return 0;
         }
         if (map_has_figure_at(fig_target_loc_grid_offset)) {

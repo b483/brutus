@@ -298,9 +298,7 @@ static void init(int grid_offset)
                     case FIGURE_JAVELIN:
                     case FIGURE_BOLT:
                     case FIGURE_BALLISTA:
-                    case FIGURE_CREATURE:
                     case FIGURE_FISH_GULLS:
-                    case FIGURE_SPEAR:
                     case FIGURE_HIPPODROME_HORSES:
                         break;
                     default:
@@ -319,7 +317,7 @@ static void init(int grid_offset)
             continue;
         }
         figure *f = figure_get(figure_id);
-        if (f->type == FIGURE_FORT_STANDARD || figure_is_legion(f)) {
+        if (f->type == FIGURE_FORT_STANDARD || f->is_player_legion_unit) {
             context.type = BUILDING_INFO_LEGION;
             context.formation_id = f->formation_id;
             if (formations[context.formation_id].figure_type != FIGURE_FORT_LEGIONARY) {

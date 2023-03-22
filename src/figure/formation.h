@@ -59,7 +59,6 @@ typedef struct {
  */
 struct formation_t {
     int id; /**< ID of the formation */
-    int faction_id; /**< 1 = player, 0 = everyone else */
 
     /* General variables */
     int in_use; /**< Flag whether this entry is in use */

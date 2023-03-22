@@ -153,7 +153,6 @@ struct formation_t *formation_create_enemy(figure_type type, int max_num_figures
     if (!m) {
         return 0;
     }
-    m->faction_id = 0;
     if (layout == FORMATION_ENEMY_DOUBLE_LINE) {
         if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
             m->layout = FORMATION_DOUBLE_LINE_1;
@@ -360,7 +359,7 @@ int formation_enemy_move_formation_to(const struct formation_t *m, int x, int y,
                         can_move = 0;
                         break;
                     }
-                    if (map_terrain_is(grid_offset, TERRAIN_IMPASSABLE_ENEMY)) {
+                    if (map_terrain_is(grid_offset, TERRAIN_IMPASSABLE)) {
                         can_move = 0;
                         break;
                     }
@@ -396,7 +395,7 @@ static void mars_kill_enemies(void)
         if (f->state != FIGURE_STATE_ALIVE) {
             continue;
         }
-        if (figure_is_enemy(f) && f->type != FIGURE_ENEMY54_GLADIATOR) {
+        if (f->is_enemy_unit && f->type != FIGURE_ENEMY54_GLADIATOR) {
             f->action_state = FIGURE_ACTION_149_CORPSE;
             city_data.religion.mars_spirit_power--;
             if (!grid_offset) {
@@ -555,7 +554,7 @@ static void update_enemy_formation(struct formation_t *m, int *roman_distance)
         figure *f = figure_get(m->figures[n]);
         if (f->action_state == FIGURE_ACTION_150_ATTACK) {
             figure *opponent = figure_get(f->primary_melee_combatant_id);
-            if (!figure_is_dead(opponent) && figure_is_legion(opponent)) {
+            if (!figure_is_dead(opponent) && opponent->is_player_legion_unit) {
                 m->recent_fight = 6;
             }
         }

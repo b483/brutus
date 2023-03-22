@@ -12,8 +12,7 @@
 #include "map/grid.h"
 #include "map/routing.h"
 #include "scenario/data.h"
-
-#include <stdlib.h>
+#include "sound/speech.h"
 
 int formation_legion_create_for_fort(building *fort)
 {
@@ -21,7 +20,6 @@ int formation_legion_create_for_fort(building *fort)
 
     // create legion formation
     struct formation_t *m = create_formation_type(fort->subtype.fort_figure_type);
-    m->faction_id = 1;
     m->is_legion = 1;
     m->legion_id = formation_get_num_legions() - 1;
     m->layout = FORMATION_DOUBLE_LINE_1;
@@ -95,14 +93,6 @@ void formation_legion_restore_layout(struct formation_t *m)
     }
 }
 
-static int is_legion_standard__callback(figure *f)
-{
-    if (f->type == FIGURE_FORT_STANDARD) {
-        return 1;
-    }
-    return 0;
-}
-
 void formation_legion_move_to(struct formation_t *m, map_tile *tile)
 {
     map_routing_calculate_distances(m->x_home, m->y_home);
@@ -123,20 +113,17 @@ void formation_legion_move_to(struct formation_t *m, map_tile *tile)
 
     m->standard_x = tile->x;
     m->standard_y = tile->y;
-    // prevent legion stacking
-    while (map_figure_foreach_until(map_grid_offset(m->standard_x, m->standard_y), is_legion_standard__callback)) {
-        int rnd_offset_x = rand() % 5 - 2;
-        int rnd_offset_y = rand() % 5 - 2;
-        if (map_grid_is_inside(m->standard_x + rnd_offset_x, m->standard_y + rnd_offset_y, 1)
-        && map_grid_is_valid_offset(map_grid_offset(m->standard_x + rnd_offset_x, m->standard_y + rnd_offset_y))) {
-            m->standard_x = m->standard_x + rnd_offset_x;
-            m->standard_y = m->standard_y + rnd_offset_y;
-        } else {
-            formation_legion_return_home(m);
+    // prevent perfect stacking for legion by not allowing placement of standard on top of another
+    int figure_id = map_figures.items[map_grid_offset(m->standard_x, m->standard_y)];
+    while (figure_id) {
+        figure *f = figure_get(figure_id);
+        if (f->type == FIGURE_FORT_STANDARD) {
             return;
         }
+        figure_id = f->next_figure_id_on_same_tile;
     }
     m->is_at_fort = 0;
+    sound_speech_play_file("wavs/cohort5.wav");
 
     for (int i = 0; i < MAX_FORMATION_FIGURES && m->figures[i]; i++) {
         figure *f = figure_get(m->figures[i]);
@@ -171,17 +158,17 @@ void formation_legion_return_home(struct formation_t *m)
     }
 }
 
-static int is_legion(figure *f)
-{
-    if (figure_is_legion(f) || f->type == FIGURE_FORT_STANDARD) {
-        return f->formation_id;
-    }
-    return 0;
-}
-
 int formation_legion_at_grid_offset(int grid_offset)
 {
-    return map_figure_foreach_until(grid_offset, is_legion);
+    int figure_id = map_figures.items[grid_offset];
+    while (figure_id) {
+        figure *f = figure_get(figure_id);
+        if (f->is_player_legion_unit || f->type == FIGURE_FORT_STANDARD) {
+            return f->formation_id;
+        }
+        figure_id = f->next_figure_id_on_same_tile;
+    }
+    return 0;
 }
 
 int formation_legion_at_building(int grid_offset)
@@ -198,7 +185,7 @@ int formation_legion_at_building(int grid_offset)
 
 void formation_legion_update(void)
 {
-    for (int i = 1; i <= MAX_LEGIONS; i++) {
+    for (int i = 1; i < MAX_FORMATIONS; i++) {
         if (formations[i].in_use && formations[i].is_legion) {
             formation_decrease_monthly_counters(&formations[i]);
             if (city_data.figure.enemies <= 0) {

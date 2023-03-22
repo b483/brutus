@@ -1,7 +1,6 @@
 #include "enemy.h"
 
 #include "city/data_private.h"
-#include "city/sound.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"
@@ -10,7 +9,6 @@
 #include "figure/formation_layout.h"
 #include "figure/image.h"
 #include "figure/movement.h"
-#include "figure/properties.h"
 #include "figure/route.h"
 #include "figuretype/missile.h"
 #include "map/figure.h"
@@ -22,7 +20,7 @@ static void shoot_enemy_missile(figure *f, struct formation_t *m)
 {
     f->wait_ticks_missile++;
     map_point tile = { 0, 0 };
-    if (f->wait_ticks_missile > figure_properties_for_type(f->type)->missile_delay) {
+    if (f->wait_ticks_missile > f->missile_delay) {
         f->wait_ticks_missile = 0;
         int target_acquired = 0;
         if (f->type == FIGURE_ENEMY43_SPEAR && f->enemy_image_type != ENEMY_TYPE_PERGAMUM) {
@@ -38,34 +36,14 @@ static void shoot_enemy_missile(figure *f, struct formation_t *m)
         }
     }
     if (f->attack_image_offset) {
-        figure_type missile_type = 0;
-        switch (f->type) {
-            case FIGURE_ENEMY43_SPEAR:
-                if (f->enemy_image_type == ENEMY_TYPE_PERGAMUM) {
-                    missile_type = FIGURE_ARROW;
-                } else {
-                    missile_type = FIGURE_SPEAR;
-                }
-                break;
-            case FIGURE_ENEMY46_CAMEL:
-            case FIGURE_ENEMY47_ELEPHANT:
-            case FIGURE_ENEMY52_MOUNTED_ARCHER:
-                missile_type = FIGURE_ARROW;
-                break;
-            case FIGURE_ENEMY51_SPEAR:
-                missile_type = FIGURE_SPEAR;
-                break;
-            default:
-                break;
-        }
         if (f->attack_image_offset == 1) {
             if (tile.x == -1 || tile.y == -1) {
                 map_point_get_last_result(&tile);
             }
-            figure_create_missile(f, &tile, missile_type);
+            figure_create_missile(f, &tile, f->missile_type);
             m->missile_fired = 6;
         }
-        if (missile_type == FIGURE_ARROW) {
+        if (f->missile_type == FIGURE_ARROW && f->attack_image_offset < 5) {
             sound_effect_play(SOUND_EFFECT_ARROW);
         }
         f->attack_image_offset++;
@@ -220,8 +198,6 @@ void figure_enemy43_spear_action(figure *f)
 
     int dir = get_missile_direction(f, &formations[f->formation_id]);
 
-    f->is_enemy_image = 1;
-
     switch (formations[f->formation_id].enemy_img_group) {
         case ENEMY_TYPE_PERGAMUM:
         case ENEMY_TYPE_PHOENICIAN:
@@ -256,8 +232,6 @@ void figure_enemy44_sword_action(figure *f)
 
     int dir = get_direction(f);
 
-    f->is_enemy_image = 1;
-
     switch (formations[f->formation_id].enemy_img_group) {
         case ENEMY_TYPE_PERGAMUM:
         case ENEMY_TYPE_PHOENICIAN:
@@ -288,8 +262,6 @@ void figure_enemy45_sword_action(figure *f)
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_direction(f);
-
-    f->is_enemy_image = 1;
 
     switch (formations[f->formation_id].enemy_img_group) {
         case ENEMY_TYPE_ETRUSCAN:
@@ -322,8 +294,6 @@ void figure_enemy_camel_action(figure *f)
 
     int dir = get_missile_direction(f, &formations[f->formation_id]);
 
-    f->is_enemy_image = 1;
-
     if (f->direction == DIR_FIGURE_ATTACK) {
         f->image_id = 601 + dir + 8 * f->image_offset;
     } else if (f->action_state == FIGURE_ACTION_150_ATTACK) {
@@ -345,8 +315,6 @@ void figure_enemy_elephant_action(figure *f)
 
     int dir = get_direction(f);
 
-    f->is_enemy_image = 1;
-
     if (f->direction == DIR_FIGURE_ATTACK || f->action_state == FIGURE_ACTION_150_ATTACK) {
         f->image_id = 601 + dir + 8 * f->image_offset;
     } else if (f->action_state == FIGURE_ACTION_149_CORPSE) {
@@ -364,8 +332,6 @@ void figure_enemy_chariot_action(figure *f)
 
     int dir = get_direction(f);
 
-    f->is_enemy_image = 1;
-
     if (f->direction == DIR_FIGURE_ATTACK || f->action_state == FIGURE_ACTION_150_ATTACK) {
         f->image_id = 697 + dir + 8 * (f->image_offset / 2);
     } else if (f->action_state == FIGURE_ACTION_149_CORPSE) {
@@ -382,8 +348,6 @@ void figure_enemy49_fast_sword_action(figure *f)
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_direction(f);
-
-    f->is_enemy_image = 1;
 
     int attack_id, corpse_id, normal_id;
     if (formations[f->formation_id].enemy_img_group == ENEMY_TYPE_BARBARIAN) {
@@ -424,8 +388,6 @@ void figure_enemy50_sword_action(figure *f)
 
     int dir = get_direction(f);
 
-    f->is_enemy_image = 1;
-
     if (formations[f->formation_id].enemy_img_group != ENEMY_TYPE_GAUL && formations[f->formation_id].enemy_img_group != ENEMY_TYPE_CELT) {
         return;
     }
@@ -451,8 +413,6 @@ void figure_enemy51_spear_action(figure *f)
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_missile_direction(f, &formations[f->formation_id]);
-
-    f->is_enemy_image = 1;
 
     if (formations[f->formation_id].enemy_img_group != ENEMY_TYPE_NUMIDIAN) {
         return;
@@ -482,8 +442,6 @@ void figure_enemy52_mounted_archer_action(figure *f)
 
     int dir = get_missile_direction(f, &formations[f->formation_id]);
 
-    f->is_enemy_image = 1;
-
     if (f->direction == DIR_FIGURE_ATTACK) {
         f->image_id = 601 + dir + 8 * f->image_offset;
     } else if (f->action_state == FIGURE_ACTION_150_ATTACK) {
@@ -504,8 +462,6 @@ void figure_enemy53_axe_action(figure *f)
     enemy_action(f, &formations[f->formation_id]);
 
     int dir = get_direction(f);
-
-    f->is_enemy_image = 1;
 
     if (formations[f->formation_id].enemy_img_group != ENEMY_TYPE_GAUL) {
         return;

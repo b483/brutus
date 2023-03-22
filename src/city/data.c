@@ -390,13 +390,7 @@ static void save_main_data(buffer *main)
     buffer_write_i8(main, city_data.sound.die_soldier);
     buffer_write_i32(main, city_data.building.trade_center_building_id);
     buffer_write_i32(main, city_data.figure.soldiers);
-    buffer_write_i8(main, city_data.sound.hit_soldier);
-    buffer_write_i8(main, city_data.sound.hit_spear);
-    buffer_write_i8(main, city_data.sound.hit_club);
     buffer_write_i8(main, city_data.sound.hit_elephant);
-    buffer_write_i8(main, city_data.sound.hit_axe);
-    buffer_write_i8(main, city_data.sound.hit_wolf);
-    buffer_write_i8(main, city_data.sound.march_wolf);
     buffer_write_i8(main, city_data.sentiment.include_tents);
     buffer_write_i32(main, city_data.emperor.invasion.count);
     buffer_write_i32(main, city_data.emperor.invasion.size);
@@ -767,13 +761,7 @@ static void load_main_data(buffer *main)
     city_data.sound.die_soldier = buffer_read_i8(main);
     city_data.building.trade_center_building_id = buffer_read_i32(main);
     city_data.figure.soldiers = buffer_read_i32(main);
-    city_data.sound.hit_soldier = buffer_read_i8(main);
-    city_data.sound.hit_spear = buffer_read_i8(main);
-    city_data.sound.hit_club = buffer_read_i8(main);
     city_data.sound.hit_elephant = buffer_read_i8(main);
-    city_data.sound.hit_axe = buffer_read_i8(main);
-    city_data.sound.hit_wolf = buffer_read_i8(main);
-    city_data.sound.march_wolf = buffer_read_i8(main);
     city_data.sentiment.include_tents = buffer_read_i8(main);
     city_data.emperor.invasion.count = buffer_read_i32(main);
     city_data.emperor.invasion.size = buffer_read_i32(main);

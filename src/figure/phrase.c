@@ -630,7 +630,7 @@ void figure_phrase_determine(figure *f)
     }
     f->phrase_id = 0;
 
-    if (figure_is_enemy(f) || f->type == FIGURE_INDIGENOUS_NATIVE || f->type == FIGURE_NATIVE_TRADER) {
+    if (f->is_enemy_unit || f->type == FIGURE_INDIGENOUS_NATIVE || f->type == FIGURE_NATIVE_TRADER) {
         f->phrase_id = -1;
         return;
     }

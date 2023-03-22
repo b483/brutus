@@ -73,7 +73,6 @@ building *building_create(building_type type, int x, int y)
     memset(&(b->data), 0, sizeof(b->data));
 
     b->state = BUILDING_STATE_CREATED;
-    b->faction_id = 1;
     b->type = type;
     b->size = props->size;
     b->created_sequence = extra.created_sequence++;

@@ -330,7 +330,7 @@ static void draw_figure_info(building_info_context *c, int figure_id)
         draw_trader(c, f);
     } else if (type >= FIGURE_ENEMY43_SPEAR && type <= FIGURE_ENEMY53_AXE) {
         draw_enemy(c, f);
-    } else if (type == FIGURE_FISHING_BOAT || type == FIGURE_SHIPWRECK || figure_is_herd(f)) {
+    } else if (type == FIGURE_FISHING_BOAT || type == FIGURE_SHIPWRECK || f->is_herd_animal) {
         draw_animal(c, f);
     } else if (type == FIGURE_CART_PUSHER || type == FIGURE_WAREHOUSEMAN || type == FIGURE_DOCKER) {
         draw_cartpusher(c, f);

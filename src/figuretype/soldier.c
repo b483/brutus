@@ -10,7 +10,6 @@
 #include "figure/formation_layout.h"
 #include "figure/image.h"
 #include "figure/movement.h"
-#include "figure/properties.h"
 #include "figure/route.h"
 #include "figuretype/missile.h"
 #include "map/figure.h"
@@ -271,7 +270,7 @@ void figure_soldier_action(figure *f)
             if (f->type == FIGURE_FORT_JAVELIN) {
                 map_point tile = { -1, -1 };
                 f->wait_ticks_missile++;
-                if (f->wait_ticks_missile > figure_properties_for_type(f->type)->missile_delay) {
+                if (f->wait_ticks_missile > f->missile_delay) {
                     f->wait_ticks_missile = 0;
                     int target_acquired = 0;
                     if (f->is_military_trained) {
@@ -291,7 +290,7 @@ void figure_soldier_action(figure *f)
                         if (tile.x == -1 || tile.y == -1) {
                             map_point_get_last_result(&tile);
                         }
-                        figure_create_missile(f, &tile, FIGURE_JAVELIN);
+                        figure_create_missile(f, &tile, f->missile_type);
                         formations[f->formation_id].missile_fired = 6;
                     }
                     f->attack_image_offset++;

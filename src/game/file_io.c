@@ -114,7 +114,6 @@ typedef struct {
     buffer *message_counts;
     buffer *message_delays;
     buffer *building_list_burning_totals;
-    buffer *figure_sequence;
     buffer *city_sounds;
     buffer *building_extra_highest_id;
     buffer *figure_traders;
@@ -212,13 +211,13 @@ static void init_savegame_data(void)
     state->building_damage_grid = create_savegame_piece(26244, 1);
     state->aqueduct_backup_grid = create_savegame_piece(26244, 1);
     state->sprite_backup_grid = create_savegame_piece(26244, 1);
-    state->figures = create_savegame_piece(152000, 1);
+    state->figures = create_savegame_piece(163000, 1);
     state->route_figures = create_savegame_piece(1200, 1);
     state->route_paths = create_savegame_piece(300000, 1);
-    state->formations = create_savegame_piece(5200, 1);
-    state->city_data = create_savegame_piece(11605, 1);
+    state->formations = create_savegame_piece(5150, 1);
+    state->city_data = create_savegame_piece(11599, 1);
     state->player_name = create_savegame_piece(24, 0);
-    state->buildings = create_savegame_piece(164000, 1);
+    state->buildings = create_savegame_piece(162000, 1);
     state->city_view_orientation = create_savegame_piece(4, 0);
     state->game_time = create_savegame_piece(20, 0);
     state->building_extra_highest_id_ever = create_savegame_piece(4, 0);
@@ -239,7 +238,6 @@ static void init_savegame_data(void)
     state->message_counts = create_savegame_piece(80, 0);
     state->message_delays = create_savegame_piece(80, 0);
     state->building_list_burning_totals = create_savegame_piece(8, 0);
-    state->figure_sequence = create_savegame_piece(4, 0);
     state->city_sounds = create_savegame_piece(3920, 0);
     state->building_extra_highest_id = create_savegame_piece(4, 0);
     state->figure_traders = create_savegame_piece(4804, 0);
@@ -307,7 +305,7 @@ static void savegame_load_from_state(savegame_state *state)
     map_desirability_load_state(state->desirability_grid);
     map_elevation_load_state(state->elevation_grid);
 
-    figure_load_state(state->figures, state->figure_sequence);
+    figure_load_state(state->figures);
     figure_route_load_state(state->route_figures, state->route_paths);
     formations_load_state(state->formations);
 
@@ -369,7 +367,7 @@ static void savegame_save_to_state(savegame_state *state)
     map_desirability_save_state(state->desirability_grid);
     map_elevation_save_state(state->elevation_grid);
 
-    figure_save_state(state->figures, state->figure_sequence);
+    figure_save_state(state->figures);
     figure_route_save_state(state->route_figures, state->route_paths);
     formations_save_state(state->formations);
 

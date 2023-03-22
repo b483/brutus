@@ -8,7 +8,6 @@
 #include "figure/formation_enemy.h"
 #include "figure/formation_herd.h"
 #include "figure/formation_legion.h"
-#include "figure/properties.h"
 #include "figure/route.h"
 #include "map/grid.h"
 #include "sound/effect.h"
@@ -171,12 +170,12 @@ void formation_calculate_figures(void)
         if (f->state != FIGURE_STATE_ALIVE) {
             continue;
         }
-        if (!figure_is_legion(f) && !figure_is_enemy(f) && !figure_is_herd(f)) {
+        if (!f->is_player_legion_unit && !f->is_enemy_unit && !f->is_herd_animal) {
             continue;
         }
         formations[f->formation_id].num_figures++;
         formations[f->formation_id].total_damage += f->damage;
-        formations[f->formation_id].max_total_damage += figure_properties_for_type(f->type)->max_damage;
+        formations[f->formation_id].max_total_damage += f->max_damage;
         if (!f->formation_at_rest) {
             formations[f->formation_id].is_at_fort = 0;
         }
@@ -288,7 +287,6 @@ void formations_save_state(buffer *buf)
     for (int i = 0; i < MAX_FORMATIONS; i++) {
         struct formation_t *m = &formations[i];
         buffer_write_u8(buf, m->in_use);
-        buffer_write_u8(buf, m->faction_id);
         buffer_write_u8(buf, m->legion_id);
         buffer_write_u8(buf, m->is_at_fort);
         buffer_write_i16(buf, m->figure_type);
@@ -350,7 +348,6 @@ void formations_load_state(buffer *buf)
         struct formation_t *m = &formations[i];
         m->id = i;
         m->in_use = buffer_read_u8(buf);
-        m->faction_id = buffer_read_u8(buf);
         m->legion_id = buffer_read_u8(buf);
         m->is_at_fort = buffer_read_u8(buf);
         m->figure_type = buffer_read_i16(buf);

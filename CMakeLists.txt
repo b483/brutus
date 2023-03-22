@@ -159,7 +159,6 @@ set(CITY_FILES
     ${PROJECT_SOURCE_DIR}/src/city/ratings.c
     ${PROJECT_SOURCE_DIR}/src/city/resource.c
     ${PROJECT_SOURCE_DIR}/src/city/sentiment.c
-    ${PROJECT_SOURCE_DIR}/src/city/sound.c
     ${PROJECT_SOURCE_DIR}/src/city/trade.c
     ${PROJECT_SOURCE_DIR}/src/city/victory.c
     ${PROJECT_SOURCE_DIR}/src/city/view.c
@@ -184,7 +183,6 @@ set(FIGURE_FILES
     ${PROJECT_SOURCE_DIR}/src/figure/movement.c
     ${PROJECT_SOURCE_DIR}/src/figure/name.c
     ${PROJECT_SOURCE_DIR}/src/figure/phrase.c
-    ${PROJECT_SOURCE_DIR}/src/figure/properties.c
     ${PROJECT_SOURCE_DIR}/src/figure/route.c
     ${PROJECT_SOURCE_DIR}/src/figure/service.c
     ${PROJECT_SOURCE_DIR}/src/figure/sound.c

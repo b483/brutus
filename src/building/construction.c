@@ -12,7 +12,6 @@
 #include "city/data_private.h"
 #include "city/finance.h"
 #include "city/resource.h"
-#include "city/sound.h"
 #include "city/view.h"
 #include "city/warning.h"
 #include "core/calc.h"
@@ -424,7 +423,7 @@ static int get_nearby_enemy_type(int x_start, int y_start, int x_end, int y_end)
 {
     for (int i = 1; i < MAX_FIGURES; i++) {
         figure *f = figure_get(i);
-        if (f->state == FIGURE_STATE_ALIVE && (figure_is_enemy(f) || f->type == FIGURE_WOLF)) {
+        if (f->state == FIGURE_STATE_ALIVE && (f->is_enemy_unit || f->type == FIGURE_WOLF)) {
             int dx = (f->x > x_start) ? (f->x - x_start) : (x_start - f->x);
             int dy = (f->y > y_start) ? (f->y - y_start) : (y_start - f->y);
             if (dx <= 12 && dy <= 12) {
@@ -484,9 +483,7 @@ void building_construction_place(void)
             map_property_clear_constructing_and_deleted();
         }
         if (enemy_type == 1) {
-            if (city_sound_update_march_wolf()) {
-                sound_effect_play(SOUND_EFFECT_WOLF_ATTACK_2);
-            }
+            sound_effect_play(SOUND_EFFECT_WOLF_ATTACK_2);
         } else {
             city_warning_show(WARNING_ENEMY_NEARBY);
         }

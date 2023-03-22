@@ -103,30 +103,29 @@ static void set_bounds(int x_offset, int y_offset, int width, int height)
     data.absolute_y &= ~1;
 }
 
-static int has_figure_color(figure *f)
-{
-    int type = f->type;
-    if (figure_is_legion(f)) {
-        return formation_get_selected() == f->formation_id ?
-            FIGURE_COLOR_SELECTED_SOLDIER : FIGURE_COLOR_SOLDIER;
-    }
-    if (figure_is_enemy(f)) {
-        return FIGURE_COLOR_ENEMY;
-    }
-    if (f->type == FIGURE_INDIGENOUS_NATIVE &&
-        f->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING) {
-        return FIGURE_COLOR_ENEMY;
-    }
-    if (type == FIGURE_WOLF) {
-        return FIGURE_COLOR_WOLF;
-    }
-    return FIGURE_COLOR_NONE;
-}
-
 static int draw_figure(int x_view, int y_view, int grid_offset)
 {
-    int color_type = map_figure_foreach_until(grid_offset, has_figure_color);
-    if (color_type == FIGURE_COLOR_NONE) {
+    int color_type = FIGURE_COLOR_NONE;
+
+    if (map_figures.items[grid_offset] > 0) {
+        int figure_id = map_figures.items[grid_offset];
+        while (figure_id) {
+            figure *f = figure_get(figure_id);
+            if (f->is_player_legion_unit) {
+                color_type = formation_get_selected() == f->formation_id ? FIGURE_COLOR_SELECTED_SOLDIER : FIGURE_COLOR_SOLDIER;
+                break;
+            } else if (f->is_enemy_unit || (f->type == FIGURE_INDIGENOUS_NATIVE && f->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING)) {
+                color_type = FIGURE_COLOR_ENEMY;
+                break;
+            } else if (f->type == FIGURE_WOLF) {
+                color_type = FIGURE_COLOR_WOLF;
+                break;
+            }
+            figure_id = f->next_figure_id_on_same_tile;
+        }
+    }
+
+    if (!color_type) {
         return 0;
     }
     color_t color = COLOR_MINIMAP_WOLF;
@@ -230,7 +229,7 @@ static void prepare_minimap_cache(int width, int height)
 {
     if (width != data.width || height != data.height) {
         free(data.cache);
-        data.cache = (color_t *)malloc(sizeof(color_t) * width * height);
+        data.cache = (color_t *) malloc(sizeof(color_t) * width * height);
     }
 }
 

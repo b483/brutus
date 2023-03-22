@@ -12,8 +12,6 @@ void figure_explosion_cloud_action(figure *f);
 
 void figure_arrow_action(figure *f);
 
-void figure_spear_action(figure *f);
-
 void figure_javelin_action(figure *f);
 
 void figure_bolt_action(figure *f);

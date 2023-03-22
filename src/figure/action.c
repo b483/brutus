@@ -60,7 +60,7 @@ static void (*figure_action_callbacks[])(figure *f) = {
     figure_bathhouse_worker_action,
     figure_doctor_action,
     figure_doctor_action,
-    figure_worker_action,
+    figure_nobody_action,
     figure_editor_flag_action,
     figure_flotsam_action,
     figure_docker_action,
@@ -96,7 +96,7 @@ static void (*figure_action_callbacks[])(figure *f) = {
     figure_sheep_action,
     figure_wolf_action,
     figure_zebra_action, //70
-    figure_spear_action,
+    figure_nobody_action,
     figure_hippodrome_horse_action,
     figure_nobody_action,
     figure_nobody_action,

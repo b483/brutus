@@ -196,7 +196,6 @@ static void spawn_figure_tower(building *b)
             b->figure_id4 = f->id;
             f->building_id = b->id;
             f->action_state = FIGURE_ACTION_180_BALLISTA_CREATED;
-            f->max_range = 15;
         }
         has_figure_of_type(b, FIGURE_TOWER_SENTRY);
         if (b->figure_id <= 0) {

@@ -551,42 +551,15 @@ static void create_enemy_squad(int figure_type, int enemy_type, int enemy_type_d
     struct formation_t *m = formation_create_enemy(figure_type, figures_amount, x, y, ENEMY_PROPERTIES[enemy_type].formation_layout, orientation, enemy_type, enemy_attack_priority, invasion_id);
     for (int fig = 0; fig < figures_amount; fig++) {
         figure *f = figure_create(figure_type, x, y, orientation);
-        f->faction_id = 0;
-        f->is_friendly = 0;
         f->action_state = FIGURE_ACTION_151_ENEMY_INITIAL;
-        switch (figure_type) {
-            case FIGURE_ENEMY43_SPEAR:
-                if (enemy_type == ENEMY_TYPE_PERGAMUM) {
-                    f->max_range = 15;
-                } else {
-                    f->max_range = 10;
-                }
-                break;
-            case FIGURE_ENEMY46_CAMEL:
-            case FIGURE_ENEMY47_ELEPHANT:
-                f->max_range = 15;
-                break;
-            case FIGURE_ENEMY48_CHARIOT:
-                f->speed_multiplier = 3;
-                f->mounted_charge_ticks = 10;
-                f->mounted_charge_ticks_max = 10;
-                break;
-            case FIGURE_ENEMY49_FAST_SWORD:
-                f->speed_multiplier = 2;
-                break;
-            case FIGURE_ENEMY51_SPEAR:
-                f->speed_multiplier = 2;
-                f->max_range = 10;
-                break;
-            case FIGURE_ENEMY52_MOUNTED_ARCHER:
-                f->speed_multiplier = 3;
-                f->max_range = 15;
-                break;
-        }
         f->wait_ticks = 40 * spawn_delay_offset + 10 * fig + 10;
         f->formation_id = m->id;
         f->name = figure_name_get(figure_type, enemy_type);
         f->enemy_image_type = enemy_type;
+        if (f->type == FIGURE_ENEMY43_SPEAR && f->enemy_image_type == ENEMY_TYPE_PERGAMUM) {
+            f->missile_type = FIGURE_ARROW;
+            f->max_range = 15;
+        }
         f->enemy_image_type_detailed = enemy_type_detailed;
         f->is_ghost = 1;
     }

@@ -13,10 +13,18 @@
 
 typedef struct {
     int id;
+    uint8_t is_unarmed_civilian_unit;
+    uint8_t is_player_legion_unit;
+    uint8_t is_enemy_unit;
+    uint8_t is_caesar_legion_unit;
+    uint8_t is_native_unit;
+    uint8_t is_friendly_armed_unit;
+    uint8_t is_criminal_unit;
+    uint8_t is_herd_animal;
+    uint8_t is_targetable;
     short image_id;
     short cart_image_id;
     unsigned char image_offset;
-    unsigned char is_enemy_image;
     int enemy_image_type;
     int enemy_image_type_detailed;
     uint8_t is_military_trained;
@@ -26,9 +34,7 @@ typedef struct {
     unsigned char type;
     unsigned char resource_id;
     unsigned char use_cross_country;
-    unsigned char is_friendly;
     unsigned char state;
-    unsigned char faction_id; // 1 = city, 0 = enemy
     unsigned char action_state_before_attack;
     signed char direction;
     signed char previous_tile_direction;
@@ -39,6 +45,13 @@ typedef struct {
     unsigned char previous_tile_y;
     unsigned char missile_offset;
     unsigned char damage;
+    uint8_t max_damage;
+    uint8_t melee_attack_value;
+    uint8_t melee_defense_value;
+    uint8_t missile_attack_value;
+    uint8_t missile_defense_value;
+    uint8_t missile_delay;
+    uint8_t missile_type;
     short grid_offset;
     unsigned char destination_x;
     unsigned char destination_y;
@@ -108,7 +121,6 @@ typedef struct {
     unsigned char phrase_sequence_city;
     unsigned char trader_id;
     uint8_t prefect_recent_guard_duty;
-    unsigned short created_sequence;
     unsigned char figures_on_same_tile_index;
     uint8_t max_range;
     uint16_t ranged_targeter_ids[MAX_RANGED_TARGETERS_PER_UNIT];
@@ -135,22 +147,12 @@ void figure_delete(figure *f);
 
 int figure_is_dead(const figure *f);
 
-int figure_is_legion(const figure *f);
-
-int figure_is_enemy(const figure *f);
-
-int figure_is_caesar_legion(const figure *f);
-
-int figure_is_native(const figure *f);
-
-int figure_is_herd(const figure *f);
-
 int city_figures_total_invading_enemies(void);
 
 void figure_init_scenario(void);
 
-void figure_save_state(buffer *list, buffer *seq);
+void figure_save_state(buffer *list);
 
-void figure_load_state(buffer *list, buffer *seq);
+void figure_load_state(buffer *list);
 
 #endif // FIGURE_FIGURE_H
