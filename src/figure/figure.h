@@ -3,7 +3,6 @@
 
 #include "core/buffer.h"
 #include "game/orientation.h"
-#include "figure/action.h"
 #include "figure/type.h"
 
 #define MAX_FIGURES 1000
@@ -141,7 +140,7 @@ figure *figure_get(int id);
  * @param dir Direction the figure faces
  * @return Always a figure. If figure->id is zero, it is an invalid one.
  */
-figure *figure_create(figure_type type, int x, int y, direction_type dir);
+figure *figure_create(int type, int x, int y, direction_type dir);
 
 void figure_delete(figure *f);
 

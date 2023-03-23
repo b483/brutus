@@ -246,14 +246,76 @@ static const char FIGURE_SOUNDS[32][20][SOUND_FILENAME_MAX] = {
 };
 
 static const int FIGURE_TYPE_TO_SOUND_TYPE[] = {
-    -1, 24, 23, 21, 5, 19, -1, 3, 2, 5, // 0-9
-    0, 1, 1, 1, -1, 14, 15, 16, 17, 6, // 10-19
-    7, 6, 20, 20, 20, -1, 4, 8, 10, 9, // 20-29
-    9, 13, 11, 12, 12, 19, -1, -1, 5, 4, // 30-39
-    18, -1, 1, 25, 25, 25, 25, 25, 25, 25, // 40-49
-    25, 25, 25, 25, 25, 25, 25, 25, -1, -1, // 50-59
-    -1, -1, -1, -1, 30, -1, 31, -1, -1, -1, // 60-69
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 // 70-79
+-1, // FIGURE_NONE
+24, // FIGURE_IMMIGRANT
+23, // FIGURE_EMIGRANT
+21, // FIGURE_HOMELESS
+18, // FIGURE_PATRICIAN
+5, // FIGURE_CART_PUSHER
+19, // FIGURE_LABOR_SEEKER
+13, // FIGURE_BARBER
+11, // FIGURE_BATHHOUSE_WORKER
+12, // FIGURE_DOCTOR
+12, // FIGURE_SURGEON
+8, // FIGURE_PRIEST
+10, // FIGURE_SCHOOL_CHILD
+9, // FIGURE_TEACHER
+9, // FIGURE_LIBRARIAN
+30, // FIGURE_MISSIONARY
+14, // FIGURE_ACTOR
+15, // FIGURE_GLADIATOR
+16, // FIGURE_LION_TAMER
+17, // FIGURE_CHARIOTEER
+3, // FIGURE_TAX_COLLECTOR
+2, // FIGURE_ENGINEER
+5, // FIGURE_DOCKER
+0, // FIGURE_PREFECT
+1, // FIGURE_FORT_JAVELIN
+1, // FIGURE_FORT_MOUNTED
+1, // FIGURE_FORT_LEGIONARY
+1, // FIGURE_TOWER_SENTRY
+4, // FIGURE_MARKET_BUYER
+4, // FIGURE_MARKET_TRADER
+31, // FIGURE_DELIVERY_BOY
+5, // FIGURE_WAREHOUSEMAN
+6, // FIGURE_TRADE_CARAVAN
+6, // FIGURE_TRADE_CARAVAN_DONKEY
+7, // FIGURE_TRADE_SHIP
+20, // FIGURE_PROTESTER
+20, // FIGURE_CRIMINAL
+20, // FIGURE_RIOTER
+-1, // FIGURE_INDIGENOUS_NATIVE
+-1, // FIGURE_NATIVE_TRADER
+25, // FIGURE_ENEMY_RANGED_SPEAR_1
+25, // FIGURE_ENEMY_SWORD_1
+25, // FIGURE_ENEMY_SWORD_2
+25, // FIGURE_ENEMY_CAMEL
+25, // FIGURE_ENEMY_ELEPHANT
+25, // FIGURE_ENEMY_CHARIOT
+25, // FIGURE_ENEMY_FAST_SWORD
+25, // FIGURE_ENEMY_SWORD_3
+25, // FIGURE_ENEMY_RANGED_SPEAR_2
+25, // FIGURE_ENEMY_MOUNTED_ARCHER
+25, // FIGURE_ENEMY_AXE
+25, // FIGURE_ENEMY_GLADIATOR
+25, // FIGURE_ENEMY_CAESAR_JAVELIN
+25, // FIGURE_ENEMY_CAESAR_MOUNTED
+25, // FIGURE_ENEMY_CAESAR_LEGIONARY
+-1, // FIGURE_SHEEP
+-1, // FIGURE_WOLF
+-1, // FIGURE_ZEBRA
+-1, // FIGURE_HIPPODROME_HORSES
+-1, // FIGURE_FISHING_BOAT
+-1, // FIGURE_SHIPWRECK
+-1, // FIGURE_FISH_GULLS
+-1, // FIGURE_ARROW
+-1, // FIGURE_JAVELIN
+-1, // FIGURE_BOLT
+-1, // FIGURE_BALLISTA
+-1, // FIGURE_FORT_STANDARD
+-1, // FIGURE_MAP_FLAG
+-1, // FIGURE_FLOTSAM
+-1, // FIGURE_EXPLOSION
 };
 
 enum {
@@ -284,7 +346,7 @@ int figure_phrase_play(figure *f)
 
 static int lion_tamer_phrase(figure *f)
 {
-    if (f->action_state == FIGURE_ACTION_150_ATTACK) {
+    if (f->action_state == FIGURE_ACTION_ATTACK) {
         if (++f->phrase_sequence_exact >= 3) {
             f->phrase_sequence_exact = 0;
         }
@@ -295,7 +357,7 @@ static int lion_tamer_phrase(figure *f)
 
 static int gladiator_phrase(figure *f)
 {
-    return f->action_state == FIGURE_ACTION_150_ATTACK ? 7 : 0;
+    return f->action_state == FIGURE_ACTION_ATTACK ? 7 : 0;
 }
 
 static int tax_collector_phrase(figure *f)
@@ -313,7 +375,7 @@ static int tax_collector_phrase(figure *f)
 
 static int market_trader_phrase(figure *f)
 {
-    if (f->action_state == FIGURE_ACTION_126_ROAMER_RETURNING) {
+    if (f->action_state == FIGURE_ACTION_ROAMER_RETURNING) {
         if (building_market_get_max_food_stock(building_get(f->building_id)) <= 0) {
             return 9; // run out of goods
         }
@@ -323,9 +385,9 @@ static int market_trader_phrase(figure *f)
 
 static int market_buyer_phrase(figure *f)
 {
-    if (f->action_state == FIGURE_ACTION_145_MARKET_BUYER_GOING_TO_STORAGE) {
+    if (f->action_state == FIGURE_ACTION_MARKET_BUYER_GOING_TO_STORAGE) {
         return 7;
-    } else if (f->action_state == FIGURE_ACTION_146_MARKET_BUYER_RETURNING) {
+    } else if (f->action_state == FIGURE_ACTION_MARKET_BUYER_RETURNING) {
         return 8;
     } else {
         return 0;
@@ -334,15 +396,15 @@ static int market_buyer_phrase(figure *f)
 
 static int cart_pusher_phrase(figure *f)
 {
-    if (f->action_state == FIGURE_ACTION_20_CARTPUSHER_INITIAL) {
+    if (f->action_state == FIGURE_ACTION_CARTPUSHER_INITIAL) {
         if (f->min_max_seen == 2) {
             return 7;
         } else if (f->min_max_seen == 1) {
             return 8;
         }
-    } else if (f->action_state == FIGURE_ACTION_21_CARTPUSHER_DELIVERING_TO_WAREHOUSE ||
-            f->action_state == FIGURE_ACTION_22_CARTPUSHER_DELIVERING_TO_GRANARY ||
-            f->action_state == FIGURE_ACTION_23_CARTPUSHER_DELIVERING_TO_WORKSHOP) {
+    } else if (f->action_state == FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_WAREHOUSE ||
+            f->action_state == FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_GRANARY ||
+            f->action_state == FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_WORKSHOP) {
         if (calc_maximum_distance(
             f->destination_x, f->destination_y, f->source_x, f->source_y) >= 25) {
             return 9; // too far
@@ -353,7 +415,7 @@ static int cart_pusher_phrase(figure *f)
 
 static int warehouseman_phrase(figure *f)
 {
-    if (f->action_state == FIGURE_ACTION_51_WAREHOUSEMAN_DELIVERING_RESOURCE) {
+    if (f->action_state == FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE) {
         if (calc_maximum_distance(
             f->destination_x, f->destination_y, f->source_x, f->source_y) >= 25) {
             return 9; // too far
@@ -367,11 +429,11 @@ static int prefect_phrase(figure *f)
     if (++f->phrase_sequence_exact >= 4) {
         f->phrase_sequence_exact = 0;
     }
-    if (f->action_state == FIGURE_ACTION_74_PREFECT_GOING_TO_FIRE) {
+    if (f->action_state == FIGURE_ACTION_PREFECT_GOING_TO_FIRE) {
         return 10;
-    } else if (f->action_state == FIGURE_ACTION_75_PREFECT_AT_FIRE) {
+    } else if (f->action_state == FIGURE_ACTION_PREFECT_AT_FIRE) {
         return 11 + (f->phrase_sequence_exact % 2);
-    } else if (f->action_state == FIGURE_ACTION_150_ATTACK) {
+    } else if (f->action_state == FIGURE_ACTION_ATTACK) {
         return 13 + f->phrase_sequence_exact;
     } else if (f->min_max_seen >= 50) {
         // alternate between "no sign of crime around here" and the regular city phrases
@@ -460,8 +522,8 @@ static int soldier_phrase(void)
 
 static int docker_phrase(figure *f)
 {
-    if (f->action_state == FIGURE_ACTION_135_DOCKER_IMPORT_GOING_TO_WAREHOUSE ||
-        f->action_state == FIGURE_ACTION_136_DOCKER_EXPORT_GOING_TO_WAREHOUSE) {
+    if (f->action_state == FIGURE_ACTION_DOCKER_IMPORT_GOING_TO_WAREHOUSE ||
+        f->action_state == FIGURE_ACTION_DOCKER_EXPORT_GOING_TO_WAREHOUSE) {
         if (calc_maximum_distance(
             f->destination_x, f->destination_y, f->source_x, f->source_y) >= 25) {
             return 9; // too far
@@ -475,11 +537,11 @@ static int trade_caravan_phrase(figure *f)
     if (++f->phrase_sequence_exact >= 2) {
         f->phrase_sequence_exact = 0;
     }
-    if (f->action_state == FIGURE_ACTION_103_TRADE_CARAVAN_LEAVING) {
+    if (f->action_state == FIGURE_ACTION_TRADE_CARAVAN_LEAVING) {
         if (!trader_has_traded(f->trader_id)) {
             return 7; // no trade
         }
-    } else if (f->action_state == FIGURE_ACTION_102_TRADE_CARAVAN_TRADING) {
+    } else if (f->action_state == FIGURE_ACTION_TRADE_CARAVAN_TRADING) {
         if (figure_trade_caravan_can_buy(f, f->destination_building_id, f->empire_city_id)) {
             return 11; // buying goods
         } else if (figure_trade_caravan_can_sell(f, f->destination_building_id, f->empire_city_id)) {
@@ -491,13 +553,13 @@ static int trade_caravan_phrase(figure *f)
 
 static int trade_ship_phrase(figure *f)
 {
-    if (f->action_state == FIGURE_ACTION_115_TRADE_SHIP_LEAVING) {
+    if (f->action_state == FIGURE_ACTION_TRADE_SHIP_LEAVING) {
         if (!trader_has_traded(f->trader_id)) {
             return 9; // no trade
         } else {
             return 11; // good trade
         }
-    } else if (f->action_state == FIGURE_ACTION_112_TRADE_SHIP_MOORED) {
+    } else if (f->action_state == FIGURE_ACTION_TRADE_SHIP_MOORED) {
         int state = figure_trade_ship_is_trading(f);
         if (state == TRADE_SHIP_BUYING) {
             return 8; // buying goods

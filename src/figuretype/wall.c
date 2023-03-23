@@ -66,21 +66,21 @@ void figure_ballista_action(figure *f)
     map_figure_add(f);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_149_CORPSE:
+        case FIGURE_ACTION_CORPSE:
             f->state = FIGURE_STATE_DEAD;
             break;
-        case FIGURE_ACTION_180_BALLISTA_CREATED:
+        case FIGURE_ACTION_BALLISTA_CREATED:
             f->wait_ticks++;
             if (f->wait_ticks > 20) {
                 f->wait_ticks = 0;
                 map_point tile;
                 if (set_missile_target(f, &tile, 1) || set_missile_target(f, &tile, 0)) {
-                    f->action_state = FIGURE_ACTION_181_BALLISTA_FIRING;
+                    f->action_state = FIGURE_ACTION_BALLISTA_FIRING;
                     f->wait_ticks_missile = f->missile_delay;
                 }
             }
             break;
-        case FIGURE_ACTION_181_BALLISTA_FIRING:
+        case FIGURE_ACTION_BALLISTA_FIRING:
             f->wait_ticks_missile++;
             if (f->wait_ticks_missile > f->missile_delay) {
                 map_point tile;
@@ -90,13 +90,13 @@ void figure_ballista_action(figure *f)
                     figure_create_missile(f, &tile, f->missile_type);
                     sound_effect_play(SOUND_EFFECT_BALLISTA_SHOOT);
                 } else {
-                    f->action_state = FIGURE_ACTION_180_BALLISTA_CREATED;
+                    f->action_state = FIGURE_ACTION_BALLISTA_CREATED;
                 }
             }
             break;
     }
     int dir = figure_image_direction(f);
-    if (f->action_state == FIGURE_ACTION_181_BALLISTA_FIRING) {
+    if (f->action_state == FIGURE_ACTION_BALLISTA_FIRING) {
         f->image_id = image_group(GROUP_FIGURE_BALLISTA) + dir +
             8 * BALLISTA_FIRING_OFFSETS[f->wait_ticks_missile / 4];
     } else {
@@ -177,11 +177,11 @@ void figure_tower_sentry_action(figure *f)
     figure_image_increase_offset(f, 12);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_149_CORPSE:
+        case FIGURE_ACTION_CORPSE:
             f->image_id = image_group(GROUP_FIGURE_TOWER_SENTRY) + 136 + figure_image_corpse_offset(f);
             figure_combat_handle_corpse(f);
             return;
-        case FIGURE_ACTION_150_ATTACK:
+        case FIGURE_ACTION_ATTACK:
             int image_id = image_group(GROUP_FIGURE_TOWER_SENTRY);
             if (f->attack_image_offset < 12) {
                 f->image_id = image_id + 96 + figure_image_direction(f);
@@ -194,7 +194,7 @@ void figure_tower_sentry_action(figure *f)
             }
             figure_combat_handle_attack(f);
             return;
-        case FIGURE_ACTION_170_TOWER_SENTRY_AT_REST:
+        case FIGURE_ACTION_TOWER_SENTRY_AT_REST:
             f->is_targetable = 0;
             if (!f->is_military_trained) {
                 map_point mil_acad_road = { 0 };
@@ -209,7 +209,7 @@ void figure_tower_sentry_action(figure *f)
                         if (f->x == tower_road.x && f->y == tower_road.y) {
                             f->destination_x = mil_acad_road.x;
                             f->destination_y = mil_acad_road.y;
-                            f->action_state = FIGURE_ACTION_85_SOLDIER_GOING_TO_MILITARY_ACADEMY;
+                            f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_MILITARY_ACADEMY;
                         }
                         return;
                     }
@@ -222,43 +222,43 @@ void figure_tower_sentry_action(figure *f)
                 f->wait_ticks = 0;
                 int x_tile, y_tile;
                 if (tower_sentry_init_patrol(b, &x_tile, &y_tile)) {
-                    f->action_state = FIGURE_ACTION_171_TOWER_SENTRY_PATROLLING;
+                    f->action_state = FIGURE_ACTION_TOWER_SENTRY_PATROLLING;
                     f->destination_x = x_tile;
                     f->destination_y = y_tile;
                     figure_route_remove(f);
                 }
             }
             break;
-        case FIGURE_ACTION_171_TOWER_SENTRY_PATROLLING:
+        case FIGURE_ACTION_TOWER_SENTRY_PATROLLING:
             f->terrain_usage = TERRAIN_USAGE_WALLS;
             if (tower_sentry_shooting(f)) {
                 return;
             } else {
                 figure_movement_move_ticks(f, 1);
                 if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                    f->action_state = FIGURE_ACTION_173_TOWER_SENTRY_RETURNING;
+                    f->action_state = FIGURE_ACTION_TOWER_SENTRY_RETURNING;
                     f->destination_x = f->source_x;
                     f->destination_y = f->source_y;
                     figure_route_remove(f);
                 } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
-                    f->action_state = FIGURE_ACTION_170_TOWER_SENTRY_AT_REST;
+                    f->action_state = FIGURE_ACTION_TOWER_SENTRY_AT_REST;
                 }
             }
             break;
-        case FIGURE_ACTION_173_TOWER_SENTRY_RETURNING:
+        case FIGURE_ACTION_TOWER_SENTRY_RETURNING:
             f->terrain_usage = TERRAIN_USAGE_WALLS;
             if (tower_sentry_shooting(f)) {
                 return;
             } else {
                 figure_movement_move_ticks(f, 1);
                 if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                    f->action_state = FIGURE_ACTION_170_TOWER_SENTRY_AT_REST;
+                    f->action_state = FIGURE_ACTION_TOWER_SENTRY_AT_REST;
                 } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
                     f->state = FIGURE_STATE_DEAD;
                 }
             }
             break;
-        case FIGURE_ACTION_85_SOLDIER_GOING_TO_MILITARY_ACADEMY:
+        case FIGURE_ACTION_SOLDIER_GOING_TO_MILITARY_ACADEMY:
             f->is_targetable = 1;
             if (tower_sentry_shooting(f)) {
                 return;
@@ -269,7 +269,7 @@ void figure_tower_sentry_action(figure *f)
                 f->height_adjusted_ticks = 0;
                 figure_movement_move_ticks(f, f->speed_multiplier);
                 if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                    f->action_state = FIGURE_ACTION_174_TOWER_SENTRY_GOING_TO_TOWER;
+                    f->action_state = FIGURE_ACTION_TOWER_SENTRY_GOING_TO_TOWER;
                 } else if (f->direction == DIR_FIGURE_REROUTE) {
                     figure_route_remove(f);
                 } else if (f->direction == DIR_FIGURE_LOST) {
@@ -277,7 +277,7 @@ void figure_tower_sentry_action(figure *f)
                 }
             }
             break;
-        case FIGURE_ACTION_174_TOWER_SENTRY_GOING_TO_TOWER:
+        case FIGURE_ACTION_TOWER_SENTRY_GOING_TO_TOWER:
             f->is_targetable = 1;
             if (tower_sentry_shooting(f)) {
                 return;
@@ -298,7 +298,7 @@ void figure_tower_sentry_action(figure *f)
                     f->source_y = f->y = b->y;
                     f->grid_offset = map_grid_offset(f->x, f->y);
                     map_figure_add(f);
-                    f->action_state = FIGURE_ACTION_170_TOWER_SENTRY_AT_REST;
+                    f->action_state = FIGURE_ACTION_TOWER_SENTRY_AT_REST;
                     figure_route_remove(f);
                 } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
                     f->state = FIGURE_STATE_DEAD;
@@ -337,7 +337,7 @@ void figure_tower_sentry_reroute(void)
             f->cross_country_y = 15 * y_tile;
             f->grid_offset = map_grid_offset(x_tile, y_tile);
             map_figure_add(f);
-            f->action_state = FIGURE_ACTION_173_TOWER_SENTRY_RETURNING;
+            f->action_state = FIGURE_ACTION_TOWER_SENTRY_RETURNING;
             f->destination_x = f->source_x;
             f->destination_y = f->source_y;
         } else {
@@ -348,7 +348,7 @@ void figure_tower_sentry_reroute(void)
             f->source_y = f->y = b->y;
             f->grid_offset = map_grid_offset(f->x, f->y);
             map_figure_add(f);
-            f->action_state = FIGURE_ACTION_170_TOWER_SENTRY_AT_REST;
+            f->action_state = FIGURE_ACTION_TOWER_SENTRY_AT_REST;
             figure_route_remove(f);
         }
     }

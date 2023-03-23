@@ -13,7 +13,7 @@ static int is_problem_cartpusher(int figure_id)
 {
     if (figure_id) {
         figure *fig = figure_get(figure_id);
-        return fig->action_state == FIGURE_ACTION_20_CARTPUSHER_INITIAL && fig->min_max_seen;
+        return fig->action_state == FIGURE_ACTION_CARTPUSHER_INITIAL && fig->min_max_seen;
     } else {
         return 0;
     }
@@ -82,7 +82,7 @@ static int show_figure_problems(const figure *f)
     if (f->type == FIGURE_LABOR_SEEKER) {
         return building_get(f->building_id)->show_on_problem_overlay;
     } else if (f->type == FIGURE_CART_PUSHER) {
-        return f->action_state == FIGURE_ACTION_20_CARTPUSHER_INITIAL || f->min_max_seen;
+        return f->action_state == FIGURE_ACTION_CARTPUSHER_INITIAL || f->min_max_seen;
     } else {
         return 0;
     }

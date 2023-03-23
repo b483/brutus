@@ -20,7 +20,7 @@ figure *figure_get(int id)
     return &figures[id];
 }
 
-figure *figure_create(figure_type type, int x, int y, direction_type dir)
+figure *figure_create(int type, int x, int y, direction_type dir)
 {
     int id = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
@@ -198,7 +198,7 @@ figure *figure_create(figure_type type, int x, int y, direction_type dir)
             f->missile_type = FIGURE_JAVELIN;
             f->max_range = 12;
             break;
-        case FIGURE_ENEMY43_SPEAR:
+        case FIGURE_ENEMY_RANGED_SPEAR_1:
             f->is_enemy_unit = 1;
             f->is_targetable = 1;
             f->max_damage = 70;
@@ -208,13 +208,13 @@ figure *figure_create(figure_type type, int x, int y, direction_type dir)
             f->missile_type = FIGURE_JAVELIN;
             f->max_range = 10;
             break;
-        case FIGURE_ENEMY44_SWORD:
+        case FIGURE_ENEMY_SWORD_1:
             f->is_enemy_unit = 1;
             f->is_targetable = 1;
             f->max_damage = 90;
             f->melee_attack_value = 7;
             break;
-        case FIGURE_ENEMY45_SWORD:
+        case FIGURE_ENEMY_SWORD_2:
             f->is_enemy_unit = 1;
             f->is_targetable = 1;
             f->max_damage = 120;
@@ -222,7 +222,7 @@ figure *figure_create(figure_type type, int x, int y, direction_type dir)
             f->melee_defense_value = 2;
             f->missile_defense_value = 2;
             break;
-        case FIGURE_ENEMY46_CAMEL:
+        case FIGURE_ENEMY_CAMEL:
             f->is_enemy_unit = 1;
             f->is_targetable = 1;
             f->max_damage = 120;
@@ -233,7 +233,7 @@ figure *figure_create(figure_type type, int x, int y, direction_type dir)
             f->missile_type = FIGURE_ARROW;
             f->max_range = 15;
             break;
-        case FIGURE_ENEMY47_ELEPHANT:
+        case FIGURE_ENEMY_ELEPHANT:
             f->is_enemy_unit = 1;
             f->is_targetable = 1;
             f->max_damage = 200;
@@ -245,7 +245,7 @@ figure *figure_create(figure_type type, int x, int y, direction_type dir)
             f->missile_type = FIGURE_ARROW;
             f->max_range = 15;
             break;
-        case FIGURE_ENEMY48_CHARIOT:
+        case FIGURE_ENEMY_CHARIOT:
             f->is_enemy_unit = 1;
             f->is_targetable = 1;
             f->max_damage = 120;
@@ -256,7 +256,7 @@ figure *figure_create(figure_type type, int x, int y, direction_type dir)
             f->mounted_charge_ticks = 8;
             f->mounted_charge_ticks_max = 8;
             break;
-        case FIGURE_ENEMY49_FAST_SWORD:
+        case FIGURE_ENEMY_FAST_SWORD:
             f->is_enemy_unit = 1;
             f->is_targetable = 1;
             f->max_damage = 90;
@@ -264,7 +264,7 @@ figure *figure_create(figure_type type, int x, int y, direction_type dir)
             f->melee_defense_value = 1;
             f->speed_multiplier = 2;
             break;
-        case FIGURE_ENEMY50_SWORD:
+        case FIGURE_ENEMY_SWORD_3:
             f->is_enemy_unit = 1;
             f->is_targetable = 1;
             f->max_damage = 110;
@@ -272,7 +272,7 @@ figure *figure_create(figure_type type, int x, int y, direction_type dir)
             f->melee_defense_value = 1;
             f->missile_defense_value = 2;
             break;
-        case FIGURE_ENEMY51_SPEAR:
+        case FIGURE_ENEMY_RANGED_SPEAR_2:
             f->is_enemy_unit = 1;
             f->is_targetable = 1;
             f->max_damage = 70;
@@ -283,7 +283,7 @@ figure *figure_create(figure_type type, int x, int y, direction_type dir)
             f->missile_type = FIGURE_JAVELIN;
             f->max_range = 10;
             break;
-        case FIGURE_ENEMY52_MOUNTED_ARCHER:
+        case FIGURE_ENEMY_MOUNTED_ARCHER:
             f->is_enemy_unit = 1;
             f->is_targetable = 1;
             f->max_damage = 100;
@@ -295,7 +295,7 @@ figure *figure_create(figure_type type, int x, int y, direction_type dir)
             f->missile_type = FIGURE_ARROW;
             f->max_range = 15;
             break;
-        case FIGURE_ENEMY53_AXE:
+        case FIGURE_ENEMY_AXE:
             f->is_enemy_unit = 1;
             f->is_targetable = 1;
             f->max_damage = 120;
@@ -303,7 +303,7 @@ figure *figure_create(figure_type type, int x, int y, direction_type dir)
             f->melee_defense_value = 2;
             f->missile_defense_value = 3;
             break;
-        case FIGURE_ENEMY54_GLADIATOR:
+        case FIGURE_ENEMY_GLADIATOR:
             f->is_enemy_unit = 1;
             f->is_targetable = 1;
             f->max_damage = 100;
@@ -463,7 +463,7 @@ void figure_delete(figure *f)
 
 int figure_is_dead(const figure *f)
 {
-    return f->state != FIGURE_STATE_ALIVE || f->action_state == FIGURE_ACTION_149_CORPSE;
+    return f->state != FIGURE_STATE_ALIVE || f->action_state == FIGURE_ACTION_CORPSE;
 }
 
 int city_figures_total_invading_enemies(void)

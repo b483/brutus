@@ -374,7 +374,7 @@ const image *image_letter(int letter_id)
     }
 }
 
-const image *image_get_enemy(int id, enemy_type enemy_image_type)
+const image *image_get_enemy(int id, int enemy_image_type)
 {
     if (id >= 0 && id < ENEMY_ENTRIES) {
         return &data.enemy[enemy_image_type][id];
@@ -411,7 +411,7 @@ const color_t *image_data_letter(int letter_id)
     }
 }
 
-const color_t *image_data_enemy(int id, enemy_type enemy_image_type)
+const color_t *image_data_enemy(int id, int enemy_image_type)
 {
     int offset = data.enemy[enemy_image_type][id].draw.offset;
     if (offset > 0) {

@@ -31,7 +31,23 @@
 #include "editor/editor.h"
 #include "empire/object.h"
 #include "figure/formation.h"
+#include "figuretype/animal.h"
+#include "figuretype/cartpusher.h"
 #include "figuretype/crime.h"
+#include "figuretype/docker.h"
+#include "figuretype/editor.h"
+#include "figuretype/enemy.h"
+#include "figuretype/entertainer.h"
+#include "figuretype/maintenance.h"
+#include "figuretype/market.h"
+#include "figuretype/migrant.h"
+#include "figuretype/missile.h"
+#include "figuretype/native.h"
+#include "figuretype/service.h"
+#include "figuretype/soldier.h"
+#include "figuretype/trader.h"
+#include "figuretype/wall.h"
+#include "figuretype/water.h"
 #include "game/file_io.h"
 #include "game/settings.h"
 #include "game/time.h"
@@ -176,13 +192,229 @@ void game_tick_run(void)
 {
     if (editor_is_active()) {
         random_generate_next(); // update random to randomize native huts
-        figure_action_handle(); // just update the flag figures
-        return;
+        for (int i = 1; i < MAX_FIGURES; i++) {
+            figure *f = figure_get(i);
+            if (f->state == FIGURE_STATE_ALIVE && f->type == FIGURE_MAP_FLAG) {
+                figure_editor_flag_action(f);
+            } else if (f->state == FIGURE_STATE_DEAD) {
+                figure_delete(f);
+            }
+            return;
+        }
     }
     random_generate_next();
     game_undo_reduce_time_available();
     advance_tick();
-    figure_action_handle();
+    city_data.figure.enemies = 0;
+    city_data.figure.rioters = 0;
+    city_data.figure.attacking_natives = 0;
+    city_data.figure.animals = 0;
+    city_data.figure.imperial_soldiers = 0;
+    city_data.figure.soldiers = 0;
+    city_data.entertainment.hippodrome_has_race = 0;
+    for (int i = 1; i < MAX_FIGURES; i++) {
+        figure *f = figure_get(i);
+        if (f->state == FIGURE_STATE_ALIVE) {
+            switch (f->type) {
+                case FIGURE_NONE:
+                case FIGURE_IMMIGRANT:
+                    figure_immigrant_action(f);
+                    break;
+                case FIGURE_EMIGRANT:
+                    figure_emigrant_action(f);
+                    break;
+                case FIGURE_HOMELESS:
+                    figure_homeless_action(f);
+                    break;
+                case FIGURE_PATRICIAN:
+                    figure_patrician_action(f);
+                    break;
+                case FIGURE_CART_PUSHER:
+                    figure_cartpusher_action(f);
+                    break;
+                case FIGURE_LABOR_SEEKER:
+                    figure_labor_seeker_action(f);
+                    break;
+                case FIGURE_BARBER:
+                    figure_barber_action(f);
+                    break;
+                case FIGURE_BATHHOUSE_WORKER:
+                    figure_bathhouse_worker_action(f);
+                    break;
+                case FIGURE_DOCTOR:
+                case FIGURE_SURGEON:
+                    figure_doctor_action(f);
+                    break;
+                case FIGURE_PRIEST:
+                    figure_priest_action(f);
+                    break;
+                case FIGURE_SCHOOL_CHILD:
+                    figure_school_child_action(f);
+                    break;
+                case FIGURE_TEACHER:
+                    figure_teacher_action(f);
+                    break;
+                case FIGURE_LIBRARIAN:
+                    figure_librarian_action(f);
+                    break;
+                case FIGURE_MISSIONARY:
+                    figure_missionary_action(f);
+                    break;
+                case FIGURE_ACTOR:
+                case FIGURE_GLADIATOR:
+                case FIGURE_LION_TAMER:
+                case FIGURE_CHARIOTEER:
+                    figure_entertainer_action(f);
+                    break;
+                case FIGURE_TAX_COLLECTOR:
+                    figure_tax_collector_action(f);
+                    break;
+                case FIGURE_ENGINEER:
+                    figure_engineer_action(f);
+                    break;
+                case FIGURE_DOCKER:
+                    figure_docker_action(f);
+                    break;
+                case FIGURE_PREFECT:
+                    figure_prefect_action(f);
+                    break;
+                case FIGURE_FORT_JAVELIN:
+                case FIGURE_FORT_MOUNTED:
+                case FIGURE_FORT_LEGIONARY:
+                    figure_soldier_action(f);
+                    break;
+                case FIGURE_TOWER_SENTRY:
+                    figure_tower_sentry_action(f);
+                    break;
+                case FIGURE_MARKET_BUYER:
+                    figure_market_buyer_action(f);
+                    break;
+                case FIGURE_MARKET_TRADER:
+                    figure_market_trader_action(f);
+                    break;
+                case FIGURE_DELIVERY_BOY:
+                    figure_delivery_boy_action(f);
+                    break;
+                case FIGURE_WAREHOUSEMAN:
+                    figure_warehouseman_action(f);
+                    break;
+                case FIGURE_TRADE_CARAVAN:
+                    figure_trade_caravan_action(f);
+                    break;
+                case FIGURE_TRADE_CARAVAN_DONKEY:
+                    figure_trade_caravan_donkey_action(f);
+                    break;
+                case FIGURE_TRADE_SHIP:
+                    figure_trade_ship_action(f);
+                    break;
+                case FIGURE_PROTESTER:
+                    figure_protestor_action(f);
+                    break;
+                case FIGURE_CRIMINAL:
+                    figure_criminal_action(f);
+                    break;
+                case FIGURE_RIOTER:
+                    figure_rioter_action(f);
+                    break;
+                case FIGURE_INDIGENOUS_NATIVE:
+                    figure_indigenous_native_action(f);
+                    break;
+                case FIGURE_NATIVE_TRADER:
+                    figure_native_trader_action(f);
+                    break;
+                case FIGURE_ENEMY_RANGED_SPEAR_1:
+                    figure_enemy43_spear_action(f);
+                    break;
+                case FIGURE_ENEMY_SWORD_1:
+                    figure_enemy44_sword_action(f);
+                    break;
+                case FIGURE_ENEMY_SWORD_2:
+                    figure_enemy45_sword_action(f);
+                    break;
+                case FIGURE_ENEMY_CAMEL:
+                    figure_enemy_camel_action(f);
+                    break;
+                case FIGURE_ENEMY_ELEPHANT:
+                    figure_enemy_elephant_action(f);
+                    break;
+                case FIGURE_ENEMY_CHARIOT:
+                    figure_enemy_chariot_action(f);
+                    break;
+                case FIGURE_ENEMY_FAST_SWORD:
+                    figure_enemy49_fast_sword_action(f);
+                    break;
+                case FIGURE_ENEMY_SWORD_3:
+                    figure_enemy50_sword_action(f);
+                    break;
+                case FIGURE_ENEMY_RANGED_SPEAR_2:
+                    figure_enemy51_spear_action(f);
+                    break;
+                case FIGURE_ENEMY_MOUNTED_ARCHER:
+                    figure_enemy52_mounted_archer_action(f);
+                    break;
+                case FIGURE_ENEMY_AXE:
+                    figure_enemy53_axe_action(f);
+                    break;
+                case FIGURE_ENEMY_GLADIATOR:
+                    figure_enemy_gladiator_action(f);
+                    break;
+                case FIGURE_ENEMY_CAESAR_JAVELIN:
+                case FIGURE_ENEMY_CAESAR_MOUNTED:
+                case FIGURE_ENEMY_CAESAR_LEGIONARY:
+                    figure_enemy_caesar_legionary_action(f);
+                    break;
+                case FIGURE_SHEEP:
+                    figure_sheep_action(f);
+                    break;
+                case FIGURE_WOLF:
+                    figure_wolf_action(f);
+                    break;
+                case FIGURE_ZEBRA:
+                    figure_zebra_action(f);
+                    break;
+                case FIGURE_HIPPODROME_HORSES:
+                    figure_hippodrome_horse_action(f);
+                    break;
+                case FIGURE_FISHING_BOAT:
+                    figure_fishing_boat_action(f);
+                    break;
+                case FIGURE_SHIPWRECK:
+                    figure_shipwreck_action(f);
+                    break;
+                case FIGURE_FISH_GULLS:
+                    figure_seagulls_action(f);
+                    break;
+                case FIGURE_ARROW:
+                    figure_arrow_action(f);
+                    break;
+                case FIGURE_JAVELIN:
+                    figure_javelin_action(f);
+                    break;
+                case FIGURE_BOLT:
+                    figure_bolt_action(f);
+                    break;
+                case FIGURE_BALLISTA:
+                    figure_ballista_action(f);
+                    break;
+                case FIGURE_FORT_STANDARD:
+                    figure_military_standard_action(f);
+                    break;
+                case FIGURE_MAP_FLAG:
+                    figure_editor_flag_action(f);
+                    break;
+                case FIGURE_FLOTSAM:
+                    figure_flotsam_action(f);
+                    break;
+                case FIGURE_EXPLOSION:
+                    figure_explosion_cloud_action(f);
+                    break;
+                default:
+                    break;
+            }
+        } else if (f->state == FIGURE_STATE_DEAD) {
+            figure_delete(f);
+        }
+    }
     scenario_earthquake_process();
     city_victory_check();
 }

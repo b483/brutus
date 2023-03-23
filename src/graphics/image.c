@@ -570,7 +570,7 @@ void image_draw(int image_id, int x, int y)
     }
 }
 
-void image_draw_enemy(int image_id, enemy_type enemy_image_type, int x, int y)
+void image_draw_enemy(int image_id, int enemy_image_type, int x, int y)
 {
     if (image_id <= 0 || image_id >= 801) {
         return;

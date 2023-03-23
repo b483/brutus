@@ -83,7 +83,7 @@ const image *image_letter(int letter_id);
  * @param id Enemy image ID
  * @return Enemy image
  */
-const image *image_get_enemy(int id, enemy_type enemy_image_type);
+const image *image_get_enemy(int id, int enemy_image_type);
 
 /**
  * Gets image pixel data by id
@@ -104,6 +104,6 @@ const color_t *image_data_letter(int letter_id);
  * @param id Enemy image ID
  * @return Pointer to data or null, short term use only.
  */
-const color_t *image_data_enemy(int id, enemy_type enemy_image_type);
+const color_t *image_data_enemy(int id, int enemy_image_type);
 
 #endif // CORE_IMAGE_H

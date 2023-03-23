@@ -49,7 +49,7 @@ void figure_create_explosion_cloud(int x, int y, int size)
     }
 }
 
-void figure_create_missile(figure *shooter, map_point *target_tile, figure_type type)
+void figure_create_missile(figure *shooter, map_point *target_tile, int type)
 {
     figure *missile = figure_create(type, shooter->x, shooter->y, DIR_0_TOP);
     if (missile->id) {
@@ -68,15 +68,15 @@ static int get_target_on_tile(figure *projectile)
         int figure_id = map_figures.items[projectile->grid_offset];
         while (figure_id) {
             figure *f = figure_get(figure_id);
-            if (f->action_state != FIGURE_ACTION_149_CORPSE && f->is_targetable) {
+            if (f->action_state != FIGURE_ACTION_CORPSE && f->is_targetable) {
                 if (shooter->is_friendly_armed_unit) {
                     if (f->is_enemy_unit
-                    || (f->type == FIGURE_INDIGENOUS_NATIVE && f->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING)
+                    || (f->type == FIGURE_INDIGENOUS_NATIVE && f->action_state == FIGURE_ACTION_NATIVE_ATTACKING)
                     || f->is_herd_animal) {
                         return f->id;
                     }
                 } else {
-                    if (f->is_unarmed_civilian_unit || f->is_friendly_armed_unit || f->is_caesar_legion_unit || (f->is_native_unit && f->action_state != FIGURE_ACTION_159_NATIVE_ATTACKING) || f->type == FIGURE_WOLF) {
+                    if (f->is_unarmed_civilian_unit || f->is_friendly_armed_unit || f->is_caesar_legion_unit || (f->is_native_unit && f->action_state != FIGURE_ACTION_NATIVE_ATTACKING) || f->type == FIGURE_WOLF) {
                         return f->id;
                     }
                 }
@@ -119,7 +119,7 @@ static void missile_hit_target(figure *projectile, figure *target)
         target->damage = target_damage;
     } else { // kill target
         target->damage = target->max_damage + 1;
-        target->action_state = FIGURE_ACTION_149_CORPSE;
+        target->action_state = FIGURE_ACTION_CORPSE;
         target->wait_ticks = 0;
         figure_play_die_sound(target);
         formation_update_morale_after_death(&formations[target->formation_id]);
@@ -197,7 +197,7 @@ void figure_bolt_action(figure *projectile)
             target->damage = target_damage;
         } else { // kill target
             target->damage = target->max_damage + 1;
-            target->action_state = FIGURE_ACTION_149_CORPSE;
+            target->action_state = FIGURE_ACTION_CORPSE;
             target->wait_ticks = 0;
             figure_play_die_sound(target);
             formation_update_morale_after_death(&formations[target->formation_id]);

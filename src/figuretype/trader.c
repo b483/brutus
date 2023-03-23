@@ -286,11 +286,11 @@ static void go_to_next_warehouse(figure *f, int x_src, int y_src, int distance_t
     int warehouse_id = get_closest_warehouse(f, x_src, y_src, f->empire_city_id, distance_to_entry, &dst);
     if (warehouse_id) {
         f->destination_building_id = warehouse_id;
-        f->action_state = FIGURE_ACTION_101_TRADE_CARAVAN_ARRIVING;
+        f->action_state = FIGURE_ACTION_TRADE_CARAVAN_ARRIVING;
         f->destination_x = dst.x;
         f->destination_y = dst.y;
     } else {
-        f->action_state = FIGURE_ACTION_103_TRADE_CARAVAN_LEAVING;
+        f->action_state = FIGURE_ACTION_TRADE_CARAVAN_LEAVING;
         f->destination_x = city_data.map.exit_point.x;
         f->destination_y = city_data.map.exit_point.y;
     }
@@ -303,13 +303,13 @@ void figure_trade_caravan_action(figure *f)
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     switch (f->action_state) {
-        case FIGURE_ACTION_150_ATTACK:
+        case FIGURE_ACTION_ATTACK:
             figure_combat_handle_attack(f);
             break;
-        case FIGURE_ACTION_149_CORPSE:
+        case FIGURE_ACTION_CORPSE:
             figure_combat_handle_corpse(f);
             break;
-        case FIGURE_ACTION_100_TRADE_CARAVAN_CREATED:
+        case FIGURE_ACTION_TRADE_CARAVAN_CREATED:
             f->is_ghost = 1;
             f->wait_ticks++;
             if (f->wait_ticks > 20) {
@@ -327,11 +327,11 @@ void figure_trade_caravan_action(figure *f)
             }
             f->image_offset = 0;
             break;
-        case FIGURE_ACTION_101_TRADE_CARAVAN_ARRIVING:
+        case FIGURE_ACTION_TRADE_CARAVAN_ARRIVING:
             figure_movement_move_ticks(f, 1);
             switch (f->direction) {
                 case DIR_FIGURE_AT_DESTINATION:
-                    f->action_state = FIGURE_ACTION_102_TRADE_CARAVAN_TRADING;
+                    f->action_state = FIGURE_ACTION_TRADE_CARAVAN_TRADING;
                     break;
                 case DIR_FIGURE_REROUTE:
                     figure_route_remove(f);
@@ -345,7 +345,7 @@ void figure_trade_caravan_action(figure *f)
                 f->state = FIGURE_STATE_DEAD;
             }
             break;
-        case FIGURE_ACTION_102_TRADE_CARAVAN_TRADING:
+        case FIGURE_ACTION_TRADE_CARAVAN_TRADING:
             f->wait_ticks++;
             if (f->wait_ticks > 10) {
                 f->wait_ticks = 0;
@@ -380,11 +380,11 @@ void figure_trade_caravan_action(figure *f)
             }
             f->image_offset = 0;
             break;
-        case FIGURE_ACTION_103_TRADE_CARAVAN_LEAVING:
+        case FIGURE_ACTION_TRADE_CARAVAN_LEAVING:
             figure_movement_move_ticks(f, 1);
             switch (f->direction) {
                 case DIR_FIGURE_AT_DESTINATION:
-                    f->action_state = FIGURE_ACTION_100_TRADE_CARAVAN_CREATED;
+                    f->action_state = FIGURE_ACTION_TRADE_CARAVAN_CREATED;
                     f->state = FIGURE_STATE_DEAD;
                     break;
                 case DIR_FIGURE_REROUTE:
@@ -411,7 +411,7 @@ void figure_trade_caravan_donkey_action(figure *f)
     if (f->leading_figure_id <= 0) {
         f->state = FIGURE_STATE_DEAD;
     } else {
-        if (leader->action_state == FIGURE_ACTION_149_CORPSE) {
+        if (leader->action_state == FIGURE_ACTION_CORPSE) {
             f->state = FIGURE_STATE_DEAD;
         } else if (leader->state != FIGURE_STATE_ALIVE) {
             f->state = FIGURE_STATE_DEAD;
@@ -436,16 +436,16 @@ void figure_native_trader_action(figure *f)
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     switch (f->action_state) {
-        case FIGURE_ACTION_150_ATTACK:
+        case FIGURE_ACTION_ATTACK:
             figure_combat_handle_attack(f);
             break;
-        case FIGURE_ACTION_149_CORPSE:
+        case FIGURE_ACTION_CORPSE:
             figure_combat_handle_corpse(f);
             break;
-        case FIGURE_ACTION_160_NATIVE_TRADER_GOING_TO_WAREHOUSE:
+        case FIGURE_ACTION_NATIVE_TRADER_GOING_TO_WAREHOUSE:
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                f->action_state = FIGURE_ACTION_163_NATIVE_TRADER_AT_WAREHOUSE;
+                f->action_state = FIGURE_ACTION_NATIVE_TRADER_AT_WAREHOUSE;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
@@ -456,7 +456,7 @@ void figure_native_trader_action(figure *f)
                 f->state = FIGURE_STATE_DEAD;
             }
             break;
-        case FIGURE_ACTION_161_NATIVE_TRADER_RETURNING:
+        case FIGURE_ACTION_NATIVE_TRADER_RETURNING:
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
                 f->state = FIGURE_STATE_DEAD;
@@ -464,7 +464,7 @@ void figure_native_trader_action(figure *f)
                 figure_route_remove(f);
             }
             break;
-        case FIGURE_ACTION_162_NATIVE_TRADER_CREATED:
+        case FIGURE_ACTION_NATIVE_TRADER_CREATED:
             f->is_ghost = 1;
             f->wait_ticks++;
             if (f->wait_ticks > 10) {
@@ -472,7 +472,7 @@ void figure_native_trader_action(figure *f)
                 map_point tile;
                 int building_id = get_closest_warehouse(f, f->x, f->y, 0, -1, &tile);
                 if (building_id) {
-                    f->action_state = FIGURE_ACTION_160_NATIVE_TRADER_GOING_TO_WAREHOUSE;
+                    f->action_state = FIGURE_ACTION_NATIVE_TRADER_GOING_TO_WAREHOUSE;
                     f->destination_building_id = building_id;
                     f->destination_x = tile.x;
                     f->destination_y = tile.y;
@@ -482,7 +482,7 @@ void figure_native_trader_action(figure *f)
             }
             f->image_offset = 0;
             break;
-        case FIGURE_ACTION_163_NATIVE_TRADER_AT_WAREHOUSE:
+        case FIGURE_ACTION_NATIVE_TRADER_AT_WAREHOUSE:
             f->wait_ticks++;
             if (f->wait_ticks > 10) {
                 f->wait_ticks = 0;
@@ -494,12 +494,12 @@ void figure_native_trader_action(figure *f)
                     map_point tile;
                     int building_id = get_closest_warehouse(f, f->x, f->y, 0, -1, &tile);
                     if (building_id) {
-                        f->action_state = FIGURE_ACTION_160_NATIVE_TRADER_GOING_TO_WAREHOUSE;
+                        f->action_state = FIGURE_ACTION_NATIVE_TRADER_GOING_TO_WAREHOUSE;
                         f->destination_building_id = building_id;
                         f->destination_x = tile.x;
                         f->destination_y = tile.y;
                     } else {
-                        f->action_state = FIGURE_ACTION_161_NATIVE_TRADER_RETURNING;
+                        f->action_state = FIGURE_ACTION_NATIVE_TRADER_RETURNING;
                         f->destination_x = f->source_x;
                         f->destination_y = f->source_y;
                     }
@@ -510,7 +510,7 @@ void figure_native_trader_action(figure *f)
     }
     int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
 
-    if (f->action_state == FIGURE_ACTION_149_CORPSE) {
+    if (f->action_state == FIGURE_ACTION_CORPSE) {
         f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + 96 + figure_image_corpse_offset(f);
         f->cart_image_id = 0;
     } else {
@@ -535,15 +535,15 @@ int figure_trade_ship_is_trading(figure *ship)
             continue;
         }
         switch (f->action_state) {
-            case FIGURE_ACTION_133_DOCKER_IMPORT_QUEUE:
-            case FIGURE_ACTION_135_DOCKER_IMPORT_GOING_TO_WAREHOUSE:
-            case FIGURE_ACTION_138_DOCKER_IMPORT_RETURNING:
-            case FIGURE_ACTION_139_DOCKER_IMPORT_AT_WAREHOUSE:
+            case FIGURE_ACTION_DOCKER_IMPORT_QUEUE:
+            case FIGURE_ACTION_DOCKER_IMPORT_GOING_TO_WAREHOUSE:
+            case FIGURE_ACTION_DOCKER_IMPORT_RETURNING:
+            case FIGURE_ACTION_DOCKER_IMPORT_AT_WAREHOUSE:
                 return TRADE_SHIP_BUYING;
-            case FIGURE_ACTION_134_DOCKER_EXPORT_QUEUE:
-            case FIGURE_ACTION_136_DOCKER_EXPORT_GOING_TO_WAREHOUSE:
-            case FIGURE_ACTION_137_DOCKER_EXPORT_RETURNING:
-            case FIGURE_ACTION_140_DOCKER_EXPORT_AT_WAREHOUSE:
+            case FIGURE_ACTION_DOCKER_EXPORT_QUEUE:
+            case FIGURE_ACTION_DOCKER_EXPORT_GOING_TO_WAREHOUSE:
+            case FIGURE_ACTION_DOCKER_EXPORT_RETURNING:
+            case FIGURE_ACTION_DOCKER_EXPORT_AT_WAREHOUSE:
                 return TRADE_SHIP_SELLING;
         }
     }
@@ -567,7 +567,7 @@ static int trade_ship_done_trading(figure *f)
         for (int i = 0; i < 3; i++) {
             if (b->data.dock.docker_ids[i]) {
                 figure *docker = figure_get(b->data.dock.docker_ids[i]);
-                if (docker->state == FIGURE_STATE_ALIVE && docker->action_state != FIGURE_ACTION_132_DOCKER_IDLING) {
+                if (docker->state == FIGURE_STATE_ALIVE && docker->action_state != FIGURE_ACTION_DOCKER_IDLING) {
                     return 0;
                 }
             }
@@ -589,13 +589,13 @@ void figure_trade_ship_action(figure *f)
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     switch (f->action_state) {
-        case FIGURE_ACTION_150_ATTACK:
+        case FIGURE_ACTION_ATTACK:
             figure_combat_handle_attack(f);
             break;
-        case FIGURE_ACTION_149_CORPSE:
+        case FIGURE_ACTION_CORPSE:
             figure_combat_handle_corpse(f);
             break;
-        case FIGURE_ACTION_110_TRADE_SHIP_CREATED:
+        case FIGURE_ACTION_TRADE_SHIP_CREATED:
             f->loads_sold_or_carrying = 12;
             f->trader_amount_bought = 0;
             f->is_ghost = 1;
@@ -606,11 +606,11 @@ void figure_trade_ship_action(figure *f)
                 int dock_id = building_dock_get_free_destination(f->id, &tile);
                 if (dock_id) {
                     f->destination_building_id = dock_id;
-                    f->action_state = FIGURE_ACTION_111_TRADE_SHIP_GOING_TO_DOCK;
+                    f->action_state = FIGURE_ACTION_TRADE_SHIP_GOING_TO_DOCK;
                     f->destination_x = tile.x;
                     f->destination_y = tile.y;
                 } else if (building_dock_get_queue_destination(&tile)) {
-                    f->action_state = FIGURE_ACTION_113_TRADE_SHIP_GOING_TO_DOCK_QUEUE;
+                    f->action_state = FIGURE_ACTION_TRADE_SHIP_GOING_TO_DOCK_QUEUE;
                     f->destination_x = tile.x;
                     f->destination_y = tile.y;
                 } else {
@@ -619,11 +619,11 @@ void figure_trade_ship_action(figure *f)
             }
             f->image_offset = 0;
             break;
-        case FIGURE_ACTION_111_TRADE_SHIP_GOING_TO_DOCK:
+        case FIGURE_ACTION_TRADE_SHIP_GOING_TO_DOCK:
             figure_movement_move_ticks(f, 1);
             f->height_adjusted_ticks = 0;
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                f->action_state = FIGURE_ACTION_112_TRADE_SHIP_MOORED;
+                f->action_state = FIGURE_ACTION_TRADE_SHIP_MOORED;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
@@ -634,22 +634,22 @@ void figure_trade_ship_action(figure *f)
                 }
             }
             if (building_get(f->destination_building_id)->state != BUILDING_STATE_IN_USE) {
-                f->action_state = FIGURE_ACTION_115_TRADE_SHIP_LEAVING;
+                f->action_state = FIGURE_ACTION_TRADE_SHIP_LEAVING;
                 f->wait_ticks = 0;
                 f->destination_x = scenario.river_exit_point.x;
                 f->destination_y = scenario.river_exit_point.y;
             }
             break;
-        case FIGURE_ACTION_112_TRADE_SHIP_MOORED:
+        case FIGURE_ACTION_TRADE_SHIP_MOORED:
             if (trade_ship_lost_queue(f)) {
                 f->trade_ship_failed_dock_attempts = 0;
-                f->action_state = FIGURE_ACTION_115_TRADE_SHIP_LEAVING;
+                f->action_state = FIGURE_ACTION_TRADE_SHIP_LEAVING;
                 f->wait_ticks = 0;
                 f->destination_x = scenario.river_entry_point.x;
                 f->destination_y = scenario.river_entry_point.y;
             } else if (trade_ship_done_trading(f)) {
                 f->trade_ship_failed_dock_attempts = 0;
-                f->action_state = FIGURE_ACTION_115_TRADE_SHIP_LEAVING;
+                f->action_state = FIGURE_ACTION_TRADE_SHIP_LEAVING;
                 f->wait_ticks = 0;
                 f->destination_x = scenario.river_entry_point.x;
                 f->destination_y = scenario.river_entry_point.y;
@@ -666,30 +666,30 @@ void figure_trade_ship_action(figure *f)
             f->image_offset = 0;
             city_message_reset_category_count(MESSAGE_CAT_BLOCKED_DOCK);
             break;
-        case FIGURE_ACTION_113_TRADE_SHIP_GOING_TO_DOCK_QUEUE:
+        case FIGURE_ACTION_TRADE_SHIP_GOING_TO_DOCK_QUEUE:
             figure_movement_move_ticks(f, 1);
             f->height_adjusted_ticks = 0;
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                f->action_state = FIGURE_ACTION_114_TRADE_SHIP_ANCHORED;
+                f->action_state = FIGURE_ACTION_TRADE_SHIP_ANCHORED;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
                 f->state = FIGURE_STATE_DEAD;
             }
             break;
-        case FIGURE_ACTION_114_TRADE_SHIP_ANCHORED:
+        case FIGURE_ACTION_TRADE_SHIP_ANCHORED:
             f->wait_ticks++;
             if (f->wait_ticks > 40) {
                 map_point tile;
                 int dock_id = building_dock_get_free_destination(f->id, &tile);
                 if (dock_id) {
                     f->destination_building_id = dock_id;
-                    f->action_state = FIGURE_ACTION_111_TRADE_SHIP_GOING_TO_DOCK;
+                    f->action_state = FIGURE_ACTION_TRADE_SHIP_GOING_TO_DOCK;
                     f->destination_x = tile.x;
                     f->destination_y = tile.y;
                 } else if (map_figure_at(f->grid_offset) != f->id &&
                     building_dock_get_queue_destination(&tile)) {
-                    f->action_state = FIGURE_ACTION_113_TRADE_SHIP_GOING_TO_DOCK_QUEUE;
+                    f->action_state = FIGURE_ACTION_TRADE_SHIP_GOING_TO_DOCK_QUEUE;
                     f->destination_x = tile.x;
                     f->destination_y = tile.y;
                 }
@@ -697,11 +697,11 @@ void figure_trade_ship_action(figure *f)
             }
             f->image_offset = 0;
             break;
-        case FIGURE_ACTION_115_TRADE_SHIP_LEAVING:
+        case FIGURE_ACTION_TRADE_SHIP_LEAVING:
             figure_movement_move_ticks(f, 1);
             f->height_adjusted_ticks = 0;
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                f->action_state = FIGURE_ACTION_110_TRADE_SHIP_CREATED;
+                f->action_state = FIGURE_ACTION_TRADE_SHIP_CREATED;
                 f->state = FIGURE_STATE_DEAD;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);

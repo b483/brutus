@@ -46,7 +46,7 @@ void figure_create_flotsam(void)
 
     for (int i = 0; i < 20; i++) {
         figure *f = figure_create(FIGURE_FLOTSAM, scenario.river_entry_point.x, scenario.river_entry_point.y, DIR_0_TOP);
-        f->action_state = FIGURE_ACTION_128_FLOTSAM_CREATED;
+        f->action_state = FIGURE_ACTION_FLOTSAM_CREATED;
         f->resource_id = FLOTSAM_RESOURCE_IDS[i];
         f->wait_ticks = FLOTSAM_WAIT_TICKS[i];
     }
@@ -62,11 +62,11 @@ void figure_flotsam_action(figure *f)
     f->cart_image_id = 0;
     f->terrain_usage = TERRAIN_USAGE_ANY;
     switch (f->action_state) {
-        case FIGURE_ACTION_128_FLOTSAM_CREATED:
+        case FIGURE_ACTION_FLOTSAM_CREATED:
             f->is_ghost = 1;
             f->wait_ticks--;
             if (f->wait_ticks <= 0) {
-                f->action_state = FIGURE_ACTION_129_FLOTSAM_FLOATING;
+                f->action_state = FIGURE_ACTION_FLOTSAM_FLOATING;
                 f->wait_ticks = 0;
                 if (!f->resource_id && city_god_neptune_create_shipwreck_flotsam()) {
                     f->min_max_seen = 1;
@@ -75,7 +75,7 @@ void figure_flotsam_action(figure *f)
                 f->destination_y = scenario.river_exit_point.y;
             }
             break;
-        case FIGURE_ACTION_129_FLOTSAM_FLOATING:
+        case FIGURE_ACTION_FLOTSAM_FLOATING:
             if (f->flotsam_visible) {
                 f->flotsam_visible = 0;
             } else {
@@ -86,14 +86,14 @@ void figure_flotsam_action(figure *f)
                 f->height_adjusted_ticks = 0;
                 if (f->direction == DIR_FIGURE_AT_DESTINATION ||
                     f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
-                    f->action_state = FIGURE_ACTION_130_FLOTSAM_OFF_MAP;
+                    f->action_state = FIGURE_ACTION_FLOTSAM_OFF_MAP;
                 }
             }
             break;
-        case FIGURE_ACTION_130_FLOTSAM_OFF_MAP:
+        case FIGURE_ACTION_FLOTSAM_OFF_MAP:
             f->is_ghost = 1;
             f->min_max_seen = 0;
-            f->action_state = FIGURE_ACTION_128_FLOTSAM_CREATED;
+            f->action_state = FIGURE_ACTION_FLOTSAM_CREATED;
             if (f->wait_ticks >= 400) {
                 f->wait_ticks = random_byte() & 7;
             } else if (f->wait_ticks >= 200) {
@@ -168,13 +168,13 @@ void figure_fishing_boat_action(figure *f)
     if (b->state != BUILDING_STATE_IN_USE) {
         f->state = FIGURE_STATE_DEAD;
     }
-    if (f->action_state != FIGURE_ACTION_190_FISHING_BOAT_CREATED && b->data.industry.fishing_boat_id != f->id) {
+    if (f->action_state != FIGURE_ACTION_FISHING_BOAT_CREATED && b->data.industry.fishing_boat_id != f->id) {
         map_point tile;
         b = building_get(map_water_get_wharf_for_new_fishing_boat(f, &tile));
         if (b->id) {
             f->building_id = b->id;
             b->data.industry.fishing_boat_id = f->id;
-            f->action_state = FIGURE_ACTION_193_FISHING_BOAT_GOING_TO_WHARF;
+            f->action_state = FIGURE_ACTION_FISHING_BOAT_GOING_TO_WHARF;
             f->destination_x = tile.x;
             f->destination_y = tile.y;
             f->source_x = tile.x;
@@ -189,7 +189,7 @@ void figure_fishing_boat_action(figure *f)
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     switch (f->action_state) {
-        case FIGURE_ACTION_190_FISHING_BOAT_CREATED:
+        case FIGURE_ACTION_FISHING_BOAT_CREATED:
             f->wait_ticks++;
             if (f->wait_ticks >= 50) {
                 f->wait_ticks = 0;
@@ -199,7 +199,7 @@ void figure_fishing_boat_action(figure *f)
                     b->figure_id = 0; // remove from original building
                     f->building_id = wharf_id;
                     building_get(wharf_id)->data.industry.fishing_boat_id = f->id;
-                    f->action_state = FIGURE_ACTION_193_FISHING_BOAT_GOING_TO_WHARF;
+                    f->action_state = FIGURE_ACTION_FISHING_BOAT_GOING_TO_WHARF;
                     f->destination_x = tile.x;
                     f->destination_y = tile.y;
                     f->source_x = tile.x;
@@ -208,7 +208,7 @@ void figure_fishing_boat_action(figure *f)
                 }
             }
             break;
-        case FIGURE_ACTION_191_FISHING_BOAT_GOING_TO_FISH:
+        case FIGURE_ACTION_FISHING_BOAT_GOING_TO_FISH:
             figure_movement_move_ticks(f, 1);
             f->height_adjusted_ticks = 0;
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
@@ -219,30 +219,30 @@ void figure_fishing_boat_action(figure *f)
                     f->destination_y = tile.y;
                     f->direction = f->previous_tile_direction;
                 } else {
-                    f->action_state = FIGURE_ACTION_192_FISHING_BOAT_FISHING;
+                    f->action_state = FIGURE_ACTION_FISHING_BOAT_FISHING;
                     f->wait_ticks = 0;
                 }
             } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
-                f->action_state = FIGURE_ACTION_194_FISHING_BOAT_AT_WHARF;
+                f->action_state = FIGURE_ACTION_FISHING_BOAT_AT_WHARF;
                 f->destination_x = f->source_x;
                 f->destination_y = f->source_y;
             }
             break;
-        case FIGURE_ACTION_192_FISHING_BOAT_FISHING:
+        case FIGURE_ACTION_FISHING_BOAT_FISHING:
             f->wait_ticks++;
             if (f->wait_ticks >= 200) {
                 f->wait_ticks = 0;
-                f->action_state = FIGURE_ACTION_195_FISHING_BOAT_RETURNING_WITH_FISH;
+                f->action_state = FIGURE_ACTION_FISHING_BOAT_RETURNING_WITH_FISH;
                 f->destination_x = f->source_x;
                 f->destination_y = f->source_y;
                 figure_route_remove(f);
             }
             break;
-        case FIGURE_ACTION_193_FISHING_BOAT_GOING_TO_WHARF:
+        case FIGURE_ACTION_FISHING_BOAT_GOING_TO_WHARF:
             figure_movement_move_ticks(f, 1);
             f->height_adjusted_ticks = 0;
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                f->action_state = FIGURE_ACTION_194_FISHING_BOAT_AT_WHARF;
+                f->action_state = FIGURE_ACTION_FISHING_BOAT_AT_WHARF;
                 f->wait_ticks = 0;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
@@ -252,7 +252,7 @@ void figure_fishing_boat_action(figure *f)
                 f->state = FIGURE_STATE_DEAD;
             }
             break;
-        case FIGURE_ACTION_194_FISHING_BOAT_AT_WHARF:
+        case FIGURE_ACTION_FISHING_BOAT_AT_WHARF:
         {
             int pct_workers = calc_percentage(b->num_workers, model_get_building(b->type)->laborers);
             int max_wait_ticks = 5 * (102 - pct_workers);
@@ -265,7 +265,7 @@ void figure_fishing_boat_action(figure *f)
                     f->wait_ticks = 0;
                     map_point tile;
                     if (scenario_map_closest_fishing_point(f->x, f->y, &tile)) {
-                        f->action_state = FIGURE_ACTION_191_FISHING_BOAT_GOING_TO_FISH;
+                        f->action_state = FIGURE_ACTION_FISHING_BOAT_GOING_TO_FISH;
                         f->destination_x = tile.x;
                         f->destination_y = tile.y;
                         figure_route_remove(f);
@@ -274,11 +274,11 @@ void figure_fishing_boat_action(figure *f)
             }
         }
         break;
-        case FIGURE_ACTION_195_FISHING_BOAT_RETURNING_WITH_FISH:
+        case FIGURE_ACTION_FISHING_BOAT_RETURNING_WITH_FISH:
             figure_movement_move_ticks(f, 1);
             f->height_adjusted_ticks = 0;
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                f->action_state = FIGURE_ACTION_194_FISHING_BOAT_AT_WHARF;
+                f->action_state = FIGURE_ACTION_FISHING_BOAT_AT_WHARF;
                 f->wait_ticks = 0;
                 b->figure_spawn_delay = 1;
                 b->data.industry.has_fish++;
@@ -291,7 +291,7 @@ void figure_fishing_boat_action(figure *f)
     }
     int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
 
-    if (f->action_state == FIGURE_ACTION_192_FISHING_BOAT_FISHING) {
+    if (f->action_state == FIGURE_ACTION_FISHING_BOAT_FISHING) {
         f->image_id = image_group(GROUP_FIGURE_SHIP) + dir + 16;
     } else {
         f->image_id = image_group(GROUP_FIGURE_SHIP) + dir + 8;

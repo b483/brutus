@@ -127,11 +127,11 @@ void formation_legion_move_to(struct formation_t *m, map_tile *tile)
 
     for (int i = 0; i < MAX_FORMATION_FIGURES && m->figures[i]; i++) {
         figure *f = figure_get(m->figures[i]);
-        if (f->action_state == FIGURE_ACTION_149_CORPSE ||
-            f->action_state == FIGURE_ACTION_150_ATTACK) {
+        if (f->action_state == FIGURE_ACTION_CORPSE ||
+            f->action_state == FIGURE_ACTION_ATTACK) {
             continue;
         }
-        f->action_state = FIGURE_ACTION_83_SOLDIER_GOING_TO_STANDARD;
+        f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_STANDARD;
         figure_route_remove(f);
     }
 }
@@ -149,11 +149,11 @@ void formation_legion_return_home(struct formation_t *m)
     formation_legion_restore_layout(m);
     for (int i = 0; i < MAX_FORMATION_FIGURES && m->figures[i]; i++) {
         figure *f = figure_get(m->figures[i]);
-        if (f->action_state == FIGURE_ACTION_149_CORPSE ||
-            f->action_state == FIGURE_ACTION_150_ATTACK) {
+        if (f->action_state == FIGURE_ACTION_CORPSE ||
+            f->action_state == FIGURE_ACTION_ATTACK) {
             continue;
         }
-        f->action_state = FIGURE_ACTION_81_SOLDIER_GOING_TO_FORT;
+        f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_FORT;
         figure_route_remove(f);
     }
 }
@@ -207,11 +207,11 @@ void formation_legion_update(void)
                             formations[i].max_morale = 60;
                         }
                     }
-                    if (f->action_state == FIGURE_ACTION_150_ATTACK) {
+                    if (f->action_state == FIGURE_ACTION_ATTACK) {
                         formations[i].recent_fight = 6;
                     }
                     // decrease damage
-                    if (f->state == FIGURE_STATE_ALIVE && f->action_state == FIGURE_ACTION_80_SOLDIER_AT_REST) {
+                    if (f->state == FIGURE_STATE_ALIVE && f->action_state == FIGURE_ACTION_SOLDIER_AT_REST) {
                         if (f->damage) {
                             f->damage--;
                         }
@@ -230,10 +230,10 @@ void formation_legion_update(void)
                 // flee back to fort
                 for (int n = 0; n < formations[i].max_figures; n++) {
                     figure *f = figure_get(formations[i].figures[n]);
-                    if (f->action_state != FIGURE_ACTION_150_ATTACK &&
-                        f->action_state != FIGURE_ACTION_149_CORPSE &&
-                        f->action_state != FIGURE_ACTION_148_FLEEING) {
-                        f->action_state = FIGURE_ACTION_148_FLEEING;
+                    if (f->action_state != FIGURE_ACTION_ATTACK &&
+                        f->action_state != FIGURE_ACTION_CORPSE &&
+                        f->action_state != FIGURE_ACTION_FLEEING) {
+                        f->action_state = FIGURE_ACTION_FLEEING;
                         figure_route_remove(f);
                     }
                 }
@@ -257,9 +257,9 @@ void formation_legion_update(void)
                     for (int n = 0; n < MAX_FORMATION_FIGURES; n++) {
                         if (formations[i].figures[n] != 0) {
                             figure *f = figure_get(formations[i].figures[n]);
-                            if (f->action_state != FIGURE_ACTION_150_ATTACK &&
-                                f->action_state != FIGURE_ACTION_149_CORPSE) {
-                                f->action_state = FIGURE_ACTION_86_SOLDIER_MOPPING_UP;
+                            if (f->action_state != FIGURE_ACTION_ATTACK &&
+                                f->action_state != FIGURE_ACTION_CORPSE) {
+                                f->action_state = FIGURE_ACTION_SOLDIER_MOPPING_UP;
                             }
                         }
                     }

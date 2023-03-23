@@ -314,9 +314,9 @@ extern struct city_data_t {
         int16_t last_used_warehouse;
     } resource;
     struct {
-        int8_t hit_elephant;
-        int8_t die_citizen;
-        int8_t die_soldier;
+        uint8_t hit_elephant;
+        uint8_t die_citizen;
+        uint8_t die_soldier;
     } sound;
     struct {
         int16_t num_land_routes;

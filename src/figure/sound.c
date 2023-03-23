@@ -21,14 +21,14 @@ void figure_play_die_sound(const figure *f)
         case FIGURE_LION_TAMER:
             sound_effect_play(SOUND_EFFECT_LION_DIE);
             break;
-        case FIGURE_ENEMY48_CHARIOT:
-        case FIGURE_ENEMY52_MOUNTED_ARCHER:
+        case FIGURE_ENEMY_CHARIOT:
+        case FIGURE_ENEMY_MOUNTED_ARCHER:
             sound_effect_play(SOUND_EFFECT_HORSE2);
             break;
-        case FIGURE_ENEMY46_CAMEL:
+        case FIGURE_ENEMY_CAMEL:
             sound_effect_play(SOUND_EFFECT_CAMEL);
             break;
-        case FIGURE_ENEMY47_ELEPHANT:
+        case FIGURE_ENEMY_ELEPHANT:
             sound_effect_play(SOUND_EFFECT_ELEPHANT_DIE);
             break;
         case FIGURE_NATIVE_TRADER:
@@ -42,14 +42,14 @@ void figure_play_die_sound(const figure *f)
         case FIGURE_GLADIATOR:
         case FIGURE_INDIGENOUS_NATIVE:
         case FIGURE_TOWER_SENTRY:
-        case FIGURE_ENEMY43_SPEAR:
-        case FIGURE_ENEMY44_SWORD:
-        case FIGURE_ENEMY45_SWORD:
-        case FIGURE_ENEMY49_FAST_SWORD:
-        case FIGURE_ENEMY50_SWORD:
-        case FIGURE_ENEMY51_SPEAR:
-        case FIGURE_ENEMY53_AXE:
-        case FIGURE_ENEMY54_GLADIATOR:
+        case FIGURE_ENEMY_RANGED_SPEAR_1:
+        case FIGURE_ENEMY_SWORD_1:
+        case FIGURE_ENEMY_SWORD_2:
+        case FIGURE_ENEMY_FAST_SWORD:
+        case FIGURE_ENEMY_SWORD_3:
+        case FIGURE_ENEMY_RANGED_SPEAR_2:
+        case FIGURE_ENEMY_AXE:
+        case FIGURE_ENEMY_GLADIATOR:
         case FIGURE_ENEMY_CAESAR_JAVELIN:
         case FIGURE_ENEMY_CAESAR_MOUNTED:
         case FIGURE_ENEMY_CAESAR_LEGIONARY:
@@ -85,7 +85,7 @@ void figure_play_die_sound(const figure *f)
     }
 }
 
-void figure_play_hit_sound(figure_type type)
+void figure_play_hit_sound(int type)
 {
     switch (type) {
         case FIGURE_FORT_LEGIONARY:
@@ -93,31 +93,31 @@ void figure_play_hit_sound(figure_type type)
             sound_effect_play(SOUND_EFFECT_SWORD);
             break;
         case FIGURE_FORT_MOUNTED:
-        case FIGURE_ENEMY45_SWORD:
-        case FIGURE_ENEMY48_CHARIOT:
-        case FIGURE_ENEMY50_SWORD:
-        case FIGURE_ENEMY52_MOUNTED_ARCHER:
-        case FIGURE_ENEMY54_GLADIATOR:
+        case FIGURE_ENEMY_SWORD_2:
+        case FIGURE_ENEMY_CHARIOT:
+        case FIGURE_ENEMY_SWORD_3:
+        case FIGURE_ENEMY_MOUNTED_ARCHER:
+        case FIGURE_ENEMY_GLADIATOR:
             sound_effect_play(SOUND_EFFECT_SWORD_SWING);
             break;
         case FIGURE_FORT_JAVELIN:
             sound_effect_play(SOUND_EFFECT_LIGHT_SWORD);
             break;
-        case FIGURE_ENEMY43_SPEAR:
-        case FIGURE_ENEMY51_SPEAR:
+        case FIGURE_ENEMY_RANGED_SPEAR_1:
+        case FIGURE_ENEMY_RANGED_SPEAR_2:
             sound_effect_play(SOUND_EFFECT_SPEAR);
             break;
-        case FIGURE_ENEMY44_SWORD:
-        case FIGURE_ENEMY49_FAST_SWORD:
+        case FIGURE_ENEMY_SWORD_1:
+        case FIGURE_ENEMY_FAST_SWORD:
             sound_effect_play(SOUND_EFFECT_CLUB);
             break;
-        case FIGURE_ENEMY53_AXE:
+        case FIGURE_ENEMY_AXE:
             sound_effect_play(SOUND_EFFECT_AXE);
             break;
-        case FIGURE_ENEMY46_CAMEL:
+        case FIGURE_ENEMY_CAMEL:
             sound_effect_play(SOUND_EFFECT_CAMEL);
             break;
-        case FIGURE_ENEMY47_ELEPHANT:
+        case FIGURE_ENEMY_ELEPHANT:
             city_data.sound.hit_elephant = !city_data.sound.hit_elephant;
             if (city_data.sound.hit_elephant) {
                 sound_effect_play(SOUND_EFFECT_ELEPHANT);

@@ -92,7 +92,7 @@ static void hit_opponent(figure *f)
     if (opponent->damage <= opponent->max_damage) {
         figure_play_hit_sound(f->type);
     } else {
-        opponent->action_state = FIGURE_ACTION_149_CORPSE;
+        opponent->action_state = FIGURE_ACTION_CORPSE;
         opponent->wait_ticks = 0;
         figure_play_die_sound(opponent);
         formation_update_morale_after_death(opponent_formation);
@@ -121,7 +121,7 @@ static int unit_is_charging_opponent(figure *f, figure *opponent)
 {
     return f->mounted_charge_ticks
         && !formations[f->formation_id].is_halted
-        && opponent->type != FIGURE_FORT_MOUNTED && opponent->type != FIGURE_ENEMY46_CAMEL && opponent->type != FIGURE_ENEMY47_ELEPHANT && opponent->type != FIGURE_ENEMY48_CHARIOT && opponent->type != FIGURE_ENEMY52_MOUNTED_ARCHER;
+        && opponent->type != FIGURE_FORT_MOUNTED && opponent->type != FIGURE_ENEMY_CAMEL && opponent->type != FIGURE_ENEMY_ELEPHANT && opponent->type != FIGURE_ENEMY_CHARIOT && opponent->type != FIGURE_ENEMY_MOUNTED_ARCHER;
 }
 
 void figure_combat_handle_attack(figure *f)
@@ -135,7 +135,7 @@ void figure_combat_handle_attack(figure *f)
 
     // remove dead opponent from figure's melee targeter/attacker lists
     figure *opponent = figure_get(f->primary_melee_combatant_id);
-    if (opponent->action_state == FIGURE_ACTION_149_CORPSE) {
+    if (opponent->action_state == FIGURE_ACTION_CORPSE) {
         figure__remove_melee_targeter_from_list(f, opponent);
         for (int i = 0; i < MAX_MELEE_COMBATANTS_PER_UNIT; i++) {
             if (f->melee_combatant_ids[i] == opponent->id) {
@@ -239,7 +239,7 @@ figure *melee_unit__set_closest_target(figure *f)
                 if (potential_target->is_enemy_unit
                 || potential_target->type == FIGURE_WOLF
                 || potential_target->is_criminal_unit
-                || (potential_target->type == FIGURE_INDIGENOUS_NATIVE && potential_target->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING)) {
+                || (potential_target->type == FIGURE_INDIGENOUS_NATIVE && potential_target->action_state == FIGURE_ACTION_NATIVE_ATTACKING)) {
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
                     continue;
@@ -257,7 +257,7 @@ figure *melee_unit__set_closest_target(figure *f)
                 || potential_target->type == FIGURE_WOLF
                 || ((f->is_caesar_legion_unit && !potential_target->is_caesar_legion_unit) || (potential_target->is_caesar_legion_unit && !f->is_caesar_legion_unit))
                 || potential_target->type == FIGURE_NATIVE_TRADER
-                || (potential_target->type == FIGURE_INDIGENOUS_NATIVE && potential_target->action_state != FIGURE_ACTION_159_NATIVE_ATTACKING)
+                || (potential_target->type == FIGURE_INDIGENOUS_NATIVE && potential_target->action_state != FIGURE_ACTION_NATIVE_ATTACKING)
                 ) {
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
@@ -423,7 +423,7 @@ int set_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
                 if (potential_target->is_enemy_unit
                 || potential_target->type == FIGURE_WOLF
                 || potential_target->is_criminal_unit
-                || (potential_target->type == FIGURE_INDIGENOUS_NATIVE && potential_target->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING)) {
+                || (potential_target->type == FIGURE_INDIGENOUS_NATIVE && potential_target->action_state == FIGURE_ACTION_NATIVE_ATTACKING)) {
                     if (missile_trajectory_clear(shooter, potential_target)) {
                         closest_target_distance = potential_target_distance;
                         closest_eligible_target = potential_target;
@@ -479,7 +479,7 @@ int set_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
 
 void figure_combat_attack_figure_at(figure *f, int grid_offset)
 {
-    if (f->action_state == FIGURE_ACTION_150_ATTACK) {
+    if (f->action_state == FIGURE_ACTION_ATTACK) {
         return;
     }
     int guard = 0;
@@ -497,7 +497,7 @@ void figure_combat_attack_figure_at(figure *f, int grid_offset)
         int attack = 0;
         if (opponent->state != FIGURE_STATE_ALIVE) {
             attack = 0;
-        } else if (opponent->action_state == FIGURE_ACTION_149_CORPSE) {
+        } else if (opponent->action_state == FIGURE_ACTION_CORPSE) {
             attack = 0;
         } else if (f->is_friendly_armed_unit && (opponent->is_enemy_unit || opponent->type == FIGURE_WOLF)) {
             attack = 1;
@@ -506,7 +506,7 @@ void figure_combat_attack_figure_at(figure *f, int grid_offset)
         } else if (f->is_friendly_armed_unit && opponent->is_herd_animal) {
             attack = 1;
         } else if (f->is_friendly_armed_unit && opponent->is_native_unit) {
-            if (opponent->action_state == FIGURE_ACTION_159_NATIVE_ATTACKING) {
+            if (opponent->action_state == FIGURE_ACTION_NATIVE_ATTACKING) {
                 attack = 1;
             }
         } else if ((f->is_enemy_unit || f->type == FIGURE_WOLF) && opponent->is_unarmed_civilian_unit) {
@@ -521,7 +521,7 @@ void figure_combat_attack_figure_at(figure *f, int grid_offset)
                 attack = 1;
             }
             // other hostiles (i.e. invaders) only fight with natives that aren't attacking the player
-            else if (opponent->action_state != FIGURE_ACTION_159_NATIVE_ATTACKING) {
+            else if (opponent->action_state != FIGURE_ACTION_NATIVE_ATTACKING) {
                 attack = 1;
             }
         } else if ((f->is_enemy_unit || f->type == FIGURE_WOLF) && opponent->is_herd_animal) {
@@ -538,13 +538,13 @@ void figure_combat_attack_figure_at(figure *f, int grid_offset)
             }
         }
 
-        if (opponent->action_state == FIGURE_ACTION_150_ATTACK && opponent->num_melee_combatants >= MAX_MELEE_COMBATANTS_PER_UNIT) {
+        if (opponent->action_state == FIGURE_ACTION_ATTACK && opponent->num_melee_combatants >= MAX_MELEE_COMBATANTS_PER_UNIT) {
             attack = 0;
         }
 
         if (attack) {
             f->action_state_before_attack = f->action_state;
-            f->action_state = FIGURE_ACTION_150_ATTACK;
+            f->action_state = FIGURE_ACTION_ATTACK;
             // if ranged unit engages in melee combat, remove it from its (previous) target's ranged targeter list
             if (f->max_range && f->target_figure_id) {
                 figure *target_of_ranged_unit = figure_get(f->target_figure_id);
@@ -566,9 +566,9 @@ void figure_combat_attack_figure_at(figure *f, int grid_offset)
                 f->attack_direction = 0;
             }
 
-            if (opponent->action_state != FIGURE_ACTION_150_ATTACK) {
+            if (opponent->action_state != FIGURE_ACTION_ATTACK) {
                 opponent->action_state_before_attack = opponent->action_state;
-                opponent->action_state = FIGURE_ACTION_150_ATTACK;
+                opponent->action_state = FIGURE_ACTION_ATTACK;
                 // if opponent ranged unit engaged in melee combat, remove it from its (previous) target's ranged targeter list
                 if (opponent->max_range && opponent->target_figure_id) {
                     figure *target_of_opponent_ranged_unit = figure_get(opponent->target_figure_id);

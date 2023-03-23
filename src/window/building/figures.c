@@ -21,14 +21,76 @@
 static void select_figure(int index, int param2);
 
 static const int FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[] = {
-    8, 13, 13, 9, 4, 13, 8, 16, 7, 4,
-    18, 42, 26, 41, 8, 1, 33, 10, 11, 25,
-    8, 25, 15, 15, 15, 60, 12, 14, 5, 52,
-    52, 2, 3, 6, 6, 13, 8, 8, 17, 12,
-    58, 21, 50, 8, 8, 8, 28, 30, 23, 8,
-    8, 8, 34, 39, 33, 43, 27, 48, 63, 8,
-    8, 8, 8, 8, 53, 8, 38, 62, 54, 55,
-    56, 8, 8
+8, // FIGURE_NONE
+13, // FIGURE_IMMIGRANT
+13, // FIGURE_EMIGRANT
+9, // FIGURE_HOMELESS
+58, // FIGURE_PATRICIAN
+4, // FIGURE_CART_PUSHER
+13, // FIGURE_LABOR_SEEKER
+2, // FIGURE_BARBER
+3, // FIGURE_BATHHOUSE_WORKER
+6, // FIGURE_DOCTOR
+6, // FIGURE_SURGEON
+14, // FIGURE_PRIEST
+5, // FIGURE_SCHOOL_CHILD
+52, // FIGURE_TEACHER
+52, // FIGURE_LIBRARIAN
+53, // FIGURE_MISSIONARY
+1, // FIGURE_ACTOR
+33, // FIGURE_GLADIATOR
+10, // FIGURE_LION_TAMER
+11, // FIGURE_CHARIOTEER
+16, // FIGURE_TAX_COLLECTOR
+7, // FIGURE_ENGINEER
+17, // FIGURE_DOCKER
+18, // FIGURE_PREFECT
+42, // FIGURE_FORT_JAVELIN
+26, // FIGURE_FORT_MOUNTED
+41, // FIGURE_FORT_LEGIONARY
+50, // FIGURE_TOWER_SENTRY
+12, // FIGURE_MARKET_BUYER
+12, // FIGURE_MARKET_TRADER
+38, // FIGURE_DELIVERY_BOY
+4, // FIGURE_WAREHOUSEMAN
+25, // FIGURE_TRADE_CARAVAN
+25, // FIGURE_TRADE_CARAVAN_DONKEY
+8, // FIGURE_TRADE_SHIP
+15, // FIGURE_PROTESTER
+15, // FIGURE_CRIMINAL
+15, // FIGURE_RIOTER
+21, // FIGURE_INDIGENOUS_NATIVE
+63, // FIGURE_NATIVE_TRADER
+8, // FIGURE_ENEMY_RANGED_SPEAR_1
+8, // FIGURE_ENEMY_SWORD_1
+8, // FIGURE_ENEMY_SWORD_2
+28, // FIGURE_ENEMY_CAMEL
+30, // FIGURE_ENEMY_ELEPHANT
+23, // FIGURE_ENEMY_CHARIOT
+8, // FIGURE_ENEMY_FAST_SWORD
+8, // FIGURE_ENEMY_SWORD_3
+8, // FIGURE_ENEMY_RANGED_SPEAR_2
+34, // FIGURE_ENEMY_MOUNTED_ARCHER
+39, // FIGURE_ENEMY_AXE
+33, // FIGURE_ENEMY_GLADIATOR
+43, // FIGURE_ENEMY_CAESAR_JAVELIN
+27, // FIGURE_ENEMY_CAESAR_MOUNTED
+48, // FIGURE_ENEMY_CAESAR_LEGIONARY
+54, // FIGURE_SHEEP
+55, // FIGURE_WOLF
+56, // FIGURE_ZEBRA
+8, // FIGURE_HIPPODROME_HORSES
+60, // FIGURE_FISHING_BOAT
+62, // FIGURE_SHIPWRECK
+8, // FIGURE_FISH_GULLS
+8, // FIGURE_ARROW
+8, // FIGURE_JAVELIN
+8, // FIGURE_BOLT
+8, // FIGURE_BALLISTA
+8, // FIGURE_FORT_STANDARD
+8, // FIGURE_MAP_FLAG
+8, // FIGURE_FLOTSAM
+8, // FIGURE_EXPLOSION
 };
 
 static generic_button figure_buttons[] = {
@@ -47,7 +109,7 @@ static struct {
     building_info_context *context_for_callback;
 } data;
 
-static int big_people_image(figure_type type)
+static int big_people_image(int type)
 {
     return image_group(GROUP_BIG_PEOPLE) + FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[type] - 1;
 }
@@ -78,7 +140,7 @@ static figure *get_head_of_caravan(figure *f)
 static void draw_trader(building_info_context *c, figure *f)
 {
     f = get_head_of_caravan(f);
-    int width = lang_text_draw(64, f->type, c->x_offset + 40, c->y_offset + 110, FONT_NORMAL_BROWN);
+    int width = text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 40, c->y_offset + 110, FONT_NORMAL_BROWN, COLOR_BLACK);
     lang_text_draw(21, empire_objects[f->empire_city_id].city_name_id, c->x_offset + 40 + width, c->y_offset + 110, FONT_NORMAL_BROWN);
 
     width = lang_text_draw(129, 1, c->x_offset + 40, c->y_offset + 132, FONT_NORMAL_BROWN);
@@ -89,22 +151,22 @@ static void draw_trader(building_info_context *c, figure *f)
     if (f->type == FIGURE_TRADE_SHIP) {
         int text_id;
         switch (f->action_state) {
-            case FIGURE_ACTION_114_TRADE_SHIP_ANCHORED: text_id = 6; break;
-            case FIGURE_ACTION_112_TRADE_SHIP_MOORED: text_id = 7; break;
-            case FIGURE_ACTION_115_TRADE_SHIP_LEAVING: text_id = 8; break;
+            case FIGURE_ACTION_TRADE_SHIP_ANCHORED: text_id = 6; break;
+            case FIGURE_ACTION_TRADE_SHIP_MOORED: text_id = 7; break;
+            case FIGURE_ACTION_TRADE_SHIP_LEAVING: text_id = 8; break;
             default: text_id = 9; break;
         }
         lang_text_draw(129, text_id, c->x_offset + 40, c->y_offset + 154, FONT_NORMAL_BROWN);
     } else {
         int text_id;
         switch (f->action_state) {
-            case FIGURE_ACTION_101_TRADE_CARAVAN_ARRIVING:
+            case FIGURE_ACTION_TRADE_CARAVAN_ARRIVING:
                 text_id = 12;
                 break;
-            case FIGURE_ACTION_102_TRADE_CARAVAN_TRADING:
+            case FIGURE_ACTION_TRADE_CARAVAN_TRADING:
                 text_id = 10;
                 break;
-            case FIGURE_ACTION_103_TRADE_CARAVAN_LEAVING:
+            case FIGURE_ACTION_TRADE_CARAVAN_LEAVING:
                 if (trader_has_traded(trader_id)) {
                     text_id = 11;
                 } else {
@@ -170,7 +232,7 @@ static void draw_enemy(building_info_context *c, figure *f)
 {
     int image_id = FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[f->type];
     switch (f->type) {
-        case FIGURE_ENEMY43_SPEAR:
+        case FIGURE_ENEMY_RANGED_SPEAR_1:
             switch (formations[f->formation_id].enemy_img_group) {
                 case ENEMY_TYPE_PERGAMUM: image_id = 44; break;
                 case ENEMY_TYPE_PHOENICIAN: image_id = 46; break;
@@ -178,34 +240,34 @@ static void draw_enemy(building_info_context *c, figure *f)
                 case ENEMY_TYPE_GREEK: image_id = 36; break;
             }
             break;
-        case FIGURE_ENEMY44_SWORD:
+        case FIGURE_ENEMY_SWORD_1:
             switch (formations[f->formation_id].enemy_img_group) {
                 case ENEMY_TYPE_PERGAMUM: image_id = 45; break;
                 case ENEMY_TYPE_PHOENICIAN: image_id = 47; break;
                 case ENEMY_TYPE_EGYPTIAN: image_id = 29; break;
             }
             break;
-        case FIGURE_ENEMY45_SWORD:
+        case FIGURE_ENEMY_SWORD_2:
             switch (formations[f->formation_id].enemy_img_group) {
                 case ENEMY_TYPE_ETRUSCAN: image_id = 31; break;
                 case ENEMY_TYPE_GREEK: image_id = 37; break;
                 case ENEMY_TYPE_CARTHAGINIAN: image_id = 22; break;
             }
             break;
-        case FIGURE_ENEMY49_FAST_SWORD:
+        case FIGURE_ENEMY_FAST_SWORD:
             switch (formations[f->formation_id].enemy_img_group) {
                 case ENEMY_TYPE_BARBARIAN: image_id = 21; break;
                 case ENEMY_TYPE_NUMIDIAN: image_id = 20; break;
                 case ENEMY_TYPE_GOTH: image_id = 35; break;
             }
             break;
-        case FIGURE_ENEMY50_SWORD:
+        case FIGURE_ENEMY_SWORD_3:
             switch (formations[f->formation_id].enemy_img_group) {
                 case ENEMY_TYPE_GAUL: image_id = 40; break;
                 case ENEMY_TYPE_CELT: image_id = 24; break;
             }
             break;
-        case FIGURE_ENEMY51_SPEAR:
+        case FIGURE_ENEMY_RANGED_SPEAR_2:
             switch (formations[f->formation_id].enemy_img_group) {
                 case ENEMY_TYPE_NUMIDIAN: image_id = 20; break;
             }
@@ -221,7 +283,7 @@ static void draw_enemy(building_info_context *c, figure *f)
 static void draw_animal(building_info_context *c, figure *f)
 {
     image_draw(big_people_image(f->type), c->x_offset + 28, c->y_offset + 112);
-    lang_text_draw(64, f->type, c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN);
+    text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type - 14), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
 }
 
 static void draw_cartpusher(building_info_context *c, figure *f)
@@ -229,9 +291,9 @@ static void draw_cartpusher(building_info_context *c, figure *f)
     image_draw(big_people_image(f->type), c->x_offset + 28, c->y_offset + 112);
 
     lang_text_draw(65, f->name, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
-    int width = lang_text_draw(64, f->type, c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN);
+    int width = text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
 
-    if (f->action_state != FIGURE_ACTION_132_DOCKER_IDLING && f->resource_id) {
+    if (f->action_state != FIGURE_ACTION_DOCKER_IDLING && f->resource_id) {
         int resource = f->resource_id;
         image_draw(image_group(GROUP_RESOURCE_ICONS) +
             resource + resource_image_offset(resource, RESOURCE_IMAGE_ICON),
@@ -248,17 +310,17 @@ static void draw_cartpusher(building_info_context *c, figure *f)
     building *target_building = building_get(f->destination_building_id);
     int is_returning = 0;
     switch (f->action_state) {
-        case FIGURE_ACTION_27_CARTPUSHER_RETURNING:
-        case FIGURE_ACTION_53_WAREHOUSEMAN_RETURNING_EMPTY:
-        case FIGURE_ACTION_56_WAREHOUSEMAN_RETURNING_WITH_FOOD:
-        case FIGURE_ACTION_59_WAREHOUSEMAN_RETURNING_WITH_RESOURCE:
-        case FIGURE_ACTION_134_DOCKER_EXPORT_QUEUE:
-        case FIGURE_ACTION_137_DOCKER_EXPORT_RETURNING:
-        case FIGURE_ACTION_138_DOCKER_IMPORT_RETURNING:
+        case FIGURE_ACTION_CARTPUSHER_RETURNING:
+        case FIGURE_ACTION_WAREHOUSEMAN_RETURNING_EMPTY:
+        case FIGURE_ACTION_WAREHOUSEMAN_RETURNING_WITH_FOOD:
+        case FIGURE_ACTION_WAREHOUSEMAN_RETURNING_WITH_RESOURCE:
+        case FIGURE_ACTION_DOCKER_EXPORT_QUEUE:
+        case FIGURE_ACTION_DOCKER_EXPORT_RETURNING:
+        case FIGURE_ACTION_DOCKER_IMPORT_RETURNING:
             is_returning = 1;
             break;
     }
-    if (f->action_state != FIGURE_ACTION_132_DOCKER_IDLING) {
+    if (f->action_state != FIGURE_ACTION_DOCKER_IDLING) {
         int x_base = c->x_offset + 40;
         int y_base = c->y_offset + 216;
         if (phrase_height > 60) {
@@ -283,14 +345,14 @@ static void draw_market_buyer(building_info_context *c, figure *f)
     image_draw(big_people_image(f->type), c->x_offset + 28, c->y_offset + 112);
 
     lang_text_draw(65, f->name, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
-    int width = lang_text_draw(64, f->type, c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN);
+    int width = text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
 
-    if (f->action_state == FIGURE_ACTION_145_MARKET_BUYER_GOING_TO_STORAGE) {
+    if (f->action_state == FIGURE_ACTION_MARKET_BUYER_GOING_TO_STORAGE) {
         width += lang_text_draw(129, 17, c->x_offset + 90 + width, c->y_offset + 139, FONT_NORMAL_BROWN);
         int resource = inventory_to_resource_id(f->collecting_item_id);
         image_draw(image_group(GROUP_RESOURCE_ICONS) + resource + resource_image_offset(resource, RESOURCE_IMAGE_ICON),
             c->x_offset + 90 + width, c->y_offset + 135);
-    } else if (f->action_state == FIGURE_ACTION_146_MARKET_BUYER_RETURNING) {
+    } else if (f->action_state == FIGURE_ACTION_MARKET_BUYER_RETURNING) {
         width += lang_text_draw(129, 18, c->x_offset + 90 + width, c->y_offset + 139, FONT_NORMAL_BROWN);
         int resource = inventory_to_resource_id(f->collecting_item_id);
         image_draw(image_group(GROUP_RESOURCE_ICONS) + resource + resource_image_offset(resource, RESOURCE_IMAGE_ICON),
@@ -305,14 +367,14 @@ static void draw_market_buyer(building_info_context *c, figure *f)
 static void draw_normal_figure(building_info_context *c, figure *f)
 {
     int image_id = big_people_image(f->type);
-    if (f->action_state == FIGURE_ACTION_74_PREFECT_GOING_TO_FIRE ||
-        f->action_state == FIGURE_ACTION_75_PREFECT_AT_FIRE) {
+    if (f->action_state == FIGURE_ACTION_PREFECT_GOING_TO_FIRE ||
+        f->action_state == FIGURE_ACTION_PREFECT_AT_FIRE) {
         image_id = image_group(GROUP_BIG_PEOPLE) + 18;
     }
     image_draw(image_id, c->x_offset + 28, c->y_offset + 112);
 
     lang_text_draw(65, f->name, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
-    lang_text_draw(64, f->type, c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN);
+    text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
 
     if (c->figure.phrase_id >= 0) {
         lang_text_draw_multiline(130, 21 * c->figure.sound_id + c->figure.phrase_id + 1,
@@ -328,7 +390,7 @@ static void draw_figure_info(building_info_context *c, int figure_id)
     int type = f->type;
     if (type == FIGURE_TRADE_CARAVAN || type == FIGURE_TRADE_CARAVAN_DONKEY || type == FIGURE_TRADE_SHIP) {
         draw_trader(c, f);
-    } else if (type >= FIGURE_ENEMY43_SPEAR && type <= FIGURE_ENEMY53_AXE) {
+    } else if (type >= FIGURE_ENEMY_RANGED_SPEAR_1 && type <= FIGURE_ENEMY_AXE) {
         draw_enemy(c, f);
     } else if (type == FIGURE_FISHING_BOAT || type == FIGURE_SHIPWRECK || f->is_herd_animal) {
         draw_animal(c, f);

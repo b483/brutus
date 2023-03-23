@@ -67,7 +67,7 @@ static int get_next_name(int32_t *field, int offset, int max)
     return name;
 }
 
-int figure_name_get(figure_type type, enemy_type enemy)
+int figure_name_get(int type, int enemy)
 {
     switch (type) {
     case FIGURE_TAX_COLLECTOR:
@@ -136,17 +136,17 @@ int figure_name_get(figure_type type, enemy_type enemy)
     case FIGURE_NATIVE_TRADER:
         return get_next_name(&data.barbarian, 430, 32);
 
-    case FIGURE_ENEMY43_SPEAR:
-    case FIGURE_ENEMY44_SWORD:
-    case FIGURE_ENEMY45_SWORD:
-    case FIGURE_ENEMY46_CAMEL:
-    case FIGURE_ENEMY47_ELEPHANT:
-    case FIGURE_ENEMY48_CHARIOT:
-    case FIGURE_ENEMY49_FAST_SWORD:
-    case FIGURE_ENEMY50_SWORD:
-    case FIGURE_ENEMY51_SPEAR:
-    case FIGURE_ENEMY52_MOUNTED_ARCHER:
-    case FIGURE_ENEMY53_AXE:
+    case FIGURE_ENEMY_RANGED_SPEAR_1:
+    case FIGURE_ENEMY_SWORD_1:
+    case FIGURE_ENEMY_SWORD_2:
+    case FIGURE_ENEMY_CAMEL:
+    case FIGURE_ENEMY_ELEPHANT:
+    case FIGURE_ENEMY_CHARIOT:
+    case FIGURE_ENEMY_FAST_SWORD:
+    case FIGURE_ENEMY_SWORD_3:
+    case FIGURE_ENEMY_RANGED_SPEAR_2:
+    case FIGURE_ENEMY_MOUNTED_ARCHER:
+    case FIGURE_ENEMY_AXE:
         switch (enemy) {
         case ENEMY_TYPE_GREEK:
             return get_next_name(&data.enemy_greek, 463, 32);

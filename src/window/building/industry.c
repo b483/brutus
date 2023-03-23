@@ -265,11 +265,11 @@ void window_building_draw_wharf(building_info_context *c)
     } else {
         int text_id;
         switch (figure_get(b->data.industry.fishing_boat_id)->action_state) {
-            case FIGURE_ACTION_191_FISHING_BOAT_GOING_TO_FISH: text_id = 3; break;
-            case FIGURE_ACTION_192_FISHING_BOAT_FISHING: text_id = 4; break;
-            case FIGURE_ACTION_193_FISHING_BOAT_GOING_TO_WHARF: text_id = 5; break;
-            case FIGURE_ACTION_194_FISHING_BOAT_AT_WHARF: text_id = 6; break;
-            case FIGURE_ACTION_195_FISHING_BOAT_RETURNING_WITH_FISH: text_id = 7; break;
+            case FIGURE_ACTION_FISHING_BOAT_GOING_TO_FISH: text_id = 3; break;
+            case FIGURE_ACTION_FISHING_BOAT_FISHING: text_id = 4; break;
+            case FIGURE_ACTION_FISHING_BOAT_GOING_TO_WHARF: text_id = 5; break;
+            case FIGURE_ACTION_FISHING_BOAT_AT_WHARF: text_id = 6; break;
+            case FIGURE_ACTION_FISHING_BOAT_RETURNING_WITH_FISH: text_id = 7; break;
             default: text_id = 8; break;
         }
         window_building_draw_description(c, 102, text_id);

@@ -98,8 +98,8 @@ static void update_image(figure *f)
 
     if (f->type == FIGURE_CHARIOTEER) {
         f->cart_image_id = 0;
-        if (f->action_state == FIGURE_ACTION_150_ATTACK ||
-            f->action_state == FIGURE_ACTION_149_CORPSE) {
+        if (f->action_state == FIGURE_ACTION_ATTACK ||
+            f->action_state == FIGURE_ACTION_CORPSE) {
             f->image_id = image_group(GROUP_FIGURE_CHARIOTEER) + dir;
         } else {
             f->image_id = image_group(GROUP_FIGURE_CHARIOTEER) +
@@ -121,13 +121,13 @@ static void update_image(figure *f)
     } else {
         return;
     }
-    if (f->action_state == FIGURE_ACTION_150_ATTACK) {
+    if (f->action_state == FIGURE_ACTION_ATTACK) {
         if (f->type == FIGURE_GLADIATOR) {
             f->image_id = image_id + 104 + dir + 8 * (f->image_offset / 2);
         } else {
             f->image_id = image_id + dir;
         }
-    } else if (f->action_state == FIGURE_ACTION_149_CORPSE) {
+    } else if (f->action_state == FIGURE_ACTION_CORPSE) {
         f->image_id = image_id + 96 + figure_image_corpse_offset(f);
         f->cart_image_id = 0;
     } else {
@@ -152,26 +152,26 @@ void figure_entertainer_action(figure *f)
         f->wait_ticks_missile = 0;
     }
     if (scenario.gladiator_revolt.state == EVENT_IN_PROGRESS && f->type == FIGURE_GLADIATOR) {
-        if (f->action_state == FIGURE_ACTION_92_ENTERTAINER_GOING_TO_VENUE ||
-            f->action_state == FIGURE_ACTION_94_ENTERTAINER_ROAMING ||
-            f->action_state == FIGURE_ACTION_95_ENTERTAINER_RETURNING) {
-            f->type = FIGURE_ENEMY54_GLADIATOR;
+        if (f->action_state == FIGURE_ACTION_ENTERTAINER_GOING_TO_VENUE ||
+            f->action_state == FIGURE_ACTION_ENTERTAINER_ROAMING ||
+            f->action_state == FIGURE_ACTION_ENTERTAINER_RETURNING) {
+            f->type = FIGURE_ENEMY_GLADIATOR;
             figure_route_remove(f);
             f->roam_length = 0;
-            f->action_state = FIGURE_ACTION_158_NATIVE_CREATED;
+            f->action_state = FIGURE_ACTION_NATIVE_CREATED;
             return;
         }
     }
     int speed_factor = f->type == FIGURE_CHARIOTEER ? 2 : 1;
     switch (f->action_state) {
-        case FIGURE_ACTION_150_ATTACK:
+        case FIGURE_ACTION_ATTACK:
             figure_combat_handle_attack(f);
             figure_image_increase_offset(f, 32);
             break;
-        case FIGURE_ACTION_149_CORPSE:
+        case FIGURE_ACTION_CORPSE:
             figure_combat_handle_corpse(f);
             break;
-        case FIGURE_ACTION_90_ENTERTAINER_AT_SCHOOL_CREATED:
+        case FIGURE_ACTION_ENTERTAINER_AT_SCHOOL_CREATED:
             f->is_ghost = 1;
             f->image_offset = 0;
             f->wait_ticks_missile = 0;
@@ -179,7 +179,7 @@ void figure_entertainer_action(figure *f)
             if (f->wait_ticks <= 0) {
                 int x_road, y_road;
                 if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
-                    f->action_state = FIGURE_ACTION_91_ENTERTAINER_EXITING_SCHOOL;
+                    f->action_state = FIGURE_ACTION_ENTERTAINER_EXITING_SCHOOL;
                     figure_movement_set_cross_country_destination(f, x_road, y_road);
                     f->roam_length = 0;
                 } else {
@@ -187,7 +187,7 @@ void figure_entertainer_action(figure *f)
                 }
             }
             break;
-        case FIGURE_ACTION_91_ENTERTAINER_EXITING_SCHOOL:
+        case FIGURE_ACTION_ENTERTAINER_EXITING_SCHOOL:
             f->use_cross_country = 1;
             f->is_ghost = 1;
             if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
@@ -211,7 +211,7 @@ void figure_entertainer_action(figure *f)
                     int x_road, y_road;
                     if (map_closest_road_within_radius(b_dst->x, b_dst->y, b_dst->size, 2, &x_road, &y_road)) {
                         f->destination_building_id = dst_building_id;
-                        f->action_state = FIGURE_ACTION_92_ENTERTAINER_GOING_TO_VENUE;
+                        f->action_state = FIGURE_ACTION_ENTERTAINER_GOING_TO_VENUE;
                         f->destination_x = x_road;
                         f->destination_y = y_road;
                         f->roam_length = 0;
@@ -224,7 +224,7 @@ void figure_entertainer_action(figure *f)
             }
             f->is_ghost = 1;
             break;
-        case FIGURE_ACTION_92_ENTERTAINER_GOING_TO_VENUE:
+        case FIGURE_ACTION_ENTERTAINER_GOING_TO_VENUE:
             f->is_ghost = 0;
             f->roam_length++;
             if (f->roam_length >= 3200) {
@@ -240,13 +240,13 @@ void figure_entertainer_action(figure *f)
                 f->state = FIGURE_STATE_DEAD;
             }
             break;
-        case FIGURE_ACTION_94_ENTERTAINER_ROAMING:
+        case FIGURE_ACTION_ENTERTAINER_ROAMING:
             f->is_ghost = 0;
             f->roam_length++;
             if (f->roam_length >= f->max_roam_length) {
                 int x_road, y_road;
                 if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
-                    f->action_state = FIGURE_ACTION_95_ENTERTAINER_RETURNING;
+                    f->action_state = FIGURE_ACTION_ENTERTAINER_RETURNING;
                     f->destination_x = x_road;
                     f->destination_y = y_road;
                 } else {
@@ -255,7 +255,7 @@ void figure_entertainer_action(figure *f)
             }
             figure_movement_roam_ticks(f, speed_factor);
             break;
-        case FIGURE_ACTION_95_ENTERTAINER_RETURNING:
+        case FIGURE_ACTION_ENTERTAINER_RETURNING:
             figure_movement_move_ticks(f, speed_factor);
             if (f->direction == DIR_FIGURE_AT_DESTINATION ||
                 f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {

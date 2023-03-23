@@ -111,13 +111,13 @@ void figure_market_buyer_action(figure *f)
     }
     figure_image_increase_offset(f, 12);
     switch (f->action_state) {
-        case FIGURE_ACTION_150_ATTACK:
+        case FIGURE_ACTION_ATTACK:
             figure_combat_handle_attack(f);
             break;
-        case FIGURE_ACTION_149_CORPSE:
+        case FIGURE_ACTION_CORPSE:
             figure_combat_handle_corpse(f);
             break;
-        case FIGURE_ACTION_145_MARKET_BUYER_GOING_TO_STORAGE:
+        case FIGURE_ACTION_MARKET_BUYER_GOING_TO_STORAGE:
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                 if (f->collecting_item_id > 3) {
@@ -129,17 +129,17 @@ void figure_market_buyer_action(figure *f)
                         f->state = FIGURE_STATE_DEAD;
                     }
                 }
-                f->action_state = FIGURE_ACTION_146_MARKET_BUYER_RETURNING;
+                f->action_state = FIGURE_ACTION_MARKET_BUYER_RETURNING;
                 f->destination_x = f->source_x;
                 f->destination_y = f->source_y;
             } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
-                f->action_state = FIGURE_ACTION_146_MARKET_BUYER_RETURNING;
+                f->action_state = FIGURE_ACTION_MARKET_BUYER_RETURNING;
                 f->destination_x = f->source_x;
                 f->destination_y = f->source_y;
                 figure_route_remove(f);
             }
             break;
-        case FIGURE_ACTION_146_MARKET_BUYER_RETURNING:
+        case FIGURE_ACTION_MARKET_BUYER_RETURNING:
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
                 f->state = FIGURE_STATE_DEAD;
@@ -159,7 +159,7 @@ void figure_delivery_boy_action(figure *f)
     f->cart_image_id = 0;
 
     figure *leader = figure_get(f->leading_figure_id);
-    if (f->leading_figure_id <= 0 || leader->action_state == FIGURE_ACTION_149_CORPSE) {
+    if (f->leading_figure_id <= 0 || leader->action_state == FIGURE_ACTION_CORPSE) {
         f->state = FIGURE_STATE_DEAD;
     } else {
         if (leader->state == FIGURE_STATE_ALIVE) {
@@ -177,7 +177,7 @@ void figure_delivery_boy_action(figure *f)
         f->is_ghost = 1;
     }
     int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
-    if (f->action_state == FIGURE_ACTION_149_CORPSE) {
+    if (f->action_state == FIGURE_ACTION_CORPSE) {
         f->image_id = image_group(GROUP_FIGURE_DELIVERY_BOY) + 96 +
             figure_image_corpse_offset(f);
     } else {

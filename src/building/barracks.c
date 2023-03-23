@@ -7,7 +7,6 @@
 #include "city/military.h"
 #include "city/resource.h"
 #include "core/calc.h"
-#include "figure/action.h"
 #include "figure/figure.h"
 #include "figure/formation.h"
 #include "map/grid.h"
@@ -114,12 +113,12 @@ int building_barracks_create_soldier(building *barracks, int x, int y)
         map_point mil_acad_road = { 0 };
         set_closest_military_academy_road_tile(&mil_acad_road, formations[formation_id].building_id);
         if (mil_acad_road.x) {
-            f->action_state = FIGURE_ACTION_85_SOLDIER_GOING_TO_MILITARY_ACADEMY;
+            f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_MILITARY_ACADEMY;
             f->destination_x = mil_acad_road.x;
             f->destination_y = mil_acad_road.y;
             f->destination_grid_offset = map_grid_offset(f->destination_x, f->destination_y);
         } else {
-            f->action_state = FIGURE_ACTION_81_SOLDIER_GOING_TO_FORT;
+            f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_FORT;
         }
     }
     formation_calculate_figures();
@@ -153,12 +152,12 @@ int building_barracks_create_tower_sentry(building *barracks, int x, int y)
     map_point mil_acad_road = { 0 };
     set_closest_military_academy_road_tile(&mil_acad_road, tower->id);
     if (mil_acad_road.x) {
-        f->action_state = FIGURE_ACTION_85_SOLDIER_GOING_TO_MILITARY_ACADEMY;
+        f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_MILITARY_ACADEMY;
         f->destination_x = mil_acad_road.x;
         f->destination_y = mil_acad_road.y;
         f->destination_grid_offset = map_grid_offset(f->destination_x, f->destination_y);
     } else {
-        f->action_state = FIGURE_ACTION_174_TOWER_SENTRY_GOING_TO_TOWER;
+        f->action_state = FIGURE_ACTION_TOWER_SENTRY_GOING_TO_TOWER;
     }
     return 1;
 }

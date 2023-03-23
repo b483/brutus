@@ -79,7 +79,7 @@ static int generate_trader(struct empire_object_t *city)
         if (city_data.building.working_docks && scenario_map_has_river_entry() && !city_data.trade.sea_trade_problem_duration) {
             figure *ship = figure_create(FIGURE_TRADE_SHIP, scenario.river_entry_point.x, scenario.river_entry_point.y, DIR_0_TOP);
             ship->empire_city_id = city->id;
-            ship->action_state = FIGURE_ACTION_110_TRADE_SHIP_CREATED;
+            ship->action_state = FIGURE_ACTION_TRADE_SHIP_CREATED;
             ship->wait_ticks = 10;
             city->trader_figure_ids[index] = ship->id;
             return 1;
@@ -90,15 +90,15 @@ static int generate_trader(struct empire_object_t *city)
             // caravan head
             figure *caravan = figure_create(FIGURE_TRADE_CARAVAN, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
             caravan->empire_city_id = city->id;
-            caravan->action_state = FIGURE_ACTION_100_TRADE_CARAVAN_CREATED;
+            caravan->action_state = FIGURE_ACTION_TRADE_CARAVAN_CREATED;
             caravan->wait_ticks = 10;
             // donkey 1
             figure *donkey1 = figure_create(FIGURE_TRADE_CARAVAN_DONKEY, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
-            donkey1->action_state = FIGURE_ACTION_100_TRADE_CARAVAN_CREATED;
+            donkey1->action_state = FIGURE_ACTION_TRADE_CARAVAN_CREATED;
             donkey1->leading_figure_id = caravan->id;
             // donkey 2
             figure *donkey2 = figure_create(FIGURE_TRADE_CARAVAN_DONKEY, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
-            donkey2->action_state = FIGURE_ACTION_100_TRADE_CARAVAN_CREATED;
+            donkey2->action_state = FIGURE_ACTION_TRADE_CARAVAN_CREATED;
             donkey2->leading_figure_id = donkey1->id;
             city->trader_figure_ids[index] = caravan->id;
 

@@ -33,7 +33,7 @@ void formation_clear(int formation_id)
     formations[formation_id].id = formation_id;
 }
 
-struct formation_t *create_formation_type(figure_type type)
+struct formation_t *create_formation_type(int type)
 {
     for (int i = 1; i < MAX_FORMATIONS; i++) {
         if (!formations[i].in_use) {

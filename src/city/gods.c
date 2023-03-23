@@ -124,7 +124,7 @@ static int perform_large_curse(god_type god)
             if (best_legion) {
                 for (int i = 0; i < best_legion->max_figures; i++) {
                     if (best_legion->figures[i]) {
-                        figure_get(best_legion->figures[i])->action_state = FIGURE_ACTION_82_SOLDIER_RETURNING_TO_BARRACKS;
+                        figure_get(best_legion->figures[i])->action_state = FIGURE_ACTION_SOLDIER_RETURNING_TO_BARRACKS;
                     }
                 }
                 best_legion->cursed_by_mars = 96;

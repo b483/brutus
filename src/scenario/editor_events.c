@@ -80,17 +80,17 @@ static const struct {
     int figure_types[MAX_ENEMY_TYPES_PER_ARMY];
     int formation_layout;
 } ENEMY_PROPERTIES[12] = {
-    {{100, 0, 0}, {FIGURE_ENEMY49_FAST_SWORD, 0, 0}, FORMATION_ENEMY_MOB}, // barbarian
-    {{90, 10, 0}, {FIGURE_ENEMY45_SWORD, FIGURE_ENEMY47_ELEPHANT, 0}, FORMATION_ENEMY_WIDE_COLUMN}, // carthaginian
-    {{80, 20, 0}, {FIGURE_ENEMY50_SWORD, FIGURE_ENEMY48_CHARIOT, 0}, FORMATION_ENEMY_MOB}, // celt
-    {{80, 20, 0}, {FIGURE_ENEMY44_SWORD, FIGURE_ENEMY46_CAMEL, 0}, FORMATION_ENEMY_WIDE_COLUMN}, // egyptian
-    {{50, 50, 0}, {FIGURE_ENEMY45_SWORD, FIGURE_ENEMY43_SPEAR, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // etruscan
-    {{50, 50, 0}, {FIGURE_ENEMY50_SWORD, FIGURE_ENEMY53_AXE, 0}, FORMATION_ENEMY_MOB}, // gaul
-    {{50, 50, 0}, {FIGURE_ENEMY49_FAST_SWORD, FIGURE_ENEMY52_MOUNTED_ARCHER, 0}, FORMATION_ENEMY_MOB}, // goth
-    {{80, 20, 0}, {FIGURE_ENEMY45_SWORD, FIGURE_ENEMY43_SPEAR, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // greek
-    {{40, 60, 0}, {FIGURE_ENEMY49_FAST_SWORD, FIGURE_ENEMY51_SPEAR, 0}, FORMATION_ENEMY_MOB}, // numidian
-    {{30, 70, 0}, {FIGURE_ENEMY44_SWORD, FIGURE_ENEMY43_SPEAR, 0}, FORMATION_TORTOISE}, // pergamum
-    {{50, 50, 0}, {FIGURE_ENEMY44_SWORD, FIGURE_ENEMY43_SPEAR, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // phoenician
+    {{100, 0, 0}, {FIGURE_ENEMY_FAST_SWORD, 0, 0}, FORMATION_ENEMY_MOB}, // barbarian
+    {{90, 10, 0}, {FIGURE_ENEMY_SWORD_2, FIGURE_ENEMY_ELEPHANT, 0}, FORMATION_ENEMY_WIDE_COLUMN}, // carthaginian
+    {{80, 20, 0}, {FIGURE_ENEMY_SWORD_3, FIGURE_ENEMY_CHARIOT, 0}, FORMATION_ENEMY_MOB}, // celt
+    {{80, 20, 0}, {FIGURE_ENEMY_SWORD_1, FIGURE_ENEMY_CAMEL, 0}, FORMATION_ENEMY_WIDE_COLUMN}, // egyptian
+    {{50, 50, 0}, {FIGURE_ENEMY_SWORD_2, FIGURE_ENEMY_RANGED_SPEAR_1, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // etruscan
+    {{50, 50, 0}, {FIGURE_ENEMY_SWORD_3, FIGURE_ENEMY_AXE, 0}, FORMATION_ENEMY_MOB}, // gaul
+    {{50, 50, 0}, {FIGURE_ENEMY_FAST_SWORD, FIGURE_ENEMY_MOUNTED_ARCHER, 0}, FORMATION_ENEMY_MOB}, // goth
+    {{80, 20, 0}, {FIGURE_ENEMY_SWORD_2, FIGURE_ENEMY_RANGED_SPEAR_1, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // greek
+    {{40, 60, 0}, {FIGURE_ENEMY_FAST_SWORD, FIGURE_ENEMY_RANGED_SPEAR_2, 0}, FORMATION_ENEMY_MOB}, // numidian
+    {{30, 70, 0}, {FIGURE_ENEMY_SWORD_1, FIGURE_ENEMY_RANGED_SPEAR_1, 0}, FORMATION_TORTOISE}, // pergamum
+    {{50, 50, 0}, {FIGURE_ENEMY_SWORD_1, FIGURE_ENEMY_RANGED_SPEAR_1, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // phoenician
     {{100, 0, 0}, {FIGURE_ENEMY_CAESAR_LEGIONARY, 0, 0}, FORMATION_TORTOISE} // caesar
 };
 
@@ -549,19 +549,21 @@ void scenario_custom_messages_process(void)
 static void create_enemy_squad(int figure_type, int enemy_type, int enemy_type_detailed, int x, int y, int figures_amount, int orientation, int spawn_delay_offset, int enemy_attack_priority, int invasion_id)
 {
     struct formation_t *m = formation_create_enemy(figure_type, figures_amount, x, y, ENEMY_PROPERTIES[enemy_type].formation_layout, orientation, enemy_type, enemy_attack_priority, invasion_id);
-    for (int fig = 0; fig < figures_amount; fig++) {
-        figure *f = figure_create(figure_type, x, y, orientation);
-        f->action_state = FIGURE_ACTION_151_ENEMY_INITIAL;
-        f->wait_ticks = 40 * spawn_delay_offset + 10 * fig + 10;
-        f->formation_id = m->id;
-        f->name = figure_name_get(figure_type, enemy_type);
-        f->enemy_image_type = enemy_type;
-        if (f->type == FIGURE_ENEMY43_SPEAR && f->enemy_image_type == ENEMY_TYPE_PERGAMUM) {
-            f->missile_type = FIGURE_ARROW;
-            f->max_range = 15;
+    if (m) {
+        for (int fig = 0; fig < figures_amount; fig++) {
+            figure *f = figure_create(figure_type, x, y, orientation);
+            f->action_state = FIGURE_ACTION_ENEMY_INITIAL;
+            f->wait_ticks = 40 * spawn_delay_offset + 10 * fig + 10;
+            f->formation_id = m->id;
+            f->name = figure_name_get(figure_type, enemy_type);
+            f->enemy_image_type = enemy_type;
+            if (f->type == FIGURE_ENEMY_RANGED_SPEAR_1 && f->enemy_image_type == ENEMY_TYPE_PERGAMUM) {
+                f->missile_type = FIGURE_ARROW;
+                f->max_range = 15;
+            }
+            f->enemy_image_type_detailed = enemy_type_detailed;
+            f->is_ghost = 1;
         }
-        f->enemy_image_type_detailed = enemy_type_detailed;
-        f->is_ghost = 1;
     }
 }
 

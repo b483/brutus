@@ -298,8 +298,8 @@ static int provide_market_goods(int market_building_id, int x, int y)
 
 static building *get_entertainment_building(const figure *f)
 {
-    if (f->action_state == FIGURE_ACTION_94_ENTERTAINER_ROAMING ||
-        f->action_state == FIGURE_ACTION_95_ENTERTAINER_RETURNING) {
+    if (f->action_state == FIGURE_ACTION_ENTERTAINER_ROAMING ||
+        f->action_state == FIGURE_ACTION_ENTERTAINER_RETURNING) {
         return building_get(f->building_id);
     } else { // going to venue
         return building_get(f->destination_building_id);

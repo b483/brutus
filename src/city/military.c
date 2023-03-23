@@ -219,7 +219,7 @@ static void update_aftermath(void)
                         if (formations[i].figures[fig] > 0) {
                             figure *f = figure_get(formations[i].figures[fig]);
                             if (!figure_is_dead(f)) {
-                                f->action_state = FIGURE_ACTION_88_SOLDIER_RETURNING_FROM_DISTANT_BATTLE;
+                                f->action_state = FIGURE_ACTION_SOLDIER_RETURNING_FROM_DISTANT_BATTLE;
                                 f->formation_at_rest = 1;
                             }
                         }

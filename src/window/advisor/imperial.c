@@ -300,7 +300,7 @@ static void confirm_send_troops(void)
                 if (formations[i].figures[fig] > 0) {
                     figure *f = figure_get(formations[i].figures[fig]);
                     if (!figure_is_dead(f)) {
-                        f->action_state = FIGURE_ACTION_87_SOLDIER_GOING_TO_DISTANT_BATTLE;
+                        f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_DISTANT_BATTLE;
                     }
                 }
             }

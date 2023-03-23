@@ -133,7 +133,7 @@ void formations_clear(void);
 
 void formation_clear(int formation_id);
 
-struct formation_t *create_formation_type(figure_type type);
+struct formation_t *create_formation_type(int type);
 
 int formation_get_selected(void);
 void formation_set_selected(int formation_id);

@@ -170,7 +170,6 @@ set(EMPIRE_FILES
     ${PROJECT_SOURCE_DIR}/src/empire/trade_prices.c
 )
 set(FIGURE_FILES
-    ${PROJECT_SOURCE_DIR}/src/figure/action.c
     ${PROJECT_SOURCE_DIR}/src/figure/combat.c
     ${PROJECT_SOURCE_DIR}/src/figure/enemy_army.c
     ${PROJECT_SOURCE_DIR}/src/figure/figure.c
