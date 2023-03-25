@@ -12,15 +12,16 @@
 
 typedef struct {
     int id;
-    uint8_t is_unarmed_civilian_unit;
-    uint8_t is_player_legion_unit;
-    uint8_t is_enemy_unit;
-    uint8_t is_caesar_legion_unit;
-    uint8_t is_native_unit;
-    uint8_t is_friendly_armed_unit;
-    uint8_t is_criminal_unit;
-    uint8_t is_herd_animal;
     uint8_t is_targetable;
+    uint8_t is_unarmed_civilian_unit;
+    uint8_t is_friendly_armed_unit; // excl. player legions
+    uint8_t is_player_legion_unit;
+    uint8_t is_criminal_unit;
+    uint8_t is_empire_trader;
+    uint8_t is_native_unit;
+    uint8_t is_herd_animal;
+    uint8_t is_enemy_unit; // excl. Caesar legions
+    uint8_t is_caesar_legion_unit;
     short image_id;
     short cart_image_id;
     unsigned char image_offset;
@@ -88,7 +89,7 @@ typedef struct {
     short cc_delta_xy;
     unsigned char cc_direction; // 1 = x, 2 = y
     unsigned char speed_multiplier;
-    short building_id;
+    short building_id; // for missiles: building_id contains the figure that shot it
     short immigrant_building_id;
     short destination_building_id;
     short formation_id;
@@ -145,6 +146,8 @@ figure *figure_create(int type, int x, int y, direction_type dir);
 void figure_delete(figure *f);
 
 int figure_is_dead(const figure *f);
+
+void figure_handle_corpse(figure *f);
 
 int city_figures_total_invading_enemies(void);
 

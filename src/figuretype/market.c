@@ -115,7 +115,7 @@ void figure_market_buyer_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_MARKET_BUYER_GOING_TO_STORAGE:
             figure_movement_move_ticks(f, 1);

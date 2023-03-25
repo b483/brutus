@@ -199,8 +199,8 @@ void game_tick_run(void)
             } else if (f->state == FIGURE_STATE_DEAD) {
                 figure_delete(f);
             }
-            return;
         }
+        return;
     }
     random_generate_next();
     game_undo_reduce_time_available();

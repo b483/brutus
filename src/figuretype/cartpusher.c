@@ -161,7 +161,7 @@ void figure_cartpusher_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_CARTPUSHER_INITIAL:
             set_cart_graphic(f);
@@ -418,7 +418,7 @@ void figure_warehouseman_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_WAREHOUSEMAN_CREATED: {
             building *b = building_get(f->building_id);

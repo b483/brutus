@@ -114,7 +114,7 @@ static int draw_figure(int x_view, int y_view, int grid_offset)
             if (f->is_player_legion_unit) {
                 color_type = formation_get_selected() == f->formation_id ? FIGURE_COLOR_SELECTED_SOLDIER : FIGURE_COLOR_SOLDIER;
                 break;
-            } else if (f->is_enemy_unit || (f->type == FIGURE_INDIGENOUS_NATIVE && f->action_state == FIGURE_ACTION_NATIVE_ATTACKING)) {
+            } else if (f->is_enemy_unit || f->is_caesar_legion_unit || (f->is_native_unit && f->action_state == FIGURE_ACTION_NATIVE_ATTACKING)) {
                 color_type = FIGURE_COLOR_ENEMY;
                 break;
             } else if (f->type == FIGURE_WOLF) {

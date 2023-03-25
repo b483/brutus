@@ -169,7 +169,7 @@ void figure_entertainer_action(figure *f)
             figure_image_increase_offset(f, 32);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_ENTERTAINER_AT_SCHOOL_CREATED:
             f->is_ghost = 1;

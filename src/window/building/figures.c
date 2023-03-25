@@ -41,26 +41,38 @@ static const int FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[] = {
 33, // FIGURE_GLADIATOR
 10, // FIGURE_LION_TAMER
 11, // FIGURE_CHARIOTEER
+8, // FIGURE_HIPPODROME_HORSES
 16, // FIGURE_TAX_COLLECTOR
 7, // FIGURE_ENGINEER
+60, // FIGURE_FISHING_BOAT
+8, // FIGURE_FISH_GULLS
+62, // FIGURE_SHIPWRECK
 17, // FIGURE_DOCKER
+8, // FIGURE_FLOTSAM
+8, // FIGURE_BALLISTA
+8, // FIGURE_BOLT
+50, // FIGURE_TOWER_SENTRY
+8, // FIGURE_JAVELIN
 18, // FIGURE_PREFECT
+8, // FIGURE_FORT_STANDARD
 42, // FIGURE_FORT_JAVELIN
 26, // FIGURE_FORT_MOUNTED
 41, // FIGURE_FORT_LEGIONARY
-50, // FIGURE_TOWER_SENTRY
 12, // FIGURE_MARKET_BUYER
 12, // FIGURE_MARKET_TRADER
 38, // FIGURE_DELIVERY_BOY
 4, // FIGURE_WAREHOUSEMAN
-25, // FIGURE_TRADE_CARAVAN
-25, // FIGURE_TRADE_CARAVAN_DONKEY
-8, // FIGURE_TRADE_SHIP
 15, // FIGURE_PROTESTER
 15, // FIGURE_CRIMINAL
 15, // FIGURE_RIOTER
+25, // FIGURE_TRADE_CARAVAN
+25, // FIGURE_TRADE_CARAVAN_DONKEY
+8, // FIGURE_TRADE_SHIP
 21, // FIGURE_INDIGENOUS_NATIVE
 63, // FIGURE_NATIVE_TRADER
+55, // FIGURE_WOLF
+54, // FIGURE_SHEEP
+56, // FIGURE_ZEBRA
 8, // FIGURE_ENEMY_RANGED_SPEAR_1
 8, // FIGURE_ENEMY_SWORD_1
 8, // FIGURE_ENEMY_SWORD_2
@@ -76,20 +88,8 @@ static const int FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[] = {
 43, // FIGURE_ENEMY_CAESAR_JAVELIN
 27, // FIGURE_ENEMY_CAESAR_MOUNTED
 48, // FIGURE_ENEMY_CAESAR_LEGIONARY
-54, // FIGURE_SHEEP
-55, // FIGURE_WOLF
-56, // FIGURE_ZEBRA
-8, // FIGURE_HIPPODROME_HORSES
-60, // FIGURE_FISHING_BOAT
-62, // FIGURE_SHIPWRECK
-8, // FIGURE_FISH_GULLS
 8, // FIGURE_ARROW
-8, // FIGURE_JAVELIN
-8, // FIGURE_BOLT
-8, // FIGURE_BALLISTA
-8, // FIGURE_FORT_STANDARD
 8, // FIGURE_MAP_FLAG
-8, // FIGURE_FLOTSAM
 8, // FIGURE_EXPLOSION
 };
 
@@ -283,7 +283,7 @@ static void draw_enemy(building_info_context *c, figure *f)
 static void draw_animal(building_info_context *c, figure *f)
 {
     image_draw(big_people_image(f->type), c->x_offset + 28, c->y_offset + 112);
-    text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type - 14), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
+    text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
 }
 
 static void draw_cartpusher(building_info_context *c, figure *f)
@@ -374,8 +374,11 @@ static void draw_normal_figure(building_info_context *c, figure *f)
     image_draw(image_id, c->x_offset + 28, c->y_offset + 112);
 
     lang_text_draw(65, f->name, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
-    text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
-
+    if (f->is_caesar_legion_unit) {
+        text_draw(get_custom_string(TR_ENEMY_TYPE_LEGION), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
+    } else {
+        text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
+    }
     if (c->figure.phrase_id >= 0) {
         lang_text_draw_multiline(130, 21 * c->figure.sound_id + c->figure.phrase_id + 1,
             c->x_offset + 90, c->y_offset + 160, BLOCK_SIZE * (c->width_blocks - 8), FONT_NORMAL_BROWN);
@@ -387,16 +390,15 @@ static void draw_figure_info(building_info_context *c, int figure_id)
     button_border_draw(c->x_offset + 24, c->y_offset + 102, BLOCK_SIZE * (c->width_blocks - 3), 138, 0);
 
     figure *f = figure_get(figure_id);
-    int type = f->type;
-    if (type == FIGURE_TRADE_CARAVAN || type == FIGURE_TRADE_CARAVAN_DONKEY || type == FIGURE_TRADE_SHIP) {
+    if (f->is_empire_trader) {
         draw_trader(c, f);
-    } else if (type >= FIGURE_ENEMY_RANGED_SPEAR_1 && type <= FIGURE_ENEMY_AXE) {
+    } else if (f->is_enemy_unit) {
         draw_enemy(c, f);
-    } else if (type == FIGURE_FISHING_BOAT || type == FIGURE_SHIPWRECK || f->is_herd_animal) {
+    } else if (f->type == FIGURE_FISHING_BOAT || f->type == FIGURE_SHIPWRECK || f->is_herd_animal) {
         draw_animal(c, f);
-    } else if (type == FIGURE_CART_PUSHER || type == FIGURE_WAREHOUSEMAN || type == FIGURE_DOCKER) {
+    } else if (f->type == FIGURE_CART_PUSHER || f->type == FIGURE_WAREHOUSEMAN || f->type == FIGURE_DOCKER) {
         draw_cartpusher(c, f);
-    } else if (type == FIGURE_MARKET_BUYER) {
+    } else if (f->type == FIGURE_MARKET_BUYER) {
         draw_market_buyer(c, f);
     } else {
         draw_normal_figure(c, f);

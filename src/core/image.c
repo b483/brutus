@@ -33,23 +33,23 @@ enum {
 };
 
 static const char MAIN_GRAPHICS_SG2[][NAME_SIZE] = {
-    "c3.sg2",
     "c3_north.sg2",
+    "c3.sg2",
     "c3_south.sg2"
 };
 static const char MAIN_GRAPHICS_555[][NAME_SIZE] = {
-    "c3.555",
     "c3_north.555",
+    "c3.555",
     "c3_south.555"
 };
 static const char EDITOR_GRAPHICS_SG2[][NAME_SIZE] = {
-    "c3map.sg2",
     "c3map_north.sg2",
+    "c3map.sg2",
     "c3map_south.sg2"
 };
 static const char EDITOR_GRAPHICS_555[][NAME_SIZE] = {
-    "c3map.555",
     "c3map_north.555",
+    "c3map.555",
     "c3map_south.555"
 };
 static const char EMPIRE_555[NAME_SIZE] = "The_empire.555";

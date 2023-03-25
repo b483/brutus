@@ -138,7 +138,7 @@ void figure_wolf_action(figure *f)
 
     switch (f->action_state) {
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_ATTACK:
             figure_combat_handle_attack(f);
@@ -231,7 +231,7 @@ void figure_sheep_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_HERD_ANIMAL_AT_REST:
             f->wait_ticks++;
@@ -286,7 +286,7 @@ void figure_zebra_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_HERD_ANIMAL_AT_REST:
             if (formations[f->formation_id].wait_ticks == 0) {

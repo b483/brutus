@@ -395,7 +395,7 @@ static void mars_kill_enemies(void)
         if (f->state != FIGURE_STATE_ALIVE) {
             continue;
         }
-        if (f->is_enemy_unit && f->type != FIGURE_ENEMY_GLADIATOR) {
+        if ((f->is_enemy_unit && f->type != FIGURE_ENEMY_GLADIATOR) || f->is_caesar_legion_unit) {
             f->action_state = FIGURE_ACTION_CORPSE;
             city_data.religion.mars_spirit_power--;
             if (!grid_offset) {

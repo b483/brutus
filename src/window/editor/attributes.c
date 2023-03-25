@@ -104,7 +104,7 @@ static void draw_foreground(void)
 
     // Terrain set
     button_border_draw(213, 100, 195, 30, data.focus_button_id == 2);
-    lang_text_draw_centered(44, 77 + scenario.climate, 213, 109, 195, FONT_NORMAL_BLACK);
+    text_draw_centered(get_custom_string(TR_CLIMATE_NORTHERN + scenario.climate), 213, 109, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
 
     // Starting conditions
     button_border_draw(213, 140, 195, 30, data.focus_button_id == 3);
@@ -241,17 +241,9 @@ static void button_demand_changes(__attribute__((unused)) int param1, __attribut
 
 static void change_climate(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    switch (scenario.climate) {
-        case CLIMATE_CENTRAL:
-            scenario.climate = CLIMATE_NORTHERN;
-            break;
-        case CLIMATE_NORTHERN:
-            scenario.climate = CLIMATE_DESERT;
-            break;
-        case CLIMATE_DESERT:
-        default:
-            scenario.climate = CLIMATE_CENTRAL;
-            break;
+    scenario.climate++;
+    if (scenario.climate > 2) {
+        scenario.climate = 0;
     }
     scenario.is_saved = 0;
     image_load_climate(scenario.climate, 1, 0);

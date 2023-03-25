@@ -302,7 +302,7 @@ void figure_docker_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_DOCKER_IDLING:
             f->resource_id = 0;

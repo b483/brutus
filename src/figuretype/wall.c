@@ -179,7 +179,7 @@ void figure_tower_sentry_action(figure *f)
     switch (f->action_state) {
         case FIGURE_ACTION_CORPSE:
             f->image_id = image_group(GROUP_FIGURE_TOWER_SENTRY) + 136 + figure_image_corpse_offset(f);
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             return;
         case FIGURE_ACTION_ATTACK:
             int image_id = image_group(GROUP_FIGURE_TOWER_SENTRY);

@@ -25,7 +25,7 @@ void figure_indigenous_native_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_NATIVE_GOING_TO_MEETING_CENTER:
             figure_movement_move_ticks(f, 1);

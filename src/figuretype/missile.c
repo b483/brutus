@@ -67,21 +67,19 @@ static int get_target_on_tile(figure *projectile)
     if (map_figures.items[projectile->grid_offset] > 0) {
         int figure_id = map_figures.items[projectile->grid_offset];
         while (figure_id) {
-            figure *f = figure_get(figure_id);
-            if (f->action_state != FIGURE_ACTION_CORPSE && f->is_targetable) {
-                if (shooter->is_friendly_armed_unit) {
-                    if (f->is_enemy_unit
-                    || (f->type == FIGURE_INDIGENOUS_NATIVE && f->action_state == FIGURE_ACTION_NATIVE_ATTACKING)
-                    || f->is_herd_animal) {
-                        return f->id;
+            figure *target = figure_get(figure_id);
+            if (target->action_state != FIGURE_ACTION_CORPSE && target->is_targetable) {
+                if (shooter->is_friendly_armed_unit || shooter->is_player_legion_unit) {
+                    if (is_valid_target_for_player_unit(target)) {
+                        return target->id;
                     }
-                } else {
-                    if (f->is_unarmed_civilian_unit || f->is_friendly_armed_unit || f->is_caesar_legion_unit || (f->is_native_unit && f->action_state != FIGURE_ACTION_NATIVE_ATTACKING) || f->type == FIGURE_WOLF) {
-                        return f->id;
+                } else if (shooter->is_enemy_unit) {
+                    if (is_valid_target_for_enemy_unit(target)) {
+                        return target->id;
                     }
                 }
             }
-            figure_id = f->next_figure_id_on_same_tile;
+            figure_id = target->next_figure_id_on_same_tile;
         }
     }
     return 0;
@@ -105,7 +103,8 @@ void figure_explosion_cloud_action(figure *f)
 
 static void missile_hit_target(figure *projectile, figure *target)
 {
-    int damage_inflicted = projectile->missile_attack_value - target->missile_defense_value;
+    figure *shooter = figure_get(projectile->building_id);
+    int damage_inflicted = (shooter->missile_attack_value + projectile->missile_attack_value) - target->missile_defense_value;
     if (damage_inflicted < 0) {
         damage_inflicted = 0;
     }
@@ -125,11 +124,8 @@ static void missile_hit_target(figure *projectile, figure *target)
         formation_update_morale_after_death(&formations[target->formation_id]);
     }
     projectile->state = FIGURE_STATE_DEAD;
-    // for missiles: building_id contains the figure who shot it
-    figure *shooter = figure_get(projectile->building_id);
-    int missile_formation = shooter->formation_id;
     formations[target->formation_id].missile_attack_timeout = 6;
-    formations[target->formation_id].missile_attack_formation_id = missile_formation;
+    formations[target->formation_id].missile_attack_formation_id = shooter->formation_id;
     // clear targeting
     shooter->target_figure_id = 0;
     figure__remove_ranged_targeter_from_list(target, shooter);

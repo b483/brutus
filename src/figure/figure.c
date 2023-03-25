@@ -56,138 +56,92 @@ figure *figure_create(int type, int x, int y, direction_type dir)
         case FIGURE_IMMIGRANT:
         case FIGURE_EMIGRANT:
         case FIGURE_HOMELESS:
+            f->is_targetable = 1;
+            f->is_unarmed_civilian_unit = 1;
+            f->max_damage = 20;
+            break;
+        case FIGURE_PATRICIAN:
+            f->is_targetable = 1;
+            f->is_unarmed_civilian_unit = 1;
+            f->max_damage = 10;
+            break;
         case FIGURE_CART_PUSHER:
         case FIGURE_LABOR_SEEKER:
-            f->is_unarmed_civilian_unit = 1;
+        case FIGURE_BARBER:
+        case FIGURE_BATHHOUSE_WORKER:
+        case FIGURE_DOCTOR:
+        case FIGURE_SURGEON:
+        case FIGURE_PRIEST:
             f->is_targetable = 1;
+            f->is_unarmed_civilian_unit = 1;
             f->max_damage = 20;
             break;
-        case FIGURE_EXPLOSION:
-            break;
-        case FIGURE_TAX_COLLECTOR:
-        case FIGURE_ENGINEER:
-        case FIGURE_WAREHOUSEMAN:
-            f->is_unarmed_civilian_unit = 1;
+        case FIGURE_SCHOOL_CHILD:
             f->is_targetable = 1;
+            f->is_unarmed_civilian_unit = 1;
+            f->max_damage = 10;
+            break;
+        case FIGURE_TEACHER:
+        case FIGURE_LIBRARIAN:
+            f->is_targetable = 1;
+            f->is_unarmed_civilian_unit = 1;
             f->max_damage = 20;
             break;
-        case FIGURE_PREFECT:
-            f->is_friendly_armed_unit = 1;
+        case FIGURE_MISSIONARY:
             f->is_targetable = 1;
-            f->max_damage = 50;
-            f->melee_attack_value = 5;
-            break;
-        case FIGURE_FORT_JAVELIN:
-            f->is_player_legion_unit = 1;
-            f->is_friendly_armed_unit = 1;
-            f->is_targetable = 1;
-            f->max_damage = 70;
-            f->melee_attack_value = 4;
-            f->missile_attack_value = 4;
-            f->missile_delay = 100;
-            f->missile_type = FIGURE_JAVELIN;
-            f->speed_multiplier = 2;
-            f->max_range = 10;
-            break;
-        case FIGURE_FORT_MOUNTED:
-            f->is_player_legion_unit = 1;
-            f->is_friendly_armed_unit = 1;
-            f->is_targetable = 1;
-            f->max_damage = 110;
-            f->melee_attack_value = 6;
-            f->speed_multiplier = 3;
-            break;
-        case FIGURE_FORT_LEGIONARY:
-            f->is_player_legion_unit = 1;
-            f->is_friendly_armed_unit = 1;
-            f->is_targetable = 1;
-            f->max_damage = 150;
-            f->melee_attack_value = 10;
-            break;
-        case FIGURE_FORT_STANDARD:
+            f->is_unarmed_civilian_unit = 1;
+            f->max_damage = 100;
             break;
         case FIGURE_ACTOR:
-            f->is_unarmed_civilian_unit = 1;
             f->is_targetable = 1;
+            f->is_unarmed_civilian_unit = 1;
             f->max_damage = 20;
             break;
         case FIGURE_GLADIATOR:
-            f->is_friendly_armed_unit = 1;
             f->is_targetable = 1;
+            f->is_friendly_armed_unit = 1;
             f->max_damage = 100;
             f->melee_attack_value = 9;
             f->melee_defense_value = 2;
             break;
         case FIGURE_LION_TAMER:
-            f->is_friendly_armed_unit = 1;
             f->is_targetable = 1;
+            f->is_friendly_armed_unit = 1;
             f->max_damage = 100;
             f->melee_attack_value = 15;
             break;
         case FIGURE_CHARIOTEER:
-            f->is_unarmed_civilian_unit = 1;
             f->is_targetable = 1;
+            f->is_unarmed_civilian_unit = 1;
             f->max_damage = 20;
             break;
-        case FIGURE_TRADE_CARAVAN:
-            f->is_targetable = 1;
-            f->max_damage = 10;
+        case FIGURE_HIPPODROME_HORSES:
             break;
-        case FIGURE_TRADE_SHIP:
-            break;
-        case FIGURE_TRADE_CARAVAN_DONKEY:
+        case FIGURE_TAX_COLLECTOR:
+        case FIGURE_ENGINEER:
             f->is_targetable = 1;
-            f->max_damage = 10;
-            break;
-        case FIGURE_PROTESTER:
-        case FIGURE_CRIMINAL:
-        case FIGURE_RIOTER:
-            f->is_criminal_unit = 1;
-            f->is_targetable = 1;
-            f->max_damage = 12;
+            f->is_unarmed_civilian_unit = 1;
+            f->max_damage = 20;
             break;
         case FIGURE_FISHING_BOAT:
-            break;
-        case FIGURE_MARKET_TRADER:
-        case FIGURE_PRIEST:
-            f->is_unarmed_civilian_unit = 1;
-            f->is_targetable = 1;
-            f->max_damage = 20;
-            break;
-        case FIGURE_SCHOOL_CHILD:
-            f->is_unarmed_civilian_unit = 1;
-            f->is_targetable = 1;
-            f->max_damage = 10;
-            break;
-        case FIGURE_TEACHER:
-        case FIGURE_LIBRARIAN:
-        case FIGURE_BARBER:
-        case FIGURE_BATHHOUSE_WORKER:
-        case FIGURE_DOCTOR:
-        case FIGURE_SURGEON:
-            f->is_unarmed_civilian_unit = 1;
-            f->is_targetable = 1;
-            f->max_damage = 20;
-            break;
-        case FIGURE_MAP_FLAG:
-        case FIGURE_FLOTSAM:
+        case FIGURE_FISH_GULLS:
+        case FIGURE_SHIPWRECK:
             break;
         case FIGURE_DOCKER:
-        case FIGURE_MARKET_BUYER:
-            f->is_unarmed_civilian_unit = 1;
             f->is_targetable = 1;
+            f->is_unarmed_civilian_unit = 1;
             f->max_damage = 20;
             break;
-        case FIGURE_PATRICIAN:
-            f->is_unarmed_civilian_unit = 1;
-            f->is_targetable = 1;
-            f->max_damage = 10;
+        case FIGURE_FLOTSAM:
             break;
-        case FIGURE_INDIGENOUS_NATIVE:
-            f->is_native_unit = 1;
-            f->is_targetable = 1;
-            f->max_damage = 40;
-            f->melee_attack_value = 6;
+        case FIGURE_BALLISTA:
+            f->is_friendly_armed_unit = 1;
+            f->missile_delay = 200;
+            f->missile_type = FIGURE_BOLT;
+            f->max_range = 15;
+            break;
+        case FIGURE_BOLT:
+            f->missile_attack_value = 200;
             break;
         case FIGURE_TOWER_SENTRY:
             f->is_friendly_armed_unit = 1;
@@ -198,9 +152,95 @@ figure *figure_create(int type, int x, int y, direction_type dir)
             f->missile_type = FIGURE_JAVELIN;
             f->max_range = 12;
             break;
-        case FIGURE_ENEMY_RANGED_SPEAR_1:
-            f->is_enemy_unit = 1;
+        case FIGURE_JAVELIN:
+            f->missile_attack_value = 15;
+            break;
+        case FIGURE_PREFECT:
             f->is_targetable = 1;
+            f->is_friendly_armed_unit = 1;
+            f->max_damage = 50;
+            f->melee_attack_value = 5;
+            break;
+        case FIGURE_FORT_STANDARD:
+            break;
+        case FIGURE_FORT_JAVELIN:
+            f->is_targetable = 1;
+            f->is_player_legion_unit = 1;
+            f->max_damage = 70;
+            f->melee_attack_value = 4;
+            f->missile_attack_value = 4;
+            f->missile_delay = 100;
+            f->missile_type = FIGURE_JAVELIN;
+            f->speed_multiplier = 2;
+            f->max_range = 10;
+            break;
+        case FIGURE_FORT_MOUNTED:
+            f->is_targetable = 1;
+            f->is_player_legion_unit = 1;
+            f->max_damage = 110;
+            f->melee_attack_value = 6;
+            f->speed_multiplier = 3;
+            break;
+        case FIGURE_FORT_LEGIONARY:
+            f->is_targetable = 1;
+            f->is_player_legion_unit = 1;
+            f->max_damage = 150;
+            f->melee_attack_value = 10;
+            break;
+        case FIGURE_MARKET_BUYER:
+        case FIGURE_MARKET_TRADER:
+        case FIGURE_DELIVERY_BOY:
+        case FIGURE_WAREHOUSEMAN:
+            f->is_targetable = 1;
+            f->is_unarmed_civilian_unit = 1;
+            f->max_damage = 20;
+            break;
+        case FIGURE_PROTESTER:
+        case FIGURE_CRIMINAL:
+        case FIGURE_RIOTER:
+            f->is_targetable = 1;
+            f->is_criminal_unit = 1;
+            f->max_damage = 30;
+            break;
+        case FIGURE_TRADE_CARAVAN:
+        case FIGURE_TRADE_CARAVAN_DONKEY:
+            f->is_targetable = 1;
+            f->is_empire_trader = 1;
+            f->max_damage = 10;
+            break;
+        case FIGURE_TRADE_SHIP:
+            f->is_empire_trader = 1;
+            break;
+        case FIGURE_INDIGENOUS_NATIVE:
+            f->is_targetable = 1;
+            f->is_native_unit = 1;
+            f->max_damage = 40;
+            f->melee_attack_value = 6;
+            break;
+        case FIGURE_NATIVE_TRADER:
+            f->is_targetable = 1;
+            f->is_native_unit = 1;
+            f->max_damage = 40;
+            break;
+        case FIGURE_WOLF:
+            f->is_targetable = 1;
+            f->is_herd_animal = 1;
+            f->max_damage = 80;
+            f->melee_attack_value = 8;
+            break;
+        case FIGURE_SHEEP:
+            f->is_targetable = 1;
+            f->is_herd_animal = 1;
+            f->max_damage = 10;
+            break;
+        case FIGURE_ZEBRA:
+            f->is_targetable = 1;
+            f->is_herd_animal = 1;
+            f->max_damage = 20;
+            break;
+        case FIGURE_ENEMY_RANGED_SPEAR_1:
+            f->is_targetable = 1;
+            f->is_enemy_unit = 1;
             f->max_damage = 70;
             f->melee_attack_value = 5;
             f->missile_attack_value = 4;
@@ -209,22 +249,22 @@ figure *figure_create(int type, int x, int y, direction_type dir)
             f->max_range = 10;
             break;
         case FIGURE_ENEMY_SWORD_1:
-            f->is_enemy_unit = 1;
             f->is_targetable = 1;
+            f->is_enemy_unit = 1;
             f->max_damage = 90;
             f->melee_attack_value = 7;
             break;
         case FIGURE_ENEMY_SWORD_2:
-            f->is_enemy_unit = 1;
             f->is_targetable = 1;
+            f->is_enemy_unit = 1;
             f->max_damage = 120;
             f->melee_attack_value = 12;
             f->melee_defense_value = 2;
             f->missile_defense_value = 2;
             break;
         case FIGURE_ENEMY_CAMEL:
-            f->is_enemy_unit = 1;
             f->is_targetable = 1;
+            f->is_enemy_unit = 1;
             f->max_damage = 120;
             f->melee_attack_value = 7;
             f->melee_defense_value = 1;
@@ -234,20 +274,20 @@ figure *figure_create(int type, int x, int y, direction_type dir)
             f->max_range = 15;
             break;
         case FIGURE_ENEMY_ELEPHANT:
-            f->is_enemy_unit = 1;
             f->is_targetable = 1;
+            f->is_enemy_unit = 1;
             f->max_damage = 200;
             f->melee_attack_value = 20;
             f->melee_defense_value = 5;
-            f->missile_defense_value = 8;
             f->missile_attack_value = 6;
+            f->missile_defense_value = 8;
             f->missile_delay = 70;
             f->missile_type = FIGURE_ARROW;
             f->max_range = 15;
             break;
         case FIGURE_ENEMY_CHARIOT:
-            f->is_enemy_unit = 1;
             f->is_targetable = 1;
+            f->is_enemy_unit = 1;
             f->max_damage = 120;
             f->melee_attack_value = 15;
             f->melee_defense_value = 4;
@@ -257,24 +297,24 @@ figure *figure_create(int type, int x, int y, direction_type dir)
             f->mounted_charge_ticks_max = 8;
             break;
         case FIGURE_ENEMY_FAST_SWORD:
-            f->is_enemy_unit = 1;
             f->is_targetable = 1;
+            f->is_enemy_unit = 1;
             f->max_damage = 90;
             f->melee_attack_value = 7;
             f->melee_defense_value = 1;
             f->speed_multiplier = 2;
             break;
         case FIGURE_ENEMY_SWORD_3:
-            f->is_enemy_unit = 1;
             f->is_targetable = 1;
+            f->is_enemy_unit = 1;
             f->max_damage = 110;
             f->melee_attack_value = 10;
             f->melee_defense_value = 1;
             f->missile_defense_value = 2;
             break;
         case FIGURE_ENEMY_RANGED_SPEAR_2:
-            f->is_enemy_unit = 1;
             f->is_targetable = 1;
+            f->is_enemy_unit = 1;
             f->max_damage = 70;
             f->melee_attack_value = 5;
             f->missile_attack_value = 3;
@@ -284,8 +324,8 @@ figure *figure_create(int type, int x, int y, direction_type dir)
             f->max_range = 10;
             break;
         case FIGURE_ENEMY_MOUNTED_ARCHER:
-            f->is_enemy_unit = 1;
             f->is_targetable = 1;
+            f->is_enemy_unit = 1;
             f->max_damage = 100;
             f->melee_attack_value = 6;
             f->melee_defense_value = 1;
@@ -296,103 +336,46 @@ figure *figure_create(int type, int x, int y, direction_type dir)
             f->max_range = 15;
             break;
         case FIGURE_ENEMY_AXE:
-            f->is_enemy_unit = 1;
             f->is_targetable = 1;
+            f->is_enemy_unit = 1;
             f->max_damage = 120;
             f->melee_attack_value = 15;
             f->melee_defense_value = 2;
             f->missile_defense_value = 3;
             break;
         case FIGURE_ENEMY_GLADIATOR:
-            f->is_enemy_unit = 1;
             f->is_targetable = 1;
+            f->is_enemy_unit = 1;
             f->max_damage = 100;
             f->melee_attack_value = 9;
             f->melee_defense_value = 2;
             break;
         case FIGURE_ENEMY_CAESAR_JAVELIN:
-            f->is_enemy_unit = 1;
-            f->is_caesar_legion_unit = 1;
             f->is_targetable = 1;
+            f->is_caesar_legion_unit = 1;
             f->max_damage = 90;
             f->melee_attack_value = 4;
             f->missile_attack_value = 4;
             f->missile_delay = 100;
             break;
         case FIGURE_ENEMY_CAESAR_MOUNTED:
-            f->is_enemy_unit = 1;
-            f->is_caesar_legion_unit = 1;
             f->is_targetable = 1;
+            f->is_caesar_legion_unit = 1;
             f->max_damage = 100;
             f->melee_attack_value = 8;
             break;
         case FIGURE_ENEMY_CAESAR_LEGIONARY:
-            f->is_enemy_unit = 1;
-            f->is_caesar_legion_unit = 1;
             f->is_targetable = 1;
+            f->is_caesar_legion_unit = 1;
             f->max_damage = 150;
             f->melee_attack_value = 13;
             f->melee_defense_value = 2;
             break;
-        case FIGURE_NATIVE_TRADER:
-            f->is_native_unit = 1;
-            f->is_targetable = 1;
-            f->max_damage = 40;
-            break;
         case FIGURE_ARROW:
-            f->max_damage = 100;
-            f->missile_attack_value = 12;
+            f->missile_attack_value = 5;
             break;
-        case FIGURE_JAVELIN:
-            f->max_damage = 100;
-            f->missile_attack_value = 20;
-            break;
-        case FIGURE_BOLT:
-            f->max_damage = 100;
-            f->missile_attack_value = 200;
-            break;
-        case FIGURE_BALLISTA:
-            f->is_friendly_armed_unit = 1;
-            f->max_damage = 100;
-            f->missile_delay = 200;
-            f->missile_type = FIGURE_BOLT;
-            f->max_range = 15;
-            break;
-        case FIGURE_MISSIONARY:
-            f->is_unarmed_civilian_unit = 1;
-            f->is_targetable = 1;
-            f->max_damage = 100;
-            break;
-        case FIGURE_FISH_GULLS:
-            f->max_damage = 100;
-            break;
-        case FIGURE_DELIVERY_BOY:
-            f->is_unarmed_civilian_unit = 1;
-            f->is_targetable = 1;
-            f->max_damage = 100;
-            break;
-        case FIGURE_SHIPWRECK:
-            f->max_damage = 100;
-            break;
-        case FIGURE_SHEEP:
-            f->is_herd_animal = 1;
-            f->is_targetable = 1;
-            f->max_damage = 10;
-            break;
-        case FIGURE_WOLF:
-            f->is_herd_animal = 1;
-            f->is_targetable = 1;
-            f->max_damage = 80;
-            f->melee_attack_value = 8;
-            break;
-        case FIGURE_ZEBRA:
-            f->is_herd_animal = 1;
-            f->is_targetable = 1;
-            f->max_damage = 20;
-            break;
-        case FIGURE_HIPPODROME_HORSES:
-            f->max_damage = 100;
-            break;
+        case FIGURE_MAP_FLAG:
+        case FIGURE_EXPLOSION:
         default:
             break;
     }
@@ -466,6 +449,18 @@ int figure_is_dead(const figure *f)
     return f->state != FIGURE_STATE_ALIVE || f->action_state == FIGURE_ACTION_CORPSE;
 }
 
+void figure_handle_corpse(figure *f)
+{
+    if (f->wait_ticks < 0) {
+        f->wait_ticks = 0;
+    }
+    f->wait_ticks++;
+    if (f->wait_ticks >= 128) {
+        f->wait_ticks = 127;
+        f->state = FIGURE_STATE_DEAD;
+    }
+}
+
 int city_figures_total_invading_enemies(void)
 {
     return city_data.figure.imperial_soldiers + city_data.figure.enemies;
@@ -481,15 +476,16 @@ void figure_init_scenario(void)
 
 static void figure_save(buffer *buf, const figure *f)
 {
+    buffer_write_u8(buf, f->is_targetable);
     buffer_write_u8(buf, f->is_unarmed_civilian_unit);
+    buffer_write_u8(buf, f->is_friendly_armed_unit);
     buffer_write_u8(buf, f->is_player_legion_unit);
+    buffer_write_u8(buf, f->is_criminal_unit);
+    buffer_write_u8(buf, f->is_empire_trader);
+    buffer_write_u8(buf, f->is_native_unit);
+    buffer_write_u8(buf, f->is_herd_animal);
     buffer_write_u8(buf, f->is_enemy_unit);
     buffer_write_u8(buf, f->is_caesar_legion_unit);
-    buffer_write_u8(buf, f->is_native_unit);
-    buffer_write_u8(buf, f->is_friendly_armed_unit);
-    buffer_write_u8(buf, f->is_criminal_unit);
-    buffer_write_u8(buf, f->is_herd_animal);
-    buffer_write_u8(buf, f->is_targetable);
     buffer_write_u8(buf, f->alternative_location_index);
     buffer_write_u8(buf, f->image_offset);
     buffer_write_i32(buf, f->enemy_image_type);
@@ -601,15 +597,16 @@ static void figure_save(buffer *buf, const figure *f)
 
 static void figure_load(buffer *buf, figure *f)
 {
+    f->is_targetable = buffer_read_u8(buf);
     f->is_unarmed_civilian_unit = buffer_read_u8(buf);
+    f->is_friendly_armed_unit = buffer_read_u8(buf);
     f->is_player_legion_unit = buffer_read_u8(buf);
+    f->is_criminal_unit = buffer_read_u8(buf);
+    f->is_empire_trader = buffer_read_u8(buf);
+    f->is_native_unit = buffer_read_u8(buf);
+    f->is_herd_animal = buffer_read_u8(buf);
     f->is_enemy_unit = buffer_read_u8(buf);
     f->is_caesar_legion_unit = buffer_read_u8(buf);
-    f->is_native_unit = buffer_read_u8(buf);
-    f->is_friendly_armed_unit = buffer_read_u8(buf);
-    f->is_criminal_unit = buffer_read_u8(buf);
-    f->is_herd_animal = buffer_read_u8(buf);
-    f->is_targetable = buffer_read_u8(buf);
     f->alternative_location_index = buffer_read_u8(buf);
     f->image_offset = buffer_read_u8(buf);
     f->enemy_image_type = buffer_read_i32(buf);

@@ -33,7 +33,7 @@ void figure_engineer_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_ENGINEER_CREATED:
             f->is_ghost = 1;
@@ -174,7 +174,7 @@ void figure_prefect_action(figure *f)
 
     switch (f->action_state) {
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_ATTACK:
             figure_combat_handle_attack(f);

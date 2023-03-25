@@ -307,7 +307,7 @@ void figure_trade_caravan_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_TRADE_CARAVAN_CREATED:
             f->is_ghost = 1;
@@ -440,7 +440,7 @@ void figure_native_trader_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_NATIVE_TRADER_GOING_TO_WAREHOUSE:
             figure_movement_move_ticks(f, 1);
@@ -593,7 +593,7 @@ void figure_trade_ship_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_TRADE_SHIP_CREATED:
             f->loads_sold_or_carrying = 12;

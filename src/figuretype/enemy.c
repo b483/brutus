@@ -137,7 +137,7 @@ static void enemy_action(figure *f, struct formation_t *m)
 
     switch (f->action_state) {
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_ATTACK:
             figure_combat_handle_attack(f);
@@ -500,7 +500,7 @@ void figure_enemy_gladiator_action(figure *f)
             figure_image_increase_offset(f, 16);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_NATIVE_CREATED:
             f->image_offset = 0;

@@ -132,8 +132,7 @@ static void draw_scenario_info(void)
             toggle_minimap_button.width - 6, toggle_minimap_button.height - 6
         );
 
-        lang_text_draw_centered(44, 77 + scenario.climate,
-            scenario_info_x, 150, scenario_info_width, FONT_NORMAL_BLACK);
+        text_draw_centered(get_custom_string(TR_CLIMATE_NORTHERN + scenario.climate), scenario_info_x, 150, scenario_info_width, FONT_NORMAL_BLACK, COLOR_BLACK);
 
         // map size
         int text_id;

@@ -201,7 +201,7 @@ void figure_rioter_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_RIOTER_CREATED:
             figure_image_increase_offset(f, 32);

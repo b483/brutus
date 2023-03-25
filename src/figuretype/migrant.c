@@ -98,7 +98,7 @@ void figure_immigrant_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_IMMIGRANT_CREATED:
             f->is_ghost = 1;
@@ -178,7 +178,7 @@ void figure_emigrant_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_EMIGRANT_CREATED:
             f->is_ghost = 1;
@@ -230,7 +230,7 @@ void figure_homeless_action(figure *f)
             figure_combat_handle_attack(f);
             break;
         case FIGURE_ACTION_CORPSE:
-            figure_combat_handle_corpse(f);
+            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_HOMELESS_CREATED:
             f->image_offset = 0;

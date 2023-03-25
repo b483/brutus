@@ -170,7 +170,7 @@ void formation_calculate_figures(void)
         if (f->state != FIGURE_STATE_ALIVE) {
             continue;
         }
-        if (!f->is_player_legion_unit && !f->is_enemy_unit && !f->is_herd_animal) {
+        if (!f->is_player_legion_unit && !f->is_enemy_unit && !f->is_caesar_legion_unit && !f->is_herd_animal) {
             continue;
         }
         formations[f->formation_id].num_figures++;
