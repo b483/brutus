@@ -299,7 +299,7 @@ void sound_city_play(void)
         }
     }
 
-    if (now - last_update_time < 2000) {
+    if (now - last_update_time < 10000) {
         // Only play 1 sound every 2 seconds
         return;
     }
