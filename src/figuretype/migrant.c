@@ -94,12 +94,6 @@ void figure_immigrant_action(figure *f)
     figure_image_increase_offset(f, 12);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_IMMIGRANT_CREATED:
             f->is_ghost = 1;
             f->image_offset = 0;
@@ -174,12 +168,6 @@ void figure_emigrant_action(figure *f)
     figure_image_increase_offset(f, 12);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_EMIGRANT_CREATED:
             f->is_ghost = 1;
             f->image_offset = 0;
@@ -226,12 +214,6 @@ void figure_homeless_action(figure *f)
     f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
 
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_HOMELESS_CREATED:
             f->image_offset = 0;
             f->wait_ticks++;

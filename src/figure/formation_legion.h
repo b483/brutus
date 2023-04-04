@@ -2,6 +2,7 @@
 #define FIGURE_FORMATION_LEGION_H
 
 #include "building/building.h"
+#include "figure/figure.h"
 #include "figure/formation.h"
 #include "map/point.h"
 
@@ -11,17 +12,15 @@ void formation_calculate_legion_totals(void);
 
 int formation_get_num_legions(void);
 
-int formation_for_legion(int legion_index);
+int get_legion_formation_by_index(int legion_index);
 
-void formation_legion_restore_layout(struct formation_t *m);
+void deploy_legion_unit_to_formation_location(figure *legion_unit, struct formation_t *legion_formation);
 
 void formation_legion_move_to(struct formation_t *m, map_tile *tile);
 
 void formation_legion_return_home(struct formation_t *m);
 
 int formation_legion_at_grid_offset(int grid_offset);
-
-int formation_legion_at_building(int grid_offset);
 
 void formation_legion_update(void);
 

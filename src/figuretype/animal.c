@@ -9,7 +9,6 @@
 #include "core/random.h"
 #include "figure/combat.h"
 #include "figure/formation.h"
-#include "figure/formation_layout.h"
 #include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
@@ -99,6 +98,7 @@ void figure_create_herds(void)
                 figure *f = figure_create(herd_type, scenario.herd_points[i].x, scenario.herd_points[i].y, DIR_0_TOP);
                 f->action_state = FIGURE_ACTION_HERD_ANIMAL_AT_REST;
                 f->formation_id = m->id;
+                add_figure_to_formation(f, m);
             }
         }
     }
@@ -137,12 +137,6 @@ void figure_wolf_action(figure *f)
     figure_image_increase_offset(f, 12);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
         case FIGURE_ACTION_HERD_ANIMAL_AT_REST:
             if (m->missile_attack_formation_id || melee_unit__set_closest_target(f)) {
                 f->action_state = FIGURE_ACTION_HERD_ANIMAL_MOVING;
@@ -227,12 +221,6 @@ void figure_sheep_action(figure *f)
     figure_image_increase_offset(f, 6);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_HERD_ANIMAL_AT_REST:
             f->wait_ticks++;
             if (formations[f->formation_id].wait_ticks == 0) {
@@ -282,12 +270,6 @@ void figure_zebra_action(figure *f)
     figure_image_increase_offset(f, 12);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_HERD_ANIMAL_AT_REST:
             if (formations[f->formation_id].wait_ticks == 0) {
                 f->action_state = FIGURE_ACTION_HERD_ANIMAL_MOVING;

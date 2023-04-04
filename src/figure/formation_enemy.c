@@ -7,10 +7,10 @@
 #include "city/message.h"
 #include "core/calc.h"
 #include "core/random.h"
+#include "figure/combat.h"
 #include "figure/enemy_army.h"
 #include "figure/figure.h"
 #include "figure/formation.h"
-#include "figure/formation_layout.h"
 #include "figure/route.h"
 #include "map/figure.h"
 #include "map/grid.h"
@@ -392,11 +392,13 @@ static void mars_kill_enemies(void)
     int grid_offset = 0;
     for (int i = 1; i < MAX_FIGURES && city_data.religion.mars_spirit_power > 0; i++) {
         figure *f = figure_get(i);
-        if (f->state != FIGURE_STATE_ALIVE) {
+        if (figure_is_dead(f)) {
             continue;
         }
         if ((f->is_enemy_unit && f->type != FIGURE_ENEMY_GLADIATOR) || f->is_caesar_legion_unit) {
             f->action_state = FIGURE_ACTION_CORPSE;
+            clear_targeting_on_unit_death(f);
+            refresh_formation_figure_indexes(f);
             city_data.religion.mars_spirit_power--;
             if (!grid_offset) {
                 grid_offset = f->grid_offset;
@@ -546,14 +548,14 @@ static void update_enemy_formation(struct formation_t *m, int *roman_distance)
             army->ignore_roman_soldiers = 1;
         }
     }
-    formation_decrease_monthly_counters(m);
+    formation_adjust_counters(m);
     if (city_data.figure.soldiers <= 0) {
-        formation_clear_monthly_counters(m);
+        formation_clear_counters(m);
     }
     for (int n = 0; n < MAX_FORMATION_FIGURES; n++) {
         figure *f = figure_get(m->figures[n]);
         if (f->action_state == FIGURE_ACTION_ATTACK) {
-            figure *opponent = figure_get(f->primary_melee_combatant_id);
+            figure *opponent = figure_get(f->target_figure_id);
             if (!figure_is_dead(opponent) && opponent->is_player_legion_unit) {
                 m->recent_fight = 6;
             }

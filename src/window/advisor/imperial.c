@@ -295,7 +295,6 @@ static void confirm_send_troops(void)
     for (int i = 1; i < MAX_FORMATIONS; i++) {
         if (formations[i].in_use && formations[i].is_legion && formations[i].empire_service && formations[i].num_figures > 0) {
             formations[i].in_distant_battle = 1;
-            formations[i].is_at_fort = 0;
             for (int fig = 0; fig < formations[i].num_figures; fig++) {
                 if (formations[i].figures[fig] > 0) {
                     figure *f = figure_get(formations[i].figures[fig]);

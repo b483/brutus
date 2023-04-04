@@ -19,6 +19,7 @@
 #include "input/scroll.h"
 #include "map/building.h"
 #include "map/grid.h"
+#include "map/routing.h"
 #include "scenario/data.h"
 #include "sound/city.h"
 #include "sound/speech.h"
@@ -295,11 +296,20 @@ void widget_city_handle_input_military(const mouse *m, const hotkeys *h, int leg
             if (formations[legion_formation_id].in_distant_battle || formations[legion_formation_id].cursed_by_mars) {
                 return;
             }
-            int other_formation_id = formation_legion_at_building(tile->grid_offset);
-            if (other_formation_id && other_formation_id == legion_formation_id) {
+            // return legion home upon clicking on own fort/fort ground
+            building *b = building_get(map_building_at(tile->grid_offset));
+            if (b && b->state == BUILDING_STATE_IN_USE && (b->type == BUILDING_FORT || b->type == BUILDING_FORT_GROUND) && b->formation_id == legion_formation_id) {
                 formation_legion_return_home(&formations[legion_formation_id]);
-            } else {
-                formation_legion_move_to(&formations[legion_formation_id], tile);
+            } else { // move legion if route available
+                map_routing_calculate_distances(formations[legion_formation_id].x_home, formations[legion_formation_id].y_home);
+                if (map_routing_distance(tile->grid_offset)
+                && !formations[legion_formation_id].cursed_by_mars
+                && formations[legion_formation_id].morale > ROUT_MORALE_THRESHOLD
+                && formations[legion_formation_id].num_figures) {
+                    formation_legion_move_to(&formations[legion_formation_id], tile);
+                } else if (formations[legion_formation_id].morale <= ROUT_MORALE_THRESHOLD) {
+                    city_warning_show(WARNING_LEGION_MORALE_TOO_LOW);
+                }
             }
             window_city_show();
         }

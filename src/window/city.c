@@ -132,7 +132,7 @@ static void cycle_legion(void)
     int current_selected_legion_formation_id;
     while (current_selected_legion_index <= n_legions) {
         // formation id needed to prevent mismatch with index if forts deleted
-        current_selected_legion_formation_id = formation_for_legion(current_selected_legion_index);
+        current_selected_legion_formation_id = get_legion_formation_by_index(current_selected_legion_index);
         if (formations[current_selected_legion_formation_id].in_distant_battle || !formations[current_selected_legion_formation_id].num_figures) {
             // wrap around if last legion can't be selected but any other had been available previously
             if ((current_selected_legion_index == n_legions) && any_selected_legion_index) {
@@ -1150,7 +1150,7 @@ static void handle_hotkeys(const hotkeys *h)
     }
     if (h->return_legions_to_fort) {
         for (int i = 1; i < MAX_FORMATIONS; i++) {
-            if (formations[i].in_use && formations[i].is_legion && !formations[i].in_distant_battle && !formations[i].is_at_fort) {
+            if (formations[i].in_use && formations[i].is_legion && !formations[i].in_distant_battle && !formations[i].is_at_rest) {
                 formation_legion_return_home(&formations[i]);
             }
         }

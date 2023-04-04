@@ -5,7 +5,6 @@
 #include "figure/combat.h"
 #include "figure/figure.h"
 #include "figure/formation.h"
-#include "figure/formation_layout.h"
 #include "figure/formation_enemy.h"
 #include "figure/route.h"
 #include "map/figure.h"

@@ -111,12 +111,6 @@ void figure_market_buyer_action(figure *f)
     }
     figure_image_increase_offset(f, 12);
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_MARKET_BUYER_GOING_TO_STORAGE:
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {

@@ -1184,34 +1184,6 @@ static void update_native_crop_progress(building *b)
     map_image_set(b->grid_offset, image_group(GROUP_BUILDING_FARM_CROPS) + b->data.industry.progress);
 }
 
-static void update_recruit_status(building *fort)
-{
-    struct formation_t *m = &formations[fort->formation_id];
-    m->legion_recruit_type = LEGION_RECRUIT_NONE;
-    if (!m->is_at_fort || m->cursed_by_mars || m->num_figures == m->max_figures) {
-        return;
-    }
-    if (m->num_figures < m->max_figures) {
-        int type = fort->subtype.fort_figure_type;
-        if (type == FIGURE_FORT_LEGIONARY) {
-            m->legion_recruit_type = LEGION_RECRUIT_LEGIONARY;
-        } else if (type == FIGURE_FORT_JAVELIN) {
-            m->legion_recruit_type = LEGION_RECRUIT_JAVELIN;
-        } else if (type == FIGURE_FORT_MOUNTED) {
-            m->legion_recruit_type = LEGION_RECRUIT_MOUNTED;
-        }
-    } else { // too many figures
-        int too_many = m->num_figures - m->max_figures;
-        for (int i = MAX_FORMATION_FIGURES - 1; i >= 0 && too_many > 0; i--) {
-            if (m->figures[i]) {
-                figure_get(m->figures[i])->action_state = FIGURE_ACTION_SOLDIER_RETURNING_TO_BARRACKS;
-                too_many--;
-            }
-        }
-        formation_calculate_figures();
-    }
-}
-
 void building_figure_generate(void)
 {
     int patrician_generated = 0;
@@ -1321,9 +1293,6 @@ void building_figure_generate(void)
                     break;
                 case BUILDING_NATIVE_CROPS:
                     update_native_crop_progress(b);
-                    break;
-                case BUILDING_FORT:
-                    update_recruit_status(b);
                     break;
                 case BUILDING_BARRACKS:
                     spawn_figure_barracks(b);

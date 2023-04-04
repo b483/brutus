@@ -151,6 +151,8 @@ int game_file_editor_write_scenario(const char *dir, const char *scenario_file)
     scenario.native_images.hut = image_group(GROUP_EDITOR_BUILDING_NATIVE);
     scenario.native_images.meeting = image_group(GROUP_EDITOR_BUILDING_NATIVE) + 2;
     scenario.native_images.crops = image_group(GROUP_EDITOR_BUILDING_CROPS);
+    scenario.empire.distant_battle_roman_travel_months = empire_object_init_distant_battle_travel_months(EMPIRE_OBJECT_ROMAN_ARMY);
+    scenario.empire.distant_battle_enemy_travel_months = empire_object_init_distant_battle_travel_months(EMPIRE_OBJECT_ENEMY_ARMY);
 
     return game_file_io_write_scenario(dir, scenario_file);
 }

@@ -197,12 +197,6 @@ void figure_rioter_action(figure *f)
     f->cart_image_id = 0;
     f->is_ghost = 0;
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_RIOTER_CREATED:
             figure_image_increase_offset(f, 32);
             f->wait_ticks++;

@@ -5,6 +5,7 @@
 #include "city/emperor.h"
 #include "core/random.h"
 #include "empire/object.h"
+#include "figure/formation.h"
 #include "figure/name.h"
 #include "figure/route.h"
 #include "figure/trader.h"
@@ -136,6 +137,7 @@ figure *figure_create(int type, int x, int y, direction_type dir)
             break;
         case FIGURE_BALLISTA:
             f->is_friendly_armed_unit = 1;
+            f->missile_attack_value = 8;
             f->missile_delay = 200;
             f->missile_type = FIGURE_BOLT;
             f->max_range = 15;
@@ -186,6 +188,8 @@ figure *figure_create(int type, int x, int y, direction_type dir)
             f->is_player_legion_unit = 1;
             f->max_damage = 150;
             f->melee_attack_value = 10;
+            f->melee_defense_value = 3;
+            f->missile_defense_value = 6;
             break;
         case FIGURE_MARKET_BUYER:
         case FIGURE_MARKET_TRADER:
@@ -289,7 +293,7 @@ figure *figure_create(int type, int x, int y, direction_type dir)
             f->is_targetable = 1;
             f->is_enemy_unit = 1;
             f->max_damage = 120;
-            f->melee_attack_value = 15;
+            f->melee_attack_value = 12;
             f->melee_defense_value = 4;
             f->missile_defense_value = 4;
             f->speed_multiplier = 3;
@@ -368,8 +372,9 @@ figure *figure_create(int type, int x, int y, direction_type dir)
             f->is_targetable = 1;
             f->is_caesar_legion_unit = 1;
             f->max_damage = 150;
-            f->melee_attack_value = 13;
-            f->melee_defense_value = 2;
+            f->melee_attack_value = 10;
+            f->melee_defense_value = 3;
+            f->missile_defense_value = 6;
             break;
         case FIGURE_ARROW:
             f->missile_attack_value = 5;
@@ -486,7 +491,7 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_u8(buf, f->is_herd_animal);
     buffer_write_u8(buf, f->is_enemy_unit);
     buffer_write_u8(buf, f->is_caesar_legion_unit);
-    buffer_write_u8(buf, f->alternative_location_index);
+    buffer_write_u8(buf, f->figure_is_halted);
     buffer_write_u8(buf, f->image_offset);
     buffer_write_i32(buf, f->enemy_image_type);
     buffer_write_i32(buf, f->enemy_image_type_detailed);
@@ -522,8 +527,6 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_i16(buf, f->destination_grid_offset);
     buffer_write_u8(buf, f->source_x);
     buffer_write_u8(buf, f->source_y);
-    buffer_write_u8(buf, f->formation_position_x.soldier);
-    buffer_write_u8(buf, f->formation_position_y.soldier);
     buffer_write_i16(buf, f->wait_ticks);
     buffer_write_u8(buf, f->action_state);
     buffer_write_u8(buf, f->progress_on_tile);
@@ -552,7 +555,6 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_i16(buf, f->destination_building_id);
     buffer_write_i16(buf, f->formation_id);
     buffer_write_u8(buf, f->index_in_formation);
-    buffer_write_u8(buf, f->formation_at_rest);
     buffer_write_u8(buf, f->migrant_num_people);
     buffer_write_u8(buf, f->is_ghost);
     buffer_write_u8(buf, f->min_max_seen);
@@ -579,7 +581,6 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_u8(buf, f->phrase_sequence_city);
     buffer_write_u8(buf, f->trader_id);
     buffer_write_u8(buf, f->prefect_recent_guard_duty);
-    buffer_write_u8(buf, f->figures_on_same_tile_index);
     buffer_write_u8(buf, f->max_range);
     for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
         buffer_write_u16(buf, f->ranged_targeter_ids[i]);
@@ -588,7 +589,6 @@ static void figure_save(buffer *buf, const figure *f)
     for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
         buffer_write_u16(buf, f->melee_targeter_ids[i]);
     }
-    buffer_write_u16(buf, f->primary_melee_combatant_id);
     for (int i = 0; i < MAX_MELEE_COMBATANTS_PER_UNIT; i++) {
         buffer_write_u16(buf, f->melee_combatant_ids[i]);
     }
@@ -607,7 +607,7 @@ static void figure_load(buffer *buf, figure *f)
     f->is_herd_animal = buffer_read_u8(buf);
     f->is_enemy_unit = buffer_read_u8(buf);
     f->is_caesar_legion_unit = buffer_read_u8(buf);
-    f->alternative_location_index = buffer_read_u8(buf);
+    f->figure_is_halted = buffer_read_u8(buf);
     f->image_offset = buffer_read_u8(buf);
     f->enemy_image_type = buffer_read_i32(buf);
     f->enemy_image_type_detailed = buffer_read_i32(buf);
@@ -643,8 +643,6 @@ static void figure_load(buffer *buf, figure *f)
     f->destination_grid_offset = buffer_read_i16(buf);
     f->source_x = buffer_read_u8(buf);
     f->source_y = buffer_read_u8(buf);
-    f->formation_position_x.soldier = buffer_read_u8(buf);
-    f->formation_position_y.soldier = buffer_read_u8(buf);
     f->wait_ticks = buffer_read_i16(buf);
     f->action_state = buffer_read_u8(buf);
     f->progress_on_tile = buffer_read_u8(buf);
@@ -673,7 +671,6 @@ static void figure_load(buffer *buf, figure *f)
     f->destination_building_id = buffer_read_i16(buf);
     f->formation_id = buffer_read_i16(buf);
     f->index_in_formation = buffer_read_u8(buf);
-    f->formation_at_rest = buffer_read_u8(buf);
     f->migrant_num_people = buffer_read_u8(buf);
     f->is_ghost = buffer_read_u8(buf);
     f->min_max_seen = buffer_read_u8(buf);
@@ -700,7 +697,6 @@ static void figure_load(buffer *buf, figure *f)
     f->phrase_sequence_city = buffer_read_u8(buf);
     f->trader_id = buffer_read_u8(buf);
     f->prefect_recent_guard_duty = buffer_read_u8(buf);
-    f->figures_on_same_tile_index = buffer_read_u8(buf);
     f->max_range = buffer_read_u8(buf);
     for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
         f->ranged_targeter_ids[i] = buffer_read_u16(buf);
@@ -709,7 +705,6 @@ static void figure_load(buffer *buf, figure *f)
     for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
         f->melee_targeter_ids[i] = buffer_read_u16(buf);
     }
-    f->primary_melee_combatant_id = buffer_read_u16(buf);
     for (int i = 0; i < MAX_MELEE_COMBATANTS_PER_UNIT; i++) {
         f->melee_combatant_ids[i] = buffer_read_u16(buf);
     }

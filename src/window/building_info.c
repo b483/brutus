@@ -233,8 +233,9 @@ static void init(int grid_offset)
                 context.building_id = b->id;
                 break;
             case BUILDING_BARRACKS:
+                context.barracks_soldiers_requested = 0;
                 for (int i = 1; i < MAX_FORMATIONS; i++) {
-                    if (formations[i].in_use && formations[i].is_legion && formations[i].legion_recruit_type != LEGION_RECRUIT_NONE) {
+                    if (formations[i].in_use && formations[i].is_legion && formations[i].num_figures < formations[i].max_figures) {
                         context.barracks_soldiers_requested = 1;
                         break;
                     }

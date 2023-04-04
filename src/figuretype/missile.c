@@ -108,8 +108,9 @@ static void missile_hit_target(figure *projectile, figure *target)
     if (damage_inflicted < 0) {
         damage_inflicted = 0;
     }
-    if ((target->type == FIGURE_FORT_LEGIONARY || target->type == FIGURE_ENEMY_CAESAR_LEGIONARY)
-        && formations[target->formation_id].is_halted
+    if (projectile->type != FIGURE_BOLT
+        && (target->type == FIGURE_FORT_LEGIONARY || target->type == FIGURE_ENEMY_CAESAR_LEGIONARY)
+        && target->figure_is_halted
         && formations[target->formation_id].layout == FORMATION_TORTOISE) {
         damage_inflicted = 1;
     }
@@ -122,6 +123,8 @@ static void missile_hit_target(figure *projectile, figure *target)
         target->wait_ticks = 0;
         figure_play_die_sound(target);
         formation_update_morale_after_death(&formations[target->formation_id]);
+        clear_targeting_on_unit_death(target);
+        refresh_formation_figure_indexes(target);
     }
     projectile->state = FIGURE_STATE_DEAD;
     formations[target->formation_id].missile_attack_timeout = 6;
@@ -159,9 +162,7 @@ void figure_javelin_action(figure *projectile)
         projectile->state = FIGURE_STATE_DEAD;
     }
     int should_die = figure_movement_move_ticks_cross_country(projectile, 4);
-
     int target_id = get_target_on_tile(projectile);
-
     if (target_id) {
         figure *target = figure_get(target_id);
         missile_hit_target(projectile, target);
@@ -184,22 +185,8 @@ void figure_bolt_action(figure *projectile)
     int target_id = get_target_on_tile(projectile);
     if (target_id) {
         figure *target = figure_get(target_id);
-        int damage_inflicted = projectile->missile_attack_value - target->missile_defense_value;
-        if (damage_inflicted < 0) {
-            damage_inflicted = 0;
-        }
-        int target_damage = damage_inflicted + target->damage;
-        if (target_damage <= target->max_damage) {
-            target->damage = target_damage;
-        } else { // kill target
-            target->damage = target->max_damage + 1;
-            target->action_state = FIGURE_ACTION_CORPSE;
-            target->wait_ticks = 0;
-            figure_play_die_sound(target);
-            formation_update_morale_after_death(&formations[target->formation_id]);
-        }
+        missile_hit_target(projectile, target);
         sound_effect_play(SOUND_EFFECT_BALLISTA_HIT_PERSON);
-        projectile->state = FIGURE_STATE_DEAD;
     } else if (should_die) {
         projectile->state = FIGURE_STATE_DEAD;
         sound_effect_play(SOUND_EFFECT_BALLISTA_HIT_GROUND);

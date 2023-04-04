@@ -98,8 +98,6 @@ void figure_play_hit_sound(int type)
         case FIGURE_ENEMY_SWORD_3:
         case FIGURE_ENEMY_MOUNTED_ARCHER:
         case FIGURE_ENEMY_GLADIATOR:
-            sound_effect_play(SOUND_EFFECT_SWORD_SWING);
-            break;
         case FIGURE_FORT_JAVELIN:
             sound_effect_play(SOUND_EFFECT_LIGHT_SWORD);
             break;

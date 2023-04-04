@@ -30,6 +30,7 @@
 #include "core/random.h"
 #include "editor/editor.h"
 #include "empire/object.h"
+#include "figure/combat.h"
 #include "figure/formation.h"
 #include "figuretype/animal.h"
 #include "figuretype/cartpusher.h"
@@ -214,6 +215,12 @@ void game_tick_run(void)
     city_data.entertainment.hippodrome_has_race = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
         figure *f = figure_get(i);
+        if (f->action_state == FIGURE_ACTION_CORPSE) {
+            figure_handle_corpse(f);
+        }
+        if (f->action_state == FIGURE_ACTION_ATTACK) {
+            figure_combat_handle_attack(f);
+        }
         if (f->state == FIGURE_STATE_ALIVE) {
             switch (f->type) {
                 case FIGURE_NONE:
@@ -323,13 +330,13 @@ void game_tick_run(void)
                     figure_native_trader_action(f);
                     break;
                 case FIGURE_ENEMY_RANGED_SPEAR_1:
-                    figure_enemy43_spear_action(f);
+                    figure_enemy_ranged_spear_1_action(f);
                     break;
                 case FIGURE_ENEMY_SWORD_1:
-                    figure_enemy44_sword_action(f);
+                    figure_enemy_sword_1_action(f);
                     break;
                 case FIGURE_ENEMY_SWORD_2:
-                    figure_enemy45_sword_action(f);
+                    figure_enemy_sword_2_action(f);
                     break;
                 case FIGURE_ENEMY_CAMEL:
                     figure_enemy_camel_action(f);
@@ -341,19 +348,19 @@ void game_tick_run(void)
                     figure_enemy_chariot_action(f);
                     break;
                 case FIGURE_ENEMY_FAST_SWORD:
-                    figure_enemy49_fast_sword_action(f);
+                    figure_enemy_fast_sword_action(f);
                     break;
                 case FIGURE_ENEMY_SWORD_3:
-                    figure_enemy50_sword_action(f);
+                    figure_enemy_sword_3_action(f);
                     break;
                 case FIGURE_ENEMY_RANGED_SPEAR_2:
-                    figure_enemy51_spear_action(f);
+                    figure_enemy_ranged_spear_2_action(f);
                     break;
                 case FIGURE_ENEMY_MOUNTED_ARCHER:
-                    figure_enemy52_mounted_archer_action(f);
+                    figure_enemy_mounted_archer_action(f);
                     break;
                 case FIGURE_ENEMY_AXE:
-                    figure_enemy53_axe_action(f);
+                    figure_enemy_axe_action(f);
                     break;
                 case FIGURE_ENEMY_GLADIATOR:
                     figure_enemy_gladiator_action(f);

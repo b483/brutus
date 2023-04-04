@@ -303,12 +303,6 @@ void figure_trade_caravan_action(figure *f)
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_TRADE_CARAVAN_CREATED:
             f->is_ghost = 1;
             f->wait_ticks++;
@@ -436,12 +430,6 @@ void figure_native_trader_action(figure *f)
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_NATIVE_TRADER_GOING_TO_WAREHOUSE:
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
@@ -589,12 +577,6 @@ void figure_trade_ship_action(figure *f)
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_TRADE_SHIP_CREATED:
             f->loads_sold_or_carrying = 12;
             f->trader_amount_bought = 0;

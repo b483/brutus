@@ -298,12 +298,6 @@ void figure_docker_action(figure *f)
     }
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_DOCKER_IDLING:
             f->resource_id = 0;
             f->cart_image_id = 0;

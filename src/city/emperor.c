@@ -145,7 +145,7 @@ void process_caesar_invasion(void)
             } else if (city_data.emperor.invasion.count == 2) {
                 size = 96;
             } else {
-                size = 144;
+                size = 160;
             }
             if (scenario_invasion_start_from_caesar(size)) {
                 city_data.emperor.invasion.count++;

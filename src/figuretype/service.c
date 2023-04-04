@@ -13,12 +13,6 @@
 static void roamer_action(figure *f, int num_ticks)
 {
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_ROAMING:
             f->is_ghost = 0;
             f->roam_length++;
@@ -77,12 +71,6 @@ void figure_school_child_action(figure *f)
     }
     figure_image_increase_offset(f, 12);
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_ROAMING:
             f->is_ghost = 0;
             f->roam_length++;
@@ -196,12 +184,6 @@ void figure_tax_collector_action(figure *f)
     figure_image_increase_offset(f, 12);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_TAX_COLLECTOR_CREATED:
             f->is_ghost = 1;
             f->image_offset = 0;

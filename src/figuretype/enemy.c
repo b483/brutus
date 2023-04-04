@@ -6,7 +6,6 @@
 #include "figure/combat.h"
 #include "figure/formation.h"
 #include "figure/formation_enemy.h"
-#include "figure/formation_layout.h"
 #include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
@@ -22,13 +21,7 @@ static void shoot_enemy_missile(figure *f, struct formation_t *m)
     map_point tile = { 0, 0 };
     if (f->wait_ticks_missile > f->missile_delay) {
         f->wait_ticks_missile = 0;
-        int target_acquired = 0;
-        if (f->type == FIGURE_ENEMY_RANGED_SPEAR_1 && f->enemy_image_type != ENEMY_TYPE_PERGAMUM) {
-            target_acquired = set_missile_target(f, &tile, 1) || set_missile_target(f, &tile, 0);
-        } else {
-            target_acquired = set_missile_target(f, &tile, 0);
-        }
-        if (target_acquired) {
+        if (set_missile_target(f, &tile, 1) || set_missile_target(f, &tile, 0)) {
             f->attack_image_offset = 1;
             f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
         } else {
@@ -71,8 +64,8 @@ static void enemy_initial(figure *f, struct formation_t *m)
         if (m->recent_fight) {
             f->action_state = FIGURE_ACTION_ENEMY_ENGAGED;
         } else {
-            f->destination_x = m->destination_x + f->formation_position_x.enemy;
-            f->destination_y = m->destination_y + f->formation_position_y.enemy;
+            f->destination_x = m->destination_x + formation_layout_position_x(m->layout, f->index_in_formation);
+            f->destination_y = m->destination_y + formation_layout_position_y(m->layout, f->index_in_formation);
             if (calc_general_direction(f->x, f->y, f->destination_x, f->destination_y) < 8) {
                 f->action_state = FIGURE_ACTION_ENEMY_MARCHING;
             }
@@ -89,8 +82,8 @@ static void enemy_marching(figure *f, const struct formation_t *m)
     f->wait_ticks--;
     if (f->wait_ticks <= 0) {
         f->wait_ticks = 50;
-        f->destination_x = m->destination_x + f->formation_position_x.enemy;
-        f->destination_y = m->destination_y + f->formation_position_y.enemy;
+        f->destination_x = m->destination_x + formation_layout_position_x(m->layout, f->index_in_formation);
+        f->destination_y = m->destination_y + formation_layout_position_y(m->layout, f->index_in_formation);
         if (calc_general_direction(f->x, f->y, f->destination_x, f->destination_y) == DIR_FIGURE_AT_DESTINATION) {
             f->action_state = FIGURE_ACTION_ENEMY_INITIAL;
             return;
@@ -132,16 +125,8 @@ static void enemy_action(figure *f, struct formation_t *m)
 {
     city_data.figure.enemies++;
     f->terrain_usage = TERRAIN_USAGE_ENEMY;
-    f->formation_position_x.enemy = formation_layout_position_x(m->layout, f->index_in_formation);
-    f->formation_position_y.enemy = formation_layout_position_y(m->layout, f->index_in_formation);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
         case FIGURE_ACTION_FLEEING:
             f->destination_x = f->source_x;
             f->destination_y = f->source_y;
@@ -190,7 +175,7 @@ static int get_missile_direction(figure *f, const struct formation_t *m)
     return figure_image_normalize_direction(dir);
 }
 
-void figure_enemy43_spear_action(figure *f)
+void figure_enemy_ranged_spear_1_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -224,7 +209,7 @@ void figure_enemy43_spear_action(figure *f)
     }
 }
 
-void figure_enemy44_sword_action(figure *f)
+void figure_enemy_sword_1_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -255,7 +240,7 @@ void figure_enemy44_sword_action(figure *f)
     }
 }
 
-void figure_enemy45_sword_action(figure *f)
+void figure_enemy_sword_2_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -341,7 +326,7 @@ void figure_enemy_chariot_action(figure *f)
     }
 }
 
-void figure_enemy49_fast_sword_action(figure *f)
+void figure_enemy_fast_sword_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -380,7 +365,7 @@ void figure_enemy49_fast_sword_action(figure *f)
     }
 }
 
-void figure_enemy50_sword_action(figure *f)
+void figure_enemy_sword_3_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -406,7 +391,7 @@ void figure_enemy50_sword_action(figure *f)
     }
 }
 
-void figure_enemy51_spear_action(figure *f)
+void figure_enemy_ranged_spear_2_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -434,7 +419,7 @@ void figure_enemy51_spear_action(figure *f)
     }
 }
 
-void figure_enemy52_mounted_archer_action(figure *f)
+void figure_enemy_mounted_archer_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -455,7 +440,7 @@ void figure_enemy52_mounted_archer_action(figure *f)
     }
 }
 
-void figure_enemy53_axe_action(figure *f)
+void figure_enemy_axe_action(figure *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -492,15 +477,13 @@ void figure_enemy_gladiator_action(figure *f)
             f->action_state = FIGURE_ACTION_CORPSE;
             f->wait_ticks = 0;
             f->direction = 0;
+            clear_targeting_on_unit_death(f);
+            refresh_formation_figure_indexes(f);
         }
     }
     switch (f->action_state) {
         case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
             figure_image_increase_offset(f, 16);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_NATIVE_CREATED:
             f->image_offset = 0;
@@ -564,9 +547,6 @@ void figure_enemy_caesar_legionary_action(figure *f)
         f->image_id = img_group_base_id + dir + 8 * ((f->attack_image_offset - 12) / 2);
     }
     switch (f->action_state) {
-        case FIGURE_ACTION_CORPSE:
-            f->image_id = img_group_base_id + figure_image_corpse_offset(f) + 152;
-            break;
         case FIGURE_ACTION_ATTACK:
             if (f->attack_image_offset >= 12) {
                 f->image_id = img_group_base_id + dir +
@@ -576,7 +556,7 @@ void figure_enemy_caesar_legionary_action(figure *f)
             }
             break;
         default:
-            if (formations[f->formation_id].is_halted && formations[f->formation_id].missile_attack_timeout) {
+            if (f->figure_is_halted && formations[f->formation_id].missile_attack_timeout) {
                 f->image_id = img_group_base_id + 144 + dir + 8 * f->image_offset;
             } else {
                 f->image_id = img_group_base_id + 48 + dir + 8 * f->image_offset;

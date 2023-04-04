@@ -21,12 +21,6 @@ void figure_indigenous_native_action(figure *f)
     }
     figure_image_increase_offset(f, 12);
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_NATIVE_GOING_TO_MEETING_CENTER:
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {

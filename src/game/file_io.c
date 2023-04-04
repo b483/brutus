@@ -72,7 +72,6 @@ static struct {
 } scenario_data = { 0 };
 
 typedef struct {
-    buffer *file_version;
     buffer *image_grid;
     buffer *edge_grid;
     buffer *building_grid;
@@ -196,7 +195,6 @@ static void init_savegame_data(void)
         return;
     }
     savegame_state *state = &savegame_data.state;
-    state->file_version = create_savegame_piece(4, 0);
     state->image_grid = create_savegame_piece(52488, 1);
     state->edge_grid = create_savegame_piece(26244, 1);
     state->building_grid = create_savegame_piece(52488, 1);
@@ -211,10 +209,10 @@ static void init_savegame_data(void)
     state->building_damage_grid = create_savegame_piece(26244, 1);
     state->aqueduct_backup_grid = create_savegame_piece(26244, 1);
     state->sprite_backup_grid = create_savegame_piece(26244, 1);
-    state->figures = create_savegame_piece(164000, 1);
+    state->figures = create_savegame_piece(150000, 1);
     state->route_figures = create_savegame_piece(1200, 1);
     state->route_paths = create_savegame_piece(300000, 1);
-    state->formations = create_savegame_piece(5150, 1);
+    state->formations = create_savegame_piece(4800, 1);
     state->city_data = create_savegame_piece(11599, 1);
     state->player_name = create_savegame_piece(24, 0);
     state->buildings = create_savegame_piece(162000, 1);

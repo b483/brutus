@@ -12,6 +12,7 @@
 #include "core/calc.h"
 #include "core/random.h"
 #include "figure/formation_legion.h"
+#include "figure/route.h"
 #include "figuretype/water.h"
 #include "game/settings.h"
 #include "game/time.h"
@@ -124,7 +125,18 @@ static int perform_large_curse(god_type god)
             if (best_legion) {
                 for (int i = 0; i < best_legion->max_figures; i++) {
                     if (best_legion->figures[i]) {
-                        figure_get(best_legion->figures[i])->action_state = FIGURE_ACTION_SOLDIER_RETURNING_TO_BARRACKS;
+                        figure *f = figure_get(best_legion->figures[i]);
+                        map_point nearest_barracks_road_tile = { 0 };
+                        set_destination__closest_building_of_type(best_legion->building_id, BUILDING_BARRACKS, &nearest_barracks_road_tile);
+                        figure_route_remove(f);
+                        if (nearest_barracks_road_tile.x) {
+                            f->destination_x = nearest_barracks_road_tile.x;
+                            f->destination_y = nearest_barracks_road_tile.y;
+                        } else {
+                            f->destination_x = city_data.map.exit_point.x;
+                            f->destination_y = city_data.map.exit_point.y;
+                        }
+                        f->action_state = FIGURE_ACTION_SOLDIER_RETURNING_TO_BARRACKS;
                     }
                 }
                 best_legion->cursed_by_mars = 96;

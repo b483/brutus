@@ -161,9 +161,6 @@ void window_building_draw_legion_info(building_info_context *c)
     } else if (formations[c->formation_id].figure_type == FIGURE_FORT_MOUNTED) {
         flag_image_id += 18;
     }
-    if (formations[c->formation_id].is_halted) {
-        flag_image_id += 8;
-    }
     const image *flag_image = image_get(flag_image_id);
     image_draw(flag_image_id, c->x_offset + 16 + (40 - flag_image->width) / 2, c->y_offset + 16 + icon_image->height);
     // banner pole and morale ball
@@ -174,18 +171,27 @@ void window_building_draw_legion_info(building_info_context *c)
     text_draw_number(formations[c->formation_id].num_figures, ' ', "", c->x_offset + 294, c->y_offset + 60, FONT_NORMAL_BLACK);
     // health
     lang_text_draw(138, 24, c->x_offset + 100, c->y_offset + 80, FONT_NORMAL_BLACK);
-    int health = calc_percentage(formations[c->formation_id].total_damage, formations[c->formation_id].max_total_damage);
-    if (health <= 0) {
+    int formation_damage = 0;
+    int formation_max_damage = 0;
+    for (int i = 0; i < formations[c->formation_id].num_figures; i++) {
+        figure *f = figure_get(formations[c->formation_id].figures[i]);
+        if (!figure_is_dead(f)) {
+            formation_damage += f->damage;
+            formation_max_damage += f->max_damage;
+        }
+    }
+    int formation_damage_perc = calc_percentage(formation_damage, formation_max_damage);
+    if (formation_damage_perc <= 0) {
         text_id = 26;
-    } else if (health <= 20) {
+    } else if (formation_damage_perc <= 20) {
         text_id = 27;
-    } else if (health <= 40) {
+    } else if (formation_damage_perc <= 40) {
         text_id = 28;
-    } else if (health <= 55) {
+    } else if (formation_damage_perc <= 55) {
         text_id = 29;
-    } else if (health <= 70) {
+    } else if (formation_damage_perc <= 70) {
         text_id = 30;
-    } else if (health <= 90) {
+    } else if (formation_damage_perc <= 90) {
         text_id = 31;
     } else {
         text_id = 32;
@@ -328,7 +334,7 @@ void window_building_draw_legion_info_foreground(building_info_context *c)
     lang_text_draw_multiline(138, text_id, c->x_offset + 24, c->y_offset + 252, BLOCK_SIZE * (c->width_blocks - 4), FONT_NORMAL_GREEN);
 
     // Return to fort
-    if (!formations[c->formation_id].is_at_fort && !formations[c->formation_id].in_distant_battle) {
+    if (!formations[c->formation_id].is_at_rest && !formations[c->formation_id].in_distant_battle) {
         button_border_draw(c->x_offset + BLOCK_SIZE * (c->width_blocks - 18) / 2, c->y_offset + BLOCK_SIZE * c->height_blocks - 48, 288, 32, data.return_button_id == 1);
         lang_text_draw_centered(138, 58, c->x_offset + BLOCK_SIZE * (c->width_blocks - 18) / 2, c->y_offset + BLOCK_SIZE * c->height_blocks - 39, 288, FONT_NORMAL_BLACK);
     }
@@ -353,7 +359,7 @@ int window_building_handle_mouse_legion_info(const mouse *m, building_info_conte
 
 static void button_return_to_fort(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    if (!formations[data.context_for_callback->formation_id].in_distant_battle && !formations[data.context_for_callback->formation_id].is_at_fort) {
+    if (!formations[data.context_for_callback->formation_id].in_distant_battle && !formations[data.context_for_callback->formation_id].is_at_rest) {
         formation_legion_return_home(&formations[data.context_for_callback->formation_id]);
         window_city_show();
     }
@@ -361,40 +367,40 @@ static void button_return_to_fort(__attribute__((unused)) int param1, __attribut
 
 static void button_layout(int index, __attribute__((unused)) int param2)
 {
-    if (formations[data.context_for_callback->formation_id].in_distant_battle) {
+    struct formation_t *m = &formations[data.context_for_callback->formation_id];
+    if (m->in_distant_battle || m->cursed_by_mars) {
         return;
     }
 
-    // store layout in case of mop up
-    int new_layout = formations[data.context_for_callback->formation_id].layout;
-    if (formations[data.context_for_callback->formation_id].figure_type == FIGURE_FORT_LEGIONARY) {
+    if (m->figure_type == FIGURE_FORT_LEGIONARY) {
         switch (index) {
             case 0:
-                if (formations[data.context_for_callback->formation_id].has_military_training) {
-                    new_layout = FORMATION_TORTOISE; break;
+                if (m->has_military_training) {
+                    m->layout = FORMATION_TORTOISE; break;
                 } else {
                     return;
                 }
             case 1: return;
-            case 2: new_layout = FORMATION_DOUBLE_LINE_1; break;
-            case 3: new_layout = FORMATION_DOUBLE_LINE_2; break;
-            case 4: new_layout = FORMATION_MOP_UP; break;
+            case 2: m->layout = FORMATION_DOUBLE_LINE_1; break;
+            case 3: m->layout = FORMATION_DOUBLE_LINE_2; break;
             default: break;
         }
     } else {
         switch (index) {
-            case 0: new_layout = FORMATION_SINGLE_LINE_1; break;
-            case 1: new_layout = FORMATION_SINGLE_LINE_2; break;
-            case 2: new_layout = FORMATION_DOUBLE_LINE_1; break;
-            case 3: new_layout = FORMATION_DOUBLE_LINE_2; break;
-            case 4: new_layout = FORMATION_MOP_UP; break;
+            case 0: m->layout = FORMATION_SINGLE_LINE_1; break;
+            case 1: m->layout = FORMATION_SINGLE_LINE_2; break;
+            case 2: m->layout = FORMATION_DOUBLE_LINE_1; break;
+            case 3: m->layout = FORMATION_DOUBLE_LINE_2; break;
             default: break;
         }
     }
-    if (new_layout == FORMATION_MOP_UP && formations[data.context_for_callback->formation_id].layout != FORMATION_MOP_UP) {
-        formations[data.context_for_callback->formation_id].prev.layout = formations[data.context_for_callback->formation_id].layout;
+    if (index == 4) { // mop up
+        for (int i = 0; i < m->num_figures; i++) {
+            figure *unit = figure_get(m->figures[i]);
+            unit->action_state = FIGURE_ACTION_SOLDIER_MOPPING_UP;
+        }
     }
-    formations[data.context_for_callback->formation_id].layout = new_layout;
+
     switch (index) {
         case 0: sound_speech_play_file("wavs/cohort1.wav"); break;
         case 1: sound_speech_play_file("wavs/cohort2.wav"); break;

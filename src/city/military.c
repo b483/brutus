@@ -143,7 +143,6 @@ static int player_has_won(void)
             }
             int soldiers_to_kill = calc_adjust_with_percentage(soldiers_total, pct_loss);
             if (soldiers_to_kill >= soldiers_total) {
-                formations[i].is_at_fort = 1;
                 formations[i].in_distant_battle = 0;
             }
             for (int fig = 0; fig < formations[i].num_figures; fig++) {
@@ -220,7 +219,6 @@ static void update_aftermath(void)
                             figure *f = figure_get(formations[i].figures[fig]);
                             if (!figure_is_dead(f)) {
                                 f->action_state = FIGURE_ACTION_SOLDIER_RETURNING_FROM_DISTANT_BATTLE;
-                                f->formation_at_rest = 1;
                             }
                         }
                     }

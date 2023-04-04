@@ -165,11 +165,7 @@ void figure_entertainer_action(figure *f)
     int speed_factor = f->type == FIGURE_CHARIOTEER ? 2 : 1;
     switch (f->action_state) {
         case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
             figure_image_increase_offset(f, 32);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
             break;
         case FIGURE_ACTION_ENTERTAINER_AT_SCHOOL_CREATED:
             f->is_ghost = 1;

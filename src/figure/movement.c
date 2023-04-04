@@ -120,7 +120,10 @@ static void move_to_next_tile(figure *f)
     } else {
         f->is_on_road = 0;
     }
-    figure_combat_attack_figure_at(f, f->grid_offset);
+
+     if (f->is_friendly_armed_unit || f->is_player_legion_unit || f->is_native_unit || f->type == FIGURE_WOLF || f->is_enemy_unit || f->is_caesar_legion_unit) {
+        figure_combat_attack_figure_at(f, f->grid_offset);
+    }
     f->previous_tile_x = old_x;
     f->previous_tile_y = old_y;
 }
@@ -133,6 +136,7 @@ static void set_next_route_tile_direction(figure *f)
         } else {
             figure_route_remove(f);
             f->direction = DIR_FIGURE_AT_DESTINATION;
+            f->figure_is_halted = 1;
         }
     } else { // should be at destination
         f->direction = calc_general_direction(f->x, f->y, f->destination_x, f->destination_y);
@@ -214,6 +218,7 @@ static void advance_route_tile(figure *f, int roaming_enabled)
 static void walk_ticks(figure *f, int num_ticks, int roaming_enabled)
 {
     while (num_ticks > 0) {
+        f->figure_is_halted = 0;
         num_ticks--;
         f->progress_on_tile++;
         if (f->progress_on_tile < 15) {

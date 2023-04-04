@@ -3,6 +3,7 @@
 
 #include "core/buffer.h"
 #include "game/orientation.h"
+#include "figure/figure.h"
 #include "figure/type.h"
 
 #define MAX_FORMATIONS 50
@@ -17,13 +18,6 @@
 #define MAX_WOLF_ROAM_DISTANCE 16
 #define MAX_SHEEP_ROAM_DISTANCE 8
 #define MAX_ZEBRA_ROAM_DISTANCE 20
-
-enum {
-    LEGION_RECRUIT_NONE = 0,
-    LEGION_RECRUIT_MOUNTED = 1,
-    LEGION_RECRUIT_JAVELIN = 2,
-    LEGION_RECRUIT_LEGIONARY = 3
-};
 
 enum {
     FORMATION_ATTACK_FOOD_CHAIN = 0,
@@ -75,12 +69,11 @@ struct formation_t {
     uint8_t routed;
 
     /* Figures */
+    uint8_t legion_standard__figure_id;
     int figure_type; /**< Type of figure in this formation */
     int num_figures; /**< Current number of figures in the formation */
     int max_figures; /**< Maximum number of figures */
     int figures[MAX_FORMATION_FIGURES]; /**< Figure IDs */
-    int total_damage; /**< Total damage of all figures added */
-    int max_total_damage; /**< Maximum total damage of all figures added */
 
     /* Position */
     int x;
@@ -96,7 +89,6 @@ struct formation_t {
 
     /* Movement */
     int wait_ticks;
-    int is_halted;
     int recent_fight;
     int missile_fired;
     int missile_attack_timeout;
@@ -107,8 +99,7 @@ struct formation_t {
     int in_distant_battle; /**< Flag to indicate this legion is away in a distant battle */
     int cursed_by_mars; /**< Flag to indicate this legion is cursed */
     int has_military_training; /**< Flag to indicate this legion has had military training */
-    int legion_recruit_type; /**< Recruit type: none if this legion is fully occupied */
-    int is_at_fort; /**< Flag to indicate this legion is resting at the fort */
+    int is_at_rest;
 
     /* Enemy-related */
     int enemy_img_group;
@@ -129,11 +120,19 @@ struct formation_t {
 
 extern struct formation_t formations[MAX_FORMATIONS];
 
+int formation_layout_position_x(int layout, int index);
+
+int formation_layout_position_y(int layout, int index);
+
 void formations_clear(void);
 
 void formation_clear(int formation_id);
 
 struct formation_t *create_formation_type(int type);
+
+void add_figure_to_formation(figure *f, struct formation_t *m);
+
+void refresh_formation_figure_indexes(figure *unit_to_remove);
 
 int formation_get_selected(void);
 void formation_set_selected(int formation_id);
@@ -143,8 +142,8 @@ int formation_grid_offset_for_invasion(void);
 void formation_update_morale_after_death(struct formation_t *m);
 
 void legions_update_morale_monthly(void);
-void formation_decrease_monthly_counters(struct formation_t *m);
-void formation_clear_monthly_counters(struct formation_t *m);
+void formation_adjust_counters(struct formation_t *m);
+void formation_clear_counters(struct formation_t *m);
 
 void formation_set_destination(struct formation_t *m, int x, int y);
 void formation_set_destination_building(struct formation_t *m, int x, int y, int building_id);

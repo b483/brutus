@@ -1,5 +1,6 @@
 #include "formation_legion.h"
 
+#include "building/barracks.h"
 #include "city/data_private.h"
 #include "city/military.h"
 #include "city/warning.h"
@@ -13,16 +14,32 @@
 #include "map/routing.h"
 #include "scenario/data.h"
 #include "sound/speech.h"
+#include "map/terrain.h"
+#include "scenario/editor_events.h"
 
 int formation_legion_create_for_fort(building *fort)
 {
     formation_calculate_legion_totals();
-
-    // create legion formation
     struct formation_t *m = create_formation_type(fort->subtype.fort_figure_type);
     m->is_legion = 1;
-    m->legion_id = formation_get_num_legions() - 1;
+    // assign first available legion_id (factors in fort deletes)
+    for (int i = 0; i < MAX_LEGIONS; i++) {
+        int legion_id_free = 1;
+        for (int j = 1; j < MAX_FORMATIONS; j++) {
+            if (formations[j].in_use && formations[j].is_legion && m->id != formations[j].id) {
+                if (formations[j].legion_id == i) {
+                    legion_id_free = 0;
+                    break;
+                }
+            }
+        }
+        if (legion_id_free) {
+            m->legion_id = i;
+            break;
+        }
+    }
     m->layout = FORMATION_DOUBLE_LINE_1;
+    m->prev.layout = FORMATION_DOUBLE_LINE_1;
     if (fort->subtype.fort_figure_type == FIGURE_FORT_LEGIONARY) {
         m->max_morale = 80;
     } else {
@@ -33,11 +50,12 @@ int formation_legion_create_for_fort(building *fort)
     m->x = m->standard_x = m->x_home = fort->x + 3;
     m->y = m->standard_y = m->y_home = fort->y - 1;
     m->building_id = fort->id;
-    m->is_at_fort = 1;
 
-    figure *standard = figure_create(FIGURE_FORT_STANDARD, 0, 0, DIR_0_TOP);
+    figure *standard = figure_create(FIGURE_FORT_STANDARD, m->x, m->y, DIR_0_TOP);
     standard->building_id = fort->id;
     standard->formation_id = m->id;
+
+    m->legion_standard__figure_id = standard->id;
 
     return m->id;
 }
@@ -73,66 +91,128 @@ int formation_get_num_legions(void)
     return total;
 }
 
-int formation_for_legion(int legion_index)
+int get_legion_formation_by_index(int legion_index)
 {
     int index = 1;
     for (int i = 1; i < MAX_FORMATIONS; i++) {
         if (formations[i].in_use && formations[i].is_legion) {
-            if (index++ == legion_index) {
+            if (index == legion_index) {
                 return i;
             }
+            index++;
         }
     }
     return 0;
 }
 
-void formation_legion_restore_layout(struct formation_t *m)
+static void update_legion_standard_map_location(struct formation_t *legion_formation)
 {
-    if (m->layout == FORMATION_MOP_UP) {
-        m->layout = m->prev.layout;
+    figure *standard = figure_get(legion_formation->legion_standard__figure_id);
+    map_figure_delete(standard);
+    standard->grid_offset = map_grid_offset(legion_formation->standard_x, legion_formation->standard_y);
+    map_figure_add(standard);
+}
+
+static void set_destination_for_soldier(figure *soldier, int dst_x, int dst_y, int dst_grid_offset)
+{
+    soldier->destination_x = dst_x;
+    soldier->destination_y = dst_y;
+    soldier->destination_grid_offset = dst_grid_offset;
+    soldier->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_STANDARD;
+}
+
+static int destination_is_clear(figure *legion_unit, int target_grid_offset)
+{
+    // check terrain at destination
+    if (map_terrain_is(target_grid_offset, TERRAIN_IMPASSABLE)) {
+        return 0;
+    }
+    // check if any legion unit is heading towards the destination
+    for (int i = 1; i < MAX_FIGURES; i++) {
+        figure *f = figure_get(i);
+        if (!figure_is_dead(f) && f->is_player_legion_unit && f->id != legion_unit->id) {
+            if (f->destination_grid_offset == target_grid_offset) {
+                if (f->formation_id == legion_unit->formation_id) { // same formation, stationary units may not have received the command to move yet
+                    if (f->action_state == FIGURE_ACTION_SOLDIER_GOING_TO_STANDARD) {
+                        return 0;
+                    }
+                } else {
+                    return 0;
+                }
+            }
+        }
+    }
+    return 1;
+}
+
+void deploy_legion_unit_to_formation_location(figure *legion_unit, struct formation_t *legion_formation)
+{
+    figure_route_remove(legion_unit);
+    int target_dst_x = legion_formation->standard_x + formation_layout_position_x(legion_formation->layout, legion_unit->index_in_formation);
+    int target_dst_y = legion_formation->standard_y + formation_layout_position_y(legion_formation->layout, legion_unit->index_in_formation);
+    int target_dst_grid_offset = map_grid_offset(target_dst_x, target_dst_y);
+    if (destination_is_clear(legion_unit, target_dst_grid_offset)) {
+        set_destination_for_soldier(legion_unit, target_dst_x, target_dst_y, target_dst_grid_offset);
+    } else {
+        // attempt to route to nearest clear tile
+        for (int j = 1; j < 10; j++) {
+            target_dst_grid_offset = map_grid_offset(target_dst_x + j, target_dst_y); // +x
+            if (destination_is_clear(legion_unit, target_dst_grid_offset)) {
+                set_destination_for_soldier(legion_unit, target_dst_x + j, target_dst_y, target_dst_grid_offset);
+                break;
+            }
+            target_dst_grid_offset = map_grid_offset(target_dst_x - j, target_dst_y); // -x
+            if (destination_is_clear(legion_unit, target_dst_grid_offset)) {
+                set_destination_for_soldier(legion_unit, target_dst_x - j, target_dst_y, target_dst_grid_offset);
+                break;
+            }
+            target_dst_grid_offset = map_grid_offset(target_dst_x, target_dst_y + j); // +y
+            if (destination_is_clear(legion_unit, target_dst_grid_offset)) {
+                set_destination_for_soldier(legion_unit, target_dst_x, target_dst_y + j, target_dst_grid_offset);
+                break;
+            }
+            target_dst_grid_offset = map_grid_offset(target_dst_x, target_dst_y - j); // -y
+            if (destination_is_clear(legion_unit, target_dst_grid_offset)) {
+                set_destination_for_soldier(legion_unit, target_dst_x, target_dst_y - j, target_dst_grid_offset);
+                break;
+            }
+            target_dst_grid_offset = map_grid_offset(target_dst_x + j, target_dst_y - j); // +x, -y
+            if (destination_is_clear(legion_unit, target_dst_grid_offset)) {
+                set_destination_for_soldier(legion_unit, target_dst_x + j, target_dst_y - j, target_dst_grid_offset);
+                break;
+            }
+            target_dst_grid_offset = map_grid_offset(target_dst_x - j, target_dst_y + j); // -x, +y
+            if (destination_is_clear(legion_unit, target_dst_grid_offset)) {
+                set_destination_for_soldier(legion_unit, target_dst_x - j, target_dst_y + j, target_dst_grid_offset);
+                break;
+            }
+            target_dst_grid_offset = map_grid_offset(target_dst_x + j, target_dst_y + j); // +x, +y
+            if (destination_is_clear(legion_unit, target_dst_grid_offset)) {
+                set_destination_for_soldier(legion_unit, target_dst_x + j, target_dst_y + j, target_dst_grid_offset);
+                break;
+            }
+            target_dst_grid_offset = map_grid_offset(target_dst_x - j, target_dst_y - j); // -x, -y
+            if (destination_is_clear(legion_unit, target_dst_grid_offset)) {
+                set_destination_for_soldier(legion_unit, target_dst_x - j, target_dst_y - j, target_dst_grid_offset);
+                break;
+            }
+        }
     }
 }
 
 void formation_legion_move_to(struct formation_t *m, map_tile *tile)
 {
-    map_routing_calculate_distances(m->x_home, m->y_home);
-    if (map_routing_distance(tile->grid_offset) <= 0) {
-        return; // unable to route there
-    }
-    if (tile->x == m->x_home && tile->y == m->y_home) {
-        return; // use formation_legion_return_home
-    }
-    if (m->cursed_by_mars) {
-        return;
-    }
-
-    if (m->morale <= ROUT_MORALE_THRESHOLD) {
-        city_warning_show(WARNING_LEGION_MORALE_TOO_LOW);
-        return;
-    }
+    sound_speech_play_file("wavs/cohort5.wav");
 
     m->standard_x = tile->x;
     m->standard_y = tile->y;
-    // prevent perfect stacking for legion by not allowing placement of standard on top of another
-    int figure_id = map_figures.items[map_grid_offset(m->standard_x, m->standard_y)];
-    while (figure_id) {
-        figure *f = figure_get(figure_id);
-        if (f->type == FIGURE_FORT_STANDARD) {
-            return;
-        }
-        figure_id = f->next_figure_id_on_same_tile;
-    }
-    m->is_at_fort = 0;
-    sound_speech_play_file("wavs/cohort5.wav");
+    update_legion_standard_map_location(m);
 
-    for (int i = 0; i < MAX_FORMATION_FIGURES && m->figures[i]; i++) {
+    for (int i = 0; i < m->num_figures && m->figures[i]; i++) {
         figure *f = figure_get(m->figures[i]);
-        if (f->action_state == FIGURE_ACTION_CORPSE ||
-            f->action_state == FIGURE_ACTION_ATTACK) {
-            continue;
+        if (f->action_state != FIGURE_ACTION_CORPSE && f->action_state != FIGURE_ACTION_ATTACK) {
+            deploy_legion_unit_to_formation_location(f, m);
         }
-        f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_STANDARD;
-        figure_route_remove(f);
     }
 }
 
@@ -142,11 +222,10 @@ void formation_legion_return_home(struct formation_t *m)
     if (map_routing_distance(map_grid_offset(m->x, m->y)) <= 0) {
         return; // unable to route home
     }
-    if (m->cursed_by_mars) {
-        return;
-    }
-    m->is_at_fort = 1;
-    formation_legion_restore_layout(m);
+    m->standard_x = m->x;
+    m->standard_y = m->y;
+    update_legion_standard_map_location(m);
+
     for (int i = 0; i < MAX_FORMATION_FIGURES && m->figures[i]; i++) {
         figure *f = figure_get(m->figures[i]);
         if (f->action_state == FIGURE_ACTION_CORPSE ||
@@ -171,49 +250,38 @@ int formation_legion_at_grid_offset(int grid_offset)
     return 0;
 }
 
-int formation_legion_at_building(int grid_offset)
-{
-    int building_id = map_building_at(grid_offset);
-    if (building_id > 0) {
-        building *b = building_get(building_id);
-        if (b->state == BUILDING_STATE_IN_USE && (b->type == BUILDING_FORT || b->type == BUILDING_FORT_GROUND)) {
-            return b->formation_id;
-        }
-    }
-    return 0;
-}
-
 void formation_legion_update(void)
 {
     for (int i = 1; i < MAX_FORMATIONS; i++) {
         if (formations[i].in_use && formations[i].is_legion) {
-            formation_decrease_monthly_counters(&formations[i]);
+            formation_adjust_counters(&formations[i]);
             if (city_data.figure.enemies <= 0) {
-                formation_clear_monthly_counters(&formations[i]);
+                formation_clear_counters(&formations[i]);
             }
             if (formations[i].morale > ROUT_MORALE_THRESHOLD) {
                 formations[i].routed = 0;
             }
+
+            // check formation military training status, send untrained units to train
             int formation_military_training = 1;
-            for (int n = 0; n < formations[i].max_figures; n++) {
+            for (int n = 0; n < formations[i].num_figures; n++) {
                 figure *f = figure_get(formations[i].figures[n]);
-                if (f->id) {
-                    if (!f->is_military_trained) {
-                        formation_military_training = 0;
-                        formations[i].has_military_training = 0;
-                        if (formations[i].figure_type == FIGURE_FORT_LEGIONARY) {
-                            formations[i].max_morale = 80;
-                        } else {
-                            formations[i].max_morale = 60;
-                        }
+                if (!f->is_military_trained) {
+                    formation_military_training = 0;
+                    formations[i].has_military_training = 0;
+                    if (formations[i].figure_type == FIGURE_FORT_LEGIONARY) {
+                        formations[i].max_morale = 80;
+                    } else {
+                        formations[i].max_morale = 60;
                     }
-                    if (f->action_state == FIGURE_ACTION_ATTACK) {
-                        formations[i].recent_fight = 6;
-                    }
-                    // decrease damage
-                    if (f->state == FIGURE_STATE_ALIVE && f->action_state == FIGURE_ACTION_SOLDIER_AT_REST) {
-                        if (f->damage) {
-                            f->damage--;
+                    if (scenario_building_allowed(BUILDING_MILITARY_ACADEMY) && f->action_state == FIGURE_ACTION_SOLDIER_AT_REST) {
+                        map_point mil_acad_road = { 0 };
+                        set_destination__closest_building_of_type(f->building_id, BUILDING_MILITARY_ACADEMY, &mil_acad_road);
+                        if (mil_acad_road.x) {
+                            f->destination_x = mil_acad_road.x;
+                            f->destination_y = mil_acad_road.y;
+                            f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_MILITARY_ACADEMY;
+                            break; // causes a delay between sending units
                         }
                     }
                 }
@@ -226,9 +294,49 @@ void formation_legion_update(void)
                     formations[i].max_morale = 80;
                 }
             }
+
+            // check if all units of a formation are at rest (not deployed)
+            int formation_at_rest = 1;
+            for (int n = 0; n < formations[i].num_figures; n++) {
+                figure *f = figure_get(formations[i].figures[n]);
+                if (f->action_state == FIGURE_ACTION_ATTACK
+                || f->action_state == FIGURE_ACTION_SOLDIER_GOING_TO_STANDARD
+                || f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD
+                || f->action_state == FIGURE_ACTION_SOLDIER_MOPPING_UP
+                || f->action_state == FIGURE_ACTION_SOLDIER_GOING_TO_DISTANT_BATTLE) {
+                    formation_at_rest = 0;
+                    formations[i].is_at_rest = 0;
+                    break;
+                }
+            }
+            if (formation_at_rest) {
+                formations[i].is_at_rest = 1;
+            }
+
+            for (int n = 0; n < formations[i].num_figures; n++) {
+                figure *f = figure_get(formations[i].figures[n]);
+                if (f->action_state == FIGURE_ACTION_ATTACK) {
+                    formations[i].recent_fight = 6;
+                    break;
+                }
+            }
+
+            // decrease damage
+            for (int n = 0; n < formations[i].num_figures; n++) {
+                figure *f = figure_get(formations[i].figures[n]);
+                if (!figure_is_dead(f) && f->action_state == FIGURE_ACTION_SOLDIER_AT_REST) {
+                    if (f->damage) {
+                        f->damage--;
+                    }
+                }
+            }
+
             if (formations[i].morale <= ROUT_MORALE_THRESHOLD) {
+                formations[i].standard_x = formations[i].x;
+                formations[i].standard_y = formations[i].y;
+                update_legion_standard_map_location(&formations[i]);
                 // flee back to fort
-                for (int n = 0; n < formations[i].max_figures; n++) {
+                for (int n = 0; n < formations[i].num_figures; n++) {
                     figure *f = figure_get(formations[i].figures[n]);
                     if (f->action_state != FIGURE_ACTION_ATTACK &&
                         f->action_state != FIGURE_ACTION_CORPSE &&
@@ -249,22 +357,6 @@ void formation_legion_update(void)
                         }
                     }
                     formations[i].routed = 1;
-                }
-            } else if (formations[i].layout == FORMATION_MOP_UP) {
-                if (enemy_army_total_enemy_formations() +
-                    city_data.figure.rioters +
-                    city_data.figure.attacking_natives > 0) {
-                    for (int n = 0; n < MAX_FORMATION_FIGURES; n++) {
-                        if (formations[i].figures[n] != 0) {
-                            figure *f = figure_get(formations[i].figures[n]);
-                            if (f->action_state != FIGURE_ACTION_ATTACK &&
-                                f->action_state != FIGURE_ACTION_CORPSE) {
-                                f->action_state = FIGURE_ACTION_SOLDIER_MOPPING_UP;
-                            }
-                        }
-                    }
-                } else {
-                    formation_legion_restore_layout(&formations[i]);
                 }
             }
         }

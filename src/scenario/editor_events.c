@@ -563,6 +563,7 @@ static void create_enemy_squad(int figure_type, int enemy_type, int enemy_type_d
             }
             f->enemy_image_type_detailed = enemy_type_detailed;
             f->is_ghost = 1;
+            add_figure_to_formation(f, m);
         }
     }
 }
@@ -741,9 +742,8 @@ int scenario_invasion_start_from_caesar(int size)
 
 void scenario_invasion_start_from_cheat(void)
 {
-    int enemy_id = random_byte() % ENEMY_TYPE_MAX_COUNT;
-    random_generate_next();
-    start_invasion(ENEMY_ID_TO_ENEMY_TYPE[enemy_id], enemy_id, 200, MAX_INVASION_POINTS, FORMATION_ATTACK_FOOD_CHAIN, 23);
+    int enemy_id = rand() % ENEMY_TYPE_MAX_COUNT;
+    start_invasion(ENEMY_ID_TO_ENEMY_TYPE[enemy_id], enemy_id, 160, MAX_INVASION_POINTS, FORMATION_ATTACK_FOOD_CHAIN, 23);
 }
 
 void scenario_distant_battle_process(void)

@@ -3,6 +3,7 @@
 
 #include "building/type.h"
 #include "core/buffer.h"
+#include "map/point.h"
 
 #define MAX_BUILDINGS 2000
 
@@ -157,6 +158,8 @@ int building_is_fort(building_type type);
 int building_get_highest_id(void);
 
 void building_update_highest_id(void);
+
+void set_destination__closest_building_of_type(int closest_to__building_id, int closest_building_of_type__type, map_point *closest_building_of_type__road_tile);
 
 void building_totals_add_corrupted_house(int unfixable);
 

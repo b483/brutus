@@ -2,21 +2,26 @@
 
 #include "building/building_state.h"
 #include "building/destruction.h"
+#include "building/model.h"
 #include "building/properties.h"
 #include "building/storage.h"
 #include "city/buildings.h"
 #include "city/data_private.h"
 #include "city/population.h"
 #include "city/warning.h"
+#include "core/calc.h"
 #include "figure/figure.h"
 #include "figure/formation_legion.h"
+#include "figure/route.h"
 #include "game/resource.h"
 #include "game/undo.h"
 #include "map/building_tiles.h"
 #include "map/desirability.h"
 #include "map/elevation.h"
+#include "map/figure.h"
 #include "map/grid.h"
 #include "map/random.h"
+#include "map/road_access.h"
 #include "map/routing_terrain.h"
 #include "map/terrain.h"
 #include "map/tiles.h"
@@ -195,6 +200,21 @@ void building_clear_related_data(building *b)
     if (b->type == BUILDING_FORT) {
         if (b->formation_id > 0) {
             if (formations[b->formation_id].in_use) {
+                for (int i = 0; i < formations[b->formation_id].num_figures; i++) {
+                    figure *f = figure_get(formations[b->formation_id].figures[i]);
+                    map_point nearest_barracks_road_tile = { 0 };
+                    set_destination__closest_building_of_type(b->id, BUILDING_BARRACKS, &nearest_barracks_road_tile);
+                    figure_route_remove(f);
+                    if (nearest_barracks_road_tile.x) {
+                        f->destination_x = nearest_barracks_road_tile.x;
+                        f->destination_y = nearest_barracks_road_tile.y;
+                    } else {
+                        f->destination_x = city_data.map.exit_point.x;
+                        f->destination_y = city_data.map.exit_point.y;
+                    }
+                    f->action_state = FIGURE_ACTION_SOLDIER_RETURNING_TO_BARRACKS;
+                }
+                map_figure_delete(figure_get(formations[b->formation_id].legion_standard__figure_id));
                 formation_clear(b->formation_id);
                 formation_calculate_legion_totals();
             }
@@ -294,6 +314,23 @@ void building_update_highest_id(void)
     }
     if (extra.highest_id_in_use > extra.highest_id_ever) {
         extra.highest_id_ever = extra.highest_id_in_use;
+    }
+}
+
+void set_destination__closest_building_of_type(int closest_to__building_id, int closest_building_of_type__type, map_point *closest_building_of_type__road_tile)
+{
+    int min_distance = 10000;
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        building *b = building_get(i);
+        if (b->state == BUILDING_STATE_IN_USE && b->type == closest_building_of_type__type && b->num_workers >= model_get_building(closest_building_of_type__type)->laborers) {
+            building *closest_to__building = building_get(closest_to__building_id);
+            int dist = calc_maximum_distance(closest_to__building->x, closest_to__building->y, b->x, b->y);
+            if (dist < min_distance) {
+                if (map_has_road_access(b->x, b->y, b->size, closest_building_of_type__road_tile)) {
+                    min_distance = dist;
+                }
+            }
+        }
     }
 }
 

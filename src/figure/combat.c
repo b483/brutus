@@ -4,6 +4,7 @@
 #include "city/data_private.h"
 #include "core/calc.h"
 #include "core/image.h"
+#include "figure/combat.h"
 #include "figure/formation.h"
 #include "figure/movement.h"
 #include "figure/route.h"
@@ -18,6 +19,13 @@
 #include "sound/effect.h"
 
 #include <stdlib.h>
+
+enum {
+    ATTACK_NONE = 0,
+    FRONTAL_ATTACK = 1,
+    SIDE_ATTACK = 2,
+    BACK_ATTACK = 3,
+};
 
 int is_valid_target_for_player_unit(figure *target)
 {
@@ -81,7 +89,7 @@ figure *melee_unit__set_closest_target(figure *f)
             closest_target_distance = 5;
             break;
         default:
-            closest_target_distance = 100;
+            closest_target_distance = 30;
             break;
     }
     for (int i = 1; i < MAX_FIGURES; i++) {
@@ -171,7 +179,6 @@ static void engage_in_melee_combat(figure *attacker, figure *opponent)
         figure__remove_ranged_targeter_from_list(target_of_ranged_unit, attacker);
     }
     attacker->target_figure_id = opponent->id;
-    attacker->primary_melee_combatant_id = opponent->id;
     attacker->melee_combatant_ids[0] = opponent->id;
     attacker->num_melee_combatants++;
     attacker->attack_image_offset = 12;
@@ -195,7 +202,6 @@ static void engage_in_melee_combat(figure *attacker, figure *opponent)
             figure__remove_ranged_targeter_from_list(target_of_opponent_ranged_unit, opponent);
         }
         opponent->target_figure_id = attacker->id;
-        opponent->primary_melee_combatant_id = attacker->id;
         opponent->attack_image_offset = 0;
         opponent->attack_direction = (attacker->attack_direction + 4) % 8;
     }
@@ -214,159 +220,112 @@ void figure_combat_attack_figure_at(figure *attacker, int grid_offset)
     if (attacker->action_state == FIGURE_ACTION_ATTACK) {
         return;
     }
-    int guard = 0;
-    int potential_opponent_id = map_figure_at(grid_offset);
-    while (1) {
-        if (++guard >= MAX_FIGURES || potential_opponent_id <= 0) {
-            break;
+    int figure_id = map_figures.items[grid_offset];
+    while (figure_id) {
+        figure *opponent = figure_get(figure_id);
+        if (opponent->id != attacker->id
+        && !figure_is_dead(opponent)
+        && opponent->is_targetable
+        && opponent->num_melee_combatants < MAX_MELEE_COMBATANTS_PER_UNIT) {
+            if (attacker->is_friendly_armed_unit || attacker->is_player_legion_unit) {
+                if (is_valid_target_for_player_unit(opponent)) {
+                    engage_in_melee_combat(attacker, opponent);
+                    return;
+                }
+            } else if (attacker->type == FIGURE_WOLF) {
+                if (opponent->type != FIGURE_WOLF) {
+                    engage_in_melee_combat(attacker, opponent);
+                    return;
+                }
+            } else if (attacker->is_enemy_unit) {
+                if (is_valid_target_for_enemy_unit(opponent)) {
+                    engage_in_melee_combat(attacker, opponent);
+                    return;
+                }
+            } else if (attacker->is_caesar_legion_unit) {
+                if (is_valid_target_for_caesar_unit(opponent)) {
+                    engage_in_melee_combat(attacker, opponent);
+                    return;
+                }
+            }
         }
-        figure *opponent = figure_get(potential_opponent_id);
-        if (potential_opponent_id == attacker->id
-        || opponent->state != FIGURE_STATE_ALIVE
-        || opponent->action_state == FIGURE_ACTION_CORPSE
-        || !opponent->is_targetable
-        || opponent->num_melee_combatants >= MAX_MELEE_COMBATANTS_PER_UNIT) {
-            potential_opponent_id = opponent->next_figure_id_on_same_tile;
-            continue;
-        }
-        if (attacker->is_friendly_armed_unit || attacker->is_player_legion_unit) {
-            if (is_valid_target_for_player_unit(opponent)) {
-                engage_in_melee_combat(attacker, opponent);
-                return;
-            }
-        } else if (attacker->type == FIGURE_WOLF) {
-            if (opponent->type != FIGURE_WOLF) {
-                engage_in_melee_combat(attacker, opponent);
-                return;
-            }
-        } else if (attacker->is_enemy_unit) {
-            if (is_valid_target_for_enemy_unit(opponent)) {
-                engage_in_melee_combat(attacker, opponent);
-                return;
-            }
-        } else if (attacker->is_caesar_legion_unit) {
-            if (is_valid_target_for_caesar_unit(opponent)) {
-                engage_in_melee_combat(attacker, opponent);
-                return;
-            }
-        } else {
-            potential_opponent_id = opponent->next_figure_id_on_same_tile;
-        }
+        figure_id = opponent->next_figure_id_on_same_tile;
     }
 }
 
-static int attack_is_same_direction(int dir1, int dir2)
+static int determine_attack_direction(int dir1, int dir2)
 {
-    if (dir1 == dir2) {
-        return 1;
+    int deg_abs_delta = abs(dir1 * 45 - dir2 * 45);
+    switch (deg_abs_delta) {
+        case 0:
+        case 45:
+        case 315:
+            return BACK_ATTACK;
+        case 90:
+        case 270:
+            return SIDE_ATTACK;
+        default:
+            return FRONTAL_ATTACK;
     }
-    int dir2_off = dir2 <= 0 ? 7 : dir2 - 1;
-    if (dir1 == dir2_off) {
-        return 1;
-    }
-    dir2_off = dir2 >= 7 ? 0 : dir2 + 1;
-    if (dir1 == dir2_off) {
-        return 1;
-    }
-    return 0;
 }
 
-static void hit_opponent(figure *f)
+static void hit_opponent(figure *attacker, figure *opponent)
 {
-    const struct formation_t *m = &formations[f->formation_id];
-    figure *opponent = figure_get(f->primary_melee_combatant_id);
-    struct formation_t *opponent_formation = &formations[opponent->formation_id];
-
     if (opponent->is_unarmed_civilian_unit || opponent->is_criminal_unit) {
-        f->attack_image_offset = 12;
+        attacker->attack_image_offset = 12;
     } else {
-        f->attack_image_offset = 0;
+        attacker->attack_image_offset = 0;
     }
-    int figure_attack = f->melee_attack_value;
-    int opponent_defense = f->melee_defense_value;
+    int attacker_attack_value = attacker->melee_attack_value;
+    int opponent_defense_value = opponent->melee_defense_value;
 
-    if (opponent->primary_melee_combatant_id != f->id && m->figure_type != FIGURE_FORT_LEGIONARY &&
-            attack_is_same_direction(f->attack_direction, opponent->attack_direction)) {
-        figure_attack += 4; // attack opponent on the (exposed) back
-        sound_effect_play(SOUND_EFFECT_SWORD_SWING);
-    }
-    if (m->is_halted && m->figure_type == FIGURE_FORT_LEGIONARY &&
-            attack_is_same_direction(f->attack_direction, m->direction)) {
-        figure_attack += 4; // coordinated formation attack bonus
-    }
-    // defense modifiers
-    if (opponent_formation->is_halted &&
-            (opponent_formation->figure_type == FIGURE_FORT_LEGIONARY ||
-                opponent_formation->figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY)) {
-        if (!attack_is_same_direction(opponent->attack_direction, opponent_formation->direction)) {
-            opponent_defense -= 4; // opponent not attacking in coordinated formation
-        } else if (opponent_formation->layout == FORMATION_TORTOISE) {
-            opponent_defense += 7;
-        } else if (opponent_formation->layout == FORMATION_DOUBLE_LINE_1 ||
-                   opponent_formation->layout == FORMATION_DOUBLE_LINE_2) {
-            opponent_defense += 4;
-        }
+    switch (determine_attack_direction(attacker->attack_direction, opponent->attack_direction)) {
+        case SIDE_ATTACK:
+            attacker_attack_value += 2;
+            opponent_defense_value /= 2;
+            break;
+        case BACK_ATTACK:
+            attacker_attack_value *= 2;
+            opponent_defense_value = 0;
+            sound_effect_play(SOUND_EFFECT_SWORD_SWING);
+            break;
+        default:
+            break;
     }
 
-    int net_attack = figure_attack - opponent_defense;
+    int net_attack = attacker_attack_value - opponent_defense_value;
     if (net_attack < 0) {
         net_attack = 0;
     }
     opponent->damage += net_attack;
     if (opponent->damage <= opponent->max_damage) {
-        figure_play_hit_sound(f->type);
+        figure_play_hit_sound(attacker->type);
     } else {
         opponent->action_state = FIGURE_ACTION_CORPSE;
         opponent->wait_ticks = 0;
         figure_play_die_sound(opponent);
-        formation_update_morale_after_death(opponent_formation);
+        formation_update_morale_after_death(&formations[opponent->formation_id]);
+        clear_targeting_on_unit_death(opponent);
+        refresh_formation_figure_indexes(opponent);
     }
 }
 
 static int unit_is_charging_opponent(figure *f, figure *opponent)
 {
     return f->mounted_charge_ticks
-        && !formations[f->formation_id].is_halted
+        && !f->figure_is_halted
         && opponent->type != FIGURE_FORT_MOUNTED && opponent->type != FIGURE_ENEMY_CAMEL && opponent->type != FIGURE_ENEMY_ELEPHANT && opponent->type != FIGURE_ENEMY_CHARIOT && opponent->type != FIGURE_ENEMY_MOUNTED_ARCHER;
 }
 
 void figure_combat_handle_attack(figure *f)
 {
     figure_movement_advance_attack(f);
+    f->attack_image_offset++;
 
-    // synchronize melee target list to melee attacker list as they can diverge when units move around/engage and retarget
-    for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
-        f->melee_targeter_ids[i] = f->melee_combatant_ids[i];
-    }
-
-    // remove dead opponent from figure's melee targeter/attacker lists
-    figure *opponent = figure_get(f->primary_melee_combatant_id);
-    if (opponent->action_state == FIGURE_ACTION_CORPSE) {
-        figure__remove_melee_targeter_from_list(f, opponent);
-        for (int i = 0; i < MAX_MELEE_COMBATANTS_PER_UNIT; i++) {
-            if (f->melee_combatant_ids[i] == opponent->id) {
-                f->melee_combatant_ids[i] = 0;
-                f->num_melee_combatants--;
-            }
-        }
-        if (opponent->max_range) {
-            // if opponent is a ranged unit [that was engaged in melee with figure], remove it from figure's ranged targeters list as well
-            figure__remove_ranged_targeter_from_list(f, opponent);
-        }
-    }
-
-    if (f->num_melee_combatants) {
-        f->attack_image_offset++;
+    if (f->target_figure_id) {
+        figure *opponent = figure_get(f->target_figure_id);
         if (f->attack_image_offset >= 24 || unit_is_charging_opponent(f, opponent)) {
-            // select next target from list
-            for (int i = 0; i < MAX_MELEE_COMBATANTS_PER_UNIT; i++) {
-                if (f->melee_combatant_ids[i]) {
-                    f->primary_melee_combatant_id = f->melee_combatant_ids[i];
-                    f->target_figure_id = f->melee_combatant_ids[i];
-                    break;
-                }
-            }
-            hit_opponent(f);
+            hit_opponent(f, opponent);
             if (unit_is_charging_opponent(f, opponent)) {
                 sound_effect_play(SOUND_EFFECT_HORSE_MOVING);
                 f->mounted_charge_ticks--;
@@ -374,8 +333,6 @@ void figure_combat_handle_attack(figure *f)
         }
     } else {
         f->action_state = f->action_state_before_attack;
-        f->target_figure_id = 0;
-        f->primary_melee_combatant_id = 0;
         figure_route_remove(f);
     }
     return;
@@ -577,3 +534,26 @@ int set_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
     return 0;
 }
 
+void clear_targeting_on_unit_death(figure *unit)
+{
+    // remove unit from its target's targeter lists
+    figure *target = figure_get(unit->target_figure_id);
+    figure__remove_melee_targeter_from_list(target, unit);
+    figure__remove_ranged_targeter_from_list(target, unit);
+
+    // reset target of all opponents targeting the unit; remove unit from melee combatant list of all opponents fighting it
+    for (int i = 0; i < MAX_FIGURES; i++) {
+        figure *opponent = figure_get(i);
+        if (!figure_is_dead(opponent)) {
+            if (opponent->target_figure_id == unit->id) {
+                opponent->target_figure_id = 0;
+            }
+            for (int j = 0; j < MAX_MELEE_COMBATANTS_PER_UNIT; j++) {
+                if (opponent->melee_combatant_ids[j] == unit->id) {
+                    opponent->melee_combatant_ids[j] = 0;
+                    opponent->num_melee_combatants--;
+                }
+            }
+        }
+    }
+}

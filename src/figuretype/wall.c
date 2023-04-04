@@ -179,7 +179,6 @@ void figure_tower_sentry_action(figure *f)
     switch (f->action_state) {
         case FIGURE_ACTION_CORPSE:
             f->image_id = image_group(GROUP_FIGURE_TOWER_SENTRY) + 136 + figure_image_corpse_offset(f);
-            figure_handle_corpse(f);
             return;
         case FIGURE_ACTION_ATTACK:
             int image_id = image_group(GROUP_FIGURE_TOWER_SENTRY);
@@ -192,13 +191,12 @@ void figure_tower_sentry_action(figure *f)
                     f->image_id = f->image_id - 8;
                 }
             }
-            figure_combat_handle_attack(f);
             return;
         case FIGURE_ACTION_TOWER_SENTRY_AT_REST:
             f->is_targetable = 0;
             if (!f->is_military_trained) {
                 map_point mil_acad_road = { 0 };
-                set_closest_military_academy_road_tile(&mil_acad_road, f->building_id);
+                set_destination__closest_building_of_type(f->building_id, BUILDING_MILITARY_ACADEMY, &mil_acad_road);
                 if (mil_acad_road.x) {
                     map_point tower_road;
                     if (map_has_road_access(b->x, b->y, b->size, &tower_road)) {

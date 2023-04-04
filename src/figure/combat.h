@@ -20,4 +20,6 @@ int set_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
 
 void figure_combat_attack_figure_at(figure *f, int grid_offset);
 
+void clear_targeting_on_unit_death(figure *unit);
+
 #endif // FIGURE_COMBAT_H

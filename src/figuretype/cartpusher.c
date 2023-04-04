@@ -157,12 +157,6 @@ void figure_cartpusher_action(figure *f)
     building *b = building_get(f->building_id);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_CARTPUSHER_INITIAL:
             set_cart_graphic(f);
             if (!map_routing_citizen_is_passable(f->grid_offset)) {
@@ -414,12 +408,6 @@ void figure_warehouseman_action(figure *f)
     int road_network_id = map_road_network_get(f->grid_offset);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_combat_handle_attack(f);
-            break;
-        case FIGURE_ACTION_CORPSE:
-            figure_handle_corpse(f);
-            break;
         case FIGURE_ACTION_WAREHOUSEMAN_CREATED: {
             building *b = building_get(f->building_id);
             if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
@@ -461,7 +449,7 @@ void figure_warehouseman_action(figure *f)
                         building_granary_add_resource(b, f->resource_id, 0);
                         break;
                     case BUILDING_BARRACKS:
-                        building_barracks_add_weapon(b);
+                        b->loads_stored++;
                         break;
                     case BUILDING_WAREHOUSE:
                     case BUILDING_WAREHOUSE_SPACE:
