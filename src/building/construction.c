@@ -472,7 +472,7 @@ void building_construction_place(void)
         return;
     }
     int enemy_type = get_nearby_enemy_type(x_start, y_start, x_end, y_end);
-    if (type != BUILDING_CLEAR_LAND && enemy_type) {
+    if (enemy_type) {
         if (type == BUILDING_WALL || type == BUILDING_ROAD || type == BUILDING_AQUEDUCT) {
             game_undo_restore_map(0);
         } else if (type == BUILDING_PLAZA || type == BUILDING_GARDENS) {
