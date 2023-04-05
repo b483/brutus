@@ -73,6 +73,7 @@ static custom_string all_strings[] = {
     {TR_HOTKEY_SAVE_CITY_SCREENSHOT, "Save full city screenshot"},
     {TR_HOTKEY_CYCLE_BUILDINGS, "Cycle through buildings"},
     {TR_HOTKEY_CYCLE_BUILDINGS_REVERSE, "Cycle back through buildings"},
+    {TR_HOTKEY_UNDO, "Undo last building"},
     {TR_HOTKEY_BUILD_CLONE, "Clone building under cursor"},
     {TR_HOTKEY_LOAD_FILE, "Load file"},
     {TR_HOTKEY_SAVE_FILE, "Save file"},

@@ -38,6 +38,7 @@ static const char *ini_keys[] = {
     "clone_building",
     "cycle_buildings",
     "cycle_buildings_reverse",
+    "undo",
     "build_vacant_house",
     "build_clear_land",
     "build_road",
@@ -185,6 +186,7 @@ static void init_defaults(void)
     set_mapping(KEY_TYPE_Q, KEY_MOD_ALT, HOTKEY_BUILD_CLONE);
     set_mapping(KEY_TYPE_TAB, KEY_MOD_NONE, HOTKEY_CYCLE_BUILDINGS);
     set_mapping(KEY_TYPE_TAB, KEY_MOD_SHIFT, HOTKEY_CYCLE_BUILDINGS_REVERSE);
+    set_mapping(KEY_TYPE_Z, KEY_MOD_CTRL, HOTKEY_UNDO);
     set_mapping(KEY_TYPE_Q, KEY_MOD_NONE, HOTKEY_BUILD_VACANT_HOUSE);
     set_mapping(KEY_TYPE_W, KEY_MOD_NONE, HOTKEY_BUILD_CLEAR_LAND);
     set_mapping(KEY_TYPE_E, KEY_MOD_NONE, HOTKEY_BUILD_ROAD);

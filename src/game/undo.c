@@ -246,6 +246,7 @@ void game_undo_perform(void)
                     building_warehouses_add_resource(RESOURCE_MARBLE, 2);
                 }
                 b->state = BUILDING_STATE_UNDO;
+                building_update_state();
             }
         }
     }

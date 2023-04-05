@@ -17,6 +17,7 @@
 #include "game/settings.h"
 #include "game/state.h"
 #include "game/time.h"
+#include "game/undo.h"
 #include "graphics/graphics.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
@@ -1179,10 +1180,12 @@ static void handle_hotkeys(const hotkeys *h)
     if (h->cycle_buildings_reverse) {
         cycle_buildings(1);
     }
+    if (h->undo) {
+        game_undo_perform();
+    }
     if (h->building) {
         set_construction_building_type(h->building);
     }
-
     if (h->show_overlay) {
         show_overlay(h->show_overlay);
     }

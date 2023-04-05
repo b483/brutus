@@ -227,10 +227,6 @@ void building_clear_related_data(building *b)
 
 void building_update_state(void)
 {
-    int land_recalc = 0;
-    int wall_recalc = 0;
-    int road_recalc = 0;
-    int aqueduct_recalc = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
         building *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_CREATED) {
@@ -239,15 +235,15 @@ void building_update_state(void)
         if (b->state != BUILDING_STATE_IN_USE || !b->house_size) {
             if (b->state == BUILDING_STATE_UNDO || b->state == BUILDING_STATE_DELETED_BY_PLAYER) {
                 if (b->type == BUILDING_TOWER || b->type == BUILDING_GATEHOUSE) {
-                    wall_recalc = 1;
-                    road_recalc = 1;
+                    map_tiles_update_all_walls();
+                    map_tiles_update_all_roads();
                 } else if (b->type == BUILDING_RESERVOIR) {
-                    aqueduct_recalc = 1;
+                    map_tiles_update_all_aqueducts(0);
                 } else if (b->type == BUILDING_GRANARY) {
-                    road_recalc = 1;
+                    map_tiles_update_all_roads();
                 }
                 map_building_tiles_remove(i, b->x, b->y);
-                land_recalc = 1;
+                map_routing_update_land();
                 building_delete(b);
             } else if (b->state == BUILDING_STATE_RUBBLE) {
                 if (b->house_size) {
@@ -261,18 +257,6 @@ void building_update_state(void)
         if (b->type == BUILDING_TIMBER_YARD && !map_terrain_exist_multiple_tiles_in_radius_with_type(b->x, b->y, 2, 1, TERRAIN_TREE | TERRAIN_SHRUB, 3)) {
             building_destroy_by_plague(b);
         }
-    }
-    if (wall_recalc) {
-        map_tiles_update_all_walls();
-    }
-    if (aqueduct_recalc) {
-        map_tiles_update_all_aqueducts(0);
-    }
-    if (land_recalc) {
-        map_routing_update_land();
-    }
-    if (road_recalc) {
-        map_tiles_update_all_roads();
     }
 }
 

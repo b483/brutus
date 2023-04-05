@@ -26,6 +26,7 @@ typedef struct {
     int clone_building;
     int cycle_buildings;
     int cycle_buildings_reverse;
+    int undo;
     int building;
     int show_overlay;
     int go_to_bookmark;

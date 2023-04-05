@@ -115,6 +115,9 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
             def->action = &data.hotkey_state.cycle_buildings_reverse;
             def->repeatable = 1;
             break;
+        case HOTKEY_UNDO:
+            def->action = &data.hotkey_state.undo;
+            break;
         case HOTKEY_BUILD_VACANT_HOUSE:
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_HOUSE_VACANT_LOT;
