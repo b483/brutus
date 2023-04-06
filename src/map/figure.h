@@ -21,11 +21,11 @@ int map_figure_at(int grid_offset);
  */
 int map_has_figure_at(int grid_offset);
 
-void map_figure_add(figure *f);
+void map_figure_add(struct figure_t *f);
 
-void map_figure_update(figure *f);
+void map_figure_update(struct figure_t *f);
 
-void map_figure_delete(figure *f);
+void map_figure_delete(struct figure_t *f);
 
 void map_figure_save_state(buffer *buf);
 

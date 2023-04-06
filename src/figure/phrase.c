@@ -334,7 +334,7 @@ static void play_sound_file(int sound_id, int phrase_id)
     }
 }
 
-int figure_phrase_play(figure *f)
+int figure_phrase_play(struct figure_t *f)
 {
     if (f->id <= 0) {
         return 0;
@@ -344,7 +344,7 @@ int figure_phrase_play(figure *f)
     return sound_id;
 }
 
-static int lion_tamer_phrase(figure *f)
+static int lion_tamer_phrase(struct figure_t *f)
 {
     if (f->action_state == FIGURE_ACTION_ATTACK) {
         if (++f->phrase_sequence_exact >= 3) {
@@ -355,12 +355,12 @@ static int lion_tamer_phrase(figure *f)
     return 0;
 }
 
-static int gladiator_phrase(figure *f)
+static int gladiator_phrase(struct figure_t *f)
 {
     return f->action_state == FIGURE_ACTION_ATTACK ? 7 : 0;
 }
 
-static int tax_collector_phrase(figure *f)
+static int tax_collector_phrase(struct figure_t *f)
 {
     if (f->min_max_seen >= HOUSE_LARGE_CASA) {
         return 7;
@@ -373,7 +373,7 @@ static int tax_collector_phrase(figure *f)
     }
 }
 
-static int market_trader_phrase(figure *f)
+static int market_trader_phrase(struct figure_t *f)
 {
     if (f->action_state == FIGURE_ACTION_ROAMER_RETURNING) {
         if (building_market_get_max_food_stock(building_get(f->building_id)) <= 0) {
@@ -383,7 +383,7 @@ static int market_trader_phrase(figure *f)
     return 0;
 }
 
-static int market_buyer_phrase(figure *f)
+static int market_buyer_phrase(struct figure_t *f)
 {
     if (f->action_state == FIGURE_ACTION_MARKET_BUYER_GOING_TO_STORAGE) {
         return 7;
@@ -394,7 +394,7 @@ static int market_buyer_phrase(figure *f)
     }
 }
 
-static int cart_pusher_phrase(figure *f)
+static int cart_pusher_phrase(struct figure_t *f)
 {
     if (f->action_state == FIGURE_ACTION_CARTPUSHER_INITIAL) {
         if (f->min_max_seen == 2) {
@@ -413,7 +413,7 @@ static int cart_pusher_phrase(figure *f)
     return 0;
 }
 
-static int warehouseman_phrase(figure *f)
+static int warehouseman_phrase(struct figure_t *f)
 {
     if (f->action_state == FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE) {
         if (calc_maximum_distance(
@@ -424,7 +424,7 @@ static int warehouseman_phrase(figure *f)
     return 0;
 }
 
-static int prefect_phrase(figure *f)
+static int prefect_phrase(struct figure_t *f)
 {
     if (++f->phrase_sequence_exact >= 4) {
         f->phrase_sequence_exact = 0;
@@ -449,7 +449,7 @@ static int prefect_phrase(figure *f)
     }
 }
 
-static int engineer_phrase(figure *f)
+static int engineer_phrase(struct figure_t *f)
 {
     if (f->min_max_seen >= 60) {
         return 7;
@@ -460,7 +460,7 @@ static int engineer_phrase(figure *f)
     }
 }
 
-static int citizen_phrase(figure *f)
+static int citizen_phrase(struct figure_t *f)
 {
     if (++f->phrase_sequence_exact >= 3) {
         f->phrase_sequence_exact = 0;
@@ -468,7 +468,7 @@ static int citizen_phrase(figure *f)
     return 7 + f->phrase_sequence_exact;
 }
 
-static int house_seeker_phrase(figure *f)
+static int house_seeker_phrase(struct figure_t *f)
 {
     if (++f->phrase_sequence_exact >= 3) {
         f->phrase_sequence_exact = 0;
@@ -492,7 +492,7 @@ static int emigrant_phrase(void)
     }
 }
 
-static int tower_sentry_phrase(figure *f)
+static int tower_sentry_phrase(struct figure_t *f)
 {
     if (++f->phrase_sequence_exact >= 2) {
         f->phrase_sequence_exact = 0;
@@ -520,7 +520,7 @@ static int soldier_phrase(void)
     return 0;
 }
 
-static int docker_phrase(figure *f)
+static int docker_phrase(struct figure_t *f)
 {
     if (f->action_state == FIGURE_ACTION_DOCKER_IMPORT_GOING_TO_WAREHOUSE ||
         f->action_state == FIGURE_ACTION_DOCKER_EXPORT_GOING_TO_WAREHOUSE) {
@@ -532,7 +532,7 @@ static int docker_phrase(figure *f)
     return 0;
 }
 
-static int trade_caravan_phrase(figure *f)
+static int trade_caravan_phrase(struct figure_t *f)
 {
     if (++f->phrase_sequence_exact >= 2) {
         f->phrase_sequence_exact = 0;
@@ -551,7 +551,7 @@ static int trade_caravan_phrase(figure *f)
     return 8 + f->phrase_sequence_exact;
 }
 
-static int trade_ship_phrase(figure *f)
+static int trade_ship_phrase(struct figure_t *f)
 {
     if (f->action_state == FIGURE_ACTION_TRADE_SHIP_LEAVING) {
         if (!trader_has_traded(f->trader_id)) {
@@ -577,7 +577,7 @@ static int trade_ship_phrase(figure *f)
     }
 }
 
-static int phrase_based_on_figure_state(figure *f)
+static int phrase_based_on_figure_state(struct figure_t *f)
 {
     switch (f->type) {
         case FIGURE_LION_TAMER:
@@ -621,7 +621,7 @@ static int phrase_based_on_figure_state(figure *f)
             return trade_caravan_phrase(f);
         case FIGURE_TRADE_CARAVAN_DONKEY:
             while (f->type == FIGURE_TRADE_CARAVAN_DONKEY && f->leading_figure_id) {
-                f = figure_get(f->leading_figure_id);
+                f = &figures[f->leading_figure_id];
             }
             return f->type == FIGURE_TRADE_CARAVAN ? trade_caravan_phrase(f) : 0;
         case FIGURE_TRADE_SHIP:
@@ -647,7 +647,7 @@ static int city_god_state(void)
     }
 }
 
-static int phrase_based_on_city_state(figure *f)
+static int phrase_based_on_city_state(struct figure_t *f)
 {
     f->phrase_sequence_city = 0;
     int god_state = city_god_state();
@@ -685,7 +685,7 @@ static int phrase_based_on_city_state(figure *f)
     }
 }
 
-void figure_phrase_determine(figure *f)
+void figure_phrase_determine(struct figure_t *f)
 {
     if (f->id <= 0) {
         return;

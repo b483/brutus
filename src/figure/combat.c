@@ -27,7 +27,7 @@ enum {
     BACK_ATTACK = 3,
 };
 
-int is_valid_target_for_player_unit(figure *target)
+int is_valid_target_for_player_unit(struct figure_t *target)
 {
     return target->is_criminal_unit
         || (target->is_native_unit && target->action_state == FIGURE_ACTION_NATIVE_ATTACKING)
@@ -36,7 +36,7 @@ int is_valid_target_for_player_unit(figure *target)
         || target->is_caesar_legion_unit;
 }
 
-int is_valid_target_for_enemy_unit(figure *target)
+int is_valid_target_for_enemy_unit(struct figure_t *target)
 {
     return target->is_unarmed_civilian_unit
         || target->is_friendly_armed_unit
@@ -48,7 +48,7 @@ int is_valid_target_for_enemy_unit(figure *target)
         || target->is_caesar_legion_unit;
 }
 
-static int is_valid_target_for_caesar_unit(figure *target)
+static int is_valid_target_for_caesar_unit(struct figure_t *target)
 {
     return target->is_friendly_armed_unit
         || target->is_player_legion_unit
@@ -58,7 +58,7 @@ static int is_valid_target_for_caesar_unit(figure *target)
         || target->is_enemy_unit;
 }
 
-static int figure__targeted_by_melee_unit(figure *f, figure *melee_targeter)
+static int figure__targeted_by_melee_unit(struct figure_t *f, struct figure_t *melee_targeter)
 {
     for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
         if (f->melee_targeter_ids[i] == melee_targeter->id) {
@@ -68,7 +68,7 @@ static int figure__targeted_by_melee_unit(figure *f, figure *melee_targeter)
     return 0;
 }
 
-static void figure__remove_melee_targeter_from_list(figure *f, figure *melee_targeter)
+static void figure__remove_melee_targeter_from_list(struct figure_t *f, struct figure_t *melee_targeter)
 {
     for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
         if (f->melee_targeter_ids[i] == melee_targeter->id) {
@@ -77,9 +77,9 @@ static void figure__remove_melee_targeter_from_list(figure *f, figure *melee_tar
     }
 }
 
-figure *melee_unit__set_closest_target(figure *f)
+struct figure_t *melee_unit__set_closest_target(struct figure_t *f)
 {
-    figure *closest_eligible_target = 0;
+    struct figure_t *closest_eligible_target = 0;
     int closest_target_distance;
     switch (f->type) {
         case FIGURE_PREFECT:
@@ -93,7 +93,7 @@ figure *melee_unit__set_closest_target(figure *f)
             break;
     }
     for (int i = 1; i < MAX_FIGURES; i++) {
-        figure *potential_target = figure_get(i);
+        struct figure_t *potential_target = &figures[i];
         if (figure_is_dead(potential_target) || !potential_target->is_targetable) {
             continue;
         }
@@ -149,7 +149,7 @@ figure *melee_unit__set_closest_target(figure *f)
         // set target and destination for figure
         if (f->target_figure_id && f->target_figure_id != closest_eligible_target->id) {
             // if switching targets, remove targeter from previous target's melee targeters list
-            figure *previous_target = figure_get(f->target_figure_id);
+            struct figure_t *previous_target = &figures[f->target_figure_id];
             figure__remove_melee_targeter_from_list(previous_target, f);
         }
         f->target_figure_id = closest_eligible_target->id;
@@ -169,13 +169,13 @@ figure *melee_unit__set_closest_target(figure *f)
     return closest_eligible_target;
 }
 
-static void engage_in_melee_combat(figure *attacker, figure *opponent)
+static void engage_in_melee_combat(struct figure_t *attacker, struct figure_t *opponent)
 {
     attacker->action_state_before_attack = attacker->action_state;
     attacker->action_state = FIGURE_ACTION_ATTACK;
     // if ranged unit engages in melee combat, remove it from its (previous) target's ranged targeter list
     if (attacker->max_range && attacker->target_figure_id) {
-        figure *target_of_ranged_unit = figure_get(attacker->target_figure_id);
+        struct figure_t *target_of_ranged_unit = &figures[attacker->target_figure_id];
         figure__remove_ranged_targeter_from_list(target_of_ranged_unit, attacker);
     }
     attacker->target_figure_id = opponent->id;
@@ -198,7 +198,7 @@ static void engage_in_melee_combat(figure *attacker, figure *opponent)
         opponent->action_state = FIGURE_ACTION_ATTACK;
         // if opponent ranged unit engaged in melee combat, remove it from its (previous) target's ranged targeter list
         if (opponent->max_range && opponent->target_figure_id) {
-            figure *target_of_opponent_ranged_unit = figure_get(opponent->target_figure_id);
+            struct figure_t *target_of_opponent_ranged_unit = &figures[opponent->target_figure_id];
             figure__remove_ranged_targeter_from_list(target_of_opponent_ranged_unit, opponent);
         }
         opponent->target_figure_id = attacker->id;
@@ -215,14 +215,14 @@ static void engage_in_melee_combat(figure *attacker, figure *opponent)
     opponent->num_melee_combatants++;
 }
 
-void figure_combat_attack_figure_at(figure *attacker, int grid_offset)
+void figure_combat_attack_figure_at(struct figure_t *attacker, int grid_offset)
 {
     if (attacker->action_state == FIGURE_ACTION_ATTACK) {
         return;
     }
     int figure_id = map_figures.items[grid_offset];
     while (figure_id) {
-        figure *opponent = figure_get(figure_id);
+        struct figure_t *opponent = &figures[figure_id];
         if (opponent->id != attacker->id
         && !figure_is_dead(opponent)
         && opponent->is_targetable
@@ -269,7 +269,7 @@ static int determine_attack_direction(int dir1, int dir2)
     }
 }
 
-static void hit_opponent(figure *attacker, figure *opponent)
+static void hit_opponent(struct figure_t *attacker, struct figure_t *opponent)
 {
     if (opponent->is_unarmed_civilian_unit || opponent->is_criminal_unit) {
         attacker->attack_image_offset = 12;
@@ -310,20 +310,20 @@ static void hit_opponent(figure *attacker, figure *opponent)
     }
 }
 
-static int unit_is_charging_opponent(figure *f, figure *opponent)
+static int unit_is_charging_opponent(struct figure_t *f, struct figure_t *opponent)
 {
     return f->mounted_charge_ticks
         && !f->figure_is_halted
         && opponent->type != FIGURE_FORT_MOUNTED && opponent->type != FIGURE_ENEMY_CAMEL && opponent->type != FIGURE_ENEMY_ELEPHANT && opponent->type != FIGURE_ENEMY_CHARIOT && opponent->type != FIGURE_ENEMY_MOUNTED_ARCHER;
 }
 
-void figure_combat_handle_attack(figure *f)
+void figure_combat_handle_attack(struct figure_t *f)
 {
     figure_movement_advance_attack(f);
     f->attack_image_offset++;
 
     if (f->target_figure_id) {
-        figure *opponent = figure_get(f->target_figure_id);
+        struct figure_t *opponent = &figures[f->target_figure_id];
         if (f->attack_image_offset >= 24 || unit_is_charging_opponent(f, opponent)) {
             hit_opponent(f, opponent);
             if (unit_is_charging_opponent(f, opponent)) {
@@ -338,7 +338,7 @@ void figure_combat_handle_attack(figure *f)
     return;
 }
 
-static int figure__targeted_by_ranged_unit(figure *f, figure *ranged_targeter)
+static int figure__targeted_by_ranged_unit(struct figure_t *f, struct figure_t *ranged_targeter)
 {
     for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
         if (f->ranged_targeter_ids[i] == ranged_targeter->id) {
@@ -348,7 +348,7 @@ static int figure__targeted_by_ranged_unit(figure *f, figure *ranged_targeter)
     return 0;
 }
 
-void figure__remove_ranged_targeter_from_list(figure *f, figure *ranged_targeter)
+void figure__remove_ranged_targeter_from_list(struct figure_t *f, struct figure_t *ranged_targeter)
 {
     for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
         if (f->ranged_targeter_ids[i] == ranged_targeter->id) {
@@ -395,7 +395,7 @@ static int tile_obstructed(int grid_offset)
     return 0;
 }
 
-static int missile_trajectory_clear(figure *shooter, figure *target)
+static int missile_trajectory_clear(struct figure_t *shooter, struct figure_t *target)
 {
     int shooter_elevation = 0;
     if (map_elevation_at(shooter->grid_offset)) {
@@ -453,12 +453,12 @@ static int missile_trajectory_clear(figure *shooter, figure *target)
     return 1;
 }
 
-int set_missile_target(figure *shooter, map_point *tile, int limit_max_targeters)
+int set_missile_target(struct figure_t *shooter, map_point *tile, int limit_max_targeters)
 {
     int closest_target_distance = shooter->max_range;
-    figure *closest_eligible_target = 0;
+    struct figure_t *closest_eligible_target = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
-        figure *potential_target = figure_get(i);
+        struct figure_t *potential_target = &figures[i];
         if (figure_is_dead(potential_target) || !potential_target->is_targetable) {
             continue;
         }
@@ -514,7 +514,7 @@ int set_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
     if (closest_eligible_target) {
         if (shooter->target_figure_id && shooter->target_figure_id != closest_eligible_target->id) {
             // if switching targets, remove targeter from previous target's ranged targeters list
-            figure *previous_target = figure_get(shooter->target_figure_id);
+            struct figure_t *previous_target = &figures[shooter->target_figure_id];
             figure__remove_ranged_targeter_from_list(previous_target, shooter);
         }
         shooter->target_figure_id = closest_eligible_target->id;
@@ -534,16 +534,16 @@ int set_missile_target(figure *shooter, map_point *tile, int limit_max_targeters
     return 0;
 }
 
-void clear_targeting_on_unit_death(figure *unit)
+void clear_targeting_on_unit_death(struct figure_t *unit)
 {
     // remove unit from its target's targeter lists
-    figure *target = figure_get(unit->target_figure_id);
+    struct figure_t *target = &figures[unit->target_figure_id];
     figure__remove_melee_targeter_from_list(target, unit);
     figure__remove_ranged_targeter_from_list(target, unit);
 
     // reset target of all opponents targeting the unit; remove unit from melee combatant list of all opponents fighting it
     for (int i = 0; i < MAX_FIGURES; i++) {
-        figure *opponent = figure_get(i);
+        struct figure_t *opponent = &figures[i];
         if (!figure_is_dead(opponent)) {
             if (opponent->target_figure_id == unit->id) {
                 opponent->target_figure_id = 0;

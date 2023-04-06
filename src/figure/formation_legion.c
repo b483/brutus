@@ -51,7 +51,7 @@ int formation_legion_create_for_fort(building *fort)
     m->y = m->standard_y = m->y_home = fort->y - 1;
     m->building_id = fort->id;
 
-    figure *standard = figure_create(FIGURE_FORT_STANDARD, m->x, m->y, DIR_0_TOP);
+    struct figure_t *standard = figure_create(FIGURE_FORT_STANDARD, m->x, m->y, DIR_0_TOP);
     standard->building_id = fort->id;
     standard->formation_id = m->id;
 
@@ -71,7 +71,7 @@ void formation_calculate_legion_totals(void)
                 }
             }
             if (formations[i].missile_attack_timeout <= 0 && formations[i].figures[0]) {
-                figure *f = figure_get(formations[i].figures[0]);
+                struct figure_t *f = &figures[formations[i].figures[0]];
                 if (f->state == FIGURE_STATE_ALIVE) {
                     formation_set_home(&formations[i], f->x, f->y);
                 }
@@ -107,13 +107,13 @@ int get_legion_formation_by_index(int legion_index)
 
 static void update_legion_standard_map_location(struct formation_t *legion_formation)
 {
-    figure *standard = figure_get(legion_formation->legion_standard__figure_id);
+    struct figure_t *standard = &figures[legion_formation->legion_standard__figure_id];
     map_figure_delete(standard);
     standard->grid_offset = map_grid_offset(legion_formation->standard_x, legion_formation->standard_y);
     map_figure_add(standard);
 }
 
-static void set_destination_for_soldier(figure *soldier, int dst_x, int dst_y, int dst_grid_offset)
+static void set_destination_for_soldier(struct figure_t *soldier, int dst_x, int dst_y, int dst_grid_offset)
 {
     soldier->destination_x = dst_x;
     soldier->destination_y = dst_y;
@@ -121,7 +121,7 @@ static void set_destination_for_soldier(figure *soldier, int dst_x, int dst_y, i
     soldier->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_STANDARD;
 }
 
-static int destination_is_clear(figure *legion_unit, int target_grid_offset)
+static int destination_is_clear(struct figure_t *legion_unit, int target_grid_offset)
 {
     // check terrain at destination
     if (map_terrain_is(target_grid_offset, TERRAIN_IMPASSABLE)) {
@@ -129,7 +129,7 @@ static int destination_is_clear(figure *legion_unit, int target_grid_offset)
     }
     // check if any legion unit is heading towards the destination
     for (int i = 1; i < MAX_FIGURES; i++) {
-        figure *f = figure_get(i);
+        struct figure_t *f = &figures[i];
         if (!figure_is_dead(f) && f->is_player_legion_unit && f->id != legion_unit->id) {
             if (f->destination_grid_offset == target_grid_offset) {
                 if (f->formation_id == legion_unit->formation_id) { // same formation, stationary units may not have received the command to move yet
@@ -145,7 +145,7 @@ static int destination_is_clear(figure *legion_unit, int target_grid_offset)
     return 1;
 }
 
-void deploy_legion_unit_to_formation_location(figure *legion_unit, struct formation_t *legion_formation)
+void deploy_legion_unit_to_formation_location(struct figure_t *legion_unit, struct formation_t *legion_formation)
 {
     figure_route_remove(legion_unit);
     int target_dst_x = legion_formation->standard_x + formation_layout_position_x(legion_formation->layout, legion_unit->index_in_formation);
@@ -209,7 +209,7 @@ void formation_legion_move_to(struct formation_t *m, map_tile *tile)
     update_legion_standard_map_location(m);
 
     for (int i = 0; i < m->num_figures && m->figures[i]; i++) {
-        figure *f = figure_get(m->figures[i]);
+        struct figure_t *f = &figures[m->figures[i]];
         if (f->action_state != FIGURE_ACTION_CORPSE && f->action_state != FIGURE_ACTION_ATTACK) {
             deploy_legion_unit_to_formation_location(f, m);
         }
@@ -227,7 +227,7 @@ void formation_legion_return_home(struct formation_t *m)
     update_legion_standard_map_location(m);
 
     for (int i = 0; i < MAX_FORMATION_FIGURES && m->figures[i]; i++) {
-        figure *f = figure_get(m->figures[i]);
+        struct figure_t *f = &figures[m->figures[i]];
         if (f->action_state == FIGURE_ACTION_CORPSE ||
             f->action_state == FIGURE_ACTION_ATTACK) {
             continue;
@@ -241,7 +241,7 @@ int formation_legion_at_grid_offset(int grid_offset)
 {
     int figure_id = map_figures.items[grid_offset];
     while (figure_id) {
-        figure *f = figure_get(figure_id);
+        struct figure_t *f = &figures[figure_id];
         if (f->is_player_legion_unit || f->type == FIGURE_FORT_STANDARD) {
             return f->formation_id;
         }
@@ -265,7 +265,7 @@ void formation_legion_update(void)
             // check formation military training status, send untrained units to train
             int formation_military_training = 1;
             for (int n = 0; n < formations[i].num_figures; n++) {
-                figure *f = figure_get(formations[i].figures[n]);
+                struct figure_t *f = &figures[formations[i].figures[n]];
                 if (!f->is_military_trained) {
                     formation_military_training = 0;
                     formations[i].has_military_training = 0;
@@ -298,7 +298,7 @@ void formation_legion_update(void)
             // check if all units of a formation are at rest (not deployed)
             int formation_at_rest = 1;
             for (int n = 0; n < formations[i].num_figures; n++) {
-                figure *f = figure_get(formations[i].figures[n]);
+                struct figure_t *f = &figures[formations[i].figures[n]];
                 if (f->action_state == FIGURE_ACTION_ATTACK
                 || f->action_state == FIGURE_ACTION_SOLDIER_GOING_TO_STANDARD
                 || f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD
@@ -314,7 +314,7 @@ void formation_legion_update(void)
             }
 
             for (int n = 0; n < formations[i].num_figures; n++) {
-                figure *f = figure_get(formations[i].figures[n]);
+                struct figure_t *f = &figures[formations[i].figures[n]];
                 if (f->action_state == FIGURE_ACTION_ATTACK) {
                     formations[i].recent_fight = 6;
                     break;
@@ -323,7 +323,7 @@ void formation_legion_update(void)
 
             // decrease damage
             for (int n = 0; n < formations[i].num_figures; n++) {
-                figure *f = figure_get(formations[i].figures[n]);
+                struct figure_t *f = &figures[formations[i].figures[n]];
                 if (!figure_is_dead(f) && f->action_state == FIGURE_ACTION_SOLDIER_AT_REST) {
                     if (f->damage) {
                         f->damage--;
@@ -337,7 +337,7 @@ void formation_legion_update(void)
                 update_legion_standard_map_location(&formations[i]);
                 // flee back to fort
                 for (int n = 0; n < formations[i].num_figures; n++) {
-                    figure *f = figure_get(formations[i].figures[n]);
+                    struct figure_t *f = &figures[formations[i].figures[n]];
                     if (f->action_state != FIGURE_ACTION_ATTACK &&
                         f->action_state != FIGURE_ACTION_CORPSE &&
                         f->action_state != FIGURE_ACTION_FLEEING) {

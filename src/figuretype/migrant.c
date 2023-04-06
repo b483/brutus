@@ -15,12 +15,12 @@
 
 void figure_create_immigrant(building *house, int num_people)
 {
-    figure *f = figure_create(FIGURE_IMMIGRANT, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
+    struct figure_t *f = figure_create(FIGURE_IMMIGRANT, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
     f->action_state = FIGURE_ACTION_IMMIGRANT_CREATED;
     f->immigrant_building_id = house->id;
-    house->immigrant_figure_id = f->id;
     f->wait_ticks = 10 + (house->house_figure_generation_delay & 0x7f);
     f->migrant_num_people = num_people;
+    house->immigrant_figure_id = f->id;
 }
 
 void figure_create_emigrant(building *house, int num_people)
@@ -32,7 +32,7 @@ void figure_create_emigrant(building *house, int num_people)
         house->house_population = 0;
         building_house_change_to_vacant_lot(house);
     }
-    figure *f = figure_create(FIGURE_EMIGRANT, house->x, house->y, DIR_0_TOP);
+    struct figure_t *f = figure_create(FIGURE_EMIGRANT, house->x, house->y, DIR_0_TOP);
     f->action_state = FIGURE_ACTION_EMIGRANT_CREATED;
     f->wait_ticks = 0;
     f->migrant_num_people = num_people;
@@ -40,14 +40,14 @@ void figure_create_emigrant(building *house, int num_people)
 
 void figure_create_homeless(int x, int y, int num_people)
 {
-    figure *f = figure_create(FIGURE_HOMELESS, x, y, DIR_0_TOP);
+    struct figure_t *f = figure_create(FIGURE_HOMELESS, x, y, DIR_0_TOP);
     f->action_state = FIGURE_ACTION_HOMELESS_CREATED;
     f->wait_ticks = 0;
     f->migrant_num_people = num_people;
     city_population_remove_homeless(num_people);
 }
 
-static void update_direction_and_image(figure *f)
+static void update_direction_and_image(struct figure_t *f)
 {
     figure_image_update(f, image_group(GROUP_FIGURE_MIGRANT));
     if (f->action_state == FIGURE_ACTION_IMMIGRANT_ARRIVING ||
@@ -80,7 +80,7 @@ static int closest_house_with_room(int x, int y)
 
 }
 
-void figure_immigrant_action(figure *f)
+void figure_immigrant_action(struct figure_t *f)
 {
     building *b = building_get(f->immigrant_building_id);
 
@@ -160,7 +160,7 @@ void figure_immigrant_action(figure *f)
     update_direction_and_image(f);
 }
 
-void figure_emigrant_action(figure *f)
+void figure_emigrant_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ANY;
     f->cart_image_id = 0;
@@ -208,7 +208,7 @@ void figure_emigrant_action(figure *f)
     update_direction_and_image(f);
 }
 
-void figure_homeless_action(figure *f)
+void figure_homeless_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;

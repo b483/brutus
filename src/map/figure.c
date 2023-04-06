@@ -12,7 +12,7 @@ int map_figure_at(int grid_offset)
     return map_grid_is_valid_offset(grid_offset) ? map_figures.items[grid_offset] : 0;
 }
 
-void map_figure_add(figure *f)
+void map_figure_add(struct figure_t *f)
 {
     if (!map_grid_is_valid_offset(f->grid_offset)) {
         return;
@@ -20,9 +20,9 @@ void map_figure_add(figure *f)
     f->next_figure_id_on_same_tile = 0;
 
     if (map_figures.items[f->grid_offset]) {
-        figure *next = figure_get(map_figures.items[f->grid_offset]);
+        struct figure_t *next = &figures[map_figures.items[f->grid_offset]];
         while (next->next_figure_id_on_same_tile) {
-            next = figure_get(next->next_figure_id_on_same_tile);
+            next = &figures[next->next_figure_id_on_same_tile];
         }
         next->next_figure_id_on_same_tile = f->id;
     } else {
@@ -30,21 +30,21 @@ void map_figure_add(figure *f)
     }
 }
 
-void map_figure_update(figure *f)
+void map_figure_update(struct figure_t *f)
 {
     if (!map_grid_is_valid_offset(f->grid_offset)) {
         return;
     }
-    figure *next = figure_get(map_figures.items[f->grid_offset]);
+    struct figure_t *next = &figures[map_figures.items[f->grid_offset]];
     while (next->id) {
         if (next->id == f->id) {
             return;
         }
-        next = figure_get(next->next_figure_id_on_same_tile);
+        next = &figures[next->next_figure_id_on_same_tile];
     }
 }
 
-void map_figure_delete(figure *f)
+void map_figure_delete(struct figure_t *f)
 {
     if (!map_grid_is_valid_offset(f->grid_offset) || !map_figures.items[f->grid_offset]) {
         f->next_figure_id_on_same_tile = 0;
@@ -54,9 +54,9 @@ void map_figure_delete(figure *f)
     if (map_figures.items[f->grid_offset] == f->id) {
         map_figures.items[f->grid_offset] = f->next_figure_id_on_same_tile;
     } else {
-        figure *prev = figure_get(map_figures.items[f->grid_offset]);
+        struct figure_t *prev = &figures[map_figures.items[f->grid_offset]];
         while (prev->id && prev->next_figure_id_on_same_tile != f->id) {
-            prev = figure_get(prev->next_figure_id_on_same_tile);
+            prev = &figures[prev->next_figure_id_on_same_tile];
         }
         prev->next_figure_id_on_same_tile = f->next_figure_id_on_same_tile;
     }

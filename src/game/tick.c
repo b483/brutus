@@ -194,7 +194,7 @@ void game_tick_run(void)
     if (editor_is_active()) {
         random_generate_next(); // update random to randomize native huts
         for (int i = 1; i < MAX_FIGURES; i++) {
-            figure *f = figure_get(i);
+            struct figure_t *f = &figures[i];
             if (f->state == FIGURE_STATE_ALIVE && f->type == FIGURE_MAP_FLAG) {
                 figure_editor_flag_action(f);
             } else if (f->state == FIGURE_STATE_DEAD) {
@@ -214,7 +214,7 @@ void game_tick_run(void)
     city_data.figure.soldiers = 0;
     city_data.entertainment.hippodrome_has_race = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
-        figure *f = figure_get(i);
+        struct figure_t *f = &figures[i];
         if (f->action_state == FIGURE_ACTION_CORPSE) {
             figure_handle_corpse(f);
         }

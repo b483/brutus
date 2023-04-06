@@ -7,7 +7,7 @@
 #include "graphics/image.h"
 #include "graphics/text.h"
 
-static void draw_figure_with_cart(const figure *f, int x, int y)
+static void draw_figure_with_cart(const struct figure_t *f, int x, int y)
 {
     if (f->y_offset_cart >= 0) {
         image_draw(f->image_id, x, y);
@@ -18,7 +18,7 @@ static void draw_figure_with_cart(const figure *f, int x, int y)
     }
 }
 
-static void draw_hippodrome_horse(const figure *f, int x, int y)
+static void draw_hippodrome_horse(const struct figure_t *f, int x, int y)
 {
     int val = f->wait_ticks_missile;
     switch (city_view_orientation()) {
@@ -166,7 +166,7 @@ static void tile_progress_to_pixel_offset(int direction, int progress, int *pixe
     *pixel_y = tile_progress_to_pixel_offset_y(direction, progress);
 }
 
-static void adjust_pixel_offset(const figure *f, int *pixel_x, int *pixel_y)
+static void adjust_pixel_offset(const struct figure_t *f, int *pixel_x, int *pixel_y)
 {
     // determining x/y offset on tile
     int x_offset = 0;
@@ -189,7 +189,7 @@ static void adjust_pixel_offset(const figure *f, int *pixel_x, int *pixel_y)
     *pixel_y += y_offset - img->sprite_offset_y;
 }
 
-static void draw_figure(const figure *f, int x, int y, int highlight)
+static void draw_figure(const struct figure_t *f, int x, int y, int highlight)
 {
     if (f->cart_image_id) {
         switch (f->type) {
@@ -252,13 +252,13 @@ static void draw_figure(const figure *f, int x, int y, int highlight)
     }
 }
 
-void city_draw_figure(const figure *f, int x, int y, int highlight)
+void city_draw_figure(const struct figure_t *f, int x, int y, int highlight)
 {
     adjust_pixel_offset(f, &x, &y);
     draw_figure(f, x, y, highlight);
 }
 
-void city_draw_selected_figure(const figure *f, int x, int y, pixel_coordinate *coord)
+void city_draw_selected_figure(const struct figure_t *f, int x, int y, pixel_coordinate *coord)
 {
     adjust_pixel_offset(f, &x, &y);
     draw_figure(f, x, y, 0);

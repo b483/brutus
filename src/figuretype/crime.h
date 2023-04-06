@@ -5,12 +5,12 @@
 
 void figure_generate_criminals(void);
 
-void figure_protestor_action(figure *f);
+void figure_protestor_action(struct figure_t *f);
 
-void figure_criminal_action(figure *f);
+void figure_criminal_action(struct figure_t *f);
 
-void figure_rioter_action(figure *f);
+void figure_rioter_action(struct figure_t *f);
 
-int figure_rioter_collapse_building(figure *f);
+int figure_rioter_collapse_building(struct figure_t *f);
 
 #endif // FIGURETYPE_CRIME_H

@@ -130,9 +130,9 @@ void formation_clear(int formation_id);
 
 struct formation_t *create_formation_type(int type);
 
-void add_figure_to_formation(figure *f, struct formation_t *m);
+void add_figure_to_formation(struct figure_t *f, struct formation_t *m);
 
-void refresh_formation_figure_indexes(figure *unit_to_remove);
+void refresh_formation_figure_indexes(struct figure_t *unit_to_remove);
 
 int formation_get_selected(void);
 void formation_set_selected(int formation_id);

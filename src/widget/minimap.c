@@ -110,7 +110,7 @@ static int draw_figure(int x_view, int y_view, int grid_offset)
     if (map_figures.items[grid_offset] > 0) {
         int figure_id = map_figures.items[grid_offset];
         while (figure_id) {
-            figure *f = figure_get(figure_id);
+            struct figure_t *f = &figures[figure_id];
             if (f->is_player_legion_unit) {
                 color_type = formation_get_selected() == f->formation_id ? FIGURE_COLOR_SELECTED_SOLDIER : FIGURE_COLOR_SOLDIER;
                 break;

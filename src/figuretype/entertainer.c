@@ -60,7 +60,7 @@ static int determine_destination(int x, int y, building_type type1, building_typ
     return min_building_id;
 }
 
-static void update_shows(figure *f)
+static void update_shows(struct figure_t *f)
 {
     building *b = building_get(f->destination_building_id);
     if (b->type < BUILDING_AMPHITHEATER || b->type > BUILDING_COLOSSEUM) {
@@ -92,7 +92,7 @@ static void update_shows(figure *f)
     }
 }
 
-static void update_image(figure *f)
+static void update_image(struct figure_t *f)
 {
     int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
 
@@ -139,7 +139,7 @@ static void update_image(figure *f)
     }
 }
 
-void figure_entertainer_action(figure *f)
+void figure_entertainer_action(struct figure_t *f)
 {
     building *b = building_get(f->building_id);
     f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART);

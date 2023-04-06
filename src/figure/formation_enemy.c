@@ -325,7 +325,7 @@ static void set_figures_to_initial(const struct formation_t *m)
 {
     for (int i = 0; i < MAX_FORMATION_FIGURES; i++) {
         if (m->figures[i] > 0) {
-            figure *f = figure_get(m->figures[i]);
+            struct figure_t *f = &figures[m->figures[i]];
             if (f->action_state != FIGURE_ACTION_CORPSE &&
                 f->action_state != FIGURE_ACTION_ATTACK) {
                 f->action_state = FIGURE_ACTION_ENEMY_INITIAL;
@@ -367,8 +367,7 @@ int formation_enemy_move_formation_to(const struct formation_t *m, int x, int y,
                         can_move = 0;
                         break;
                     }
-                    if (map_has_figure_at(grid_offset) &&
-                        figure_get(map_figure_at(grid_offset))->formation_id != m->id) {
+                    if (map_has_figure_at(grid_offset) && figures[map_figure_at(grid_offset)].formation_id != m->id) {
                         can_move = 0;
                         break;
                     }
@@ -391,7 +390,7 @@ static void mars_kill_enemies(void)
     }
     int grid_offset = 0;
     for (int i = 1; i < MAX_FIGURES && city_data.religion.mars_spirit_power > 0; i++) {
-        figure *f = figure_get(i);
+        struct figure_t *f = &figures[i];
         if (figure_is_dead(f)) {
             continue;
         }
@@ -553,9 +552,9 @@ static void update_enemy_formation(struct formation_t *m, int *roman_distance)
         formation_clear_counters(m);
     }
     for (int n = 0; n < MAX_FORMATION_FIGURES; n++) {
-        figure *f = figure_get(m->figures[n]);
+        struct figure_t *f = &figures[m->figures[n]];
         if (f->action_state == FIGURE_ACTION_ATTACK) {
-            figure *opponent = figure_get(f->target_figure_id);
+            struct figure_t *opponent = &figures[f->target_figure_id];
             if (!figure_is_dead(opponent) && opponent->is_player_legion_unit) {
                 m->recent_fight = 6;
             }
@@ -563,7 +562,7 @@ static void update_enemy_formation(struct formation_t *m, int *roman_distance)
     }
     if (m->morale <= ROUT_MORALE_THRESHOLD) {
         for (int n = 0; n < MAX_FORMATION_FIGURES; n++) {
-            figure *f = figure_get(m->figures[n]);
+            struct figure_t *f = &figures[m->figures[n]];
             if (f->action_state != FIGURE_ACTION_ATTACK &&
                 f->action_state != FIGURE_ACTION_CORPSE &&
                 f->action_state != FIGURE_ACTION_FLEEING) {
@@ -588,7 +587,7 @@ static void update_enemy_formation(struct formation_t *m, int *roman_distance)
         return;
     }
     if (m->figures[0]) {
-        figure *f = figure_get(m->figures[0]);
+        struct figure_t *f = &figures[m->figures[0]];
         if (f->state == FIGURE_STATE_ALIVE) {
             formation_set_home(m, f->x, f->y);
         }

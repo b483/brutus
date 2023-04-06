@@ -10,10 +10,10 @@ void figure_create_emigrant(building *house, int num_people);
 
 void figure_create_homeless(int x, int y, int num_people);
 
-void figure_immigrant_action(figure *f);
+void figure_immigrant_action(struct figure_t *f);
 
-void figure_emigrant_action(figure *f);
+void figure_emigrant_action(struct figure_t *f);
 
-void figure_homeless_action(figure *f);
+void figure_homeless_action(struct figure_t *f);
 
 #endif // FIGURETYPE_MIGRANT_H

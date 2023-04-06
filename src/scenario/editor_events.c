@@ -551,11 +551,11 @@ static void create_enemy_squad(int figure_type, int enemy_type, int enemy_type_d
     struct formation_t *m = formation_create_enemy(figure_type, figures_amount, x, y, ENEMY_PROPERTIES[enemy_type].formation_layout, orientation, enemy_type, enemy_attack_priority, invasion_id);
     if (m) {
         for (int fig = 0; fig < figures_amount; fig++) {
-            figure *f = figure_create(figure_type, x, y, orientation);
+            struct figure_t *f = figure_create(figure_type, x, y, orientation);
             f->action_state = FIGURE_ACTION_ENEMY_INITIAL;
             f->wait_ticks = 40 * spawn_delay_offset + 10 * fig + 10;
             f->formation_id = m->id;
-            f->name = figure_name_get(figure_type, enemy_type);
+            f->name_id = figure_name_get(figure_type, enemy_type);
             f->enemy_image_type = enemy_type;
             if (f->type == FIGURE_ENEMY_RANGED_SPEAR_1 && f->enemy_image_type == ENEMY_TYPE_PERGAMUM) {
                 f->missile_type = FIGURE_ARROW;

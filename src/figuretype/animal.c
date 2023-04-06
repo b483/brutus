@@ -51,7 +51,7 @@ void figure_create_fishing_points(void)
     for (int i = 0; i < MAX_FISH_POINTS; i++) {
         if (scenario.fishing_points[i].x > 0) {
             random_generate_next();
-            figure *fish = figure_create(FIGURE_FISH_GULLS, scenario.fishing_points[i].x, scenario.fishing_points[i].y, DIR_0_TOP);
+            struct figure_t *fish = figure_create(FIGURE_FISH_GULLS, scenario.fishing_points[i].x, scenario.fishing_points[i].y, DIR_0_TOP);
             fish->image_offset = random_byte() & 0x1f;
             fish->progress_on_tile = random_byte() & 7;
             figure_movement_set_cross_country_direction(fish,
@@ -95,7 +95,7 @@ void figure_create_herds(void)
 
             // create animal figures and assign to formation
             for (int fig = 0; fig < num_animals; fig++) {
-                figure *f = figure_create(herd_type, scenario.herd_points[i].x, scenario.herd_points[i].y, DIR_0_TOP);
+                struct figure_t *f = figure_create(herd_type, scenario.herd_points[i].x, scenario.herd_points[i].y, DIR_0_TOP);
                 f->action_state = FIGURE_ACTION_HERD_ANIMAL_AT_REST;
                 f->formation_id = m->id;
                 add_figure_to_formation(f, m);
@@ -104,7 +104,7 @@ void figure_create_herds(void)
     }
 }
 
-void figure_seagulls_action(figure *f)
+void figure_seagulls_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ANY;
     f->is_ghost = 0;
@@ -127,7 +127,7 @@ void figure_seagulls_action(figure *f)
     }
 }
 
-void figure_wolf_action(figure *f)
+void figure_wolf_action(struct figure_t *f)
 {
     struct formation_t *m = &formations[f->formation_id];
     f->terrain_usage = TERRAIN_USAGE_ANIMAL;
@@ -152,7 +152,7 @@ void figure_wolf_action(figure *f)
                         int spawn_location_x = m->destination_x + formation_layout_position_x(FORMATION_HERD, WOLF_PACK_SIZE - 1);
                         int spawn_location_y = m->destination_y + formation_layout_position_y(FORMATION_HERD, WOLF_PACK_SIZE - 1);
                         if (m->herd_wolf_spawn_delay > 1500 && !map_terrain_is(map_grid_offset(spawn_location_x, spawn_location_y), TERRAIN_IMPASSABLE)) {
-                            figure *wolf = figure_create(m->figure_type, spawn_location_x, spawn_location_y, f->direction);
+                            struct figure_t *wolf = figure_create(m->figure_type, spawn_location_x, spawn_location_y, f->direction);
                             wolf->action_state = FIGURE_ACTION_HERD_ANIMAL_AT_REST;
                             wolf->formation_id = m->id;
                             m->herd_wolf_spawn_delay = 0;
@@ -162,7 +162,7 @@ void figure_wolf_action(figure *f)
             }
             break;
         case FIGURE_ACTION_HERD_ANIMAL_MOVING:
-            figure *target = melee_unit__set_closest_target(f);
+            struct figure_t *target = melee_unit__set_closest_target(f);
             if (target) {
                 m->destination_x = target->x;
                 m->destination_y = target->y;
@@ -212,7 +212,7 @@ void figure_wolf_action(figure *f)
     }
 }
 
-void figure_sheep_action(figure *f)
+void figure_sheep_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ANIMAL;
     f->use_cross_country = 0;
@@ -261,7 +261,7 @@ void figure_sheep_action(figure *f)
     }
 }
 
-void figure_zebra_action(figure *f)
+void figure_zebra_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ANIMAL;
     f->use_cross_country = 0;
@@ -304,7 +304,7 @@ void figure_zebra_action(figure *f)
     }
 }
 
-static void set_horse_destination(figure *f, int state)
+static void set_horse_destination(struct figure_t *f, int state)
 {
     building *b = building_get(f->building_id);
     int orientation = city_view_orientation();
@@ -355,7 +355,7 @@ static void set_horse_destination(figure *f, int state)
     }
 }
 
-void figure_hippodrome_horse_action(figure *f)
+void figure_hippodrome_horse_action(struct figure_t *f)
 {
     city_data.entertainment.hippodrome_has_race = 1;
     f->use_cross_country = 1;
@@ -451,7 +451,7 @@ void figure_hippodrome_horse_reroute(void)
         return;
     }
     for (int i = 1; i < MAX_FIGURES; i++) {
-        figure *f = figure_get(i);
+        struct figure_t *f = &figures[i];
         if (f->state == FIGURE_STATE_ALIVE && f->type == FIGURE_HIPPODROME_HORSES) {
             f->wait_ticks_missile = 0;
             set_horse_destination(f, HORSE_CREATED);

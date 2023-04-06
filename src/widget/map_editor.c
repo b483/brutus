@@ -85,7 +85,7 @@ static void draw_flags(int x, int y, int grid_offset)
 {
     int figure_id = map_figure_at(grid_offset);
     while (figure_id) {
-        figure *f = figure_get(figure_id);
+        struct figure_t *f = &figures[figure_id];
         if (!f->is_ghost) {
             city_draw_figure(f, x, y, 0);
         }

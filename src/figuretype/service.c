@@ -10,7 +10,7 @@
 #include "map/building.h"
 #include "map/road_access.h"
 
-static void roamer_action(figure *f, int num_ticks)
+static void roamer_action(struct figure_t *f, int num_ticks)
 {
     switch (f->action_state) {
         case FIGURE_ACTION_ROAMING:
@@ -41,7 +41,7 @@ static void roamer_action(figure *f, int num_ticks)
     }
 }
 
-static void culture_action(figure *f, int group)
+static void culture_action(struct figure_t *f, int group)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
@@ -55,12 +55,12 @@ static void culture_action(figure *f, int group)
     figure_image_update(f, image_group(group));
 }
 
-void figure_priest_action(figure *f)
+void figure_priest_action(struct figure_t *f)
 {
     culture_action(f, GROUP_FIGURE_PRIEST);
 }
 
-void figure_school_child_action(figure *f)
+void figure_school_child_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
@@ -83,32 +83,32 @@ void figure_school_child_action(figure *f)
     figure_image_update(f, image_group(GROUP_FIGURE_SCHOOL_CHILD));
 }
 
-void figure_teacher_action(figure *f)
+void figure_teacher_action(struct figure_t *f)
 {
     culture_action(f, GROUP_FIGURE_TEACHER_LIBRARIAN);
 }
 
-void figure_librarian_action(figure *f)
+void figure_librarian_action(struct figure_t *f)
 {
     culture_action(f, GROUP_FIGURE_TEACHER_LIBRARIAN);
 }
 
-void figure_barber_action(figure *f)
+void figure_barber_action(struct figure_t *f)
 {
     culture_action(f, GROUP_FIGURE_BARBER);
 }
 
-void figure_bathhouse_worker_action(figure *f)
+void figure_bathhouse_worker_action(struct figure_t *f)
 {
     culture_action(f, GROUP_FIGURE_BATHHOUSE_WORKER);
 }
 
-void figure_doctor_action(figure *f)
+void figure_doctor_action(struct figure_t *f)
 {
     culture_action(f, GROUP_FIGURE_DOCTOR_SURGEON);
 }
 
-void figure_missionary_action(figure *f)
+void figure_missionary_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
@@ -122,7 +122,7 @@ void figure_missionary_action(figure *f)
     figure_image_update(f, image_group(GROUP_FIGURE_MISSIONARY));
 }
 
-void figure_patrician_action(figure *f)
+void figure_patrician_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
@@ -135,7 +135,7 @@ void figure_patrician_action(figure *f)
     figure_image_update(f, image_group(GROUP_FIGURE_PATRICIAN));
 }
 
-void figure_labor_seeker_action(figure *f)
+void figure_labor_seeker_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
@@ -149,7 +149,7 @@ void figure_labor_seeker_action(figure *f)
     figure_image_update(f, image_group(GROUP_FIGURE_LABOR_SEEKER));
 }
 
-void figure_market_trader_action(figure *f)
+void figure_market_trader_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
@@ -171,7 +171,7 @@ void figure_market_trader_action(figure *f)
     figure_image_update(f, image_group(GROUP_FIGURE_MARKET_LADY));
 }
 
-void figure_tax_collector_action(figure *f)
+void figure_tax_collector_action(struct figure_t *f)
 {
     building *b = building_get(f->building_id);
 

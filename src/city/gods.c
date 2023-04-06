@@ -125,7 +125,7 @@ static int perform_large_curse(god_type god)
             if (best_legion) {
                 for (int i = 0; i < best_legion->max_figures; i++) {
                     if (best_legion->figures[i]) {
-                        figure *f = figure_get(best_legion->figures[i]);
+                        struct figure_t *f = &figures[best_legion->figures[i]];
                         map_point nearest_barracks_road_tile = { 0 };
                         set_destination__closest_building_of_type(best_legion->building_id, BUILDING_BARRACKS, &nearest_barracks_road_tile);
                         figure_route_remove(f);

@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 
-void figure_military_standard_action(figure *f)
+void figure_military_standard_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ANY;
     figure_image_increase_offset(f, 16);
@@ -33,7 +33,7 @@ void figure_military_standard_action(figure *f)
     }
 }
 
-static void update_image(figure *f, const struct formation_t *m)
+static void update_image(struct figure_t *f, const struct formation_t *m)
 {
     int dir;
     if (f->action_state == FIGURE_ACTION_ATTACK) {
@@ -99,7 +99,7 @@ static void update_image(figure *f, const struct formation_t *m)
     }
 }
 
-void figure_soldier_action(figure *f)
+void figure_soldier_action(struct figure_t *f)
 {
     city_data.figure.soldiers++;
     f->terrain_usage = TERRAIN_USAGE_ANY;
@@ -206,7 +206,7 @@ void figure_soldier_action(figure *f)
             }
             break;
         case FIGURE_ACTION_SOLDIER_MOPPING_UP:
-            figure *target = melee_unit__set_closest_target(f);
+            struct figure_t *target = melee_unit__set_closest_target(f);
             if (target) {
                 figure_movement_move_ticks(f, f->speed_multiplier);
                 if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {

@@ -3,6 +3,6 @@
 
 #include "figure/figure.h"
 
-void figure_indigenous_native_action(figure *f);
+void figure_indigenous_native_action(struct figure_t *f);
 
 #endif // FIGURETYPE_NATIVE_H

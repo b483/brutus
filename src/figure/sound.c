@@ -4,7 +4,7 @@
 #include "sound/effect.h"
 #include "sound/speech.h"
 
-void figure_play_die_sound(const figure *f)
+void figure_play_die_sound(const struct figure_t *f)
 {
     int is_combatant = 0;
     int is_citizen = 0;

@@ -38,21 +38,21 @@ void figure_create_flotsam(void)
         return;
     }
     for (int i = 1; i < MAX_FIGURES; i++) {
-        figure *f = figure_get(i);
+        struct figure_t *f = &figures[i];
         if (f->state && f->type == FIGURE_FLOTSAM) {
             figure_delete(f);
         }
     }
 
     for (int i = 0; i < 20; i++) {
-        figure *f = figure_create(FIGURE_FLOTSAM, scenario.river_entry_point.x, scenario.river_entry_point.y, DIR_0_TOP);
+        struct figure_t *f = figure_create(FIGURE_FLOTSAM, scenario.river_entry_point.x, scenario.river_entry_point.y, DIR_0_TOP);
         f->action_state = FIGURE_ACTION_FLOTSAM_CREATED;
         f->resource_id = FLOTSAM_RESOURCE_IDS[i];
         f->wait_ticks = FLOTSAM_WAIT_TICKS[i];
     }
 }
 
-void figure_flotsam_action(figure *f)
+void figure_flotsam_action(struct figure_t *f)
 {
     f->is_boat = 2;
     if (!scenario_map_has_river_exit()) {
@@ -136,7 +136,7 @@ void figure_flotsam_action(figure *f)
     }
 }
 
-void figure_shipwreck_action(figure *f)
+void figure_shipwreck_action(struct figure_t *f)
 {
     f->is_ghost = 0;
     f->height_adjusted_ticks = 0;
@@ -162,7 +162,7 @@ void figure_shipwreck_action(figure *f)
     f->image_id = image_group(GROUP_FIGURE_SHIPWRECK) + f->image_offset / 16;
 }
 
-void figure_fishing_boat_action(figure *f)
+void figure_fishing_boat_action(struct figure_t *f)
 {
     building *b = building_get(f->building_id);
     if (b->state != BUILDING_STATE_IN_USE) {
@@ -301,7 +301,7 @@ void figure_fishing_boat_action(figure *f)
 void figure_sink_all_ships(void)
 {
     for (int i = 1; i < MAX_FIGURES; i++) {
-        figure *f = figure_get(i);
+        struct figure_t *f = &figures[i];
         if (f->state != FIGURE_STATE_ALIVE) {
             continue;
         }

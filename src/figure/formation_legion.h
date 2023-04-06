@@ -14,7 +14,7 @@ int formation_get_num_legions(void);
 
 int get_legion_formation_by_index(int legion_index);
 
-void deploy_legion_unit_to_formation_location(figure *legion_unit, struct formation_t *legion_formation);
+void deploy_legion_unit_to_formation_location(struct figure_t *legion_unit, struct formation_t *legion_formation);
 
 void formation_legion_move_to(struct formation_t *m, map_tile *tile);
 

@@ -17,7 +17,7 @@
 #include "map/routing_terrain.h"
 #include "map/terrain.h"
 
-static void advance_tick(figure *f)
+static void advance_tick(struct figure_t *f)
 {
     switch (f->direction) {
         case DIR_0_TOP:
@@ -71,13 +71,13 @@ static void advance_tick(figure *f)
     }
 }
 
-static void set_target_height_bridge(figure *f)
+static void set_target_height_bridge(struct figure_t *f)
 {
     f->height_adjusted_ticks = 18;
     f->target_height = map_bridge_height(f->grid_offset);
 }
 
-static void move_to_next_tile(figure *f)
+static void move_to_next_tile(struct figure_t *f)
 {
     int old_x = f->x;
     int old_y = f->y;
@@ -113,22 +113,19 @@ static void move_to_next_tile(figure *f)
     f->grid_offset += map_grid_direction_delta(f->direction);
     map_figure_add(f);
     if (map_terrain_is(f->grid_offset, TERRAIN_ROAD)) {
-        f->is_on_road = 1;
         if (map_terrain_is(f->grid_offset, TERRAIN_WATER)) { // bridge
             set_target_height_bridge(f);
         }
-    } else {
-        f->is_on_road = 0;
     }
 
-     if (f->is_friendly_armed_unit || f->is_player_legion_unit || f->is_native_unit || f->type == FIGURE_WOLF || f->is_enemy_unit || f->is_caesar_legion_unit) {
+    if (f->is_friendly_armed_unit || f->is_player_legion_unit || f->is_native_unit || f->type == FIGURE_WOLF || f->is_enemy_unit || f->is_caesar_legion_unit) {
         figure_combat_attack_figure_at(f, f->grid_offset);
     }
     f->previous_tile_x = old_x;
     f->previous_tile_y = old_y;
 }
 
-static void set_next_route_tile_direction(figure *f)
+static void set_next_route_tile_direction(struct figure_t *f)
 {
     if (f->routing_path_id > 0) {
         if (f->routing_path_current_tile < f->routing_path_length) {
@@ -146,7 +143,7 @@ static void set_next_route_tile_direction(figure *f)
     }
 }
 
-static void advance_route_tile(figure *f, int roaming_enabled)
+static void advance_route_tile(struct figure_t *f, int roaming_enabled)
 {
     if (f->direction >= 8) {
         return;
@@ -215,7 +212,7 @@ static void advance_route_tile(figure *f, int roaming_enabled)
     }
 }
 
-static void walk_ticks(figure *f, int num_ticks, int roaming_enabled)
+static void walk_ticks(struct figure_t *f, int num_ticks, int roaming_enabled)
 {
     while (num_ticks > 0) {
         f->figure_is_halted = 0;
@@ -243,7 +240,7 @@ static void walk_ticks(figure *f, int num_ticks, int roaming_enabled)
     }
 }
 
-void figure_movement_init_roaming(figure *f)
+void figure_movement_init_roaming(struct figure_t *f)
 {
     building *b = building_get(f->building_id);
     f->progress_on_tile = 15;
@@ -273,7 +270,7 @@ void figure_movement_init_roaming(figure *f)
     }
 }
 
-static void roam_set_direction(figure *f)
+static void roam_set_direction(struct figure_t *f)
 {
     int grid_offset = map_grid_offset(f->x, f->y);
     int direction = calc_general_direction(f->x, f->y, f->destination_x, f->destination_y);
@@ -312,14 +309,14 @@ static void roam_set_direction(figure *f)
     f->roam_ticks_until_next_turn = 5;
 }
 
-void figure_movement_move_ticks(figure *f, int num_ticks)
+void figure_movement_move_ticks(struct figure_t *f, int num_ticks)
 {
     walk_ticks(f, num_ticks, 0);
 }
 
-void figure_movement_follow_ticks(figure *f, int num_ticks)
+void figure_movement_follow_ticks(struct figure_t *f, int num_ticks)
 {
-    const figure *leader = figure_get(f->leading_figure_id);
+    const struct figure_t *leader = &figures[f->leading_figure_id];
     if (f->x == f->source_x && f->y == f->source_y) {
         f->is_ghost = 1;
     }
@@ -343,7 +340,7 @@ void figure_movement_follow_ticks(figure *f, int num_ticks)
     }
 }
 
-void figure_movement_roam_ticks(figure *f, int num_ticks)
+void figure_movement_roam_ticks(struct figure_t *f, int num_ticks)
 {
     if (f->roam_choose_destination == 0) {
         walk_ticks(f, num_ticks, 1);
@@ -454,7 +451,7 @@ void figure_movement_roam_ticks(figure *f, int num_ticks)
     }
 }
 
-void figure_movement_advance_attack(figure *f)
+void figure_movement_advance_attack(struct figure_t *f)
 {
     if (f->progress_on_tile <= 5) {
         f->progress_on_tile++;
@@ -462,7 +459,7 @@ void figure_movement_advance_attack(figure *f)
     }
 }
 
-void figure_movement_set_cross_country_direction(figure *f, int x_src, int y_src, int x_dst, int y_dst, int is_missile)
+void figure_movement_set_cross_country_direction(struct figure_t *f, int x_src, int y_src, int x_dst, int y_dst, int is_missile)
 {
     // all x/y are in 1/15th of a tile
     f->cc_destination_x = x_dst;
@@ -500,7 +497,7 @@ void figure_movement_set_cross_country_direction(figure *f, int x_src, int y_src
     }
 }
 
-void figure_movement_set_cross_country_destination(figure *f, int x_dst, int y_dst)
+void figure_movement_set_cross_country_destination(struct figure_t *f, int x_dst, int y_dst)
 {
     f->destination_x = x_dst;
     f->destination_y = y_dst;
@@ -509,7 +506,7 @@ void figure_movement_set_cross_country_destination(figure *f, int x_dst, int y_d
         15 * x_dst, 15 * y_dst, 0);
 }
 
-static void cross_country_update_delta(figure *f)
+static void cross_country_update_delta(struct figure_t *f)
 {
     if (f->cc_direction == 1) { // x
         if (f->cc_delta_xy >= 0) {
@@ -528,7 +525,7 @@ static void cross_country_update_delta(figure *f)
     }
 }
 
-static void cross_country_advance_x(figure *f)
+static void cross_country_advance_x(struct figure_t *f)
 {
     if (f->cross_country_x < f->cc_destination_x) {
         f->cross_country_x++;
@@ -537,7 +534,7 @@ static void cross_country_advance_x(figure *f)
     }
 }
 
-static void cross_country_advance_y(figure *f)
+static void cross_country_advance_y(struct figure_t *f)
 {
     if (f->cross_country_y < f->cc_destination_y) {
         f->cross_country_y++;
@@ -546,7 +543,7 @@ static void cross_country_advance_y(figure *f)
     }
 }
 
-static void cross_country_advance(figure *f)
+static void cross_country_advance(struct figure_t *f)
 {
     cross_country_update_delta(f);
     if (f->cc_direction == 2) { // y
@@ -564,7 +561,7 @@ static void cross_country_advance(figure *f)
     }
 }
 
-int figure_movement_move_ticks_cross_country(figure *f, int num_ticks)
+int figure_movement_move_ticks_cross_country(struct figure_t *f, int num_ticks)
 {
     map_figure_delete(f);
     int is_at_destination = 0;

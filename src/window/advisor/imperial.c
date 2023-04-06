@@ -297,7 +297,7 @@ static void confirm_send_troops(void)
             formations[i].in_distant_battle = 1;
             for (int fig = 0; fig < formations[i].num_figures; fig++) {
                 if (formations[i].figures[fig] > 0) {
-                    figure *f = figure_get(formations[i].figures[fig]);
+                    struct figure_t *f = &figures[formations[i].figures[fig]];
                     if (!figure_is_dead(f)) {
                         f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_DISTANT_BATTLE;
                     }

@@ -296,7 +296,7 @@ static int provide_market_goods(int market_building_id, int x, int y)
     return serviced;
 }
 
-static building *get_entertainment_building(const figure *f)
+static building *get_entertainment_building(const struct figure_t *f)
 {
     if (f->action_state == FIGURE_ACTION_ENTERTAINER_ROAMING ||
         f->action_state == FIGURE_ACTION_ENTERTAINER_RETURNING) {
@@ -306,7 +306,7 @@ static building *get_entertainment_building(const figure *f)
     }
 }
 
-int figure_service_provide_coverage(figure *f)
+int figure_service_provide_coverage(struct figure_t *f)
 {
     int houses_serviced = 0;
     int x = f->x;

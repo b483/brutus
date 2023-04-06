@@ -33,7 +33,7 @@ static int show_building_hippodrome(const building *b)
     return b->type == BUILDING_CHARIOT_MAKER || b->type == BUILDING_HIPPODROME;
 }
 
-static building *get_entertainment_building(const figure *f)
+static building *get_entertainment_building(const struct figure_t *f)
 {
     if (f->action_state == FIGURE_ACTION_ENTERTAINER_ROAMING ||
         f->action_state == FIGURE_ACTION_ENTERTAINER_RETURNING) {
@@ -43,13 +43,13 @@ static building *get_entertainment_building(const figure *f)
     }
 }
 
-static int show_figure_entertainment(const figure *f)
+static int show_figure_entertainment(const struct figure_t *f)
 {
     return f->type == FIGURE_ACTOR || f->type == FIGURE_GLADIATOR ||
         f->type == FIGURE_LION_TAMER || f->type == FIGURE_CHARIOTEER;
 }
 
-static int show_figure_theater(const figure *f)
+static int show_figure_theater(const struct figure_t *f)
 {
     if (f->type == FIGURE_ACTOR) {
         return get_entertainment_building(f)->type == BUILDING_THEATER;
@@ -57,7 +57,7 @@ static int show_figure_theater(const figure *f)
     return 0;
 }
 
-static int show_figure_amphitheater(const figure *f)
+static int show_figure_amphitheater(const struct figure_t *f)
 {
     if (f->type == FIGURE_ACTOR || f->type == FIGURE_GLADIATOR) {
         return get_entertainment_building(f)->type == BUILDING_AMPHITHEATER;
@@ -65,7 +65,7 @@ static int show_figure_amphitheater(const figure *f)
     return 0;
 }
 
-static int show_figure_colosseum(const figure *f)
+static int show_figure_colosseum(const struct figure_t *f)
 {
     if (f->type == FIGURE_GLADIATOR) {
         return get_entertainment_building(f)->type == BUILDING_COLOSSEUM;
@@ -75,7 +75,7 @@ static int show_figure_colosseum(const figure *f)
     return 0;
 }
 
-static int show_figure_hippodrome(const figure *f)
+static int show_figure_hippodrome(const struct figure_t *f)
 {
     return f->type == FIGURE_CHARIOTEER;
 }

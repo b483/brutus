@@ -47,7 +47,7 @@ static void generate_rioter(building *b)
     int x_target, y_target;
     int target_building_id = formation_rioter_get_target_building(&x_target, &y_target);
     for (int i = 0; i < people_in_mob; i++) {
-        figure *f = figure_create(FIGURE_RIOTER, x_road, y_road, DIR_4_BOTTOM);
+        struct figure_t *f = figure_create(FIGURE_RIOTER, x_road, y_road, DIR_4_BOTTOM);
         f->action_state = FIGURE_ACTION_RIOTER_CREATED;
         f->roam_length = 0;
         f->wait_ticks = 10 + 4 * i;
@@ -73,7 +73,7 @@ static void generate_mugger(building *b)
         b->house_criminal_active = 2;
         int x_road, y_road;
         if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
-            figure *f = figure_create(FIGURE_CRIMINAL, x_road, y_road, DIR_4_BOTTOM);
+            struct figure_t *f = figure_create(FIGURE_CRIMINAL, x_road, y_road, DIR_4_BOTTOM);
             f->wait_ticks = 10 + (b->house_figure_generation_delay & 0xf);
             city_ratings_peace_record_criminal();
             int taxes_this_year = city_finance_overview_this_year()->income.taxes;
@@ -96,7 +96,7 @@ static void generate_protestor(building *b)
         b->house_criminal_active = 1;
         int x_road, y_road;
         if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
-            figure *f = figure_create(FIGURE_PROTESTER, x_road, y_road, DIR_4_BOTTOM);
+            struct figure_t *f = figure_create(FIGURE_PROTESTER, x_road, y_road, DIR_4_BOTTOM);
             f->wait_ticks = 10 + (b->house_figure_generation_delay & 0xf);
             city_ratings_peace_record_criminal();
         }
@@ -149,7 +149,7 @@ void figure_generate_criminals(void)
     }
 }
 
-void figure_protestor_action(figure *f)
+void figure_protestor_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     figure_image_increase_offset(f, 64);
@@ -169,7 +169,7 @@ void figure_protestor_action(figure *f)
     }
 }
 
-void figure_criminal_action(figure *f)
+void figure_criminal_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     figure_image_increase_offset(f, 32);
@@ -189,7 +189,7 @@ void figure_criminal_action(figure *f)
     }
 }
 
-void figure_rioter_action(figure *f)
+void figure_rioter_action(struct figure_t *f)
 {
     city_data.figure.rioters++;
     f->terrain_usage = TERRAIN_USAGE_ENEMY;
@@ -259,7 +259,7 @@ void figure_rioter_action(figure *f)
     }
 }
 
-int figure_rioter_collapse_building(figure *f)
+int figure_rioter_collapse_building(struct figure_t *f)
 {
     for (int dir = 0; dir < 8; dir += 2) {
         int grid_offset = f->grid_offset + map_grid_direction_delta(dir);

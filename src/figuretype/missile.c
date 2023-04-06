@@ -33,7 +33,7 @@ void figure_create_explosion_cloud(int x, int y, int size)
     int tile_offset = CLOUD_TILE_OFFSETS[size];
     int cc_offset = CLOUD_CC_OFFSETS[size];
     for (int i = 0; i < 16; i++) {
-        figure *f = figure_create(FIGURE_EXPLOSION,
+        struct figure_t *f = figure_create(FIGURE_EXPLOSION,
             x + tile_offset, y + tile_offset, DIR_0_TOP);
         if (f->id) {
             f->cross_country_x += cc_offset;
@@ -49,9 +49,9 @@ void figure_create_explosion_cloud(int x, int y, int size)
     }
 }
 
-void figure_create_missile(figure *shooter, map_point *target_tile, int type)
+void figure_create_missile(struct figure_t *shooter, map_point *target_tile, int type)
 {
-    figure *missile = figure_create(type, shooter->x, shooter->y, DIR_0_TOP);
+    struct figure_t *missile = figure_create(type, shooter->x, shooter->y, DIR_0_TOP);
     if (missile->id) {
         missile->missile_offset = type == FIGURE_BOLT ? 60 : 10;
         missile->building_id = shooter->id;
@@ -61,13 +61,13 @@ void figure_create_missile(figure *shooter, map_point *target_tile, int type)
     }
 }
 
-static int get_target_on_tile(figure *projectile)
+static int get_target_on_tile(struct figure_t *projectile)
 {
-    figure *shooter = figure_get(projectile->building_id);
+    struct figure_t *shooter = &figures[projectile->building_id];
     if (map_figures.items[projectile->grid_offset] > 0) {
         int figure_id = map_figures.items[projectile->grid_offset];
         while (figure_id) {
-            figure *target = figure_get(figure_id);
+            struct figure_t *target = &figures[figure_id];
             if (target->action_state != FIGURE_ACTION_CORPSE && target->is_targetable) {
                 if (shooter->is_friendly_armed_unit || shooter->is_player_legion_unit) {
                     if (is_valid_target_for_player_unit(target)) {
@@ -85,7 +85,7 @@ static int get_target_on_tile(figure *projectile)
     return 0;
 }
 
-void figure_explosion_cloud_action(figure *f)
+void figure_explosion_cloud_action(struct figure_t *f)
 {
     f->use_cross_country = 1;
     f->progress_on_tile++;
@@ -101,9 +101,9 @@ void figure_explosion_cloud_action(figure *f)
     }
 }
 
-static void missile_hit_target(figure *projectile, figure *target)
+static void missile_hit_target(struct figure_t *projectile, struct figure_t *target)
 {
-    figure *shooter = figure_get(projectile->building_id);
+    struct figure_t *shooter = &figures[projectile->building_id];
     int damage_inflicted = (shooter->missile_attack_value + projectile->missile_attack_value) - target->missile_defense_value;
     if (damage_inflicted < 0) {
         damage_inflicted = 0;
@@ -134,7 +134,7 @@ static void missile_hit_target(figure *projectile, figure *target)
     figure__remove_ranged_targeter_from_list(target, shooter);
 }
 
-void figure_arrow_action(figure *projectile)
+void figure_arrow_action(struct figure_t *projectile)
 {
     projectile->use_cross_country = 1;
     projectile->progress_on_tile++;
@@ -144,7 +144,7 @@ void figure_arrow_action(figure *projectile)
     int should_die = figure_movement_move_ticks_cross_country(projectile, 4);
     int target_id = get_target_on_tile(projectile);
     if (target_id) {
-        figure *target = figure_get(target_id);
+        struct figure_t *target = &figures[target_id];
         missile_hit_target(projectile, target);
         sound_effect_play(SOUND_EFFECT_ARROW_HIT);
     } else if (should_die) {
@@ -154,7 +154,7 @@ void figure_arrow_action(figure *projectile)
     projectile->image_id = image_group(GROUP_FIGURE_MISSILE) + 16 + dir;
 }
 
-void figure_javelin_action(figure *projectile)
+void figure_javelin_action(struct figure_t *projectile)
 {
     projectile->use_cross_country = 1;
     projectile->progress_on_tile++;
@@ -164,7 +164,7 @@ void figure_javelin_action(figure *projectile)
     int should_die = figure_movement_move_ticks_cross_country(projectile, 4);
     int target_id = get_target_on_tile(projectile);
     if (target_id) {
-        figure *target = figure_get(target_id);
+        struct figure_t *target = &figures[target_id];
         missile_hit_target(projectile, target);
         sound_effect_play(SOUND_EFFECT_JAVELIN);
     } else if (should_die) {
@@ -174,7 +174,7 @@ void figure_javelin_action(figure *projectile)
     projectile->image_id = image_group(GROUP_FIGURE_MISSILE) + dir;
 }
 
-void figure_bolt_action(figure *projectile)
+void figure_bolt_action(struct figure_t *projectile)
 {
     projectile->use_cross_country = 1;
     projectile->progress_on_tile++;
@@ -184,7 +184,7 @@ void figure_bolt_action(figure *projectile)
     int should_die = figure_movement_move_ticks_cross_country(projectile, 4);
     int target_id = get_target_on_tile(projectile);
     if (target_id) {
-        figure *target = figure_get(target_id);
+        struct figure_t *target = &figures[target_id];
         missile_hit_target(projectile, target);
         sound_effect_play(SOUND_EFFECT_BALLISTA_HIT_PERSON);
     } else if (should_die) {

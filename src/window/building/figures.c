@@ -129,15 +129,15 @@ static int inventory_to_resource_id(int value)
     }
 }
 
-static figure *get_head_of_caravan(figure *f)
+static struct figure_t *get_head_of_caravan(struct figure_t *f)
 {
     while (f->type == FIGURE_TRADE_CARAVAN_DONKEY) {
-        f = figure_get(f->leading_figure_id);
+        f = &figures[f->leading_figure_id];
     }
     return f;
 }
 
-static void draw_trader(building_info_context *c, figure *f)
+static void draw_trader(building_info_context *c, struct figure_t *f)
 {
     f = get_head_of_caravan(f);
     int width = text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 40, c->y_offset + 110, FONT_NORMAL_BROWN, COLOR_BLACK);
@@ -228,7 +228,7 @@ static void draw_trader(building_info_context *c, figure *f)
     }
 }
 
-static void draw_enemy(building_info_context *c, figure *f)
+static void draw_enemy(building_info_context *c, struct figure_t *f)
 {
     int image_id = FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[f->type];
     switch (f->type) {
@@ -275,22 +275,22 @@ static void draw_enemy(building_info_context *c, figure *f)
     }
     image_draw(image_group(GROUP_BIG_PEOPLE) + image_id - 1, c->x_offset + 28, c->y_offset + 112);
 
-    lang_text_draw(65, f->name, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
+    lang_text_draw(65, f->name_id, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
 
     text_draw(get_custom_string(TR_ENEMY_TYPE_BARBARIAN + f->enemy_image_type_detailed), c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
 }
 
-static void draw_animal(building_info_context *c, figure *f)
+static void draw_animal(building_info_context *c, struct figure_t *f)
 {
     image_draw(big_people_image(f->type), c->x_offset + 28, c->y_offset + 112);
     text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
 }
 
-static void draw_cartpusher(building_info_context *c, figure *f)
+static void draw_cartpusher(building_info_context *c, struct figure_t *f)
 {
     image_draw(big_people_image(f->type), c->x_offset + 28, c->y_offset + 112);
 
-    lang_text_draw(65, f->name, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
+    lang_text_draw(65, f->name_id, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
     int width = text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
 
     if (f->action_state != FIGURE_ACTION_DOCKER_IDLING && f->resource_id) {
@@ -340,11 +340,11 @@ static void draw_cartpusher(building_info_context *c, figure *f)
     }
 }
 
-static void draw_market_buyer(building_info_context *c, figure *f)
+static void draw_market_buyer(building_info_context *c, struct figure_t *f)
 {
     image_draw(big_people_image(f->type), c->x_offset + 28, c->y_offset + 112);
 
-    lang_text_draw(65, f->name, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
+    lang_text_draw(65, f->name_id, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
     int width = text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
 
     if (f->action_state == FIGURE_ACTION_MARKET_BUYER_GOING_TO_STORAGE) {
@@ -364,7 +364,7 @@ static void draw_market_buyer(building_info_context *c, figure *f)
     }
 }
 
-static void draw_normal_figure(building_info_context *c, figure *f)
+static void draw_normal_figure(building_info_context *c, struct figure_t *f)
 {
     int image_id = big_people_image(f->type);
     if (f->action_state == FIGURE_ACTION_PREFECT_GOING_TO_FIRE ||
@@ -373,7 +373,7 @@ static void draw_normal_figure(building_info_context *c, figure *f)
     }
     image_draw(image_id, c->x_offset + 28, c->y_offset + 112);
 
-    lang_text_draw(65, f->name, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
+    lang_text_draw(65, f->name_id, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
     if (f->is_caesar_legion_unit) {
         text_draw(get_custom_string(TR_ENEMY_TYPE_LEGION), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
     } else {
@@ -389,7 +389,7 @@ static void draw_figure_info(building_info_context *c, int figure_id)
 {
     button_border_draw(c->x_offset + 24, c->y_offset + 102, BLOCK_SIZE * (c->width_blocks - 3), 138, 0);
 
-    figure *f = figure_get(figure_id);
+    struct figure_t *f = &figures[figure_id];
     if (f->is_empire_trader) {
         draw_trader(c, f);
     } else if (f->is_enemy_unit) {
@@ -426,9 +426,8 @@ static void draw_figure_in_city(int figure_id, pixel_coordinate *coord)
     int x_cam, y_cam;
     city_view_get_camera(&x_cam, &y_cam);
 
-    int grid_offset = figure_get(figure_id)->grid_offset;
     int x, y;
-    city_view_grid_offset_to_xy_view(grid_offset, &x, &y);
+    city_view_grid_offset_to_xy_view(figures[figure_id].grid_offset, &x, &y);
 
     city_view_set_camera(x - 2, y - 6);
 
@@ -468,7 +467,7 @@ static void select_figure(int index, __attribute__((unused)) int param2)
 void window_building_play_figure_phrase(building_info_context *c)
 {
     int figure_id = c->figure.figure_ids[c->figure.selected_index];
-    figure *f = figure_get(figure_id);
+    struct figure_t *f = &figures[figure_id];
     c->figure.sound_id = figure_phrase_play(f);
     c->figure.phrase_id = f->phrase_id;
 }

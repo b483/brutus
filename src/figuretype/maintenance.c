@@ -16,7 +16,7 @@
 
 #define PREFECT_LEASH_RANGE 20
 
-void figure_engineer_action(figure *f)
+void figure_engineer_action(struct figure_t *f)
 {
     building *b = building_get(f->building_id);
 
@@ -87,7 +87,7 @@ void figure_engineer_action(figure *f)
     figure_image_update(f, image_group(GROUP_FIGURE_ENGINEER));
 }
 
-static int fight_fire(figure *f)
+static int fight_fire(struct figure_t *f)
 {
     if (building_list_burning_size() <= 0) {
         return 0;
@@ -121,7 +121,7 @@ static int fight_fire(figure *f)
     return 0;
 }
 
-static void extinguish_fire(figure *f)
+static void extinguish_fire(struct figure_t *f)
 {
     building *burn = building_get(f->destination_building_id);
     int distance = calc_maximum_distance(f->x, f->y, burn->x, burn->y);
@@ -153,7 +153,7 @@ static void extinguish_fire(figure *f)
     }
 }
 
-void figure_prefect_action(figure *f)
+void figure_prefect_action(struct figure_t *f)
 {
     building *b = building_get(f->building_id);
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
@@ -198,7 +198,7 @@ void figure_prefect_action(figure *f)
             break;
         case FIGURE_ACTION_PREFECT_ROAMING:
             f->is_ghost = 0;
-            figure *target = melee_unit__set_closest_target(f);
+            struct figure_t *target = melee_unit__set_closest_target(f);
             if (target && calc_maximum_distance(f->x, f->y, b->x, b->y) < PREFECT_LEASH_RANGE) {
                 f->terrain_usage = TERRAIN_USAGE_ANY;
                 f->roam_length = f->max_roam_length;

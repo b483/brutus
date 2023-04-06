@@ -8,9 +8,9 @@ void figure_route_clear_all(void);
 
 void figure_route_clean(void);
 
-void figure_route_add(figure *f);
+void figure_route_add(struct figure_t *f);
 
-void figure_route_remove(figure *f);
+void figure_route_remove(struct figure_t *f);
 
 int figure_route_get_direction(int path_id, int index);
 

@@ -46,12 +46,12 @@ static int show_building_desirability(__attribute__((unused)) const building *b)
     return 0;
 }
 
-static int show_figure_religion(const figure *f)
+static int show_figure_religion(const struct figure_t *f)
 {
     return f->type == FIGURE_PRIEST;
 }
 
-static int show_figure_food_stocks(const figure *f)
+static int show_figure_food_stocks(const struct figure_t *f)
 {
     if (f->type == FIGURE_MARKET_BUYER || f->type == FIGURE_MARKET_TRADER ||
         f->type == FIGURE_DELIVERY_BOY || f->type == FIGURE_FISHING_BOAT) {
@@ -62,12 +62,12 @@ static int show_figure_food_stocks(const figure *f)
     return 0;
 }
 
-static int show_figure_tax_income(const figure *f)
+static int show_figure_tax_income(const struct figure_t *f)
 {
     return f->type == FIGURE_TAX_COLLECTOR;
 }
 
-static int show_figure_none(__attribute__((unused)) const figure *f)
+static int show_figure_none(__attribute__((unused)) const struct figure_t *f)
 {
     return 0;
 }

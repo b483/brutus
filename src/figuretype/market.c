@@ -10,16 +10,16 @@
 #include "figure/route.h"
 #include "game/resource.h"
 
-static int create_delivery_boy(int leader_id, figure *f)
+static int create_delivery_boy(int leader_id, struct figure_t *f)
 {
-    figure *boy = figure_create(FIGURE_DELIVERY_BOY, f->x, f->y, 0);
+    struct figure_t *boy = figure_create(FIGURE_DELIVERY_BOY, f->x, f->y, 0);
     boy->leading_figure_id = leader_id;
     boy->collecting_item_id = f->collecting_item_id;
     boy->building_id = f->building_id;
     return boy->id;
 }
 
-static int take_food_from_granary(figure *f, int market_id, int granary_id)
+static int take_food_from_granary(struct figure_t *f, int market_id, int granary_id)
 {
     int resource;
     switch (f->collecting_item_id) {
@@ -68,7 +68,7 @@ static int take_food_from_granary(figure *f, int market_id, int granary_id)
     return 1;
 }
 
-static int take_resource_from_warehouse(figure *f, int warehouse_id)
+static int take_resource_from_warehouse(struct figure_t *f, int warehouse_id)
 {
     int resource;
     switch (f->collecting_item_id) {
@@ -99,7 +99,7 @@ static int take_resource_from_warehouse(figure *f, int warehouse_id)
     return 1;
 }
 
-void figure_market_buyer_action(figure *f)
+void figure_market_buyer_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
@@ -145,14 +145,14 @@ void figure_market_buyer_action(figure *f)
     figure_image_update(f, image_group(GROUP_FIGURE_MARKET_LADY));
 }
 
-void figure_delivery_boy_action(figure *f)
+void figure_delivery_boy_action(struct figure_t *f)
 {
     f->is_ghost = 0;
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
 
-    figure *leader = figure_get(f->leading_figure_id);
+    struct figure_t *leader = &figures[f->leading_figure_id];
     if (f->leading_figure_id <= 0 || leader->action_state == FIGURE_ACTION_CORPSE) {
         f->state = FIGURE_STATE_DEAD;
     } else {

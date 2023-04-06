@@ -22,22 +22,22 @@ static int show_building_academy(const building *b)
     return b->type == BUILDING_ACADEMY;
 }
 
-static int show_figure_education(const figure *f)
+static int show_figure_education(const struct figure_t *f)
 {
     return f->type == FIGURE_SCHOOL_CHILD || f->type == FIGURE_LIBRARIAN || f->type == FIGURE_TEACHER;
 }
 
-static int show_figure_school(const figure *f)
+static int show_figure_school(const struct figure_t *f)
 {
     return f->type == FIGURE_SCHOOL_CHILD;
 }
 
-static int show_figure_library(const figure *f)
+static int show_figure_library(const struct figure_t *f)
 {
     return f->type == FIGURE_LIBRARIAN;
 }
 
-static int show_figure_academy(const figure *f)
+static int show_figure_academy(const struct figure_t *f)
 {
     return f->type == FIGURE_TEACHER;
 }

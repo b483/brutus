@@ -201,7 +201,7 @@ void building_clear_related_data(building *b)
         if (b->formation_id > 0) {
             if (formations[b->formation_id].in_use) {
                 for (int i = 0; i < formations[b->formation_id].num_figures; i++) {
-                    figure *f = figure_get(formations[b->formation_id].figures[i]);
+                    struct figure_t *f = &figures[formations[b->formation_id].figures[i]];
                     map_point nearest_barracks_road_tile = { 0 };
                     set_destination__closest_building_of_type(b->id, BUILDING_BARRACKS, &nearest_barracks_road_tile);
                     figure_route_remove(f);
@@ -214,7 +214,7 @@ void building_clear_related_data(building *b)
                     }
                     f->action_state = FIGURE_ACTION_SOLDIER_RETURNING_TO_BARRACKS;
                 }
-                map_figure_delete(figure_get(formations[b->formation_id].legion_standard__figure_id));
+                map_figure_delete(&figures[formations[b->formation_id].legion_standard__figure_id]);
                 formation_clear(b->formation_id);
                 formation_calculate_legion_totals();
             }

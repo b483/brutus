@@ -12,7 +12,7 @@
 static int is_problem_cartpusher(int figure_id)
 {
     if (figure_id) {
-        figure *fig = figure_get(figure_id);
+        struct figure_t *fig = &figures[figure_id];
         return fig->action_state == FIGURE_ACTION_CARTPUSHER_INITIAL && fig->min_max_seen;
     } else {
         return 0;
@@ -61,23 +61,23 @@ static int show_building_native(const building *b)
     return b->type == BUILDING_NATIVE_HUT || b->type == BUILDING_NATIVE_MEETING || b->type == BUILDING_MISSION_POST;
 }
 
-static int show_figure_fire(const figure *f)
+static int show_figure_fire(const struct figure_t *f)
 {
     return f->type == FIGURE_PREFECT;
 }
 
-static int show_figure_damage(const figure *f)
+static int show_figure_damage(const struct figure_t *f)
 {
     return f->type == FIGURE_ENGINEER;
 }
 
-static int show_figure_crime(const figure *f)
+static int show_figure_crime(const struct figure_t *f)
 {
     return f->type == FIGURE_PREFECT || f->type == FIGURE_PROTESTER ||
         f->type == FIGURE_CRIMINAL || f->type == FIGURE_RIOTER;
 }
 
-static int show_figure_problems(const figure *f)
+static int show_figure_problems(const struct figure_t *f)
 {
     if (f->type == FIGURE_LABOR_SEEKER) {
         return building_get(f->building_id)->show_on_problem_overlay;
@@ -88,7 +88,7 @@ static int show_figure_problems(const figure *f)
     }
 }
 
-static int show_figure_native(const figure *f)
+static int show_figure_native(const struct figure_t *f)
 {
     return f->type == FIGURE_INDIGENOUS_NATIVE || f->type == FIGURE_MISSIONARY;
 }

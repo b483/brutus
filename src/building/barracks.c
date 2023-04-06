@@ -63,7 +63,7 @@ void building_barracks_create_soldier(building *barracks, int x, int y)
 {
     struct formation_t *m = get_closest_legion_needing_soldiers(barracks);
     if (m) {
-        figure *f = figure_create(m->figure_type, x, y, DIR_0_TOP);
+        struct figure_t *f = figure_create(m->figure_type, x, y, DIR_0_TOP);
         f->formation_id = m->id;
         if (f->type == FIGURE_FORT_LEGIONARY && barracks->loads_stored) {
             barracks->loads_stored--;
@@ -113,7 +113,7 @@ int building_barracks_create_tower_sentry(building *barracks, int x, int y)
     if (!map_has_road_access(tower->x, tower->y, tower->size, &tower_road)) {
         return 0;
     }
-    figure *f = figure_create(FIGURE_TOWER_SENTRY, x, y, DIR_0_TOP);
+    struct figure_t *f = figure_create(FIGURE_TOWER_SENTRY, x, y, DIR_0_TOP);
     tower->figure_id = f->id;
     f->building_id = tower->id;
     map_point mil_acad_road = { 0 };

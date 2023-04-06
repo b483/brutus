@@ -26,7 +26,7 @@ void figure_route_clean(void)
     for (int i = 0; i < MAX_ROUTES; i++) {
         int figure_id = data.figure_ids[i];
         if (figure_id > 0 && figure_id < MAX_FIGURES) {
-            const figure *f = figure_get(figure_id);
+            const struct figure_t *f = &figures[figure_id];
             if (f->state != FIGURE_STATE_ALIVE || f->routing_path_id != i) {
                 data.figure_ids[i] = 0;
             }
@@ -44,7 +44,7 @@ static int get_first_available(void)
     return 0;
 }
 
-void figure_route_add(figure *f)
+void figure_route_add(struct figure_t *f)
 {
     f->routing_path_id = 0;
     f->routing_path_current_tile = 0;
@@ -128,7 +128,7 @@ void figure_route_add(figure *f)
     }
 }
 
-void figure_route_remove(figure *f)
+void figure_route_remove(struct figure_t *f)
 {
     if (f->routing_path_id > 0) {
         if (data.figure_ids[f->routing_path_id] == f->id) {

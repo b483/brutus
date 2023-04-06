@@ -3,9 +3,9 @@
 
 #include "figure/figure.h"
 
-void figure_ballista_action(figure *f);
+void figure_ballista_action(struct figure_t *f);
 
-void figure_tower_sentry_action(figure *f);
+void figure_tower_sentry_action(struct figure_t *f);
 
 void figure_tower_sentry_reroute(void);
 

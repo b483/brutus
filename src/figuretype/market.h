@@ -3,8 +3,8 @@
 
 #include "figure/figure.h"
 
-void figure_market_buyer_action(figure *f);
+void figure_market_buyer_action(struct figure_t *f);
 
-void figure_delivery_boy_action(figure *f);
+void figure_delivery_boy_action(struct figure_t *f);
 
 #endif // FIGURETYPE_MARKET_H

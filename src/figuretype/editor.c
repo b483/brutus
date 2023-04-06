@@ -14,7 +14,7 @@ void figure_create_editor_flags(void)
     }
 }
 
-void figure_editor_flag_action(figure *f)
+void figure_editor_flag_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 16);
     f->image_id = image_group(GROUP_FIGURE_MAP_FLAG_FLAGS) + f->image_offset / 2;

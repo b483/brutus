@@ -19,13 +19,13 @@ static const int CART_OFFSET_MULTIPLE_LOADS_FOOD[] = {0, 0, 8, 16, 0, 0, 24, 0, 
 static const int CART_OFFSET_MULTIPLE_LOADS_NON_FOOD[] = {0, 0, 0, 0, 0, 8, 0, 16, 24, 32, 40, 48, 56, 64, 72, 80};
 static const int CART_OFFSET_8_LOADS_FOOD[] = {0, 40, 48, 56, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-static void set_cart_graphic(figure *f)
+static void set_cart_graphic(struct figure_t *f)
 {
     f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART) +
         8 * f->resource_id + resource_image_offset(f->resource_id, RESOURCE_IMAGE_CART);
 }
 
-static void set_destination(figure *f, int action, int building_id, int x_dst, int y_dst)
+static void set_destination(struct figure_t *f, int action, int building_id, int x_dst, int y_dst)
 {
     f->destination_building_id = building_id;
     f->action_state = action;
@@ -34,7 +34,7 @@ static void set_destination(figure *f, int action, int building_id, int x_dst, i
     f->destination_y = y_dst;
 }
 
-static void determine_cartpusher_destination(figure *f, building *b, int road_network_id)
+static void determine_cartpusher_destination(struct figure_t *f, building *b, int road_network_id)
 {
     map_point dst;
     int understaffed_storages = 0;
@@ -87,7 +87,7 @@ static void determine_cartpusher_destination(figure *f, building *b, int road_ne
     f->min_max_seen = understaffed_storages ? 2 : 1;
 }
 
-static void determine_cartpusher_destination_food(figure *f, int road_network_id)
+static void determine_cartpusher_destination_food(struct figure_t *f, int road_network_id)
 {
     building *b = building_get(f->building_id);
     map_point dst;
@@ -119,7 +119,7 @@ static void determine_cartpusher_destination_food(figure *f, int road_network_id
     f->wait_ticks = 0;
 }
 
-static void update_image(figure *f)
+static void update_image(struct figure_t *f)
 {
     int dir = figure_image_normalize_direction(
         f->direction < 8 ? f->direction : f->previous_tile_direction);
@@ -139,7 +139,7 @@ static void update_image(figure *f)
     }
 }
 
-static void reroute_cartpusher(figure *f)
+static void reroute_cartpusher(struct figure_t *f)
 {
     figure_route_remove(f);
     if (!map_routing_citizen_is_passable_terrain(f->grid_offset)) {
@@ -148,7 +148,7 @@ static void reroute_cartpusher(figure *f)
     f->wait_ticks = 0;
 }
 
-void figure_cartpusher_action(figure *f)
+void figure_cartpusher_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -268,7 +268,7 @@ void figure_cartpusher_action(figure *f)
     update_image(f);
 }
 
-static void determine_granaryman_destination(figure *f, int road_network_id)
+static void determine_granaryman_destination(struct figure_t *f, int road_network_id)
 {
     map_point dst;
     int dst_building_id;
@@ -316,7 +316,7 @@ static void determine_granaryman_destination(figure *f, int road_network_id)
     f->state = FIGURE_STATE_DEAD;
 }
 
-static void remove_resource_from_warehouse(figure *f)
+static void remove_resource_from_warehouse(struct figure_t *f)
 {
     if (f->state != FIGURE_STATE_DEAD) {
         int err = building_warehouse_remove_resource(building_get(f->building_id), f->resource_id, 1);
@@ -326,7 +326,7 @@ static void remove_resource_from_warehouse(figure *f)
     }
 }
 
-static void determine_warehouseman_destination(figure *f, int road_network_id)
+static void determine_warehouseman_destination(struct figure_t *f, int road_network_id)
 {
     map_point dst;
     int dst_building_id;
@@ -400,7 +400,7 @@ static void determine_warehouseman_destination(figure *f, int road_network_id)
     f->state = FIGURE_STATE_DEAD;
 }
 
-void figure_warehouseman_action(figure *f)
+void figure_warehouseman_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     figure_image_increase_offset(f, 12);

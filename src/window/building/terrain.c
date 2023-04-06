@@ -46,7 +46,7 @@ void window_building_draw_terrain(building_info_context *c)
             }
         }
         if (c->figure.count > 0 && c->figure.figure_ids[c->figure.selected_index]) {
-            figure *f = figure_get(c->figure.figure_ids[c->figure.selected_index]);
+            struct figure_t *f = &figures[c->figure.figure_ids[c->figure.selected_index]];
             if (f->type < FIGURE_SHIPWRECK) {
                 c->help_id = 42;
             } else {

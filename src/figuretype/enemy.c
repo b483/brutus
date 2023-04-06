@@ -15,7 +15,7 @@
 #include "sound/effect.h"
 #include "sound/speech.h"
 
-static void shoot_enemy_missile(figure *f, struct formation_t *m)
+static void shoot_enemy_missile(struct figure_t *f, struct formation_t *m)
 {
     f->wait_ticks_missile++;
     map_point tile = { 0, 0 };
@@ -46,7 +46,7 @@ static void shoot_enemy_missile(figure *f, struct formation_t *m)
     }
 }
 
-static void enemy_initial(figure *f, struct formation_t *m)
+static void enemy_initial(struct figure_t *f, struct formation_t *m)
 {
     map_figure_update(f);
     f->image_offset = 0;
@@ -77,7 +77,7 @@ static void enemy_initial(figure *f, struct formation_t *m)
     }
 }
 
-static void enemy_marching(figure *f, const struct formation_t *m)
+static void enemy_marching(struct figure_t *f, const struct formation_t *m)
 {
     f->wait_ticks--;
     if (f->wait_ticks <= 0) {
@@ -99,7 +99,7 @@ static void enemy_marching(figure *f, const struct formation_t *m)
     }
 }
 
-static void engage_enemy(figure *f, struct formation_t *m)
+static void engage_enemy(struct figure_t *f, struct formation_t *m)
 {
     if (!m->recent_fight) {
         f->action_state = FIGURE_ACTION_ENEMY_INITIAL;
@@ -107,7 +107,7 @@ static void engage_enemy(figure *f, struct formation_t *m)
     if (f->max_range) {
         shoot_enemy_missile(f, m);
     } else {
-        figure *target = melee_unit__set_closest_target(f);
+        struct figure_t *target = melee_unit__set_closest_target(f);
         if (target) {
             figure_movement_move_ticks(f, f->speed_multiplier);
             if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
@@ -121,7 +121,7 @@ static void engage_enemy(figure *f, struct formation_t *m)
     }
 }
 
-static void enemy_action(figure *f, struct formation_t *m)
+static void enemy_action(struct figure_t *f, struct formation_t *m)
 {
     city_data.figure.enemies++;
     f->terrain_usage = TERRAIN_USAGE_ENEMY;
@@ -149,7 +149,7 @@ static void enemy_action(figure *f, struct formation_t *m)
     }
 }
 
-static int get_direction(figure *f)
+static int get_direction(struct figure_t *f)
 {
     int dir;
     if (f->action_state == FIGURE_ACTION_ATTACK) {
@@ -162,7 +162,7 @@ static int get_direction(figure *f)
     return figure_image_normalize_direction(dir);
 }
 
-static int get_missile_direction(figure *f, const struct formation_t *m)
+static int get_missile_direction(struct figure_t *f, const struct formation_t *m)
 {
     int dir;
     if (f->action_state == FIGURE_ACTION_ATTACK) {
@@ -175,7 +175,7 @@ static int get_missile_direction(figure *f, const struct formation_t *m)
     return figure_image_normalize_direction(dir);
 }
 
-void figure_enemy_ranged_spear_1_action(figure *f)
+void figure_enemy_ranged_spear_1_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -209,7 +209,7 @@ void figure_enemy_ranged_spear_1_action(figure *f)
     }
 }
 
-void figure_enemy_sword_1_action(figure *f)
+void figure_enemy_sword_1_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -240,7 +240,7 @@ void figure_enemy_sword_1_action(figure *f)
     }
 }
 
-void figure_enemy_sword_2_action(figure *f)
+void figure_enemy_sword_2_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -271,7 +271,7 @@ void figure_enemy_sword_2_action(figure *f)
     }
 }
 
-void figure_enemy_camel_action(figure *f)
+void figure_enemy_camel_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -292,7 +292,7 @@ void figure_enemy_camel_action(figure *f)
     }
 }
 
-void figure_enemy_elephant_action(figure *f)
+void figure_enemy_elephant_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -309,7 +309,7 @@ void figure_enemy_elephant_action(figure *f)
     }
 }
 
-void figure_enemy_chariot_action(figure *f)
+void figure_enemy_chariot_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -326,7 +326,7 @@ void figure_enemy_chariot_action(figure *f)
     }
 }
 
-void figure_enemy_fast_sword_action(figure *f)
+void figure_enemy_fast_sword_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -365,7 +365,7 @@ void figure_enemy_fast_sword_action(figure *f)
     }
 }
 
-void figure_enemy_sword_3_action(figure *f)
+void figure_enemy_sword_3_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -391,7 +391,7 @@ void figure_enemy_sword_3_action(figure *f)
     }
 }
 
-void figure_enemy_ranged_spear_2_action(figure *f)
+void figure_enemy_ranged_spear_2_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -419,7 +419,7 @@ void figure_enemy_ranged_spear_2_action(figure *f)
     }
 }
 
-void figure_enemy_mounted_archer_action(figure *f)
+void figure_enemy_mounted_archer_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -440,7 +440,7 @@ void figure_enemy_mounted_archer_action(figure *f)
     }
 }
 
-void figure_enemy_axe_action(figure *f)
+void figure_enemy_axe_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -466,7 +466,7 @@ void figure_enemy_axe_action(figure *f)
     }
 }
 
-void figure_enemy_gladiator_action(figure *f)
+void figure_enemy_gladiator_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ANY;
     f->use_cross_country = 0;
@@ -533,7 +533,7 @@ void figure_enemy_gladiator_action(figure *f)
     }
 }
 
-void figure_enemy_caesar_legionary_action(figure *f)
+void figure_enemy_caesar_legionary_action(struct figure_t *f)
 {
     city_data.figure.imperial_soldiers++;
     figure_image_increase_offset(f, 12);

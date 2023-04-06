@@ -14,14 +14,9 @@
 
 #include <string.h>
 
-static figure figures[MAX_FIGURES];
+struct figure_t figures[MAX_FIGURES];
 
-figure *figure_get(int id)
-{
-    return &figures[id];
-}
-
-figure *figure_create(int type, int x, int y, direction_type dir)
+struct figure_t *figure_create(int type, int x, int y, direction_type dir)
 {
     int id = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
@@ -34,7 +29,7 @@ figure *figure_create(int type, int x, int y, direction_type dir)
         return &figures[0];
     }
 
-    figure *f = &figures[id];
+    struct figure_t *f = &figures[id];
     f->state = FIGURE_STATE_ALIVE;
     f->type = type;
     f->use_cross_country = 0;
@@ -47,7 +42,7 @@ figure *figure_create(int type, int x, int y, direction_type dir)
     f->cross_country_y = 15 * y;
     f->progress_on_tile = 15;
     f->phrase_sequence_city = f->phrase_sequence_exact = random_byte() & 3;
-    f->name = figure_name_get(type, 0);
+    f->name_id = figure_name_get(type, 0);
     map_figure_add(f);
     if (type == FIGURE_TRADE_CARAVAN || type == FIGURE_TRADE_SHIP) {
         f->trader_id = trader_create();
@@ -116,17 +111,11 @@ figure *figure_create(int type, int x, int y, direction_type dir)
             f->is_unarmed_civilian_unit = 1;
             f->max_damage = 20;
             break;
-        case FIGURE_HIPPODROME_HORSES:
-            break;
         case FIGURE_TAX_COLLECTOR:
         case FIGURE_ENGINEER:
             f->is_targetable = 1;
             f->is_unarmed_civilian_unit = 1;
             f->max_damage = 20;
-            break;
-        case FIGURE_FISHING_BOAT:
-        case FIGURE_FISH_GULLS:
-        case FIGURE_SHIPWRECK:
             break;
         case FIGURE_DOCKER:
             f->is_targetable = 1;
@@ -162,8 +151,6 @@ figure *figure_create(int type, int x, int y, direction_type dir)
             f->is_friendly_armed_unit = 1;
             f->max_damage = 50;
             f->melee_attack_value = 5;
-            break;
-        case FIGURE_FORT_STANDARD:
             break;
         case FIGURE_FORT_JAVELIN:
             f->is_targetable = 1;
@@ -379,8 +366,6 @@ figure *figure_create(int type, int x, int y, direction_type dir)
         case FIGURE_ARROW:
             f->missile_attack_value = 5;
             break;
-        case FIGURE_MAP_FLAG:
-        case FIGURE_EXPLOSION:
         default:
             break;
     }
@@ -388,7 +373,7 @@ figure *figure_create(int type, int x, int y, direction_type dir)
     return f;
 }
 
-void figure_delete(figure *f)
+void figure_delete(struct figure_t *f)
 {
     building *b = building_get(f->building_id);
     switch (f->type) {
@@ -445,16 +430,16 @@ void figure_delete(figure *f)
     map_figure_delete(f);
 
     int figure_id = f->id;
-    memset(f, 0, sizeof(figure));
+    memset(f, 0, sizeof(struct figure_t));
     f->id = figure_id;
 }
 
-int figure_is_dead(const figure *f)
+int figure_is_dead(const struct figure_t *f)
 {
     return f->state != FIGURE_STATE_ALIVE || f->action_state == FIGURE_ACTION_CORPSE;
 }
 
-void figure_handle_corpse(figure *f)
+void figure_handle_corpse(struct figure_t *f)
 {
     if (f->wait_ticks < 0) {
         f->wait_ticks = 0;
@@ -474,12 +459,12 @@ int city_figures_total_invading_enemies(void)
 void figure_init_scenario(void)
 {
     for (int i = 0; i < MAX_FIGURES; i++) {
-        memset(&figures[i], 0, sizeof(figure));
+        memset(&figures[i], 0, sizeof(struct figure_t));
         figures[i].id = i;
     }
 }
 
-static void figure_save(buffer *buf, const figure *f)
+static void figure_save(buffer *buf, const struct figure_t *f)
 {
     buffer_write_u8(buf, f->is_targetable);
     buffer_write_u8(buf, f->is_unarmed_civilian_unit);
@@ -491,28 +476,12 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_u8(buf, f->is_herd_animal);
     buffer_write_u8(buf, f->is_enemy_unit);
     buffer_write_u8(buf, f->is_caesar_legion_unit);
-    buffer_write_u8(buf, f->figure_is_halted);
-    buffer_write_u8(buf, f->image_offset);
-    buffer_write_i32(buf, f->enemy_image_type);
-    buffer_write_i32(buf, f->enemy_image_type_detailed);
-    buffer_write_u8(buf, f->is_military_trained);
-    buffer_write_u8(buf, f->flotsam_visible);
-    buffer_write_i16(buf, f->image_id);
-    buffer_write_i16(buf, f->cart_image_id);
-    buffer_write_i16(buf, f->next_figure_id_on_same_tile);
     buffer_write_u8(buf, f->type);
-    buffer_write_u8(buf, f->resource_id);
-    buffer_write_u8(buf, f->use_cross_country);
     buffer_write_u8(buf, f->state);
+    buffer_write_u8(buf, f->action_state);
     buffer_write_u8(buf, f->action_state_before_attack);
-    buffer_write_i8(buf, f->direction);
-    buffer_write_i8(buf, f->previous_tile_direction);
-    buffer_write_i8(buf, f->attack_direction);
-    buffer_write_u8(buf, f->x);
-    buffer_write_u8(buf, f->y);
-    buffer_write_u8(buf, f->previous_tile_x);
-    buffer_write_u8(buf, f->previous_tile_y);
-    buffer_write_u8(buf, f->missile_offset);
+    buffer_write_u8(buf, f->formation_id);
+    buffer_write_u8(buf, f->index_in_formation);
     buffer_write_u8(buf, f->damage);
     buffer_write_u8(buf, f->max_damage);
     buffer_write_u8(buf, f->melee_attack_value);
@@ -521,70 +490,10 @@ static void figure_save(buffer *buf, const figure *f)
     buffer_write_u8(buf, f->missile_defense_value);
     buffer_write_u8(buf, f->missile_delay);
     buffer_write_u8(buf, f->missile_type);
-    buffer_write_i16(buf, f->grid_offset);
-    buffer_write_u8(buf, f->destination_x);
-    buffer_write_u8(buf, f->destination_y);
-    buffer_write_i16(buf, f->destination_grid_offset);
-    buffer_write_u8(buf, f->source_x);
-    buffer_write_u8(buf, f->source_y);
-    buffer_write_i16(buf, f->wait_ticks);
-    buffer_write_u8(buf, f->action_state);
-    buffer_write_u8(buf, f->progress_on_tile);
-    buffer_write_i16(buf, f->routing_path_id);
-    buffer_write_i16(buf, f->routing_path_current_tile);
-    buffer_write_i16(buf, f->routing_path_length);
-    buffer_write_u8(buf, f->in_building_wait_ticks);
-    buffer_write_u8(buf, f->is_on_road);
-    buffer_write_i16(buf, f->max_roam_length);
-    buffer_write_i16(buf, f->roam_length);
-    buffer_write_u8(buf, f->roam_choose_destination);
-    buffer_write_u8(buf, f->roam_random_counter);
-    buffer_write_i8(buf, f->roam_turn_direction);
-    buffer_write_i8(buf, f->roam_ticks_until_next_turn);
-    buffer_write_i16(buf, f->cross_country_x);
-    buffer_write_i16(buf, f->cross_country_y);
-    buffer_write_i16(buf, f->cc_destination_x);
-    buffer_write_i16(buf, f->cc_destination_y);
-    buffer_write_i16(buf, f->cc_delta_x);
-    buffer_write_i16(buf, f->cc_delta_y);
-    buffer_write_i16(buf, f->cc_delta_xy);
-    buffer_write_u8(buf, f->cc_direction);
-    buffer_write_u8(buf, f->speed_multiplier);
-    buffer_write_i16(buf, f->building_id);
-    buffer_write_i16(buf, f->immigrant_building_id);
-    buffer_write_i16(buf, f->destination_building_id);
-    buffer_write_i16(buf, f->formation_id);
-    buffer_write_u8(buf, f->index_in_formation);
-    buffer_write_u8(buf, f->migrant_num_people);
-    buffer_write_u8(buf, f->is_ghost);
-    buffer_write_u8(buf, f->min_max_seen);
-    buffer_write_i16(buf, f->leading_figure_id);
-    buffer_write_u8(buf, f->attack_image_offset);
+    buffer_write_u8(buf, f->max_range);
+    buffer_write_u8(buf, f->is_military_trained);
     buffer_write_u8(buf, f->mounted_charge_ticks);
     buffer_write_u8(buf, f->mounted_charge_ticks_max);
-    buffer_write_u8(buf, f->wait_ticks_missile);
-    buffer_write_i8(buf, f->x_offset_cart);
-    buffer_write_i8(buf, f->y_offset_cart);
-    buffer_write_u8(buf, f->empire_city_id);
-    buffer_write_u8(buf, f->trader_amount_bought);
-    buffer_write_i16(buf, f->name);
-    buffer_write_u8(buf, f->terrain_usage);
-    buffer_write_u8(buf, f->loads_sold_or_carrying);
-    buffer_write_u8(buf, f->is_boat);
-    buffer_write_u8(buf, f->height_adjusted_ticks);
-    buffer_write_u8(buf, f->current_height);
-    buffer_write_u8(buf, f->target_height);
-    buffer_write_u8(buf, f->collecting_item_id);
-    buffer_write_u8(buf, f->trade_ship_failed_dock_attempts);
-    buffer_write_u8(buf, f->phrase_sequence_exact);
-    buffer_write_i8(buf, f->phrase_id);
-    buffer_write_u8(buf, f->phrase_sequence_city);
-    buffer_write_u8(buf, f->trader_id);
-    buffer_write_u8(buf, f->prefect_recent_guard_duty);
-    buffer_write_u8(buf, f->max_range);
-    for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
-        buffer_write_u16(buf, f->ranged_targeter_ids[i]);
-    }
     buffer_write_u16(buf, f->target_figure_id);
     for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
         buffer_write_u16(buf, f->melee_targeter_ids[i]);
@@ -593,9 +502,84 @@ static void figure_save(buffer *buf, const figure *f)
         buffer_write_u16(buf, f->melee_combatant_ids[i]);
     }
     buffer_write_u8(buf, f->num_melee_combatants);
+    for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
+        buffer_write_u16(buf, f->ranged_targeter_ids[i]);
+    }
+    buffer_write_u8(buf, f->prefect_recent_guard_duty);
+    buffer_write_i8(buf, f->attack_direction);
+    buffer_write_u8(buf, f->source_x);
+    buffer_write_u8(buf, f->source_y);
+    buffer_write_u16(buf, f->routing_path_id);
+    buffer_write_u16(buf, f->routing_path_current_tile);
+    buffer_write_u16(buf, f->routing_path_length);
+    buffer_write_u8(buf, f->terrain_usage);
+    buffer_write_u8(buf, f->speed_multiplier);
+    buffer_write_i8(buf, f->previous_tile_direction);
+    buffer_write_u8(buf, f->previous_tile_x);
+    buffer_write_u8(buf, f->previous_tile_y);
+    buffer_write_i8(buf, f->direction);
+    buffer_write_u8(buf, f->progress_on_tile);
+    buffer_write_u8(buf, f->x);
+    buffer_write_u8(buf, f->y);
+    buffer_write_u16(buf, f->grid_offset);
+    buffer_write_u8(buf, f->destination_x);
+    buffer_write_u8(buf, f->destination_y);
+    buffer_write_u16(buf, f->destination_grid_offset);
+    buffer_write_u16(buf, f->destination_building_id);
+    buffer_write_u8(buf, f->figure_is_halted);
+    buffer_write_u8(buf, f->use_cross_country);
+    buffer_write_u8(buf, f->cc_direction);
+    buffer_write_u16(buf, f->cross_country_x);
+    buffer_write_u16(buf, f->cross_country_y);
+    buffer_write_i16(buf, f->cc_delta_x);
+    buffer_write_i16(buf, f->cc_delta_y);
+    buffer_write_i16(buf, f->cc_delta_xy);
+    buffer_write_u16(buf, f->cc_destination_x);
+    buffer_write_u16(buf, f->cc_destination_y);
+    buffer_write_u8(buf, f->missile_offset);
+    buffer_write_u16(buf, f->roam_length);
+    buffer_write_u16(buf, f->max_roam_length);
+    buffer_write_u8(buf, f->roam_choose_destination);
+    buffer_write_u8(buf, f->roam_random_counter);
+    buffer_write_i8(buf, f->roam_turn_direction);
+    buffer_write_i8(buf, f->roam_ticks_until_next_turn);
+    buffer_write_u8(buf, f->in_building_wait_ticks);
+    buffer_write_u8(buf, f->height_adjusted_ticks);
+    buffer_write_u8(buf, f->current_height);
+    buffer_write_u8(buf, f->target_height);
+    buffer_write_u8(buf, f->is_boat);
+    buffer_write_u16(buf, f->next_figure_id_on_same_tile);
+    buffer_write_u16(buf, f->image_id);
+    buffer_write_u8(buf, f->image_offset);
+    buffer_write_u8(buf, f->attack_image_offset);
+    buffer_write_u16(buf, f->cart_image_id);
+    buffer_write_i8(buf, f->x_offset_cart);
+    buffer_write_i8(buf, f->y_offset_cart);
+    buffer_write_u8(buf, f->enemy_image_type);
+    buffer_write_u8(buf, f->enemy_image_type_detailed);
+    buffer_write_i16(buf, f->wait_ticks);
+    buffer_write_u8(buf, f->wait_ticks_missile);
+    buffer_write_u16(buf, f->name_id);
+    buffer_write_u8(buf, f->is_ghost);
+    buffer_write_u16(buf, f->building_id);
+    buffer_write_u16(buf, f->immigrant_building_id);
+    buffer_write_u8(buf, f->migrant_num_people);
+    buffer_write_u8(buf, f->min_max_seen);
+    buffer_write_u8(buf, f->phrase_sequence_exact);
+    buffer_write_i8(buf, f->phrase_id);
+    buffer_write_u8(buf, f->phrase_sequence_city);
+    buffer_write_u8(buf, f->empire_city_id);
+    buffer_write_u8(buf, f->resource_id);
+    buffer_write_u8(buf, f->collecting_item_id);
+    buffer_write_u8(buf, f->trader_id);
+    buffer_write_u16(buf, f->leading_figure_id);
+    buffer_write_u8(buf, f->trader_amount_bought);
+    buffer_write_u8(buf, f->loads_sold_or_carrying);
+    buffer_write_u8(buf, f->trade_ship_failed_dock_attempts);
+    buffer_write_u8(buf, f->flotsam_visible);
 }
 
-static void figure_load(buffer *buf, figure *f)
+static void figure_load(buffer *buf, struct figure_t *f)
 {
     f->is_targetable = buffer_read_u8(buf);
     f->is_unarmed_civilian_unit = buffer_read_u8(buf);
@@ -607,28 +591,12 @@ static void figure_load(buffer *buf, figure *f)
     f->is_herd_animal = buffer_read_u8(buf);
     f->is_enemy_unit = buffer_read_u8(buf);
     f->is_caesar_legion_unit = buffer_read_u8(buf);
-    f->figure_is_halted = buffer_read_u8(buf);
-    f->image_offset = buffer_read_u8(buf);
-    f->enemy_image_type = buffer_read_i32(buf);
-    f->enemy_image_type_detailed = buffer_read_i32(buf);
-    f->is_military_trained = buffer_read_u8(buf);
-    f->flotsam_visible = buffer_read_u8(buf);
-    f->image_id = buffer_read_i16(buf);
-    f->cart_image_id = buffer_read_i16(buf);
-    f->next_figure_id_on_same_tile = buffer_read_i16(buf);
     f->type = buffer_read_u8(buf);
-    f->resource_id = buffer_read_u8(buf);
-    f->use_cross_country = buffer_read_u8(buf);
     f->state = buffer_read_u8(buf);
+    f->action_state = buffer_read_u8(buf);
     f->action_state_before_attack = buffer_read_u8(buf);
-    f->direction = buffer_read_i8(buf);
-    f->previous_tile_direction = buffer_read_i8(buf);
-    f->attack_direction = buffer_read_i8(buf);
-    f->x = buffer_read_u8(buf);
-    f->y = buffer_read_u8(buf);
-    f->previous_tile_x = buffer_read_u8(buf);
-    f->previous_tile_y = buffer_read_u8(buf);
-    f->missile_offset = buffer_read_u8(buf);
+    f->formation_id = buffer_read_u8(buf);
+    f->index_in_formation = buffer_read_u8(buf);
     f->damage = buffer_read_u8(buf);
     f->max_damage = buffer_read_u8(buf);
     f->melee_attack_value = buffer_read_u8(buf);
@@ -637,70 +605,10 @@ static void figure_load(buffer *buf, figure *f)
     f->missile_defense_value = buffer_read_u8(buf);
     f->missile_delay = buffer_read_u8(buf);
     f->missile_type = buffer_read_u8(buf);
-    f->grid_offset = buffer_read_i16(buf);
-    f->destination_x = buffer_read_u8(buf);
-    f->destination_y = buffer_read_u8(buf);
-    f->destination_grid_offset = buffer_read_i16(buf);
-    f->source_x = buffer_read_u8(buf);
-    f->source_y = buffer_read_u8(buf);
-    f->wait_ticks = buffer_read_i16(buf);
-    f->action_state = buffer_read_u8(buf);
-    f->progress_on_tile = buffer_read_u8(buf);
-    f->routing_path_id = buffer_read_i16(buf);
-    f->routing_path_current_tile = buffer_read_i16(buf);
-    f->routing_path_length = buffer_read_i16(buf);
-    f->in_building_wait_ticks = buffer_read_u8(buf);
-    f->is_on_road = buffer_read_u8(buf);
-    f->max_roam_length = buffer_read_i16(buf);
-    f->roam_length = buffer_read_i16(buf);
-    f->roam_choose_destination = buffer_read_u8(buf);
-    f->roam_random_counter = buffer_read_u8(buf);
-    f->roam_turn_direction = buffer_read_i8(buf);
-    f->roam_ticks_until_next_turn = buffer_read_i8(buf);
-    f->cross_country_x = buffer_read_i16(buf);
-    f->cross_country_y = buffer_read_i16(buf);
-    f->cc_destination_x = buffer_read_i16(buf);
-    f->cc_destination_y = buffer_read_i16(buf);
-    f->cc_delta_x = buffer_read_i16(buf);
-    f->cc_delta_y = buffer_read_i16(buf);
-    f->cc_delta_xy = buffer_read_i16(buf);
-    f->cc_direction = buffer_read_u8(buf);
-    f->speed_multiplier = buffer_read_u8(buf);
-    f->building_id = buffer_read_i16(buf);
-    f->immigrant_building_id = buffer_read_i16(buf);
-    f->destination_building_id = buffer_read_i16(buf);
-    f->formation_id = buffer_read_i16(buf);
-    f->index_in_formation = buffer_read_u8(buf);
-    f->migrant_num_people = buffer_read_u8(buf);
-    f->is_ghost = buffer_read_u8(buf);
-    f->min_max_seen = buffer_read_u8(buf);
-    f->leading_figure_id = buffer_read_i16(buf);
-    f->attack_image_offset = buffer_read_u8(buf);
+    f->max_range = buffer_read_u8(buf);
+    f->is_military_trained = buffer_read_u8(buf);
     f->mounted_charge_ticks = buffer_read_u8(buf);
     f->mounted_charge_ticks_max = buffer_read_u8(buf);
-    f->wait_ticks_missile = buffer_read_u8(buf);
-    f->x_offset_cart = buffer_read_i8(buf);
-    f->y_offset_cart = buffer_read_i8(buf);
-    f->empire_city_id = buffer_read_u8(buf);
-    f->trader_amount_bought = buffer_read_u8(buf);
-    f->name = buffer_read_i16(buf);
-    f->terrain_usage = buffer_read_u8(buf);
-    f->loads_sold_or_carrying = buffer_read_u8(buf);
-    f->is_boat = buffer_read_u8(buf);
-    f->height_adjusted_ticks = buffer_read_u8(buf);
-    f->current_height = buffer_read_u8(buf);
-    f->target_height = buffer_read_u8(buf);
-    f->collecting_item_id = buffer_read_u8(buf);
-    f->trade_ship_failed_dock_attempts = buffer_read_u8(buf);
-    f->phrase_sequence_exact = buffer_read_u8(buf);
-    f->phrase_id = buffer_read_i8(buf);
-    f->phrase_sequence_city = buffer_read_u8(buf);
-    f->trader_id = buffer_read_u8(buf);
-    f->prefect_recent_guard_duty = buffer_read_u8(buf);
-    f->max_range = buffer_read_u8(buf);
-    for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
-        f->ranged_targeter_ids[i] = buffer_read_u16(buf);
-    }
     f->target_figure_id = buffer_read_u16(buf);
     for (int i = 0; i < MAX_MELEE_TARGETERS_PER_UNIT; i++) {
         f->melee_targeter_ids[i] = buffer_read_u16(buf);
@@ -709,6 +617,81 @@ static void figure_load(buffer *buf, figure *f)
         f->melee_combatant_ids[i] = buffer_read_u16(buf);
     }
     f->num_melee_combatants = buffer_read_u8(buf);
+    for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
+        f->ranged_targeter_ids[i] = buffer_read_u16(buf);
+    }
+    f->prefect_recent_guard_duty = buffer_read_u8(buf);
+    f->attack_direction = buffer_read_i8(buf);
+    f->source_x = buffer_read_u8(buf);
+    f->source_y = buffer_read_u8(buf);
+    f->routing_path_id = buffer_read_u16(buf);
+    f->routing_path_current_tile = buffer_read_u16(buf);
+    f->routing_path_length = buffer_read_u16(buf);
+    f->terrain_usage = buffer_read_u8(buf);
+    f->speed_multiplier = buffer_read_u8(buf);
+    f->previous_tile_direction = buffer_read_i8(buf);
+    f->previous_tile_x = buffer_read_u8(buf);
+    f->previous_tile_y = buffer_read_u8(buf);
+    f->direction = buffer_read_i8(buf);
+    f->progress_on_tile = buffer_read_u8(buf);
+    f->x = buffer_read_u8(buf);
+    f->y = buffer_read_u8(buf);
+    f->grid_offset = buffer_read_u16(buf);
+    f->destination_x = buffer_read_u8(buf);
+    f->destination_y = buffer_read_u8(buf);
+    f->destination_grid_offset = buffer_read_u16(buf);
+    f->destination_building_id = buffer_read_u16(buf);
+    f->figure_is_halted = buffer_read_u8(buf);
+    f->use_cross_country = buffer_read_u8(buf);
+    f->cc_direction = buffer_read_u8(buf);
+    f->cross_country_x = buffer_read_u16(buf);
+    f->cross_country_y = buffer_read_u16(buf);
+    f->cc_delta_x = buffer_read_i16(buf);
+    f->cc_delta_y = buffer_read_i16(buf);
+    f->cc_delta_xy = buffer_read_i16(buf);
+    f->cc_destination_x = buffer_read_u16(buf);
+    f->cc_destination_y = buffer_read_u16(buf);
+    f->missile_offset = buffer_read_u8(buf);
+    f->roam_length = buffer_read_u16(buf);
+    f->max_roam_length = buffer_read_u16(buf);
+    f->roam_choose_destination = buffer_read_u8(buf);
+    f->roam_random_counter = buffer_read_u8(buf);
+    f->roam_turn_direction = buffer_read_i8(buf);
+    f->roam_ticks_until_next_turn = buffer_read_i8(buf);
+    f->in_building_wait_ticks = buffer_read_u8(buf);
+    f->height_adjusted_ticks = buffer_read_u8(buf);
+    f->current_height = buffer_read_u8(buf);
+    f->target_height = buffer_read_u8(buf);
+    f->is_boat = buffer_read_u8(buf);
+    f->next_figure_id_on_same_tile = buffer_read_u16(buf);
+    f->image_id = buffer_read_u16(buf);
+    f->image_offset = buffer_read_u8(buf);
+    f->attack_image_offset = buffer_read_u8(buf);
+    f->cart_image_id = buffer_read_u16(buf);
+    f->x_offset_cart = buffer_read_i8(buf);
+    f->y_offset_cart = buffer_read_i8(buf);
+    f->enemy_image_type = buffer_read_u8(buf);
+    f->enemy_image_type_detailed = buffer_read_u8(buf);
+    f->wait_ticks = buffer_read_i16(buf);
+    f->wait_ticks_missile = buffer_read_u8(buf);
+    f->name_id = buffer_read_u16(buf);
+    f->is_ghost = buffer_read_u8(buf);
+    f->building_id = buffer_read_u16(buf);
+    f->immigrant_building_id = buffer_read_u16(buf);
+    f->migrant_num_people = buffer_read_u8(buf);
+    f->min_max_seen = buffer_read_u8(buf);
+    f->phrase_sequence_exact = buffer_read_u8(buf);
+    f->phrase_id = buffer_read_i8(buf);
+    f->phrase_sequence_city = buffer_read_u8(buf);
+    f->empire_city_id = buffer_read_u8(buf);
+    f->resource_id = buffer_read_u8(buf);
+    f->collecting_item_id = buffer_read_u8(buf);
+    f->trader_id = buffer_read_u8(buf);
+    f->leading_figure_id = buffer_read_u16(buf);
+    f->trader_amount_bought = buffer_read_u8(buf);
+    f->loads_sold_or_carrying = buffer_read_u8(buf);
+    f->trade_ship_failed_dock_attempts = buffer_read_u8(buf);
+    f->flotsam_visible = buffer_read_u8(buf);
 }
 
 void figure_save_state(buffer *list)

@@ -10,7 +10,7 @@
 #include "figure/route.h"
 #include "map/terrain.h"
 
-void figure_indigenous_native_action(figure *f)
+void figure_indigenous_native_action(struct figure_t *f)
 {
     building *b = building_get(f->building_id);
     f->terrain_usage = TERRAIN_USAGE_ANY;

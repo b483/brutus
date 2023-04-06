@@ -6,20 +6,20 @@
 
 #define PREFECT_TARGET_ACQUISITION_RANGE 15
 
-void figure__remove_ranged_targeter_from_list(figure *f, figure *targeter);
+void figure__remove_ranged_targeter_from_list(struct figure_t *f, struct figure_t *targeter);
 
-void figure_combat_handle_attack(figure *f);
+void figure_combat_handle_attack(struct figure_t *f);
 
-int is_valid_target_for_player_unit(figure *target);
+int is_valid_target_for_player_unit(struct figure_t *target);
 
-int is_valid_target_for_enemy_unit(figure *target);
+int is_valid_target_for_enemy_unit(struct figure_t *target);
 
-figure *melee_unit__set_closest_target(figure *f);
+struct figure_t *melee_unit__set_closest_target(struct figure_t *f);
 
-int set_missile_target(figure *shooter, map_point *tile, int limit_max_targeters);
+int set_missile_target(struct figure_t *shooter, map_point *tile, int limit_max_targeters);
 
-void figure_combat_attack_figure_at(figure *f, int grid_offset);
+void figure_combat_attack_figure_at(struct figure_t *f, int grid_offset);
 
-void clear_targeting_on_unit_death(figure *unit);
+void clear_targeting_on_unit_death(struct figure_t *unit);
 
 #endif // FIGURE_COMBAT_H

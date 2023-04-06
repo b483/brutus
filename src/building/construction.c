@@ -422,7 +422,7 @@ void building_construction_update(int x, int y, int grid_offset)
 static int get_nearby_enemy_type(int x_start, int y_start, int x_end, int y_end)
 {
     for (int i = 1; i < MAX_FIGURES; i++) {
-        figure *f = figure_get(i);
+        struct figure_t *f = &figures[i];
         if (!figure_is_dead(f) && (f->is_enemy_unit || f->is_caesar_legion_unit || f->type == FIGURE_WOLF)) {
             int dx = (f->x > x_start) ? (f->x - x_start) : (x_start - f->x);
             int dy = (f->y > y_start) ? (f->y - y_start) : (y_start - f->y);

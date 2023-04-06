@@ -287,7 +287,7 @@ static void init(int grid_offset)
     for (int i = 0; i < 9 && context.figure.count < 7; i++) {
         int figure_id = map_figure_at(grid_offset + FIGURE_OFFSETS[i]);
         while (figure_id > 0 && context.figure.count < 7) {
-            figure *f = figure_get(figure_id);
+            struct figure_t *f = &figures[figure_id];
             if (f->state != FIGURE_STATE_DEAD &&
                 f->action_state != FIGURE_ACTION_CORPSE) {
                 switch (f->type) {
@@ -317,7 +317,7 @@ static void init(int grid_offset)
         if (figure_id <= 0) {
             continue;
         }
-        figure *f = figure_get(figure_id);
+        struct figure_t *f = &figures[figure_id];
         if (f->type == FIGURE_FORT_STANDARD || f->is_player_legion_unit) {
             context.type = BUILDING_INFO_LEGION;
             context.formation_id = f->formation_id;

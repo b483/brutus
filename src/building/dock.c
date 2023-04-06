@@ -14,7 +14,7 @@ int building_dock_count_idle_dockers(const building *dock)
     int num_idle = 0;
     for (int i = 0; i < 3; i++) {
         if (dock->data.dock.docker_ids[i]) {
-            figure *f = figure_get(dock->data.dock.docker_ids[i]);
+            struct figure_t *f = &figures[dock->data.dock.docker_ids[i]];
             if (f->action_state == FIGURE_ACTION_DOCKER_IDLING ||
                 f->action_state == FIGURE_ACTION_DOCKER_IMPORT_QUEUE) {
                 num_idle++;

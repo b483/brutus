@@ -22,22 +22,22 @@ static int show_building_hospital(const building *b)
     return b->type == BUILDING_HOSPITAL;
 }
 
-static int show_figure_barber(const figure *f)
+static int show_figure_barber(const struct figure_t *f)
 {
     return f->type == FIGURE_BARBER;
 }
 
-static int show_figure_bathhouse(const figure *f)
+static int show_figure_bathhouse(const struct figure_t *f)
 {
     return f->type == FIGURE_BATHHOUSE_WORKER;
 }
 
-static int show_figure_clinic(const figure *f)
+static int show_figure_clinic(const struct figure_t *f)
 {
     return f->type == FIGURE_DOCTOR;
 }
 
-static int show_figure_hospital(const figure *f)
+static int show_figure_hospital(const struct figure_t *f)
 {
     return f->type == FIGURE_SURGEON;
 }

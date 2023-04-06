@@ -40,7 +40,7 @@ static const int TOWER_SENTRY_FIRING_OFFSETS[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-void figure_ballista_action(figure *f)
+void figure_ballista_action(struct figure_t *f)
 {
     building *b = building_get(f->building_id);
     f->terrain_usage = TERRAIN_USAGE_WALLS;
@@ -142,7 +142,7 @@ static int tower_sentry_init_patrol(building *b, int *x_tile, int *y_tile)
     return 0;
 }
 
-static int tower_sentry_shooting(figure *f)
+static int tower_sentry_shooting(struct figure_t *f)
 {
     map_point tile;
     if (!f->in_building_wait_ticks) {
@@ -167,7 +167,7 @@ static int tower_sentry_shooting(figure *f)
     return 0;
 }
 
-void figure_tower_sentry_action(figure *f)
+void figure_tower_sentry_action(struct figure_t *f)
 {
     building *b = building_get(f->building_id);
     f->height_adjusted_ticks = 10;
@@ -319,7 +319,7 @@ void figure_tower_sentry_action(figure *f)
 void figure_tower_sentry_reroute(void)
 {
     for (int i = 1; i < MAX_FIGURES; i++) {
-        figure *f = figure_get(i);
+        struct figure_t *f = &figures[i];
         if (f->type != FIGURE_TOWER_SENTRY || map_routing_is_wall_passable(f->grid_offset)) {
             continue;
         }
@@ -355,7 +355,7 @@ void figure_tower_sentry_reroute(void)
 void figure_kill_tower_sentries_at(int x, int y)
 {
     for (int i = 0; i < MAX_FIGURES; i++) {
-        figure *f = figure_get(i);
+        struct figure_t *f = &figures[i];
         if (!figure_is_dead(f) && f->type == FIGURE_TOWER_SENTRY) {
             if (calc_maximum_distance(f->x, f->y, x, y) <= 1) {
                 f->state = FIGURE_STATE_DEAD;

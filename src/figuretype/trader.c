@@ -25,7 +25,7 @@
 #include "scenario/data.h"
 #include "scenario/map.h"
 
-int figure_trade_caravan_can_buy(figure *trader, int warehouse_id, int city_id)
+int figure_trade_caravan_can_buy(struct figure_t *trader, int warehouse_id, int city_id)
 {
     building *warehouse = building_get(warehouse_id);
     if (warehouse->type != BUILDING_WAREHOUSE) {
@@ -45,7 +45,7 @@ int figure_trade_caravan_can_buy(figure *trader, int warehouse_id, int city_id)
     return 0;
 }
 
-int figure_trade_caravan_can_sell(figure *trader, int warehouse_id, int city_id)
+int figure_trade_caravan_can_sell(struct figure_t *trader, int warehouse_id, int city_id)
 {
     building *warehouse = building_get(warehouse_id);
     if (warehouse->type != BUILDING_WAREHOUSE) {
@@ -190,7 +190,7 @@ static int trader_get_sell_resource(int warehouse_id, int city_id)
 }
 
 static int get_closest_warehouse(
-    const figure *f, int x, int y, int city_id, int distance_from_entry, map_point *warehouse)
+    const struct figure_t *f, int x, int y, int city_id, int distance_from_entry, map_point *warehouse)
 {
     int exportable[RESOURCE_MAX];
     int importable[RESOURCE_MAX];
@@ -280,7 +280,7 @@ static int get_closest_warehouse(
     return min_building->id;
 }
 
-static void go_to_next_warehouse(figure *f, int x_src, int y_src, int distance_to_entry)
+static void go_to_next_warehouse(struct figure_t *f, int x_src, int y_src, int distance_to_entry)
 {
     map_point dst;
     int warehouse_id = get_closest_warehouse(f, x_src, y_src, f->empire_city_id, distance_to_entry, &dst);
@@ -296,7 +296,7 @@ static void go_to_next_warehouse(figure *f, int x_src, int y_src, int distance_t
     }
 }
 
-void figure_trade_caravan_action(figure *f)
+void figure_trade_caravan_action(struct figure_t *f)
 {
     f->is_ghost = 0;
     f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
@@ -394,14 +394,14 @@ void figure_trade_caravan_action(figure *f)
     f->image_id = image_group(GROUP_FIGURE_TRADE_CARAVAN) + dir + 8 * f->image_offset;
 }
 
-void figure_trade_caravan_donkey_action(figure *f)
+void figure_trade_caravan_donkey_action(struct figure_t *f)
 {
     f->is_ghost = 0;
     f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
 
-    figure *leader = figure_get(f->leading_figure_id);
+    struct figure_t *leader = &figures[f->leading_figure_id];
     if (f->leading_figure_id <= 0) {
         f->state = FIGURE_STATE_DEAD;
     } else {
@@ -423,7 +423,7 @@ void figure_trade_caravan_donkey_action(figure *f)
     f->image_id = image_group(GROUP_FIGURE_TRADE_CARAVAN) + dir + 8 * f->image_offset;
 }
 
-void figure_native_trader_action(figure *f)
+void figure_native_trader_action(struct figure_t *f)
 {
     f->is_ghost = 0;
     f->terrain_usage = TERRAIN_USAGE_ANY;
@@ -511,14 +511,14 @@ void figure_native_trader_action(figure *f)
     }
 }
 
-int figure_trade_ship_is_trading(figure *ship)
+int figure_trade_ship_is_trading(struct figure_t *ship)
 {
     building *b = building_get(ship->destination_building_id);
     if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_DOCK) {
         return TRADE_SHIP_BUYING;
     }
     for (int i = 0; i < 3; i++) {
-        figure *f = figure_get(b->data.dock.docker_ids[i]);
+        struct figure_t *f = &figures[b->data.dock.docker_ids[i]];
         if (!b->data.dock.docker_ids[i] || f->state != FIGURE_STATE_ALIVE) {
             continue;
         }
@@ -538,7 +538,7 @@ int figure_trade_ship_is_trading(figure *ship)
     return TRADE_SHIP_NONE;
 }
 
-static int trade_ship_lost_queue(const figure *f)
+static int trade_ship_lost_queue(const struct figure_t *f)
 {
     building *b = building_get(f->destination_building_id);
     if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_DOCK &&
@@ -548,13 +548,13 @@ static int trade_ship_lost_queue(const figure *f)
     return 1;
 }
 
-static int trade_ship_done_trading(figure *f)
+static int trade_ship_done_trading(struct figure_t *f)
 {
     building *b = building_get(f->destination_building_id);
     if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_DOCK && b->num_workers > 0) {
         for (int i = 0; i < 3; i++) {
             if (b->data.dock.docker_ids[i]) {
-                figure *docker = figure_get(b->data.dock.docker_ids[i]);
+                struct figure_t *docker = &figures[b->data.dock.docker_ids[i]];
                 if (docker->state == FIGURE_STATE_ALIVE && docker->action_state != FIGURE_ACTION_DOCKER_IDLING) {
                     return 0;
                 }
@@ -570,7 +570,7 @@ static int trade_ship_done_trading(figure *f)
     return 1;
 }
 
-void figure_trade_ship_action(figure *f)
+void figure_trade_ship_action(struct figure_t *f)
 {
     f->is_ghost = 0;
     f->is_boat = 1;

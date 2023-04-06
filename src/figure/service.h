@@ -3,6 +3,6 @@
 
 #include "figure/figure.h"
 
-int figure_service_provide_coverage(figure *f);
+int figure_service_provide_coverage(struct figure_t *f);
 
 #endif // FIGURE_SERVICE_H

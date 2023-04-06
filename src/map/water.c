@@ -205,7 +205,7 @@ int map_water_determine_orientation_size3(int x, int y, int adjust_xy,
     return 999;
 }
 
-int map_water_get_wharf_for_new_fishing_boat(figure *boat, map_point *tile)
+int map_water_get_wharf_for_new_fishing_boat(struct figure_t *boat, map_point *tile)
 {
     building *wharf = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
@@ -232,7 +232,7 @@ int map_water_get_wharf_for_new_fishing_boat(figure *boat, map_point *tile)
     return wharf->id;
 }
 
-int map_water_find_alternative_fishing_boat_tile(figure *boat, map_point *tile)
+int map_water_find_alternative_fishing_boat_tile(struct figure_t *boat, map_point *tile)
 {
     if (map_figure_at(boat->grid_offset) == boat->id) {
         return 0;
@@ -254,7 +254,7 @@ int map_water_find_alternative_fishing_boat_tile(figure *boat, map_point *tile)
     return 0;
 }
 
-int map_water_find_shipwreck_tile(figure *wreck, map_point *tile)
+int map_water_find_shipwreck_tile(struct figure_t *wreck, map_point *tile)
 {
     if (map_terrain_is(wreck->grid_offset, TERRAIN_WATER) && map_figure_at(wreck->grid_offset) == wreck->id) {
         return 0;

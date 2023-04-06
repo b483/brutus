@@ -81,7 +81,7 @@ struct formation_t *create_formation_type(int type)
     return 0;
 }
 
-void add_figure_to_formation(figure *f, struct formation_t *m)
+void add_figure_to_formation(struct figure_t *f, struct formation_t *m)
 {
     for (int i = 0; i < m->max_figures; i++) {
         if (!m->figures[i]) {
@@ -93,7 +93,7 @@ void add_figure_to_formation(figure *f, struct formation_t *m)
     }
 }
 
-void refresh_formation_figure_indexes(figure *unit_to_remove)
+void refresh_formation_figure_indexes(struct figure_t *unit_to_remove)
 {
     struct formation_t *m = &formations[unit_to_remove->formation_id];
     if (m->in_use) {
@@ -102,7 +102,7 @@ void refresh_formation_figure_indexes(figure *unit_to_remove)
         }
         m->num_figures = 0;
         for (int i = 1; i < MAX_FIGURES; i++) {
-            figure *unit = figure_get(i);
+            struct figure_t *unit = &figures[i];
             if (!figure_is_dead(unit) && unit->type == m->figure_type && unit->formation_id == m->id) {
                 for (int j = 0; j < m->max_figures; j++) {
                     if (!m->figures[j]) {
@@ -198,7 +198,7 @@ void formation_adjust_counters(struct formation_t *m)
 
     if (m->figure_type == FIGURE_FORT_MOUNTED && m->is_at_rest) {
         for (int i = 0; i < m->num_figures; i++) {
-            figure *f = figure_get(m->figures[i]);
+            struct figure_t *f = &figures[m->figures[i]];
             if (f->mounted_charge_ticks < f->mounted_charge_ticks_max) {
                 f->mounted_charge_ticks += 2;
             }
@@ -300,7 +300,7 @@ void formation_update_all(void)
         if (formations[i].in_use && !formations[i].num_figures && !formations->is_legion) {
             int all_units_decayed = 1;
             for (int j = 0; j < formations[i].max_figures; j++) {
-                if (figure_get(formations[i].figures[j])->state != FIGURE_STATE_DEAD) {
+                if (figures[formations[i].figures[j]].state != FIGURE_STATE_DEAD) {
                     all_units_decayed = 0;
                     break;
                 }
@@ -314,7 +314,7 @@ void formation_update_all(void)
     formation_calculate_figures();
     for (int i = 1; i < MAX_FORMATIONS; i++) {
         if (formations[i].in_use && !formations[i].is_herd) {
-            update_direction(formations[i].id, figure_get(formations[i].figures[0])->direction);
+            update_direction(formations[i].id, figures[formations[i].figures[0]].direction);
         }
     }
     formation_legion_update();
