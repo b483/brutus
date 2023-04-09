@@ -225,11 +225,13 @@ static void draw_figure(const struct figure_t *f, int x, int y, int highlight)
                 // flag number
                 int number = 0;
                 int id = f->resource_id;
-                if (id >= MAP_FLAG_INVASION_MIN && id < MAP_FLAG_INVASION_MAX) {
+                if (id >= MAP_FLAG_EARTHQUAKE_MIN && id <= MAP_FLAG_EARTHQUAKE_MAX) {
+                    number = id - MAP_FLAG_EARTHQUAKE_MIN + 1;
+                } else if (id >= MAP_FLAG_INVASION_MIN && id <= MAP_FLAG_INVASION_MAX) {
                     number = id - MAP_FLAG_INVASION_MIN + 1;
-                } else if (id >= MAP_FLAG_FISHING_MIN && id < MAP_FLAG_FISHING_MAX) {
+                } else if (id >= MAP_FLAG_FISHING_MIN && id <= MAP_FLAG_FISHING_MAX) {
                     number = id - MAP_FLAG_FISHING_MIN + 1;
-                } else if (id >= MAP_FLAG_HERD_MIN && id < MAP_FLAG_HERD_MAX) {
+                } else if (id >= MAP_FLAG_HERD_MIN && id <= MAP_FLAG_HERD_MAX) {
                     number = id - MAP_FLAG_HERD_MIN + 1;
                 }
                 if (number > 0) {

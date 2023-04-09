@@ -333,55 +333,57 @@ static void advance_earthquake_to_tile(int x, int y)
 
 void scenario_earthquake_process(void)
 {
-    if (!scenario.earthquake.state || scenario.earthquake.branch_coordinates[0].x == -1 || scenario.earthquake.branch_coordinates[0].y == -1) {
-        return;
-    }
-    if (scenario.earthquake.state == EVENT_NOT_STARTED) {
-        if (scenario.start_year + scenario.earthquake.year == game_time_year() && scenario.earthquake.month == game_time_month()) {
-            scenario.earthquake.state = EVENT_IN_PROGRESS;
-            city_message_post(1, MESSAGE_EARTHQUAKE, 0, map_grid_offset(scenario.earthquake.branch_coordinates[0].x, scenario.earthquake.branch_coordinates[1].y));
+    for (int i = 0; i < MAX_EARTHQUAKES; i++) {
+        if (!scenario.earthquakes[i].state || scenario.earthquakes[i].branch_coordinates[0].x == -1 || scenario.earthquakes[i].branch_coordinates[0].y == -1) {
+            return;
         }
-    } else if (scenario.earthquake.state == EVENT_IN_PROGRESS) {
-        scenario.earthquake.delay++;
-        if (scenario.earthquake.delay >= scenario.earthquake.max_delay) {
-            scenario.earthquake.delay = 0;
-            scenario.earthquake.duration++;
-            if (scenario.earthquake.duration >= scenario.earthquake.max_duration) {
-                scenario.earthquake.state = EVENT_FINISHED;
+        if (scenario.earthquakes[i].state == EVENT_NOT_STARTED) {
+            if (scenario.start_year + scenario.earthquakes[i].year == game_time_year() && scenario.earthquakes[i].month == game_time_month()) {
+                scenario.earthquakes[i].state = EVENT_IN_PROGRESS;
+                city_message_post(1, MESSAGE_EARTHQUAKE, 0, map_grid_offset(scenario.earthquakes[i].branch_coordinates[0].x, scenario.earthquakes[i].branch_coordinates[1].y));
             }
-            int index = rand() % 4;
-            int dx = 0;
-            int dy = 0;
-            switch (index) {
-                case 0:
-                    // ~north
-                    dx = rand() % 3 - 1;
-                    dy = dx ? 0 : -1;
-                    break;
-                case 1:
-                    // ~east
-                    dy = rand() % 3 - 1;
-                    dx = dy ? 0 : 1;
-                    break;
-                case 2:
-                    // ~south
-                    dx = rand() % 3 - 1;
-                    dy = dx ? 0 : 1;
-                    break;
-                case 3:
-                    // ~west
-                    dy = rand() % 3 - 1;
-                    dx = dy ? 0 : -1;
-                    break;
-                default:
-                    break;
-            }
-            int x = calc_bound(scenario.earthquake.branch_coordinates[index].x + dx, 0, scenario.map.width - 1);
-            int y = calc_bound(scenario.earthquake.branch_coordinates[index].y + dy, 0, scenario.map.height - 1);
-            if (!map_terrain_is(map_grid_offset(x, y), TERRAIN_ELEVATION | TERRAIN_ROCK | TERRAIN_WATER)) {
-                scenario.earthquake.branch_coordinates[index].x = x;
-                scenario.earthquake.branch_coordinates[index].y = y;
-                advance_earthquake_to_tile(x, y);
+        } else if (scenario.earthquakes[i].state == EVENT_IN_PROGRESS) {
+            scenario.earthquakes[i].delay++;
+            if (scenario.earthquakes[i].delay >= scenario.earthquakes[i].max_delay) {
+                scenario.earthquakes[i].delay = 0;
+                scenario.earthquakes[i].duration++;
+                if (scenario.earthquakes[i].duration >= scenario.earthquakes[i].max_duration) {
+                    scenario.earthquakes[i].state = EVENT_FINISHED;
+                }
+                int index = rand() % 4;
+                int dx = 0;
+                int dy = 0;
+                switch (index) {
+                    case 0:
+                        // ~north
+                        dx = rand() % 3 - 1;
+                        dy = dx ? 0 : -1;
+                        break;
+                    case 1:
+                        // ~east
+                        dy = rand() % 3 - 1;
+                        dx = dy ? 0 : 1;
+                        break;
+                    case 2:
+                        // ~south
+                        dx = rand() % 3 - 1;
+                        dy = dx ? 0 : 1;
+                        break;
+                    case 3:
+                        // ~west
+                        dy = rand() % 3 - 1;
+                        dx = dy ? 0 : -1;
+                        break;
+                    default:
+                        break;
+                }
+                int x = calc_bound(scenario.earthquakes[i].branch_coordinates[index].x + dx, 0, scenario.map.width - 1);
+                int y = calc_bound(scenario.earthquakes[i].branch_coordinates[index].y + dy, 0, scenario.map.height - 1);
+                if (!map_terrain_is(map_grid_offset(x, y), TERRAIN_ELEVATION | TERRAIN_ROCK | TERRAIN_WATER)) {
+                    scenario.earthquakes[i].branch_coordinates[index].x = x;
+                    scenario.earthquakes[i].branch_coordinates[index].y = y;
+                    advance_earthquake_to_tile(x, y);
+                }
             }
         }
     }

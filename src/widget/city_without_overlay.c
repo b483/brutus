@@ -257,10 +257,10 @@ static void draw_senate_rating_flags(const building *b, int x, int y, color_t co
     if (b->type == BUILDING_SENATE_UPGRADED) {
         // rating flags
         int image_id = image_group(GROUP_BUILDING_SENATE);
-        image_draw_masked(image_id + 1, x + 138, y + 44 - city_rating_culture() / 2, color_mask);
-        image_draw_masked(image_id + 2, x + 168, y + 36 - city_rating_prosperity() / 2, color_mask);
-        image_draw_masked(image_id + 3, x + 198, y + 27 - city_rating_peace() / 2, color_mask);
-        image_draw_masked(image_id + 4, x + 228, y + 19 - city_rating_favor() / 2, color_mask);
+        image_draw_masked(image_id + 1, x + 138, y + 44 - city_data.ratings.culture / 2, color_mask);
+        image_draw_masked(image_id + 2, x + 168, y + 36 - city_data.ratings.prosperity / 2, color_mask);
+        image_draw_masked(image_id + 3, x + 198, y + 27 - city_data.ratings.peace / 2, color_mask);
+        image_draw_masked(image_id + 4, x + 228, y + 19 - city_data.ratings.favor / 2, color_mask);
         // unemployed
         image_id = image_group(GROUP_FIGURE_HOMELESS);
         int unemployment_pct = city_data.labor.unemployment_percentage_for_senate;

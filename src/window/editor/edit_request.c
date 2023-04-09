@@ -38,11 +38,6 @@ static struct {
     int focus_button_id;
 } data;
 
-static void init(int id)
-{
-    data.id = id;
-}
-
 static void draw_foreground(void)
 {
     graphics_in_dialog();
@@ -225,6 +220,6 @@ void window_editor_edit_request_show(int id)
         handle_input,
         0
     };
-    init(id);
+    data.id = id;
     window_show(&window);
 }

@@ -69,7 +69,9 @@ void update_debt_state(void)
             city_data.emperor.debt_state = 4;
             city_data.emperor.months_in_debt = 0;
             if (!city_data.figure.imperial_soldiers) {
-                city_ratings_limit_favor(10);
+                if (city_data.ratings.favor > 10) {
+                    city_data.ratings.favor = 10;
+                }
             }
         }
     }

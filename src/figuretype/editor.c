@@ -21,37 +21,34 @@ void figure_editor_flag_action(struct figure_t *f)
     map_figure_delete(f);
 
     map_point point = { 0, 0 };
-    int id = f->resource_id;
     int image_base = image_group(GROUP_FIGURE_MAP_FLAG_ICONS);
-    if (id == MAP_FLAG_EARTHQUAKE) {
-        // [0].y is offset
-        point.x = scenario.earthquake.branch_coordinates[0].x;
-        point.y = scenario.earthquake.branch_coordinates[1].y;
-        f->cart_image_id = image_base;
-    } else if (id == MAP_FLAG_ENTRY) {
+    if (f->resource_id == MAP_FLAG_ENTRY) {
         point.x = scenario.entry_point.x;
         point.y = scenario.entry_point.y;
         f->cart_image_id = image_base + 2;
-    } else if (id == MAP_FLAG_EXIT) {
+    } else if (f->resource_id == MAP_FLAG_EXIT) {
         point.x = scenario.exit_point.x;
         point.y = scenario.exit_point.y;
         f->cart_image_id = image_base + 3;
-    } else if (id == MAP_FLAG_RIVER_ENTRY) {
+    } else if (f->resource_id == MAP_FLAG_RIVER_ENTRY) {
         point.x = scenario.river_entry_point.x;
         point.y = scenario.river_entry_point.y;
         f->cart_image_id = image_base + 4;
-    } else if (id == MAP_FLAG_RIVER_EXIT) {
+    } else if (f->resource_id == MAP_FLAG_RIVER_EXIT) {
         point.x = scenario.river_exit_point.x;
         point.y = scenario.river_exit_point.y;
         f->cart_image_id = image_base + 5;
-    } else if (id >= MAP_FLAG_INVASION_MIN && id < MAP_FLAG_INVASION_MAX) {
-        point = scenario.invasion_points[id - MAP_FLAG_INVASION_MIN];
+    } else if (f->resource_id >= MAP_FLAG_EARTHQUAKE_MIN && f->resource_id <= MAP_FLAG_EARTHQUAKE_MAX) {
+        point = scenario.earthquake_points[f->resource_id - MAP_FLAG_EARTHQUAKE_MIN];
+        f->cart_image_id = image_base;
+    } else if (f->resource_id >= MAP_FLAG_INVASION_MIN && f->resource_id <= MAP_FLAG_INVASION_MAX) {
+        point = scenario.invasion_points[f->resource_id - MAP_FLAG_INVASION_MIN];
         f->cart_image_id = image_base + 1;
-    } else if (id >= MAP_FLAG_FISHING_MIN && id < MAP_FLAG_FISHING_MAX) {
-        point = scenario.fishing_points[id - MAP_FLAG_FISHING_MIN];
+    } else if (f->resource_id >= MAP_FLAG_FISHING_MIN && f->resource_id <= MAP_FLAG_FISHING_MAX) {
+        point = scenario.fishing_points[f->resource_id - MAP_FLAG_FISHING_MIN];
         f->cart_image_id = image_group(GROUP_FIGURE_FORT_STANDARD_ICONS) + 3;
-    } else if (id >= MAP_FLAG_HERD_MIN && id < MAP_FLAG_HERD_MAX) {
-        point = scenario.herd_points[id - MAP_FLAG_HERD_MIN];
+    } else if (f->resource_id >= MAP_FLAG_HERD_MIN && f->resource_id <= MAP_FLAG_HERD_MAX) {
+        point = scenario.herd_points[f->resource_id - MAP_FLAG_HERD_MIN];
         f->cart_image_id = image_group(GROUP_FIGURE_FORT_STANDARD_ICONS) + 4;
     }
     f->x = point.x;

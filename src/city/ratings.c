@@ -8,36 +8,6 @@
 #include "game/time.h"
 #include "scenario/data.h"
 
-int city_rating_culture(void)
-{
-    return city_data.ratings.culture;
-}
-
-int city_rating_prosperity(void)
-{
-    return city_data.ratings.prosperity;
-}
-
-int city_rating_peace(void)
-{
-    return city_data.ratings.peace;
-}
-
-int city_rating_favor(void)
-{
-    return city_data.ratings.favor;
-}
-
-selected_rating city_rating_selected(void)
-{
-    return city_data.ratings.selected;
-}
-
-void city_rating_select(selected_rating rating)
-{
-    city_data.ratings.selected = rating;
-}
-
 int city_rating_selected_explanation(void)
 {
     switch (city_data.ratings.selected) {
@@ -105,13 +75,6 @@ void city_ratings_reduce_favor_missed_request(int penalty)
 {
     city_ratings_change_favor(-penalty);
     city_data.ratings.favor_ignored_request_penalty = penalty;
-}
-
-void city_ratings_limit_favor(int max_favor)
-{
-    if (city_data.ratings.favor > max_favor) {
-        city_data.ratings.favor = max_favor;
-    }
 }
 
 static void update_culture_explanation(void)
@@ -489,10 +452,6 @@ static void update_peace_rating(void)
 
 static void update_favor_rating(int is_yearly_update)
 {
-    if (scenario.is_open_play) {
-        city_data.ratings.favor = 50;
-        return;
-    }
     city_data.emperor.months_since_gift++;
     if (city_data.emperor.months_since_gift >= 12) {
         city_data.emperor.gift_overdose_penalty = 0;

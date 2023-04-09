@@ -107,9 +107,6 @@ static void set_extra_info_objectives(void)
     data.favor.target = 0;
     data.population.target = 0;
 
-    if (scenario.is_open_play) {
-        return;
-    }
     if (scenario.culture_win_criteria.enabled) {
         data.culture.target = scenario.culture_win_criteria.goal;
     }
@@ -154,10 +151,10 @@ static int update_extra_info(int is_background)
         if (is_background) {
             set_extra_info_objectives();
         }
-        changed |= update_extra_info_value(city_rating_culture(), &data.culture.value);
-        changed |= update_extra_info_value(city_rating_prosperity(), &data.prosperity.value);
-        changed |= update_extra_info_value(city_rating_peace(), &data.peace.value);
-        changed |= update_extra_info_value(city_rating_favor(), &data.favor.value);
+        changed |= update_extra_info_value(city_data.ratings.culture, &data.culture.value);
+        changed |= update_extra_info_value(city_data.ratings.prosperity, &data.prosperity.value);
+        changed |= update_extra_info_value(city_data.ratings.peace, &data.peace.value);
+        changed |= update_extra_info_value(city_data.ratings.favor, &data.favor.value);
         changed |= update_extra_info_value(city_data.population.population, &data.population.value);
     }
     return changed;

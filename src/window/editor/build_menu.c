@@ -45,6 +45,9 @@ static const int MENU_TYPES[MENU_NUM_ITEMS][MAX_ITEMS_PER_MENU] = {
     {TR_EDITOR_TOOL_SUBMENU_RAISE_LAND, TR_EDITOR_TOOL_SUBMENU_LOWER_LAND, TR_EDITOR_TOOL_SUBMENU_ACCESS_RAMP, -1},
     {TR_EDITOR_TOOL_SUBMENU_TINY_BRUSH, TR_EDITOR_TOOL_SUBMENU_SMALL_BRUSH,
     TR_EDITOR_TOOL_SUBMENU_MEDIUM_BRUSH, TR_EDITOR_TOOL_SUBMENU_BIG_BRUSH, TR_EDITOR_TOOL_SUBMENU_BIGGEST_BRUSH, -1},
+    {TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_1, TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_2, TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_3,
+    TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_4, TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_5, TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_6,
+    TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_7, TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_8, -1},
     {TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_1, TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_2, TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_3,
     TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_4, TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_5, TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_6,
     TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_7, TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_8, -1},
@@ -144,6 +147,12 @@ static void button_menu_item(int index, __attribute__((unused)) int param2)
                 case 2: editor_tool_set_with_id(TOOL_ACCESS_RAMP, 0); break;
             }
             break;
+        case MENU_EARTHQUAKE_POINTS:
+            editor_tool_set_with_id(TOOL_EARTHQUAKE_POINT, index);
+            break;
+        case MENU_INVASION_POINTS:
+            editor_tool_set_with_id(TOOL_INVASION_POINT, index);
+            break;
         case MENU_PEOPLE_POINTS:
             switch (index) {
                 case 0: editor_tool_set_with_id(TOOL_ENTRY_POINT, 0); break;
@@ -163,9 +172,6 @@ static void button_menu_item(int index, __attribute__((unused)) int param2)
                 case 2: editor_tool_set_with_id(TOOL_NATIVE_FIELD, 0); break;
                 case 3: editor_tool_set_with_id(TOOL_HOUSE_VACANT_LOT, 0); break;
             }
-            break;
-        case MENU_INVASION_POINTS:
-            editor_tool_set_with_id(TOOL_INVASION_POINT, index);
             break;
         case MENU_ANIMAL_POINTS:
             if (index < MAX_FISH_POINTS) {

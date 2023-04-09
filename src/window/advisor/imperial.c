@@ -162,9 +162,9 @@ static int draw_background(void)
     text_draw(scenario_settings.player_name, 60, 12, FONT_LARGE_BLACK, 0);
 
     int width = lang_text_draw(52, 0, 60, 44, FONT_NORMAL_BLACK);
-    text_draw_number(city_rating_favor(), '@', " ", 60 + width, 44, FONT_NORMAL_BLACK);
+    text_draw_number(city_data.ratings.favor, '@', " ", 60 + width, 44, FONT_NORMAL_BLACK);
 
-    lang_text_draw_multiline(52, city_rating_favor() / 5 + 22, 60, 60, 544, FONT_NORMAL_BLACK);
+    lang_text_draw_multiline(52, city_data.ratings.favor / 5 + 22, 60, 60, 544, FONT_NORMAL_BLACK);
 
     inner_panel_draw(32, 90, 35, 14);
 

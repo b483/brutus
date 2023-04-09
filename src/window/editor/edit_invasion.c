@@ -44,17 +44,6 @@ static struct {
     int focus_button_id;
 } data;
 
-static void init(int id)
-{
-    data.id = id;
-    for (int i = TR_EDITOR_INVASION_TYPE_NO_INVADERS; i <= TR_EDITOR_INVASION_TYPE_DISTANT_BATTLE; i++) {
-        data.invasion_type_names[i - TR_EDITOR_INVASION_TYPE_NO_INVADERS] = get_custom_string(i);
-    }
-    for (int i = TR_EDITOR_ENEMY_TYPE_BARBARIANS; i <= TR_EDITOR_ENEMY_TYPE_SELEUCIDS; i++) {
-        data.enemy_type_names[i - TR_EDITOR_ENEMY_TYPE_BARBARIANS] = get_custom_string(i);
-    }
-}
-
 static void draw_background(void)
 {
     window_editor_map_draw_all();
@@ -251,6 +240,12 @@ void window_editor_edit_invasion_show(int id)
         handle_input,
         0
     };
-    init(id);
+    data.id = id;
+    for (int i = TR_EDITOR_INVASION_TYPE_NO_INVADERS; i <= TR_EDITOR_INVASION_TYPE_DISTANT_BATTLE; i++) {
+        data.invasion_type_names[i - TR_EDITOR_INVASION_TYPE_NO_INVADERS] = get_custom_string(i);
+    }
+    for (int i = TR_EDITOR_ENEMY_TYPE_BARBARIANS; i <= TR_EDITOR_ENEMY_TYPE_SELEUCIDS; i++) {
+        data.enemy_type_names[i - TR_EDITOR_ENEMY_TYPE_BARBARIANS] = get_custom_string(i);
+    }
     window_show(&window);
 }

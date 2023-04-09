@@ -33,6 +33,7 @@ static void menu_help_about(int param);
 static void menu_resets_herds(int param);
 static void menu_resets_fish(int param);
 static void menu_resets_invasions(int param);
+static void menu_resets_earthquakes(int param);
 
 static menu_item menu_file[] = {
     {7, 1, menu_file_new_map, 0, 0},
@@ -56,13 +57,14 @@ static menu_item menu_resets[] = {
     {10, 1, menu_resets_herds, 0, 0},
     {10, 2, menu_resets_fish, 0, 0},
     {10, 3, menu_resets_invasions, 0, 0},
+    {10, 4, menu_resets_earthquakes, 0, 0},
 };
 
 static menu_bar_item top_menu_editor[] = {
     {7, menu_file, 4, 0, 0, 0, 0},
     {2, menu_options, 3, 0, 0, 0, 0},
     {3, menu_help, 2, 0, 0, 0, 0},
-    {10, menu_resets, 3, 0, 0, 0, 0},
+    {10, menu_resets, 4, 0, 0, 0, 0},
 };
 
 #define INDEX_OPTIONS 1
@@ -78,11 +80,6 @@ static void clear_state(void)
     data.open_sub_menu = 0;
     data.focus_menu_id = 0;
     data.focus_sub_menu_id = 0;
-}
-
-static void init(void)
-{
-    top_menu_editor[INDEX_OPTIONS].items[0].hidden = 0;
 }
 
 static void draw_foreground(void)
@@ -107,7 +104,7 @@ static void top_menu_window_show(void)
         handle_input,
         0
     };
-    init();
+    top_menu_editor[INDEX_OPTIONS].items[0].hidden = 0;
     window_show(&window);
 }
 
@@ -262,6 +259,17 @@ static void menu_resets_invasions(__attribute__((unused)) int param)
     for (int i = 0; i < MAX_INVASION_POINTS; i++) {
         scenario.invasion_points[i].x = -1;
         scenario.invasion_points[i].y = -1;
+    }
+    scenario.is_saved = 0;
+    clear_state();
+    window_go_back();
+}
+
+static void menu_resets_earthquakes(__attribute__((unused)) int param)
+{
+    for (int i = 0; i < MAX_EARTHQUAKE_POINTS; i++) {
+        scenario.earthquake_points[i].x = -1;
+        scenario.earthquake_points[i].y = -1;
     }
     scenario.is_saved = 0;
     clear_state();

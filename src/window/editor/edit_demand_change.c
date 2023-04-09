@@ -68,12 +68,6 @@ static void create_route_names(void)
     }
 }
 
-static void init(int id)
-{
-    data.id = id;
-    create_route_names();
-}
-
 static void draw_background(void)
 {
     window_editor_map_draw_all();
@@ -239,6 +233,7 @@ void window_editor_edit_demand_change_show(int id)
         handle_input,
         0
     };
-    init(id);
+    data.id = id;
+    create_route_names();
     window_show(&window);
 }

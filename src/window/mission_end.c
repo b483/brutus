@@ -39,16 +39,16 @@ static void draw_won(void)
     int left_offset = 68;
     int right_offset = 315;
     int width = lang_text_draw(148, 0, left_offset, 308, FONT_NORMAL_BLACK);
-    text_draw_number(city_rating_culture(), '@', " ", left_offset + width, 308, FONT_NORMAL_BLACK);
+    text_draw_number(city_data.ratings.culture, '@', " ", left_offset + width, 308, FONT_NORMAL_BLACK);
 
     width = lang_text_draw(148, 1, right_offset, 308, FONT_NORMAL_BLACK);
-    text_draw_number(city_rating_prosperity(), '@', " ", right_offset + width, 308, FONT_NORMAL_BLACK);
+    text_draw_number(city_data.ratings.prosperity, '@', " ", right_offset + width, 308, FONT_NORMAL_BLACK);
 
     width = lang_text_draw(148, 2, left_offset, 328, FONT_NORMAL_BLACK);
-    text_draw_number(city_rating_peace(), '@', " ", left_offset + width, 328, FONT_NORMAL_BLACK);
+    text_draw_number(city_data.ratings.peace, '@', " ", left_offset + width, 328, FONT_NORMAL_BLACK);
 
     width = lang_text_draw(148, 3, right_offset, 328, FONT_NORMAL_BLACK);
-    text_draw_number(city_rating_favor(), '@', " ", right_offset + width, 328, FONT_NORMAL_BLACK);
+    text_draw_number(city_data.ratings.favor, '@', " ", right_offset + width, 328, FONT_NORMAL_BLACK);
 
     width = lang_text_draw(148, 4, left_offset, 348, FONT_NORMAL_BLACK);
     text_draw_number(city_data.population.population, '@', " ", left_offset + width, 348, FONT_NORMAL_BLACK);

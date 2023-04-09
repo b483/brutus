@@ -1,9 +1,11 @@
 #include "menu.h"
 
 #include "core/calc.h"
+#include "game/custom_strings.h"
 #include "graphics/graphics.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
+#include "graphics/text.h"
 
 #define TOP_MENU_BASE_X_OFFSET 10
 #define MENU_BASE_TEXT_Y_OFFSET 6
@@ -86,13 +88,18 @@ void menu_draw(menu_bar_item *menu, int focus_item_id)
             continue;
         }
         if (i == focus_item_id - 1) {
-            graphics_fill_rect(menu->x_start, y_offset - 4,
-                BLOCK_SIZE * menu->calculated_width_blocks, 20, COLOR_BLACK);
-            lang_text_draw_colored(sub->text_group, sub->text_number,
-                menu->x_start + 8, y_offset, FONT_NORMAL_PLAIN, COLOR_FONT_ORANGE);
+            graphics_fill_rect(menu->x_start, y_offset - 4, BLOCK_SIZE * menu->calculated_width_blocks, 20, COLOR_BLACK);
+            if (sub->text_group == 10 && sub->text_number == 4) {
+                text_draw(get_custom_string(TR_EDITOR_TOP_MENU_CLEAR_EARTHQUAKE_POINTS), menu->x_start + 8, y_offset, FONT_NORMAL_PLAIN, COLOR_FONT_ORANGE);
+            } else {
+                lang_text_draw_colored(sub->text_group, sub->text_number, menu->x_start + 8, y_offset, FONT_NORMAL_PLAIN, COLOR_FONT_ORANGE);
+            }
         } else {
-            lang_text_draw(sub->text_group, sub->text_number,
-                menu->x_start + 8, y_offset, FONT_NORMAL_BLACK);
+            if (sub->text_group == 10 && sub->text_number == 4) {
+                text_draw(get_custom_string(TR_EDITOR_TOP_MENU_CLEAR_EARTHQUAKE_POINTS), menu->x_start + 8, y_offset, FONT_NORMAL_BLACK, COLOR_BLACK);
+            } else {
+                lang_text_draw(sub->text_group, sub->text_number, menu->x_start + 8, y_offset, FONT_NORMAL_BLACK);
+            }
         }
         y_offset += MENU_ITEM_HEIGHT;
     }

@@ -260,7 +260,14 @@ void game_undo_reduce_time_available(void)
     if (!game_can_undo()) {
         return;
     }
-    if (data.timeout_ticks <= 0 || scenario.earthquake.state == EVENT_IN_PROGRESS) {
+    int earthquake_in_progress = 0;
+    for (int i = 0; i < MAX_EARTHQUAKES; i++) {
+        if (scenario.earthquakes[i].state == EVENT_IN_PROGRESS) {
+            earthquake_in_progress = 1;
+            break;
+        }
+    }
+    if (data.timeout_ticks <= 0 || earthquake_in_progress) {
         data.available = 0;
         clear_buildings();
         window_invalidate();

@@ -258,33 +258,33 @@ static void draw_senate_tooltip(tooltip_context *c)
 
     // ratings
     lang_text_draw_colored(68, 149, x + 5, y + 19, FONT_SMALL_PLAIN, COLOR_TOOLTIP);
-    text_draw_number_colored(city_rating_culture(), '@', " ",
+    text_draw_number_colored(city_data.ratings.culture, '@', " ",
         x + 140, y + 19, FONT_SMALL_PLAIN, COLOR_TOOLTIP);
-    if (!scenario.is_open_play && scenario.culture_win_criteria.enabled) {
+    if (scenario.culture_win_criteria.enabled) {
         text_draw_number_colored(scenario.culture_win_criteria.goal, '(', ")",
             x + 140 + width, y + 19, FONT_SMALL_PLAIN, COLOR_TOOLTIP);
     }
 
     lang_text_draw_colored(68, 150, x + 5, y + 33, FONT_SMALL_PLAIN, COLOR_TOOLTIP);
-    text_draw_number_colored(city_rating_prosperity(), '@', " ",
+    text_draw_number_colored(city_data.ratings.prosperity, '@', " ",
         x + 140, y + 33, FONT_SMALL_PLAIN, COLOR_TOOLTIP);
-    if (!scenario.is_open_play && scenario.prosperity_win_criteria.enabled) {
+    if (scenario.prosperity_win_criteria.enabled) {
         text_draw_number_colored(scenario.prosperity_win_criteria.goal, '(', ")",
             x + 140 + width, y + 33, FONT_SMALL_PLAIN, COLOR_TOOLTIP);
     }
 
     lang_text_draw_colored(68, 151, x + 5, y + 47, FONT_SMALL_PLAIN, COLOR_TOOLTIP);
-    text_draw_number_colored(city_rating_peace(), '@', " ",
+    text_draw_number_colored(city_data.ratings.peace, '@', " ",
         x + 140, y + 47, FONT_SMALL_PLAIN, COLOR_TOOLTIP);
-    if (!scenario.is_open_play && scenario.peace_win_criteria.enabled) {
+    if (scenario.peace_win_criteria.enabled) {
         text_draw_number_colored(scenario.peace_win_criteria.goal, '(', ")",
             x + 140 + width, y + 47, FONT_SMALL_PLAIN, COLOR_TOOLTIP);
     }
 
     lang_text_draw_colored(68, 152, x + 5, y + 61, FONT_SMALL_PLAIN, COLOR_TOOLTIP);
-    text_draw_number_colored(city_rating_favor(), '@', " ",
+    text_draw_number_colored(city_data.ratings.favor, '@', " ",
         x + 140, y + 61, FONT_SMALL_PLAIN, COLOR_TOOLTIP);
-    if (!scenario.is_open_play && scenario.favor_win_criteria.enabled) {
+    if (scenario.favor_win_criteria.enabled) {
         text_draw_number_colored(scenario.favor_win_criteria.goal, '(', ")",
             x + 140 + width, y + 61, FONT_SMALL_PLAIN, COLOR_TOOLTIP);
     }

@@ -381,43 +381,22 @@ void editor_tool_end_use(const map_tile *tile)
 
     int warning = 0;
     switch (data.type) {
-        case TOOL_EARTHQUAKE_POINT:
-            if (editor_tool_can_place_flag(data.type, tile, &warning)) {
-                // leave a gap at the epicenter to prevent total map block-off and allow for more interesting building patterns
-                scenario.earthquake.branch_coordinates[0].x = tile->x;
-                scenario.earthquake.branch_coordinates[0].y = tile->y - 2;
-                scenario.earthquake.branch_coordinates[1].x = tile->x + 2;
-                scenario.earthquake.branch_coordinates[1].y = tile->y;
-                scenario.earthquake.branch_coordinates[2].x = tile->x;
-                scenario.earthquake.branch_coordinates[2].y = tile->y + 2;
-                scenario.earthquake.branch_coordinates[3].x = tile->x - 2;
-                scenario.earthquake.branch_coordinates[3].y = tile->y;
-                window_request_refresh();
-                scenario.is_saved = 0;
-                if (!scenario.earthquake.state) {
-                    city_warning_show(WARNING_EDITOR_NO_EARTHQUAKE_SCHEDULED);
-                }
-            }
-            break;
         case TOOL_ENTRY_POINT:
             if (editor_tool_can_place_flag(data.type, tile, &warning)) {
                 scenario.entry_point.x = tile->x;
                 scenario.entry_point.y = tile->y;
-                scenario.is_saved = 0;
             }
             break;
         case TOOL_EXIT_POINT:
             if (editor_tool_can_place_flag(data.type, tile, &warning)) {
                 scenario.exit_point.x = tile->x;
                 scenario.exit_point.y = tile->y;
-                scenario.is_saved = 0;
             }
             break;
         case TOOL_RIVER_ENTRY_POINT:
             if (editor_tool_can_place_flag(data.type, tile, &warning)) {
                 scenario.river_entry_point.x = tile->x;
                 scenario.river_entry_point.y = tile->y;
-                scenario.is_saved = 0;
                 figure_create_flotsam();
                 map_routing_update_water();
             }
@@ -426,30 +405,33 @@ void editor_tool_end_use(const map_tile *tile)
             if (editor_tool_can_place_flag(data.type, tile, &warning)) {
                 scenario.river_exit_point.x = tile->x;
                 scenario.river_exit_point.y = tile->y;
-                scenario.is_saved = 0;
                 figure_create_flotsam();
                 map_routing_update_water();
+            }
+            break;
+        case TOOL_EARTHQUAKE_POINT:
+            if (editor_tool_can_place_flag(data.type, tile, &warning)) {
+                scenario.earthquake_points[data.id].x = tile->x;
+                scenario.earthquake_points[data.id].y = tile->y;
+                window_request_refresh();
             }
             break;
         case TOOL_INVASION_POINT:
             if (editor_tool_can_place_flag(data.type, tile, &warning)) {
                 scenario.invasion_points[data.id].x = tile->x;
                 scenario.invasion_points[data.id].y = tile->y;
-                scenario.is_saved = 0;
             }
             break;
         case TOOL_FISHING_POINT:
             if (editor_tool_can_place_flag(data.type, tile, &warning)) {
                 scenario.fishing_points[data.id].x = tile->x;
                 scenario.fishing_points[data.id].y = tile->y;
-                scenario.is_saved = 0;
             }
             break;
         case TOOL_HERD_POINT:
             if (editor_tool_can_place_flag(data.type, tile, &warning)) {
                 scenario.herd_points[data.id].x = tile->x;
                 scenario.herd_points[data.id].y = tile->y;
-                scenario.is_saved = 0;
             }
             break;
         case TOOL_NATIVE_CENTER:
@@ -466,13 +448,12 @@ void editor_tool_end_use(const map_tile *tile)
             place_access_ramp(tile);
             break;
         case TOOL_ROAD:
-            if (building_construction_place_road(0, data.start_tile.x, data.start_tile.y, tile->x, tile->y)) {
-                scenario.is_saved = 0;
-            }
-            break;
+            building_construction_place_road(0, data.start_tile.x, data.start_tile.y, tile->x, tile->y);
+                break;
         default:
             break;
     }
+    scenario.is_saved = 0;
     if (warning) {
         city_warning_show(warning);
     }

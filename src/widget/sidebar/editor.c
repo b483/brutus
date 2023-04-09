@@ -42,7 +42,7 @@ static image_button buttons_build[] = {
     {13, 339, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 18, button_build_tool, button_none, TOOL_MEADOW, 0, 1, 0, 0, 0},
     {63, 339, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 30, button_build_tool, button_none, TOOL_ROAD, 0, 1, 0, 0, 0},
     {113, 339, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 24, button_build_menu, button_none, MENU_BRUSH_SIZE, 0, 1, 0, 0, 0},
-    {13, 375, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 9, button_build_tool, button_none, TOOL_EARTHQUAKE_POINT, 0, 1, 0, 0, 0},
+    {13, 375, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 9, button_build_menu, button_none, MENU_EARTHQUAKE_POINTS, 0, 1, 0, 0, 0},
     {63, 375, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 39, button_build_menu, button_none, MENU_INVASION_POINTS, 0, 1, 0, 0, 0},
     {113, 375, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 42, button_build_menu, button_none, MENU_PEOPLE_POINTS, 0, 1, 0, 0, 0},
     {13, 411, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 33, button_build_menu, button_none, MENU_RIVER_POINTS, 0, 1, 0, 0, 0},
@@ -120,14 +120,6 @@ static void draw_status(void)
     } else {
         if (scenario.invasions[0].type) {
             lang_text_draw(44, 63, text_offset, 254, FONT_NORMAL_RED);
-        }
-    }
-
-    if (scenario.earthquake.state) {
-        if (scenario.earthquake.branch_coordinates[0].x == -1 || scenario.earthquake.branch_coordinates[0].y == -1) {
-            lang_text_draw(44, 57, text_offset, 269, FONT_NORMAL_RED);
-        } else {
-            lang_text_draw(44, 58, text_offset, 269, FONT_NORMAL_GREEN);
         }
     }
 }

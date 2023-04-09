@@ -23,6 +23,7 @@
 #include "window/editor/briefing.h"
 #include "window/editor/demand_changes.h"
 #include "window/editor/custom_messages.h"
+#include "window/editor/earthquakes.h"
 #include "window/editor/invasions.h"
 #include "window/editor/map.h"
 #include "window/editor/price_changes.h"
@@ -36,6 +37,7 @@ static void button_briefing(int param1, int param2);
 static void button_starting_conditions(int param1, int param2);
 static void button_requests(int param1, int param2);
 static void button_custom_messages(int param1, int param2);
+static void button_earthquakes(int param1, int param2);
 static void button_invasions(int param1, int param2);
 static void button_allowed_buildings(int param1, int param2);
 static void button_win_criteria(int param1, int param2);
@@ -54,6 +56,7 @@ static generic_button buttons_editor_attributes[] = {
     {213, 220, 195, 30, button_special_events, button_none, 0, 0},
     {17, 260, 185, 30, button_requests, button_none, 0, 0},
     {213, 260, 195, 30, button_custom_messages, button_none, 0, 0},
+    {17, 300, 185, 30, button_earthquakes, button_none, 0, 0},
     {213, 300, 195, 30, button_invasions, button_none, 0, 0},
     {17, 340, 185, 30, button_price_changes, button_none, 0, 0},
     {213, 340, 195, 30, button_demand_changes, button_none, 0, 0},
@@ -138,8 +141,16 @@ static void draw_foreground(void)
         text_draw_centered(get_custom_string(TR_EDITOR_NO_CUSTOM_MESSAGE), 213, 269, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
     }
 
+    // Earthquakes
+    button_border_draw(17, 300, 185, 30, data.focus_button_id == 9);
+    if (scenario.earthquakes[0].state) {
+        text_draw_centered(get_custom_string(TR_EDITOR_EARTHQUAKES_SCHEDULED), 17, 309, 185, FONT_NORMAL_BLACK, COLOR_BLACK);
+    } else {
+        text_draw_centered(get_custom_string(TR_EDITOR_NO_EARTHQUAKES), 17, 309, 185, FONT_NORMAL_BLACK, COLOR_BLACK);
+    }
+
     // Invasions
-    button_border_draw(213, 300, 195, 30, data.focus_button_id == 9);
+    button_border_draw(213, 300, 195, 30, data.focus_button_id == 10);
     if (scenario.invasions[0].type) {
         text_draw_centered(get_custom_string(TR_EDITOR_INVASION_SCHEDULED), 213, 309, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
     } else {
@@ -147,7 +158,7 @@ static void draw_foreground(void)
     }
 
     // Price changes
-    button_border_draw(17, 340, 185, 30, data.focus_button_id == 10);
+    button_border_draw(17, 340, 185, 30, data.focus_button_id == 11);
     if (scenario.price_changes[0].resource) {
         text_draw_centered(get_custom_string(TR_EDITOR_PRICE_CHANGE_SCHEDULED), 17, 349, 185, FONT_NORMAL_BLACK, COLOR_BLACK);
     } else {
@@ -155,7 +166,7 @@ static void draw_foreground(void)
     }
 
     // Demand changes
-    button_border_draw(213, 340, 195, 30, data.focus_button_id == 11);
+    button_border_draw(213, 340, 195, 30, data.focus_button_id == 12);
     if (scenario.demand_changes[0].resource && scenario.demand_changes[0].trade_city_id) {
         text_draw_centered(get_custom_string(TR_EDITOR_DEMAND_CHANGE_SCHEDULED), 213, 349, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
     } else {
@@ -201,6 +212,12 @@ static void button_requests(__attribute__((unused)) int param1, __attribute__((u
 {
     stop_brief_description_box_input();
     window_editor_requests_show();
+}
+
+static void button_earthquakes(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
+{
+    stop_brief_description_box_input();
+    window_editor_earthquakes_show();
 }
 
 static void button_invasions(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
@@ -253,16 +270,14 @@ static void change_climate(__attribute__((unused)) int param1, __attribute__((un
 
 static void change_image(int value, __attribute__((unused)) int param2)
 {
-    scenario.brief_description_image_id += value;
-
-    if (scenario.brief_description_image_id < 0) {
-        scenario.brief_description_image_id = 15;
-    }
-    if (scenario.brief_description_image_id > 15) {
+    if (scenario.brief_description_image_id == 15 && value == 1) {
         scenario.brief_description_image_id = 0;
+    } else if (scenario.brief_description_image_id == 0 && value == -1) {
+        scenario.brief_description_image_id = 15;
+    } else {
+        scenario.brief_description_image_id += value;
     }
     scenario.is_saved = 0;
-
     window_request_refresh();
 }
 

@@ -425,11 +425,12 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 static void button_change_empire(int value, __attribute__((unused)) int param2)
 {
-    scenario.empire.id += value;
-    if (scenario.empire.id < 0) {
-        scenario.empire.id = 39;
-    } else if (scenario.empire.id >= 40) {
+    if (scenario.empire.id == 39 && value == 1) {
         scenario.empire.id = 0;
+    } else if (scenario.empire.id == 0 && value == -1) {
+        scenario.empire.id = 39;
+    } else {
+        scenario.empire.id += value;
     }
     scenario.is_saved = 0;
     empire_load_editor(scenario.empire.id, map_viewport_width(), map_viewport_height());
