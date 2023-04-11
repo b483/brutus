@@ -314,7 +314,11 @@ static int unit_is_charging_opponent(struct figure_t *f, struct figure_t *oppone
 {
     return f->mounted_charge_ticks
         && !f->figure_is_halted
-        && opponent->type != FIGURE_FORT_MOUNTED && opponent->type != FIGURE_ENEMY_CAMEL && opponent->type != FIGURE_ENEMY_ELEPHANT && opponent->type != FIGURE_ENEMY_CHARIOT && opponent->type != FIGURE_ENEMY_MOUNTED_ARCHER;
+        && opponent->type != FIGURE_FORT_MOUNTED
+        && opponent->type != FIGURE_ENEMY_EGYPTIAN_CAMEL
+        && opponent->type != FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT
+        && opponent->type != FIGURE_ENEMY_BRITON_CHARIOT && opponent->type != FIGURE_ENEMY_CELT_CHARIOT && opponent->type != FIGURE_ENEMY_PICT_CHARIOT
+        && opponent->type != FIGURE_ENEMY_HUN_MOUNTED_ARCHER && opponent->type != FIGURE_ENEMY_GOTH_MOUNTED_ARCHER && opponent->type != FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER;
 }
 
 void figure_combat_handle_attack(struct figure_t *f)

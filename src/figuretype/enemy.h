@@ -3,11 +3,11 @@
 
 #include "figure/figure.h"
 
-void figure_enemy_ranged_spear_1_action(struct figure_t *f);
+void figure_enemy_heavy_ranged_spearman_action(struct figure_t *f);
 
-void figure_enemy_sword_1_action(struct figure_t *f);
+void figure_enemy_light_swordsman_action(struct figure_t *f);
 
-void figure_enemy_sword_2_action(struct figure_t *f);
+void figure_enemy_heavy_swordsman_action(struct figure_t *f);
 
 void figure_enemy_camel_action(struct figure_t *f);
 
@@ -15,15 +15,15 @@ void figure_enemy_elephant_action(struct figure_t *f);
 
 void figure_enemy_chariot_action(struct figure_t *f);
 
-void figure_enemy_fast_sword_action(struct figure_t *f);
+void figure_enemy_fast_swordsman_action(struct figure_t *f);
 
-void figure_enemy_sword_3_action(struct figure_t *f);
+void figure_enemy_medium_swordsman_action(struct figure_t *f);
 
-void figure_enemy_ranged_spear_2_action(struct figure_t *f);
+void figure_enemy_light_ranged_spearman_action(struct figure_t *f);
 
 void figure_enemy_mounted_archer_action(struct figure_t *f);
 
-void figure_enemy_axe_action(struct figure_t *f);
+void figure_enemy_axeman_action(struct figure_t *f);
 
 void figure_enemy_gladiator_action(struct figure_t *f);
 

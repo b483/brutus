@@ -3,7 +3,7 @@
 
 #include "core/encoding.h"
 #include "core/image_group.h"
-#include "figure/type.h"
+#include "figure/figure.h"
 #include "graphics/color.h"
 
 #define IMAGE_FONT_MULTIBYTE_OFFSET 10000
@@ -69,7 +69,7 @@ int image_group(int group);
  * @param id Image ID
  * @return Image
  */
-const image *image_get(int id);
+image *image_get(int id);
 
 /**
  * Gets a letter image by offset within font group
@@ -83,7 +83,7 @@ const image *image_letter(int letter_id);
  * @param id Enemy image ID
  * @return Enemy image
  */
-const image *image_get_enemy(int id, int enemy_image_type);
+image *image_get_enemy(struct figure_t *f);
 
 /**
  * Gets image pixel data by id
@@ -104,6 +104,6 @@ const color_t *image_data_letter(int letter_id);
  * @param id Enemy image ID
  * @return Pointer to data or null, short term use only.
  */
-const color_t *image_data_enemy(int id, int enemy_image_type);
+const color_t *image_data_enemy(struct figure_t *f);
 
 #endif // CORE_IMAGE_H

@@ -570,13 +570,13 @@ void image_draw(int image_id, int x, int y)
     }
 }
 
-void image_draw_enemy(int image_id, int enemy_image_type, int x, int y)
+void image_draw_enemy(struct figure_t *f, int x, int y)
 {
-    if (image_id <= 0 || image_id >= 801) {
+    if (f->image_id <= 0 || f->image_id >= 801) {
         return;
     }
-    const image *img = image_get_enemy(image_id, enemy_image_type);
-    const color_t *data = image_data_enemy(image_id, enemy_image_type);
+    const image *img = image_get_enemy(f);
+    const color_t *data = image_data_enemy(f);
     if (data) {
         draw_compressed(img, data, x, y, img->height);
     }

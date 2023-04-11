@@ -166,7 +166,7 @@ static void tile_progress_to_pixel_offset(int direction, int progress, int *pixe
     *pixel_y = tile_progress_to_pixel_offset_y(direction, progress);
 }
 
-static void adjust_pixel_offset(const struct figure_t *f, int *pixel_x, int *pixel_y)
+static void adjust_pixel_offset(struct figure_t *f, int *pixel_x, int *pixel_y)
 {
     // determining x/y offset on tile
     int x_offset = 0;
@@ -184,12 +184,12 @@ static void adjust_pixel_offset(const struct figure_t *f, int *pixel_x, int *pix
     x_offset += 29;
     y_offset += 15;
 
-    const image *img = (f->is_native_unit || f->is_enemy_unit) ? image_get_enemy(f->image_id, f->enemy_image_type) : image_get(f->image_id);
+    image *img = (f->is_native_unit || f->is_enemy_unit) ? image_get_enemy(f) : image_get(f->image_id);
     *pixel_x += x_offset - img->sprite_offset_x;
     *pixel_y += y_offset - img->sprite_offset_y;
 }
 
-static void draw_figure(const struct figure_t *f, int x, int y, int highlight)
+static void draw_figure(struct figure_t *f, int x, int y, int highlight)
 {
     if (f->cart_image_id) {
         switch (f->type) {
@@ -244,7 +244,7 @@ static void draw_figure(const struct figure_t *f, int x, int y, int highlight)
         }
     } else {
         if (f->is_native_unit || f->is_enemy_unit) {
-            image_draw_enemy(f->image_id, f->enemy_image_type, x, y);
+            image_draw_enemy(f, x, y);
         } else {
             image_draw(f->image_id, x, y);
             if (highlight) {
@@ -254,13 +254,13 @@ static void draw_figure(const struct figure_t *f, int x, int y, int highlight)
     }
 }
 
-void city_draw_figure(const struct figure_t *f, int x, int y, int highlight)
+void city_draw_figure(struct figure_t *f, int x, int y, int highlight)
 {
     adjust_pixel_offset(f, &x, &y);
     draw_figure(f, x, y, highlight);
 }
 
-void city_draw_selected_figure(const struct figure_t *f, int x, int y, pixel_coordinate *coord)
+void city_draw_selected_figure(struct figure_t *f, int x, int y, pixel_coordinate *coord)
 {
     adjust_pixel_offset(f, &x, &y);
     draw_figure(f, x, y, 0);

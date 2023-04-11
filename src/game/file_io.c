@@ -212,7 +212,7 @@ static void init_savegame_data(void)
     state->figures = create_savegame_piece(150000, 1);
     state->route_figures = create_savegame_piece(1200, 1);
     state->route_paths = create_savegame_piece(300000, 1);
-    state->formations = create_savegame_piece(4800, 1);
+    state->formations = create_savegame_piece(4750, 1);
     state->city_data = create_savegame_piece(11599, 1);
     state->player_name = create_savegame_piece(24, 0);
     state->buildings = create_savegame_piece(162000, 1);
@@ -227,7 +227,7 @@ static void init_savegame_data(void)
     state->empire_objects = create_savegame_piece(20600, 1);
     state->building_count_industry = create_savegame_piece(128, 0);
     state->trade_prices = create_savegame_piece(128, 0);
-    state->figure_names = create_savegame_piece(84, 0);
+    state->figure_names = create_savegame_piece(76, 0);
     state->culture_coverage = create_savegame_piece(56, 0);
     state->scenario = create_savegame_piece(52397, 0);
     state->messages = create_savegame_piece(14000, 1);

@@ -42,7 +42,7 @@ struct figure_t *figure_create(int type, int x, int y, direction_type dir)
     f->cross_country_y = 15 * y;
     f->progress_on_tile = 15;
     f->phrase_sequence_city = f->phrase_sequence_exact = random_byte() & 3;
-    f->name_id = figure_name_get(type, 0);
+    f->name_id = get_figure_name_id(f);
     map_figure_add(f);
     if (type == FIGURE_TRADE_CARAVAN || type == FIGURE_TRADE_SHIP) {
         f->trader_id = trader_create();
@@ -229,139 +229,12 @@ struct figure_t *figure_create(int type, int x, int y, direction_type dir)
             f->is_herd_animal = 1;
             f->max_damage = 20;
             break;
-        case FIGURE_ENEMY_RANGED_SPEAR_1:
-            f->is_targetable = 1;
-            f->is_enemy_unit = 1;
-            f->max_damage = 70;
-            f->melee_attack_value = 5;
-            f->missile_attack_value = 4;
-            f->missile_delay = 70;
-            f->missile_type = FIGURE_JAVELIN;
-            f->max_range = 10;
-            break;
-        case FIGURE_ENEMY_SWORD_1:
-            f->is_targetable = 1;
-            f->is_enemy_unit = 1;
-            f->max_damage = 90;
-            f->melee_attack_value = 7;
-            break;
-        case FIGURE_ENEMY_SWORD_2:
-            f->is_targetable = 1;
-            f->is_enemy_unit = 1;
-            f->max_damage = 120;
-            f->melee_attack_value = 12;
-            f->melee_defense_value = 2;
-            f->missile_defense_value = 2;
-            break;
-        case FIGURE_ENEMY_CAMEL:
-            f->is_targetable = 1;
-            f->is_enemy_unit = 1;
-            f->max_damage = 120;
-            f->melee_attack_value = 7;
-            f->melee_defense_value = 1;
-            f->missile_attack_value = 5;
-            f->missile_delay = 70;
-            f->missile_type = FIGURE_ARROW;
-            f->max_range = 15;
-            break;
-        case FIGURE_ENEMY_ELEPHANT:
-            f->is_targetable = 1;
-            f->is_enemy_unit = 1;
-            f->max_damage = 200;
-            f->melee_attack_value = 20;
-            f->melee_defense_value = 5;
-            f->missile_attack_value = 6;
-            f->missile_defense_value = 8;
-            f->missile_delay = 70;
-            f->missile_type = FIGURE_ARROW;
-            f->max_range = 15;
-            break;
-        case FIGURE_ENEMY_CHARIOT:
-            f->is_targetable = 1;
-            f->is_enemy_unit = 1;
-            f->max_damage = 120;
-            f->melee_attack_value = 12;
-            f->melee_defense_value = 4;
-            f->missile_defense_value = 4;
-            f->speed_multiplier = 3;
-            f->mounted_charge_ticks = 8;
-            f->mounted_charge_ticks_max = 8;
-            break;
-        case FIGURE_ENEMY_FAST_SWORD:
-            f->is_targetable = 1;
-            f->is_enemy_unit = 1;
-            f->max_damage = 90;
-            f->melee_attack_value = 7;
-            f->melee_defense_value = 1;
-            f->speed_multiplier = 2;
-            break;
-        case FIGURE_ENEMY_SWORD_3:
-            f->is_targetable = 1;
-            f->is_enemy_unit = 1;
-            f->max_damage = 110;
-            f->melee_attack_value = 10;
-            f->melee_defense_value = 1;
-            f->missile_defense_value = 2;
-            break;
-        case FIGURE_ENEMY_RANGED_SPEAR_2:
-            f->is_targetable = 1;
-            f->is_enemy_unit = 1;
-            f->max_damage = 70;
-            f->melee_attack_value = 5;
-            f->missile_attack_value = 3;
-            f->missile_delay = 100;
-            f->speed_multiplier = 2;
-            f->missile_type = FIGURE_JAVELIN;
-            f->max_range = 10;
-            break;
-        case FIGURE_ENEMY_MOUNTED_ARCHER:
-            f->is_targetable = 1;
-            f->is_enemy_unit = 1;
-            f->max_damage = 100;
-            f->melee_attack_value = 6;
-            f->melee_defense_value = 1;
-            f->missile_attack_value = 4;
-            f->missile_delay = 70;
-            f->speed_multiplier = 3;
-            f->missile_type = FIGURE_ARROW;
-            f->max_range = 15;
-            break;
-        case FIGURE_ENEMY_AXE:
-            f->is_targetable = 1;
-            f->is_enemy_unit = 1;
-            f->max_damage = 120;
-            f->melee_attack_value = 15;
-            f->melee_defense_value = 2;
-            f->missile_defense_value = 3;
-            break;
         case FIGURE_ENEMY_GLADIATOR:
             f->is_targetable = 1;
             f->is_enemy_unit = 1;
             f->max_damage = 100;
             f->melee_attack_value = 9;
             f->melee_defense_value = 2;
-            break;
-        case FIGURE_ENEMY_CAESAR_JAVELIN:
-            f->is_targetable = 1;
-            f->is_caesar_legion_unit = 1;
-            f->max_damage = 90;
-            f->melee_attack_value = 4;
-            f->missile_attack_value = 4;
-            f->missile_delay = 100;
-            break;
-        case FIGURE_ENEMY_CAESAR_MOUNTED:
-            f->is_targetable = 1;
-            f->is_caesar_legion_unit = 1;
-            f->max_damage = 100;
-            f->melee_attack_value = 8;
-            break;
-        case FIGURE_ENEMY_CAESAR_LEGIONARY:
-            f->is_targetable = 1;
-            f->is_caesar_legion_unit = 1;
-            f->max_damage = 150;
-            f->melee_attack_value = 10;
-            f->melee_defense_value = 3;
-            f->missile_defense_value = 6;
             break;
         case FIGURE_ARROW:
             f->missile_attack_value = 5;
@@ -555,8 +428,8 @@ static void figure_save(buffer *buf, const struct figure_t *f)
     buffer_write_u16(buf, f->cart_image_id);
     buffer_write_i8(buf, f->x_offset_cart);
     buffer_write_i8(buf, f->y_offset_cart);
-    buffer_write_u8(buf, f->enemy_image_type);
-    buffer_write_u8(buf, f->enemy_image_type_detailed);
+    buffer_write_u8(buf, f->enemy_image_group);
+    buffer_write_u8(buf, f->enemy_type);
     buffer_write_i16(buf, f->wait_ticks);
     buffer_write_u8(buf, f->wait_ticks_missile);
     buffer_write_u16(buf, f->name_id);
@@ -670,8 +543,8 @@ static void figure_load(buffer *buf, struct figure_t *f)
     f->cart_image_id = buffer_read_u16(buf);
     f->x_offset_cart = buffer_read_i8(buf);
     f->y_offset_cart = buffer_read_i8(buf);
-    f->enemy_image_type = buffer_read_u8(buf);
-    f->enemy_image_type_detailed = buffer_read_u8(buf);
+    f->enemy_image_group = buffer_read_u8(buf);
+    f->enemy_type = buffer_read_u8(buf);
     f->wait_ticks = buffer_read_i16(buf);
     f->wait_ticks_missile = buffer_read_u8(buf);
     f->name_id = buffer_read_u16(buf);

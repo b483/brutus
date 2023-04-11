@@ -95,8 +95,8 @@ struct figure_t {
     uint16_t cart_image_id;
     int8_t x_offset_cart;
     int8_t y_offset_cart;
-    uint8_t enemy_image_type;
-    uint8_t enemy_image_type_detailed;
+    uint8_t enemy_image_group;
+    uint8_t enemy_type;
     int16_t wait_ticks;
     uint8_t wait_ticks_missile;
     uint16_t name_id;

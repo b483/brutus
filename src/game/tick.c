@@ -273,25 +273,52 @@ void game_tick_run(void)
                 case FIGURE_CHARIOTEER:
                     figure_entertainer_action(f);
                     break;
+                case FIGURE_HIPPODROME_HORSES:
+                    figure_hippodrome_horse_action(f);
+                    break;
                 case FIGURE_TAX_COLLECTOR:
                     figure_tax_collector_action(f);
                     break;
                 case FIGURE_ENGINEER:
                     figure_engineer_action(f);
                     break;
+                case FIGURE_FISHING_BOAT:
+                    figure_fishing_boat_action(f);
+                    break;
+                case FIGURE_FISH_GULLS:
+                    figure_seagulls_action(f);
+                    break;
+                case FIGURE_SHIPWRECK:
+                    figure_shipwreck_action(f);
+                    break;
                 case FIGURE_DOCKER:
                     figure_docker_action(f);
                     break;
+                case FIGURE_FLOTSAM:
+                    figure_flotsam_action(f);
+                    break;
+                case FIGURE_BALLISTA:
+                    figure_ballista_action(f);
+                    break;
+                case FIGURE_BOLT:
+                    figure_bolt_action(f);
+                    break;
+                case FIGURE_TOWER_SENTRY:
+                    figure_tower_sentry_action(f);
+                    break;
+                case FIGURE_JAVELIN:
+                    figure_javelin_action(f);
+                    break;
                 case FIGURE_PREFECT:
                     figure_prefect_action(f);
+                    break;
+                case FIGURE_FORT_STANDARD:
+                    figure_military_standard_action(f);
                     break;
                 case FIGURE_FORT_JAVELIN:
                 case FIGURE_FORT_MOUNTED:
                 case FIGURE_FORT_LEGIONARY:
                     figure_soldier_action(f);
-                    break;
-                case FIGURE_TOWER_SENTRY:
-                    figure_tower_sentry_action(f);
                     break;
                 case FIGURE_MARKET_BUYER:
                     figure_market_buyer_action(f);
@@ -305,15 +332,6 @@ void game_tick_run(void)
                 case FIGURE_WAREHOUSEMAN:
                     figure_warehouseman_action(f);
                     break;
-                case FIGURE_TRADE_CARAVAN:
-                    figure_trade_caravan_action(f);
-                    break;
-                case FIGURE_TRADE_CARAVAN_DONKEY:
-                    figure_trade_caravan_donkey_action(f);
-                    break;
-                case FIGURE_TRADE_SHIP:
-                    figure_trade_ship_action(f);
-                    break;
                 case FIGURE_PROTESTER:
                     figure_protestor_action(f);
                     break;
@@ -323,94 +341,104 @@ void game_tick_run(void)
                 case FIGURE_RIOTER:
                     figure_rioter_action(f);
                     break;
+                case FIGURE_TRADE_CARAVAN:
+                    figure_trade_caravan_action(f);
+                    break;
+                case FIGURE_TRADE_CARAVAN_DONKEY:
+                    figure_trade_caravan_donkey_action(f);
+                    break;
+                case FIGURE_TRADE_SHIP:
+                    figure_trade_ship_action(f);
+                    break;
                 case FIGURE_INDIGENOUS_NATIVE:
                     figure_indigenous_native_action(f);
                     break;
                 case FIGURE_NATIVE_TRADER:
                     figure_native_trader_action(f);
                     break;
-                case FIGURE_ENEMY_RANGED_SPEAR_1:
-                    figure_enemy_ranged_spear_1_action(f);
+                case FIGURE_WOLF:
+                    figure_wolf_action(f);
                     break;
-                case FIGURE_ENEMY_SWORD_1:
-                    figure_enemy_sword_1_action(f);
+                case FIGURE_SHEEP:
+                    figure_sheep_action(f);
                     break;
-                case FIGURE_ENEMY_SWORD_2:
-                    figure_enemy_sword_2_action(f);
-                    break;
-                case FIGURE_ENEMY_CAMEL:
-                    figure_enemy_camel_action(f);
-                    break;
-                case FIGURE_ENEMY_ELEPHANT:
-                    figure_enemy_elephant_action(f);
-                    break;
-                case FIGURE_ENEMY_CHARIOT:
-                    figure_enemy_chariot_action(f);
-                    break;
-                case FIGURE_ENEMY_FAST_SWORD:
-                    figure_enemy_fast_sword_action(f);
-                    break;
-                case FIGURE_ENEMY_SWORD_3:
-                    figure_enemy_sword_3_action(f);
-                    break;
-                case FIGURE_ENEMY_RANGED_SPEAR_2:
-                    figure_enemy_ranged_spear_2_action(f);
-                    break;
-                case FIGURE_ENEMY_MOUNTED_ARCHER:
-                    figure_enemy_mounted_archer_action(f);
-                    break;
-                case FIGURE_ENEMY_AXE:
-                    figure_enemy_axe_action(f);
+                case FIGURE_ZEBRA:
+                    figure_zebra_action(f);
                     break;
                 case FIGURE_ENEMY_GLADIATOR:
                     figure_enemy_gladiator_action(f);
+                    break;
+                case FIGURE_ENEMY_BARBARIAN_SWORDSMAN:
+                case FIGURE_ENEMY_HUN_SWORDSMAN:
+                case FIGURE_ENEMY_GOTH_SWORDSMAN:
+                case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
+                case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
+                    figure_enemy_fast_swordsman_action(f);
+                    break;
+                case FIGURE_ENEMY_EGYPTIAN_SWORDSMAN:
+                case FIGURE_ENEMY_PERGAMUM_SWORDSMAN:
+                case FIGURE_ENEMY_IBERIAN_SWORDSMAN:
+                case FIGURE_ENEMY_JUDEAN_SWORDSMAN:
+                case FIGURE_ENEMY_SELEUCID_SWORDSMAN:
+                    figure_enemy_light_swordsman_action(f);
+                    break;
+                case FIGURE_ENEMY_BRITON_SWORDSMAN:
+                case FIGURE_ENEMY_CELT_SWORDSMAN:
+                case FIGURE_ENEMY_PICT_SWORDSMAN:
+                case FIGURE_ENEMY_GAUL_SWORDSMAN:
+                case FIGURE_ENEMY_HELVETIUS_SWORDSMAN:
+                    figure_enemy_medium_swordsman_action(f);
+                    break;
+                case FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN:
+                case FIGURE_ENEMY_ETRUSCAN_SWORDSMAN:
+                case FIGURE_ENEMY_SAMNITE_SWORDSMAN:
+                case FIGURE_ENEMY_GREEK_SWORDSMAN:
+                case FIGURE_ENEMY_MACEDONIAN_SWORDSMAN:
+                    figure_enemy_heavy_swordsman_action(f);
+                    break;
+                case FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT:
+                    figure_enemy_elephant_action(f);
+                    break;
+                case FIGURE_ENEMY_BRITON_CHARIOT:
+                case FIGURE_ENEMY_CELT_CHARIOT:
+                case FIGURE_ENEMY_PICT_CHARIOT:
+                    figure_enemy_chariot_action(f);
+                    break;
+                case FIGURE_ENEMY_EGYPTIAN_CAMEL:
+                    figure_enemy_camel_action(f);
+                    break;
+                case FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER:
+                    figure_enemy_light_ranged_spearman_action(f);
+                    break;
+                case FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER:
+                case FIGURE_ENEMY_SAMNITE_SPEAR_THROWER:
+                case FIGURE_ENEMY_GREEK_SPEAR_THROWER:
+                case FIGURE_ENEMY_MACEDONIAN_SPEAR_THROWER:
+                case FIGURE_ENEMY_PERGAMUM_ARCHER:
+                case FIGURE_ENEMY_IBERIAN_SPEAR_THROWER:
+                case FIGURE_ENEMY_JUDEAN_SPEAR_THROWER:
+                case FIGURE_ENEMY_SELEUCID_SPEAR_THROWER:
+                    figure_enemy_heavy_ranged_spearman_action(f);
+                    break;
+                case FIGURE_ENEMY_GAUL_AXEMAN:
+                case FIGURE_ENEMY_HELVETIUS_AXEMAN:
+                    figure_enemy_axeman_action(f);
+                    break;
+                case FIGURE_ENEMY_HUN_MOUNTED_ARCHER:
+                case FIGURE_ENEMY_GOTH_MOUNTED_ARCHER:
+                case FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER:
+                    figure_enemy_mounted_archer_action(f);
                     break;
                 case FIGURE_ENEMY_CAESAR_JAVELIN:
                 case FIGURE_ENEMY_CAESAR_MOUNTED:
                 case FIGURE_ENEMY_CAESAR_LEGIONARY:
                     figure_enemy_caesar_legionary_action(f);
                     break;
-                case FIGURE_SHEEP:
-                    figure_sheep_action(f);
-                    break;
-                case FIGURE_WOLF:
-                    figure_wolf_action(f);
-                    break;
-                case FIGURE_ZEBRA:
-                    figure_zebra_action(f);
-                    break;
-                case FIGURE_HIPPODROME_HORSES:
-                    figure_hippodrome_horse_action(f);
-                    break;
-                case FIGURE_FISHING_BOAT:
-                    figure_fishing_boat_action(f);
-                    break;
-                case FIGURE_SHIPWRECK:
-                    figure_shipwreck_action(f);
-                    break;
-                case FIGURE_FISH_GULLS:
-                    figure_seagulls_action(f);
-                    break;
                 case FIGURE_ARROW:
                     figure_arrow_action(f);
                     break;
-                case FIGURE_JAVELIN:
-                    figure_javelin_action(f);
-                    break;
-                case FIGURE_BOLT:
-                    figure_bolt_action(f);
-                    break;
-                case FIGURE_BALLISTA:
-                    figure_ballista_action(f);
-                    break;
-                case FIGURE_FORT_STANDARD:
-                    figure_military_standard_action(f);
-                    break;
                 case FIGURE_MAP_FLAG:
                     figure_editor_flag_action(f);
-                    break;
-                case FIGURE_FLOTSAM:
-                    figure_flotsam_action(f);
                     break;
                 case FIGURE_EXPLOSION:
                     figure_explosion_cloud_action(f);

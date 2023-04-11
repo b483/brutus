@@ -102,7 +102,6 @@ struct formation_t {
     int is_at_rest;
 
     /* Enemy-related */
-    int enemy_img_group;
     int enemy_legion_index;
     int attack_priority;
     int invasion_id;

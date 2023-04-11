@@ -73,18 +73,46 @@ static const int FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[] = {
 55, // FIGURE_WOLF
 54, // FIGURE_SHEEP
 56, // FIGURE_ZEBRA
-8, // FIGURE_ENEMY_RANGED_SPEAR_1
-8, // FIGURE_ENEMY_SWORD_1
-8, // FIGURE_ENEMY_SWORD_2
-28, // FIGURE_ENEMY_CAMEL
-30, // FIGURE_ENEMY_ELEPHANT
-23, // FIGURE_ENEMY_CHARIOT
-8, // FIGURE_ENEMY_FAST_SWORD
-8, // FIGURE_ENEMY_SWORD_3
-8, // FIGURE_ENEMY_RANGED_SPEAR_2
-34, // FIGURE_ENEMY_MOUNTED_ARCHER
-39, // FIGURE_ENEMY_AXE
 33, // FIGURE_ENEMY_GLADIATOR
+21, // FIGURE_ENEMY_BARBARIAN_SWORDSMAN
+22, // FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN
+30, // FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT
+24, // FIGURE_ENEMY_BRITON_SWORDSMAN
+23, // FIGURE_ENEMY_BRITON_CHARIOT
+24, // FIGURE_ENEMY_CELT_SWORDSMAN
+23, // FIGURE_ENEMY_CELT_CHARIOT
+24, // FIGURE_ENEMY_PICT_SWORDSMAN
+23, // FIGURE_ENEMY_PICT_CHARIOT
+29, // FIGURE_ENEMY_EGYPTIAN_SWORDSMAN
+28, // FIGURE_ENEMY_EGYPTIAN_CAMEL
+31, // FIGURE_ENEMY_ETRUSCAN_SWORDSMAN
+32, // FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER
+31, // FIGURE_ENEMY_SAMNITE_SWORDSMAN
+32, // FIGURE_ENEMY_SAMNITE_SPEAR_THROWER
+40, // FIGURE_ENEMY_GAUL_SWORDSMAN
+39, // FIGURE_ENEMY_GAUL_AXEMAN
+40, // FIGURE_ENEMY_HELVETIUS_SWORDSMAN
+39, // FIGURE_ENEMY_HELVETIUS_AXEMAN
+35, // FIGURE_ENEMY_HUN_SWORDSMAN
+34, // FIGURE_ENEMY_HUN_MOUNTED_ARCHER
+35, // FIGURE_ENEMY_GOTH_SWORDSMAN
+34, // FIGURE_ENEMY_GOTH_MOUNTED_ARCHER
+35, // FIGURE_ENEMY_VISIGOTH_SWORDSMAN
+34, // FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER
+37, // FIGURE_ENEMY_GREEK_SWORDSMAN
+36, // FIGURE_ENEMY_GREEK_SPEAR_THROWER
+37, // FIGURE_ENEMY_MACEDONIAN_SWORDSMAN
+36, // FIGURE_ENEMY_MACEDONIAN_SPEAR_THROWER
+20, // FIGURE_ENEMY_NUMIDIAN_SWORDSMAN
+20, // FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER
+45, // FIGURE_ENEMY_PERGAMUM_SWORDSMAN
+44, // FIGURE_ENEMY_PERGAMUM_ARCHER
+47, // FIGURE_ENEMY_IBERIAN_SWORDSMAN
+46, // FIGURE_ENEMY_IBERIAN_SPEAR_THROWER
+47, // FIGURE_ENEMY_JUDEAN_SWORDSMAN
+46, // FIGURE_ENEMY_JUDEAN_SPEAR_THROWER
+47, // FIGURE_ENEMY_SELEUCID_SWORDSMAN
+46, // FIGURE_ENEMY_SELEUCID_SPEAR_THROWER
 43, // FIGURE_ENEMY_CAESAR_JAVELIN
 27, // FIGURE_ENEMY_CAESAR_MOUNTED
 48, // FIGURE_ENEMY_CAESAR_LEGIONARY
@@ -129,36 +157,28 @@ static int inventory_to_resource_id(int value)
     }
 }
 
-static struct figure_t *get_head_of_caravan(struct figure_t *f)
+static void draw_trader(building_info_context *c, struct figure_t *f)
 {
     while (f->type == FIGURE_TRADE_CARAVAN_DONKEY) {
         f = &figures[f->leading_figure_id];
     }
-    return f;
-}
+    lang_text_draw(65, f->name_id, c->x_offset + 40, c->y_offset + 110, FONT_NORMAL_BROWN);
+    int width = text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 40, c->y_offset + 130, FONT_NORMAL_BROWN, COLOR_BLACK);
+    lang_text_draw(21, empire_objects[f->empire_city_id].city_name_id, c->x_offset + 40 + width, c->y_offset + 130, FONT_NORMAL_BROWN);
 
-static void draw_trader(building_info_context *c, struct figure_t *f)
-{
-    f = get_head_of_caravan(f);
-    int width = text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 40, c->y_offset + 110, FONT_NORMAL_BROWN, COLOR_BLACK);
-    lang_text_draw(21, empire_objects[f->empire_city_id].city_name_id, c->x_offset + 40 + width, c->y_offset + 110, FONT_NORMAL_BROWN);
-
-    width = lang_text_draw(129, 1, c->x_offset + 40, c->y_offset + 132, FONT_NORMAL_BROWN);
-    lang_text_draw_amount(8, 10, f->type == FIGURE_TRADE_SHIP ? 12 : 8,
-        c->x_offset + 40 + width, c->y_offset + 132, FONT_NORMAL_BROWN);
+    width = lang_text_draw(129, 1, c->x_offset + 40, c->y_offset + 150, FONT_NORMAL_BROWN);
+    lang_text_draw_amount(8, 10, f->type == FIGURE_TRADE_SHIP ? 12 : 8, c->x_offset + 40 + width, c->y_offset + 150, FONT_NORMAL_BROWN);
 
     int trader_id = f->trader_id;
+    int text_id;
     if (f->type == FIGURE_TRADE_SHIP) {
-        int text_id;
         switch (f->action_state) {
             case FIGURE_ACTION_TRADE_SHIP_ANCHORED: text_id = 6; break;
             case FIGURE_ACTION_TRADE_SHIP_MOORED: text_id = 7; break;
             case FIGURE_ACTION_TRADE_SHIP_LEAVING: text_id = 8; break;
             default: text_id = 9; break;
         }
-        lang_text_draw(129, text_id, c->x_offset + 40, c->y_offset + 154, FONT_NORMAL_BROWN);
     } else {
-        int text_id;
         switch (f->action_state) {
             case FIGURE_ACTION_TRADE_CARAVAN_ARRIVING:
                 text_id = 12;
@@ -177,28 +197,26 @@ static void draw_trader(building_info_context *c, struct figure_t *f)
                 text_id = 11;
                 break;
         }
-        lang_text_draw(129, text_id, c->x_offset + 40, c->y_offset + 154, FONT_NORMAL_BROWN);
     }
+    lang_text_draw(129, text_id, c->x_offset + 40, c->y_offset + 170, FONT_NORMAL_BROWN);
     if (trader_has_traded(trader_id)) {
         // bought
-        int y_base = c->y_offset + 180;
+        int y_base = c->y_offset + 192;
         width = lang_text_draw(129, 4, c->x_offset + 40, y_base, FONT_NORMAL_BROWN);
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
             if (trader_bought_resources(trader_id, r)) {
-                width += text_draw_number(trader_bought_resources(trader_id, r),
-                    '@', " ", c->x_offset + 40 + width, y_base, FONT_NORMAL_BROWN);
+                width += text_draw_number(trader_bought_resources(trader_id, r), ' ', "", c->x_offset + 40 + width, y_base, FONT_NORMAL_BROWN);
                 int image_id = image_group(GROUP_RESOURCE_ICONS) + r + resource_image_offset(r, RESOURCE_IMAGE_ICON);
                 image_draw(image_id, c->x_offset + 40 + width, y_base - 3);
                 width += 25;
             }
         }
         // sold
-        y_base = c->y_offset + 210;
+        y_base = c->y_offset + 213;
         width = lang_text_draw(129, 5, c->x_offset + 40, y_base, FONT_NORMAL_BROWN);
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
             if (trader_sold_resources(trader_id, r)) {
-                width += text_draw_number(trader_sold_resources(trader_id, r),
-                    '@', " ", c->x_offset + 40 + width, y_base, FONT_NORMAL_BROWN);
+                width += text_draw_number(trader_sold_resources(trader_id, r), ' ', "", c->x_offset + 40 + width, y_base, FONT_NORMAL_BROWN);
                 int image_id = image_group(GROUP_RESOURCE_ICONS) + r + resource_image_offset(r, RESOURCE_IMAGE_ICON);
                 image_draw(image_id, c->x_offset + 40 + width, y_base - 3);
                 width += 25;
@@ -206,7 +224,7 @@ static void draw_trader(building_info_context *c, struct figure_t *f)
         }
     } else { // nothing sold/bought (yet)
         // buying
-        int y_base = c->y_offset + 180;
+        int y_base = c->y_offset + 192;
         width = lang_text_draw(129, 2, c->x_offset + 40, y_base, FONT_NORMAL_BROWN);
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
             if (empire_objects[f->empire_city_id].resource_buy_limit[r]) {
@@ -216,7 +234,7 @@ static void draw_trader(building_info_context *c, struct figure_t *f)
             }
         }
         // selling
-        y_base = c->y_offset + 210;
+        y_base = c->y_offset + 213;
         width = lang_text_draw(129, 3, c->x_offset + 40, y_base, FONT_NORMAL_BROWN);
         for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
             if (empire_objects[f->empire_city_id].resource_sell_limit[r]) {
@@ -230,54 +248,11 @@ static void draw_trader(building_info_context *c, struct figure_t *f)
 
 static void draw_enemy(building_info_context *c, struct figure_t *f)
 {
-    int image_id = FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[f->type];
-    switch (f->type) {
-        case FIGURE_ENEMY_RANGED_SPEAR_1:
-            switch (formations[f->formation_id].enemy_img_group) {
-                case ENEMY_TYPE_PERGAMUM: image_id = 44; break;
-                case ENEMY_TYPE_PHOENICIAN: image_id = 46; break;
-                case ENEMY_TYPE_ETRUSCAN: image_id = 32; break;
-                case ENEMY_TYPE_GREEK: image_id = 36; break;
-            }
-            break;
-        case FIGURE_ENEMY_SWORD_1:
-            switch (formations[f->formation_id].enemy_img_group) {
-                case ENEMY_TYPE_PERGAMUM: image_id = 45; break;
-                case ENEMY_TYPE_PHOENICIAN: image_id = 47; break;
-                case ENEMY_TYPE_EGYPTIAN: image_id = 29; break;
-            }
-            break;
-        case FIGURE_ENEMY_SWORD_2:
-            switch (formations[f->formation_id].enemy_img_group) {
-                case ENEMY_TYPE_ETRUSCAN: image_id = 31; break;
-                case ENEMY_TYPE_GREEK: image_id = 37; break;
-                case ENEMY_TYPE_CARTHAGINIAN: image_id = 22; break;
-            }
-            break;
-        case FIGURE_ENEMY_FAST_SWORD:
-            switch (formations[f->formation_id].enemy_img_group) {
-                case ENEMY_TYPE_BARBARIAN: image_id = 21; break;
-                case ENEMY_TYPE_NUMIDIAN: image_id = 20; break;
-                case ENEMY_TYPE_GOTH: image_id = 35; break;
-            }
-            break;
-        case FIGURE_ENEMY_SWORD_3:
-            switch (formations[f->formation_id].enemy_img_group) {
-                case ENEMY_TYPE_GAUL: image_id = 40; break;
-                case ENEMY_TYPE_CELT: image_id = 24; break;
-            }
-            break;
-        case FIGURE_ENEMY_RANGED_SPEAR_2:
-            switch (formations[f->formation_id].enemy_img_group) {
-                case ENEMY_TYPE_NUMIDIAN: image_id = 20; break;
-            }
-            break;
-    }
-    image_draw(image_group(GROUP_BIG_PEOPLE) + image_id - 1, c->x_offset + 28, c->y_offset + 112);
+    image_draw(image_group(GROUP_BIG_PEOPLE) + FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[f->type] - 1, c->x_offset + 28, c->y_offset + 112);
 
     lang_text_draw(65, f->name_id, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
 
-    text_draw(get_custom_string(TR_ENEMY_TYPE_BARBARIAN + f->enemy_image_type_detailed), c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+    text_draw(get_custom_string(TR_ENEMY_TYPE_BARBARIAN + f->enemy_type), c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
 }
 
 static void draw_animal(building_info_context *c, struct figure_t *f)
@@ -394,7 +369,7 @@ static void draw_figure_info(building_info_context *c, int figure_id)
         draw_trader(c, f);
     } else if (f->is_enemy_unit) {
         draw_enemy(c, f);
-    } else if (f->type == FIGURE_FISHING_BOAT || f->type == FIGURE_SHIPWRECK || f->is_herd_animal) {
+    } else if (f->type == FIGURE_SHIPWRECK || f->is_herd_animal) {
         draw_animal(c, f);
     } else if (f->type == FIGURE_CART_PUSHER || f->type == FIGURE_WAREHOUSEMAN || f->type == FIGURE_DOCKER) {
         draw_cartpusher(c, f);

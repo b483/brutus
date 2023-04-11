@@ -49,7 +49,7 @@ static void perform_blessing(god_type god)
 
 static void cause_invasion_mars(int enemy_amount)
 {
-    int grid_offset = start_invasion(ENEMY_TYPE_BARBARIAN, ENEMY_TYPE_BARBARIAN, enemy_amount, MAX_INVASION_POINTS, FORMATION_ATTACK_FOOD_CHAIN, 23);
+    int grid_offset = start_invasion(ENEMY_TYPE_BARBARIAN, enemy_amount, MAX_INVASION_POINTS, FORMATION_ATTACK_FOOD_CHAIN, 23);
     if (grid_offset > 0) {
         city_message_post(1, MESSAGE_LOCAL_UPRISING_MARS, 0, grid_offset);
     }

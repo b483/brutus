@@ -352,7 +352,7 @@ int image_group(int group)
     return data.group_image_ids[group];
 }
 
-const image *image_get(int id)
+image *image_get(int id)
 {
     if (id >= 0 && id < MAIN_ENTRIES) {
         return &data.main[id];
@@ -374,10 +374,10 @@ const image *image_letter(int letter_id)
     }
 }
 
-const image *image_get_enemy(int id, int enemy_image_type)
+image *image_get_enemy(struct figure_t *f)
 {
-    if (id >= 0 && id < ENEMY_ENTRIES) {
-        return &data.enemy[enemy_image_type][id];
+    if (f->image_id < ENEMY_ENTRIES) {
+        return &data.enemy[f->enemy_image_group][f->image_id];
     } else {
         return NULL;
     }
@@ -411,11 +411,11 @@ const color_t *image_data_letter(int letter_id)
     }
 }
 
-const color_t *image_data_enemy(int id, int enemy_image_type)
+const color_t *image_data_enemy(struct figure_t *f)
 {
-    int offset = data.enemy[enemy_image_type][id].draw.offset;
+    int offset = data.enemy[f->enemy_image_group][f->image_id].draw.offset;
     if (offset > 0) {
-        return &data.enemy_data[enemy_image_type][offset];
+        return &data.enemy_data[f->enemy_image_group][offset];
     }
     return NULL;
 }

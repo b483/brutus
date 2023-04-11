@@ -366,7 +366,6 @@ void formations_save_state(buffer *buf)
         buffer_write_u8(buf, m->empire_service);
         buffer_write_u8(buf, m->in_distant_battle);
         buffer_write_u8(buf, m->is_herd);
-        buffer_write_u8(buf, m->enemy_img_group);
         buffer_write_u8(buf, m->direction);
         buffer_write_u8(buf, m->prev.x_home);
         buffer_write_u8(buf, m->prev.y_home);
@@ -424,7 +423,6 @@ void formations_load_state(buffer *buf)
         m->empire_service = buffer_read_u8(buf);
         m->in_distant_battle = buffer_read_u8(buf);
         m->is_herd = buffer_read_u8(buf);
-        m->enemy_img_group = buffer_read_u8(buf);
         m->direction = buffer_read_u8(buf);
         m->prev.x_home = buffer_read_u8(buf);
         m->prev.y_home = buffer_read_u8(buf);

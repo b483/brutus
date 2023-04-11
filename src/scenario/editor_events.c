@@ -52,45 +52,31 @@ static const int RANDOM_EVENT_PROBABILITY[128] = {
     0, 0, 3, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0
 };
 
-static const int ENEMY_ID_TO_ENEMY_TYPE[ENEMY_TYPE_MAX_COUNT] = {
-    ENEMY_TYPE_BARBARIAN,
-    ENEMY_TYPE_CARTHAGINIAN,
-    ENEMY_TYPE_CELT,
-    ENEMY_TYPE_CELT,
-    ENEMY_TYPE_CELT,
-    ENEMY_TYPE_EGYPTIAN,
-    ENEMY_TYPE_ETRUSCAN,
-    ENEMY_TYPE_ETRUSCAN,
-    ENEMY_TYPE_GAUL,
-    ENEMY_TYPE_GAUL,
-    ENEMY_TYPE_GOTH,
-    ENEMY_TYPE_GOTH,
-    ENEMY_TYPE_GOTH,
-    ENEMY_TYPE_GREEK,
-    ENEMY_TYPE_GREEK,
-    ENEMY_TYPE_NUMIDIAN,
-    ENEMY_TYPE_PERGAMUM,
-    ENEMY_TYPE_PHOENICIAN,
-    ENEMY_TYPE_PHOENICIAN,
-    ENEMY_TYPE_PHOENICIAN
-};
-
 static const struct {
     int pct_type[MAX_ENEMY_TYPES_PER_ARMY];
     int figure_types[MAX_ENEMY_TYPES_PER_ARMY];
     int formation_layout;
-} ENEMY_PROPERTIES[12] = {
-    {{100, 0, 0}, {FIGURE_ENEMY_FAST_SWORD, 0, 0}, FORMATION_ENEMY_MOB}, // barbarian
-    {{90, 10, 0}, {FIGURE_ENEMY_SWORD_2, FIGURE_ENEMY_ELEPHANT, 0}, FORMATION_ENEMY_WIDE_COLUMN}, // carthaginian
-    {{80, 20, 0}, {FIGURE_ENEMY_SWORD_3, FIGURE_ENEMY_CHARIOT, 0}, FORMATION_ENEMY_MOB}, // celt
-    {{80, 20, 0}, {FIGURE_ENEMY_SWORD_1, FIGURE_ENEMY_CAMEL, 0}, FORMATION_ENEMY_WIDE_COLUMN}, // egyptian
-    {{50, 50, 0}, {FIGURE_ENEMY_SWORD_2, FIGURE_ENEMY_RANGED_SPEAR_1, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // etruscan
-    {{50, 50, 0}, {FIGURE_ENEMY_SWORD_3, FIGURE_ENEMY_AXE, 0}, FORMATION_ENEMY_MOB}, // gaul
-    {{50, 50, 0}, {FIGURE_ENEMY_FAST_SWORD, FIGURE_ENEMY_MOUNTED_ARCHER, 0}, FORMATION_ENEMY_MOB}, // goth
-    {{80, 20, 0}, {FIGURE_ENEMY_SWORD_2, FIGURE_ENEMY_RANGED_SPEAR_1, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // greek
-    {{40, 60, 0}, {FIGURE_ENEMY_FAST_SWORD, FIGURE_ENEMY_RANGED_SPEAR_2, 0}, FORMATION_ENEMY_MOB}, // numidian
-    {{30, 70, 0}, {FIGURE_ENEMY_SWORD_1, FIGURE_ENEMY_RANGED_SPEAR_1, 0}, FORMATION_TORTOISE}, // pergamum
-    {{50, 50, 0}, {FIGURE_ENEMY_SWORD_1, FIGURE_ENEMY_RANGED_SPEAR_1, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // phoenician
+} ENEMY_PROPERTIES[] = {
+    {{100, 0, 0}, {FIGURE_ENEMY_BARBARIAN_SWORDSMAN, 0, 0}, FORMATION_ENEMY_MOB}, // barbarian
+    {{90, 10, 0}, {FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN, FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT, 0}, FORMATION_ENEMY_WIDE_COLUMN}, // carthaginian
+    {{80, 20, 0}, {FIGURE_ENEMY_BRITON_SWORDSMAN, FIGURE_ENEMY_BRITON_CHARIOT, 0}, FORMATION_ENEMY_MOB}, // briton
+    {{80, 20, 0}, {FIGURE_ENEMY_CELT_SWORDSMAN, FIGURE_ENEMY_CELT_CHARIOT, 0}, FORMATION_ENEMY_MOB}, // celt
+    {{80, 20, 0}, {FIGURE_ENEMY_PICT_SWORDSMAN, FIGURE_ENEMY_PICT_CHARIOT, 0}, FORMATION_ENEMY_MOB}, // pict
+    {{80, 20, 0}, {FIGURE_ENEMY_EGYPTIAN_SWORDSMAN, FIGURE_ENEMY_EGYPTIAN_CAMEL, 0}, FORMATION_ENEMY_WIDE_COLUMN}, // egyptian
+    {{50, 50, 0}, {FIGURE_ENEMY_ETRUSCAN_SWORDSMAN, FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // etruscan
+    {{50, 50, 0}, {FIGURE_ENEMY_SAMNITE_SWORDSMAN, FIGURE_ENEMY_SAMNITE_SPEAR_THROWER, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // samnite
+    {{50, 50, 0}, {FIGURE_ENEMY_GAUL_SWORDSMAN, FIGURE_ENEMY_GAUL_AXEMAN, 0}, FORMATION_ENEMY_MOB}, // gaul
+    {{50, 50, 0}, {FIGURE_ENEMY_HELVETIUS_SWORDSMAN, FIGURE_ENEMY_HELVETIUS_AXEMAN, 0}, FORMATION_ENEMY_MOB}, // helvetius
+    {{50, 50, 0}, {FIGURE_ENEMY_GOTH_SWORDSMAN, FIGURE_ENEMY_GOTH_MOUNTED_ARCHER, 0}, FORMATION_ENEMY_MOB}, // goth
+    {{50, 50, 0}, {FIGURE_ENEMY_VISIGOTH_SWORDSMAN, FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER, 0}, FORMATION_ENEMY_MOB}, // visigoth
+    {{50, 50, 0}, {FIGURE_ENEMY_HUN_SWORDSMAN, FIGURE_ENEMY_HUN_MOUNTED_ARCHER, 0}, FORMATION_ENEMY_MOB}, // hun
+    {{80, 20, 0}, {FIGURE_ENEMY_GREEK_SWORDSMAN, FIGURE_ENEMY_GREEK_SPEAR_THROWER, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // greek
+    {{80, 20, 0}, {FIGURE_ENEMY_MACEDONIAN_SWORDSMAN, FIGURE_ENEMY_MACEDONIAN_SPEAR_THROWER, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // macedonian
+    {{40, 60, 0}, {FIGURE_ENEMY_NUMIDIAN_SWORDSMAN, FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER, 0}, FORMATION_ENEMY_MOB}, // numidian
+    {{30, 70, 0}, {FIGURE_ENEMY_PERGAMUM_SWORDSMAN, FIGURE_ENEMY_PERGAMUM_ARCHER, 0}, FORMATION_TORTOISE}, // pergamum
+    {{50, 50, 0}, {FIGURE_ENEMY_IBERIAN_SWORDSMAN, FIGURE_ENEMY_IBERIAN_SPEAR_THROWER, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // iberian
+    {{50, 50, 0}, {FIGURE_ENEMY_JUDEAN_SWORDSMAN, FIGURE_ENEMY_JUDEAN_SPEAR_THROWER, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // judean
+    {{50, 50, 0}, {FIGURE_ENEMY_SELEUCID_SWORDSMAN, FIGURE_ENEMY_SELEUCID_SPEAR_THROWER, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // seleucid
     {{100, 0, 0}, {FIGURE_ENEMY_CAESAR_LEGIONARY, 0, 0}, FORMATION_TORTOISE} // caesar
 };
 
@@ -548,29 +534,483 @@ void scenario_custom_messages_process(void)
     }
 }
 
-static void create_enemy_squad(int figure_type, int enemy_type, int enemy_type_detailed, int x, int y, int figures_amount, int orientation, int spawn_delay_offset, int enemy_attack_priority, int invasion_id)
+static void create_enemy_squad(int figure_type, int enemy_type, int x, int y, int figures_amount, int orientation, int spawn_delay_offset, int enemy_attack_priority, int invasion_id)
 {
-    struct formation_t *m = formation_create_enemy(figure_type, figures_amount, x, y, ENEMY_PROPERTIES[enemy_type].formation_layout, orientation, enemy_type, enemy_attack_priority, invasion_id);
+    struct formation_t *m = create_formation_type(figure_type);
     if (m) {
+        if (ENEMY_PROPERTIES[enemy_type].formation_layout == FORMATION_ENEMY_DOUBLE_LINE) {
+            if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
+                m->layout = FORMATION_DOUBLE_LINE_1;
+            } else {
+                m->layout = FORMATION_DOUBLE_LINE_2;
+            }
+        } else {
+            m->layout = ENEMY_PROPERTIES[enemy_type].formation_layout;
+        }
+        m->orientation = orientation;
+        switch (enemy_type) {
+            case ENEMY_TYPE_BARBARIAN:
+            case ENEMY_TYPE_BRITON:
+            case ENEMY_TYPE_CELT:
+            case ENEMY_TYPE_PICT:
+            case ENEMY_TYPE_GAUL:
+            case ENEMY_TYPE_HELVETIUS:
+            case ENEMY_TYPE_HUN:
+            case ENEMY_TYPE_GOTH:
+            case ENEMY_TYPE_VISIGOTH:
+            case ENEMY_TYPE_NUMIDIAN:
+                m->max_morale = 80;
+                break;
+            case ENEMY_TYPE_CARTHAGINIAN:
+            case ENEMY_TYPE_GREEK:
+            case ENEMY_TYPE_MACEDONIAN:
+                m->max_morale = 90;
+                break;
+            case ENEMY_TYPE_CAESAR:
+                m->max_morale = 100;
+                break;
+            case ENEMY_TYPE_PERGAMUM:
+            case ENEMY_TYPE_IBERIAN:
+            case ENEMY_TYPE_JUDEAN:
+            case ENEMY_TYPE_SELEUCID:
+            case ENEMY_TYPE_EGYPTIAN:
+            case ENEMY_TYPE_ETRUSCAN:
+            case ENEMY_TYPE_SAMNITE:
+                m->max_morale = 70;
+                break;
+        }
+        m->morale = m->max_morale;
+        m->max_figures = figures_amount;
+        m->x = x;
+        m->y = y;
+        m->attack_priority = enemy_attack_priority;
+        m->invasion_id = invasion_id;
+
         for (int fig = 0; fig < figures_amount; fig++) {
             struct figure_t *f = figure_create(figure_type, x, y, orientation);
             f->action_state = FIGURE_ACTION_ENEMY_INITIAL;
             f->wait_ticks = 40 * spawn_delay_offset + 10 * fig + 10;
             f->formation_id = m->id;
-            f->name_id = figure_name_get(figure_type, enemy_type);
-            f->enemy_image_type = enemy_type;
-            if (f->type == FIGURE_ENEMY_RANGED_SPEAR_1 && f->enemy_image_type == ENEMY_TYPE_PERGAMUM) {
-                f->missile_type = FIGURE_ARROW;
-                f->max_range = 15;
+            switch (figure_type) {
+                case FIGURE_ENEMY_BARBARIAN_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 90;
+                    f->melee_attack_value = 7;
+                    f->melee_defense_value = 1;
+                    f->speed_multiplier = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_BARBARIAN;
+                    break;
+                case FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 120;
+                    f->melee_attack_value = 12;
+                    f->melee_defense_value = 2;
+                    f->missile_defense_value = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_CARTHAGINIAN;
+                    break;
+                case FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 200;
+                    f->melee_attack_value = 20;
+                    f->melee_defense_value = 5;
+                    f->missile_attack_value = 6;
+                    f->missile_defense_value = 8;
+                    f->missile_delay = 70;
+                    f->missile_type = FIGURE_ARROW;
+                    f->max_range = 15;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_CARTHAGINIAN;
+                    break;
+                case FIGURE_ENEMY_BRITON_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 110;
+                    f->melee_attack_value = 10;
+                    f->melee_defense_value = 1;
+                    f->missile_defense_value = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_CELT;
+                    break;
+                case FIGURE_ENEMY_BRITON_CHARIOT:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 120;
+                    f->melee_attack_value = 12;
+                    f->melee_defense_value = 4;
+                    f->missile_defense_value = 4;
+                    f->speed_multiplier = 3;
+                    f->mounted_charge_ticks = 8;
+                    f->mounted_charge_ticks_max = 8;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_CELT;
+                    break;
+                case FIGURE_ENEMY_CELT_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 110;
+                    f->melee_attack_value = 10;
+                    f->melee_defense_value = 1;
+                    f->missile_defense_value = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_CELT;
+                    break;
+                case FIGURE_ENEMY_CELT_CHARIOT:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 120;
+                    f->melee_attack_value = 12;
+                    f->melee_defense_value = 4;
+                    f->missile_defense_value = 4;
+                    f->speed_multiplier = 3;
+                    f->mounted_charge_ticks = 8;
+                    f->mounted_charge_ticks_max = 8;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_CELT;
+                    break;
+                case FIGURE_ENEMY_PICT_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 110;
+                    f->melee_attack_value = 10;
+                    f->melee_defense_value = 1;
+                    f->missile_defense_value = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_CELT;
+                    break;
+                case FIGURE_ENEMY_PICT_CHARIOT:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 120;
+                    f->melee_attack_value = 12;
+                    f->melee_defense_value = 4;
+                    f->missile_defense_value = 4;
+                    f->speed_multiplier = 3;
+                    f->mounted_charge_ticks = 8;
+                    f->mounted_charge_ticks_max = 8;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_CELT;
+                    break;
+                case FIGURE_ENEMY_EGYPTIAN_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 90;
+                    f->melee_attack_value = 7;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_EGYPTIAN;
+                    break;
+                case FIGURE_ENEMY_EGYPTIAN_CAMEL:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 120;
+                    f->melee_attack_value = 7;
+                    f->melee_defense_value = 1;
+                    f->missile_attack_value = 5;
+                    f->missile_delay = 70;
+                    f->missile_type = FIGURE_ARROW;
+                    f->max_range = 15;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_EGYPTIAN;
+                    break;
+                case FIGURE_ENEMY_ETRUSCAN_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 120;
+                    f->melee_attack_value = 12;
+                    f->melee_defense_value = 2;
+                    f->missile_defense_value = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_ETRUSCAN;
+                    break;
+                case FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 70;
+                    f->melee_attack_value = 5;
+                    f->missile_attack_value = 4;
+                    f->missile_delay = 70;
+                    f->missile_type = FIGURE_JAVELIN;
+                    f->max_range = 10;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_ETRUSCAN;
+                    break;
+                case FIGURE_ENEMY_SAMNITE_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 120;
+                    f->melee_attack_value = 12;
+                    f->melee_defense_value = 2;
+                    f->missile_defense_value = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_ETRUSCAN;
+                    break;
+                case FIGURE_ENEMY_SAMNITE_SPEAR_THROWER:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 70;
+                    f->melee_attack_value = 5;
+                    f->missile_attack_value = 4;
+                    f->missile_delay = 70;
+                    f->missile_type = FIGURE_JAVELIN;
+                    f->max_range = 10;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_ETRUSCAN;
+                    break;
+                case FIGURE_ENEMY_GAUL_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 110;
+                    f->melee_attack_value = 10;
+                    f->melee_defense_value = 1;
+                    f->missile_defense_value = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_GAUL;
+                    break;
+                case FIGURE_ENEMY_GAUL_AXEMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 120;
+                    f->melee_attack_value = 15;
+                    f->melee_defense_value = 2;
+                    f->missile_defense_value = 3;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_GAUL;
+                    break;
+                case FIGURE_ENEMY_HELVETIUS_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 110;
+                    f->melee_attack_value = 10;
+                    f->melee_defense_value = 1;
+                    f->missile_defense_value = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_GAUL;
+                    break;
+                case FIGURE_ENEMY_HELVETIUS_AXEMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 120;
+                    f->melee_attack_value = 15;
+                    f->melee_defense_value = 2;
+                    f->missile_defense_value = 3;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_GAUL;
+                    break;
+                case FIGURE_ENEMY_HUN_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 90;
+                    f->melee_attack_value = 7;
+                    f->melee_defense_value = 1;
+                    f->speed_multiplier = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_GOTH;
+                    break;
+                case FIGURE_ENEMY_HUN_MOUNTED_ARCHER:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 100;
+                    f->melee_attack_value = 6;
+                    f->melee_defense_value = 1;
+                    f->missile_attack_value = 4;
+                    f->missile_delay = 70;
+                    f->speed_multiplier = 3;
+                    f->missile_type = FIGURE_ARROW;
+                    f->max_range = 15;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_GOTH;
+                    break;
+                case FIGURE_ENEMY_GOTH_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 90;
+                    f->melee_attack_value = 7;
+                    f->melee_defense_value = 1;
+                    f->speed_multiplier = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_GOTH;
+                    break;
+                case FIGURE_ENEMY_GOTH_MOUNTED_ARCHER:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 100;
+                    f->melee_attack_value = 6;
+                    f->melee_defense_value = 1;
+                    f->missile_attack_value = 4;
+                    f->missile_delay = 70;
+                    f->speed_multiplier = 3;
+                    f->missile_type = FIGURE_ARROW;
+                    f->max_range = 15;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_GOTH;
+                    break;
+                case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 90;
+                    f->melee_attack_value = 7;
+                    f->melee_defense_value = 1;
+                    f->speed_multiplier = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_GOTH;
+                    break;
+                case FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 100;
+                    f->melee_attack_value = 6;
+                    f->melee_defense_value = 1;
+                    f->missile_attack_value = 4;
+                    f->missile_delay = 70;
+                    f->speed_multiplier = 3;
+                    f->missile_type = FIGURE_ARROW;
+                    f->max_range = 15;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_GOTH;
+                    break;
+                case FIGURE_ENEMY_GREEK_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 120;
+                    f->melee_attack_value = 12;
+                    f->melee_defense_value = 2;
+                    f->missile_defense_value = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_GREEK;
+                    break;
+                case FIGURE_ENEMY_GREEK_SPEAR_THROWER:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 70;
+                    f->melee_attack_value = 5;
+                    f->missile_attack_value = 4;
+                    f->missile_delay = 70;
+                    f->missile_type = FIGURE_JAVELIN;
+                    f->max_range = 10;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_GREEK;
+                    break;
+                case FIGURE_ENEMY_MACEDONIAN_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 120;
+                    f->melee_attack_value = 12;
+                    f->melee_defense_value = 2;
+                    f->missile_defense_value = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_GREEK;
+                    break;
+                case FIGURE_ENEMY_MACEDONIAN_SPEAR_THROWER:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 70;
+                    f->melee_attack_value = 5;
+                    f->missile_attack_value = 4;
+                    f->missile_delay = 70;
+                    f->missile_type = FIGURE_JAVELIN;
+                    f->max_range = 10;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_GREEK;
+                    break;
+                case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 90;
+                    f->melee_attack_value = 7;
+                    f->melee_defense_value = 1;
+                    f->speed_multiplier = 2;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_NORTH_AFRICAN;
+                    break;
+                case FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 70;
+                    f->melee_attack_value = 5;
+                    f->missile_attack_value = 3;
+                    f->missile_delay = 100;
+                    f->speed_multiplier = 2;
+                    f->missile_type = FIGURE_JAVELIN;
+                    f->max_range = 10;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_NORTH_AFRICAN;
+                    break;
+                case FIGURE_ENEMY_PERGAMUM_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 90;
+                    f->melee_attack_value = 7;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_PERSIAN;
+                    break;
+                case FIGURE_ENEMY_PERGAMUM_ARCHER:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 70;
+                    f->melee_attack_value = 5;
+                    f->missile_attack_value = 4;
+                    f->missile_delay = 70;
+                    f->missile_type = FIGURE_ARROW;
+                    f->max_range = 15;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_PERSIAN;
+                    break;
+                case FIGURE_ENEMY_IBERIAN_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 90;
+                    f->melee_attack_value = 7;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_PHOENICIAN;
+                    break;
+                case FIGURE_ENEMY_IBERIAN_SPEAR_THROWER:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 70;
+                    f->melee_attack_value = 5;
+                    f->missile_attack_value = 4;
+                    f->missile_delay = 70;
+                    f->missile_type = FIGURE_JAVELIN;
+                    f->max_range = 10;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_PHOENICIAN;
+                    break;
+                case FIGURE_ENEMY_JUDEAN_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 90;
+                    f->melee_attack_value = 7;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_PHOENICIAN;
+                    break;
+                case FIGURE_ENEMY_JUDEAN_SPEAR_THROWER:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 70;
+                    f->melee_attack_value = 5;
+                    f->missile_attack_value = 4;
+                    f->missile_delay = 70;
+                    f->missile_type = FIGURE_JAVELIN;
+                    f->max_range = 10;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_PHOENICIAN;
+                    break;
+                case FIGURE_ENEMY_SELEUCID_SWORDSMAN:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 90;
+                    f->melee_attack_value = 7;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_PHOENICIAN;
+                    break;
+                case FIGURE_ENEMY_SELEUCID_SPEAR_THROWER:
+                    f->is_targetable = 1;
+                    f->is_enemy_unit = 1;
+                    f->max_damage = 70;
+                    f->melee_attack_value = 5;
+                    f->missile_attack_value = 4;
+                    f->missile_delay = 70;
+                    f->missile_type = FIGURE_JAVELIN;
+                    f->max_range = 10;
+                    f->enemy_image_group = ENEMY_IMG_TYPE_PHOENICIAN;
+                    break;
+                case FIGURE_ENEMY_CAESAR_JAVELIN:
+                    f->is_targetable = 1;
+                    f->is_caesar_legion_unit = 1;
+                    f->max_damage = 90;
+                    f->melee_attack_value = 4;
+                    f->missile_attack_value = 4;
+                    f->missile_delay = 100;
+                    break;
+                case FIGURE_ENEMY_CAESAR_MOUNTED:
+                    f->is_targetable = 1;
+                    f->is_caesar_legion_unit = 1;
+                    f->max_damage = 100;
+                    f->melee_attack_value = 8;
+                    break;
+                case FIGURE_ENEMY_CAESAR_LEGIONARY:
+                    f->is_targetable = 1;
+                    f->is_caesar_legion_unit = 1;
+                    f->max_damage = 150;
+                    f->melee_attack_value = 10;
+                    f->melee_defense_value = 3;
+                    f->missile_defense_value = 6;
+                    break;
             }
-            f->enemy_image_type_detailed = enemy_type_detailed;
+            f->enemy_type = enemy_type;
             f->is_ghost = 1;
             add_figure_to_formation(f, m);
         }
     }
 }
 
-int start_invasion(int enemy_type, int enemy_type_detailed, int amount, int invasion_point, int enemy_attack_priority, int invasion_id)
+int start_invasion(int enemy_type, int amount, int invasion_point, int enemy_attack_priority, int invasion_id)
 {
     if (amount <= 0) {
         return -1;
@@ -652,11 +1092,11 @@ int start_invasion(int enemy_type, int enemy_type_detailed, int amount, int inva
         int figure_type = ENEMY_PROPERTIES[enemy_type].figure_types[i];
         while (enemy_count_per_type[i]) {
             if (enemy_count_per_type[i] >= MAX_FORMATION_FIGURES) {
-                create_enemy_squad(figure_type, enemy_type, enemy_type_detailed, x, y, MAX_FORMATION_FIGURES, orientation, spawn_delay_offset, enemy_attack_priority, invasion_id);
+                create_enemy_squad(figure_type, enemy_type, x, y, MAX_FORMATION_FIGURES, orientation, spawn_delay_offset, enemy_attack_priority, invasion_id);
                 enemy_count_per_type[i] -= MAX_FORMATION_FIGURES;
                 spawn_delay_offset++;
             } else {
-                create_enemy_squad(figure_type, enemy_type, enemy_type_detailed, x, y, enemy_count_per_type[i], orientation, spawn_delay_offset, enemy_attack_priority, invasion_id);
+                create_enemy_squad(figure_type, enemy_type, x, y, enemy_count_per_type[i], orientation, spawn_delay_offset, enemy_attack_priority, invasion_id);
                 enemy_count_per_type[i] = 0;
             }
         }
@@ -685,7 +1125,6 @@ void scenario_invasion_process(void)
             // enemy army
             if (scenario.invasions[i].type == INVASION_TYPE_ENEMY_ARMY) {
                 int grid_offset = start_invasion(
-                    ENEMY_ID_TO_ENEMY_TYPE[scenario.invasions[i].enemy_type],
                     scenario.invasions[i].enemy_type,
                     scenario.invasions[i].amount,
                     scenario.invasions[i].from,
@@ -703,7 +1142,6 @@ void scenario_invasion_process(void)
             if (scenario.invasions[i].type == INVASION_TYPE_CAESAR) {
                 int grid_offset = start_invasion(
                     ENEMY_TYPE_CAESAR,
-                    scenario.invasions[i].enemy_type,
                     scenario.invasions[i].amount,
                     scenario.invasions[i].from,
                     scenario.invasions[i].target_type,
@@ -717,7 +1155,6 @@ void scenario_invasion_process(void)
             // local uprisings
             if (scenario.invasions[i].type == INVASION_TYPE_LOCAL_UPRISING) {
                 int grid_offset = start_invasion(
-                    ENEMY_TYPE_BARBARIAN,
                     ENEMY_TYPE_BARBARIAN,
                     scenario.invasions[i].amount,
                     scenario.invasions[i].from,
@@ -734,7 +1171,7 @@ void scenario_invasion_process(void)
 
 int scenario_invasion_start_from_caesar(int size)
 {
-    int grid_offset = start_invasion(ENEMY_TYPE_CAESAR, ENEMY_TYPE_CAESAR, size, 0, FORMATION_ATTACK_BEST_BUILDINGS, 24);
+    int grid_offset = start_invasion(ENEMY_TYPE_CAESAR, size, 0, FORMATION_ATTACK_BEST_BUILDINGS, 24);
     if (grid_offset > 0) {
         city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, 0, grid_offset);
         return 1;
@@ -744,8 +1181,7 @@ int scenario_invasion_start_from_caesar(int size)
 
 void scenario_invasion_start_from_cheat(void)
 {
-    int enemy_id = rand() % ENEMY_TYPE_MAX_COUNT;
-    start_invasion(ENEMY_ID_TO_ENEMY_TYPE[enemy_id], enemy_id, 160, MAX_INVASION_POINTS, FORMATION_ATTACK_FOOD_CHAIN, 23);
+    start_invasion(rand() % (ENEMY_TYPE_MAX_COUNT + 1), 160, MAX_INVASION_POINTS, FORMATION_ATTACK_FOOD_CHAIN, 23);
 }
 
 void scenario_distant_battle_process(void)

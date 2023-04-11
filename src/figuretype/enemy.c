@@ -175,7 +175,7 @@ static int get_missile_direction(struct figure_t *f, const struct formation_t *m
     return figure_image_normalize_direction(dir);
 }
 
-void figure_enemy_ranged_spear_1_action(struct figure_t *f)
+void figure_enemy_heavy_ranged_spearman_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -183,15 +183,6 @@ void figure_enemy_ranged_spear_1_action(struct figure_t *f)
 
     int dir = get_missile_direction(f, &formations[f->formation_id]);
 
-    switch (formations[f->formation_id].enemy_img_group) {
-        case ENEMY_TYPE_PERGAMUM:
-        case ENEMY_TYPE_PHOENICIAN:
-        case ENEMY_TYPE_ETRUSCAN:
-        case ENEMY_TYPE_GREEK:
-            break;
-        default:
-            return;
-    }
     if (f->action_state == FIGURE_ACTION_ATTACK) {
         if (f->attack_image_offset >= 12) {
             f->image_id = 745 + dir + 8 * ((f->attack_image_offset - 12) / 2);
@@ -209,7 +200,7 @@ void figure_enemy_ranged_spear_1_action(struct figure_t *f)
     }
 }
 
-void figure_enemy_sword_1_action(struct figure_t *f)
+void figure_enemy_light_swordsman_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -217,14 +208,6 @@ void figure_enemy_sword_1_action(struct figure_t *f)
 
     int dir = get_direction(f);
 
-    switch (formations[f->formation_id].enemy_img_group) {
-        case ENEMY_TYPE_PERGAMUM:
-        case ENEMY_TYPE_PHOENICIAN:
-        case ENEMY_TYPE_EGYPTIAN:
-            break;
-        default:
-            return;
-    }
     if (f->action_state == FIGURE_ACTION_ATTACK) {
         if (f->attack_image_offset >= 12) {
             f->image_id = 545 + dir + 8 * ((f->attack_image_offset - 12) / 2);
@@ -240,7 +223,7 @@ void figure_enemy_sword_1_action(struct figure_t *f)
     }
 }
 
-void figure_enemy_sword_2_action(struct figure_t *f)
+void figure_enemy_heavy_swordsman_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -248,14 +231,6 @@ void figure_enemy_sword_2_action(struct figure_t *f)
 
     int dir = get_direction(f);
 
-    switch (formations[f->formation_id].enemy_img_group) {
-        case ENEMY_TYPE_ETRUSCAN:
-        case ENEMY_TYPE_GREEK:
-        case ENEMY_TYPE_CARTHAGINIAN:
-            break;
-        default:
-            return;
-    }
     if (f->action_state == FIGURE_ACTION_ATTACK) {
         if (f->attack_image_offset >= 12) {
             f->image_id = 545 + dir + 8 * ((f->attack_image_offset - 12) / 2);
@@ -326,7 +301,7 @@ void figure_enemy_chariot_action(struct figure_t *f)
     }
 }
 
-void figure_enemy_fast_sword_action(struct figure_t *f)
+void figure_enemy_fast_swordsman_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -335,15 +310,15 @@ void figure_enemy_fast_sword_action(struct figure_t *f)
     int dir = get_direction(f);
 
     int attack_id, corpse_id, normal_id;
-    if (formations[f->formation_id].enemy_img_group == ENEMY_TYPE_BARBARIAN) {
+    if (f->enemy_image_group == ENEMY_IMG_TYPE_BARBARIAN) {
         attack_id = 393;
         corpse_id = 441;
         normal_id = 297;
-    } else if (formations[f->formation_id].enemy_img_group == ENEMY_TYPE_NUMIDIAN) {
+    } else if (f->enemy_image_group == ENEMY_IMG_TYPE_NORTH_AFRICAN) {
         attack_id = 593;
         corpse_id = 641;
         normal_id = 449;
-    } else if (formations[f->formation_id].enemy_img_group == ENEMY_TYPE_GOTH) {
+    } else if (f->enemy_image_group == ENEMY_IMG_TYPE_GOTH) {
         attack_id = 545;
         corpse_id = 593;
         normal_id = 449;
@@ -365,7 +340,7 @@ void figure_enemy_fast_sword_action(struct figure_t *f)
     }
 }
 
-void figure_enemy_sword_3_action(struct figure_t *f)
+void figure_enemy_medium_swordsman_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -373,9 +348,6 @@ void figure_enemy_sword_3_action(struct figure_t *f)
 
     int dir = get_direction(f);
 
-    if (formations[f->formation_id].enemy_img_group != ENEMY_TYPE_GAUL && formations[f->formation_id].enemy_img_group != ENEMY_TYPE_CELT) {
-        return;
-    }
     if (f->action_state == FIGURE_ACTION_ATTACK) {
         if (f->attack_image_offset >= 12) {
             f->image_id = 545 + dir + 8 * ((f->attack_image_offset - 12) / 2);
@@ -391,7 +363,7 @@ void figure_enemy_sword_3_action(struct figure_t *f)
     }
 }
 
-void figure_enemy_ranged_spear_2_action(struct figure_t *f)
+void figure_enemy_light_ranged_spearman_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -399,9 +371,6 @@ void figure_enemy_ranged_spear_2_action(struct figure_t *f)
 
     int dir = get_missile_direction(f, &formations[f->formation_id]);
 
-    if (formations[f->formation_id].enemy_img_group != ENEMY_TYPE_NUMIDIAN) {
-        return;
-    }
     if (f->action_state == FIGURE_ACTION_ATTACK) {
         if (f->attack_image_offset >= 12) {
             f->image_id = 593 + dir + 8 * ((f->attack_image_offset - 12) / 2);
@@ -440,7 +409,7 @@ void figure_enemy_mounted_archer_action(struct figure_t *f)
     }
 }
 
-void figure_enemy_axe_action(struct figure_t *f)
+void figure_enemy_axeman_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
@@ -448,9 +417,6 @@ void figure_enemy_axe_action(struct figure_t *f)
 
     int dir = get_direction(f);
 
-    if (formations[f->formation_id].enemy_img_group != ENEMY_TYPE_GAUL) {
-        return;
-    }
     if (f->action_state == FIGURE_ACTION_ATTACK) {
         if (f->attack_image_offset >= 12) {
             f->image_id = 697 + dir + 8 * ((f->attack_image_offset - 12) / 2);

@@ -147,51 +147,6 @@ static const int LAYOUT_ORIENTATION_OFFSETS[13][4][40] = {
     }
 };
 
-struct formation_t *formation_create_enemy(int type, int max_num_figures, int x, int y, int layout, direction_type orientation, int enemy_type, int attack_priority, int invasion_id)
-{
-    struct formation_t *m = create_formation_type(type);
-    if (!m) {
-        return 0;
-    }
-    if (layout == FORMATION_ENEMY_DOUBLE_LINE) {
-        if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
-            m->layout = FORMATION_DOUBLE_LINE_1;
-        } else {
-            m->layout = FORMATION_DOUBLE_LINE_2;
-        }
-    } else {
-        m->layout = layout;
-    }
-    m->orientation = orientation;
-    switch (m->enemy_img_group) {
-        case ENEMY_TYPE_BARBARIAN:
-        case ENEMY_TYPE_NUMIDIAN:
-        case ENEMY_TYPE_GAUL:
-        case ENEMY_TYPE_CELT:
-        case ENEMY_TYPE_GOTH:
-            m->max_morale = 80;
-            break;
-        case ENEMY_TYPE_GREEK:
-        case ENEMY_TYPE_CARTHAGINIAN:
-            m->max_morale = 90;
-            break;
-        case ENEMY_TYPE_CAESAR:
-            m->max_morale = 100;
-            break;
-        default:
-            m->max_morale = 70;
-            break;
-    }
-    m->morale = m->max_morale;
-    m->max_figures = max_num_figures;
-    m->x = x;
-    m->y = y;
-    m->enemy_img_group = enemy_type;
-    m->attack_priority = attack_priority;
-    m->invasion_id = invasion_id;
-    return &formations[m->id];
-}
-
 int formation_rioter_get_target_building(int *x_tile, int *y_tile)
 {
     int best_type_index = 100;
