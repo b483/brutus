@@ -5,7 +5,6 @@
 #include "core/image.h"
 #include "map/aqueduct.h"
 #include "map/building_tiles.h"
-#include "map/data.h"
 #include "map/desirability.h"
 #include "map/building.h"
 #include "map/grid.h"

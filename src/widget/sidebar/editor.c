@@ -34,11 +34,11 @@ static image_button buttons_build[] = {
     {7, 123, 71, 23, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 48, button_attributes, button_none, 1, 0, 1, 0, 0, 0},
     {84, 123, 71, 23, IB_NORMAL, GROUP_SIDEBAR_ADVISORS_EMPIRE, 3, button_empire, button_none, 0, 0, 1, 0, 0, 0},
     {13, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 0, button_build_tool, button_none, TOOL_GRASS, 0, 1, 0, 0, 0},
-    {63, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 3, button_build_tool, button_none, TOOL_SHRUB, 0, 1, 0, 0, 0},
+    {63, 267, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 3, button_build_menu, button_none, MENU_SHRUB, 0, 1, 0, 0, 0},
     {113, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 6, button_build_tool, button_none, TOOL_WATER, 0, 1, 0, 0, 0},
     {13, 303, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 21, button_build_menu, button_none, MENU_ELEVATION, 0, 1, 0, 0, 0},
     {63, 303, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 12, button_build_tool, button_none, TOOL_TREES, 0, 1, 0, 0, 0},
-    {113, 303, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 15, button_build_tool, button_none, TOOL_ROCKS, 0, 1, 0, 0, 0},
+    {113, 303, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 15, button_build_menu, button_none, MENU_ROCK, 0, 1, 0, 0, 0},
     {13, 339, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 18, button_build_tool, button_none, TOOL_MEADOW, 0, 1, 0, 0, 0},
     {63, 339, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 30, button_build_tool, button_none, TOOL_ROAD, 0, 1, 0, 0, 0},
     {113, 339, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 24, button_build_menu, button_none, MENU_BRUSH_SIZE, 0, 1, 0, 0, 0},
@@ -62,18 +62,22 @@ static void draw_status(void)
     int text_offset = x_offset + 6;
 
     int selected_tool = editor_tool_type();
-    int brush_size = editor_tool_brush_size() - 1;
     text_draw(get_custom_string(selected_tool + TR_EDITOR_SIDEBAR_BUTTON_GRASS_TOOLTIP), text_offset, 178, FONT_NORMAL_WHITE, 0);
     switch (selected_tool) {
         case TOOL_GRASS:
-        case TOOL_SHRUB:
+        case TOOL_SMALL_SHRUB:
+        case TOOL_MEDIUM_SHRUB:
+        case TOOL_LARGE_SHRUB:
+        case TOOL_LARGEST_SHRUB:
         case TOOL_WATER:
         case TOOL_TREES:
-        case TOOL_ROCKS:
+        case TOOL_SMALL_ROCK:
+        case TOOL_MEDIUM_ROCK:
+        case TOOL_LARGE_ROCK:
         case TOOL_MEADOW:
         case TOOL_RAISE_LAND:
         case TOOL_LOWER_LAND:
-            lang_text_draw(48, brush_size, text_offset, 194, FONT_NORMAL_GREEN);
+            lang_text_draw(48, editor_tool_brush_size(), text_offset, 194, FONT_NORMAL_GREEN);
             break;
         default:
             break;

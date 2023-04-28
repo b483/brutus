@@ -1,6 +1,7 @@
 #include "tool.h"
 
 #include "building/construction_routed.h"
+#include "city/view.h"
 #include "core/image.h"
 #include "core/image_group_editor.h"
 #include "core/random.h"
@@ -11,8 +12,10 @@
 #include "map/building_tiles.h"
 #include "map/elevation.h"
 #include "map/grid.h"
+#include "map/image.h"
 #include "map/image_context.h"
 #include "map/property.h"
+#include "map/random.h"
 #include "map/routing.h"
 #include "map/routing_terrain.h"
 #include "map/tiles.h"
@@ -20,10 +23,10 @@
 #include "scenario/data.h"
 #include "scenario/editor_events.h"
 #include "city/warning.h"
+#include "widget/map_editor_tool.h"
 #include "widget/minimap.h"
 
-#define TERRAIN_PAINT_MASK ~(TERRAIN_SHRUB | TERRAIN_ROCK | TERRAIN_WATER | TERRAIN_BUILDING |\
-                            TERRAIN_TREE | TERRAIN_GARDEN | TERRAIN_ROAD | TERRAIN_MEADOW)
+#define TERRAIN_NOT_DISPLACEABLE TERRAIN_ROCK | TERRAIN_WATER | TERRAIN_BUILDING | TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP
 
 static struct {
     int active;
@@ -33,7 +36,7 @@ static struct {
     int build_in_progress;
     int start_elevation;
     map_tile start_tile;
-} data = { 0, TOOL_GRASS, 0, 3, 0, 0, {0} };
+} data = { 0, TOOL_GRASS, 0, 2, 0, 0, {0} };
 
 tool_type editor_tool_type(void)
 {
@@ -72,26 +75,6 @@ void editor_tool_set_brush_size(int size)
     data.brush_size = size;
 }
 
-void editor_tool_foreach_brush_tile(void (*callback)(const void *user_data, int dx, int dy), const void *user_data)
-{
-    if (data.type == TOOL_RAISE_LAND || data.type == TOOL_LOWER_LAND) {
-        for (int dy = -1; dy <= 1; dy++) {
-            for (int dx = -1; dx <= 1; dx++) {
-                callback(user_data, dx, dy);
-            }
-        }
-    } else {
-        for (int dy = -data.brush_size + 1; dy < data.brush_size; dy++) {
-            for (int dx = -data.brush_size + 1; dx < data.brush_size; dx++) {
-                int steps = (dx < 0 ? -dx : dx) + (dy < 0 ? -dy : dy);
-                if (steps < data.brush_size) {
-                    callback(user_data, dx, dy);
-                }
-            }
-        }
-    }
-}
-
 int editor_tool_is_updatable(void)
 {
     return data.type == TOOL_ROAD;
@@ -116,112 +99,157 @@ void editor_tool_start_use(const map_tile *tile)
     }
 }
 
-int editor_tool_is_brush(void)
+void draw_brush(int x, int y)
 {
-    switch (data.type) {
-        case TOOL_GRASS:
-        case TOOL_SHRUB:
-        case TOOL_WATER:
-        case TOOL_TREES:
-        case TOOL_ROCKS:
-        case TOOL_MEADOW:
-        case TOOL_RAISE_LAND:
-        case TOOL_LOWER_LAND:
-            return 1;
-        default:
-            return 0;
+    draw_flat_tile(x, y, COLOR_MASK_GREEN);
+    int tiles_remaining = data.brush_size;
+    while (tiles_remaining) {
+        for (int i = 1; i <= tiles_remaining; i++) {
+            draw_flat_tile(x + HALF_TILE_WIDTH_PIXELS * (i + (data.brush_size - tiles_remaining)), y - HALF_TILE_HEIGHT_PIXELS * (i - (data.brush_size - tiles_remaining)), COLOR_MASK_GREEN);
+            draw_flat_tile(x + HALF_TILE_WIDTH_PIXELS * (i - (data.brush_size - tiles_remaining)), y + HALF_TILE_HEIGHT_PIXELS * (i + (data.brush_size - tiles_remaining)), COLOR_MASK_GREEN);
+            draw_flat_tile(x - HALF_TILE_WIDTH_PIXELS * (i + (data.brush_size - tiles_remaining)), y + HALF_TILE_HEIGHT_PIXELS * (i - (data.brush_size - tiles_remaining)), COLOR_MASK_GREEN);
+            draw_flat_tile(x - HALF_TILE_WIDTH_PIXELS * (i - (data.brush_size - tiles_remaining)), y - HALF_TILE_HEIGHT_PIXELS * (i + (data.brush_size - tiles_remaining)), COLOR_MASK_GREEN);
+        }
+        tiles_remaining--;
     }
 }
 
-static int raise_land_tile(int grid_offset, int terrain)
+static void place_rock_at(int x, int y, int grid_offset, int size)
 {
-    int elevation = map_elevation_at(grid_offset);
-    if (elevation < 5 && elevation == data.start_elevation) {
-        if (!(terrain & (TERRAIN_ACCESS_RAMP | TERRAIN_ELEVATION))) {
-            map_property_set_multi_tile_size(grid_offset, 1);
-            map_elevation_set(grid_offset, elevation + 1);
-            terrain &= ~(TERRAIN_WATER | TERRAIN_BUILDING | TERRAIN_GARDEN | TERRAIN_ROAD);
+    int x_size_adjusted = size > 1 ? size - 1 : size; // use x - 1 for medium/large rocks; technically causes image overlap but looks better
+    // check if all needed tiles are clear and within the map grid
+    for (int dy = 0; dy < size; dy++) {
+        for (int dx = 0; dx < size; dx++) { // separate full x-size check to avoid protrusion beyond the map grid
+            if (!map_grid_is_inside(x + dx, y - dy, 1)) {
+                return;
+            }
+        }
+        for (int dx = 0; dx < x_size_adjusted; dx++) {
+            if (map_terrain_is(map_grid_offset(x + dx, y - dy), TERRAIN_NOT_DISPLACEABLE)) {
+                return;
+            }
         }
     }
-    return terrain;
+    // set terrain rock for all covered tiles
+    for (int dy = 0; dy < size; dy++) {
+        for (int dx = 0; dx < x_size_adjusted; dx++) {
+            map_terrain_set(map_grid_offset(x + dx, y - dy), TERRAIN_ROCK);
+        }
+    }
+    // set multitile rock image
+    int image_id;
+    if (size == 1) { // small rock
+        image_id = map_random_get(grid_offset) & 7;
+    } else if (size == 2) { // medium rock
+        image_id = 8 + (map_random_get(grid_offset) & 3);
+    } else { // large rock
+        image_id = 12 + (map_random_get(grid_offset) & 1);
+    }
+    if (map_terrain_exists_tile_in_radius_with_type(x, y, size, 4, TERRAIN_ELEVATION)) {
+        image_id += image_group(GROUP_TERRAIN_ELEVATION_ROCK);
+    } else {
+        image_id += image_group(GROUP_TERRAIN_ROCK);
+    }
+    map_image_set(grid_offset, image_id);
 }
 
-static int lower_land_tile(int grid_offset, int terrain)
+static void add_terrain_at(int x, int y)
 {
-    if (terrain & TERRAIN_ACCESS_RAMP) {
-        terrain |= TERRAIN_ELEVATION;
-        terrain &= ~(TERRAIN_ACCESS_RAMP);
-        map_property_set_multi_tile_size(grid_offset, 1);
-        map_property_set_multi_tile_xy(grid_offset, 0, 0, 1);
-    }
-    int elevation = map_elevation_at(grid_offset);
-    if (elevation <= 0) {
-        terrain &= ~(TERRAIN_ELEVATION);
-    } else if (elevation == data.start_elevation) {
-        map_elevation_set(grid_offset, elevation - 1);
-        terrain &= ~(TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP | TERRAIN_WATER | TERRAIN_ROAD);
-    }
-    return terrain;
-}
-
-static void add_terrain(const void *tile_data, int dx, int dy)
-{
-    const map_tile *tile = (const map_tile *) tile_data;
-    int x = tile->x + dx;
-    int y = tile->y + dy;
     if (!map_grid_is_inside(x, y, 1)) {
         return;
     }
-    int grid_offset = tile->grid_offset + map_grid_delta(dx, dy);
-    int terrain = map_terrain_get(grid_offset);
-    if (terrain & TERRAIN_BUILDING) {
-        map_building_tiles_remove(0, x, y);
-        terrain = map_terrain_get(grid_offset);
-    }
+    int grid_offset = map_grid_offset(x, y);
+    int shrub_rnd = map_random_get(grid_offset) & 7;
+    int elevation = map_elevation_at(grid_offset);
     switch (data.type) {
         case TOOL_GRASS:
-            terrain &= TERRAIN_PAINT_MASK;
-            break;
-        case TOOL_SHRUB:
-            if (!(terrain & TERRAIN_SHRUB)) {
-                terrain &= TERRAIN_PAINT_MASK;
-                terrain |= TERRAIN_SHRUB;
+            if (!map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP)) {
+                if (map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
+                    map_building_tiles_remove(0, x, y);
+                }
+                map_terrain_set(grid_offset, 0);
             }
             break;
-        case TOOL_ROCKS:
-            if (!(terrain & TERRAIN_ROCK)) {
-                terrain &= TERRAIN_PAINT_MASK;
-                terrain |= TERRAIN_ROCK;
+        case TOOL_SMALL_SHRUB:
+            if (!map_terrain_is(grid_offset, TERRAIN_NOT_DISPLACEABLE)) {
+                map_terrain_set(grid_offset, TERRAIN_SHRUB);
+                map_image_set(grid_offset, image_group(GROUP_TERRAIN_SHRUB) + shrub_rnd);
             }
+            break;
+        case TOOL_MEDIUM_SHRUB:
+            if (!map_terrain_is(grid_offset, TERRAIN_NOT_DISPLACEABLE)) {
+                map_terrain_set(grid_offset, TERRAIN_SHRUB);
+                map_image_set(grid_offset, image_group(GROUP_TERRAIN_SHRUB) + shrub_rnd + 8);
+            }
+            break;
+        case TOOL_LARGE_SHRUB:
+            if (!map_terrain_is(grid_offset, TERRAIN_NOT_DISPLACEABLE)) {
+                map_terrain_set(grid_offset, TERRAIN_SHRUB);
+                map_image_set(grid_offset, image_group(GROUP_TERRAIN_SHRUB) + shrub_rnd + 16);
+            }
+            break;
+        case TOOL_LARGEST_SHRUB:
+            if (!map_terrain_is(grid_offset, TERRAIN_NOT_DISPLACEABLE)) {
+                map_terrain_set(grid_offset, TERRAIN_SHRUB);
+                map_image_set(grid_offset, image_group(GROUP_TERRAIN_SHRUB) + shrub_rnd + 24);
+            }
+            break;
+        case TOOL_SMALL_ROCK:
+            place_rock_at(x, y, grid_offset, 1);
+            break;
+        case TOOL_MEDIUM_ROCK:
+            place_rock_at(x, y, grid_offset, 2);
+            break;
+        case TOOL_LARGE_ROCK:
+            place_rock_at(x, y, grid_offset, 3);
             break;
         case TOOL_WATER:
-            if (!(terrain & (TERRAIN_WATER | TERRAIN_ELEVATION))) {
-                terrain &= TERRAIN_PAINT_MASK;
-                terrain |= TERRAIN_WATER;
+            if (!map_terrain_is(grid_offset, TERRAIN_NOT_DISPLACEABLE)) {
+                map_terrain_set(grid_offset, TERRAIN_WATER);
             }
             break;
         case TOOL_TREES:
-            if (!(terrain & TERRAIN_TREE)) {
-                terrain &= TERRAIN_PAINT_MASK;
-                terrain |= TERRAIN_TREE;
+            if (!map_terrain_is(grid_offset, TERRAIN_NOT_DISPLACEABLE)) {
+                map_terrain_set(grid_offset, TERRAIN_TREE);
+                map_image_set(grid_offset, image_group(GROUP_TERRAIN_TREE) + (map_random_get(grid_offset) & 7));
             }
             break;
         case TOOL_MEADOW:
-            if (!(terrain & TERRAIN_MEADOW)) {
-                terrain &= TERRAIN_PAINT_MASK;
-                terrain |= TERRAIN_MEADOW;
+            if (!map_terrain_is(grid_offset, TERRAIN_NOT_DISPLACEABLE)) {
+                map_terrain_set(grid_offset, TERRAIN_MEADOW);
+                // dupl with set_meadow_image
+                int random = map_random_get(grid_offset) & 3;
+                int image_id = image_group(GROUP_TERRAIN_MEADOW);
+                if (map_terrain_all_tiles_in_radius_are(x, y, 1, 2, TERRAIN_MEADOW)) {
+                    map_image_set(grid_offset, image_id + random + 8);
+                } else if (map_terrain_all_tiles_in_radius_are(x, y, 1, 1, TERRAIN_MEADOW)) {
+                    map_image_set(grid_offset, image_id + random + 4);
+                } else {
+                    map_image_set(grid_offset, image_id + random);
+                }
             }
             break;
         case TOOL_RAISE_LAND:
-            terrain = raise_land_tile(grid_offset, terrain);
+            if (elevation < 5 && elevation == data.start_elevation) {
+                map_property_set_multi_tile_size(grid_offset, 1);
+                map_elevation_set(grid_offset, elevation + 1);
+                map_terrain_set(grid_offset, TERRAIN_ELEVATION);
+            }
             break;
         case TOOL_LOWER_LAND:
-            terrain = lower_land_tile(grid_offset, terrain);
+            if (elevation == data.start_elevation) {
+                if (elevation == 1) {
+                    map_elevation_set(grid_offset, 0);
+                    map_terrain_set(grid_offset, 0);
+                } else if (elevation) {
+                    map_elevation_set(grid_offset, elevation - 1);
+                    map_terrain_set(grid_offset, TERRAIN_ELEVATION);
+                }
+            }
             break;
         default:
             break;
     }
-    map_terrain_set(grid_offset, terrain);
 }
 
 void editor_tool_update_use(const map_tile *tile)
@@ -233,47 +261,47 @@ void editor_tool_update_use(const map_tile *tile)
         building_construction_place_road(1, data.start_tile.x, data.start_tile.y, tile->x, tile->y);
         return;
     }
-    if (!editor_tool_is_brush()) {
-        return;
+    switch (data.type) {
+        case TOOL_GRASS:
+        case TOOL_SMALL_SHRUB:
+        case TOOL_MEDIUM_SHRUB:
+        case TOOL_LARGE_SHRUB:
+        case TOOL_LARGEST_SHRUB:
+        case TOOL_WATER:
+        case TOOL_TREES:
+        case TOOL_SMALL_ROCK:
+        case TOOL_MEDIUM_ROCK:
+        case TOOL_LARGE_ROCK:
+        case TOOL_MEADOW:
+        case TOOL_RAISE_LAND:
+        case TOOL_LOWER_LAND:
+            break;
+        default:
+            return;
     }
 
-    editor_tool_foreach_brush_tile(add_terrain, tile);
+    add_terrain_at(tile->x, tile->y);
+    int tiles_remaining = data.brush_size;
+    while (tiles_remaining) {
+        for (int i = 1; i <= tiles_remaining; i++) {
+            add_terrain_at(tile->x + (data.brush_size - tiles_remaining), tile->y - i); // top to right
+            add_terrain_at(tile->x + i, tile->y + (data.brush_size - tiles_remaining)); // right to bottom
+            add_terrain_at(tile->x - (data.brush_size - tiles_remaining), tile->y + i); // bottom to left
+            add_terrain_at(tile->x - i, tile->y - (data.brush_size - tiles_remaining)); // left to top
+        }
+        tiles_remaining--;
+    }
 
     int x_min = tile->x - data.brush_size;
     int x_max = tile->x + data.brush_size;
     int y_min = tile->y - data.brush_size;
     int y_max = tile->y + data.brush_size;
+    map_image_context_reset_water();
+    map_tiles_update_region_water(x_min, y_min, x_max, y_max);
     switch (data.type) {
         case TOOL_GRASS:
-            map_image_context_reset_water();
             map_tiles_update_region_water(x_min, y_min, x_max, y_max);
-            map_tiles_update_all_rocks();
             map_tiles_update_region_empty_land(x_min, y_min, x_max, y_max);
-            map_tiles_update_region_meadow(x_min, y_min, x_max, y_max);
-            break;
-        case TOOL_SHRUB:
-            map_image_context_reset_water();
-            map_tiles_update_region_water(x_min, y_min, x_max, y_max);
-            map_tiles_update_all_rocks();
-            map_tiles_update_region_shrub(x_min, y_min, x_max, y_max);
-            break;
-        case TOOL_WATER:
-        case TOOL_ROCKS:
-            map_image_context_reset_water();
-            map_tiles_update_all_rocks();
-            map_tiles_update_region_water(x_min, y_min, x_max, y_max);
-            break;
-        case TOOL_TREES:
-            map_image_context_reset_water();
-            map_tiles_update_region_water(x_min, y_min, x_max, y_max);
-            map_tiles_update_all_rocks();
-            map_tiles_update_region_trees(x_min, y_min, x_max, y_max);
-            break;
-        case TOOL_MEADOW:
-            map_image_context_reset_water();
-            map_tiles_update_region_water(x_min, y_min, x_max, y_max);
-            map_tiles_update_all_rocks();
-            map_tiles_update_region_meadow(x_min, y_min, x_max, y_max);
             break;
         case TOOL_RAISE_LAND:
         case TOOL_LOWER_LAND:
@@ -281,11 +309,7 @@ void editor_tool_update_use(const map_tile *tile)
             map_image_context_reset_elevation();
             map_tiles_update_all_elevation();
             map_tiles_update_region_water(x_min, y_min, x_max, y_max);
-            map_tiles_update_region_shrub(x_min, y_min, x_max, y_max);
-            map_tiles_update_region_trees(x_min, y_min, x_max, y_max);
-            map_tiles_update_all_rocks();
             map_tiles_update_region_empty_land(x_min, y_min, x_max, y_max);
-            map_tiles_update_region_meadow(x_min, y_min, x_max, y_max);
             break;
         default:
             break;
@@ -341,9 +365,7 @@ static void update_terrain_after_elevation_changes(void)
     map_image_context_reset_water();
     map_image_context_reset_elevation();
     map_tiles_update_all_elevation();
-    map_tiles_update_all_rocks();
     map_tiles_update_all_empty_land();
-    map_tiles_update_all_meadow();
 
     scenario.is_saved = 0;
 }
@@ -449,7 +471,7 @@ void editor_tool_end_use(const map_tile *tile)
             break;
         case TOOL_ROAD:
             building_construction_place_road(0, data.start_tile.x, data.start_tile.y, tile->x, tile->y);
-                break;
+            break;
         default:
             break;
     }

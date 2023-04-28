@@ -3,7 +3,6 @@
 #include "building/building.h"
 #include "building/model.h"
 #include "core/calc.h"
-#include "map/data.h"
 #include "map/grid.h"
 #include "map/property.h"
 #include "map/ring.h"

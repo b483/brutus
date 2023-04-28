@@ -25,6 +25,13 @@ typedef struct {
     int16_t items[GRID_SIZE * GRID_SIZE];
 } grid_i16;
 
+extern struct map_data_t {
+    int width;
+    int height;
+    int start_offset;
+    int border_size;
+} map_data;
+
 void map_grid_init(int width, int height, int start_offset, int border_size);
 
 int map_grid_is_valid_offset(int grid_offset);

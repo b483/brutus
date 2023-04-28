@@ -1,7 +1,5 @@
 #include "grid.h"
 
-#include "map/data.h"
-
 #include <string.h>
 
 #define OFFSET(x,y) (x + GRID_SIZE * y)

@@ -1,6 +1,5 @@
 #include "ring.h"
 
-#include "map/data.h"
 #include "map/grid.h"
 
 static struct {

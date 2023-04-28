@@ -49,8 +49,7 @@ void map_building_tiles_add(int building_id, int x, int y, int size, int image_i
             map_property_clear_constructing(grid_offset);
             map_property_set_multi_tile_size(grid_offset, size);
             map_image_set(grid_offset, image_id);
-            map_property_set_multi_tile_xy(grid_offset, dx, dy,
-                dx == x_leftmost && dy == y_leftmost);
+            map_property_set_multi_tile_xy(grid_offset, dx, dy, dx == x_leftmost && dy == y_leftmost);
         }
     }
 }

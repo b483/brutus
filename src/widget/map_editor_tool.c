@@ -14,14 +14,7 @@
 static const int X_VIEW_OFFSETS[MAX_TILES] = { 0, -30, 30, 0 };
 static const int Y_VIEW_OFFSETS[MAX_TILES] = { 0, 15, 15, 30 };
 
-static void offset_to_view_offset(int dx, int dy, int *view_dx, int *view_dy)
-{
-    // we're assuming map is always oriented north
-    *view_dx = (dx - dy) * 30;
-    *view_dy = (dx + dy) * 15;
-}
-
-static void draw_flat_tile(int x, int y, color_t color_mask)
+void draw_flat_tile(int x, int y, color_t color_mask)
 {
     if (color_mask == COLOR_MASK_GREEN && scenario.climate != CLIMATE_DESERT) {
         image_draw_blend_alpha(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, ALPHA_MASK_SEMI_TRANSPARENT | color_mask);
@@ -100,20 +93,6 @@ static void draw_road(const map_tile *tile, int x, int y)
     }
 }
 
-static void draw_brush_tile(const void *data, int dx, int dy)
-{
-    view_tile *view = (view_tile *) data;
-    int view_dx, view_dy;
-    offset_to_view_offset(dx, dy, &view_dx, &view_dy);
-    draw_flat_tile(view->x + view_dx, view->y + view_dy, COLOR_MASK_GREEN);
-}
-
-static void draw_brush(int x, int y)
-{
-    view_tile vt = { x, y };
-    editor_tool_foreach_brush_tile(draw_brush_tile, &vt);
-}
-
 static void draw_access_ramp(const map_tile *tile, int x, int y)
 {
     int orientation;
@@ -169,13 +148,18 @@ void map_editor_tool_draw(const map_tile *tile)
             break;
 
         case TOOL_GRASS:
-        case TOOL_MEADOW:
-        case TOOL_ROCKS:
-        case TOOL_SHRUB:
+        case TOOL_SMALL_SHRUB:
+        case TOOL_MEDIUM_SHRUB:
+        case TOOL_LARGE_SHRUB:
+        case TOOL_LARGEST_SHRUB:
         case TOOL_TREES:
         case TOOL_WATER:
         case TOOL_RAISE_LAND:
         case TOOL_LOWER_LAND:
+        case TOOL_SMALL_ROCK:
+        case TOOL_MEDIUM_ROCK:
+        case TOOL_LARGE_ROCK:
+        case TOOL_MEADOW:
             draw_brush(x, y);
             break;
 

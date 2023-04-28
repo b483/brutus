@@ -41,8 +41,10 @@ static generic_button build_menu_buttons[] = {
 };
 
 #define MAX_ITEMS_PER_MENU 17
-static const int MENU_TYPES[MENU_NUM_ITEMS][MAX_ITEMS_PER_MENU] = {
+static const int MENU_TYPES[][MAX_ITEMS_PER_MENU] = {
+    {TR_EDITOR_TOOL_SUBMENU_SMALL_SHRUB, TR_EDITOR_TOOL_SUBMENU_MEDIUM_SHRUB, TR_EDITOR_TOOL_SUBMENU_LARGE_SHRUB, TR_EDITOR_TOOL_SUBMENU_LARGEST_SHRUB, -1},
     {TR_EDITOR_TOOL_SUBMENU_RAISE_LAND, TR_EDITOR_TOOL_SUBMENU_LOWER_LAND, TR_EDITOR_TOOL_SUBMENU_ACCESS_RAMP, -1},
+    {TR_EDITOR_TOOL_SUBMENU_SMALL_ROCK, TR_EDITOR_TOOL_SUBMENU_MEDIUM_ROCK, TR_EDITOR_TOOL_SUBMENU_LARGE_ROCK, -1},
     {TR_EDITOR_TOOL_SUBMENU_TINY_BRUSH, TR_EDITOR_TOOL_SUBMENU_SMALL_BRUSH,
     TR_EDITOR_TOOL_SUBMENU_MEDIUM_BRUSH, TR_EDITOR_TOOL_SUBMENU_BIG_BRUSH, TR_EDITOR_TOOL_SUBMENU_BIGGEST_BRUSH, -1},
     {TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_1, TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_2, TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_3,
@@ -137,8 +139,13 @@ static void button_menu_item(int index, __attribute__((unused)) int param2)
     widget_map_editor_clear_current_tile();
 
     switch (data.selected_submenu) {
-        case MENU_BRUSH_SIZE:
-            editor_tool_set_brush_size(index + 1);
+        case MENU_SHRUB:
+            switch (index) {
+                case 0: editor_tool_set_with_id(TOOL_SMALL_SHRUB, 0); break;
+                case 1: editor_tool_set_with_id(TOOL_MEDIUM_SHRUB, 0); break;
+                case 2: editor_tool_set_with_id(TOOL_LARGE_SHRUB, 0); break;
+                case 3: editor_tool_set_with_id(TOOL_LARGEST_SHRUB, 0); break;
+            }
             break;
         case MENU_ELEVATION:
             switch (index) {
@@ -146,6 +153,16 @@ static void button_menu_item(int index, __attribute__((unused)) int param2)
                 case 1: editor_tool_set_with_id(TOOL_LOWER_LAND, 0); break;
                 case 2: editor_tool_set_with_id(TOOL_ACCESS_RAMP, 0); break;
             }
+            break;
+        case MENU_ROCK:
+            switch (index) {
+                case 0: editor_tool_set_with_id(TOOL_SMALL_ROCK, 0); break;
+                case 1: editor_tool_set_with_id(TOOL_MEDIUM_ROCK, 0); break;
+                case 2: editor_tool_set_with_id(TOOL_LARGE_ROCK, 0); break;
+            }
+            break;
+        case MENU_BRUSH_SIZE:
+            editor_tool_set_brush_size(index);
             break;
         case MENU_EARTHQUAKE_POINTS:
             editor_tool_set_with_id(TOOL_EARTHQUAKE_POINT, index);

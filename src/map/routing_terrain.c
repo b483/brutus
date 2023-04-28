@@ -5,7 +5,6 @@
 #include "core/image.h"
 #include "game/orientation.h"
 #include "map/building.h"
-#include "map/data.h"
 #include "map/image.h"
 #include "map/property.h"
 #include "map/random.h"

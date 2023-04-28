@@ -7,7 +7,6 @@
 #include "game/undo.h"
 #include "map/bridge.h"
 #include "map/building_tiles.h"
-#include "map/data.h"
 #include "map/grid.h"
 #include "map/property.h"
 #include "map/routing_terrain.h"
@@ -45,13 +44,11 @@ void map_orientation_change(int counter_clockwise)
     map_tiles_update_all_elevation();
     map_tiles_update_all_water();
     map_tiles_update_all_earthquake();
-    map_tiles_update_all_rocks();
     map_tiles_update_all_gardens();
 
     map_tiles_add_entry_exit_flags();
 
     map_tiles_update_all_empty_land();
-    map_tiles_update_all_meadow();
     map_tiles_update_all_rubble();
     map_tiles_update_all_roads();
     map_tiles_update_all_plazas();

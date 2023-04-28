@@ -1,6 +1,5 @@
 #include "elevation.h"
 
-#include "map/data.h"
 #include "map/grid.h"
 
 static grid_u8 elevation;

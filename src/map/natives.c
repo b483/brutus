@@ -10,7 +10,6 @@
 #include "core/image_group_editor.h"
 #include "map/building.h"
 #include "map/building_tiles.h"
-#include "map/data.h"
 #include "map/grid.h"
 #include "map/image.h"
 #include "map/property.h"

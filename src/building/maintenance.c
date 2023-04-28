@@ -303,7 +303,6 @@ void building_maintenance_check_rome_access(void)
             map_tiles_update_all_walls();
             map_tiles_update_all_aqueducts(0);
             map_tiles_update_all_empty_land();
-            map_tiles_update_all_meadow();
 
             map_routing_update_land();
             map_routing_update_walls();

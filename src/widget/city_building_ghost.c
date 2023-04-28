@@ -127,25 +127,13 @@ static void draw_building(int image_id, int x, int y)
 static void draw_water_range_preview(int x, int y, int radius)
 {
     int image_id = image_group(GROUP_TERRAIN_FLAT_TILE);
-    int extra_tiles = 1;
-    for (int i = 0; i < radius; i++) {
-        int top_corner_y = y - TILE_HEIGHT_PIXELS * (i + 1);
-        int right_corner_x = x + TILE_WIDTH_PIXELS * (i + 1);
-        int bottom_corner_y = y + TILE_HEIGHT_PIXELS * (i + 1);
-        int left_corner_x = x - TILE_WIDTH_PIXELS * (i + 1);
-        // corners
-        image_draw_blend_alpha(image_id, x, top_corner_y, COLOR_MASK_BLUE);
-        image_draw_blend_alpha(image_id, right_corner_x, y, COLOR_MASK_BLUE);
-        image_draw_blend_alpha(image_id, x, bottom_corner_y, COLOR_MASK_BLUE);
-        image_draw_blend_alpha(image_id, left_corner_x, y, COLOR_MASK_BLUE);
-        // rest of tiles offset from corners (clockwise from top corner)
-        for (int j = 0; j < extra_tiles; j++) {
-            image_draw_blend_alpha(image_id, x + HALF_TILE_WIDTH_PIXELS * (j + 1), top_corner_y + HALF_TILE_HEIGHT_PIXELS * (j + 1), COLOR_MASK_BLUE);
-            image_draw_blend_alpha(image_id, right_corner_x - HALF_TILE_WIDTH_PIXELS * (j + 1), y + HALF_TILE_HEIGHT_PIXELS * (j + 1), COLOR_MASK_BLUE);
-            image_draw_blend_alpha(image_id, x - HALF_TILE_WIDTH_PIXELS * (j + 1), bottom_corner_y - HALF_TILE_HEIGHT_PIXELS * (j + 1), COLOR_MASK_BLUE);
-            image_draw_blend_alpha(image_id, left_corner_x + HALF_TILE_WIDTH_PIXELS * (j + 1), y - HALF_TILE_HEIGHT_PIXELS * (j + 1), COLOR_MASK_BLUE);
+    for (int i = 1; i <= radius; i++) {
+        for (int j = 0; j <= radius; j++) {
+            image_draw_blend_alpha(image_id, x + HALF_TILE_WIDTH_PIXELS * (i + j), y - HALF_TILE_HEIGHT_PIXELS * (i - j), COLOR_MASK_BLUE);
+            image_draw_blend_alpha(image_id, x + HALF_TILE_WIDTH_PIXELS * (i - j), y + HALF_TILE_HEIGHT_PIXELS * (i + j), COLOR_MASK_BLUE);
+            image_draw_blend_alpha(image_id, x - HALF_TILE_WIDTH_PIXELS * (i + j), y + HALF_TILE_HEIGHT_PIXELS * (i - j), COLOR_MASK_BLUE);
+            image_draw_blend_alpha(image_id, x - HALF_TILE_WIDTH_PIXELS * (i - j), y - HALF_TILE_HEIGHT_PIXELS * (i + j), COLOR_MASK_BLUE);
         }
-        extra_tiles += 2;
     }
 }
 

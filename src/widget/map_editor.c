@@ -175,7 +175,6 @@ void widget_map_editor_handle_input(const mouse *m, const hotkeys *h)
             if (!editor_tool_is_in_use()) {
                 editor_tool_start_use(tile);
             }
-            editor_tool_update_use(tile);
         } else if (m->left.is_down || editor_tool_is_in_use()) {
             editor_tool_update_use(tile);
         }
