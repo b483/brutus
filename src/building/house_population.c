@@ -2,7 +2,6 @@
 
 #include "building/building.h"
 #include "building/list.h"
-#include "building/model.h"
 #include "city/data_private.h"
 #include "city/labor.h"
 #include "city/message.h"
@@ -23,7 +22,7 @@ int house_population_add_to_city(int num_people)
         if (b->state == BUILDING_STATE_IN_USE && b->house_size
             && b->distance_from_entry > 0 && b->house_population > 0) {
             city_data.population.last_used_house_add = building_id;
-            int max_people = model_get_house(b->subtype.house_level)->max_people;
+            int max_people = house_properties[b->subtype.house_level].max_people;
             if (b->house_is_merged) {
                 max_people *= 4;
             }
@@ -80,7 +79,7 @@ void house_population_update_room(void)
         building *b = building_get(houses[i]);
         b->house_population_room = 0;
         if (b->distance_from_entry > 0) {
-            int max_pop = model_get_house(b->subtype.house_level)->max_people;
+            int max_pop = house_properties[b->subtype.house_level].max_people;
             if (b->house_is_merged) {
                 max_pop *= 4;
             }

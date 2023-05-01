@@ -1,7 +1,6 @@
 #include "construction_routed.h"
 
 #include "core/calc.h"
-#include "building/model.h"
 #include "game/undo.h"
 #include "map/building.h"
 #include "map/building_tiles.h"
@@ -133,7 +132,6 @@ int building_construction_place_aqueduct(int x_start, int y_start, int x_end, in
 {
     game_undo_restore_map(0);
 
-    int item_cost = model_get_building(BUILDING_AQUEDUCT)->cost;
     *cost = 0;
     int blocked = 0;
     int grid_offset = map_grid_offset(x_start, y_start);
@@ -160,7 +158,7 @@ int building_construction_place_aqueduct(int x_start, int y_start, int x_end, in
     }
     int num_items;
     place_routed_building(x_start, y_start, x_end, y_end, ROUTED_BUILDING_AQUEDUCT, &num_items);
-    *cost = item_cost * num_items;
+    *cost = building_properties[BUILDING_AQUEDUCT].cost * num_items;
     return 1;
 }
 

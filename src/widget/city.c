@@ -1,7 +1,6 @@
 #include "city.h"
 
 #include "building/construction.h"
-#include "building/properties.h"
 #include "city/finance.h"
 #include "city/view.h"
 #include "city/warning.h"

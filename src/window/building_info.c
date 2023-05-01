@@ -2,7 +2,6 @@
 
 #include "building/barracks.h"
 #include "building/house_evolution.h"
-#include "building/model.h"
 #include "building/warehouse.h"
 #include "city/data_private.h"
 #include "city/map.h"
@@ -219,7 +218,7 @@ static void init(int grid_offset)
     } else {
         building *b = building_get(context.building_id);
         context.type = BUILDING_INFO_BUILDING;
-        context.worker_percentage = calc_percentage(b->num_workers, model_get_building(b->type)->laborers);
+        context.worker_percentage = calc_percentage(b->num_workers, building_properties[b->type].laborers);
         switch (b->type) {
             case BUILDING_FORT_GROUND:
                 context.building_id = b->prev_part_building_id;

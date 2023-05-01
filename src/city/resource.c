@@ -2,7 +2,6 @@
 
 #include "building/building.h"
 #include "building/industry.h"
-#include "building/model.h"
 #include "city/data_private.h"
 #include "core/calc.h"
 #include "empire/object.h"
@@ -210,7 +209,7 @@ static void calculate_available_food(void)
         if (map_has_road_access_granary(b->x, b->y, 0)) {
             b->has_road_access = 1;
             int pct_workers = calc_percentage(
-                b->num_workers, model_get_building(b->type)->laborers);
+                b->num_workers, building_properties[b->type].laborers);
             if (pct_workers < 100) {
                 city_data.resource.granaries.understaffed++;
             }
@@ -298,10 +297,9 @@ void city_resource_consume_food(void)
     for (int i = 1; i < MAX_BUILDINGS; i++) {
         building *b = building_get(i);
         if (b->state == BUILDING_STATE_IN_USE && b->house_size) {
-            int num_types = model_get_house(b->subtype.house_level)->food_types;
             int amount_per_type = calc_adjust_with_percentage(b->house_population, 50);
-            if (num_types > 1) {
-                amount_per_type /= num_types;
+            if (house_properties[b->subtype.house_level].food_types > 1) {
+                amount_per_type /= house_properties[b->subtype.house_level].food_types;
             }
             b->data.house.num_foods = 0;
             if (scenario.rome_supplies_wheat) {
@@ -309,8 +307,8 @@ void city_resource_consume_food(void)
                 city_data.resource.food_types_available = 1;
                 b->data.house.inventory[INVENTORY_WHEAT] = amount_per_type;
                 b->data.house.num_foods = 1;
-            } else if (num_types > 0) {
-                for (int t = INVENTORY_MIN_FOOD; t < INVENTORY_MAX_FOOD && b->data.house.num_foods < num_types; t++) {
+            } else if (house_properties[b->subtype.house_level].food_types > 0) {
+                for (int t = INVENTORY_MIN_FOOD; t < INVENTORY_MAX_FOOD && b->data.house.num_foods < house_properties[b->subtype.house_level].food_types; t++) {
                     if (b->data.house.inventory[t] >= amount_per_type) {
                         b->data.house.inventory[t] -= amount_per_type;
                         b->data.house.num_foods++;

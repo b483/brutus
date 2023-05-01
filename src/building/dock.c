@@ -39,16 +39,6 @@ void building_dock_update_open_water_access(void)
     }
 }
 
-int building_dock_is_connected_to_open_water(int x, int y)
-{
-    map_routing_calculate_distances_water_boat(scenario.river_entry_point.x, scenario.river_entry_point.y);
-    if (map_terrain_is_adjacent_to_open_water(x, y, 3)) {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
 int building_dock_get_free_destination(int ship_id, map_point *tile)
 {
     if (!city_data.building.working_docks) {

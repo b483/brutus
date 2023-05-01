@@ -1,7 +1,6 @@
 #include "common.h"
 
 #include "building/building.h"
-#include "building/model.h"
 #include "city/data_private.h"
 #include "city/labor.h"
 #include "city/population.h"
@@ -58,7 +57,7 @@ int window_building_get_vertical_offset(building_info_context *c, int new_window
 static int draw_employment_info(building *b, int consider_house_covering)
 {
     int text_id;
-    if (b->num_workers >= model_get_building(b->type)->laborers) {
+    if (b->num_workers >= building_properties[b->type].laborers) {
         text_id = 0;
     } else if (city_data.population.population <= 0) {
         text_id = 16; // no people in city
@@ -86,14 +85,14 @@ static void draw_employment_details(building_info_context *c, building *b, int y
     if (text_id) {
         int width = lang_text_draw_amount(8, 12, b->num_workers,
             c->x_offset + 60, y_offset + 10, FONT_NORMAL_BROWN);
-        width += text_draw_number(model_get_building(b->type)->laborers, '(', "",
+        width += text_draw_number(building_properties[b->type].laborers, '(', "",
             c->x_offset + 70 + width, y_offset + 10, FONT_NORMAL_BROWN);
         lang_text_draw(69, 0, c->x_offset + 70 + width, y_offset + 10, FONT_NORMAL_BROWN);
         lang_text_draw(69, text_id, c->x_offset + 70, y_offset + 26, FONT_NORMAL_BROWN);
     } else {
         int width = lang_text_draw_amount(8, 12, b->num_workers,
             c->x_offset + 60, y_offset + 16, FONT_NORMAL_BROWN);
-        width += text_draw_number(model_get_building(b->type)->laborers, '(', "",
+        width += text_draw_number(building_properties[b->type].laborers, '(', "",
             c->x_offset + 70 + width, y_offset + 16, FONT_NORMAL_BROWN);
         lang_text_draw(69, 0, c->x_offset + 70 + width, y_offset + 16, FONT_NORMAL_BROWN);
     }

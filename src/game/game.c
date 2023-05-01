@@ -1,6 +1,5 @@
 #include "game.h"
 
-#include "building/model.h"
 #include "city/view.h"
 #include "core/config.h"
 #include "core/hotkey_config.h"
@@ -79,11 +78,6 @@ int game_init(void)
     }
     if (!image_load_enemy()) {
         errlog("unable to load enemy graphics");
-        return 0;
-    }
-
-    if (!model_load()) {
-        errlog("unable to load c3_model.txt");
         return 0;
     }
 

@@ -3,8 +3,6 @@
 #include "building/construction.h"
 #include "building/count.h"
 #include "building/industry.h"
-#include "building/model.h"
-#include "building/properties.h"
 #include "city/buildings.h"
 #include "city/data_private.h"
 #include "city/finance.h"
@@ -137,7 +135,7 @@ static void draw_water_range_preview(int x, int y, int radius)
     }
 }
 
-static int get_building_image_id(int map_x, int map_y, building_type type, const building_properties *props)
+static int get_building_image_id(int map_x, int map_y, building_type type, struct building_properties_t *props)
 {
     int image_id = image_group(props->image_group) + props->image_offset;
     if (type == BUILDING_GATEHOUSE) {
@@ -252,7 +250,7 @@ static void draw_bridge(const map_tile *tile, int x, int y, building_type type)
                 city_draw_bridge_tile(x + x_delta * i, y + y_delta * i, sprite_id, COLOR_MASK_GREEN);
             }
         }
-        building_construction_set_cost(model_get_building(type)->cost * length);
+        building_construction_set_cost(building_properties[type].cost * length);
     }
 }
 
@@ -287,13 +285,13 @@ void city_building_ghost_draw(const map_tile *tile)
     int x, y;
     city_view_get_selected_tile_pixels(&x, &y);
 
-    const building_properties *building_props = building_properties_for_type(type);
+    struct building_properties_t *building_props = &building_properties[type];
     int building_size = type == BUILDING_WAREHOUSE ? 3 : building_props->size;
     int num_tiles = building_size * building_size;
     int blocked_tiles[num_tiles];
     int orientation_index = city_view_orientation() / 2;
 
-    if (!city_finance_can_afford(model_get_building(type)->cost)) {
+    if (!city_finance_can_afford(building_properties[type].cost)) {
         draw_blocked_building_preview(x, y, num_tiles, blocked_tiles, 1);
         if (type == BUILDING_HIPPODROME) {
             int blocked_tiles2[MAX_TILES];
@@ -301,8 +299,7 @@ void city_building_ghost_draw(const map_tile *tile)
             draw_blocked_building_preview(x + HIPPODROME_X_VIEW_OFFSETS[orientation_index], y + HIPPODROME_Y_VIEW_OFFSETS[orientation_index], num_tiles, blocked_tiles2, 1);
             draw_blocked_building_preview(x + 2 * HIPPODROME_X_VIEW_OFFSETS[orientation_index], y + 2 * HIPPODROME_Y_VIEW_OFFSETS[orientation_index], num_tiles, blocked_tiles3, 1);
         } else if (building_is_fort(type)) {
-            int fort_ground_size = building_properties_for_type(BUILDING_FORT_GROUND)->size;
-            int num_fort_ground_tiles = fort_ground_size * fort_ground_size;
+            int num_fort_ground_tiles = building_properties[BUILDING_FORT_GROUND].size * building_properties[BUILDING_FORT_GROUND].size;
             int blocked_tiles_ground[MAX_TILES];
             draw_blocked_building_preview(x + FORT_GROUND_X_VIEW_OFFSETS[orientation_index], y + FORT_GROUND_Y_VIEW_OFFSETS[orientation_index], num_fort_ground_tiles, blocked_tiles_ground, 1);
         }
@@ -542,8 +539,7 @@ void city_building_ghost_draw(const map_tile *tile)
         case BUILDING_FORT_LEGIONARIES:
         case BUILDING_FORT_JAVELIN:
         case BUILDING_FORT_MOUNTED:
-            int fort_ground_size = building_properties_for_type(BUILDING_FORT_GROUND)->size;
-            int num_fort_ground_tiles = fort_ground_size * fort_ground_size;
+            int num_fort_ground_tiles = building_properties[BUILDING_FORT_GROUND].size * building_properties[BUILDING_FORT_GROUND].size;
             int blocked_tiles_ground[MAX_TILES];
             if (formation_get_num_legions() >= MAX_LEGIONS) {
                 draw_blocked_building_preview(x, y, num_tiles, blocked_tiles, 1);

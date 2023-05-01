@@ -115,7 +115,6 @@ set(BUILDING_FILES
     ${PROJECT_SOURCE_DIR}/src/building/building_state.c
     ${PROJECT_SOURCE_DIR}/src/building/clone.c
     ${PROJECT_SOURCE_DIR}/src/building/construction.c
-    ${PROJECT_SOURCE_DIR}/src/building/construction_building.c
     ${PROJECT_SOURCE_DIR}/src/building/construction_clear.c
     ${PROJECT_SOURCE_DIR}/src/building/construction_routed.c
     ${PROJECT_SOURCE_DIR}/src/building/construction_warning.c
@@ -134,8 +133,6 @@ set(BUILDING_FILES
     ${PROJECT_SOURCE_DIR}/src/building/maintenance.c
     ${PROJECT_SOURCE_DIR}/src/building/market.c
     ${PROJECT_SOURCE_DIR}/src/building/menu.c
-    ${PROJECT_SOURCE_DIR}/src/building/model.c
-    ${PROJECT_SOURCE_DIR}/src/building/properties.c
     ${PROJECT_SOURCE_DIR}/src/building/storage.c
     ${PROJECT_SOURCE_DIR}/src/building/warehouse.c
 )

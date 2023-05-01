@@ -137,6 +137,43 @@ typedef struct {
     unsigned char show_on_problem_overlay;
 } building;
 
+struct building_properties_t {
+    uint8_t size;
+    uint8_t fire_proof;
+    uint8_t image_group;
+    uint8_t image_offset;
+    uint16_t cost;
+    int8_t desirability_value;
+    uint8_t desirability_step;
+    int8_t desirability_step_size;
+    uint8_t desirability_range;
+    uint8_t laborers;
+};
+
+extern struct building_properties_t building_properties[140];
+
+struct house_properties_t {
+    int8_t devolve_desirability; /**< Desirability at which the house devolves */
+    int8_t evolve_desirability; /**< Desirability at which the house evolves */
+    uint8_t entertainment; /**< Entertainment points required */
+    uint8_t water; /**< Water required: 1 = well, 2 = fountain */
+    uint8_t religion; /**< Number of gods required */
+    uint8_t education; /**< Education required: 1 = school or library, 2 = school and library, 3 = school, library and academy */
+    uint8_t barber; /**< Barber required (boolean) */
+    uint8_t bathhouse; /**< Bathhouse required (boolean) */
+    uint8_t health; /**< Health required: 1 = doctor or hospital, 2 = doctor and hospital */
+    uint8_t food_types; /**< Number of food types required */
+    uint8_t pottery; /**< Pottery required */
+    uint8_t oil; /**< Oil required */
+    uint8_t furniture; /**< Furniture required */
+    uint8_t wine; /**< Wine types required: 1 = any wine, 2 = two types of wine */
+    uint16_t prosperity; /**< Prosperity contribution */
+    uint8_t max_people; /**< Maximum people per tile (medium insula and lower) or per house (large insula and up) */
+    uint8_t tax_multiplier; /**< Tax rate multiplier */
+};
+
+extern struct house_properties_t house_properties[20];
+
 building *building_get(int id);
 
 building *building_main(building *b);

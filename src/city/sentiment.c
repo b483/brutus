@@ -1,7 +1,6 @@
 #include "sentiment.h"
 
 #include "building/building.h"
-#include "building/model.h"
 #include "city/constants.h"
 #include "city/data_private.h"
 #include "city/message.h"
@@ -199,7 +198,7 @@ void city_sentiment_update(void)
         houses_calculated++;
         int sentiment_contribution_food = 0;
         int sentiment_contribution_tents = 0;
-        if (!model_get_house(b->subtype.house_level)->food_types) {
+        if (!house_properties[b->subtype.house_level].food_types) {
             // tents
             b->house_days_without_food = 0;
             sentiment_contribution_tents = sentiment_penalty_tents;

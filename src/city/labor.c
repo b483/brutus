@@ -1,7 +1,6 @@
 #include "labor.h"
 
 #include "building/building.h"
-#include "building/model.h"
 #include "city/data_private.h"
 #include "city/message.h"
 #include "city/population.h"
@@ -144,7 +143,7 @@ static void calculate_workers_needed_per_category(void)
         if (!should_have_workers(b, category, 1)) {
             continue;
         }
-        city_data.labor.categories[category].workers_needed += model_get_building(b->type)->laborers;
+        city_data.labor.categories[category].workers_needed += building_properties[b->type].laborers;
         city_data.labor.categories[category].total_houses_covered += b->houses_covered;
         city_data.labor.categories[category].buildings++;
     }
@@ -304,7 +303,7 @@ static void allocate_workers_to_water(void)
                     b->num_workers = workers_per_building;
                 }
             } else {
-                b->num_workers = model_get_building(b->type)->laborers;
+                b->num_workers = building_properties[b->type].laborers;
             }
         }
     }
@@ -339,18 +338,17 @@ static void allocate_workers_to_non_water_buildings(void)
             continue;
         }
         if (b->percentage_houses_covered > 0) {
-            int required_workers = model_get_building(b->type)->laborers;
             if (category_workers_needed[cat]) {
                 int num_workers = calc_adjust_with_percentage(
                     city_data.labor.categories[cat].workers_allocated,
                     b->percentage_houses_covered) / 100;
-                if (num_workers > required_workers) {
-                    num_workers = required_workers;
+                if (num_workers > building_properties[b->type].laborers) {
+                    num_workers = building_properties[b->type].laborers;
                 }
                 b->num_workers = num_workers;
                 category_workers_allocated[cat] += num_workers;
             } else {
-                b->num_workers = required_workers;
+                b->num_workers = building_properties[b->type].laborers;
             }
         }
     }
@@ -379,9 +377,8 @@ static void allocate_workers_to_non_water_buildings(void)
             continue;
         }
         if (b->percentage_houses_covered > 0 && category_workers_needed[cat]) {
-            int required_workers = model_get_building(b->type)->laborers;
-            if (b->num_workers < required_workers) {
-                int needed = required_workers - b->num_workers;
+            if (b->num_workers < building_properties[b->type].laborers) {
+                int needed = building_properties[b->type].laborers - b->num_workers;
                 if (needed > category_workers_needed[cat]) {
                     b->num_workers += category_workers_needed[cat];
                     category_workers_needed[cat] = 0;

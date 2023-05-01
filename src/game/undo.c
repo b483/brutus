@@ -1,7 +1,6 @@
 #include "undo.h"
 
 #include "building/industry.h"
-#include "building/properties.h"
 #include "building/storage.h"
 #include "building/warehouse.h"
 #include "city/finance.h"
@@ -185,7 +184,7 @@ static void add_building_to_terrain(building *b)
         map_building_tiles_add_farm(b->id, b->x, b->y,
             image_group(GROUP_BUILDING_FARM_CROPS) + image_offset, 0);
     } else {
-        int size = building_properties_for_type(b->type)->size;
+        int size = b->size;
         if (building_is_house(b->type) && b->house_is_merged) {
             size = 2;
         }

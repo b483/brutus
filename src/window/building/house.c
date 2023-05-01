@@ -1,7 +1,6 @@
 #include "house.h"
 
 #include "building/building.h"
-#include "building/model.h"
 #include "city/finance.h"
 #include "core/calc.h"
 #include "game/resource.h"
@@ -104,7 +103,7 @@ void window_building_draw_house(building_info_context *c)
 
     int resource_image = image_group(GROUP_RESOURCE_ICONS);
     // food inventory
-    if (model_get_house(b->subtype.house_level)->food_types) {
+    if (house_properties[b->subtype.house_level].food_types) {
         // wheat
         image_draw(resource_image + RESOURCE_WHEAT, c->x_offset + 32, c->y_offset + 234);
         text_draw_number(b->data.house.inventory[INVENTORY_WHEAT], '@', " ",

@@ -1,7 +1,6 @@
 #include "granary.h"
 
 #include "building/destruction.h"
-#include "building/model.h"
 #include "building/storage.h"
 #include "building/warehouse.h"
 #include "city/data_private.h"
@@ -131,8 +130,7 @@ int building_granary_remove_for_getting_deliveryman(building *src, building *dst
 
 int building_granary_determine_worker_task(building *granary)
 {
-    int pct_workers = calc_percentage(granary->num_workers, model_get_building(granary->type)->laborers);
-    if (pct_workers < 50) {
+    if (calc_percentage(granary->num_workers, building_properties[granary->type].laborers) < 50) {
         return GRANARY_TASK_NONE;
     }
     const building_storage *s = building_storage_get(granary->storage_id);
@@ -235,8 +233,7 @@ int building_granary_for_storing(int x, int y, int resource, int distance_from_e
         if (!b->has_road_access || b->distance_from_entry <= 0 || b->road_network_id != road_network_id) {
             continue;
         }
-        int pct_workers = calc_percentage(b->num_workers, model_get_building(b->type)->laborers);
-        if (pct_workers < 100) {
+        if (calc_percentage(b->num_workers, building_properties[b->type].laborers) < 100) {
             if (understaffed) {
                 *understaffed += 1;
             }
@@ -284,8 +281,7 @@ int building_getting_granary_for_storing(int x, int y, int resource, int distanc
         if (!b->has_road_access || b->distance_from_entry <= 0 || b->road_network_id != road_network_id) {
             continue;
         }
-        int pct_workers = calc_percentage(b->num_workers, model_get_building(b->type)->laborers);
-        if (pct_workers < 100) {
+        if (calc_percentage(b->num_workers, building_properties[b->type].laborers) < 100) {
             continue;
         }
         const building_storage *s = building_storage_get(b->storage_id);

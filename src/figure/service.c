@@ -1,7 +1,6 @@
 #include "service.h"
 
 #include "building/building.h"
-#include "building/model.h"
 #include "figuretype/crime.h"
 #include "game/resource.h"
 #include "map/building.h"
@@ -204,9 +203,8 @@ static void prefect_coverage(building *b, int *min_happiness_seen)
 static void tax_collector_coverage(building *b, int *max_tax_multiplier)
 {
     if (b->house_size && b->house_population > 0) {
-        int tax_multiplier = model_get_house(b->subtype.house_level)->tax_multiplier;
-        if (tax_multiplier > *max_tax_multiplier) {
-            *max_tax_multiplier = tax_multiplier;
+        if (house_properties[b->subtype.house_level].tax_multiplier > *max_tax_multiplier) {
+            *max_tax_multiplier = house_properties[b->subtype.house_level].tax_multiplier;
         }
         b->house_tax_coverage = 50;
     }
@@ -239,8 +237,7 @@ static void distribute_market_resources(building *b, building *market)
             food_types_stored_max++;
         }
     }
-    const model_house *model = model_get_house(level);
-    if (model->food_types > food_types_stored_max) {
+    if (house_properties[level].food_types > food_types_stored_max) {
         for (int i = INVENTORY_MIN_FOOD; i < INVENTORY_MAX_FOOD; i++) {
             if (b->data.house.inventory[i] >= max_food_stocks) {
                 continue;
@@ -256,21 +253,21 @@ static void distribute_market_resources(building *b, building *market)
             }
         }
     }
-    if (model->pottery) {
+    if (house_properties[level].pottery) {
         market->data.market.pottery_demand = 10;
-        distribute_good(b, market, 8 * model->pottery, INVENTORY_POTTERY);
+        distribute_good(b, market, 8 * house_properties[level].pottery, INVENTORY_POTTERY);
     }
-    if (model->furniture) {
+    if (house_properties[level].furniture) {
         market->data.market.furniture_demand = 10;
-        distribute_good(b, market, 4 * model->furniture, INVENTORY_FURNITURE);
+        distribute_good(b, market, 4 * house_properties[level].furniture, INVENTORY_FURNITURE);
     }
-    if (model->oil) {
+    if (house_properties[level].oil) {
         market->data.market.oil_demand = 10;
-        distribute_good(b, market, 4 * model->oil, INVENTORY_OIL);
+        distribute_good(b, market, 4 * house_properties[level].oil, INVENTORY_OIL);
     }
-    if (model->wine) {
+    if (house_properties[level].wine) {
         market->data.market.wine_demand = 10;
-        distribute_good(b, market, 4 * model->wine, INVENTORY_WINE);
+        distribute_good(b, market, 4 * house_properties[level].wine, INVENTORY_WINE);
     }
 }
 

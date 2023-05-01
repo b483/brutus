@@ -1,7 +1,6 @@
 #include "migrant.h"
 
 #include "building/house.h"
-#include "building/model.h"
 #include "city/data_private.h"
 #include "city/map.h"
 #include "city/population.h"
@@ -134,7 +133,7 @@ void figure_immigrant_action(struct figure_t *f)
             f->is_ghost = 1;
             if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
                 f->state = FIGURE_STATE_DEAD;
-                int max_people = model_get_house(b->subtype.house_level)->max_people;
+                int max_people = house_properties[b->subtype.house_level].max_people;
                 if (b->house_is_merged) {
                     max_people *= 4;
                 }
@@ -261,7 +260,7 @@ void figure_homeless_action(struct figure_t *f)
                 f->state = FIGURE_STATE_DEAD;
                 building *b = building_get(f->immigrant_building_id);
                 if (f->immigrant_building_id && building_is_house(b->type)) {
-                    int max_people = model_get_house(b->subtype.house_level)->max_people;
+                    int max_people = house_properties[b->subtype.house_level].max_people;
                     if (b->house_is_merged) {
                         max_people *= 4;
                     }

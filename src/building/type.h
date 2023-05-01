@@ -2,11 +2,6 @@
 #define BUILDING_TYPE_H
 
 /**
- * @file
- * Type definitions for buildings
- */
-
-/**
  * Building types
  */
 typedef enum {

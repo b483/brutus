@@ -1,7 +1,6 @@
 #include "warehouse.h"
 
 #include "building/count.h"
-#include "building/model.h"
 #include "building/storage.h"
 #include "city/buildings.h"
 #include "city/data_private.h"
@@ -268,8 +267,7 @@ int building_warehouse_for_storing(int src_building_id, int x, int y, int resour
         if (s->resource_state[resource] == BUILDING_STORAGE_STATE_NOT_ACCEPTING || s->empty_all) {
             continue;
         }
-        int pct_workers = calc_percentage(building_dst->num_workers, model_get_building(building_dst->type)->laborers);
-        if (pct_workers < 100) {
+        if (calc_percentage(building_dst->num_workers, building_properties[building_dst->type].laborers) < 100) {
             if (understaffed) {
                 *understaffed += 1;
             }
@@ -352,8 +350,7 @@ static int determine_granary_accept_foods(int resources[RESOURCE_MAX_FOOD])
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY || !b->has_road_access) {
             continue;
         }
-        int pct_workers = calc_percentage(b->num_workers, model_get_building(b->type)->laborers);
-        if (pct_workers >= 100 && b->data.granary.resource_stored[RESOURCE_NONE] >= 1200) {
+        if (calc_percentage(b->num_workers, building_properties[b->type].laborers) >= 100 && b->data.granary.resource_stored[RESOURCE_NONE] >= 1200) {
             const building_storage *s = building_storage_get(b->storage_id);
             if (!s->empty_all) {
                 for (int r = 0; r < RESOURCE_MAX_FOOD; r++) {
@@ -382,8 +379,7 @@ static int determine_granary_get_foods(int resources[RESOURCE_MAX_FOOD])
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY || !b->has_road_access) {
             continue;
         }
-        int pct_workers = calc_percentage(b->num_workers, model_get_building(b->type)->laborers);
-        if (pct_workers >= 100 && b->data.granary.resource_stored[RESOURCE_NONE] > 100) {
+        if (calc_percentage(b->num_workers, building_properties[b->type].laborers) >= 100 && b->data.granary.resource_stored[RESOURCE_NONE] > 100) {
             const building_storage *s = building_storage_get(b->storage_id);
             if (!s->empty_all) {
                 for (int r = 0; r < RESOURCE_MAX_FOOD; r++) {
@@ -421,8 +417,7 @@ static int contains_non_stockpiled_food(building *space, const int *resources)
 
 int building_warehouse_determine_worker_task(building *warehouse, int *resource)
 {
-    int pct_workers = calc_percentage(warehouse->num_workers, model_get_building(warehouse->type)->laborers);
-    if (pct_workers < 50) {
+    if (calc_percentage(warehouse->num_workers, building_properties[warehouse->type].laborers) < 50) {
         return WAREHOUSE_TASK_NONE;
     }
     const building_storage *s = building_storage_get(warehouse->storage_id);

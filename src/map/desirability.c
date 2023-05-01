@@ -1,7 +1,6 @@
 #include "desirability.h"
 
 #include "building/building.h"
-#include "building/model.h"
 #include "core/calc.h"
 #include "map/grid.h"
 #include "map/property.h"
@@ -70,13 +69,12 @@ static void update_buildings(void)
     for (int i = 1; i <= max_id; i++) {
         building *b = building_get(i);
         if (b->state == BUILDING_STATE_IN_USE) {
-            const model_building *model = model_get_building(b->type);
             add_to_terrain(
                 b->x, b->y, b->size,
-                model->desirability_value,
-                model->desirability_step,
-                model->desirability_step_size,
-                model->desirability_range);
+                building_properties[b->type].desirability_value,
+                building_properties[b->type].desirability_step,
+                building_properties[b->type].desirability_step_size,
+                building_properties[b->type].desirability_range);
         }
     }
 }
@@ -99,19 +97,17 @@ static void update_terrain(void)
                     map_property_clear_plaza_or_earthquake(grid_offset);
                     continue;
                 }
-                const model_building *model = model_get_building(type);
                 add_to_terrain(x, y, 1,
-                    model->desirability_value,
-                    model->desirability_step,
-                    model->desirability_step_size,
-                    model->desirability_range);
+                    building_properties[type].desirability_value,
+                    building_properties[type].desirability_step,
+                    building_properties[type].desirability_step_size,
+                    building_properties[type].desirability_range);
             } else if (terrain & TERRAIN_GARDEN) {
-                const model_building *model = model_get_building(BUILDING_GARDENS);
                 add_to_terrain(x, y, 1,
-                    model->desirability_value,
-                    model->desirability_step,
-                    model->desirability_step_size,
-                    model->desirability_range);
+                    building_properties[BUILDING_GARDENS].desirability_value,
+                    building_properties[BUILDING_GARDENS].desirability_step,
+                    building_properties[BUILDING_GARDENS].desirability_step_size,
+                    building_properties[BUILDING_GARDENS].desirability_range);
             } else if (terrain & TERRAIN_RUBBLE) {
                 add_to_terrain(x, y, 1, -2, 1, 1, 2);
             } else if (terrain & TERRAIN_WATER) {

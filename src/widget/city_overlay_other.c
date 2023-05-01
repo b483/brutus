@@ -1,6 +1,5 @@
 #include "city_overlay_other.h"
 
-#include "building/model.h"
 #include "city/constants.h"
 #include "city/finance.h"
 #include "core/calc.h"
@@ -79,7 +78,7 @@ static int get_column_height_religion(const building *b)
 
 static int get_column_height_food_stocks(const building *b)
 {
-    if (b->house_size && model_get_house(b->subtype.house_level)->food_types) {
+    if (b->house_size && house_properties[b->subtype.house_level].food_types) {
         int pop = b->house_population;
         int stocks = 0;
         for (int i = INVENTORY_MIN_FOOD; i < INVENTORY_MAX_FOOD; i++) {
@@ -162,7 +161,7 @@ static int get_tooltip_food_stocks(__attribute__((unused)) tooltip_context *c, c
     if (b->house_population <= 0) {
         return 0;
     }
-    if (!model_get_house(b->subtype.house_level)->food_types) {
+    if (!house_properties[b->subtype.house_level].food_types) {
         return 104;
     } else {
         int stocks_present = 0;

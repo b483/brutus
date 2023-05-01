@@ -1,6 +1,6 @@
 #include "map_editor_tool.h"
 
-#include "building/properties.h"
+#include "building/building.h"
 #include "core/image_group_editor.h"
 #include "editor/tool.h"
 #include "editor/tool_restriction.h"
@@ -44,9 +44,7 @@ static void draw_building_image(int image_id, int x, int y)
 
 static void draw_building(const map_tile *tile, int x_view, int y_view, building_type type)
 {
-    const building_properties *props = building_properties_for_type(type);
-
-    int num_tiles = props->size * props->size;
+    int num_tiles = building_properties[type].size * building_properties[type].size;
     int blocked_tiles[MAX_TILES];
     int blocked = !editor_tool_can_place_building(tile, num_tiles, blocked_tiles);
 
@@ -66,7 +64,7 @@ static void draw_building(const map_tile *tile, int x_view, int y_view, building
         } else if (type == BUILDING_HOUSE_VACANT_LOT) {
             image_id = image_group(GROUP_EDITOR_BUILDING_NATIVE) - 4;
         } else {
-            image_id = image_group(props->image_group) + props->image_offset;
+            image_id = image_group(building_properties[type].image_group) + building_properties[type].image_offset;
         }
         draw_building_image(image_id, x_view, y_view);
     }
@@ -74,15 +72,14 @@ static void draw_building(const map_tile *tile, int x_view, int y_view, building
 
 static void draw_road(const map_tile *tile, int x, int y)
 {
-    int grid_offset = tile->grid_offset;
     int blocked = 0;
     int image_id = 0;
-    if (map_terrain_is(grid_offset, TERRAIN_NOT_CLEAR)) {
+    if (map_terrain_is(tile->grid_offset, TERRAIN_NOT_CLEAR)) {
         blocked = 1;
     } else {
         image_id = image_group(GROUP_TERRAIN_ROAD);
-        if (!map_terrain_has_adjacent_x_with_type(grid_offset, TERRAIN_ROAD) &&
-            map_terrain_has_adjacent_y_with_type(grid_offset, TERRAIN_ROAD)) {
+        if (!map_terrain_has_adjacent_x_with_type(tile->grid_offset, TERRAIN_ROAD) &&
+            map_terrain_has_adjacent_y_with_type(tile->grid_offset, TERRAIN_ROAD)) {
             image_id++;
         }
     }

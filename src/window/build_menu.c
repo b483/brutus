@@ -1,8 +1,8 @@
 #include "build_menu.h"
 
+#include "building/building.h"
 #include "building/construction.h"
 #include "building/menu.h"
-#include "building/model.h"
 #include "city/view.h"
 #include "graphics/generic_button.h"
 #include "game/custom_strings.h"
@@ -184,15 +184,13 @@ static void draw_menu_buttons(void)
             lang_text_draw_centered(28, type, item_x_align, data.y_offset + MENU_Y_OFFSET + 3 + MENU_ITEM_HEIGHT * i,
                 MENU_ITEM_WIDTH, FONT_NORMAL_GREEN);
         }
-        int cost = model_get_building(type)->cost;
+        int cost = building_properties[type].cost;
         if (type == BUILDING_FORT) {
             cost = 0;
-        }
-        if (type == BUILDING_MENU_SMALL_TEMPLES && data.selected_submenu == BUILD_MENU_SMALL_TEMPLES) {
-            cost = model_get_building(BUILDING_SMALL_TEMPLE_CERES)->cost;
-        }
-        if (type == BUILDING_MENU_LARGE_TEMPLES && data.selected_submenu == BUILD_MENU_LARGE_TEMPLES) {
-            cost = model_get_building(BUILDING_LARGE_TEMPLE_CERES)->cost;
+        } else if (type == BUILDING_MENU_SMALL_TEMPLES && data.selected_submenu == BUILD_MENU_SMALL_TEMPLES) {
+            cost = building_properties[BUILDING_SMALL_TEMPLE_CERES].cost;
+        } else if (type == BUILDING_MENU_LARGE_TEMPLES && data.selected_submenu == BUILD_MENU_LARGE_TEMPLES) {
+            cost = building_properties[BUILDING_LARGE_TEMPLE_CERES].cost;
         }
         if (cost) {
             text_draw_money(cost, x_offset - 82, data.y_offset + MENU_Y_OFFSET + 4 + MENU_ITEM_HEIGHT * i,

@@ -1,7 +1,6 @@
 #include "barracks.h"
 
 #include "building/count.h"
-#include "building/model.h"
 #include "city/buildings.h"
 #include "city/data_private.h"
 #include "city/military.h"

@@ -1,7 +1,6 @@
 #include "animation.h"
 
 #include "building/industry.h"
-#include "building/model.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "game/animation.h"
@@ -26,7 +25,7 @@ int building_animation_offset(building *b, int image_id, int grid_offset)
     if (b->type == BUILDING_MARKET && b->num_workers <= 0) {
         return 0;
     }
-    if (b->type == BUILDING_WAREHOUSE && b->num_workers < model_get_building(b->type)->laborers) {
+    if (b->type == BUILDING_WAREHOUSE && b->num_workers < building_properties[b->type].laborers) {
         return 0;
     }
     if (b->type == BUILDING_DOCK && b->data.dock.num_ships <= 0) {
@@ -49,7 +48,7 @@ int building_animation_offset(building *b, int image_id, int grid_offset)
         b->type != BUILDING_HIPPODROME && b->num_workers <= 0) {
         return 0;
     }
-    if (b->type == BUILDING_GRANARY && b->num_workers < model_get_building(b->type)->laborers) {
+    if (b->type == BUILDING_GRANARY && b->num_workers < building_properties[b->type].laborers) {
         return 0;
     }
 
