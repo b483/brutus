@@ -54,7 +54,7 @@ static void draw_won(void)
     text_draw_number(city_data.population.population, '@', " ", left_offset + width, 348, FONT_NORMAL_BLACK);
 
     width = lang_text_draw(148, 5, right_offset, 348, FONT_NORMAL_BLACK);
-    text_draw_number(city_finance_treasury(), '@', " ", right_offset + width, 348, FONT_NORMAL_BLACK);
+    text_draw_number(city_data.finance.treasury, '@', " ", right_offset + width, 348, FONT_NORMAL_BLACK);
 }
 
 static void draw_background(void)

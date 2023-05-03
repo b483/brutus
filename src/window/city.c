@@ -438,12 +438,12 @@ static void cycle_buildings(int reverse)
                 }
                 /* fall through */
             case BUILDING_GOVERNORS_HOUSE:
-                if (scenario_building_allowed(BUILDING_SENATE_UPGRADED)) {
-                    building_cycling_index = BUILDING_SENATE_UPGRADED;
+                if (scenario_building_allowed(BUILDING_SENATE)) {
+                    building_cycling_index = BUILDING_SENATE;
                     break;
                 }
                 /* fall through */
-            case BUILDING_SENATE_UPGRADED:
+            case BUILDING_SENATE:
                 if (scenario_building_allowed(BUILDING_FORUM)) {
                     building_cycling_index = BUILDING_FORUM;
                     break;
@@ -844,12 +844,12 @@ static void cycle_buildings(int reverse)
                 }
                 /* fall through */
             case BUILDING_FORUM:
-                if (scenario_building_allowed(BUILDING_SENATE_UPGRADED)) {
-                    building_cycling_index = BUILDING_SENATE_UPGRADED;
+                if (scenario_building_allowed(BUILDING_SENATE)) {
+                    building_cycling_index = BUILDING_SENATE;
                     break;
                 }
                 /* fall through */
-            case BUILDING_SENATE_UPGRADED:
+            case BUILDING_SENATE:
                 if (scenario_building_allowed(BUILDING_GOVERNORS_HOUSE)) {
                     building_cycling_index = BUILDING_GOVERNORS_HOUSE;
                     break;
@@ -1198,7 +1198,10 @@ static void handle_hotkeys(const hotkeys *h)
         map_bookmark_save(h->set_bookmark - 1);
     }
     if (h->cheat_money) {
-        city_finance_process_cheat();
+        if (city_data.finance.treasury < 50000) {
+            city_data.finance.treasury += 1000;
+            city_data.finance.cheated_money += 1000;
+        }
         window_invalidate();
     }
     if (h->cheat_invasion) {

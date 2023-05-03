@@ -85,7 +85,7 @@ static void button_set_salary(int rank, __attribute__((unused)) int param2)
 {
     if (!city_data.mission.has_won) {
         city_emperor_set_salary_rank(rank);
-        city_finance_update_salary();
+        city_data.finance.this_year.expenses.salary = city_data.finance.salary_so_far;
         city_ratings_update_favor_explanation();
         window_advisors_show(ADVISOR_IMPERIAL);
     }

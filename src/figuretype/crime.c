@@ -76,14 +76,14 @@ static void generate_mugger(building *b)
             struct figure_t *f = figure_create(FIGURE_CRIMINAL, x_road, y_road, DIR_4_BOTTOM);
             f->wait_ticks = 10 + (b->house_figure_generation_delay & 0xf);
             city_ratings_peace_record_criminal();
-            int taxes_this_year = city_finance_overview_this_year()->income.taxes;
-            if (taxes_this_year > 20) {
-                int money_stolen = taxes_this_year / 4;
+            if (city_data.finance.this_year.income.taxes > 20) {
+                int money_stolen = city_data.finance.this_year.income.taxes / 4;
                 if (money_stolen > 400) {
                     money_stolen = 400 - random_byte() / 2;
                 }
                 city_message_post(1, MESSAGE_THEFT, money_stolen, f->grid_offset);
-                city_finance_process_stolen(money_stolen);
+                city_data.finance.stolen_this_year += money_stolen;
+                city_finance_process_sundry(money_stolen);
             }
         }
     }

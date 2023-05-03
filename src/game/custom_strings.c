@@ -145,7 +145,7 @@ static custom_string all_strings[] = {
     {TR_ALLOWED_BUILDING_ACTOR_COLONY, "Actor colony"},
     {TR_ALLOWED_BUILDING_CHARIOT_MAKER, "Chariot maker"},
     {TR_ALLOWED_BUILDING_FORUM, "Forum"},
-    {TR_ALLOWED_BUILDING_SENATE_UPGRADED, "Senate"},
+    {TR_ALLOWED_BUILDING_SENATE, "Senate"},
     {TR_ALLOWED_BUILDING_GOVERNORS_HOUSE, "Governor's house"},
     {TR_ALLOWED_BUILDING_GOVERNORS_VILLA, "Governor's villa"},
     {TR_ALLOWED_BUILDING_GOVERNORS_PALACE, "Governor's palace"},

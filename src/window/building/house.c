@@ -1,6 +1,7 @@
 #include "house.h"
 
 #include "building/building.h"
+#include "city/data_private.h"
 #include "city/finance.h"
 #include "core/calc.h"
 #include "game/resource.h"
@@ -48,9 +49,8 @@ static void draw_tax_info(building_info_context *c, int y_offset)
 {
     building *b = building_get(c->building_id);
     if (b->house_tax_coverage) {
-        int pct = calc_adjust_with_percentage(b->tax_income_or_storage / 2, city_finance_tax_percentage());
         int width = lang_text_draw(127, 24, c->x_offset + 36, y_offset, FONT_NORMAL_BROWN);
-        width += lang_text_draw_amount(8, 0, pct, c->x_offset + 36 + width, y_offset, FONT_NORMAL_BROWN);
+        width += lang_text_draw_amount(8, 0, calc_adjust_with_percentage(b->tax_income_or_storage / 2, city_data.finance.tax_percentage), c->x_offset + 36 + width, y_offset, FONT_NORMAL_BROWN);
         lang_text_draw(127, 25, c->x_offset + 36 + width, y_offset, FONT_NORMAL_BROWN);
     } else {
         lang_text_draw(127, 23, c->x_offset + 36, y_offset, FONT_NORMAL_BROWN);

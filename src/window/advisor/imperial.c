@@ -126,10 +126,9 @@ static void draw_requests(void)
 
             if (scenario.requests[i].resource == RESOURCE_DENARII) {
                 // request for money
-                int treasury = city_finance_treasury();
-                width = text_draw_number(treasury, '@', " ", 40, 120 + 42 * request_index, FONT_NORMAL_WHITE);
+                width = text_draw_number(city_data.finance.treasury, '@', " ", 40, 120 + 42 * request_index, FONT_NORMAL_WHITE);
                 width += lang_text_draw(52, 44, 40 + width, 120 + 42 * request_index, FONT_NORMAL_WHITE);
-                if (treasury < scenario.requests[i].amount) {
+                if (city_data.finance.treasury < scenario.requests[i].amount) {
                     lang_text_draw(52, 48, 105 + width, 120 + 42 * request_index, FONT_NORMAL_WHITE);
                 } else {
                     lang_text_draw(52, 47, 80 + width, 120 + 42 * request_index, FONT_NORMAL_WHITE);
@@ -195,7 +194,7 @@ static int get_request_status(int index)
             scenario.requests[i].state <= 1) {
             if (index_offset == 0) {
                 if (scenario.requests[i].resource == RESOURCE_DENARII) {
-                    if (city_finance_treasury() <= scenario.requests[i].amount) {
+                    if (city_data.finance.treasury <= scenario.requests[i].amount) {
                         return STATUS_NOT_ENOUGH_RESOURCES;
                     }
                 } else {

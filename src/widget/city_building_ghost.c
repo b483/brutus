@@ -466,7 +466,7 @@ void city_building_ghost_draw(const map_tile *tile)
                 draw_building(image_id, x, y);
             }
             return;
-        case BUILDING_SENATE_UPGRADED:
+        case BUILDING_SENATE:
             if (city_data.building.senate_placed) {
                 draw_blocked_building_preview(x, y, num_tiles, blocked_tiles, 1);
                 return;

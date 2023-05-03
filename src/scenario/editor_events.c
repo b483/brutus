@@ -180,8 +180,8 @@ int scenario_building_allowed(int building_type)
             return scenario.allowed_buildings[ALLOWED_BUILDING_CHARIOT_MAKER];
         case BUILDING_FORUM:
             return scenario.allowed_buildings[ALLOWED_BUILDING_FORUM];
-        case BUILDING_SENATE_UPGRADED:
-            return scenario.allowed_buildings[ALLOWED_BUILDING_SENATE_UPGRADED];
+        case BUILDING_SENATE:
+            return scenario.allowed_buildings[ALLOWED_BUILDING_SENATE];
         case BUILDING_GOVERNORS_HOUSE:
             return scenario.allowed_buildings[ALLOWED_BUILDING_GOVERNORS_HOUSE];
         case BUILDING_GOVERNORS_VILLA:

@@ -1,46 +1,16 @@
 #include "finance.h"
 
 #include "building/building.h"
+#include "building/count.h"
 #include "city/data_private.h"
 #include "core/calc.h"
 #include "game/time.h"
 
 #define MAX_HOUSE_LEVELS 20
 
-int city_finance_treasury(void)
-{
-    return city_data.finance.treasury;
-}
-
 int city_finance_can_afford(int cost)
 {
     return -cost + city_data.finance.treasury >= -5000;
-}
-
-int city_finance_tax_percentage(void)
-{
-    return city_data.finance.tax_percentage;
-}
-
-void city_finance_change_tax_percentage(int change)
-{
-    city_data.finance.tax_percentage = calc_bound(city_data.finance.tax_percentage + change, 0, 25);
-}
-
-int city_finance_percentage_taxed_people(void)
-{
-    return city_data.taxes.percentage_taxed_people;
-}
-
-int city_finance_estimated_tax_income(void)
-{
-    return city_data.finance.estimated_tax_income;
-}
-
-void city_finance_process_import(int price)
-{
-    city_data.finance.treasury -= price;
-    city_data.finance.this_year.expenses.imports += price;
 }
 
 void city_finance_process_export(int price)
@@ -51,20 +21,6 @@ void city_finance_process_export(int price)
         city_data.finance.treasury += price;
         city_data.finance.this_year.income.exports += price;
     }
-}
-
-void city_finance_process_cheat(void)
-{
-    if (city_data.finance.treasury < 50000) {
-        city_data.finance.treasury += 1000;
-        city_data.finance.cheated_money += 1000;
-    }
-}
-
-void city_finance_process_stolen(int stolen)
-{
-    city_data.finance.stolen_this_year += stolen;
-    city_finance_process_sundry(stolen);
 }
 
 void city_finance_process_donation(int amount)
@@ -83,16 +39,6 @@ void city_finance_process_construction(int cost)
 {
     city_data.finance.treasury -= cost;
     city_data.finance.this_year.expenses.construction += cost;
-}
-
-void city_finance_update_interest(void)
-{
-    city_data.finance.this_year.expenses.interest = city_data.finance.interest_so_far;
-}
-
-void city_finance_update_salary(void)
-{
-    city_data.finance.this_year.expenses.salary = city_data.finance.salary_so_far;
 }
 
 void city_finance_calculate_totals(void)
@@ -387,12 +333,42 @@ void city_finance_handle_year_change(void)
     pay_tribute();
 }
 
-const finance_overview *city_finance_overview_last_year(void)
+void distribute_treasury(void)
 {
-    return &city_data.finance.last_year;
-}
+    int units = 5 * building_count_active(BUILDING_SENATE) + building_count_active(BUILDING_FORUM);
+    int amount_per_unit;
+    int remainder;
+    if (city_data.finance.treasury > 0 && units > 0) {
+        amount_per_unit = city_data.finance.treasury / units;
+        remainder = city_data.finance.treasury - units * amount_per_unit;
+    } else {
+        amount_per_unit = 0;
+        remainder = 0;
+    }
 
-const finance_overview *city_finance_overview_this_year(void)
-{
-    return &city_data.finance.this_year;
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        building *b = building_get(i);
+        if (b->state != BUILDING_STATE_IN_USE || b->house_size) {
+            continue;
+        }
+        b->tax_income_or_storage = 0;
+        if (b->num_workers <= 0) {
+            continue;
+        }
+        switch (b->type) {
+            // ordered based on importance: most important gets the remainder
+            case BUILDING_SENATE:
+                b->tax_income_or_storage = 5 * amount_per_unit + remainder;
+                remainder = 0;
+                break;
+            case BUILDING_FORUM:
+                if (remainder && !building_count_active(BUILDING_SENATE)) {
+                    b->tax_income_or_storage = amount_per_unit + remainder;
+                    remainder = 0;
+                } else {
+                    b->tax_income_or_storage = amount_per_unit;
+                }
+                break;
+        }
+    }
 }

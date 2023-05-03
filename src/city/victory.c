@@ -148,7 +148,7 @@ void city_victory_continue_governing(int months)
     city_data.mission.continue_months_chosen = months;
     city_data.emperor.salary_rank = 0;
     city_data.emperor.salary_amount = 0;
-    city_finance_update_salary();
+    city_data.finance.this_year.expenses.salary = city_data.finance.salary_so_far;
 }
 
 void city_victory_stop_governing(void)

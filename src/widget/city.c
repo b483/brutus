@@ -1,6 +1,7 @@
 #include "city.h"
 
 #include "building/construction.h"
+#include "city/data_private.h"
 #include "city/finance.h"
 #include "city/view.h"
 #include "city/warning.h"
@@ -83,7 +84,7 @@ void widget_city_draw_construction_cost_and_size(void)
     city_view_get_selected_tile_pixels(&x, &y);
     if (cost) {
         color_t color;
-        if (cost <= city_finance_treasury()) {
+        if (cost <= city_data.finance.treasury) {
             // Color blind friendly
             color = scenario.climate == CLIMATE_DESERT ? COLOR_FONT_ORANGE : COLOR_FONT_ORANGE_LIGHT;
         } else {
@@ -335,7 +336,7 @@ void widget_city_get_tooltip(tooltip_context *c)
     int building_id = map_building_at(grid_offset);
     int overlay = game_state_overlay();
     // regular tooltips
-    if (overlay == OVERLAY_NONE && building_id && building_get(building_id)->type == BUILDING_SENATE_UPGRADED) {
+    if (overlay == OVERLAY_NONE && building_id && building_get(building_id)->type == BUILDING_SENATE) {
         c->type = TOOLTIP_SENATE;
         c->high_priority = 1;
         return;

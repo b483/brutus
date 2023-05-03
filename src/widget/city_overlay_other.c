@@ -1,6 +1,7 @@
 #include "city_overlay_other.h"
 
 #include "city/constants.h"
+#include "city/data_private.h"
 #include "city/finance.h"
 #include "core/calc.h"
 #include "core/config.h"
@@ -32,7 +33,7 @@ static int show_building_food_stocks(const building *b)
 
 static int show_building_tax_income(const building *b)
 {
-    return b->type == BUILDING_FORUM || b->type == BUILDING_SENATE_UPGRADED;
+    return b->type == BUILDING_FORUM || b->type == BUILDING_SENATE;
 }
 
 static int show_building_water(const building *b)
@@ -99,7 +100,7 @@ static int get_column_height_food_stocks(const building *b)
 static int get_column_height_tax_income(const building *b)
 {
     if (b->house_size) {
-        int pct = calc_adjust_with_percentage(b->tax_income_or_storage / 2, city_finance_tax_percentage());
+        int pct = calc_adjust_with_percentage(b->tax_income_or_storage / 2, city_data.finance.tax_percentage);
         if (pct > 0) {
             return pct / 25;
         }
@@ -183,7 +184,7 @@ static int get_tooltip_food_stocks(__attribute__((unused)) tooltip_context *c, c
 
 static int get_tooltip_tax_income(tooltip_context *c, const building *b)
 {
-    int denarii = calc_adjust_with_percentage(b->tax_income_or_storage / 2, city_finance_tax_percentage());
+    int denarii = calc_adjust_with_percentage(b->tax_income_or_storage / 2, city_data.finance.tax_percentage);
     if (denarii > 0) {
         c->has_numeric_prefix = 1;
         c->numeric_prefix = denarii;

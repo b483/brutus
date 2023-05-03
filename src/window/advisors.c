@@ -2,6 +2,7 @@
 
 #include "city/constants.h"
 #include "city/culture.h"
+#include "city/data_private.h"
 #include "city/finance.h"
 #include "city/houses.h"
 #include "city/labor.h"
@@ -117,8 +118,8 @@ static void init(void)
 
     city_finance_estimate_taxes();
     city_finance_estimate_wages();
-    city_finance_update_interest();
-    city_finance_update_salary();
+    city_data.finance.this_year.expenses.interest = city_data.finance.interest_so_far;
+    city_data.finance.this_year.expenses.salary = city_data.finance.salary_so_far;
     city_finance_calculate_totals();
 
     city_migration_determine_no_immigration_cause();

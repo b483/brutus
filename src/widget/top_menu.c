@@ -191,7 +191,7 @@ static void refresh_background(void)
 
 void widget_top_menu_draw(int force)
 {
-    if (!force && drawn.treasury == city_finance_treasury() &&
+    if (!force && drawn.treasury == city_data.finance.treasury &&
         drawn.population == city_data.population.population &&
         drawn.month == game_time_month()) {
         return;
@@ -203,8 +203,7 @@ void widget_top_menu_draw(int force)
     menu_bar_draw(menu, sizeof(menu) / sizeof(menu_bar_item), s_width < 1024 ? 338 : 493);
 
     color_t treasure_color = COLOR_WHITE;
-    int treasury = city_finance_treasury();
-    if (treasury < 0) {
+    if (city_data.finance.treasury < 0) {
         treasure_color = COLOR_FONT_RED;
     }
     if (s_width < 800) {
@@ -213,7 +212,7 @@ void widget_top_menu_draw(int force)
         data.offset_date = 547;
 
         int width = lang_text_draw_colored(6, 0, 350, 5, FONT_NORMAL_PLAIN, treasure_color);
-        text_draw_number_colored(treasury, '@', " ", 346 + width, 5, FONT_NORMAL_PLAIN, treasure_color);
+        text_draw_number_colored(city_data.finance.treasury, '@', " ", 346 + width, 5, FONT_NORMAL_PLAIN, treasure_color);
 
         width = lang_text_draw(6, 1, 458, 5, FONT_NORMAL_GREEN);
         text_draw_number(city_data.population.population, '@', " ", 450 + width, 5, FONT_NORMAL_GREEN);
@@ -225,7 +224,7 @@ void widget_top_menu_draw(int force)
         data.offset_date = 652;
 
         int width = lang_text_draw_colored(6, 0, 350, 5, FONT_NORMAL_PLAIN, treasure_color);
-        text_draw_number_colored(treasury, '@', " ", 346 + width, 5, FONT_NORMAL_PLAIN, treasure_color);
+        text_draw_number_colored(city_data.finance.treasury, '@', " ", 346 + width, 5, FONT_NORMAL_PLAIN, treasure_color);
 
         width = lang_text_draw_colored(6, 1, 470, 5, FONT_NORMAL_PLAIN, COLOR_WHITE);
         text_draw_number_colored(city_data.population.population, '@', " ", 466 + width, 5, FONT_NORMAL_PLAIN, COLOR_WHITE);
@@ -238,7 +237,7 @@ void widget_top_menu_draw(int force)
         data.offset_date = 852;
 
         int width = lang_text_draw_colored(6, 0, 495, 5, FONT_NORMAL_PLAIN, treasure_color);
-        text_draw_number_colored(treasury, '@', " ", 501 + width, 5, FONT_NORMAL_PLAIN, treasure_color);
+        text_draw_number_colored(city_data.finance.treasury, '@', " ", 501 + width, 5, FONT_NORMAL_PLAIN, treasure_color);
 
         width = lang_text_draw_colored(6, 1, 645, 5, FONT_NORMAL_PLAIN, COLOR_WHITE);
         text_draw_number_colored(city_data.population.population, '@', " ", 651 + width, 5, FONT_NORMAL_PLAIN, COLOR_WHITE);
@@ -246,7 +245,7 @@ void widget_top_menu_draw(int force)
         lang_text_draw_month_year_max_width(game_time_month(), game_time_year(),
             850, 5, 110, FONT_NORMAL_PLAIN, COLOR_FONT_YELLOW);
     }
-    drawn.treasury = treasury;
+    drawn.treasury = city_data.finance.treasury;
     drawn.population = city_data.population.population;
     drawn.month = game_time_month();
 }

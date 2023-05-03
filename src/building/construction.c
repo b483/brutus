@@ -405,7 +405,7 @@ void building_construction_update(int x, int y, int grid_offset)
             data.required_terrain.water || data.required_terrain.wall) {
         // never mark as constructing
     } else {
-        if (!(type == BUILDING_SENATE_UPGRADED && city_data.building.senate_placed) &&
+        if (!(type == BUILDING_SENATE && city_data.building.senate_placed) &&
             !(type == BUILDING_BARRACKS && building_count_total(BUILDING_BARRACKS) > 0)) {
             mark_construction(x, y, building_properties[type].size, TERRAIN_ALL, 0);
         }
@@ -864,7 +864,7 @@ static void add_to_map(building *b, int orientation, int waterside_orientation_a
             building_menu_update();
             building_construction_clear_type();
             break;
-        case BUILDING_SENATE_UPGRADED:
+        case BUILDING_SENATE:
             map_building_tiles_add(b->id, b->x, b->y, b->size, image_group(GROUP_BUILDING_SENATE), TERRAIN_BUILDING);
             city_buildings_add_senate(b);
             break;
@@ -997,7 +997,7 @@ static int building_construction_place_building(building_type type, int x, int y
             return 0;
         }
     }
-    if (type == BUILDING_SENATE_UPGRADED && city_data.building.senate_placed) {
+    if (type == BUILDING_SENATE && city_data.building.senate_placed) {
         city_warning_show(WARNING_ONE_BUILDING_OF_TYPE);
         return 0;
     }

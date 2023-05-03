@@ -892,17 +892,15 @@ static void set_senate_graphic(building *b)
         return;
     }
     if (map_desirability_get(b->grid_offset) <= 30) {
-        map_building_tiles_add(b->id, b->x, b->y, b->size,
-            image_group(GROUP_BUILDING_SENATE), TERRAIN_BUILDING);
+        map_building_tiles_add(b->id, b->x, b->y, b->size, image_group(GROUP_BUILDING_SENATE), TERRAIN_BUILDING);
     } else {
-        map_building_tiles_add(b->id, b->x, b->y, b->size,
-            image_group(GROUP_BUILDING_SENATE_FANCY), TERRAIN_BUILDING);
+        map_building_tiles_add(b->id, b->x, b->y, b->size, image_group(GROUP_BUILDING_SENATE_FANCY), TERRAIN_BUILDING);
     }
 }
 
 static void spawn_figure_senate_forum(building *b)
 {
-    if (b->type == BUILDING_SENATE_UPGRADED) {
+    if (b->type == BUILDING_SENATE) {
         set_senate_graphic(b);
     }
     check_labor_problem(b);
@@ -1197,7 +1195,7 @@ void building_figure_generate(void)
             patrician_generated = spawn_patrician(b, patrician_generated);
         } else if (b->type >= BUILDING_WHEAT_FARM && b->type <= BUILDING_POTTERY_WORKSHOP) {
             spawn_figure_industry(b);
-        } else if (b->type >= BUILDING_SENATE && b->type <= BUILDING_FORUM_UPGRADED) {
+        } else if (b->type == BUILDING_SENATE || b->type == BUILDING_FORUM) {
             spawn_figure_senate_forum(b);
         } else if (b->type >= BUILDING_SMALL_TEMPLE_CERES && b->type <= BUILDING_LARGE_TEMPLE_VENUS) {
             spawn_figure_temple(b);

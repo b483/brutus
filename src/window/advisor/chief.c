@@ -51,14 +51,12 @@ static int draw_background(void)
 
     // finance
     draw_title(86, 2);
-    int treasury = city_finance_treasury();
-    int balance_last_year = city_finance_overview_last_year()->balance;
-    if (treasury > balance_last_year) {
+    if (city_data.finance.treasury > city_data.finance.last_year.balance) {
         width = lang_text_draw(61, 15, X_OFFSET, 86, FONT_NORMAL_GREEN);
-        text_draw_money(treasury - balance_last_year, X_OFFSET + width, 86, FONT_NORMAL_GREEN);
-    } else if (treasury < balance_last_year) {
+        text_draw_money(city_data.finance.treasury - city_data.finance.last_year.balance, X_OFFSET + width, 86, FONT_NORMAL_GREEN);
+    } else if (city_data.finance.treasury < city_data.finance.last_year.balance) {
         width = lang_text_draw(61, 16, X_OFFSET, 86, FONT_NORMAL_RED);
-        text_draw_money(balance_last_year - treasury, X_OFFSET + width, 86, FONT_NORMAL_RED);
+        text_draw_money(city_data.finance.last_year.balance - city_data.finance.treasury, X_OFFSET + width, 86, FONT_NORMAL_RED);
     } else {
         lang_text_draw(61, 17, X_OFFSET, 86, FONT_NORMAL_GREEN);
     }

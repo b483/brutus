@@ -175,7 +175,8 @@ void building_warehouse_space_add_import(building *space, int resource)
     space->subtype.warehouse_resource_id = resource;
 
     int price = trade_price_buy(resource);
-    city_finance_process_import(price);
+    city_data.finance.treasury -= price;
+    city_data.finance.this_year.expenses.imports += price;
 
     building_warehouse_space_set_image(space, resource);
 }
