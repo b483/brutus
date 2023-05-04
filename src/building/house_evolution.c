@@ -498,9 +498,9 @@ void building_house_process_evolve_and_consume_goods(void)
     int has_expanded = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
         building *b = building_get(i);
-        if (b->state == BUILDING_STATE_IN_USE && building_is_house(b->type)) {
+        if (b->state == BUILDING_STATE_IN_USE && building_is_house(b->type) && b->type != BUILDING_HOUSE_VACANT_LOT) {
             building_house_check_for_corruption(b);
-            has_expanded |= evolve_callback[b->type - BUILDING_HOUSE_VACANT_LOT](b, demands);
+            has_expanded |= evolve_callback[b->type - BUILDING_HOUSE_SMALL_TENT](b, demands);
             if (game_time_day() == 0 || game_time_day() == 7) {
                 consume_resources(b);
             }

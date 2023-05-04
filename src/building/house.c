@@ -53,7 +53,7 @@ static struct {
 void building_house_change_to(building *house, building_type type)
 {
     house->type = type;
-    house->subtype.house_level = house->type - BUILDING_HOUSE_VACANT_LOT;
+    house->subtype.house_level = house->type - BUILDING_HOUSE_SMALL_TENT;
     int image_id = image_group(HOUSE_IMAGE[house->subtype.house_level].group);
     if (house->house_is_merged) {
         image_id += 4;
@@ -78,7 +78,7 @@ static void create_vacant_lot(int x, int y, int image_id)
 void building_house_change_to_vacant_lot(building *house)
 {
     house->type = BUILDING_HOUSE_VACANT_LOT;
-    house->subtype.house_level = house->type - BUILDING_HOUSE_VACANT_LOT;
+    house->subtype.house_level = house->type - BUILDING_HOUSE_SMALL_TENT;
     int image_id = image_group(GROUP_BUILDING_HOUSE_VACANT_LOT);
     if (house->house_is_merged) {
         map_building_tiles_remove(house->id, house->x, house->y);
@@ -282,7 +282,7 @@ static void split_size2(building *house, building_type new_type)
 
     // main tile
     house->type = new_type;
-    house->subtype.house_level = house->type - BUILDING_HOUSE_VACANT_LOT;
+    house->subtype.house_level = house->type - BUILDING_HOUSE_SMALL_TENT;
     house->size = house->house_size = 1;
     house->house_is_merged = 0;
     house->house_population = population_per_tile + population_remainder;
@@ -316,7 +316,7 @@ static void split_size3(building *house)
 
     // main tile
     house->type = BUILDING_HOUSE_MEDIUM_INSULA;
-    house->subtype.house_level = house->type - BUILDING_HOUSE_VACANT_LOT;
+    house->subtype.house_level = house->type - BUILDING_HOUSE_SMALL_TENT;
     house->size = house->house_size = 1;
     house->house_is_merged = 0;
     house->house_population = population_per_tile + population_remainder;
@@ -440,7 +440,7 @@ void building_house_devolve_from_large_villa(building *house)
 
     // main tile
     house->type = BUILDING_HOUSE_MEDIUM_VILLA;
-    house->subtype.house_level = house->type - BUILDING_HOUSE_VACANT_LOT;
+    house->subtype.house_level = house->type - BUILDING_HOUSE_SMALL_TENT;
     house->size = house->house_size = 2;
     house->house_is_merged = 0;
     house->house_population = population_per_tile + population_remainder;
@@ -482,7 +482,7 @@ void building_house_devolve_from_large_palace(building *house)
 
     // main tile
     house->type = BUILDING_HOUSE_MEDIUM_PALACE;
-    house->subtype.house_level = house->type - BUILDING_HOUSE_VACANT_LOT;
+    house->subtype.house_level = house->type - BUILDING_HOUSE_SMALL_TENT;
     house->size = house->house_size = 3;
     house->house_is_merged = 0;
     house->house_population = population_per_tile + population_remainder;

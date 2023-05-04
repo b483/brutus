@@ -92,7 +92,7 @@ void window_building_draw_house(building_info_context *c)
         draw_vacant_lot(c);
         return;
     }
-    int level = b->type - 10;
+    int level = b->type - 2;
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(29, level, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
     inner_panel_draw(c->x_offset + 16, c->y_offset + 148, c->width_blocks - 2, 10);

@@ -150,7 +150,7 @@ struct building_properties_t {
     uint8_t laborers;
 };
 
-extern struct building_properties_t building_properties[140];
+extern struct building_properties_t building_properties[BUILDING_TYPE_MAX];
 
 struct house_properties_t {
     int8_t devolve_desirability; /**< Desirability at which the house devolves */
