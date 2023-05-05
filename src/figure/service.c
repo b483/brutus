@@ -8,7 +8,7 @@
 
 #define MAX_COVERAGE 96
 
-static int provide_culture(int x, int y, void (*callback)(building *))
+static int provide_culture(int x, int y, void (*callback)(struct building_t *))
 {
     int serviced = 0;
     int x_min, y_min, x_max, y_max;
@@ -18,7 +18,7 @@ static int provide_culture(int x, int y, void (*callback)(building *))
             int grid_offset = map_grid_offset(xx, yy);
             int building_id = map_building_at(grid_offset);
             if (building_id) {
-                building *b = building_get(building_id);
+                struct building_t *b = &all_buildings[building_id];
                 if (b->house_size && b->house_population > 0) {
                     callback(b);
                     serviced++;
@@ -29,7 +29,7 @@ static int provide_culture(int x, int y, void (*callback)(building *))
     return serviced;
 }
 
-static int provide_entertainment(int x, int y, int shows, void (*callback)(building *, int))
+static int provide_entertainment(int x, int y, int shows, void (*callback)(struct building_t *, int))
 {
     int serviced = 0;
     int x_min, y_min, x_max, y_max;
@@ -39,7 +39,7 @@ static int provide_entertainment(int x, int y, int shows, void (*callback)(build
             int grid_offset = map_grid_offset(xx, yy);
             int building_id = map_building_at(grid_offset);
             if (building_id) {
-                building *b = building_get(building_id);
+                struct building_t *b = &all_buildings[building_id];
                 if (b->house_size && b->house_population > 0) {
                     callback(b, shows);
                     serviced++;
@@ -50,15 +50,15 @@ static int provide_entertainment(int x, int y, int shows, void (*callback)(build
     return serviced;
 }
 
-static void labor_seeker_coverage(__attribute__((unused)) building *b)
+static void labor_seeker_coverage(__attribute__((unused)) struct building_t *b)
 {}
 
-static void theater_coverage(building *b)
+static void theater_coverage(struct building_t *b)
 {
     b->data.house.theater = MAX_COVERAGE;
 }
 
-static void amphitheater_coverage(building *b, int shows)
+static void amphitheater_coverage(struct building_t *b, int shows)
 {
     b->data.house.amphitheater_actor = MAX_COVERAGE;
     if (shows == 2) {
@@ -66,7 +66,7 @@ static void amphitheater_coverage(building *b, int shows)
     }
 }
 
-static void colosseum_coverage(building *b, int shows)
+static void colosseum_coverage(struct building_t *b, int shows)
 {
     b->data.house.colosseum_gladiator = MAX_COVERAGE;
     if (shows == 2) {
@@ -74,67 +74,67 @@ static void colosseum_coverage(building *b, int shows)
     }
 }
 
-static void hippodrome_coverage(building *b)
+static void hippodrome_coverage(struct building_t *b)
 {
     b->data.house.hippodrome = MAX_COVERAGE;
 }
 
-static void bathhouse_coverage(building *b)
+static void bathhouse_coverage(struct building_t *b)
 {
     b->data.house.bathhouse = MAX_COVERAGE;
 }
 
-static void religion_coverage_ceres(building *b)
+static void religion_coverage_ceres(struct building_t *b)
 {
     b->data.house.temple_ceres = MAX_COVERAGE;
 }
 
-static void religion_coverage_neptune(building *b)
+static void religion_coverage_neptune(struct building_t *b)
 {
     b->data.house.temple_neptune = MAX_COVERAGE;
 }
 
-static void religion_coverage_mercury(building *b)
+static void religion_coverage_mercury(struct building_t *b)
 {
     b->data.house.temple_mercury = MAX_COVERAGE;
 }
 
-static void religion_coverage_mars(building *b)
+static void religion_coverage_mars(struct building_t *b)
 {
     b->data.house.temple_mars = MAX_COVERAGE;
 }
 
-static void religion_coverage_venus(building *b)
+static void religion_coverage_venus(struct building_t *b)
 {
     b->data.house.temple_venus = MAX_COVERAGE;
 }
 
-static void school_coverage(building *b)
+static void school_coverage(struct building_t *b)
 {
     b->data.house.school = MAX_COVERAGE;
 }
 
-static void academy_coverage(building *b)
+static void academy_coverage(struct building_t *b)
 {
     b->data.house.academy = MAX_COVERAGE;
 }
 
-static void library_coverage(building *b)
+static void library_coverage(struct building_t *b)
 {
     b->data.house.library = MAX_COVERAGE;
 }
 
-static void barber_coverage(building *b)
+static void barber_coverage(struct building_t *b)
 {
     b->data.house.barber = MAX_COVERAGE;
 }
 
-static void clinic_coverage(building *b)
+static void clinic_coverage(struct building_t *b)
 {
     b->data.house.clinic = MAX_COVERAGE;
 }
 
-static void hospital_coverage(building *b)
+static void hospital_coverage(struct building_t *b)
 {
     b->data.house.hospital = MAX_COVERAGE;
 }
@@ -147,7 +147,7 @@ static int provide_missionary_coverage(int x, int y)
         for (int xx = x_min; xx <= x_max; xx++) {
             int building_id = map_building_at(map_grid_offset(xx, yy));
             if (building_id) {
-                building *b = building_get(building_id);
+                struct building_t *b = &all_buildings[building_id];
                 if (b->type == BUILDING_NATIVE_HUT || b->type == BUILDING_NATIVE_MEETING) {
                     b->sentiment.native_anger = 0;
                 }
@@ -157,7 +157,7 @@ static int provide_missionary_coverage(int x, int y)
     return 1;
 }
 
-static int provide_service(int x, int y, int *data, void (*callback)(building *, int *))
+static int provide_service(int x, int y, int *data, void (*callback)(struct building_t *, int *))
 {
     int serviced = 0;
     int x_min, y_min, x_max, y_max;
@@ -167,7 +167,7 @@ static int provide_service(int x, int y, int *data, void (*callback)(building *,
             int grid_offset = map_grid_offset(xx, yy);
             int building_id = map_building_at(grid_offset);
             if (building_id) {
-                building *b = building_get(building_id);
+                struct building_t *b = &all_buildings[building_id];
                 callback(b, data);
                 if (b->house_size && b->house_population > 0) {
                     serviced++;
@@ -178,7 +178,7 @@ static int provide_service(int x, int y, int *data, void (*callback)(building *,
     return serviced;
 }
 
-static void engineer_coverage(building *b, int *max_damage_seen)
+static void engineer_coverage(struct building_t *b, int *max_damage_seen)
 {
     if (b->type == BUILDING_HIPPODROME) {
         b = building_main(b);
@@ -189,7 +189,7 @@ static void engineer_coverage(building *b, int *max_damage_seen)
     b->damage_risk = 0;
 }
 
-static void prefect_coverage(building *b, int *min_happiness_seen)
+static void prefect_coverage(struct building_t *b, int *min_happiness_seen)
 {
     if (b->type == BUILDING_HIPPODROME) {
         b = building_main(b);
@@ -200,7 +200,7 @@ static void prefect_coverage(building *b, int *min_happiness_seen)
     }
 }
 
-static void tax_collector_coverage(building *b, int *max_tax_multiplier)
+static void tax_collector_coverage(struct building_t *b, int *max_tax_multiplier)
 {
     if (b->house_size && b->house_population > 0) {
         if (house_properties[b->subtype.house_level].tax_multiplier > *max_tax_multiplier) {
@@ -210,7 +210,7 @@ static void tax_collector_coverage(building *b, int *max_tax_multiplier)
     }
 }
 
-static void distribute_good(building *b, building *market, int stock_wanted, int inventory_resource)
+static void distribute_good(struct building_t *b, struct building_t *market, int stock_wanted, int inventory_resource)
 {
     int amount_wanted = stock_wanted - b->data.house.inventory[inventory_resource];
     if (market->data.market.inventory[inventory_resource] > 0 && amount_wanted > 0) {
@@ -224,7 +224,7 @@ static void distribute_good(building *b, building *market, int stock_wanted, int
     }
 }
 
-static void distribute_market_resources(building *b, building *market)
+static void distribute_market_resources(struct building_t *b, struct building_t *market)
 {
     int level = b->subtype.house_level;
     if (level < HOUSE_LUXURY_PALACE) {
@@ -274,7 +274,7 @@ static void distribute_market_resources(building *b, building *market)
 static int provide_market_goods(int market_building_id, int x, int y)
 {
     int serviced = 0;
-    building *market = building_get(market_building_id);
+    struct building_t *market = &all_buildings[market_building_id];
     int x_min, y_min, x_max, y_max;
     map_grid_get_area(x, y, 1, 2, &x_min, &y_min, &x_max, &y_max);
     for (int yy = y_min; yy <= y_max; yy++) {
@@ -282,7 +282,7 @@ static int provide_market_goods(int market_building_id, int x, int y)
             int grid_offset = map_grid_offset(xx, yy);
             int building_id = map_building_at(grid_offset);
             if (building_id) {
-                building *b = building_get(building_id);
+                struct building_t *b = &all_buildings[building_id];
                 if (b->house_size && b->house_population > 0) {
                     distribute_market_resources(b, market);
                     serviced++;
@@ -293,13 +293,13 @@ static int provide_market_goods(int market_building_id, int x, int y)
     return serviced;
 }
 
-static building *get_entertainment_building(const struct figure_t *f)
+static struct building_t *get_entertainment_building(const struct figure_t *f)
 {
     if (f->action_state == FIGURE_ACTION_ENTERTAINER_ROAMING ||
         f->action_state == FIGURE_ACTION_ENTERTAINER_RETURNING) {
-        return building_get(f->building_id);
+        return &all_buildings[f->building_id];
     } else { // going to venue
-        return building_get(f->destination_building_id);
+        return &all_buildings[f->destination_building_id];
     }
 }
 
@@ -308,7 +308,7 @@ int figure_service_provide_coverage(struct figure_t *f)
     int houses_serviced = 0;
     int x = f->x;
     int y = f->y;
-    building *b;
+    struct building_t *b;
     switch (f->type) {
         case FIGURE_PATRICIAN:
             return 0;
@@ -351,7 +351,7 @@ int figure_service_provide_coverage(struct figure_t *f)
             houses_serviced = provide_missionary_coverage(x, y);
             break;
         case FIGURE_PRIEST:
-            switch (building_get(f->building_id)->type) {
+            switch (all_buildings[f->building_id].type) {
                 case BUILDING_SMALL_TEMPLE_CERES:
                 case BUILDING_LARGE_TEMPLE_CERES:
                     houses_serviced = provide_culture(x, y, religion_coverage_ceres);
@@ -430,7 +430,7 @@ int figure_service_provide_coverage(struct figure_t *f)
             break;
     }
     if (f->building_id) {
-        b = building_get(f->building_id);
+        b = &all_buildings[f->building_id];
         b->houses_covered += houses_serviced;
         if (b->houses_covered > 300) {
             b->houses_covered = 300;

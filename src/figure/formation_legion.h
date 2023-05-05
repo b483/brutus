@@ -6,7 +6,7 @@
 #include "figure/formation.h"
 #include "map/point.h"
 
-int formation_legion_create_for_fort(building *fort);
+int formation_legion_create_for_fort(struct building_t *fort);
 
 void formation_calculate_legion_totals(void);
 

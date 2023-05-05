@@ -149,9 +149,9 @@ static const int LAYOUT_ORIENTATION_OFFSETS[13][4][40] = {
 int formation_rioter_get_target_building(int *x_tile, int *y_tile)
 {
     int best_type_index = 100;
-    building *best_building = 0;
+    struct building_t *best_building = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
@@ -186,10 +186,10 @@ static void set_enemy_target_building(struct formation_t *m)
         attack = random_byte() & 3;
     }
     int best_type_index = 100;
-    building *best_building = 0;
+    struct building_t *best_building = 0;
     int min_distance = 10000;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || map_soldier_strength_get(b->grid_offset)) {
             continue;
         }
@@ -217,7 +217,7 @@ static void set_enemy_target_building(struct formation_t *m)
     } else {
         // no priority buildings left: target population
         for (int i = 1; i < MAX_BUILDINGS; i++) {
-            building *b = building_get(i);
+            struct building_t *b = &all_buildings[i];
             if (b->state != BUILDING_STATE_IN_USE || map_soldier_strength_get(b->grid_offset)) {
                 continue;
             }
@@ -231,10 +231,10 @@ static void set_enemy_target_building(struct formation_t *m)
 
 static void set_native_target_building(struct formation_t *m)
 {
-    building *min_building = 0;
+    struct building_t *min_building = 0;
     int min_distance = 10000;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }

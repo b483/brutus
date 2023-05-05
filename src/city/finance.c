@@ -77,7 +77,7 @@ void city_finance_estimate_taxes(void)
     city_data.taxes.monthly.collected_plebs = 0;
     city_data.taxes.monthly.collected_patricians = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->house_size && b->house_tax_coverage) {
             int is_patrician = b->subtype.house_level >= HOUSE_SMALL_VILLA;
             if (is_patrician) {
@@ -115,7 +115,7 @@ static void collect_monthly_taxes(void)
         city_data.population.at_level[i] = 0;
     }
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || !b->house_size) {
             continue;
         }
@@ -218,7 +218,7 @@ static void reset_taxes(void)
 
     // reset tax income in building list
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->house_size) {
             b->tax_income_or_storage = 0;
         }
@@ -347,7 +347,7 @@ void distribute_treasury(void)
     }
 
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->house_size) {
             continue;
         }

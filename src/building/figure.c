@@ -26,14 +26,14 @@
 #include "scenario/data.h"
 #include "scenario/editor_events.h"
 
-static void check_labor_problem(building *b)
+static void check_labor_problem(struct building_t *b)
 {
     if (b->houses_covered <= 0) {
         b->show_on_problem_overlay = 2;
     }
 }
 
-static void generate_labor_seeker(building *b, int x, int y)
+static void generate_labor_seeker(struct building_t *b, int x, int y)
 {
     if (city_data.population.population <= 0) {
         return;
@@ -52,14 +52,14 @@ static void generate_labor_seeker(building *b, int x, int y)
     }
 }
 
-static void spawn_labor_seeker(building *b, int x, int y, int min_houses)
+static void spawn_labor_seeker(struct building_t *b, int x, int y, int min_houses)
 {
     if (b->houses_covered <= min_houses) {
         generate_labor_seeker(b, x, y);
     }
 }
 
-static int has_figure_of_types(building *b, int type1, int type2)
+static int has_figure_of_types(struct building_t *b, int type1, int type2)
 {
     if (b->figure_id <= 0) {
         return 0;
@@ -73,12 +73,12 @@ static int has_figure_of_types(building *b, int type1, int type2)
     }
 }
 
-static int has_figure_of_type(building *b, int type)
+static int has_figure_of_type(struct building_t *b, int type)
 {
     return has_figure_of_types(b, type, 0);
 }
 
-static int default_spawn_delay(building *b)
+static int default_spawn_delay(struct building_t *b)
 {
     int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
     if (pct_workers >= 100) {
@@ -96,7 +96,7 @@ static int default_spawn_delay(building *b)
     }
 }
 
-static void create_roaming_figure(building *b, int x, int y, int type)
+static void create_roaming_figure(struct building_t *b, int x, int y, int type)
 {
     struct figure_t *f = figure_create(type, x, y, DIR_0_TOP);
     f->action_state = FIGURE_ACTION_ROAMING;
@@ -105,7 +105,7 @@ static void create_roaming_figure(building *b, int x, int y, int type)
     figure_movement_init_roaming(f);
 }
 
-static int spawn_patrician(building *b, int spawned)
+static int spawn_patrician(struct building_t *b, int spawned)
 {
     map_point road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
@@ -122,10 +122,10 @@ static int spawn_patrician(building *b, int spawned)
     return spawned;
 }
 
-static void spawn_figure_warehouse(building *b)
+static void spawn_figure_warehouse(struct building_t *b)
 {
     check_labor_problem(b);
-    building *space = b;
+    struct building_t *space = b;
     for (int i = 0; i < 8; i++) {
         space = building_next(space);
         if (space->id) {
@@ -156,7 +156,7 @@ static void spawn_figure_warehouse(building *b)
     }
 }
 
-static void spawn_figure_granary(building *b)
+static void spawn_figure_granary(struct building_t *b)
 {
     check_labor_problem(b);
     map_point road;
@@ -176,7 +176,7 @@ static void spawn_figure_granary(building *b)
     }
 }
 
-static void spawn_figure_tower(building *b)
+static void spawn_figure_tower(struct building_t *b)
 {
     check_labor_problem(b);
     map_point road;
@@ -198,7 +198,7 @@ static void spawn_figure_tower(building *b)
     }
 }
 
-static void spawn_figure_engineers_post(building *b)
+static void spawn_figure_engineers_post(struct building_t *b)
 {
     check_labor_problem(b);
     if (has_figure_of_type(b, FIGURE_ENGINEER)) {
@@ -233,7 +233,7 @@ static void spawn_figure_engineers_post(building *b)
     }
 }
 
-static void spawn_figure_prefecture(building *b)
+static void spawn_figure_prefecture(struct building_t *b)
 {
     check_labor_problem(b);
     if (has_figure_of_type(b, FIGURE_PREFECT)) {
@@ -268,7 +268,7 @@ static void spawn_figure_prefecture(building *b)
     }
 }
 
-static void spawn_figure_actor_colony(building *b)
+static void spawn_figure_actor_colony(struct building_t *b)
 {
     check_labor_problem(b);
     map_point road;
@@ -289,7 +289,7 @@ static void spawn_figure_actor_colony(building *b)
     }
 }
 
-static void spawn_figure_gladiator_school(building *b)
+static void spawn_figure_gladiator_school(struct building_t *b)
 {
     check_labor_problem(b);
     map_point road;
@@ -312,7 +312,7 @@ static void spawn_figure_gladiator_school(building *b)
     }
 }
 
-static void spawn_figure_lion_house(building *b)
+static void spawn_figure_lion_house(struct building_t *b)
 {
     check_labor_problem(b);
     map_point road;
@@ -344,7 +344,7 @@ static void spawn_figure_lion_house(building *b)
     }
 }
 
-static void spawn_figure_chariot_maker(building *b)
+static void spawn_figure_chariot_maker(struct building_t *b)
 {
     check_labor_problem(b);
     map_point road;
@@ -376,7 +376,7 @@ static void spawn_figure_chariot_maker(building *b)
     }
 }
 
-static void spawn_figure_amphitheater(building *b)
+static void spawn_figure_amphitheater(struct building_t *b)
 {
     check_labor_problem(b);
     if (has_figure_of_types(b, FIGURE_ACTOR, FIGURE_GLADIATOR)) {
@@ -425,7 +425,7 @@ static void spawn_figure_amphitheater(building *b)
     }
 }
 
-static void spawn_figure_theater(building *b)
+static void spawn_figure_theater(struct building_t *b)
 {
     check_labor_problem(b);
     if (has_figure_of_type(b, FIGURE_ACTOR)) {
@@ -452,13 +452,13 @@ static void spawn_figure_theater(building *b)
     }
 }
 
-static void spawn_figure_hippodrome(building *b)
+static void spawn_figure_hippodrome(struct building_t *b)
 {
     check_labor_problem(b);
     if (b->prev_part_building_id) {
         return;
     }
-    building *part = b;
+    struct building_t *part = b;
     for (int i = 0; i < 2; i++) {
         part = building_next(part);
         if (part->id) {
@@ -521,7 +521,7 @@ static void spawn_figure_hippodrome(building *b)
     }
 }
 
-static void spawn_figure_colosseum(building *b)
+static void spawn_figure_colosseum(struct building_t *b)
 {
     check_labor_problem(b);
     if (has_figure_of_types(b, FIGURE_GLADIATOR, FIGURE_LION_TAMER)) {
@@ -576,7 +576,7 @@ static void spawn_figure_colosseum(building *b)
     }
 }
 
-static void set_market_graphic(building *b)
+static void set_market_graphic(struct building_t *b)
 {
     if (b->state != BUILDING_STATE_IN_USE) {
         return;
@@ -590,7 +590,7 @@ static void set_market_graphic(building *b)
     }
 }
 
-static void spawn_figure_market(building *b)
+static void spawn_figure_market(struct building_t *b)
 {
     set_market_graphic(b);
     check_labor_problem(b);
@@ -637,7 +637,7 @@ static void spawn_figure_market(building *b)
                 b->figure_id2 = f->id;
                 f->destination_building_id = dst_building_id;
                 f->collecting_item_id = b->data.market.fetch_inventory_id;
-                building *b_dst = building_get(dst_building_id);
+                struct building_t *b_dst = &all_buildings[dst_building_id];
                 if (map_has_road_access(b_dst->x, b_dst->y, b_dst->size, &road) ||
                     map_has_road_access(b_dst->x, b_dst->y, 3, &road)) {
                     f->destination_x = road.x;
@@ -652,7 +652,7 @@ static void spawn_figure_market(building *b)
     }
 }
 
-static void set_bathhouse_graphic(building *b)
+static void set_bathhouse_graphic(struct building_t *b)
 {
     if (b->state != BUILDING_STATE_IN_USE) {
         return;
@@ -681,7 +681,7 @@ static void set_bathhouse_graphic(building *b)
     }
 }
 
-static void spawn_figure_bathhouse(building *b)
+static void spawn_figure_bathhouse(struct building_t *b)
 {
     set_bathhouse_graphic(b);
     check_labor_problem(b);
@@ -706,7 +706,7 @@ static void spawn_figure_bathhouse(building *b)
     }
 }
 
-static void spawn_figure_school(building *b)
+static void spawn_figure_school(struct building_t *b)
 {
     check_labor_problem(b);
     if (has_figure_of_type(b, FIGURE_SCHOOL_CHILD)) {
@@ -747,7 +747,7 @@ static void spawn_figure_school(building *b)
     }
 }
 
-static void spawn_figure_library(building *b)
+static void spawn_figure_library(struct building_t *b)
 {
     check_labor_problem(b);
     if (has_figure_of_type(b, FIGURE_LIBRARIAN)) {
@@ -768,7 +768,7 @@ static void spawn_figure_library(building *b)
     }
 }
 
-static void spawn_figure_academy(building *b)
+static void spawn_figure_academy(struct building_t *b)
 {
     check_labor_problem(b);
     if (has_figure_of_type(b, FIGURE_TEACHER)) {
@@ -789,7 +789,7 @@ static void spawn_figure_academy(building *b)
     }
 }
 
-static void spawn_figure_barber(building *b)
+static void spawn_figure_barber(struct building_t *b)
 {
     check_labor_problem(b);
     if (has_figure_of_type(b, FIGURE_BARBER)) {
@@ -810,7 +810,7 @@ static void spawn_figure_barber(building *b)
     }
 }
 
-static void spawn_figure_doctor(building *b)
+static void spawn_figure_doctor(struct building_t *b)
 {
     check_labor_problem(b);
     if (has_figure_of_type(b, FIGURE_DOCTOR)) {
@@ -831,7 +831,7 @@ static void spawn_figure_doctor(building *b)
     }
 }
 
-static void spawn_figure_hospital(building *b)
+static void spawn_figure_hospital(struct building_t *b)
 {
     check_labor_problem(b);
     if (has_figure_of_type(b, FIGURE_SURGEON)) {
@@ -852,7 +852,7 @@ static void spawn_figure_hospital(building *b)
     }
 }
 
-static void spawn_figure_temple(building *b)
+static void spawn_figure_temple(struct building_t *b)
 {
     check_labor_problem(b);
     if (has_figure_of_type(b, FIGURE_PRIEST)) {
@@ -886,7 +886,7 @@ static void spawn_figure_temple(building *b)
     }
 }
 
-static void set_senate_graphic(building *b)
+static void set_senate_graphic(struct building_t *b)
 {
     if (b->state != BUILDING_STATE_IN_USE) {
         return;
@@ -898,7 +898,7 @@ static void set_senate_graphic(building *b)
     }
 }
 
-static void spawn_figure_senate_forum(building *b)
+static void spawn_figure_senate_forum(struct building_t *b)
 {
     if (b->type == BUILDING_SENATE) {
         set_senate_graphic(b);
@@ -936,7 +936,7 @@ static void spawn_figure_senate_forum(building *b)
     }
 }
 
-static void spawn_figure_mission_post(building *b)
+static void spawn_figure_mission_post(struct building_t *b)
 {
     if (has_figure_of_type(b, FIGURE_MISSIONARY)) {
         return;
@@ -954,7 +954,7 @@ static void spawn_figure_mission_post(building *b)
     }
 }
 
-static void spawn_figure_industry(building *b)
+static void spawn_figure_industry(struct building_t *b)
 {
     check_labor_problem(b);
     map_point road;
@@ -975,7 +975,7 @@ static void spawn_figure_industry(building *b)
     }
 }
 
-static void spawn_figure_wharf(building *b)
+static void spawn_figure_wharf(struct building_t *b)
 {
     check_labor_problem(b);
     if (b->data.industry.fishing_boat_id) {
@@ -1004,7 +1004,7 @@ static void spawn_figure_wharf(building *b)
     }
 }
 
-static void spawn_figure_shipyard(building *b)
+static void spawn_figure_shipyard(struct building_t *b)
 {
     check_labor_problem(b);
     map_point road;
@@ -1038,7 +1038,7 @@ static void spawn_figure_shipyard(building *b)
     }
 }
 
-static void spawn_figure_dock(building *b)
+static void spawn_figure_dock(struct building_t *b)
 {
     check_labor_problem(b);
     map_point road;
@@ -1088,7 +1088,7 @@ static void spawn_figure_dock(building *b)
     }
 }
 
-static void spawn_figure_native_hut(building *b)
+static void spawn_figure_native_hut(struct building_t *b)
 {
     map_image_set(b->grid_offset, image_group(GROUP_BUILDING_NATIVE) + (map_random_get(b->grid_offset) & 1));
     if (has_figure_of_type(b, FIGURE_INDIGENOUS_NATIVE)) {
@@ -1108,7 +1108,7 @@ static void spawn_figure_native_hut(building *b)
     }
 }
 
-static void spawn_figure_native_meeting(building *b)
+static void spawn_figure_native_meeting(struct building_t *b)
 {
     map_building_tiles_add(b->id, b->x, b->y, 2, image_group(GROUP_BUILDING_NATIVE) + 2, TERRAIN_BUILDING);
     if (city_data.building.mission_post_operational > 0 && !has_figure_of_type(b, FIGURE_NATIVE_TRADER)) {
@@ -1126,7 +1126,7 @@ static void spawn_figure_native_meeting(building *b)
     }
 }
 
-static void spawn_figure_barracks(building *b)
+static void spawn_figure_barracks(struct building_t *b)
 {
     check_labor_problem(b);
     map_point road;
@@ -1158,7 +1158,7 @@ static void spawn_figure_barracks(building *b)
     }
 }
 
-static void spawn_figure_military_academy(building *b)
+static void spawn_figure_military_academy(struct building_t *b)
 {
     check_labor_problem(b);
     map_point road;
@@ -1167,7 +1167,7 @@ static void spawn_figure_military_academy(building *b)
     }
 }
 
-static void update_native_crop_progress(building *b)
+static void update_native_crop_progress(struct building_t *b)
 {
     b->data.industry.progress++;
     if (b->data.industry.progress >= 5) {
@@ -1182,7 +1182,7 @@ void building_figure_generate(void)
     building_barracks_decay_tower_sentry_request();
     int max_id = building_get_highest_id();
     for (int i = 1; i <= max_id; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }

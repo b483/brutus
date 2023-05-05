@@ -86,7 +86,7 @@ static int place_houses(int measure_only, int x_start, int y_start, int x_end, i
                 map_property_mark_constructing(grid_offset);
                 items_placed++;
             } else {
-                building *b = building_create(BUILDING_HOUSE_VACANT_LOT, x, y);
+                struct building_t *b = building_create(BUILDING_HOUSE_VACANT_LOT, x, y);
                 game_undo_add_building(b);
                 if (b->id > 0) {
                     items_placed++;
@@ -448,21 +448,21 @@ static int get_nearby_enemy_type(int x_start, int y_start, int x_end, int y_end)
     return 0;
 }
 
-static void add_fort(building *fort)
+static void add_fort(int type, struct building_t *fort)
 {
     fort->prev_part_building_id = 0;
     map_building_tiles_add(fort->id, fort->x, fort->y, fort->size, image_group(GROUP_BUILDING_FORT), TERRAIN_BUILDING);
-    if (fort->type == BUILDING_FORT_LEGIONARIES) {
+    if (type == BUILDING_FORT_LEGIONARIES) {
         fort->subtype.fort_figure_type = FIGURE_FORT_LEGIONARY;
-    } else if (fort->type == BUILDING_FORT_JAVELIN) {
+    } else if (type == BUILDING_FORT_JAVELIN) {
         fort->subtype.fort_figure_type = FIGURE_FORT_JAVELIN;
-    } else if (fort->type == BUILDING_FORT_MOUNTED) {
+    } else if (type == BUILDING_FORT_MOUNTED) {
         fort->subtype.fort_figure_type = FIGURE_FORT_MOUNTED;
     }
 
     fort->formation_id = formation_legion_create_for_fort(fort);
     // create parade ground
-    building *ground = building_create(BUILDING_FORT_GROUND, fort->x + 3, fort->y - 1);
+    struct building_t *ground = building_create(BUILDING_FORT_GROUND, fort->x + 3, fort->y - 1);
     game_undo_add_building(ground);
     ground->formation_id = fort->formation_id;
     ground->prev_part_building_id = fort->id;
@@ -472,14 +472,14 @@ static void add_fort(building *fort)
         image_group(GROUP_BUILDING_FORT) + 1, TERRAIN_BUILDING);
 }
 
-static void add_hippodrome(building *b)
+static void add_hippodrome(struct building_t *b)
 {
     int image1 = image_group(GROUP_BUILDING_HIPPODROME_1);
     int image2 = image_group(GROUP_BUILDING_HIPPODROME_2);
     city_data.building.hippodrome_placed = 1;
 
     int orientation = city_view_orientation();
-    building *part1 = b;
+    struct building_t *part1 = b;
     if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
         part1->subtype.orientation = 0;
     } else {
@@ -505,7 +505,7 @@ static void add_hippodrome(building *b)
     }
     map_building_tiles_add(b->id, b->x, b->y, b->size, image_id, TERRAIN_BUILDING);
 
-    building *part2 = building_create(BUILDING_HIPPODROME, b->x + 5, b->y);
+    struct building_t *part2 = building_create(BUILDING_HIPPODROME, b->x + 5, b->y);
     game_undo_add_building(part2);
     if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
         part2->subtype.orientation = 1;
@@ -527,7 +527,7 @@ static void add_hippodrome(building *b)
     }
     map_building_tiles_add(part2->id, b->x + 5, b->y, b->size, image_id, TERRAIN_BUILDING);
 
-    building *part3 = building_create(BUILDING_HIPPODROME, b->x + 10, b->y);
+    struct building_t *part3 = building_create(BUILDING_HIPPODROME, b->x + 10, b->y);
     game_undo_add_building(part3);
     if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
         part3->subtype.orientation = 2;
@@ -554,9 +554,9 @@ static void add_hippodrome(building *b)
     map_building_tiles_add(part3->id, b->x + 10, b->y, b->size, image_id, TERRAIN_BUILDING);
 }
 
-static building *add_warehouse_space(int x, int y, building *prev)
+static struct building_t *add_warehouse_space(int x, int y, struct building_t *prev)
 {
-    building *b = building_create(BUILDING_WAREHOUSE_SPACE, x, y);
+    struct building_t *b = building_create(BUILDING_WAREHOUSE_SPACE, x, y);
     game_undo_add_building(b);
     b->prev_part_building_id = prev->id;
     prev->next_part_building_id = b->id;
@@ -565,13 +565,13 @@ static building *add_warehouse_space(int x, int y, building *prev)
     return b;
 }
 
-static void add_warehouse(building *b)
+static void add_warehouse(struct building_t *b)
 {
     b->storage_id = building_storage_create();
     b->prev_part_building_id = 0;
     map_building_tiles_add(b->id, b->x, b->y, 1, image_group(GROUP_BUILDING_WAREHOUSE), TERRAIN_BUILDING);
 
-    building *prev = b;
+    struct building_t *prev = b;
     prev = add_warehouse_space(b->x + 1, b->y, prev);
     prev = add_warehouse_space(b->x + 2, b->y, prev);
     prev = add_warehouse_space(b->x, b->y + 1, prev);
@@ -583,9 +583,9 @@ static void add_warehouse(building *b)
     prev->next_part_building_id = 0;
 }
 
-static void add_to_map(building *b, int orientation, int waterside_orientation_abs, int waterside_orientation_rel)
+static void add_to_map(int type, struct building_t *b, int orientation, int waterside_orientation_abs, int waterside_orientation_rel)
 {
-    switch (b->type) {
+    switch (type) {
         case BUILDING_HOUSE_LARGE_TENT:
             map_building_tiles_add(b->id, b->x, b->y, b->size, image_group(GROUP_BUILDING_HOUSE_TENT) + 2, TERRAIN_BUILDING);
             break;
@@ -881,7 +881,7 @@ static void add_to_map(building *b, int orientation, int waterside_orientation_a
         case BUILDING_FORT_LEGIONARIES:
         case BUILDING_FORT_JAVELIN:
         case BUILDING_FORT_MOUNTED:
-            add_fort(b);
+            add_fort(type, b);
             break;
         case BUILDING_NATIVE_HUT:
             map_building_tiles_add(b->id, b->x, b->y, b->size, image_group(GROUP_BUILDING_NATIVE) + (random_byte() & 1), TERRAIN_BUILDING);
@@ -1008,7 +1008,7 @@ static int building_construction_place_building(building_type type, int x, int y
     building_construction_warning_check_all(type, x, y, size);
 
     // phew, checks done!
-    building *b;
+    struct building_t *b;
     if (building_is_fort(type)) {
         b = building_create(BUILDING_FORT, x, y);
     } else {
@@ -1018,7 +1018,7 @@ static int building_construction_place_building(building_type type, int x, int y
     if (b->id <= 0) {
         return 0;
     }
-    add_to_map(b, building_orientation, waterside_orientation_abs, waterside_orientation_rel);
+    add_to_map(type, b, building_orientation, waterside_orientation_abs, waterside_orientation_rel); // type included due to forts
     return 1;
 }
 

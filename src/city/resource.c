@@ -134,7 +134,7 @@ void city_resource_calculate_warehouse_stocks(void)
         city_data.resource.stored_in_warehouses[i] = 0;
     }
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_WAREHOUSE) {
             b->has_road_access = 0;
             if (map_has_road_access(b->x, b->y, b->size, 0)) {
@@ -145,11 +145,11 @@ void city_resource_calculate_warehouse_stocks(void)
         }
     }
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WAREHOUSE_SPACE) {
             continue;
         }
-        building *warehouse = building_main(b);
+        struct building_t *warehouse = building_main(b);
         if (warehouse->has_road_access) {
             b->has_road_access = warehouse->has_road_access;
             if (b->subtype.warehouse_resource_id) {
@@ -201,7 +201,7 @@ static void calculate_available_food(void)
     city_data.resource.granaries.not_operating = 0;
     city_data.resource.granaries.not_operating_with_food = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY) {
             continue;
         }
@@ -256,7 +256,7 @@ void city_resource_calculate_food_stocks_and_supply_wheat(void)
     calculate_available_food();
     if (scenario.rome_supplies_wheat) {
         for (int i = 1; i < MAX_BUILDINGS; i++) {
-            building *b = building_get(i);
+            struct building_t *b = &all_buildings[i];
             if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_MARKET) {
                 b->data.market.inventory[INVENTORY_WHEAT] = 200;
             }
@@ -271,7 +271,7 @@ void city_resource_calculate_workshop_stocks(void)
         city_data.resource.space_in_workshops[i] = 0;
     }
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || !building_is_workshop(b->type)) {
             continue;
         }
@@ -295,7 +295,7 @@ void city_resource_consume_food(void)
     city_data.resource.food_types_eaten = 0;
     int total_consumed = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->house_size) {
             int amount_per_type = calc_adjust_with_percentage(b->house_population, 50);
             if (house_properties[b->subtype.house_level].food_types > 1) {

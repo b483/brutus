@@ -19,7 +19,7 @@ static int is_problem_cartpusher(int figure_id)
     }
 }
 
-void city_overlay_problems_prepare_building(building *b)
+void city_overlay_problems_prepare_building(struct building_t *b)
 {
     if (b->house_size) {
         return;
@@ -41,22 +41,22 @@ void city_overlay_problems_prepare_building(building *b)
     }
 }
 
-static int show_building_fire_crime(const building *b)
+static int show_building_fire_crime(const struct building_t *b)
 {
     return b->type == BUILDING_PREFECTURE || b->type == BUILDING_BURNING_RUIN;
 }
 
-static int show_building_damage(const building *b)
+static int show_building_damage(const struct building_t *b)
 {
     return b->type == BUILDING_ENGINEERS_POST;
 }
 
-static int show_building_problems(const building *b)
+static int show_building_problems(const struct building_t *b)
 {
     return b->show_on_problem_overlay;
 }
 
-static int show_building_native(const building *b)
+static int show_building_native(const struct building_t *b)
 {
     return b->type == BUILDING_NATIVE_HUT || b->type == BUILDING_NATIVE_MEETING || b->type == BUILDING_MISSION_POST;
 }
@@ -80,7 +80,7 @@ static int show_figure_crime(const struct figure_t *f)
 static int show_figure_problems(const struct figure_t *f)
 {
     if (f->type == FIGURE_LABOR_SEEKER) {
-        return building_get(f->building_id)->show_on_problem_overlay;
+        return all_buildings[f->building_id].show_on_problem_overlay;
     } else if (f->type == FIGURE_CART_PUSHER) {
         return f->action_state == FIGURE_ACTION_CARTPUSHER_INITIAL || f->min_max_seen;
     } else {
@@ -93,17 +93,17 @@ static int show_figure_native(const struct figure_t *f)
     return f->type == FIGURE_INDIGENOUS_NATIVE || f->type == FIGURE_MISSIONARY;
 }
 
-static int get_column_height_fire(const building *b)
+static int get_column_height_fire(const struct building_t *b)
 {
     return b->fire_risk > 0 ? b->fire_risk / 10 : NO_COLUMN;
 }
 
-static int get_column_height_damage(const building *b)
+static int get_column_height_damage(const struct building_t *b)
 {
     return b->damage_risk > 0 ? b->damage_risk / 20 : NO_COLUMN;
 }
 
-static int get_column_height_crime(const building *b)
+static int get_column_height_crime(const struct building_t *b)
 {
     if (b->house_size) {
         int happiness = b->sentiment.house_happiness;
@@ -124,12 +124,12 @@ static int get_column_height_crime(const building *b)
     return NO_COLUMN;
 }
 
-static int get_column_height_none(__attribute__((unused)) const building *b)
+static int get_column_height_none(__attribute__((unused)) const struct building_t *b)
 {
     return NO_COLUMN;
 }
 
-static int get_tooltip_fire(__attribute__((unused)) tooltip_context *c, const building *b)
+static int get_tooltip_fire(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
 {
     if (b->fire_risk <= 0) {
         return 46;
@@ -146,7 +146,7 @@ static int get_tooltip_fire(__attribute__((unused)) tooltip_context *c, const bu
     }
 }
 
-static int get_tooltip_damage(__attribute__((unused)) tooltip_context *c, const building *b)
+static int get_tooltip_damage(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
 {
     if (b->damage_risk <= 0) {
         return 52;
@@ -163,7 +163,7 @@ static int get_tooltip_damage(__attribute__((unused)) tooltip_context *c, const 
     }
 }
 
-static int get_tooltip_crime(__attribute__((unused)) tooltip_context *c, const building *b)
+static int get_tooltip_crime(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
 {
     if (b->sentiment.house_happiness <= 0) {
         return 63;

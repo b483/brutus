@@ -3,7 +3,7 @@
 #include "city/buildings.h"
 #include "city/data_private.h"
 #include "core/config.h"
-#include "scenario/editor_events.h"
+#include "scenario/data.h"
 
 #define BUILD_MENU_ITEM_MAX 30
 
@@ -62,7 +62,7 @@ static void enable_cycling_temples_if_configured(building_type type)
 
 static void enable_if_allowed(int *enabled, building_type menu_building_type, building_type type)
 {
-    if (menu_building_type == type && scenario_building_allowed(type)) {
+    if (menu_building_type == type && scenario.allowed_buildings[type]) {
         *enabled = 1;
     }
 }
@@ -185,8 +185,8 @@ static void enable_normal(int *enabled, building_type type)
     enable_if_allowed(enabled, type, BUILDING_LOW_BRIDGE);
     enable_if_allowed(enabled, type, BUILDING_SHIP_BRIDGE);
     enable_if_allowed(enabled, type, BUILDING_SHIPYARD);
-    enable_if_allowed(enabled, type, BUILDING_WHARF);
     enable_if_allowed(enabled, type, BUILDING_DOCK);
+    enable_if_allowed(enabled, type, BUILDING_WHARF);
     enable_if_allowed(enabled, type, BUILDING_WALL);
     enable_if_allowed(enabled, type, BUILDING_TOWER);
     enable_if_allowed(enabled, type, BUILDING_GATEHOUSE);

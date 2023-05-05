@@ -186,7 +186,7 @@ void city_labor_calculate_workers(int num_plebs, int num_patricians)
         city_data.population.working_age, city_data.population.percentage_plebs);
 }
 
-static int is_industry_disabled(building *b)
+static int is_industry_disabled(struct building_t *b)
 {
     if (b->type < BUILDING_WHEAT_FARM || b->type > BUILDING_POTTERY_WORKSHOP) {
         return 0;
@@ -198,7 +198,7 @@ static int is_industry_disabled(building *b)
     return 0;
 }
 
-static int should_have_workers(building *b, int category, int check_access)
+static int should_have_workers(struct building_t *b, int category, int check_access)
 {
     if (category < 0) {
         return 0;
@@ -232,7 +232,7 @@ static void calculate_workers_needed_per_category(void)
         city_data.labor.categories[cat].workers_needed = 0;
     }
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
@@ -346,7 +346,7 @@ static void set_building_worker_weight(void)
 {
     int water_per_10k_per_building = calc_percentage(100, city_data.labor.categories[LABOR_CATEGORY_WATER].buildings);
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
@@ -385,7 +385,7 @@ static void allocate_workers_to_water(void)
         if (building_id >= MAX_BUILDINGS) {
             building_id = 1;
         }
-        building *b = building_get(building_id);
+        struct building_t *b = &all_buildings[building_id];
         if (b->state != BUILDING_STATE_IN_USE || CATEGORY_FOR_BUILDING_TYPE[b->type] != LABOR_CATEGORY_WATER) {
             continue;
         }
@@ -422,7 +422,7 @@ static void allocate_workers_to_non_water_buildings(void)
             ? 1 : 0;
     }
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
@@ -463,7 +463,7 @@ static void allocate_workers_to_non_water_buildings(void)
         }
     }
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }

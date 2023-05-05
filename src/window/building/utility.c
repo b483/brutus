@@ -12,7 +12,7 @@ void window_building_draw_engineers_post(building_info_context *c)
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(104, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
 
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
 
     if (!c->has_road_access) {
         window_building_draw_description(c, 69, 25);
@@ -48,7 +48,7 @@ void window_building_draw_prefect(building_info_context *c)
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(88, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
 
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (!c->has_road_access) {
         window_building_draw_description(c, 69, 25);
     } else if (b->num_workers <= 0) {
@@ -108,7 +108,7 @@ void window_building_draw_reservoir(building_info_context *c)
     window_building_play_sound(c, "wavs/resevoir.wav");
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(107, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
-    int text_id = building_get(c->building_id)->has_water_access ? 1 : 3;
+    int text_id = all_buildings[c->building_id].has_water_access ? 1 : 3;
     window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 173, 107, text_id);
 }
 
@@ -128,7 +128,7 @@ void window_building_draw_fountain(building_info_context *c)
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(108, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
     int text_id;
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (b->has_water_access) {
         if (b->num_workers > 0) {
             text_id = 1;

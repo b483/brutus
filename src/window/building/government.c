@@ -15,7 +15,7 @@ void window_building_draw_forum(building_info_context *c)
     lang_text_draw_centered(106, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
     image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_DENARII, c->x_offset + 16, c->y_offset + 36);
 
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     int width = lang_text_draw(106, 2, c->x_offset + 44, c->y_offset + 43, FONT_NORMAL_BLACK);
     lang_text_draw_amount(8, 0, b->tax_income_or_storage,
         c->x_offset + 44 + width, c->y_offset + 43, FONT_NORMAL_BLACK);
@@ -49,7 +49,7 @@ void window_building_draw_senate(building_info_context *c)
     lang_text_draw_centered(105, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
     image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_DENARII, c->x_offset + 16, c->y_offset + 36);
 
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     int width = lang_text_draw(105, 2, c->x_offset + 44, c->y_offset + 43, FONT_NORMAL_BLACK);
     lang_text_draw_amount(8, 0, b->tax_income_or_storage,
         c->x_offset + 44 + width, c->y_offset + 43, FONT_NORMAL_BLACK);

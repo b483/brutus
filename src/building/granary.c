@@ -26,7 +26,7 @@ static struct {
     int total_storage_meat;
 } non_getting_granaries;
 
-static int get_amount(building *granary, int resource)
+static int get_amount(struct building_t *granary, int resource)
 {
     if (!resource_is_food(resource)) {
         return 0;
@@ -37,7 +37,7 @@ static int get_amount(building *granary, int resource)
     return granary->data.granary.resource_stored[resource];
 }
 
-int building_granary_add_resource(building *granary, int resource, int is_produced)
+int building_granary_add_resource(struct building_t *granary, int resource, int is_produced)
 {
     if (granary->id <= 0) {
         return 1;
@@ -64,7 +64,7 @@ int building_granary_add_resource(building *granary, int resource, int is_produc
     return 1;
 }
 
-int building_granary_remove_resource(building *granary, int resource, int amount)
+int building_granary_remove_resource(struct building_t *granary, int resource, int amount)
 {
     if (amount <= 0) {
         return 0;
@@ -81,7 +81,7 @@ int building_granary_remove_resource(building *granary, int resource, int amount
     return amount - removed;
 }
 
-int building_granary_remove_for_getting_deliveryman(building *src, building *dst, int *resource)
+int building_granary_remove_for_getting_deliveryman(struct building_t *src, struct building_t *dst, int *resource)
 {
     const building_storage *s_src = building_storage_get(src->storage_id);
     const building_storage *s_dst = building_storage_get(dst->storage_id);
@@ -128,7 +128,7 @@ int building_granary_remove_for_getting_deliveryman(building *src, building *dst
     return max_amount / UNITS_PER_LOAD;
 }
 
-int building_granary_determine_worker_task(building *granary)
+int building_granary_determine_worker_task(struct building_t *granary)
 {
     if (calc_percentage(granary->num_workers, building_properties[granary->type].laborers) < 50) {
         return GRANARY_TASK_NONE;
@@ -177,7 +177,7 @@ void building_granaries_calculate_stocks(void)
     non_getting_granaries.total_storage_meat = 0;
 
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY) {
             continue;
         }
@@ -226,7 +226,7 @@ int building_granary_for_storing(int x, int y, int resource, int distance_from_e
     int min_dist = INFINITE;
     int min_building_id = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY) {
             continue;
         }
@@ -254,7 +254,7 @@ int building_granary_for_storing(int x, int y, int resource, int distance_from_e
         }
     }
     // deliver to center of granary
-    building *min = building_get(min_building_id);
+    struct building_t *min = &all_buildings[min_building_id];
     map_point_store_result(min->x + 1, min->y + 1, dst);
     return min_building_id;
 }
@@ -274,7 +274,7 @@ int building_getting_granary_for_storing(int x, int y, int resource, int distanc
     int min_dist = INFINITE;
     int min_building_id = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY) {
             continue;
         }
@@ -298,12 +298,12 @@ int building_getting_granary_for_storing(int x, int y, int resource, int distanc
             }
         }
     }
-    building *min = building_get(min_building_id);
+    struct building_t *min = &all_buildings[min_building_id];
     map_point_store_result(min->x + 1, min->y + 1, dst);
     return min_building_id;
 }
 
-int building_granary_for_getting(building *src, map_point *dst)
+int building_granary_for_getting(struct building_t *src, map_point *dst)
 {
     const building_storage *s_src = building_storage_get(src->storage_id);
     if (s_src->empty_all) {
@@ -326,7 +326,7 @@ int building_granary_for_getting(building *src, map_point *dst)
     int min_dist = INFINITE;
     int min_building_id = 0;
     for (int i = 0; i < non_getting_granaries.num_items; i++) {
-        building *b = building_get(non_getting_granaries.building_ids[i]);
+        struct building_t *b = &all_buildings[non_getting_granaries.building_ids[i]];
         if (b->road_network_id != src->road_network_id) {
             continue;
         }
@@ -362,7 +362,7 @@ int building_granary_for_getting(building *src, map_point *dst)
             }
         }
     }
-    building *min = building_get(min_building_id);
+    struct building_t *min = &all_buildings[min_building_id];
     map_point_store_result(min->x + 1, min->y + 1, dst);
     return min_building_id;
 }
@@ -370,9 +370,9 @@ int building_granary_for_getting(building *src, map_point *dst)
 void building_granary_bless(void)
 {
     int min_stored = INFINITE;
-    building *min_building = 0;
+    struct building_t *min_building = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY) {
             continue;
         }
@@ -404,9 +404,9 @@ void building_granary_bless(void)
 void building_granary_warehouse_curse(int big)
 {
     int max_stored = 0;
-    building *max_building = 0;
+    struct building_t *max_building = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }

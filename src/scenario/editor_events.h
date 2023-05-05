@@ -16,8 +16,6 @@ typedef enum {
 
 void scenario_empire_process_expansion(void);
 
-int scenario_building_allowed(int building_type);
-
 void scenario_gladiator_revolt_process(void);
 
 void scenario_earthquake_process(void);

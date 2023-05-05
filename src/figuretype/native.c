@@ -12,7 +12,7 @@
 
 void figure_indigenous_native_action(struct figure_t *f)
 {
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     f->terrain_usage = TERRAIN_USAGE_ANY;
     f->use_cross_country = 0;
     f->max_roam_length = 800;
@@ -46,7 +46,7 @@ void figure_indigenous_native_action(struct figure_t *f)
                 f->wait_ticks = 0;
                 if (!city_data.military.native_attack_duration) {
                     int x_tile, y_tile;
-                    building *meeting = building_get(b->subtype.native_meeting_center_id);
+                    struct building_t *meeting = &all_buildings[b->subtype.native_meeting_center_id];
                     if (map_terrain_get_adjacent_road_or_clear_land(
                         meeting->x, meeting->y, meeting->size, &x_tile, &y_tile)) {
                         f->action_state = FIGURE_ACTION_NATIVE_GOING_TO_MEETING_CENTER;

@@ -403,7 +403,7 @@ static void set_tiles_road(int grid_offset, int tiles[MAX_TILES])
     for (int i = 0; i < MAX_TILES; i += 2) {
         int offset = grid_offset + map_grid_direction_delta(i);
         if (map_terrain_is(offset, TERRAIN_GATEHOUSE)) {
-            building *b = building_get(map_building_at(offset));
+            struct building_t *b = &all_buildings[map_building_at(offset)];
             if (b->type == BUILDING_GATEHOUSE &&
                 b->subtype.orientation == 1 + ((i / 2) & 1)) { // 1,2,1,2
                 tiles[i] = 1;
@@ -411,7 +411,7 @@ static void set_tiles_road(int grid_offset, int tiles[MAX_TILES])
         } else if (map_terrain_is(offset, TERRAIN_ACCESS_RAMP)) {
             tiles[i] = 1;
         } else if (map_terrain_is(offset, TERRAIN_BUILDING)) {
-            building *b = building_get(map_building_at(offset));
+            struct building_t *b = &all_buildings[map_building_at(offset)];
             if (b->type == BUILDING_GRANARY) {
                 tiles[i]  = (offset == b->grid_offset + map_grid_delta(1, 0)) ? 1 : 0;
                 tiles[i] |= (offset == b->grid_offset + map_grid_delta(0, 1)) ? 1 : 0;
@@ -459,7 +459,7 @@ static void set_terrain_reservoir(
 {
     int offset = grid_offset + map_grid_direction_delta(direction);
     if (map_terrain_is(offset, TERRAIN_BUILDING)) {
-        building *b = building_get(map_building_at(offset));
+        struct building_t *b = &all_buildings[map_building_at(offset)];
         if (b->type == BUILDING_RESERVOIR && map_property_multi_tile_xy(offset) == multi_tile_mask) {
             tiles[direction] = 1;
             return;

@@ -163,13 +163,13 @@ void figure_shipwreck_action(struct figure_t *f)
 
 void figure_fishing_boat_action(struct figure_t *f)
 {
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE) {
         f->state = FIGURE_STATE_DEAD;
     }
     if (f->action_state != FIGURE_ACTION_FISHING_BOAT_CREATED && b->data.industry.fishing_boat_id != f->id) {
         map_point tile;
-        b = building_get(map_water_get_wharf_for_new_fishing_boat(f, &tile));
+        b = &all_buildings[map_water_get_wharf_for_new_fishing_boat(f, &tile)];
         if (b->id) {
             f->building_id = b->id;
             b->data.industry.fishing_boat_id = f->id;
@@ -197,7 +197,7 @@ void figure_fishing_boat_action(struct figure_t *f)
                 if (wharf_id) {
                     b->figure_id = 0; // remove from original building
                     f->building_id = wharf_id;
-                    building_get(wharf_id)->data.industry.fishing_boat_id = f->id;
+                    all_buildings[wharf_id].data.industry.fishing_boat_id = f->id;
                     f->action_state = FIGURE_ACTION_FISHING_BOAT_GOING_TO_WHARF;
                     f->destination_x = tile.x;
                     f->destination_y = tile.y;
@@ -305,9 +305,9 @@ void figure_sink_all_ships(void)
             continue;
         }
         if (f->type == FIGURE_TRADE_SHIP) {
-            building_get(f->destination_building_id)->data.dock.trade_ship_id = 0;
+            all_buildings[f->destination_building_id].data.dock.trade_ship_id = 0;
         } else if (f->type == FIGURE_FISHING_BOAT) {
-            building_get(f->building_id)->data.industry.fishing_boat_id = 0;
+            all_buildings[f->building_id].data.industry.fishing_boat_id = 0;
         } else {
             continue;
         }

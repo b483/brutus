@@ -297,7 +297,7 @@ void widget_city_handle_input_military(const mouse *m, const hotkeys *h, int leg
                 return;
             }
             // return legion home upon clicking on own fort/fort ground
-            building *b = building_get(map_building_at(tile->grid_offset));
+            struct building_t *b = &all_buildings[map_building_at(tile->grid_offset)];
             if (b && b->state == BUILDING_STATE_IN_USE && (b->type == BUILDING_FORT || b->type == BUILDING_FORT_GROUND) && b->formation_id == legion_formation_id) {
                 formation_legion_return_home(&formations[legion_formation_id]);
             } else { // move legion if route available
@@ -336,7 +336,7 @@ void widget_city_get_tooltip(tooltip_context *c)
     int building_id = map_building_at(grid_offset);
     int overlay = game_state_overlay();
     // regular tooltips
-    if (overlay == OVERLAY_NONE && building_id && building_get(building_id)->type == BUILDING_SENATE) {
+    if (overlay == OVERLAY_NONE && building_id && all_buildings[building_id].type == BUILDING_SENATE) {
         c->type = TOOLTIP_SENATE;
         c->high_priority = 1;
         return;

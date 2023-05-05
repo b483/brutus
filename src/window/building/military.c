@@ -59,7 +59,7 @@ void window_building_draw_tower(building_info_context *c)
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(91, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
 
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (!c->has_road_access) {
         window_building_draw_description(c, 69, 25);
     } else if (b->num_workers <= 0) {
@@ -81,7 +81,7 @@ void window_building_draw_barracks(building_info_context *c)
     lang_text_draw_centered(136, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
     image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_WEAPONS, c->x_offset + 64, c->y_offset + 38);
 
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (b->loads_stored < 1) {
         lang_text_draw_amount(8, 10, 0, c->x_offset + 92, c->y_offset + 44, FONT_NORMAL_BLACK);
     } else {
@@ -120,7 +120,7 @@ void window_building_draw_military_academy(building_info_context *c)
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(135, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
 
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (!c->has_road_access) {
         window_building_draw_description(c, 69, 25);
     } else if (b->num_workers <= 0) {

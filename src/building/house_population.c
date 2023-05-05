@@ -18,7 +18,7 @@ int house_population_add_to_city(int num_people)
         if (++building_id >= MAX_BUILDINGS) {
             building_id = 1;
         }
-        building *b = building_get(building_id);
+        struct building_t *b = &all_buildings[building_id];
         if (b->state == BUILDING_STATE_IN_USE && b->house_size
             && b->distance_from_entry > 0 && b->house_population > 0) {
             city_data.population.last_used_house_add = building_id;
@@ -44,7 +44,7 @@ int house_population_remove_from_city(int num_people)
         if (++building_id >= MAX_BUILDINGS) {
             building_id = 1;
         }
-        building *b = building_get(building_id);
+        struct building_t *b = &all_buildings[building_id];
         if (b->state == BUILDING_STATE_IN_USE && b->house_size) {
             city_data.population.last_used_house_remove = building_id;
             if (b->house_population > 0) {
@@ -60,7 +60,7 @@ static void fill_building_list_with_houses(void)
 {
     building_list_large_clear(0);
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->house_size) {
             building_list_large_add(i);
         }
@@ -76,7 +76,7 @@ void house_population_update_room(void)
     int total_houses = building_list_large_size();
     const int *houses = building_list_large_items();
     for (int i = 0; i < total_houses; i++) {
-        building *b = building_get(houses[i]);
+        struct building_t *b = &all_buildings[houses[i]];
         b->house_population_room = 0;
         if (b->distance_from_entry > 0) {
             int max_pop = house_properties[b->subtype.house_level].max_people;
@@ -103,14 +103,14 @@ int house_population_create_immigrants(int num_people)
     int to_immigrate = num_people;
     // clean up any dead immigrants
     for (int i = 0; i < total_houses; i++) {
-        building *b = building_get(houses[i]);
+        struct building_t *b = &all_buildings[houses[i]];
         if (b->immigrant_figure_id && figures[b->immigrant_figure_id].state != FIGURE_STATE_ALIVE) {
             b->immigrant_figure_id = 0;
         }
     }
     // houses with plenty of room
     for (int i = 0; i < total_houses && to_immigrate > 0; i++) {
-        building *b = building_get(houses[i]);
+        struct building_t *b = &all_buildings[houses[i]];
         if (b->distance_from_entry > 0 && b->house_population_room >= 8 && !b->immigrant_figure_id) {
             if (to_immigrate <= 4) {
                 figure_create_immigrant(b, to_immigrate);
@@ -123,7 +123,7 @@ int house_population_create_immigrants(int num_people)
     }
     // houses with less room
     for (int i = 0; i < total_houses && to_immigrate > 0; i++) {
-        building *b = building_get(houses[i]);
+        struct building_t *b = &all_buildings[houses[i]];
         if (b->distance_from_entry > 0 && b->house_population_room > 0 && !b->immigrant_figure_id) {
             if (to_immigrate <= b->house_population_room) {
                 figure_create_immigrant(b, to_immigrate);
@@ -144,7 +144,7 @@ int house_population_create_emigrants(int num_people)
     int to_emigrate = num_people;
     for (int level = HOUSE_SMALL_TENT; level < HOUSE_LARGE_INSULA && to_emigrate > 0; level++) {
         for (int i = 0; i < total_houses && to_emigrate > 0; i++) {
-            building *b = building_get(houses[i]);
+            struct building_t *b = &all_buildings[houses[i]];
             if (b->house_population > 0 && b->subtype.house_level == level) {
                 int current_people;
                 if (b->house_population >= 4) {
@@ -172,7 +172,7 @@ static void calculate_working_population(void)
     int total_houses = building_list_large_size();
     const int *houses = building_list_large_items();
     for (int i = 0; i < total_houses; i++) {
-        building *b = building_get(houses[i]);
+        struct building_t *b = &all_buildings[houses[i]];
         if (b->house_population > 0) {
             if (b->subtype.house_level >= HOUSE_SMALL_VILLA) {
                 num_patricians += b->house_population;
@@ -225,7 +225,7 @@ void house_population_evict_overcrowded(void)
     int size = building_list_large_size();
     const int *items = building_list_large_items();
     for (int i = 0; i < size; i++) {
-        building *b = building_get(items[i]);
+        struct building_t *b = &all_buildings[items[i]];
         if (b->house_population_room < 0) {
             int num_people_to_evict = -b->house_population_room;
             figure_create_homeless(b->x, b->y, num_people_to_evict);

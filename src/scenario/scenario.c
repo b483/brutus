@@ -61,7 +61,7 @@ void scenario_editor_create(int map_size)
     scenario.favor_win_criteria.goal = 10;
 
     // Buildings allowed
-    for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
+    for (int i = 0; i < BUILDING_TYPE_MAX; i++) {
         scenario.allowed_buildings[i] = 1;
     }
 
@@ -180,7 +180,7 @@ void scenario_save_state(buffer *buf)
     buffer_write_u16(buf, scenario.survival_time_win_criteria.years);
 
     // Buildings allowed
-    for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
+    for (int i = 0; i < BUILDING_TYPE_MAX; i++) {
         buffer_write_u8(buf, scenario.allowed_buildings[i]);
     }
 
@@ -375,7 +375,7 @@ void scenario_load_state(buffer *buf)
     scenario.survival_time_win_criteria.years = buffer_read_u16(buf);
 
     // Buildings allowed
-    for (int i = 0; i < MAX_ALLOWED_BUILDINGS; i++) {
+    for (int i = 0; i < BUILDING_TYPE_MAX; i++) {
         scenario.allowed_buildings[i] = buffer_read_u8(buf);
     }
 

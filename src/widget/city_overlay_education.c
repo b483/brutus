@@ -2,22 +2,22 @@
 
 #include "game/state.h"
 
-static int show_building_education(const building *b)
+static int show_building_education(const struct building_t *b)
 {
     return b->type == BUILDING_SCHOOL || b->type == BUILDING_LIBRARY || b->type == BUILDING_ACADEMY;
 }
 
-static int show_building_school(const building *b)
+static int show_building_school(const struct building_t *b)
 {
     return b->type == BUILDING_SCHOOL;
 }
 
-static int show_building_library(const building *b)
+static int show_building_library(const struct building_t *b)
 {
     return b->type == BUILDING_LIBRARY;
 }
 
-static int show_building_academy(const building *b)
+static int show_building_academy(const struct building_t *b)
 {
     return b->type == BUILDING_ACADEMY;
 }
@@ -42,27 +42,27 @@ static int show_figure_academy(const struct figure_t *f)
     return f->type == FIGURE_TEACHER;
 }
 
-static int get_column_height_education(const building *b)
+static int get_column_height_education(const struct building_t *b)
 {
     return b->house_size && b->data.house.education ? b->data.house.education * 3 - 1 : NO_COLUMN;
 }
 
-static int get_column_height_school(const building *b)
+static int get_column_height_school(const struct building_t *b)
 {
     return b->house_size && b->data.house.school ? b->data.house.school / 10 : NO_COLUMN;
 }
 
-static int get_column_height_library(const building *b)
+static int get_column_height_library(const struct building_t *b)
 {
     return b->house_size && b->data.house.library ? b->data.house.library / 10 : NO_COLUMN;
 }
 
-static int get_column_height_academy(const building *b)
+static int get_column_height_academy(const struct building_t *b)
 {
     return b->house_size && b->data.house.academy ? b->data.house.academy / 10 : NO_COLUMN;
 }
 
-static int get_tooltip_education(__attribute__((unused)) tooltip_context *c, const building *b)
+static int get_tooltip_education(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
 {
     switch (b->data.house.education) {
         case 0: return 100;
@@ -73,7 +73,7 @@ static int get_tooltip_education(__attribute__((unused)) tooltip_context *c, con
     }
 }
 
-static int get_tooltip_school(__attribute__((unused)) tooltip_context *c, const building *b)
+static int get_tooltip_school(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
 {
     if (b->data.house.school <= 0) {
         return 19;
@@ -86,7 +86,7 @@ static int get_tooltip_school(__attribute__((unused)) tooltip_context *c, const 
     }
 }
 
-static int get_tooltip_library(__attribute__((unused)) tooltip_context *c, const building *b)
+static int get_tooltip_library(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
 {
     if (b->data.house.library <= 0) {
         return 23;
@@ -99,7 +99,7 @@ static int get_tooltip_library(__attribute__((unused)) tooltip_context *c, const
     }
 }
 
-static int get_tooltip_academy(__attribute__((unused)) tooltip_context *c, const building *b)
+static int get_tooltip_academy(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
 {
     if (b->data.house.academy <= 0) {
         return 27;

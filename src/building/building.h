@@ -7,9 +7,8 @@
 
 #define MAX_BUILDINGS 2000
 
-typedef struct {
+struct building_t {
     int id;
-
     unsigned char state;
     unsigned char size;
     unsigned char house_is_merged;
@@ -135,7 +134,9 @@ typedef struct {
         signed char native_anger;
     } sentiment;
     unsigned char show_on_problem_overlay;
-} building;
+};
+
+extern struct building_t all_buildings[MAX_BUILDINGS];
 
 struct building_properties_t {
     uint8_t size;
@@ -172,17 +173,15 @@ struct house_properties_t {
     uint8_t tax_multiplier; /**< Tax rate multiplier */
 };
 
-extern struct house_properties_t house_properties[20];
+extern struct house_properties_t house_properties[MAX_HOUSE_TYPES];
 
-building *building_get(int id);
+struct building_t *building_main(struct building_t *b);
 
-building *building_main(building *b);
+struct building_t *building_next(struct building_t *b);
 
-building *building_next(building *b);
+struct building_t *building_create(building_type type, int x, int y);
 
-building *building_create(building_type type, int x, int y);
-
-void building_clear_related_data(building *b);
+void building_clear_related_data(struct building_t *b);
 
 void building_update_state(void);
 

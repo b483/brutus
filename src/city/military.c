@@ -179,7 +179,7 @@ static void fight_distant_battle(void)
         city_data.distant_battle.roman_months_traveled = 0;
         // no return: all soldiers killed
     } else {
-        if (scenario_building_allowed(BUILDING_TRIUMPHAL_ARCH)) {
+        if (scenario.allowed_buildings[BUILDING_TRIUMPHAL_ARCH]) {
             city_message_post(1, MESSAGE_DISTANT_BATTLE_WON, 0, 0);
             city_data.building.triumphal_arches_available++;
             building_menu_update();

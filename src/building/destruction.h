@@ -3,13 +3,13 @@
 
 #include "building/building.h"
 
-void building_destroy_by_collapse(building *b);
+void building_destroy_by_collapse(struct building_t *b);
 
-void building_destroy_by_fire(building *b);
+void building_destroy_by_fire(struct building_t *b);
 
-void building_destroy_by_plague(building *b);
+void building_destroy_by_plague(struct building_t *b);
 
-void building_destroy_by_rioter(building *b);
+void building_destroy_by_rioter(struct building_t *b);
 
 void building_destroy_last_placed(void);
 

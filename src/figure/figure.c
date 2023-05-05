@@ -248,7 +248,7 @@ struct figure_t *figure_create(int type, int x, int y, direction_type dir)
 
 void figure_delete(struct figure_t *f)
 {
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     switch (f->type) {
         case FIGURE_LABOR_SEEKER:
         case FIGURE_MARKET_BUYER:

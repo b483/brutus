@@ -18,7 +18,7 @@
 
 #include <string.h>
 
-static void destroy_on_fire(building *b, int plagued)
+static void destroy_on_fire(struct building_t *b, int plagued)
 {
     game_undo_disable();
     b->fire_risk = 0;
@@ -76,7 +76,7 @@ static void destroy_on_fire(building *b, int plagued)
         if (map_terrain_is(map_grid_offset(x, y), TERRAIN_WATER)) {
             continue;
         }
-        building *ruin = building_create(BUILDING_BURNING_RUIN, x, y);
+        struct building_t *ruin = building_create(BUILDING_BURNING_RUIN, x, y);
         int image_id;
         if (was_tent) {
             image_id = image_group(GROUP_TERRAIN_RUBBLE_TENT);
@@ -95,15 +95,15 @@ static void destroy_on_fire(building *b, int plagued)
     }
 }
 
-static void destroy_linked_parts(building *b, int on_fire)
+static void destroy_linked_parts(struct building_t *b, int on_fire)
 {
-    building *part = b;
+    struct building_t *part = b;
     for (int i = 0; i < 9; i++) {
         if (part->prev_part_building_id <= 0) {
             break;
         }
         int part_id = part->prev_part_building_id;
-        part = building_get(part_id);
+        part = &all_buildings[part_id];
         if (on_fire) {
             destroy_on_fire(part, 0);
         } else {
@@ -129,14 +129,14 @@ static void destroy_linked_parts(building *b, int on_fire)
     // Unlink the buildings to prevent corrupting the building table
     part = building_main(b);
     for (int i = 0; i < 9 && part->id > 0; i++) {
-        building *next_part = building_next(part);
+        struct building_t *next_part = building_next(part);
         part->next_part_building_id = 0;
         part->prev_part_building_id = 0;
         part = next_part;
     }
 }
 
-void building_destroy_by_collapse(building *b)
+void building_destroy_by_collapse(struct building_t *b)
 {
     b->state = BUILDING_STATE_RUBBLE;
     map_building_tiles_set_rubble(b->id, b->x, b->y, b->size);
@@ -145,18 +145,18 @@ void building_destroy_by_collapse(building *b)
     sound_effect_play(SOUND_EFFECT_EXPLOSION);
 }
 
-void building_destroy_by_fire(building *b)
+void building_destroy_by_fire(struct building_t *b)
 {
     destroy_on_fire(b, 0);
     destroy_linked_parts(b, 1);
 }
 
-void building_destroy_by_plague(building *b)
+void building_destroy_by_plague(struct building_t *b)
 {
     destroy_on_fire(b, 1);
 }
 
-void building_destroy_by_rioter(building *b)
+void building_destroy_by_rioter(struct building_t *b)
 {
     destroy_on_fire(b, 0);
 }
@@ -164,9 +164,9 @@ void building_destroy_by_rioter(building *b)
 void building_destroy_last_placed(void)
 {
     int highest_sequence = 0;
-    building *last_building = 0;
+    struct building_t *last_building = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_CREATED || b->state == BUILDING_STATE_IN_USE) {
             if (b->created_sequence > highest_sequence) {
                 highest_sequence = b->created_sequence;
@@ -194,7 +194,7 @@ void building_destroy_by_enemy(int x, int y, int grid_offset)
 {
     int building_id = map_building_at(grid_offset);
     if (building_id > 0) {
-        building *b = building_get(building_id);
+        struct building_t *b = &all_buildings[building_id];
         if (b->state == BUILDING_STATE_IN_USE) {
             city_ratings_peace_building_destroyed(b->type);
             building_destroy_by_collapse(b);

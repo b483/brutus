@@ -17,7 +17,7 @@
 #include "map/terrain.h"
 #include "scenario/editor_events.h"
 
-int formation_legion_create_for_fort(building *fort)
+int formation_legion_create_for_fort(struct building_t *fort)
 {
     formation_calculate_legion_totals();
     struct formation_t *m = create_formation_type(fort->subtype.fort_figure_type);
@@ -274,7 +274,7 @@ void formation_legion_update(void)
                     } else {
                         formations[i].max_morale = 60;
                     }
-                    if (scenario_building_allowed(BUILDING_MILITARY_ACADEMY) && f->action_state == FIGURE_ACTION_SOLDIER_AT_REST) {
+                    if (scenario.allowed_buildings[BUILDING_MILITARY_ACADEMY] && f->action_state == FIGURE_ACTION_SOLDIER_AT_REST) {
                         map_point mil_acad_road = { 0 };
                         set_destination__closest_building_of_type(f->building_id, BUILDING_MILITARY_ACADEMY, &mil_acad_road);
                         if (mil_acad_road.x) {

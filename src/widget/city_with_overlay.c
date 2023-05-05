@@ -155,7 +155,7 @@ static int is_drawable_farm_corner(int grid_offset)
     return 0;
 }
 
-static int draw_building_as_deleted(building *b)
+static int draw_building_as_deleted(struct building_t *b)
 {
     if (!config_get(CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE)) {
         return 0;
@@ -176,14 +176,14 @@ static int has_adjacent_deletion(int grid_offset)
     const int *adjacent_offset = ADJACENT_OFFSETS[size - 2][city_view_orientation() / 2];
     for (int i = 0; i < total_adjacent_offsets; ++i) {
         if (map_property_is_deleted(grid_offset + adjacent_offset[i]) ||
-            draw_building_as_deleted(building_get(map_building_at(grid_offset + adjacent_offset[i])))) {
+            draw_building_as_deleted(&all_buildings[map_building_at(grid_offset + adjacent_offset[i])])) {
             return 1;
         }
     }
     return 0;
 }
 
-static void draw_flattened_building_footprint(const building *b, int x, int y, int image_offset, color_t color_mask)
+static void draw_flattened_building_footprint(const struct building_t *b, int x, int y, int image_offset, color_t color_mask)
 {
     int image_base = image_group(GROUP_TERRAIN_OVERLAY) + image_offset;
     if (b->house_size) {
@@ -267,7 +267,7 @@ void city_with_overlay_draw_building_footprint(int x, int y, int grid_offset, in
     if (!building_id) {
         return;
     }
-    building *b = building_get(building_id);
+    struct building_t *b = &all_buildings[building_id];
     if (overlay->show_building(b)) {
         if (building_is_farm(b->type)) {
             if (is_drawable_farmhouse(grid_offset, city_view_orientation())) {
@@ -335,7 +335,7 @@ static void draw_overlay_column(int x, int y, int height, int is_red)
     }
 }
 
-static void draw_building_top(int grid_offset, building *b, int x, int y)
+static void draw_building_top(int grid_offset, struct building_t *b, int x, int y)
 {
     color_t color_mask = draw_building_as_deleted(b) ? COLOR_MASK_RED : 0;
     if (building_is_farm(b->type)) {
@@ -372,7 +372,7 @@ static void draw_building_top(int grid_offset, building *b, int x, int y)
 
 void city_with_overlay_draw_building_top(int x, int y, int grid_offset)
 {
-    building *b = building_get(map_building_at(grid_offset));
+    struct building_t *b = &all_buildings[map_building_at(grid_offset)];
     if (overlay->type == OVERLAY_PROBLEMS) {
         city_overlay_problems_prepare_building(b);
     }
@@ -416,7 +416,7 @@ static void draw_animation(int x, int y, int grid_offset)
 {
     int draw = 0;
     if (map_building_at(grid_offset)) {
-        int btype = building_get(map_building_at(grid_offset))->type;
+        int btype = all_buildings[map_building_at(grid_offset)].type;
         switch (overlay->type) {
             case OVERLAY_FIRE:
             case OVERLAY_CRIME:
@@ -446,7 +446,7 @@ static void draw_animation(int x, int y, int grid_offset)
     const image *img = image_get(image_id);
     if (img->num_animation_sprites && draw) {
         if (map_property_is_draw_tile(grid_offset)) {
-            building *b = building_get(map_building_at(grid_offset));
+            struct building_t *b = &all_buildings[map_building_at(grid_offset)];
             int color_mask = draw_building_as_deleted(b) ? COLOR_MASK_RED : 0;
             if (b->type == BUILDING_GRANARY) {
                 image_draw_masked(image_group(GROUP_BUILDING_GRANARY) + 1,
@@ -529,7 +529,7 @@ static void deletion_draw_terrain_top(int x, int y, int grid_offset)
 
 static void deletion_draw_animations(int x, int y, int grid_offset)
 {
-    if (map_property_is_deleted(grid_offset) || draw_building_as_deleted(building_get(map_building_at(grid_offset)))) {
+    if (map_property_is_deleted(grid_offset) || draw_building_as_deleted(&all_buildings[map_building_at(grid_offset)])) {
         image_draw_blend(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, COLOR_MASK_RED);
     }
     if (map_property_is_draw_tile(grid_offset) && !should_draw_top_before_deletion(grid_offset)) {
@@ -572,7 +572,7 @@ int city_with_overlay_get_tooltip_text(tooltip_context *c, int grid_offset)
     int overlay_requires_house =
         overlay_type != OVERLAY_WATER && overlay_type != OVERLAY_FIRE &&
         overlay_type != OVERLAY_DAMAGE && overlay_type != OVERLAY_NATIVE && overlay_type != OVERLAY_DESIRABILITY;
-    building *b = building_get(building_id);
+    struct building_t *b = &all_buildings[building_id];
     if (overlay_requires_house && !b->house_size) {
         return 0;
     }

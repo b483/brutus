@@ -20,7 +20,7 @@ static void draw_vacant_lot(building_info_context *c)
     window_building_draw_figure_list(c);
 
     int text_id = 2;
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (map_closest_road_within_radius(b->x, b->y, 1, 2, 0, 0)) {
         text_id = 1;
     }
@@ -29,7 +29,7 @@ static void draw_vacant_lot(building_info_context *c)
 
 static void draw_population_info(building_info_context *c, int y_offset)
 {
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     image_draw(image_group(GROUP_CONTEXT_ICONS) + 13, c->x_offset + 34, y_offset + 4);
     int width = text_draw_number(b->house_population, '@', " ", c->x_offset + 50, y_offset + 14, FONT_NORMAL_BROWN);
     width += lang_text_draw(127, 20, c->x_offset + 50 + width, y_offset + 14, FONT_NORMAL_BROWN);
@@ -47,7 +47,7 @@ static void draw_population_info(building_info_context *c, int y_offset)
 
 static void draw_tax_info(building_info_context *c, int y_offset)
 {
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (b->house_tax_coverage) {
         int width = lang_text_draw(127, 24, c->x_offset + 36, y_offset, FONT_NORMAL_BROWN);
         width += lang_text_draw_amount(8, 0, calc_adjust_with_percentage(b->tax_income_or_storage / 2, city_data.finance.tax_percentage), c->x_offset + 36 + width, y_offset, FONT_NORMAL_BROWN);
@@ -59,7 +59,7 @@ static void draw_tax_info(building_info_context *c, int y_offset)
 
 static void draw_happiness_info(building_info_context *c, int y_offset)
 {
-    int happiness = building_get(c->building_id)->sentiment.house_happiness;
+    int happiness = all_buildings[c->building_id].sentiment.house_happiness;
     int text_id;
     if (happiness >= 50) {
         text_id = 26;
@@ -82,7 +82,7 @@ static void draw_happiness_info(building_info_context *c, int y_offset)
 void window_building_draw_house(building_info_context *c)
 {
     c->help_id = 56;
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (b->house_population == 0) {
         window_building_play_sound(c, "wavs/empty_land.wav");
     } else {
@@ -147,7 +147,7 @@ void window_building_draw_house(building_info_context *c)
     if (b->data.house.evolve_text_id == 62) {
         int width = lang_text_draw(127, 40 + b->data.house.evolve_text_id,
             c->x_offset + 32, c->y_offset + 60, FONT_NORMAL_BLACK);
-        width += lang_text_draw_colored(41, building_get(c->worst_desirability_building_id)->type,
+        width += lang_text_draw_colored(41, all_buildings[c->worst_desirability_building_id].type,
             c->x_offset + 32 + width, c->y_offset + 60, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
         text_draw((uint8_t *) ")", c->x_offset + 32 + width, c->y_offset + 60, FONT_NORMAL_BLACK, 0);
         lang_text_draw_multiline(127, 41 + b->data.house.evolve_text_id,

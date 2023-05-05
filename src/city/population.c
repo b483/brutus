@@ -239,7 +239,7 @@ static int calculate_people_per_house_type(void)
     city_data.population.people_in_large_insula_and_above = 0;
     int total = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_UNUSED ||
             b->state == BUILDING_STATE_UNDO ||
             b->state == BUILDING_STATE_DELETED_BY_GAME ||

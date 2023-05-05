@@ -2,7 +2,7 @@
 
 #include "city/data_private.h"
 
-void city_buildings_add_senate(building *senate)
+void city_buildings_add_senate(struct building_t *senate)
 {
     city_data.building.senate_placed = 1;
     if (!city_data.building.senate_grid_offset) {
@@ -13,7 +13,7 @@ void city_buildings_add_senate(building *senate)
     }
 }
 
-void city_buildings_remove_senate(building *senate)
+void city_buildings_remove_senate(struct building_t *senate)
 {
     if (senate->grid_offset == city_data.building.senate_grid_offset) {
         city_data.building.senate_grid_offset = 0;
@@ -23,7 +23,7 @@ void city_buildings_remove_senate(building *senate)
     }
 }
 
-void city_buildings_add_barracks(building *barracks)
+void city_buildings_add_barracks(struct building_t *barracks)
 {
     if (!city_data.building.barracks_grid_offset) {
         city_data.building.barracks_building_id = barracks->id;
@@ -33,7 +33,7 @@ void city_buildings_add_barracks(building *barracks)
     }
 }
 
-void city_buildings_remove_barracks(building *barracks)
+void city_buildings_remove_barracks(struct building_t *barracks)
 {
     if (barracks->grid_offset == city_data.building.barracks_grid_offset) {
         city_data.building.barracks_grid_offset = 0;

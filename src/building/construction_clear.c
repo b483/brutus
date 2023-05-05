@@ -15,6 +15,7 @@
 #include "map/routing_terrain.h"
 #include "map/terrain.h"
 #include "map/tiles.h"
+#include "scenario/data.h"
 #include "scenario/editor_events.h"
 #include "window/popup_dialog.h"
 
@@ -27,13 +28,13 @@ static struct {
     int fort_confirmed;
 } confirm;
 
-static building *get_deletable_building(int grid_offset)
+static struct building_t *get_deletable_building(int grid_offset)
 {
     int building_id = map_building_at(grid_offset);
     if (!building_id) {
         return 0;
     }
-    building *b = building_main(building_get(building_id));
+    struct building_t *b = building_main(&all_buildings[building_id]);
     if (b->type == BUILDING_BURNING_RUIN || b->type == BUILDING_NATIVE_CROPS ||
         b->type == BUILDING_NATIVE_HUT || b->type == BUILDING_NATIVE_MEETING) {
         return 0;
@@ -59,7 +60,7 @@ static int clear_land_confirmed(int measure_only, int x_start, int y_start, int 
         for (int x = x_min; x <= x_max; x++) {
             int grid_offset = map_grid_offset(x, y);
             if (measure_only && visual_feedback_on_delete) {
-                building *b = get_deletable_building(grid_offset);
+                struct building_t *b = get_deletable_building(grid_offset);
                 if (map_property_is_deleted(grid_offset) || (b && map_property_is_deleted(b->grid_offset))) {
                     continue;
                 }
@@ -68,7 +69,7 @@ static int clear_land_confirmed(int measure_only, int x_start, int y_start, int 
                     if (b) {
                         items_placed++;
                     }
-                } else if (map_terrain_is(grid_offset, TERRAIN_SHRUB | TERRAIN_TREE) && !scenario_building_allowed(BUILDING_CLEAR_LAND)) {
+                } else if (map_terrain_is(grid_offset, TERRAIN_SHRUB | TERRAIN_TREE) && !scenario.allowed_buildings[BUILDING_CLEAR_LAND]) {
                     continue;
                 } else if (map_terrain_is(grid_offset, TERRAIN_ROCK | TERRAIN_ELEVATION)) {
                     continue;
@@ -80,14 +81,14 @@ static int clear_land_confirmed(int measure_only, int x_start, int y_start, int 
                 }
                 continue;
             }
-            if (map_terrain_is(grid_offset, TERRAIN_SHRUB | TERRAIN_TREE) && !scenario_building_allowed(BUILDING_CLEAR_LAND)) {
+            if (map_terrain_is(grid_offset, TERRAIN_SHRUB | TERRAIN_TREE) && !scenario.allowed_buildings[BUILDING_CLEAR_LAND]) {
                 continue;
             }
             if (map_terrain_is(grid_offset, TERRAIN_ROCK | TERRAIN_ELEVATION)) {
                 continue;
             }
             if (map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
-                building *b = get_deletable_building(grid_offset);
+                struct building_t *b = get_deletable_building(grid_offset);
                 if (!b) {
                     continue;
                 }
@@ -109,12 +110,12 @@ static int clear_land_confirmed(int measure_only, int x_start, int y_start, int 
                 }
                 b->state = BUILDING_STATE_DELETED_BY_PLAYER;
                 b->is_deleted = 1;
-                building *space = b;
+                struct building_t *space = b;
                 for (int i = 0; i < 9; i++) {
                     if (space->prev_part_building_id <= 0) {
                         break;
                     }
-                    space = building_get(space->prev_part_building_id);
+                    space = &all_buildings[space->prev_part_building_id];
                     game_undo_add_building(space);
                     space->state = BUILDING_STATE_DELETED_BY_PLAYER;
                 }
@@ -202,7 +203,7 @@ int building_construction_clear_land(int measure_only, int x_start, int y_start,
             int grid_offset = map_grid_offset(x, y);
             int building_id = map_building_at(grid_offset);
             if (building_id) {
-                building *b = building_get(building_id);
+                struct building_t *b = &all_buildings[building_id];
                 if (b->type == BUILDING_FORT || b->type == BUILDING_FORT_GROUND) {
                     ask_confirm_fort = 1;
                 }

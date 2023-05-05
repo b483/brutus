@@ -20,7 +20,7 @@ static int determine_destination(int x, int y, building_type type1, building_typ
     building_list_small_clear();
 
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
@@ -42,7 +42,7 @@ static int determine_destination(int x, int y, building_type type1, building_typ
     int min_building_id = 0;
     int min_distance = 10000;
     for (int i = 0; i < total_venues; i++) {
-        building *b = building_get(venues[i]);
+        struct building_t *b = &all_buildings[venues[i]];
         int days_left;
         if (b->type == type1) {
             days_left = b->data.entertainment.days1;
@@ -62,7 +62,7 @@ static int determine_destination(int x, int y, building_type type1, building_typ
 
 static void update_shows(struct figure_t *f)
 {
-    building *b = building_get(f->destination_building_id);
+    struct building_t *b = &all_buildings[f->destination_building_id];
     if (b->type < BUILDING_AMPHITHEATER || b->type > BUILDING_COLOSSEUM) {
         return;
     }
@@ -141,7 +141,7 @@ static void update_image(struct figure_t *f)
 
 void figure_entertainer_action(struct figure_t *f)
 {
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART);
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
@@ -203,7 +203,7 @@ void figure_entertainer_action(struct figure_t *f)
                         break;
                 }
                 if (dst_building_id) {
-                    building *b_dst = building_get(dst_building_id);
+                    struct building_t *b_dst = &all_buildings[dst_building_id];
                     int x_road, y_road;
                     if (map_closest_road_within_radius(b_dst->x, b_dst->y, b_dst->size, 2, &x_road, &y_road)) {
                         f->destination_building_id = dst_building_id;

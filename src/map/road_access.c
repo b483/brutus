@@ -15,7 +15,7 @@ static void find_minimum_road_tile(int x, int y, int size, int *min_value, int *
     for (const int *tile_delta = map_grid_adjacent_offsets(size); *tile_delta; tile_delta++) {
         int grid_offset = base_offset + *tile_delta;
         if (!map_terrain_is(grid_offset, TERRAIN_BUILDING) ||
-            building_get(map_building_at(grid_offset))->type != BUILDING_GATEHOUSE) {
+            all_buildings[map_building_at(grid_offset)].type != BUILDING_GATEHOUSE) {
             if (map_terrain_is(grid_offset, TERRAIN_ROAD)) {
                 int road_index = city_map_road_network_index(map_road_network_get(grid_offset));
                 if (road_index < *min_value) {
@@ -248,7 +248,7 @@ static int get_adjacent_road_tile_for_roaming(int grid_offset)
 {
     int is_road = terrain_is_road_like(grid_offset);
     if (map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
-        building *b = building_get(map_building_at(grid_offset));
+        struct building_t *b = &all_buildings[map_building_at(grid_offset)];
         if (b->type == BUILDING_GATEHOUSE) {
             is_road = 0;
         } else if (b->type == BUILDING_GRANARY) {

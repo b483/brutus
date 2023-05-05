@@ -15,11 +15,11 @@ enum {
 typedef struct {
     int type;
     int column_type;
-    int (*show_building)(const building *b);
+    int (*show_building)(const struct building_t *b);
     int (*show_figure)(const struct figure_t *f);
-    int (*get_column_height)(const building *b);
+    int (*get_column_height)(const struct building_t *b);
     int (*get_tooltip_for_grid_offset)(tooltip_context *c, int grid_offset);
-    int (*get_tooltip_for_building)(tooltip_context *c, const building *b);
+    int (*get_tooltip_for_building)(tooltip_context *c, const struct building_t *b);
     void (*draw_custom_footprint)(int x, int y, int grid_offset);
     void (*draw_custom_top)(int x, int y, int grid_offset);
 } city_overlay;

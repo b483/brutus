@@ -28,7 +28,7 @@ void building_storage_reset_building_ids(void)
     }
 
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_UNUSED) {
             continue;
         }

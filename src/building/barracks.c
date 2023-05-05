@@ -25,7 +25,7 @@ int building_get_barracks_for_weapon(int resource, int road_network_id, map_poin
     if (building_count_active(BUILDING_BARRACKS) <= 0) {
         return 0;
     }
-    building *b = building_get(city_data.building.barracks_building_id);
+    struct building_t *b = &all_buildings[city_data.building.barracks_building_id];
     if (b->loads_stored < 5 && city_data.military.legionary_legions) {
         if (map_has_road_access(b->x, b->y, b->size, dst) && b->road_network_id == road_network_id) {
             return b->id;
@@ -34,7 +34,7 @@ int building_get_barracks_for_weapon(int resource, int road_network_id, map_poin
     return 0;
 }
 
-static struct formation_t *get_closest_legion_needing_soldiers(const building *barracks)
+static struct formation_t *get_closest_legion_needing_soldiers(const struct building_t *barracks)
 {
     struct formation_t *closest_formation = 0;
     int closest_formation_distance = 10000;
@@ -43,7 +43,7 @@ static struct formation_t *get_closest_legion_needing_soldiers(const building *b
             if (formations[i].figure_type == FIGURE_FORT_LEGIONARY && !barracks->loads_stored) {
                 continue;
             }
-            building *fort = building_get(formations[i].building_id);
+            struct building_t *fort = &all_buildings[formations[i].building_id];
             int dist = calc_maximum_distance(barracks->x, barracks->y, fort->x, fort->y);
             if (dist < closest_formation_distance) {
                 // prefer legionaries
@@ -58,7 +58,7 @@ static struct formation_t *get_closest_legion_needing_soldiers(const building *b
     return closest_formation;
 }
 
-void building_barracks_create_soldier(building *barracks, int x, int y)
+void building_barracks_create_soldier(struct building_t *barracks, int x, int y)
 {
     struct formation_t *m = get_closest_legion_needing_soldiers(barracks);
     if (m) {
@@ -91,14 +91,14 @@ void building_barracks_create_soldier(building *barracks, int x, int y)
     formation_calculate_figures();
 }
 
-int building_barracks_create_tower_sentry(building *barracks, int x, int y)
+int building_barracks_create_tower_sentry(struct building_t *barracks, int x, int y)
 {
     if (tower_sentry_request <= 0) {
         return 0;
     }
-    building *tower = 0;
+    struct building_t *tower = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_TOWER && b->num_workers > 0 &&
             !b->figure_id && b->road_network_id == barracks->road_network_id) {
             tower = b;

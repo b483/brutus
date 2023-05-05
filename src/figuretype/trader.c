@@ -27,14 +27,14 @@
 
 int figure_trade_caravan_can_buy(struct figure_t *trader, int warehouse_id, int city_id)
 {
-    building *warehouse = building_get(warehouse_id);
+    struct building_t *warehouse = &all_buildings[warehouse_id];
     if (warehouse->type != BUILDING_WAREHOUSE) {
         return 0;
     }
     if (trader->trader_amount_bought >= 8) {
         return 0;
     }
-    building *space = warehouse;
+    struct building_t *space = warehouse;
     for (int i = 0; i < 8; i++) {
         space = building_next(space);
         if (space->id > 0 && space->loads_stored > 0 &&
@@ -47,7 +47,7 @@ int figure_trade_caravan_can_buy(struct figure_t *trader, int warehouse_id, int 
 
 int figure_trade_caravan_can_sell(struct figure_t *trader, int warehouse_id, int city_id)
 {
-    building *warehouse = building_get(warehouse_id);
+    struct building_t *warehouse = &all_buildings[warehouse_id];
     if (warehouse->type != BUILDING_WAREHOUSE) {
         return 0;
     }
@@ -87,7 +87,7 @@ int figure_trade_caravan_can_sell(struct figure_t *trader, int warehouse_id, int
     if (can_import) {
         // at least one resource can be imported and accepted by this warehouse
         // check if warehouse can store any importable goods
-        building *space = warehouse;
+        struct building_t *space = warehouse;
         for (int s = 0; s < 8; s++) {
             space = building_next(space);
             if (space->id > 0 && space->loads_stored < 4) {
@@ -106,11 +106,11 @@ int figure_trade_caravan_can_sell(struct figure_t *trader, int warehouse_id, int
 
 static int trader_get_buy_resource(int warehouse_id, int city_id)
 {
-    building *warehouse = building_get(warehouse_id);
+    struct building_t *warehouse = &all_buildings[warehouse_id];
     if (warehouse->type != BUILDING_WAREHOUSE) {
         return RESOURCE_NONE;
     }
-    building *space = warehouse;
+    struct building_t *space = warehouse;
     for (int i = 0; i < 8; i++) {
         space = building_next(space);
         if (space->id <= 0) {
@@ -137,7 +137,7 @@ static int trader_get_buy_resource(int warehouse_id, int city_id)
 
 static int trader_get_sell_resource(int warehouse_id, int city_id)
 {
-    building *warehouse = building_get(warehouse_id);
+    struct building_t *warehouse = &all_buildings[warehouse_id];
     if (warehouse->type != BUILDING_WAREHOUSE) {
         return 0;
     }
@@ -151,7 +151,7 @@ static int trader_get_sell_resource(int warehouse_id, int city_id)
         return 0;
     }
     // add to existing bay with room
-    building *space = warehouse;
+    struct building_t *space = warehouse;
     for (int i = 0; i < 8; i++) {
         space = building_next(space);
         if (space->id > 0 && space->loads_stored > 0 && space->loads_stored < 4 &&
@@ -217,9 +217,9 @@ static int get_closest_warehouse(
         }
     }
     int min_distance = 10000;
-    building *min_building = 0;
+    struct building_t *min_building = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WAREHOUSE) {
             continue;
         }
@@ -235,7 +235,7 @@ static int get_closest_warehouse(
             }
         }
         int distance_penalty = 32;
-        building *space = b;
+        struct building_t *space = b;
         for (int space_cnt = 0; space_cnt < 8; space_cnt++) {
             space = building_next(space);
             if (space->id && exportable[space->subtype.warehouse_resource_id]) {
@@ -310,7 +310,7 @@ void figure_trade_caravan_action(struct figure_t *f)
                 f->wait_ticks = 0;
                 int x_base, y_base;
                 if (city_data.building.trade_center_building_id) {
-                    building *trade_center = building_get(city_data.building.trade_center_building_id);
+                    struct building_t *trade_center = &all_buildings[city_data.building.trade_center_building_id];
                     x_base = trade_center->x;
                     y_base = trade_center->y;
                 } else {
@@ -335,7 +335,7 @@ void figure_trade_caravan_action(struct figure_t *f)
                     f->is_ghost = 1;
                     break;
             }
-            if (building_get(f->destination_building_id)->state != BUILDING_STATE_IN_USE) {
+            if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
                 f->state = FIGURE_STATE_DEAD;
             }
             break;
@@ -440,7 +440,7 @@ void figure_native_trader_action(struct figure_t *f)
                 f->state = FIGURE_STATE_DEAD;
                 f->is_ghost = 1;
             }
-            if (building_get(f->destination_building_id)->state != BUILDING_STATE_IN_USE) {
+            if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
                 f->state = FIGURE_STATE_DEAD;
             }
             break;
@@ -513,7 +513,7 @@ void figure_native_trader_action(struct figure_t *f)
 
 int figure_trade_ship_is_trading(struct figure_t *ship)
 {
-    building *b = building_get(ship->destination_building_id);
+    struct building_t *b = &all_buildings[ship->destination_building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_DOCK) {
         return TRADE_SHIP_BUYING;
     }
@@ -540,7 +540,7 @@ int figure_trade_ship_is_trading(struct figure_t *ship)
 
 static int trade_ship_lost_queue(const struct figure_t *f)
 {
-    building *b = building_get(f->destination_building_id);
+    struct building_t *b = &all_buildings[f->destination_building_id];
     if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_DOCK &&
         b->num_workers > 0 && b->data.dock.trade_ship_id == f->id) {
         return 0;
@@ -550,7 +550,7 @@ static int trade_ship_lost_queue(const struct figure_t *f)
 
 static int trade_ship_done_trading(struct figure_t *f)
 {
-    building *b = building_get(f->destination_building_id);
+    struct building_t *b = &all_buildings[f->destination_building_id];
     if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_DOCK && b->num_workers > 0) {
         for (int i = 0; i < 3; i++) {
             if (b->data.dock.docker_ids[i]) {
@@ -615,7 +615,7 @@ void figure_trade_ship_action(struct figure_t *f)
                     city_message_increase_category_count(MESSAGE_CAT_BLOCKED_DOCK);
                 }
             }
-            if (building_get(f->destination_building_id)->state != BUILDING_STATE_IN_USE) {
+            if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
                 f->action_state = FIGURE_ACTION_TRADE_SHIP_LEAVING;
                 f->wait_ticks = 0;
                 f->destination_x = scenario.river_exit_point.x;
@@ -635,11 +635,11 @@ void figure_trade_ship_action(struct figure_t *f)
                 f->wait_ticks = 0;
                 f->destination_x = scenario.river_entry_point.x;
                 f->destination_y = scenario.river_entry_point.y;
-                building *dst = building_get(f->destination_building_id);
+                struct building_t *dst = &all_buildings[f->destination_building_id];
                 dst->data.dock.queued_docker_id = 0;
                 dst->data.dock.num_ships = 0;
             }
-            switch (building_get(f->destination_building_id)->data.dock.orientation) {
+            switch (all_buildings[f->destination_building_id].data.dock.orientation) {
                 case 0: f->direction = DIR_2_RIGHT; break;
                 case 1: f->direction = DIR_4_BOTTOM; break;
                 case 2: f->direction = DIR_6_LEFT; break;

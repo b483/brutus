@@ -29,9 +29,8 @@ static int take_food_from_granary(struct figure_t *f, int market_id, int granary
         case INVENTORY_MEAT: resource = RESOURCE_MEAT; break;
         default: return 0;
     }
-    building *granary = building_get(granary_id);
-    int market_units = building_get(market_id)->data.market.inventory[f->collecting_item_id];
-    int max_units = (f->collecting_item_id == INVENTORY_WHEAT ? 800 : 600) - market_units;
+    struct building_t *granary = &all_buildings[granary_id];
+    int max_units = (f->collecting_item_id == INVENTORY_WHEAT ? 800 : 600) - all_buildings[market_id].data.market.inventory[f->collecting_item_id];
     int granary_units = granary->data.granary.resource_stored[resource];
     int num_loads;
     if (granary_units >= 800) {
@@ -78,7 +77,7 @@ static int take_resource_from_warehouse(struct figure_t *f, int warehouse_id)
         case INVENTORY_WINE: resource = RESOURCE_WINE; break;
         default: return 0;
     }
-    building *warehouse = building_get(warehouse_id);
+    struct building_t *warehouse = &all_buildings[warehouse_id];
     int num_loads;
     int stored = building_warehouse_get_amount(warehouse, resource);
     if (stored < 2) {
@@ -105,7 +104,7 @@ void figure_market_buyer_action(struct figure_t *f)
     f->use_cross_country = 0;
     f->max_roam_length = 800;
 
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id2 != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
@@ -163,7 +162,7 @@ void figure_delivery_boy_action(struct figure_t *f)
                 f->state = FIGURE_STATE_DEAD;
             }
         } else { // leader arrived at market, drop resource at market
-            building_get(f->building_id)->data.market.inventory[f->collecting_item_id] += 100;
+            all_buildings[f->building_id].data.market.inventory[f->collecting_item_id] += 100;
             f->state = FIGURE_STATE_DEAD;
         }
     }

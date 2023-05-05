@@ -67,7 +67,7 @@ static void update_buildings(void)
 {
     int max_id = building_get_highest_id();
     for (int i = 1; i <= max_id; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE) {
             add_to_terrain(
                 b->x, b->y, b->size,

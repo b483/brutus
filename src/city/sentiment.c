@@ -27,7 +27,7 @@ int city_sentiment_low_mood_cause(void)
 void city_sentiment_change_happiness(int amount)
 {
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->house_size) {
             b->sentiment.house_happiness = calc_bound(b->sentiment.house_happiness + amount, 0, 100);
         }
@@ -37,7 +37,7 @@ void city_sentiment_change_happiness(int amount)
 void city_sentiment_set_max_happiness(int max)
 {
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->house_size) {
             if (b->sentiment.house_happiness > max) {
                 b->sentiment.house_happiness = max;
@@ -174,7 +174,7 @@ void city_sentiment_update(void)
     int total_sentiment_contribution_food = 0;
     int total_sentiment_penalty_tents = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || !b->house_size) {
             continue;
         }
@@ -243,7 +243,7 @@ void city_sentiment_update(void)
     int total_sentiment = 0;
     int total_houses = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->house_size && b->house_population) {
             total_houses++;
             total_sentiment += b->sentiment.house_happiness;

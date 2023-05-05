@@ -23,7 +23,7 @@ static const int CRIMINAL_OFFSETS[] = {
     0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 6, 5, 4, 3, 2, 1
 };
 
-static void generate_rioter(building *b)
+static void generate_rioter(struct building_t *b)
 {
     int x_road, y_road;
     if (!map_closest_road_within_radius(b->x, b->y, b->size, 4, &x_road, &y_road)) {
@@ -66,7 +66,7 @@ static void generate_rioter(building *b)
     city_message_post_with_popup_delay(MESSAGE_CAT_RIOT, MESSAGE_RIOT, b->type, map_grid_offset(x_road, y_road));
 }
 
-static void generate_mugger(building *b)
+static void generate_mugger(struct building_t *b)
 {
     city_sentiment_add_criminal();
     if (b->house_criminal_active < 2) {
@@ -89,7 +89,7 @@ static void generate_mugger(building *b)
     }
 }
 
-static void generate_protestor(building *b)
+static void generate_protestor(struct building_t *b)
 {
     city_sentiment_add_protester();
     if (b->house_criminal_active < 1) {
@@ -105,11 +105,11 @@ static void generate_protestor(building *b)
 
 void figure_generate_criminals(void)
 {
-    building *min_building = 0;
+    struct building_t *min_building = 0;
     int min_happiness = 50;
     int max_id = building_get_highest_id();
     for (int i = 1; i <= max_id; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->house_size) {
             if (b->sentiment.house_happiness >= 50) {
                 b->house_criminal_active = 0;
@@ -266,7 +266,7 @@ int figure_rioter_collapse_building(struct figure_t *f)
         if (!map_building_at(grid_offset)) {
             continue;
         }
-        building *b = building_get(map_building_at(grid_offset));
+        struct building_t *b = &all_buildings[map_building_at(grid_offset)];
         switch (b->type) {
             case BUILDING_WAREHOUSE_SPACE:
             case BUILDING_WAREHOUSE:

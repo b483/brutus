@@ -1,9 +1,8 @@
 #ifndef BUILDING_TYPE_H
 #define BUILDING_TYPE_H
 
-/**
- * Building types
- */
+#define MAX_HOUSE_TYPES 20
+
 typedef enum {
     BUILDING_NONE = 0,
     BUILDING_HOUSE_VACANT_LOT = 1,

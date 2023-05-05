@@ -26,7 +26,7 @@
 
 #include <string.h>
 
-static building all_buildings[MAX_BUILDINGS];
+struct building_t all_buildings[MAX_BUILDINGS];
 
 static struct {
     int highest_id_in_use;
@@ -72,16 +72,16 @@ struct building_properties_t building_properties[BUILDING_TYPE_MAX] = {
     {  3,     0,        70,       0,        300,  -1,          2,         1,             2,          30}, // BUILDING_HOSPITAL
     {  0,     0,        0,        0,        0,     0,          0,         0,             0,          0}, // BUILDING_MENU_SMALL_TEMPLES
     {  2,     0,        71,       0,        50,    4,          2,        -1,             6,          2}, // BUILDING_SMALL_TEMPLE_CERES
-    {  2,     0,        71,       0,        50,    4,          2,        -1,             6,          2}, // BUILDING_SMALL_TEMPLE_NEPTUNE
-    {  2,     0,        71,       0,        50,    4,          2,        -1,             6,          2}, // BUILDING_SMALL_TEMPLE_MERCURY
-    {  2,     0,        71,       0,        50,    4,          2,        -1,             6,          2}, // BUILDING_SMALL_TEMPLE_MARS
-    {  2,     0,        71,       0,        50,    4,          2,        -1,             6,          2}, // BUILDING_SMALL_TEMPLE_VENUS
+    {  2,     0,        72,       0,        50,    4,          2,        -1,             6,          2}, // BUILDING_SMALL_TEMPLE_NEPTUNE
+    {  2,     0,        73,       0,        50,    4,          2,        -1,             6,          2}, // BUILDING_SMALL_TEMPLE_MERCURY
+    {  2,     0,        74,       0,        50,    4,          2,        -1,             6,          2}, // BUILDING_SMALL_TEMPLE_MARS
+    {  2,     0,        75,       0,        50,    4,          2,        -1,             6,          2}, // BUILDING_SMALL_TEMPLE_VENUS
     {  0,     0,        0,        0,        0,     0,          0,         0,             0,          0}, // BUILDING_MENU_LARGE_TEMPLES
     {  3,     0,        71,       1,        150,   8,          2,        -1,             8,          5}, // BUILDING_LARGE_TEMPLE_CERES
-    {  3,     0,        71,       1,        150,   8,          2,        -1,             8,          5}, // BUILDING_LARGE_TEMPLE_NEPTUNE
-    {  3,     0,        71,       1,        150,   8,          2,        -1,             8,          5}, // BUILDING_LARGE_TEMPLE_MERCURY
-    {  3,     0,        71,       1,        150,   8,          2,        -1,             8,          5}, // BUILDING_LARGE_TEMPLE_MARS
-    {  3,     0,        71,       1,        150,   8,          2,        -1,             8,          5}, // BUILDING_LARGE_TEMPLE_VENUS
+    {  3,     0,        72,       1,        150,   8,          2,        -1,             8,          5}, // BUILDING_LARGE_TEMPLE_NEPTUNE
+    {  3,     0,        73,       1,        150,   8,          2,        -1,             8,          5}, // BUILDING_LARGE_TEMPLE_MERCURY
+    {  3,     0,        74,       1,        150,   8,          2,        -1,             8,          5}, // BUILDING_LARGE_TEMPLE_MARS
+    {  3,     0,        75,       1,        150,   8,          2,        -1,             8,          5}, // BUILDING_LARGE_TEMPLE_VENUS
     {  2,     0,        76,       0,        200,   8,          2,        -1,             6,          0}, // BUILDING_ORACLE
     {  2,     0,        41,       0,        50,   -2,          1,         1,             2,          10}, // BUILDING_SCHOOL
     {  3,     0,        43,       0,        100,   4,          1,         1,             4,          30}, // BUILDING_ACADEMY
@@ -151,7 +151,7 @@ struct building_properties_t building_properties[BUILDING_TYPE_MAX] = {
     {  1,     1,        0,        0,        0,    -1,          1,         1,             2,          0}, // BUILDING_BURNING_RUIN
 };
 
-struct house_properties_t house_properties[20] = {
+struct house_properties_t house_properties[MAX_HOUSE_TYPES] = {
     // dev_des | ev_des | ent | water | relg | edu | barb | bath | health | food | pott | oil | furn | wine | prosp | max_ppl | tax_mult
     { -99,      -10,      0,    0,      0,     0,    0,     0,       0,     0,     0,    0,     0,     0,     5,      5,        1},
     { -12,      -5,       0,    1,      0,     0,    0,     0,       0,     0,     0,    0,     0,     0,     10,     7,        1},
@@ -175,12 +175,7 @@ struct house_properties_t house_properties[20] = {
     { 85,        100,     80,   2,      4,     3,    1,     1,       2,     3,     1,    1,     1,     2,     1750,   200,      16},
 };
 
-building *building_get(int id)
-{
-    return &all_buildings[id];
-}
-
-building *building_main(building *b)
+struct building_t *building_main(struct building_t *b)
 {
     for (int guard = 0; guard < 9; guard++) {
         if (b->prev_part_building_id <= 0) {
@@ -191,14 +186,14 @@ building *building_main(building *b)
     return &all_buildings[0];
 }
 
-building *building_next(building *b)
+struct building_t *building_next(struct building_t *b)
 {
     return &all_buildings[b->next_part_building_id];
 }
 
-building *building_create(building_type type, int x, int y)
+struct building_t *building_create(building_type type, int x, int y)
 {
-    building *b = 0;
+    struct building_t *b = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
         if (all_buildings[i].state == BUILDING_STATE_UNUSED && !game_undo_contains_building(i)) {
             b = &all_buildings[i];
@@ -309,15 +304,15 @@ building *building_create(building_type type, int x, int y)
     return b;
 }
 
-static void building_delete(building *b)
+static void building_delete(struct building_t *b)
 {
     building_clear_related_data(b);
     int id = b->id;
-    memset(b, 0, sizeof(building));
+    memset(b, 0, sizeof(struct building_t));
     b->id = id;
 }
 
-void building_clear_related_data(building *b)
+void building_clear_related_data(struct building_t *b)
 {
     if (b->storage_id) {
         building_storage_delete(b->storage_id);
@@ -363,7 +358,7 @@ void building_clear_related_data(building *b)
 void building_update_state(void)
 {
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = &all_buildings[i];
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_CREATED) {
             b->state = BUILDING_STATE_IN_USE;
         }
@@ -398,7 +393,7 @@ void building_update_state(void)
 void building_update_desirability(void)
 {
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = &all_buildings[i];
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
@@ -440,9 +435,9 @@ void set_destination__closest_building_of_type(int closest_to__building_id, int 
 {
     int min_distance = 10000;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->type == closest_building_of_type__type && b->num_workers >= building_properties[closest_building_of_type__type].laborers) {
-            building *closest_to__building = building_get(closest_to__building_id);
+            struct building_t *closest_to__building = &all_buildings[closest_to__building_id];
             int dist = calc_maximum_distance(closest_to__building->x, closest_to__building->y, b->x, b->y);
             if (dist < min_distance) {
                 if (map_has_road_access(b->x, b->y, b->size, closest_building_of_type__road_tile)) {
@@ -464,7 +459,7 @@ void building_totals_add_corrupted_house(int unfixable)
 void building_clear_all(void)
 {
     for (int i = 0; i < MAX_BUILDINGS; i++) {
-        memset(&all_buildings[i], 0, sizeof(building));
+        memset(&all_buildings[i], 0, sizeof(struct building_t));
         all_buildings[i].id = i;
     }
     extra.highest_id_in_use = 0;

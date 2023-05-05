@@ -29,7 +29,7 @@ static struct {
 
 static void mark_well_access(int well_id, int radius)
 {
-    building *well = building_get(well_id);
+    struct building_t *well = &all_buildings[well_id];
     int x_min, y_min, x_max, y_max;
     map_grid_get_area(well->x, well->y, 1, radius, &x_min, &y_min, &x_max, &y_max);
 
@@ -37,7 +37,7 @@ static void mark_well_access(int well_id, int radius)
         for (int xx = x_min; xx <= x_max; xx++) {
             int building_id = map_building_at(map_grid_offset(xx, yy));
             if (building_id) {
-                building_get(building_id)->has_well_access = 1;
+                all_buildings[building_id].has_well_access = 1;
             }
         }
     }
@@ -47,7 +47,7 @@ void map_water_supply_update_houses(void)
 {
     building_list_small_clear();
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
@@ -107,7 +107,7 @@ static void fill_aqueducts_from_offset(int grid_offset)
         next_offset = -1;
         for (int i = 0; i < 4; i++) {
             int new_offset = grid_offset + ADJACENT_OFFSETS[i];
-            building *b = building_get(map_building_at(new_offset));
+            struct building_t *b = &all_buildings[map_building_at(new_offset)];
             if (b->id && b->type == BUILDING_RESERVOIR) {
                 // check if aqueduct connects to reservoir --> doesn't connect to corner
                 int xy = map_property_multi_tile_xy(new_offset);
@@ -150,7 +150,7 @@ void map_water_supply_update_reservoir_fountain(void)
     building_list_large_clear(1);
     // mark reservoirs next to water
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_RESERVOIR) {
             building_list_large_add(i);
             if (map_terrain_exists_tile_in_area_with_type(b->x - 1, b->y - 1, 5, TERRAIN_WATER)) {
@@ -168,7 +168,7 @@ void map_water_supply_update_reservoir_fountain(void)
     while (changed == 1) {
         changed = 0;
         for (int i = 0; i < total_reservoirs; i++) {
-            building *b = building_get(reservoirs[i]);
+            struct building_t *b = &all_buildings[reservoirs[i]];
             if (b->has_water_access == 2) {
                 b->has_water_access = 1;
                 changed = 1;
@@ -180,14 +180,14 @@ void map_water_supply_update_reservoir_fountain(void)
     }
     // mark reservoir ranges
     for (int i = 0; i < total_reservoirs; i++) {
-        building *b = building_get(reservoirs[i]);
+        struct building_t *b = &all_buildings[reservoirs[i]];
         if (b->has_water_access) {
             map_terrain_add_with_radius(b->x, b->y, 3, 10, TERRAIN_RESERVOIR_RANGE);
         }
     }
     // fountains
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_FOUNTAIN) {
             continue;
         }
@@ -214,7 +214,7 @@ void map_water_supply_update_reservoir_fountain(void)
     }
     // wells (to show range in water overlay)
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WELL) {
             continue;
         }
@@ -224,7 +224,7 @@ void map_water_supply_update_reservoir_fountain(void)
 
 int map_water_supply_is_well_unnecessary(int well_id, int radius)
 {
-    building *well = building_get(well_id);
+    struct building_t *well = &all_buildings[well_id];
     int num_houses = 0;
     int x_min, y_min, x_max, y_max;
     map_grid_get_area(well->x, well->y, 1, radius, &x_min, &y_min, &x_max, &y_max);
@@ -233,7 +233,7 @@ int map_water_supply_is_well_unnecessary(int well_id, int radius)
         for (int xx = x_min; xx <= x_max; xx++) {
             int grid_offset = map_grid_offset(xx, yy);
             int building_id = map_building_at(grid_offset);
-            if (building_id && building_get(building_id)->house_size) {
+            if (building_id && all_buildings[building_id].house_size) {
                 num_houses++;
                 if (!map_terrain_is(grid_offset, TERRAIN_FOUNTAIN_RANGE)) {
                     return WELL_NECESSARY;

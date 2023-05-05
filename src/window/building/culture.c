@@ -15,7 +15,7 @@ static void draw_culture_info(building_info_context *c, int help_id, const char 
 
     if (!c->has_road_access) {
         window_building_draw_description(c, 69, 25);
-    } else if (building_get(c->building_id)->num_workers <= 0) {
+    } else if (all_buildings[c->building_id].num_workers <= 0) {
         window_building_draw_description(c, group_id, 2);
     } else {
         window_building_draw_description(c, group_id, 3);
@@ -41,7 +41,7 @@ void window_building_draw_bathhouse(building_info_context *c)
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(83, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
 
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (!b->has_water_access) {
         window_building_draw_description(c, 83, 4);
     } else if (!c->has_road_access) {
@@ -132,7 +132,7 @@ void window_building_draw_theater(building_info_context *c)
     window_building_play_sound(c, "wavs/theatre.wav");
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(72, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (!c->has_road_access) {
         window_building_draw_description(c, 69, 25);
     } else if (b->num_workers <= 0) {
@@ -162,7 +162,7 @@ void window_building_draw_amphitheater(building_info_context *c)
     window_building_play_sound(c, "wavs/ampitheatre.wav");
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(71, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (!c->has_road_access) {
         window_building_draw_description(c, 69, 25);
     } else if (b->num_workers <= 0) {
@@ -203,7 +203,7 @@ void window_building_draw_colosseum(building_info_context *c)
     window_building_play_sound(c, "wavs/colloseum.wav");
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(74, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (!c->has_road_access) {
         window_building_draw_description(c, 69, 25);
     } else if (b->num_workers <= 0) {
@@ -242,7 +242,7 @@ void window_building_draw_hippodrome(building_info_context *c)
     window_building_play_sound(c, "wavs/hippodrome.wav");
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(73, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (!c->has_road_access) {
         window_building_draw_description(c, 69, 25);
     } else if (b->num_workers <= 0) {
@@ -274,7 +274,7 @@ static void draw_entertainment_school(building_info_context *c, const char *soun
         BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
     if (!c->has_road_access) {
         window_building_draw_description(c, 69, 25);
-    } else if (building_get(c->building_id)->num_workers <= 0) {
+    } else if (all_buildings[c->building_id].num_workers <= 0) {
         window_building_draw_description(c, group_id, 7);
     } else if (c->worker_percentage >= 100) {
         window_building_draw_description(c, group_id, 2);

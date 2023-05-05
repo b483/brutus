@@ -73,7 +73,7 @@ static int get_height_id(void)
                 return 5;
         }
     } else if (context.type == BUILDING_INFO_BUILDING) {
-        const building *b = building_get(context.building_id);
+        const struct building_t *b = &all_buildings[context.building_id];
         if (building_is_house(b->type) && b->house_population <= 0) {
             return 5;
         }
@@ -214,7 +214,7 @@ static void init(int grid_offset)
     } else if (!context.building_id) {
         context.terrain_type = TERRAIN_INFO_EMPTY;
     } else {
-        building *b = building_get(context.building_id);
+        struct building_t *b = &all_buildings[context.building_id];
         context.type = BUILDING_INFO_BUILDING;
         context.worker_percentage = calc_percentage(b->num_workers, building_properties[b->type].laborers);
         switch (b->type) {
@@ -363,7 +363,7 @@ static void draw_background(void)
     } else if (context.type == BUILDING_INFO_TERRAIN) {
         window_building_draw_terrain(&context);
     } else if (context.type == BUILDING_INFO_BUILDING) {
-        int btype = building_get(context.building_id)->type;
+        int btype = all_buildings[context.building_id].type;
         if (building_is_house(btype)) {
             window_building_draw_house(&context);
         } else if (btype == BUILDING_WHEAT_FARM) {
@@ -512,7 +512,7 @@ static void draw_foreground(void)
 {
     // building-specific buttons
     if (context.type == BUILDING_INFO_BUILDING) {
-        int btype = building_get(context.building_id)->type;
+        int btype = all_buildings[context.building_id].type;
         if (btype == BUILDING_GRANARY) {
             if (context.storage_show_special_orders) {
                 window_building_draw_granary_orders_foreground(&context);
@@ -554,7 +554,7 @@ static int handle_specific_building_info_mouse(const mouse *m)
     } else if (context.figure.drawn) {
         return window_building_handle_mouse_figure_list(m, &context);
     } else if (context.type == BUILDING_INFO_BUILDING) {
-        int btype = building_get(context.building_id)->type;
+        int btype = all_buildings[context.building_id].type;
         if (btype == BUILDING_GRANARY) {
             if (context.storage_show_special_orders) {
                 return window_building_handle_mouse_granary_orders(m, &context);
@@ -604,7 +604,7 @@ static void get_tooltip(tooltip_context *c)
     if (focus_image_button_id) {
         text_id = focus_image_button_id;
     } else if (context.type == BUILDING_INFO_BUILDING && context.storage_show_special_orders) {
-        int btype = building_get(context.building_id)->type;
+        int btype = all_buildings[context.building_id].type;
         if (btype == BUILDING_GRANARY) {
             window_building_get_tooltip_granary_orders(&group_id, &text_id);
         } else if (btype == BUILDING_WAREHOUSE) {
@@ -661,7 +661,7 @@ void window_building_info_show(int grid_offset)
 int window_building_info_get_building_type(void)
 {
     if (context.type == BUILDING_INFO_BUILDING) {
-        return building_get(context.building_id)->type;
+        return all_buildings[context.building_id].type;
     }
     return BUILDING_NONE;
 }

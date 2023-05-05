@@ -389,7 +389,7 @@ static int tile_obstructed(int grid_offset)
         return 1;
     }
     if (map_terrain_at_offset & TERRAIN_BUILDING) {
-        building *b = building_get(map_building_at(grid_offset));
+        struct building_t *b = &all_buildings[map_building_at(grid_offset)];
         // buildings with a low max height do not obstruct
         if (b->type != BUILDING_FORT_GROUND && b->type != BUILDING_CLAY_PIT && b->type != BUILDING_MARBLE_QUARRY) {
             return 1;

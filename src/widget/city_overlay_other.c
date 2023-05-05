@@ -15,7 +15,7 @@
 #include "map/random.h"
 #include "map/terrain.h"
 
-static int show_building_religion(const building *b)
+static int show_building_religion(const struct building_t *b)
 {
     return
         b->type == BUILDING_ORACLE || b->type == BUILDING_SMALL_TEMPLE_CERES ||
@@ -26,22 +26,22 @@ static int show_building_religion(const building *b)
         b->type == BUILDING_LARGE_TEMPLE_VENUS;
 }
 
-static int show_building_food_stocks(const building *b)
+static int show_building_food_stocks(const struct building_t *b)
 {
     return b->type == BUILDING_MARKET || b->type == BUILDING_WHARF || b->type == BUILDING_GRANARY;
 }
 
-static int show_building_tax_income(const building *b)
+static int show_building_tax_income(const struct building_t *b)
 {
     return b->type == BUILDING_FORUM || b->type == BUILDING_SENATE;
 }
 
-static int show_building_water(const building *b)
+static int show_building_water(const struct building_t *b)
 {
     return b->type == BUILDING_WELL || b->type == BUILDING_FOUNTAIN || b->type == BUILDING_RESERVOIR;
 }
 
-static int show_building_desirability(__attribute__((unused)) const building *b)
+static int show_building_desirability(__attribute__((unused)) const struct building_t *b)
 {
     return 0;
 }
@@ -72,12 +72,12 @@ static int show_figure_none(__attribute__((unused)) const struct figure_t *f)
     return 0;
 }
 
-static int get_column_height_religion(const building *b)
+static int get_column_height_religion(const struct building_t *b)
 {
     return b->house_size && b->data.house.num_gods ? b->data.house.num_gods * 17 / 10 : NO_COLUMN;
 }
 
-static int get_column_height_food_stocks(const building *b)
+static int get_column_height_food_stocks(const struct building_t *b)
 {
     if (b->house_size && house_properties[b->subtype.house_level].food_types) {
         int pop = b->house_population;
@@ -97,7 +97,7 @@ static int get_column_height_food_stocks(const building *b)
     return NO_COLUMN;
 }
 
-static int get_column_height_tax_income(const building *b)
+static int get_column_height_tax_income(const struct building_t *b)
 {
     if (b->house_size) {
         int pct = calc_adjust_with_percentage(b->tax_income_or_storage / 2, city_data.finance.tax_percentage);
@@ -108,7 +108,7 @@ static int get_column_height_tax_income(const building *b)
     return NO_COLUMN;
 }
 
-static int get_column_height_none(__attribute__((unused)) const building *b)
+static int get_column_height_none(__attribute__((unused)) const struct building_t *b)
 {
     return NO_COLUMN;
 }
@@ -121,7 +121,7 @@ static void add_god(tooltip_context *c, int god_id)
     c->num_extra_texts++;
 }
 
-static int get_tooltip_religion(tooltip_context *c, const building *b)
+static int get_tooltip_religion(tooltip_context *c, const struct building_t *b)
 {
     if (b->data.house.num_gods < 5) {
         if (b->data.house.temple_ceres) {
@@ -157,7 +157,7 @@ static int get_tooltip_religion(tooltip_context *c, const building *b)
     }
 }
 
-static int get_tooltip_food_stocks(__attribute__((unused)) tooltip_context *c, const building *b)
+static int get_tooltip_food_stocks(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
 {
     if (b->house_population <= 0) {
         return 0;
@@ -182,7 +182,7 @@ static int get_tooltip_food_stocks(__attribute__((unused)) tooltip_context *c, c
     }
 }
 
-static int get_tooltip_tax_income(tooltip_context *c, const building *b)
+static int get_tooltip_tax_income(tooltip_context *c, const struct building_t *b)
 {
     int denarii = calc_adjust_with_percentage(b->tax_income_or_storage / 2, city_data.finance.tax_percentage);
     if (denarii > 0) {
@@ -275,7 +275,7 @@ static int has_deleted_building(int grid_offset)
     if (!config_get(CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE)) {
         return 0;
     }
-    building *b = building_get(map_building_at(grid_offset));
+    struct building_t *b = &all_buildings[map_building_at(grid_offset)];
     b = building_main(b);
     return b->id && (b->is_deleted || map_property_is_deleted(b->grid_offset));
 }
@@ -304,7 +304,7 @@ static void draw_footprint_water(int x, int y, int grid_offset)
         int image_id = image_group(GROUP_TERRAIN_GRASS_1) + (map_random_get(grid_offset) & 7);
         image_draw_isometric_footprint_from_draw_tile(image_id, x, y, 0);
     } else if (map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
-        building *b = building_get(map_building_at(grid_offset));
+        struct building_t *b = &all_buildings[map_building_at(grid_offset)];
         int terrain = map_terrain_get(grid_offset);
         if (b->id && (b->has_well_access || (b->house_size && b->has_water_access))) {
             terrain |= TERRAIN_FOUNTAIN_RANGE;

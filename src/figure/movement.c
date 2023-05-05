@@ -191,14 +191,13 @@ static void advance_route_tile(struct figure_t *f, int roaming_enabled)
         }
     } else if (map_terrain_is(target_grid_offset, TERRAIN_ROAD | TERRAIN_ACCESS_RAMP)) {
         if (roaming_enabled && map_terrain_is(target_grid_offset, TERRAIN_BUILDING)) {
-            if (building_get(map_building_at(target_grid_offset))->type == BUILDING_GATEHOUSE) {
+            if (all_buildings[map_building_at(target_grid_offset)].type == BUILDING_GATEHOUSE) {
                 // do not allow roaming through gatehouse
                 f->direction = DIR_FIGURE_REROUTE;
             }
         }
     } else if (map_terrain_is(target_grid_offset, TERRAIN_BUILDING)) {
-        int type = building_get(map_building_at(target_grid_offset))->type;
-        switch (type) {
+        switch (all_buildings[map_building_at(target_grid_offset)].type) {
             case BUILDING_WAREHOUSE:
             case BUILDING_GRANARY:
             case BUILDING_TRIUMPHAL_ARCH:
@@ -242,7 +241,7 @@ static void walk_ticks(struct figure_t *f, int num_ticks, int roaming_enabled)
 
 void figure_movement_init_roaming(struct figure_t *f)
 {
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     f->progress_on_tile = 15;
     f->roam_choose_destination = 0;
     f->roam_ticks_until_next_turn = -1;

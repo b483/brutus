@@ -168,7 +168,7 @@ void city_culture_calculate(void)
 
     int num_houses = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->house_size) {
             num_houses++;
             city_data.culture.average_entertainment += b->data.house.entertainment;

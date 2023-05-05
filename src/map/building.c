@@ -63,7 +63,7 @@ int map_building_is_reservoir(int x, int y)
     }
     int grid_offset = map_grid_offset(x, y);
     int building_id = map_building_at(grid_offset);
-    if (!building_id || building_get(building_id)->type != BUILDING_RESERVOIR) {
+    if (!building_id || all_buildings[building_id].type != BUILDING_RESERVOIR) {
         return 0;
     }
     for (int dy = 0; dy < 3; dy++) {

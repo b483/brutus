@@ -23,12 +23,12 @@ int building_is_workshop(building_type type)
     return type >= BUILDING_WINE_WORKSHOP && type <= BUILDING_POTTERY_WORKSHOP;
 }
 
-static int max_progress(const building *b)
+static int max_progress(const struct building_t *b)
 {
     return b->subtype.workshop_type ? MAX_PROGRESS_WORKSHOP : MAX_PROGRESS_RAW;
 }
 
-static void update_farm_image(const building *b)
+static void update_farm_image(const struct building_t *b)
 {
     map_building_tiles_add_farm(b->id, b->x, b->y,
         image_group(GROUP_BUILDING_FARM_CROPS) + 5 * (b->output_resource_id - 1),
@@ -38,7 +38,7 @@ static void update_farm_image(const building *b)
 void building_industry_update_production(void)
 {
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || !b->output_resource_id) {
             continue;
         }
@@ -80,7 +80,7 @@ void building_industry_update_wheat_production(void)
         return;
     }
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || !b->output_resource_id) {
             continue;
         }
@@ -100,12 +100,12 @@ void building_industry_update_wheat_production(void)
     }
 }
 
-int building_industry_has_produced_resource(building *b)
+int building_industry_has_produced_resource(struct building_t *b)
 {
     return b->data.industry.progress >= max_progress(b);
 }
 
-void building_industry_start_new_production(building *b)
+void building_industry_start_new_production(struct building_t *b)
 {
     b->data.industry.progress = 0;
     if (b->subtype.workshop_type) {
@@ -124,7 +124,7 @@ void building_industry_start_new_production(building *b)
 void building_bless_farms(void)
 {
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->output_resource_id && building_is_farm(b->type)) {
             b->data.industry.progress = MAX_PROGRESS_RAW;
             b->data.industry.curse_days_left = 0;
@@ -137,7 +137,7 @@ void building_bless_farms(void)
 void building_curse_farms(int big_curse)
 {
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->output_resource_id && building_is_farm(b->type)) {
             b->data.industry.progress = 0;
             b->data.industry.blessing_days_left = 0;
@@ -147,7 +147,7 @@ void building_curse_farms(int big_curse)
     }
 }
 
-void building_workshop_add_raw_material(building *b)
+void building_workshop_add_raw_material(struct building_t *b)
 {
     if (b->id > 0 && building_is_workshop(b->type)) {
         b->loads_stored++; // BUG: any raw material accepted
@@ -165,9 +165,9 @@ int building_get_workshop_for_raw_material_with_room(
         return 0;
     }
     int min_dist = INFINITE;
-    building *min_building = 0;
+    struct building_t *min_building = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || !building_is_workshop(b->type)) {
             continue;
         }
@@ -203,9 +203,9 @@ int building_get_workshop_for_raw_material(
         return 0;
     }
     int min_dist = INFINITE;
-    building *min_building = 0;
+    struct building_t *min_building = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || !building_is_workshop(b->type)) {
             continue;
         }

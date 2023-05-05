@@ -54,7 +54,7 @@ int window_building_get_vertical_offset(building_info_context *c, int new_window
     return new_window_y;
 }
 
-static int draw_employment_info(building *b, int consider_house_covering)
+static int draw_employment_info(struct building_t *b, int consider_house_covering)
 {
     int text_id;
     if (b->num_workers >= building_properties[b->type].laborers) {
@@ -78,7 +78,7 @@ static int draw_employment_info(building *b, int consider_house_covering)
     return text_id;
 }
 
-static void draw_employment_details(building_info_context *c, building *b, int y_offset, int text_id)
+static void draw_employment_details(building_info_context *c, struct building_t *b, int y_offset, int text_id)
 {
     y_offset += c->y_offset;
     image_draw(image_group(GROUP_CONTEXT_ICONS) + 14, c->x_offset + 40, y_offset + 6);
@@ -100,14 +100,14 @@ static void draw_employment_details(building_info_context *c, building *b, int y
 
 void window_building_draw_employment(building_info_context *c, int y_offset)
 {
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     int text_id = draw_employment_info(b, 1);
     draw_employment_details(c, b, y_offset, text_id);
 }
 
 void window_building_draw_employment_without_house_cover(building_info_context *c, int y_offset)
 {
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     int text_id = draw_employment_info(b, 0);
     draw_employment_details(c, b, y_offset, text_id);
 }

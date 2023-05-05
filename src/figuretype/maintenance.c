@@ -18,7 +18,7 @@
 
 void figure_engineer_action(struct figure_t *f)
 {
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
 
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
@@ -108,7 +108,7 @@ static int fight_fire(struct figure_t *f)
     int distance;
     int ruin_id = building_maintenance_get_closest_burning_ruin(f->x, f->y, &distance);
     if (ruin_id > 0 && distance <= 25) {
-        building *ruin = building_get(ruin_id);
+        struct building_t *ruin = &all_buildings[ruin_id];
         f->wait_ticks_missile = 0;
         f->action_state = FIGURE_ACTION_PREFECT_GOING_TO_FIRE;
         f->destination_x = ruin->road_access_x;
@@ -123,7 +123,7 @@ static int fight_fire(struct figure_t *f)
 
 static void extinguish_fire(struct figure_t *f)
 {
-    building *burn = building_get(f->destination_building_id);
+    struct building_t *burn = &all_buildings[f->destination_building_id];
     int distance = calc_maximum_distance(f->x, f->y, burn->x, burn->y);
     if (burn->state == BUILDING_STATE_IN_USE && burn->type == BUILDING_BURNING_RUIN && distance < 2) {
         burn->fire_duration = 32;
@@ -139,7 +139,7 @@ static void extinguish_fire(struct figure_t *f)
     if (f->wait_ticks <= 0) {
         f->wait_ticks_missile = 20;
         if (!fight_fire(f)) {
-            building *b = building_get(f->building_id);
+            struct building_t *b = &all_buildings[f->building_id];
             int x_road, y_road;
             if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
                 f->action_state = FIGURE_ACTION_PREFECT_RETURNING;
@@ -155,7 +155,7 @@ static void extinguish_fire(struct figure_t *f)
 
 void figure_prefect_action(struct figure_t *f)
 {
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }

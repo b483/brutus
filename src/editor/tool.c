@@ -350,7 +350,7 @@ static void place_building(const map_tile *tile)
     }
 
     if (editor_tool_can_place_building(tile, size * size, 0)) {
-        building *b = building_create(type, tile->x, tile->y);
+        struct building_t *b = building_create(type, tile->x, tile->y);
         map_building_tiles_add(b->id, tile->x, tile->y, size, image_id, TERRAIN_BUILDING);
         scenario.is_saved = 0;
     } else {

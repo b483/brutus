@@ -29,7 +29,7 @@ static struct {
     int building_cost;
     int num_buildings;
     building_type type;
-    building buildings[MAX_UNDO_BUILDINGS];
+    struct building_t buildings[MAX_UNDO_BUILDINGS];
 } data;
 
 int game_can_undo(void)
@@ -42,7 +42,7 @@ void game_undo_disable(void)
     data.available = 0;
 }
 
-void game_undo_add_building(building *b)
+void game_undo_add_building(struct building_t *b)
 {
     if (b->id <= 0) {
         return;
@@ -61,7 +61,7 @@ void game_undo_add_building(building *b)
         for (int i = 0; i < MAX_UNDO_BUILDINGS; i++) {
             if (!data.buildings[i].id) {
                 data.num_buildings++;
-                memcpy(&data.buildings[i], b, sizeof(building));
+                memcpy(&data.buildings[i], b, sizeof(struct building_t));
                 return;
             }
         }
@@ -88,7 +88,7 @@ int game_undo_contains_building(int building_id)
 static void clear_buildings(void)
 {
     data.num_buildings = 0;
-    memset(data.buildings, 0, MAX_UNDO_BUILDINGS * sizeof(building));
+    memset(data.buildings, 0, MAX_UNDO_BUILDINGS * sizeof(struct building_t));
 }
 
 int game_undo_start_build(building_type type)
@@ -100,7 +100,7 @@ int game_undo_start_build(building_type type)
     data.type = type;
     clear_buildings();
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_UNDO) {
             data.available = 0;
             return 0;
@@ -123,7 +123,7 @@ void game_undo_restore_building_state(void)
 {
     for (int i = 0; i < data.num_buildings; i++) {
         if (data.buildings[i].id) {
-            building *b = building_get(data.buildings[i].id);
+            struct building_t *b = &all_buildings[data.buildings[i].id];
             if (b->state == BUILDING_STATE_DELETED_BY_PLAYER) {
                 b->state = BUILDING_STATE_IN_USE;
             }
@@ -165,7 +165,7 @@ void game_undo_finish_build(int cost)
     window_invalidate();
 }
 
-static void add_building_to_terrain(building *b)
+static void add_building_to_terrain(struct building_t *b)
 {
     if (b->id <= 0) {
         return;
@@ -206,8 +206,8 @@ void game_undo_perform(void)
     if (data.type == BUILDING_CLEAR_LAND) {
         for (int i = 0; i < data.num_buildings; i++) {
             if (data.buildings[i].id) {
-                building *b = building_get(data.buildings[i].id);
-                memcpy(b, &data.buildings[i], sizeof(building));
+                struct building_t *b = &all_buildings[data.buildings[i].id];
+                memcpy(b, &data.buildings[i], sizeof(struct building_t));
                 if (b->type == BUILDING_WAREHOUSE || b->type == BUILDING_GRANARY) {
                     if (!building_storage_restore(b->storage_id)) {
                         building_storage_reset_building_ids();
@@ -239,7 +239,7 @@ void game_undo_perform(void)
     } else if (data.num_buildings) {
         for (int i = 0; i < data.num_buildings; i++) {
             if (data.buildings[i].id) {
-                building *b = building_get(data.buildings[i].id);
+                struct building_t *b = &all_buildings[data.buildings[i].id];
                 if (b->type == BUILDING_ORACLE
                     || (b->type >= BUILDING_LARGE_TEMPLE_CERES && b->type <= BUILDING_LARGE_TEMPLE_VENUS)) {
                     building_warehouses_add_resource(RESOURCE_MARBLE, 2);
@@ -292,7 +292,7 @@ void game_undo_reduce_time_available(void)
     }
     if (data.type == BUILDING_HOUSE_VACANT_LOT) {
         for (int i = 0; i < data.num_buildings; i++) {
-            if (data.buildings[i].id && building_get(data.buildings[i].id)->house_population) {
+            if (data.buildings[i].id && all_buildings[data.buildings[i].id].house_population) {
                 // no undo on a new house where people moved in
                 data.available = 0;
                 window_invalidate();
@@ -302,7 +302,7 @@ void game_undo_reduce_time_available(void)
     }
     for (int i = 0; i < data.num_buildings; i++) {
         if (data.buildings[i].id) {
-            building *b = building_get(data.buildings[i].id);
+            struct building_t *b = &all_buildings[data.buildings[i].id];
             if (b->state == BUILDING_STATE_UNDO ||
                 b->state == BUILDING_STATE_RUBBLE ||
                 b->state == BUILDING_STATE_DELETED_BY_GAME) {

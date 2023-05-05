@@ -9,7 +9,7 @@
 #include "scenario/data.h"
 #include "scenario/map.h"
 
-int building_dock_count_idle_dockers(const building *dock)
+int building_dock_count_idle_dockers(const struct building_t *dock)
 {
     int num_idle = 0;
     for (int i = 0; i < 3; i++) {
@@ -28,7 +28,7 @@ void building_dock_update_open_water_access(void)
 {
     map_routing_calculate_distances_water_boat(scenario.river_entry_point.x, scenario.river_entry_point.y);
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && !b->house_size && b->type == BUILDING_DOCK) {
             if (map_terrain_is_adjacent_to_open_water(b->x, b->y, 3)) {
                 b->has_water_access = 1;
@@ -48,7 +48,7 @@ int building_dock_get_free_destination(int ship_id, map_point *tile)
     for (int i = 0; i < 10; i++) {
         dock_id = city_data.building.working_dock_ids[i];
         if (!dock_id) continue;
-        building *dock = building_get(dock_id);
+        struct building_t *dock = &all_buildings[dock_id];
         if (!dock->data.dock.trade_ship_id || dock->data.dock.trade_ship_id == ship_id) {
             break;
         }
@@ -57,7 +57,7 @@ int building_dock_get_free_destination(int ship_id, map_point *tile)
     if (dock_id <= 0) {
         return 0;
     }
-    building *dock = building_get(dock_id);
+    struct building_t *dock = &all_buildings[dock_id];
     int dx, dy;
     switch (dock->data.dock.orientation) {
         case 0: dx = 1; dy = -1; break;
@@ -79,7 +79,7 @@ int building_dock_get_queue_destination(map_point *tile)
     for (int i = 0; i < 10; i++) {
         int dock_id = city_data.building.working_dock_ids[i];
         if (!dock_id) continue;
-        building *dock = building_get(dock_id);
+        struct building_t *dock = &all_buildings[dock_id];
         int dx, dy;
         switch (dock->data.dock.orientation) {
             case 0: dx = 2; dy = -2; break;
@@ -96,7 +96,7 @@ int building_dock_get_queue_destination(map_point *tile)
     for (int i = 0; i < 10; i++) {
         int dock_id = city_data.building.working_dock_ids[i];
         if (!dock_id) continue;
-        building *dock = building_get(dock_id);
+        struct building_t *dock = &all_buildings[dock_id];
         int dx, dy;
         switch (dock->data.dock.orientation) {
             case 0: dx = 2; dy = -3; break;

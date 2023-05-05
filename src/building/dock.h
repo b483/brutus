@@ -4,7 +4,7 @@
 #include "building/building.h"
 #include "map/point.h"
 
-int building_dock_count_idle_dockers(const building *dock);
+int building_dock_count_idle_dockers(const struct building_t *dock);
 
 void building_dock_update_open_water_access(void);
 

@@ -306,7 +306,7 @@ void figure_zebra_action(struct figure_t *f)
 
 static void set_horse_destination(struct figure_t *f, int state)
 {
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     int orientation = city_view_orientation();
     if (state == HORSE_CREATED) {
         map_figure_delete(f);

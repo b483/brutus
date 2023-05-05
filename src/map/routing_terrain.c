@@ -29,7 +29,7 @@ void map_routing_update_land(void)
 
 static int get_land_type_citizen_building(int grid_offset)
 {
-    building *b = building_get(map_building_at(grid_offset));
+    struct building_t *b = &all_buildings[map_building_at(grid_offset)];
     int type = CITIZEN_N1_BLOCKED;
     switch (b->type) {
         case BUILDING_WAREHOUSE:
@@ -141,7 +141,7 @@ void map_routing_update_land_citizen(void)
 static int get_land_type_noncitizen(int grid_offset)
 {
     int type = NONCITIZEN_1_BUILDING;
-    switch (building_get(map_building_at(grid_offset))->type) {
+    switch (all_buildings[map_building_at(grid_offset)].type) {
         case BUILDING_WAREHOUSE:
         case BUILDING_FORT_GROUND:
             type = NONCITIZEN_0_PASSABLE;

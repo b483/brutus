@@ -18,13 +18,13 @@
 
 static int try_import_resource(int building_id, int resource, int city_id)
 {
-    building *warehouse = building_get(building_id);
+    struct building_t *warehouse = &all_buildings[building_id];
     if (warehouse->type != BUILDING_WAREHOUSE) {
         return 0;
     }
 
     // try existing storage bay with the same resource
-    building *space = warehouse;
+    struct building_t *space = warehouse;
     for (int i = 0; i < 8; i++) {
         space = building_next(space);
         if (space->id > 0) {
@@ -52,12 +52,12 @@ static int try_import_resource(int building_id, int resource, int city_id)
 
 static int try_export_resource(int building_id, int resource, int city_id)
 {
-    building *warehouse = building_get(building_id);
+    struct building_t *warehouse = &all_buildings[building_id];
     if (warehouse->type != BUILDING_WAREHOUSE) {
         return 0;
     }
 
-    building *space = warehouse;
+    struct building_t *space = warehouse;
     for (int i = 0; i < 8; i++) {
         space = building_next(space);
         if (space->id > 0) {
@@ -89,7 +89,7 @@ static int get_closest_warehouse_for_import(int x, int y, int city_id, int dista
     int min_distance = 10000;
     int min_building_id = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WAREHOUSE) {
             continue;
         }
@@ -102,7 +102,7 @@ static int get_closest_warehouse_for_import(int x, int y, int city_id, int dista
         const building_storage *storage = building_storage_get(b->storage_id);
         if (storage->resource_state[resource] != BUILDING_STORAGE_STATE_NOT_ACCEPTING && !storage->empty_all) {
             int distance_penalty = 32;
-            building *space = b;
+            struct building_t *space = b;
             for (int s = 0; s < 8; s++) {
                 space = building_next(space);
                 if (space->id && space->subtype.warehouse_resource_id == RESOURCE_NONE) {
@@ -127,7 +127,7 @@ static int get_closest_warehouse_for_import(int x, int y, int city_id, int dista
     if (!min_building_id) {
         return 0;
     }
-    building *min = building_get(min_building_id);
+    struct building_t *min = &all_buildings[min_building_id];
     if (min->has_road_access == 1) {
         map_point_store_result(min->x, min->y, warehouse);
     } else if (!map_has_road_access(min->x, min->y, 3, warehouse)) {
@@ -155,7 +155,7 @@ static int get_closest_warehouse_for_export(int x, int y, int city_id, int dista
     int min_distance = 10000;
     int min_building_id = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WAREHOUSE) {
             continue;
         }
@@ -166,7 +166,7 @@ static int get_closest_warehouse_for_export(int x, int y, int city_id, int dista
             continue;
         }
         int distance_penalty = 32;
-        building *space = b;
+        struct building_t *space = b;
         for (int s = 0; s < 8; s++) {
             space = building_next(space);
             if (space->id && space->subtype.warehouse_resource_id == resource && space->loads_stored > 0) {
@@ -186,7 +186,7 @@ static int get_closest_warehouse_for_export(int x, int y, int city_id, int dista
     if (!min_building_id) {
         return 0;
     }
-    building *min = building_get(min_building_id);
+    struct building_t *min = &all_buildings[min_building_id];
     if (min->has_road_access == 1) {
         map_point_store_result(min->x, min->y, warehouse);
     } else if (!map_has_road_access(min->x, min->y, 3, warehouse)) {
@@ -199,7 +199,7 @@ static int get_closest_warehouse_for_export(int x, int y, int city_id, int dista
 static void get_trade_center_location(const struct figure_t *f, int *x, int *y)
 {
     if (city_data.building.trade_center_building_id) {
-        building *trade_center = building_get(city_data.building.trade_center_building_id);
+        struct building_t *trade_center = &all_buildings[city_data.building.trade_center_building_id];
         *x = trade_center->x;
         *y = trade_center->y;
     } else {
@@ -208,7 +208,7 @@ static void get_trade_center_location(const struct figure_t *f, int *x, int *y)
     }
 }
 
-static int deliver_import_resource(struct figure_t *f, building *dock)
+static int deliver_import_resource(struct figure_t *f, struct building_t *dock)
 {
     int ship_id = dock->data.dock.trade_ship_id;
     if (!ship_id) {
@@ -237,7 +237,7 @@ static int deliver_import_resource(struct figure_t *f, building *dock)
     return 1;
 }
 
-static int fetch_export_resource(struct figure_t *f, building *dock)
+static int fetch_export_resource(struct figure_t *f, struct building_t *dock)
 {
     int ship_id = dock->data.dock.trade_ship_id;
     if (!ship_id) {
@@ -274,7 +274,7 @@ static void set_cart_graphic(struct figure_t *f)
 
 void figure_docker_action(struct figure_t *f)
 {
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     if (b->state != BUILDING_STATE_IN_USE) {
@@ -374,7 +374,7 @@ void figure_docker_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_LOST) {
                 f->state = FIGURE_STATE_DEAD;
             }
-            if (building_get(f->destination_building_id)->state != BUILDING_STATE_IN_USE) {
+            if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
                 f->state = FIGURE_STATE_DEAD;
             }
             break;
@@ -388,7 +388,7 @@ void figure_docker_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_LOST) {
                 f->state = FIGURE_STATE_DEAD;
             }
-            if (building_get(f->destination_building_id)->state != BUILDING_STATE_IN_USE) {
+            if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
                 f->state = FIGURE_STATE_DEAD;
             }
             break;
@@ -403,7 +403,7 @@ void figure_docker_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_LOST) {
                 f->state = FIGURE_STATE_DEAD;
             }
-            if (building_get(f->destination_building_id)->state != BUILDING_STATE_IN_USE) {
+            if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
                 f->state = FIGURE_STATE_DEAD;
             }
             break;

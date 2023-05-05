@@ -276,15 +276,14 @@ void empire_object_our_city_set_resources_sell(void)
     for (int resource = 1; resource < RESOURCE_MAX; resource++) {
         // farms match across enums, rest don't
         if (resource <= RESOURCE_VINES) {
-            if (scenario.allowed_buildings[resource + ALLOWED_BUILDING_WHEAT_FARM - 1])
+            if (scenario.allowed_buildings[resource + BUILDING_WHEAT_FARM - 1])
                 our_city->resource_sell_limit[resource] = 1;
             else {
                 our_city->resource_sell_limit[resource] = 0;
             }
         }
         if (resource == RESOURCE_MEAT) {
-            if (scenario.allowed_buildings[ALLOWED_BUILDING_WHARF]
-                || scenario.allowed_buildings[ALLOWED_BUILDING_PIG_FARM]
+            if (scenario.allowed_buildings[BUILDING_WHARF] || scenario.allowed_buildings[BUILDING_PIG_FARM]
             ) {
                 our_city->resource_sell_limit[resource] = 1;
             } else {
@@ -292,28 +291,28 @@ void empire_object_our_city_set_resources_sell(void)
             }
         }
         if (resource >= RESOURCE_WINE && resource <= RESOURCE_OIL) {
-            if (scenario.allowed_buildings[resource + ALLOWED_BUILDING_WINE_WORKSHOP - 7])
+            if (scenario.allowed_buildings[resource + BUILDING_WINE_WORKSHOP - 7])
                 our_city->resource_sell_limit[resource] = 1;
             else {
                 our_city->resource_sell_limit[resource] = 0;
             }
         }
         if (resource >= RESOURCE_IRON && resource <= RESOURCE_TIMBER) {
-            if (scenario.allowed_buildings[resource + ALLOWED_BUILDING_IRON_MINE - 9])
+            if (scenario.allowed_buildings[resource + BUILDING_IRON_MINE - 9])
                 our_city->resource_sell_limit[resource] = 1;
             else {
                 our_city->resource_sell_limit[resource] = 0;
             }
         }
         if (resource >= RESOURCE_CLAY && resource <= RESOURCE_MARBLE) {
-            if (scenario.allowed_buildings[resource + ALLOWED_BUILDING_CLAY_PIT - 11])
+            if (scenario.allowed_buildings[resource + BUILDING_CLAY_PIT - 11])
                 our_city->resource_sell_limit[resource] = 1;
             else {
                 our_city->resource_sell_limit[resource] = 0;
             }
         }
         if (resource >= RESOURCE_WEAPONS) {
-            if (scenario.allowed_buildings[resource + ALLOWED_BUILDING_WEAPONS_WORKSHOP - 13])
+            if (scenario.allowed_buildings[resource + BUILDING_WEAPONS_WORKSHOP - 13])
                 our_city->resource_sell_limit[resource] = 1;
             else {
                 our_city->resource_sell_limit[resource] = 0;

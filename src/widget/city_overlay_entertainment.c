@@ -2,7 +2,7 @@
 
 #include "game/state.h"
 
-static int show_building_entertainment(const building *b)
+static int show_building_entertainment(const struct building_t *b)
 {
     return
         b->type == BUILDING_ACTOR_COLONY || b->type == BUILDING_THEATER ||
@@ -11,35 +11,35 @@ static int show_building_entertainment(const building *b)
         b->type == BUILDING_CHARIOT_MAKER || b->type == BUILDING_HIPPODROME;
 }
 
-static int show_building_theater(const building *b)
+static int show_building_theater(const struct building_t *b)
 {
     return b->type == BUILDING_ACTOR_COLONY || b->type == BUILDING_THEATER;
 }
 
-static int show_building_amphitheater(const building *b)
+static int show_building_amphitheater(const struct building_t *b)
 {
     return b->type == BUILDING_ACTOR_COLONY
         || b->type == BUILDING_GLADIATOR_SCHOOL
         || b->type == BUILDING_AMPHITHEATER;
 }
 
-static int show_building_colosseum(const building *b)
+static int show_building_colosseum(const struct building_t *b)
 {
     return b->type == BUILDING_GLADIATOR_SCHOOL || b->type == BUILDING_LION_HOUSE || b->type == BUILDING_COLOSSEUM;
 }
 
-static int show_building_hippodrome(const building *b)
+static int show_building_hippodrome(const struct building_t *b)
 {
     return b->type == BUILDING_CHARIOT_MAKER || b->type == BUILDING_HIPPODROME;
 }
 
-static building *get_entertainment_building(const struct figure_t *f)
+static struct building_t *get_entertainment_building(const struct figure_t *f)
 {
     if (f->action_state == FIGURE_ACTION_ENTERTAINER_ROAMING ||
         f->action_state == FIGURE_ACTION_ENTERTAINER_RETURNING) {
-        return building_get(f->building_id);
+        return &all_buildings[f->building_id];
     } else {
-        return building_get(f->destination_building_id);
+        return &all_buildings[f->destination_building_id];
     }
 }
 
@@ -80,32 +80,32 @@ static int show_figure_hippodrome(const struct figure_t *f)
     return f->type == FIGURE_CHARIOTEER;
 }
 
-static int get_column_height_entertainment(const building *b)
+static int get_column_height_entertainment(const struct building_t *b)
 {
     return b->house_size && b->data.house.entertainment ? b->data.house.entertainment / 10 : NO_COLUMN;
 }
 
-static int get_column_height_theater(const building *b)
+static int get_column_height_theater(const struct building_t *b)
 {
     return b->house_size && b->data.house.theater ? b->data.house.theater / 10 : NO_COLUMN;
 }
 
-static int get_column_height_amphitheater(const building *b)
+static int get_column_height_amphitheater(const struct building_t *b)
 {
     return b->house_size && b->data.house.amphitheater_actor ? b->data.house.amphitheater_actor / 10 : NO_COLUMN;
 }
 
-static int get_column_height_colosseum(const building *b)
+static int get_column_height_colosseum(const struct building_t *b)
 {
     return b->house_size && b->data.house.colosseum_gladiator ? b->data.house.colosseum_gladiator / 10 : NO_COLUMN;
 }
 
-static int get_column_height_hippodrome(const building *b)
+static int get_column_height_hippodrome(const struct building_t *b)
 {
     return b->house_size && b->data.house.hippodrome ? b->data.house.hippodrome / 10 : NO_COLUMN;
 }
 
-static int get_tooltip_entertainment(__attribute__((unused)) tooltip_context *c, const building *b)
+static int get_tooltip_entertainment(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
 {
     if (b->data.house.entertainment <= 0) {
         return 64;
@@ -132,7 +132,7 @@ static int get_tooltip_entertainment(__attribute__((unused)) tooltip_context *c,
     }
 }
 
-static int get_tooltip_theater(__attribute__((unused)) tooltip_context *c, const building *b)
+static int get_tooltip_theater(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
 {
     if (b->data.house.theater <= 0) {
         return 75;
@@ -145,7 +145,7 @@ static int get_tooltip_theater(__attribute__((unused)) tooltip_context *c, const
     }
 }
 
-static int get_tooltip_amphitheater(__attribute__((unused)) tooltip_context *c, const building *b)
+static int get_tooltip_amphitheater(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
 {
     if (b->data.house.amphitheater_actor <= 0) {
         return 79;
@@ -158,7 +158,7 @@ static int get_tooltip_amphitheater(__attribute__((unused)) tooltip_context *c, 
     }
 }
 
-static int get_tooltip_colosseum(__attribute__((unused)) tooltip_context *c, const building *b)
+static int get_tooltip_colosseum(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
 {
     if (b->data.house.colosseum_gladiator <= 0) {
         return 83;
@@ -171,7 +171,7 @@ static int get_tooltip_colosseum(__attribute__((unused)) tooltip_context *c, con
     }
 }
 
-static int get_tooltip_hippodrome(__attribute__((unused)) tooltip_context *c, const building *b)
+static int get_tooltip_hippodrome(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
 {
     if (b->data.house.hippodrome <= 0) {
         return 87;

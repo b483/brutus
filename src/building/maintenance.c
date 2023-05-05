@@ -39,7 +39,7 @@ void building_maintenance_update_burning_ruins(void)
     int recalculate_terrain = 0;
     building_list_burning_clear();
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_BURNING_RUIN) {
             continue;
         }
@@ -77,20 +77,20 @@ void building_maintenance_update_burning_ruins(void)
 
         int grid_offset = b->grid_offset;
         int next_building_id = map_building_at(grid_offset + map_grid_direction_delta(fire_spread_direction));
-        if (next_building_id && !building_get(next_building_id)->fire_proof) {
-            building_destroy_by_fire(building_get(next_building_id));
+        if (next_building_id && !all_buildings[next_building_id].fire_proof) {
+            building_destroy_by_fire(&all_buildings[next_building_id]);
             sound_effect_play(SOUND_EFFECT_EXPLOSION);
             recalculate_terrain = 1;
         } else {
             next_building_id = map_building_at(grid_offset + map_grid_direction_delta(dir1));
-            if (next_building_id && !building_get(next_building_id)->fire_proof) {
-                building_destroy_by_fire(building_get(next_building_id));
+            if (next_building_id && !all_buildings[next_building_id].fire_proof) {
+                building_destroy_by_fire(&all_buildings[next_building_id]);
                 sound_effect_play(SOUND_EFFECT_EXPLOSION);
                 recalculate_terrain = 1;
             } else {
                 next_building_id = map_building_at(grid_offset + map_grid_direction_delta(dir2));
-                if (next_building_id && !building_get(next_building_id)->fire_proof) {
-                    building_destroy_by_fire(building_get(next_building_id));
+                if (next_building_id && !all_buildings[next_building_id].fire_proof) {
+                    building_destroy_by_fire(&all_buildings[next_building_id]);
                     sound_effect_play(SOUND_EFFECT_EXPLOSION);
                     recalculate_terrain = 1;
                 }
@@ -112,7 +112,7 @@ int building_maintenance_get_closest_burning_ruin(int x, int y, int *distance)
     int burning_size = building_list_burning_size();
     for (int i = 0; i < burning_size; i++) {
         int building_id = burning[i];
-        building *b = building_get(building_id);
+        struct building_t *b = &all_buildings[building_id];
         if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_BURNING_RUIN
             && !b->ruin_has_plague && b->distance_from_entry) {
             int dist = calc_maximum_distance(x, y, b->x, b->y);
@@ -134,7 +134,7 @@ int building_maintenance_get_closest_burning_ruin(int x, int y, int *distance)
     return min_free_building_id;
 }
 
-static void collapse_building(building *b)
+static void collapse_building(struct building_t *b)
 {
     city_message_apply_sound_interval(MESSAGE_CAT_COLLAPSE);
     city_message_post_with_popup_delay(MESSAGE_CAT_COLLAPSE, MESSAGE_COLLAPSED_BUILDING, b->type, b->grid_offset);
@@ -142,7 +142,7 @@ static void collapse_building(building *b)
     building_destroy_by_collapse(b);
 }
 
-static void fire_building(building *b)
+static void fire_building(struct building_t *b)
 {
     city_message_apply_sound_interval(MESSAGE_CAT_FIRE);
     city_message_post_with_popup_delay(MESSAGE_CAT_FIRE, MESSAGE_FIRE, b->type, b->grid_offset);
@@ -158,7 +158,7 @@ void building_maintenance_check_fire_collapse(void)
     int random_global = random_byte() & 7;
     int max_id = building_get_highest_id();
     for (int i = 1; i <= max_id; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->fire_proof) {
             continue;
         }
@@ -211,7 +211,7 @@ void building_maintenance_check_rome_access(void)
     map_routing_calculate_distances(city_data.map.entry_point.x, city_data.map.entry_point.y);
     int problem_grid_offset = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
@@ -263,7 +263,7 @@ void building_maintenance_check_rome_access(void)
             }
         } else if (b->type == BUILDING_WAREHOUSE_SPACE) {
             b->distance_from_entry = 0;
-            building *main_building = building_main(b);
+            struct building_t *main_building = building_main(b);
             b->road_network_id = main_building->road_network_id;
             b->distance_from_entry = main_building->distance_from_entry;
             b->road_access_x = main_building->road_access_x;

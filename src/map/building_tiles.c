@@ -171,7 +171,7 @@ void map_building_tiles_remove(int building_id, int x, int y)
     if (map_terrain_get(base_grid_offset) == TERRAIN_ROCK) {
         return;
     }
-    building *b = building_get(building_id);
+    struct building_t *b = &all_buildings[building_id];
     if (building_id && building_is_farm(b->type)) {
         size = 3;
     }
@@ -213,14 +213,14 @@ void map_building_tiles_set_rubble(int building_id, int x, int y, int size)
     if (!map_grid_is_inside(x, y, size)) {
         return;
     }
-    building *b = building_get(building_id);
+    struct building_t *b = &all_buildings[building_id];
     for (int dy = 0; dy < size; dy++) {
         for (int dx = 0; dx < size; dx++) {
             int grid_offset = map_grid_offset(x + dx, y + dy);
             if (map_building_at(grid_offset) != building_id) {
                 continue;
             }
-            if (building_id && building_get(map_building_at(grid_offset))->type != BUILDING_BURNING_RUIN) {
+            if (building_id && all_buildings[map_building_at(grid_offset)].type != BUILDING_BURNING_RUIN) {
                 map_set_rubble_building_type(grid_offset, b->type);
             } else if (!building_id && map_terrain_get(grid_offset) & TERRAIN_WALL) {
                 map_set_rubble_building_type(grid_offset, BUILDING_WALL);
@@ -291,7 +291,7 @@ void map_building_tiles_mark_deleting(int grid_offset)
     if (!building_id) {
         map_bridge_remove(grid_offset, 1);
     } else {
-        grid_offset = building_main(building_get(building_id))->grid_offset;
+        grid_offset = building_main(&all_buildings[building_id])->grid_offset;
     }
     map_property_mark_deleted(grid_offset);
 }

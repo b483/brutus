@@ -6,9 +6,9 @@
 
 int building_get_barracks_for_weapon(int resource, int road_network_id, map_point *dst);
 
-void building_barracks_create_soldier(building *barracks, int x, int y);
+void building_barracks_create_soldier(struct building_t *barracks, int x, int y);
 
-int building_barracks_create_tower_sentry(building *barracks, int x, int y);
+int building_barracks_create_tower_sentry(struct building_t *barracks, int x, int y);
 
 void building_barracks_request_tower_sentry(void);
 

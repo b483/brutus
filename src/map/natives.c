@@ -36,7 +36,7 @@ static int has_building_on_native_land(int x, int y, int size, int radius)
         for (int xx = x_min; xx <= x_max; xx++) {
             int building_id = map_building_at(map_grid_offset(xx, yy));
             if (building_id > 0) {
-                int type = building_get(building_id)->type;
+                int type = all_buildings[building_id].type;
                 if (type != BUILDING_MISSION_POST &&
                     type != BUILDING_NATIVE_HUT &&
                     type != BUILDING_NATIVE_MEETING &&
@@ -54,7 +54,7 @@ static void determine_meeting_center(void)
     // gather list of meeting centers
     building_list_small_clear();
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_NATIVE_MEETING) {
             building_list_small_add(i);
         }
@@ -66,12 +66,12 @@ static void determine_meeting_center(void)
     const int *meetings = building_list_small_items();
     // determine closest meeting center for hut
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_NATIVE_HUT) {
             int min_dist = 1000;
             int min_meeting_id = 0;
             for (int n = 0; n < total_meetings; n++) {
-                building *meeting = building_get(meetings[n]);
+                struct building_t *meeting = &all_buildings[meetings[n]];
                 int dist = calc_maximum_distance(b->x, b->y, meeting->x, meeting->y);
                 if (dist < min_dist) {
                     min_dist = dist;
@@ -118,7 +118,7 @@ void map_natives_init(void)
                 map_building_tiles_remove(0, x, y);
                 continue;
             }
-            building *b = building_create(type, x, y);
+            struct building_t *b = building_create(type, x, y);
             map_building_set(grid_offset, b->id);
             b->state = BUILDING_STATE_IN_USE;
             switch (type) {
@@ -183,7 +183,7 @@ void map_natives_init_editor(void)
                 map_building_tiles_remove(0, x, y);
                 continue;
             }
-            building *b = building_create(type, x, y);
+            struct building_t *b = building_create(type, x, y);
             b->state = BUILDING_STATE_IN_USE;
             map_building_set(grid_offset, b->id);
             if (type == BUILDING_NATIVE_MEETING) {
@@ -203,7 +203,7 @@ void map_natives_check_land(void)
     }
 
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }

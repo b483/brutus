@@ -12,7 +12,7 @@
 #include "figure/route.h"
 #include "map/road_access.h"
 
-void figure_create_immigrant(building *house, int num_people)
+void figure_create_immigrant(struct building_t *house, int num_people)
 {
     struct figure_t *f = figure_create(FIGURE_IMMIGRANT, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
     f->action_state = FIGURE_ACTION_IMMIGRANT_CREATED;
@@ -22,7 +22,7 @@ void figure_create_immigrant(building *house, int num_people)
     house->immigrant_figure_id = f->id;
 }
 
-void figure_create_emigrant(building *house, int num_people)
+void figure_create_emigrant(struct building_t *house, int num_people)
 {
     city_population_remove(num_people);
     if (num_people < house->house_population) {
@@ -63,7 +63,7 @@ static int closest_house_with_room(int x, int y)
     int min_building_id = 0;
     int max_id = building_get_highest_id();
     for (int i = 1; i <= max_id; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->house_size
             && b->distance_from_entry > 0 && b->house_population_room > 0) {
             if (!b->immigrant_figure_id) {
@@ -81,7 +81,7 @@ static int closest_house_with_room(int x, int y)
 
 void figure_immigrant_action(struct figure_t *f)
 {
-    building *b = building_get(f->immigrant_building_id);
+    struct building_t *b = &all_buildings[f->immigrant_building_id];
 
     f->terrain_usage = TERRAIN_USAGE_ANY;
     f->cart_image_id = 0;
@@ -219,7 +219,7 @@ void figure_homeless_action(struct figure_t *f)
             if (f->wait_ticks > 51) {
                 int building_id = closest_house_with_room(f->x, f->y);
                 if (building_id) {
-                    building *b = building_get(building_id);
+                    struct building_t *b = &all_buildings[building_id];
                     int x_road, y_road;
                     if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
                         b->immigrant_figure_id = f->id;
@@ -244,10 +244,10 @@ void figure_homeless_action(struct figure_t *f)
             f->is_ghost = 0;
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
-                building_get(f->immigrant_building_id)->immigrant_figure_id = 0;
+                all_buildings[f->immigrant_building_id].immigrant_figure_id = 0;
                 f->state = FIGURE_STATE_DEAD;
             } else if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                building *b = building_get(f->immigrant_building_id);
+                struct building_t *b = &all_buildings[f->immigrant_building_id];
                 f->action_state = FIGURE_ACTION_HOMELESS_ENTERING_HOUSE;
                 figure_movement_set_cross_country_destination(f, b->x, b->y);
                 f->roam_length = 0;
@@ -258,7 +258,7 @@ void figure_homeless_action(struct figure_t *f)
             f->is_ghost = 1;
             if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
                 f->state = FIGURE_STATE_DEAD;
-                building *b = building_get(f->immigrant_building_id);
+                struct building_t *b = &all_buildings[f->immigrant_building_id];
                 if (f->immigrant_building_id && building_is_house(b->type)) {
                     int max_people = house_properties[b->subtype.house_level].max_people;
                     if (b->house_is_merged) {
@@ -293,7 +293,7 @@ void figure_homeless_action(struct figure_t *f)
                 f->wait_ticks = 0;
                 int building_id = closest_house_with_room(f->x, f->y);
                 if (building_id > 0) {
-                    building *b = building_get(building_id);
+                    struct building_t *b = &all_buildings[building_id];
                     int x_road, y_road;
                     if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
                         b->immigrant_figure_id = f->id;

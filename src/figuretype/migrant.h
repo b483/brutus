@@ -4,9 +4,9 @@
 #include "building/building.h"
 #include "figure/figure.h"
 
-void figure_create_immigrant(building *house, int num_people);
+void figure_create_immigrant(struct building_t *house, int num_people);
 
-void figure_create_emigrant(building *house, int num_people);
+void figure_create_emigrant(struct building_t *house, int num_people);
 
 void figure_create_homeless(int x, int y, int num_people);
 

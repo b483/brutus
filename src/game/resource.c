@@ -1,11 +1,11 @@
 #include "resource.h"
 
 #include "building/type.h"
-#include "scenario/editor_events.h"
+#include "scenario/data.h"
 
 int resource_image_offset(resource_type resource, resource_image_type type)
 {
-    if (resource == RESOURCE_MEAT && scenario_building_allowed(BUILDING_WHARF)) {
+    if (resource == RESOURCE_MEAT && scenario.allowed_buildings[BUILDING_WHARF]) {
         switch (type) {
             case RESOURCE_IMAGE_STORAGE: return 40;
             case RESOURCE_IMAGE_CART: return 648;

@@ -281,8 +281,8 @@ static void draw_cartpusher(building_info_context *c, struct figure_t *f)
     if (!f->building_id) {
         return;
     }
-    building *source_building = building_get(f->building_id);
-    building *target_building = building_get(f->destination_building_id);
+    struct building_t *source_building = &all_buildings[f->building_id];
+    struct building_t *target_building = &all_buildings[f->destination_building_id];
     int is_returning = 0;
     switch (f->action_state) {
         case FIGURE_ACTION_CARTPUSHER_RETURNING:

@@ -6,7 +6,7 @@
 #include "game/animation.h"
 #include "map/sprite.h"
 
-int building_animation_offset(building *b, int image_id, int grid_offset)
+int building_animation_offset(struct building_t *b, int image_id, int grid_offset)
 {
     if (b->type == BUILDING_FOUNTAIN && (b->num_workers <= 0 || !b->has_water_access)) {
         return 0;

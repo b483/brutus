@@ -18,7 +18,7 @@ static void roamer_action(struct figure_t *f, int num_ticks)
             f->roam_length++;
             if (f->roam_length >= f->max_roam_length) {
                 int x, y;
-                building *b = building_get(f->building_id);
+                struct building_t *b = &all_buildings[f->building_id];
                 if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x, &y)) {
                     f->action_state = FIGURE_ACTION_ROAMER_RETURNING;
                     f->destination_x = x;
@@ -46,7 +46,7 @@ static void culture_action(struct figure_t *f, int group)
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
     f->max_roam_length = 384;
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
@@ -65,7 +65,7 @@ void figure_school_child_action(struct figure_t *f)
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
     f->max_roam_length = 96;
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_SCHOOL) {
         f->state = FIGURE_STATE_DEAD;
     }
@@ -113,7 +113,7 @@ void figure_missionary_action(struct figure_t *f)
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
     f->max_roam_length = 192;
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
@@ -127,7 +127,7 @@ void figure_patrician_action(struct figure_t *f)
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
     f->max_roam_length = 128;
-    if (building_get(f->building_id)->state != BUILDING_STATE_IN_USE) {
+    if (all_buildings[f->building_id].state != BUILDING_STATE_IN_USE) {
         f->state = FIGURE_STATE_DEAD;
     }
     figure_image_increase_offset(f, 12);
@@ -140,7 +140,7 @@ void figure_labor_seeker_action(struct figure_t *f)
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
     f->max_roam_length = 384;
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id2 != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
@@ -154,7 +154,7 @@ void figure_market_trader_action(struct figure_t *f)
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
     f->max_roam_length = 384;
-    building *market = building_get(f->building_id);
+    struct building_t *market = &all_buildings[f->building_id];
     if (market->state != BUILDING_STATE_IN_USE || market->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
@@ -173,7 +173,7 @@ void figure_market_trader_action(struct figure_t *f)
 
 void figure_tax_collector_action(struct figure_t *f)
 {
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
 
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;

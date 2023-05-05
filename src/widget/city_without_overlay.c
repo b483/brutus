@@ -72,7 +72,7 @@ static void init_draw_context(int selected_figure_id, pixel_coordinate *figure_c
     draw_context.highlighted_formation = highlighted_formation;
 }
 
-static int draw_building_as_deleted(building *b)
+static int draw_building_as_deleted(struct building_t *b)
 {
     b = building_main(b);
     return (b->id && (b->is_deleted || map_property_is_deleted(b->grid_offset)));
@@ -90,7 +90,7 @@ static int has_adjacent_deletion(int grid_offset)
     const int *adjacent_offset = ADJACENT_OFFSETS[size - 2][city_view_orientation() / 2];
     for (int i = 0; i < total_adjacent_offsets; ++i) {
         if (map_property_is_deleted(grid_offset + adjacent_offset[i]) ||
-            draw_building_as_deleted(building_get(map_building_at(grid_offset + adjacent_offset[i])))) {
+            draw_building_as_deleted(&all_buildings[map_building_at(grid_offset + adjacent_offset[i])])) {
             return 1;
         }
     }
@@ -111,7 +111,7 @@ static void draw_footprint(int x, int y, int grid_offset)
             int view_x, view_y, view_width, view_height;
             city_view_get_viewport(&view_x, &view_y, &view_width, &view_height);
             if (building_id) {
-                building *b = building_get(building_id);
+                struct building_t *b = &all_buildings[building_id];
                 if (draw_building_as_deleted(b)) {
                     color_mask = COLOR_MASK_RED;
                 }
@@ -157,7 +157,7 @@ static void draw_footprint(int x, int y, int grid_offset)
     }
 }
 
-static void draw_hippodrome_spectators(const building *b, int x, int y, color_t color_mask)
+static void draw_hippodrome_spectators(const struct building_t *b, int x, int y, color_t color_mask)
 {
     int subtype = b->subtype.orientation;
     int orientation = city_view_orientation();
@@ -206,7 +206,7 @@ static void draw_hippodrome_spectators(const building *b, int x, int y, color_t 
     }
 }
 
-static void draw_entertainment_spectators(building *b, int x, int y, color_t color_mask)
+static void draw_entertainment_spectators(struct building_t *b, int x, int y, color_t color_mask)
 {
     if (b->type == BUILDING_AMPHITHEATER && b->num_workers > 0) {
         image_draw_masked(image_group(GROUP_BUILDING_AMPHITHEATER_SHOW), x + 36, y - 47, color_mask);
@@ -223,7 +223,7 @@ static void draw_entertainment_spectators(building *b, int x, int y, color_t col
     }
 }
 
-static void draw_workshop_raw_material_storage(const building *b, int x, int y, color_t color_mask)
+static void draw_workshop_raw_material_storage(const struct building_t *b, int x, int y, color_t color_mask)
 {
     if (b->type == BUILDING_WINE_WORKSHOP) {
         if (b->loads_stored >= 2 || b->data.industry.has_raw_materials) {
@@ -252,7 +252,7 @@ static void draw_workshop_raw_material_storage(const building *b, int x, int y, 
     }
 }
 
-static void draw_senate_rating_flags(const building *b, int x, int y, color_t color_mask)
+static void draw_senate_rating_flags(const struct building_t *b, int x, int y, color_t color_mask)
 {
     if (b->type == BUILDING_SENATE) {
         // rating flags
@@ -287,7 +287,7 @@ static void draw_top(int x, int y, int grid_offset)
     if (!map_property_is_draw_tile(grid_offset)) {
         return;
     }
-    building *b = building_get(map_building_at(grid_offset));
+    struct building_t *b = &all_buildings[map_building_at(grid_offset)];
     int image_id = map_image_at(grid_offset);
     color_t color_mask = 0;
     if (draw_building_as_deleted(b) || (map_property_is_deleted(grid_offset) && !is_multi_tile_terrain(grid_offset))) {
@@ -317,7 +317,7 @@ static void draw_figures(int x, int y, int grid_offset)
     }
 }
 
-static void draw_dock_workers(const building *b, int x, int y, color_t color_mask)
+static void draw_dock_workers(const struct building_t *b, int x, int y, color_t color_mask)
 {
     int num_dockers = building_dock_count_idle_dockers(b);
     if (num_dockers > 0) {
@@ -342,7 +342,7 @@ static void draw_dock_workers(const building *b, int x, int y, color_t color_mas
     }
 }
 
-static void draw_warehouse_ornaments(const building *b, int x, int y, color_t color_mask)
+static void draw_warehouse_ornaments(const struct building_t *b, int x, int y, color_t color_mask)
 {
     image_draw_masked(image_group(GROUP_BUILDING_WAREHOUSE) + 17, x - 4, y - 42, color_mask);
     if (b->id == city_data.building.trade_center_building_id) {
@@ -350,7 +350,7 @@ static void draw_warehouse_ornaments(const building *b, int x, int y, color_t co
     }
 }
 
-static void draw_granary_stores(const image *img, const building *b, int x, int y, color_t color_mask)
+static void draw_granary_stores(const image *img, const struct building_t *b, int x, int y, color_t color_mask)
 {
     image_draw_masked(image_group(GROUP_BUILDING_GRANARY) + 1,
                       x + img->sprite_offset_x,
@@ -377,7 +377,7 @@ static void draw_animation(int x, int y, int grid_offset)
     if (img->num_animation_sprites) {
         if (map_property_is_draw_tile(grid_offset)) {
             int building_id = map_building_at(grid_offset);
-            building *b = building_get(building_id);
+            struct building_t *b = &all_buildings[building_id];
             int color_mask = 0;
             if (draw_building_as_deleted(b) || map_property_is_deleted(grid_offset)) {
                 color_mask = COLOR_MASK_RED;
@@ -416,9 +416,9 @@ static void draw_animation(int x, int y, int grid_offset)
         }
     } else if (map_sprite_bridge_at(grid_offset)) {
         city_draw_bridge(x, y, grid_offset);
-    } else if (building_get(map_building_at(grid_offset))->type == BUILDING_FORT) {
+    } else if (all_buildings[map_building_at(grid_offset)].type == BUILDING_FORT) {
         if (map_property_is_draw_tile(grid_offset)) {
-            building *fort = building_get(map_building_at(grid_offset));
+            struct building_t *fort = &all_buildings[map_building_at(grid_offset)];
             int offset = 0;
             switch (fort->subtype.fort_figure_type) {
                 case FIGURE_FORT_LEGIONARY: offset = 4; break;
@@ -430,14 +430,14 @@ static void draw_animation(int x, int y, int grid_offset)
                     draw_building_as_deleted(fort) ? COLOR_MASK_RED : 0);
             }
         }
-    } else if (building_get(map_building_at(grid_offset))->type == BUILDING_GATEHOUSE) {
+    } else if (all_buildings[map_building_at(grid_offset)].type == BUILDING_GATEHOUSE) {
         int xy = map_property_multi_tile_xy(grid_offset);
         int orientation = city_view_orientation();
         if ((orientation == DIR_0_TOP && xy == EDGE_X1Y1) ||
             (orientation == DIR_2_RIGHT && xy == EDGE_X0Y1) ||
             (orientation == DIR_4_BOTTOM && xy == EDGE_X0Y0) ||
             (orientation == DIR_6_LEFT && xy == EDGE_X1Y0)) {
-            building *gate = building_get(map_building_at(grid_offset));
+            struct building_t *gate = &all_buildings[map_building_at(grid_offset)];
             int gatehouse_image_id = image_group(GROUP_BUILDING_GATEHOUSE);
             int color_mask = draw_building_as_deleted(gate) ? COLOR_MASK_RED : 0;
             if (gate->subtype.orientation == 1) {
@@ -473,7 +473,7 @@ static void draw_hippodrome_ornaments(int x, int y, int grid_offset)
 {
     int image_id = map_image_at(grid_offset);
     const image *img = image_get(image_id);
-    building *b = building_get(map_building_at(grid_offset));
+    struct building_t *b = &all_buildings[map_building_at(grid_offset)];
     if (img->num_animation_sprites
         && map_property_is_draw_tile(grid_offset)
         && b->type == BUILDING_HIPPODROME) {
@@ -498,7 +498,7 @@ static void deletion_draw_terrain_top(int x, int y, int grid_offset)
 
 static void deletion_draw_figures_animations(int x, int y, int grid_offset)
 {
-    if (map_property_is_deleted(grid_offset) || draw_building_as_deleted(building_get(map_building_at(grid_offset)))) {
+    if (map_property_is_deleted(grid_offset) || draw_building_as_deleted(&all_buildings[map_building_at(grid_offset)])) {
         image_draw_blend(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, COLOR_MASK_RED);
     }
     if (map_property_is_draw_tile(grid_offset) && !should_draw_top_before_deletion(grid_offset)) {

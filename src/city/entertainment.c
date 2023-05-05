@@ -16,7 +16,7 @@ void city_entertainment_calculate_shows(void)
     city_data.entertainment.venue_needing_shows = 0;
 
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }

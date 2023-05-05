@@ -13,7 +13,7 @@ struct resource_data {
     int num_buildings;
 };
 
-int building_market_get_max_food_stock(building *market)
+int building_market_get_max_food_stock(struct building_t *market)
 {
     int max_stock = 0;
     if (market->id > 0 && market->type == BUILDING_MARKET) {
@@ -27,7 +27,7 @@ int building_market_get_max_food_stock(building *market)
     return max_stock;
 }
 
-int building_market_get_max_goods_stock(building *market)
+int building_market_get_max_goods_stock(struct building_t *market)
 {
     int max_stock = 0;
     if (market->id > 0 && market->type == BUILDING_MARKET) {
@@ -41,7 +41,7 @@ int building_market_get_max_goods_stock(building *market)
     return max_stock;
 }
 
-static void update_food_resource(struct resource_data *data, resource_type resource, const building *b, int distance)
+static void update_food_resource(struct resource_data *data, resource_type resource, const struct building_t *b, int distance)
 {
     if (b->data.granary.resource_stored[resource]) {
         data->num_buildings++;
@@ -52,7 +52,7 @@ static void update_food_resource(struct resource_data *data, resource_type resou
     }
 }
 
-static void update_good_resource(struct resource_data *data, resource_type resource, building *b, int distance)
+static void update_good_resource(struct resource_data *data, resource_type resource, struct building_t *b, int distance)
 {
     if (!city_data.resource.stockpiled[resource] && building_warehouse_get_amount(b, resource) > 0) {
         data->num_buildings++;
@@ -63,7 +63,7 @@ static void update_good_resource(struct resource_data *data, resource_type resou
     }
 }
 
-int building_market_get_storage_destination(building *market)
+int building_market_get_storage_destination(struct building_t *market)
 {
     struct resource_data resources[INVENTORY_MAX];
     for (int i = 0; i < INVENTORY_MAX; i++) {
@@ -72,7 +72,7 @@ int building_market_get_storage_destination(building *market)
         resources[i].distance = 40;
     }
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }

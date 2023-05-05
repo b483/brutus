@@ -69,7 +69,7 @@ void window_building_draw_dock(building_info_context *c)
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(101, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
 
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
 
     if (!c->has_road_access) {
         window_building_draw_description(c, 69, 25);
@@ -105,7 +105,7 @@ void window_building_draw_market(building_info_context *c)
     window_building_play_sound(c, "wavs/market.wav");
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(97, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (!c->has_road_access) {
         window_building_draw_description(c, 69, 25);
     } else if (b->num_workers <= 0) {
@@ -162,7 +162,7 @@ void window_building_draw_granary(building_info_context *c)
     window_building_play_sound(c, "wavs/granary.wav");
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(98, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (!c->has_road_access) {
         window_building_draw_description_at(c, 40, 69, 25);
     } else if (scenario.rome_supplies_wheat) {
@@ -257,7 +257,7 @@ void window_building_draw_granary_orders_foreground(building_info_context *c)
     // empty button
     button_border_draw(c->x_offset + 80, y_offset + 404, BLOCK_SIZE * (c->width_blocks - 10), 20,
         data.orders_focus_button_id == 1 ? 1 : 0);
-    const building_storage *storage = building_storage_get(building_get(c->building_id)->storage_id);
+    const building_storage *storage = building_storage_get(all_buildings[c->building_id].storage_id);
     if (storage->empty_all) {
         lang_text_draw_centered(98, 8, c->x_offset + 80, y_offset + 408,
             BLOCK_SIZE * (c->width_blocks - 10), FONT_NORMAL_BLACK);
@@ -321,7 +321,7 @@ void window_building_draw_warehouse(building_info_context *c)
     window_building_play_sound(c, "wavs/warehouse.wav");
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(99, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
-    building *b = building_get(c->building_id);
+    struct building_t *b = &all_buildings[c->building_id];
     if (!c->has_road_access) {
         window_building_draw_description(c, 69, 25);
     } else {
@@ -399,7 +399,7 @@ void window_building_draw_warehouse_orders_foreground(building_info_context *c)
     // emptying button
     button_border_draw(c->x_offset + 80, y_offset + 404, BLOCK_SIZE * (c->width_blocks - 10),
         20, data.orders_focus_button_id == 1 ? 1 : 0);
-    const building_storage *storage = building_storage_get(building_get(c->building_id)->storage_id);
+    const building_storage *storage = building_storage_get(all_buildings[c->building_id].storage_id);
     if (storage->empty_all) {
         lang_text_draw_centered(99, 5, c->x_offset + 80, y_offset + 408,
             BLOCK_SIZE * (c->width_blocks - 10), FONT_NORMAL_BLACK);
@@ -470,7 +470,7 @@ static void go_to_orders(__attribute__((unused)) int param1, __attribute__((unus
 
 static void toggle_resource_state(int index, __attribute__((unused)) int param2)
 {
-    building *b = building_get(data.building_id);
+    struct building_t *b = &all_buildings[data.building_id];
     int resource;
     if (b->type == BUILDING_WAREHOUSE) {
         resource = city_resource_get_available()->items[index - 1];
@@ -483,7 +483,7 @@ static void toggle_resource_state(int index, __attribute__((unused)) int param2)
 
 static void granary_orders(int index, __attribute__((unused)) int param2)
 {
-    int storage_id = building_get(data.building_id)->storage_id;
+    int storage_id = all_buildings[data.building_id].storage_id;
     if (index == 0) {
         building_storage_toggle_empty_all(storage_id);
     } else if (index == 1) {
@@ -495,12 +495,12 @@ static void granary_orders(int index, __attribute__((unused)) int param2)
 static void warehouse_orders(int index, __attribute__((unused)) int param2)
 {
     if (index == 0) {
-        int storage_id = building_get(data.building_id)->storage_id;
+        int storage_id = all_buildings[data.building_id].storage_id;
         building_storage_toggle_empty_all(storage_id);
     } else if (index == 1) {
         city_data.building.trade_center_building_id = data.building_id;
     } else if (index == 2) {
-        int storage_id = building_get(data.building_id)->storage_id;
+        int storage_id = all_buildings[data.building_id].storage_id;
         building_storage_accept_none(storage_id);
     }
     window_invalidate();

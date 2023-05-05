@@ -34,7 +34,7 @@ static void set_destination(struct figure_t *f, int action, int building_id, int
     f->destination_y = y_dst;
 }
 
-static void determine_cartpusher_destination(struct figure_t *f, building *b, int road_network_id)
+static void determine_cartpusher_destination(struct figure_t *f, struct building_t *b, int road_network_id)
 {
     map_point dst;
     int understaffed_storages = 0;
@@ -89,7 +89,7 @@ static void determine_cartpusher_destination(struct figure_t *f, building *b, in
 
 static void determine_cartpusher_destination_food(struct figure_t *f, int road_network_id)
 {
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     map_point dst;
     // priority 1: accepting granary for food
     int dst_building_id = building_granary_for_storing(f->x, f->y,
@@ -154,7 +154,7 @@ void figure_cartpusher_action(struct figure_t *f)
     f->cart_image_id = 0;
     int road_network_id = map_road_network_get(f->grid_offset);
     f->terrain_usage = TERRAIN_USAGE_ROADS;
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
 
     switch (f->action_state) {
         case FIGURE_ACTION_CARTPUSHER_INITIAL:
@@ -181,7 +181,7 @@ void figure_cartpusher_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_LOST) {
                 f->state = FIGURE_STATE_DEAD;
             }
-            if (building_get(f->destination_building_id)->state != BUILDING_STATE_IN_USE) {
+            if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
                 f->state = FIGURE_STATE_DEAD;
             }
             break;
@@ -196,7 +196,7 @@ void figure_cartpusher_action(struct figure_t *f)
                 f->action_state = FIGURE_ACTION_CARTPUSHER_INITIAL;
                 f->wait_ticks = 0;
             }
-            if (building_get(f->destination_building_id)->state != BUILDING_STATE_IN_USE) {
+            if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
                 f->state = FIGURE_STATE_DEAD;
             }
             break;
@@ -214,7 +214,7 @@ void figure_cartpusher_action(struct figure_t *f)
         case FIGURE_ACTION_CARTPUSHER_AT_WAREHOUSE:
             f->wait_ticks++;
             if (f->wait_ticks > 10) {
-                if (building_warehouse_add_resource(building_get(f->destination_building_id), f->resource_id)) {
+                if (building_warehouse_add_resource(&all_buildings[f->destination_building_id], f->resource_id)) {
                     f->action_state = FIGURE_ACTION_CARTPUSHER_RETURNING;
                     f->wait_ticks = 0;
                     f->destination_x = f->source_x;
@@ -230,7 +230,7 @@ void figure_cartpusher_action(struct figure_t *f)
         case FIGURE_ACTION_CARTPUSHER_AT_GRANARY:
             f->wait_ticks++;
             if (f->wait_ticks > 5) {
-                if (building_granary_add_resource(building_get(f->destination_building_id), f->resource_id, 1)) {
+                if (building_granary_add_resource(&all_buildings[f->destination_building_id], f->resource_id, 1)) {
                     f->action_state = FIGURE_ACTION_CARTPUSHER_RETURNING;
                     f->wait_ticks = 0;
                     f->destination_x = f->source_x;
@@ -244,7 +244,7 @@ void figure_cartpusher_action(struct figure_t *f)
         case FIGURE_ACTION_CARTPUSHER_AT_WORKSHOP:
             f->wait_ticks++;
             if (f->wait_ticks > 5) {
-                building_workshop_add_raw_material(building_get(f->destination_building_id));
+                building_workshop_add_raw_material(&all_buildings[f->destination_building_id]);
                 f->action_state = FIGURE_ACTION_CARTPUSHER_RETURNING;
                 f->wait_ticks = 0;
                 f->destination_x = f->source_x;
@@ -272,7 +272,7 @@ static void determine_granaryman_destination(struct figure_t *f, int road_networ
 {
     map_point dst;
     int dst_building_id;
-    building *granary = building_get(f->building_id);
+    struct building_t *granary = &all_buildings[f->building_id];
     if (!f->resource_id) {
         // getting granaryman
         dst_building_id = building_granary_for_getting(granary, &dst);
@@ -319,7 +319,7 @@ static void determine_granaryman_destination(struct figure_t *f, int road_networ
 static void remove_resource_from_warehouse(struct figure_t *f)
 {
     if (f->state != FIGURE_STATE_DEAD) {
-        int err = building_warehouse_remove_resource(building_get(f->building_id), f->resource_id, 1);
+        int err = building_warehouse_remove_resource(&all_buildings[f->building_id], f->resource_id, 1);
         if (err) {
             f->state = FIGURE_STATE_DEAD;
         }
@@ -333,7 +333,7 @@ static void determine_warehouseman_destination(struct figure_t *f, int road_netw
     if (!f->resource_id) {
         // getting warehouseman
         dst_building_id = building_warehouse_for_getting(
-            building_get(f->building_id), f->collecting_item_id, &dst);
+            &all_buildings[f->building_id], f->collecting_item_id, &dst);
         if (dst_building_id) {
             f->loads_sold_or_carrying = 0;
             set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_GETTING_RESOURCE, dst_building_id, dst.x, dst.y);
@@ -343,7 +343,7 @@ static void determine_warehouseman_destination(struct figure_t *f, int road_netw
         }
         return;
     }
-    building *warehouse = building_get(f->building_id);
+    struct building_t *warehouse = &all_buildings[f->building_id];
     // delivering resource
     // priority 1: weapons to barracks
     dst_building_id = building_get_barracks_for_weapon(f->resource_id, road_network_id, &dst);
@@ -409,13 +409,13 @@ void figure_warehouseman_action(struct figure_t *f)
 
     switch (f->action_state) {
         case FIGURE_ACTION_WAREHOUSEMAN_CREATED: {
-            building *b = building_get(f->building_id);
+            struct building_t *b = &all_buildings[f->building_id];
             if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
                 f->state = FIGURE_STATE_DEAD;
             }
             f->wait_ticks++;
             if (f->wait_ticks > 2) {
-                if (building_get(f->building_id)->type == BUILDING_GRANARY) {
+                if (all_buildings[f->building_id].type == BUILDING_GRANARY) {
                     determine_granaryman_destination(f, road_network_id);
                 } else {
                     determine_warehouseman_destination(f, road_network_id);
@@ -443,7 +443,7 @@ void figure_warehouseman_action(struct figure_t *f)
         case FIGURE_ACTION_WAREHOUSEMAN_AT_DELIVERY_BUILDING:
             f->wait_ticks++;
             if (f->wait_ticks > 4) {
-                building *b = building_get(f->destination_building_id);
+                struct building_t *b = &all_buildings[f->destination_building_id];
                 switch (b->type) {
                     case BUILDING_GRANARY:
                         building_granary_add_resource(b, f->resource_id, 0);
@@ -492,7 +492,7 @@ void figure_warehouseman_action(struct figure_t *f)
             if (f->wait_ticks > 4) {
                 int resource;
                 f->loads_sold_or_carrying = building_granary_remove_for_getting_deliveryman(
-                    building_get(f->destination_building_id), building_get(f->building_id), &resource);
+                    &all_buildings[f->destination_building_id], &all_buildings[f->building_id], &resource);
                 f->resource_id = resource;
                 f->action_state = FIGURE_ACTION_WAREHOUSEMAN_RETURNING_WITH_FOOD;
                 f->wait_ticks = 0;
@@ -521,7 +521,7 @@ void figure_warehouseman_action(struct figure_t *f)
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                 for (int i = 0; i < f->loads_sold_or_carrying; i++) {
-                    building_granary_add_resource(building_get(f->building_id), f->resource_id, 0);
+                    building_granary_add_resource(&all_buildings[f->building_id], f->resource_id, 0);
                 }
                 f->state = FIGURE_STATE_DEAD;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
@@ -548,7 +548,7 @@ void figure_warehouseman_action(struct figure_t *f)
             if (f->wait_ticks > 4) {
                 f->loads_sold_or_carrying = 0;
                 while (f->loads_sold_or_carrying < 4 && 0 == building_warehouse_remove_resource(
-                    building_get(f->destination_building_id), f->collecting_item_id, 1)) {
+                    &all_buildings[f->destination_building_id], f->collecting_item_id, 1)) {
                     f->loads_sold_or_carrying++;
                 }
                 f->resource_id = f->collecting_item_id;
@@ -581,7 +581,7 @@ void figure_warehouseman_action(struct figure_t *f)
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                 for (int i = 0; i < f->loads_sold_or_carrying; i++) {
-                    building_warehouse_add_resource(building_get(f->building_id), f->resource_id);
+                    building_warehouse_add_resource(&all_buildings[f->building_id], f->resource_id);
                 }
                 f->state = FIGURE_STATE_DEAD;
             } else if (f->direction == DIR_FIGURE_REROUTE) {

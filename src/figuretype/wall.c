@@ -42,7 +42,7 @@ static const int TOWER_SENTRY_FIRING_OFFSETS[] = {
 
 void figure_ballista_action(struct figure_t *f)
 {
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     f->terrain_usage = TERRAIN_USAGE_WALLS;
     f->use_cross_country = 0;
     f->is_ghost = 1;
@@ -104,7 +104,7 @@ void figure_ballista_action(struct figure_t *f)
     }
 }
 
-static int tower_sentry_init_patrol(building *b, int *x_tile, int *y_tile)
+static int tower_sentry_init_patrol(struct building_t *b, int *x_tile, int *y_tile)
 {
     int dir = b->figure_roam_direction;
     int x = b->x;
@@ -169,7 +169,7 @@ static int tower_sentry_shooting(struct figure_t *f)
 
 void figure_tower_sentry_action(struct figure_t *f)
 {
-    building *b = building_get(f->building_id);
+    struct building_t *b = &all_buildings[f->building_id];
     f->height_adjusted_ticks = 10;
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
@@ -341,7 +341,7 @@ void figure_tower_sentry_reroute(void)
         } else {
             // Teleport back to tower
             map_figure_delete(f);
-            building *b = building_get(f->building_id);
+            struct building_t *b = &all_buildings[f->building_id];
             f->source_x = f->x = b->x;
             f->source_y = f->y = b->y;
             f->grid_offset = map_grid_offset(f->x, f->y);

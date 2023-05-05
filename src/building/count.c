@@ -56,7 +56,7 @@ void building_count_update(void)
     city_health_reset_hospital_workers();
 
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->house_size) {
             continue;
         }

@@ -14,11 +14,11 @@
 #include "map/road_access.h"
 #include "scenario/data.h"
 
-int building_warehouse_get_space_info(building *warehouse)
+int building_warehouse_get_space_info(struct building_t *warehouse)
 {
     int total_loads = 0;
     int empty_spaces = 0;
-    building *space = warehouse;
+    struct building_t *space = warehouse;
     for (int i = 0; i < 8; i++) {
         space = building_next(space);
         if (space->id <= 0) {
@@ -39,10 +39,10 @@ int building_warehouse_get_space_info(building *warehouse)
     }
 }
 
-int building_warehouse_get_amount(building *warehouse, int resource)
+int building_warehouse_get_amount(struct building_t *warehouse, int resource)
 {
     int loads = 0;
-    building *space = warehouse;
+    struct building_t *space = warehouse;
     for (int i = 0; i < 8; i++) {
         space = building_next(space);
         if (space->id <= 0) {
@@ -55,7 +55,7 @@ int building_warehouse_get_amount(building *warehouse, int resource)
     return loads;
 }
 
-int building_warehouse_add_resource(building *b, int resource)
+int building_warehouse_add_resource(struct building_t *b, int resource)
 {
     if (b->id <= 0) {
         return 0;
@@ -71,7 +71,7 @@ int building_warehouse_add_resource(building *b, int resource)
     }
     if (find_space) {
         int space_found = 0;
-        building *space = building_main(b);
+        struct building_t *space = building_main(b);
         for (int i = 0; i < 8; i++) {
             space = building_next(space);
             if (!space->id) {
@@ -96,13 +96,13 @@ int building_warehouse_add_resource(building *b, int resource)
     return 1;
 }
 
-int building_warehouse_remove_resource(building *warehouse, int resource, int amount)
+int building_warehouse_remove_resource(struct building_t *warehouse, int resource, int amount)
 {
     // returns amount still needing removal
     if (warehouse->type != BUILDING_WAREHOUSE) {
         return amount;
     }
-    building *space = warehouse;
+    struct building_t *space = warehouse;
     for (int i = 0; i < 8; i++) {
         if (amount <= 0) {
             return 0;
@@ -129,12 +129,12 @@ int building_warehouse_remove_resource(building *warehouse, int resource, int am
     return amount;
 }
 
-void building_warehouse_remove_resource_curse(building *warehouse, int amount)
+void building_warehouse_remove_resource_curse(struct building_t *warehouse, int amount)
 {
     if (warehouse->type != BUILDING_WAREHOUSE) {
         return;
     }
-    building *space = warehouse;
+    struct building_t *space = warehouse;
     for (int i = 0; i < 8 && amount > 0; i++) {
         space = building_next(space);
         if (space->id <= 0 || space->loads_stored <= 0) {
@@ -155,7 +155,7 @@ void building_warehouse_remove_resource_curse(building *warehouse, int amount)
     }
 }
 
-void building_warehouse_space_set_image(building *space, int resource)
+void building_warehouse_space_set_image(struct building_t *space, int resource)
 {
     int image_id;
     if (space->loads_stored <= 0) {
@@ -168,7 +168,7 @@ void building_warehouse_space_set_image(building *space, int resource)
     map_image_set(space->grid_offset, image_id);
 }
 
-void building_warehouse_space_add_import(building *space, int resource)
+void building_warehouse_space_add_import(struct building_t *space, int resource)
 {
     city_resource_add_to_warehouse(resource, 1);
     space->loads_stored++;
@@ -181,7 +181,7 @@ void building_warehouse_space_add_import(building *space, int resource)
     building_warehouse_space_set_image(space, resource);
 }
 
-void building_warehouse_space_remove_export(building *space, int resource)
+void building_warehouse_space_remove_export(struct building_t *space, int resource)
 {
     city_resource_remove_from_warehouse(resource, 1);
     space->loads_stored--;
@@ -203,7 +203,7 @@ void building_warehouses_add_resource(int resource, int amount)
         if (building_id >= MAX_BUILDINGS) {
             building_id = 1;
         }
-        building *b = building_get(building_id);
+        struct building_t *b = &all_buildings[building_id];
         if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_WAREHOUSE) {
             city_resource_set_last_used_warehouse(building_id);
             while (amount && building_warehouse_add_resource(b, resource)) {
@@ -223,7 +223,7 @@ int building_warehouses_remove_resource(int resource, int amount)
         if (building_id >= MAX_BUILDINGS) {
             building_id = 1;
         }
-        building *b = building_get(building_id);
+        struct building_t *b = &all_buildings[building_id];
         if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_WAREHOUSE) {
             if (building_storage_get(b->storage_id)->resource_state[resource] != BUILDING_STORAGE_STATE_GETTING) {
                 city_resource_set_last_used_warehouse(building_id);
@@ -237,7 +237,7 @@ int building_warehouses_remove_resource(int resource, int amount)
         if (building_id >= MAX_BUILDINGS) {
             building_id = 1;
         }
-        building *b = building_get(building_id);
+        struct building_t *b = &all_buildings[building_id];
         if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_WAREHOUSE) {
             city_resource_set_last_used_warehouse(building_id);
             amount_left = building_warehouse_remove_resource(b, resource, amount_left);
@@ -253,14 +253,14 @@ int building_warehouse_for_storing(int src_building_id, int x, int y, int resour
     int min_dist = 10000;
     int min_building_id = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WAREHOUSE_SPACE) {
             continue;
         }
         if (!b->has_road_access || b->distance_from_entry <= 0 || b->road_network_id != road_network_id) {
             continue;
         }
-        building *building_dst = building_main(b);
+        struct building_t *building_dst = building_main(b);
         if (src_building_id == building_dst->id) {
             continue;
         }
@@ -287,7 +287,7 @@ int building_warehouse_for_storing(int src_building_id, int x, int y, int resour
             min_building_id = i;
         }
     }
-    building *b = building_main(building_get(min_building_id));
+    struct building_t *b = building_main(&all_buildings[min_building_id]);
     if (b->has_road_access == 1) {
         map_point_store_result(b->x, b->y, dst);
     } else if (!map_has_road_access(b->x, b->y, 3, dst)) {
@@ -296,12 +296,12 @@ int building_warehouse_for_storing(int src_building_id, int x, int y, int resour
     return min_building_id;
 }
 
-int building_warehouse_for_getting(building *src, int resource, map_point *dst)
+int building_warehouse_for_getting(struct building_t *src, int resource, map_point *dst)
 {
     int min_dist = 10000;
-    building *min_building = 0;
+    struct building_t *min_building = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WAREHOUSE) {
             continue;
         }
@@ -309,7 +309,7 @@ int building_warehouse_for_getting(building *src, int resource, map_point *dst)
             continue;
         }
         int loads_stored = 0;
-        building *space = b;
+        struct building_t *space = b;
         const building_storage *s = building_storage_get(b->storage_id);
         for (int t = 0; t < 8; t++) {
             space = building_next(space);
@@ -347,7 +347,7 @@ static int determine_granary_accept_foods(int resources[RESOURCE_MAX_FOOD])
     }
     int can_accept = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY || !b->has_road_access) {
             continue;
         }
@@ -376,7 +376,7 @@ static int determine_granary_get_foods(int resources[RESOURCE_MAX_FOOD])
     }
     int can_get = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
-        building *b = building_get(i);
+        struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY || !b->has_road_access) {
             continue;
         }
@@ -395,7 +395,7 @@ static int determine_granary_get_foods(int resources[RESOURCE_MAX_FOOD])
     return can_get;
 }
 
-static int contains_non_stockpiled_food(building *space, const int *resources)
+static int contains_non_stockpiled_food(struct building_t *space, const int *resources)
 {
     if (space->id <= 0) {
         return 0;
@@ -416,13 +416,13 @@ static int contains_non_stockpiled_food(building *space, const int *resources)
     return 0;
 }
 
-int building_warehouse_determine_worker_task(building *warehouse, int *resource)
+int building_warehouse_determine_worker_task(struct building_t *warehouse, int *resource)
 {
     if (calc_percentage(warehouse->num_workers, building_properties[warehouse->type].laborers) < 50) {
         return WAREHOUSE_TASK_NONE;
     }
     const building_storage *s = building_storage_get(warehouse->storage_id);
-    building *space;
+    struct building_t *space;
     // get resources
     for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
         if (s->resource_state[r] != BUILDING_STORAGE_STATE_GETTING || city_data.resource.stockpiled[r]) {
@@ -459,7 +459,7 @@ int building_warehouse_determine_worker_task(building *warehouse, int *resource)
     // deliver weapons to barracks
     if (building_count_active(BUILDING_BARRACKS) > 0 && city_data.military.legionary_legions &&
         !city_data.resource.stockpiled[RESOURCE_WEAPONS]) {
-        building *barracks = building_get(city_data.building.barracks_building_id);
+        struct building_t *barracks = &all_buildings[city_data.building.barracks_building_id];
         if (barracks->loads_stored < 4 &&
                 warehouse->road_network_id == barracks->road_network_id) {
             space = warehouse;

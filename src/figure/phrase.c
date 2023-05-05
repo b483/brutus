@@ -404,7 +404,7 @@ static int tax_collector_phrase(struct figure_t *f)
 static int market_trader_phrase(struct figure_t *f)
 {
     if (f->action_state == FIGURE_ACTION_ROAMER_RETURNING) {
-        if (building_market_get_max_food_stock(building_get(f->building_id)) <= 0) {
+        if (building_market_get_max_food_stock(&all_buildings[f->building_id]) <= 0) {
             return 9; // run out of goods
         }
     }
