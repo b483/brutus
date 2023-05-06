@@ -3,7 +3,6 @@
 #include "core/lang.h"
 #include "core/string.h"
 #include "empire/object.h"
-#include "game/custom_strings.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -13,6 +12,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
+#include "window/editor/attributes.h"
 #include "window/editor/demand_changes.h"
 #include "window/editor/map.h"
 #include "window/numeric_input.h"
@@ -82,23 +82,23 @@ static void draw_foreground(void)
     lang_text_draw_centered(44, 94, 0, 116, 416, FONT_LARGE_BLACK);
 
     // Year offset
-    text_draw(get_custom_string(TR_EDITOR_OFFSET_YEAR), 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[0], 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(130, 152, 100, 25, data.focus_button_id == 1);
     text_draw_number_centered_prefix(scenario.demand_changes[data.id].year, '+', 132, 158, 100, FONT_NORMAL_BLACK);
     lang_text_draw_year(scenario.start_year + scenario.demand_changes[data.id].year, 240, 158, FONT_NORMAL_BLACK);
 
     // Month
-    text_draw(get_custom_string(TR_EDITOR_MONTH), 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[1], 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(130, 182, 100, 25, data.focus_button_id == 2);
     text_draw_number_centered(scenario.demand_changes[data.id].month + 1, 130, 188, 100, FONT_NORMAL_BLACK);
 
     // Invalid year/month combination
     if (scenario.demand_changes[data.id].year == 0 && scenario.demand_changes[data.id].month == 0) {
-        text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 245, 188, FONT_NORMAL_PLAIN, COLOR_RED);
+        text_draw(common_editor_strings[2], 245, 188, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 
     // Resource
-    text_draw(get_custom_string(TR_EDITOR_RESOURCE), 30, 218, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[4], 30, 218, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(130, 212, 100, 25, data.focus_button_id == 3);
     lang_text_draw_centered(23, scenario.demand_changes[data.id].resource, 130, 218, 100, FONT_NORMAL_BLACK);
 
@@ -204,8 +204,7 @@ static void button_route(__attribute__((unused)) int param1, __attribute__((unus
         data.num_routes = 1;
     }
 
-    window_select_list_show_text(screen_dialog_offset_x() + 330, screen_dialog_offset_y() + 205,
-        data.route_names, data.num_routes, set_route_id);
+    window_select_list_show_text(screen_dialog_offset_x() + 330, screen_dialog_offset_y() + 205, data.route_names, data.num_routes, set_route_id);
 }
 
 static void button_toggle_rise(__attribute__((unused)) int param1, __attribute__((unused)) int param2)

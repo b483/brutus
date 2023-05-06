@@ -5,7 +5,6 @@
 #include "core/io.h"
 #include "core/log.h"
 #include "core/string.h"
-#include "game/custom_strings.h"
 #include "scenario/data.h"
 
 #include <stdlib.h>
@@ -38,6 +37,11 @@ static struct {
     lang_message message_entries[MAX_MESSAGE_ENTRIES];
     uint8_t message_data[MAX_MESSAGE_DATA];
 } data;
+
+static uint8_t extra_messages_strings[][71] = {
+    "Roman city saved", // 0
+    "Your relief force defeated the invading barbarians. Caesar is pleased." // 1
+};
 
 static void parse_text(buffer *buf)
 {
@@ -104,7 +108,7 @@ static void parse_message(buffer *buf)
     buffer_read_raw(buf, &data.message_data, MAX_MESSAGE_DATA);
 }
 
-static void set_message_parameters(lang_message *m, int title, int text, int urgent, int message_type)
+static void set_message_parameters(lang_message *m, uint8_t *title, uint8_t * text, int urgent, int message_type)
 {
     m->type = TYPE_MESSAGE;
     m->message_type = message_type;
@@ -116,8 +120,8 @@ static void set_message_parameters(lang_message *m, int title, int text, int urg
     m->title.y = 0;
     m->urgent = urgent;
 
-    m->title.text = get_custom_string(title);
-    m->content.text = get_custom_string(text);
+    m->title.text = title;
+    m->content.text = text;
 }
 
 void load_custom_messages(void)
@@ -136,8 +140,7 @@ void load_custom_messages(void)
     }
 
     // distant battle won but triumphal arch disabled from the editor
-    set_message_parameters(&data.message_entries[i], TR_CITY_MESSAGE_TITLE_DISTANT_BATTLE_WON_TRIUMPHAL_ARCH_DISABLED, TR_CITY_MESSAGE_TEXT_DISTANT_BATTLE_WON_TRIUMPHAL_ARCH_DISABLED, 0,
-        MESSAGE_TYPE_GENERAL);
+    set_message_parameters(&data.message_entries[i], extra_messages_strings[0], extra_messages_strings[1], 0, MESSAGE_TYPE_GENERAL);
     data.message_entries[i].video.text = (uint8_t *) "smk/army_win.smk";
     i += 1;
 

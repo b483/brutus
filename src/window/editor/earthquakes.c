@@ -1,7 +1,6 @@
 #include "earthquakes.h"
 
 #include "core/image_group_editor.h"
-#include "game/custom_strings.h"
 #include "game/resource.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
@@ -33,12 +32,25 @@ static generic_button buttons_earthquake[] = {
 
 static int focus_button_id;
 
+uint8_t earthquakes_strings[][21] = {
+    "Earthquakes", // 0
+    "Free earthquake slot", // 1
+    "Earthquake point 1", // 2
+    "Earthquake point 2", // 3
+    "Earthquake point 3", // 4
+    "Earthquake point 4", // 5
+    "Earthquake point 5", // 6
+    "Earthquake point 6", // 7
+    "Earthquake point 7", // 8
+    "Earthquake point 8", // 9
+};
+
 static void draw_foreground(void)
 {
     graphics_in_dialog();
 
     outer_panel_draw(0, 0, 25, 25);
-    text_draw_centered(get_custom_string(TR_EDITOR_EARTHQUAKES_TITLE), 0, 16, 400, FONT_LARGE_BLACK, COLOR_BLACK);
+    text_draw_centered(earthquakes_strings[0], 0, 16, 400, FONT_LARGE_BLACK, COLOR_BLACK);
 
     for (int i = 0; i < MAX_EARTHQUAKES; i++) {
         int x, y;
@@ -50,9 +62,9 @@ static void draw_foreground(void)
             int width = lang_text_draw(25, scenario.earthquakes[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
             width += lang_text_draw_year(scenario.start_year + scenario.earthquakes[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
             width += lang_text_draw(40, scenario.earthquakes[i].severity, x + 15 + width, y + 6, FONT_NORMAL_BLACK);
-            text_draw(get_custom_string(TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_1 + scenario.earthquakes[i].point), x + 15 + width, y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
+            text_draw(earthquakes_strings[scenario.earthquakes[i].point + 2], x + 15 + width, y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
         } else {
-            text_draw_centered(get_custom_string(TR_EDITOR_EARTHQUAKES_FREE_SLOT), x, y + 6, 350, FONT_NORMAL_BLACK, COLOR_BLACK);
+            text_draw_centered(earthquakes_strings[1], x, y + 6, 350, FONT_NORMAL_BLACK, COLOR_BLACK);
         }
     }
 

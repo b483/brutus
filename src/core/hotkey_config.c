@@ -50,8 +50,16 @@ static const char *ini_keys[] = {
     "build_bathhouse",
     "build_doctor",
     "build_hospital",
-    "build_small_temples",
-    "build_large_temples",
+    "build_small_temple_ceres",
+    "build_small_temple_neptune",
+    "build_small_temple_mercury",
+    "build_small_temple_mars",
+    "build_small_temple_venus",
+    "build_large_temple_ceres",
+    "build_large_temple_neptune",
+    "build_large_temple_mercury",
+    "build_large_temple_mars",
+    "build_large_temple_venus",
     "build_oracle",
     "build_school",
     "build_academy",
@@ -73,6 +81,7 @@ static const char *ini_keys[] = {
     "build_small_statue",
     "build_medium_statue",
     "build_large_statue",
+    "build_triumphal_arch",
     "build_gardens",
     "build_plaza",
     "build_engineers_post",
@@ -195,7 +204,7 @@ static void init_defaults(void)
     set_mapping(KEY_TYPE_G, KEY_MOD_ALT, HOTKEY_BUILD_BARBER);
     set_mapping(KEY_TYPE_F, KEY_MOD_NONE, HOTKEY_BUILD_BATHHOUSE);
     set_mapping(KEY_TYPE_S, KEY_MOD_ALT, HOTKEY_BUILD_DOCTOR);
-    set_mapping(KEY_TYPE_S, KEY_MOD_NONE, HOTKEY_BUILD_SMALL_TEMPLES);
+    set_mapping(KEY_TYPE_S, KEY_MOD_NONE, HOTKEY_BUILD_SMALL_TEMPLE_CERES);
     set_mapping(KEY_TYPE_D, KEY_MOD_ALT, HOTKEY_BUILD_SCHOOL);
     set_mapping(KEY_TYPE_G, KEY_MOD_NONE, HOTKEY_BUILD_LIBRARY);
     set_mapping(KEY_TYPE_D, KEY_MOD_NONE, HOTKEY_BUILD_THEATER);

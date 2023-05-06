@@ -35,132 +35,138 @@ static scrollbar_type scrollbar = { 580, 72, 352, on_scroll, 0, 0, 0, 0, 0, 0 };
 
 typedef struct {
     int action;
-    int name_translation;
-    int name_text_group;
-    int name_text_id;
 } hotkey_widget;
 
 static hotkey_widget hotkey_widgets[] = {
-    {HOTKEY_HEADER, TR_HOTKEY_HEADER_ARROWS, 0, 0},
-    {HOTKEY_ARROW_UP, TR_HOTKEY_ARROW_UP, 0, 0},
-    {HOTKEY_ARROW_DOWN, TR_HOTKEY_ARROW_DOWN, 0, 0},
-    {HOTKEY_ARROW_LEFT, TR_HOTKEY_ARROW_LEFT, 0, 0},
-    {HOTKEY_ARROW_RIGHT, TR_HOTKEY_ARROW_RIGHT, 0, 0},
-    {HOTKEY_HEADER, TR_HOTKEY_HEADER_GLOBAL, 0, 0},
-    {HOTKEY_TOGGLE_FULLSCREEN, TR_HOTKEY_TOGGLE_FULLSCREEN, 0, 0},
-    {HOTKEY_RESET_WINDOW, TR_HOTKEY_RESET_WINDOW, 0, 0},
-    {HOTKEY_SAVE_SCREENSHOT, TR_HOTKEY_SAVE_SCREENSHOT, 0, 0},
-    {HOTKEY_SAVE_CITY_SCREENSHOT, TR_HOTKEY_SAVE_CITY_SCREENSHOT, 0, 0},
-    {HOTKEY_LOAD_FILE, TR_HOTKEY_LOAD_FILE, 0, 0},
-    {HOTKEY_SAVE_FILE, TR_HOTKEY_SAVE_FILE, 0, 0},
-    {HOTKEY_HEADER, TR_HOTKEY_HEADER_CITY, 0, 0},
-    {HOTKEY_DECREASE_GAME_SPEED, TR_HOTKEY_DECREASE_GAME_SPEED, 0, 0},
-    {HOTKEY_INCREASE_GAME_SPEED, TR_HOTKEY_INCREASE_GAME_SPEED, 0, 0},
-    {HOTKEY_TOGGLE_PAUSE, TR_HOTKEY_TOGGLE_PAUSE, 0, 0},
-    {HOTKEY_ROTATE_MAP_LEFT, TR_HOTKEY_ROTATE_MAP_LEFT, 0, 0},
-    {HOTKEY_ROTATE_MAP_RIGHT, TR_HOTKEY_ROTATE_MAP_RIGHT, 0, 0},
-    {HOTKEY_REPLAY_MAP, TR_HOTKEY_REPLAY_MAP, 0, 0},
-    {HOTKEY_CYCLE_LEGION, TR_HOTKEY_CYCLE_LEGION, 0, 0},
-    {HOTKEY_RETURN_LEGIONS_TO_FORT, TR_HOTKEY_RETURN_LEGIONS_TO_FORT, 0, 0},
-    {HOTKEY_SHOW_LAST_ADVISOR, TR_HOTKEY_SHOW_LAST_ADVISOR, 0, 0},
-    {HOTKEY_SHOW_EMPIRE_MAP, TR_HOTKEY_SHOW_EMPIRE_MAP, 0, 0},
-    {HOTKEY_SHOW_MESSAGES, TR_HOTKEY_SHOW_MESSAGES, 0, 0},
-    {HOTKEY_GO_TO_PROBLEM, TR_HOTKEY_GO_TO_PROBLEM, 0, 0},
-    {HOTKEY_HEADER, TR_HOTKEY_HEADER_BUILD, 0, 0},
-    {HOTKEY_BUILD_CLONE, TR_HOTKEY_BUILD_CLONE, 0, 0},
-    {HOTKEY_CYCLE_BUILDINGS, TR_HOTKEY_CYCLE_BUILDINGS, 0, 0},
-    {HOTKEY_CYCLE_BUILDINGS_REVERSE, TR_HOTKEY_CYCLE_BUILDINGS_REVERSE, 0, 0},
-    {HOTKEY_UNDO, TR_HOTKEY_UNDO, 0, 0},
-    {HOTKEY_BUILD_VACANT_HOUSE, TR_NONE, 67, 7},
-    {HOTKEY_BUILD_CLEAR_LAND, TR_NONE, 68, 21},
-    {HOTKEY_BUILD_ROAD, TR_NONE, GROUP_BUILDINGS, BUILDING_ROAD},
-    {HOTKEY_BUILD_RESERVOIR, TR_NONE, GROUP_BUILDINGS, BUILDING_RESERVOIR},
-    {HOTKEY_BUILD_AQUEDUCT, TR_NONE, GROUP_BUILDINGS, BUILDING_AQUEDUCT},
-    {HOTKEY_BUILD_FOUNTAIN, TR_NONE, GROUP_BUILDINGS, BUILDING_FOUNTAIN},
-    {HOTKEY_BUILD_WELL, TR_NONE, GROUP_BUILDINGS, BUILDING_WELL},
-    {HOTKEY_BUILD_BARBER, TR_NONE, GROUP_BUILDINGS, BUILDING_BARBER},
-    {HOTKEY_BUILD_BATHHOUSE, TR_NONE, GROUP_BUILDINGS, BUILDING_BATHHOUSE},
-    {HOTKEY_BUILD_DOCTOR, TR_NONE, GROUP_BUILDINGS, BUILDING_DOCTOR},
-    {HOTKEY_BUILD_HOSPITAL, TR_NONE, GROUP_BUILDINGS, BUILDING_HOSPITAL},
-    {HOTKEY_BUILD_SMALL_TEMPLES, TR_NONE, GROUP_BUILDINGS, BUILDING_MENU_SMALL_TEMPLES},
-    {HOTKEY_BUILD_LARGE_TEMPLES, TR_NONE, GROUP_BUILDINGS, BUILDING_MENU_LARGE_TEMPLES},
-    {HOTKEY_BUILD_ORACLE, TR_NONE, GROUP_BUILDINGS, BUILDING_ORACLE},
-    {HOTKEY_BUILD_SCHOOL, TR_NONE, GROUP_BUILDINGS, BUILDING_SCHOOL},
-    {HOTKEY_BUILD_ACADEMY, TR_NONE, GROUP_BUILDINGS, BUILDING_ACADEMY},
-    {HOTKEY_BUILD_LIBRARY, TR_NONE, GROUP_BUILDINGS, BUILDING_LIBRARY},
-    {HOTKEY_BUILD_MISSION_POST, TR_NONE, GROUP_BUILDINGS, BUILDING_MISSION_POST},
-    {HOTKEY_BUILD_THEATER, TR_NONE, GROUP_BUILDINGS, BUILDING_THEATER},
-    {HOTKEY_BUILD_AMPHITHEATER, TR_NONE, GROUP_BUILDINGS, BUILDING_AMPHITHEATER},
-    {HOTKEY_BUILD_COLOSSEUM, TR_NONE, GROUP_BUILDINGS, BUILDING_COLOSSEUM},
-    {HOTKEY_BUILD_HIPPODROME, TR_NONE, GROUP_BUILDINGS, BUILDING_HIPPODROME},
-    {HOTKEY_BUILD_GLADIATOR_SCHOOL, TR_NONE, GROUP_BUILDINGS, BUILDING_GLADIATOR_SCHOOL},
-    {HOTKEY_BUILD_LION_HOUSE, TR_NONE, GROUP_BUILDINGS, BUILDING_LION_HOUSE},
-    {HOTKEY_BUILD_ACTOR_COLONY, TR_NONE, GROUP_BUILDINGS, BUILDING_ACTOR_COLONY},
-    {HOTKEY_BUILD_CHARIOT_MAKER, TR_NONE, GROUP_BUILDINGS, BUILDING_CHARIOT_MAKER},
-    {HOTKEY_BUILD_FORUM, TR_NONE, GROUP_BUILDINGS, BUILDING_FORUM},
-    {HOTKEY_BUILD_SENATE, TR_NONE, GROUP_BUILDINGS, BUILDING_SENATE},
-    {HOTKEY_BUILD_GOVERNORS_HOUSE, TR_NONE, GROUP_BUILDINGS, BUILDING_GOVERNORS_HOUSE},
-    {HOTKEY_BUILD_GOVERNORS_VILLA, TR_NONE, GROUP_BUILDINGS, BUILDING_GOVERNORS_VILLA},
-    {HOTKEY_BUILD_GOVERNORS_PALACE, TR_NONE, GROUP_BUILDINGS, BUILDING_GOVERNORS_PALACE},
-    {HOTKEY_BUILD_SMALL_STATUE, TR_NONE, GROUP_BUILDINGS, BUILDING_SMALL_STATUE},
-    {HOTKEY_BUILD_MEDIUM_STATUE, TR_NONE, GROUP_BUILDINGS, BUILDING_MEDIUM_STATUE},
-    {HOTKEY_BUILD_LARGE_STATUE, TR_NONE, GROUP_BUILDINGS, BUILDING_LARGE_STATUE},
-    {HOTKEY_BUILD_GARDENS, TR_NONE, GROUP_BUILDINGS, BUILDING_GARDENS},
-    {HOTKEY_BUILD_PLAZA, TR_NONE, GROUP_BUILDINGS, BUILDING_PLAZA},
-    {HOTKEY_BUILD_ENGINEERS_POST, TR_NONE, GROUP_BUILDINGS, BUILDING_ENGINEERS_POST},
-    {HOTKEY_BUILD_LOW_BRIDGE, TR_NONE, GROUP_BUILDINGS, BUILDING_LOW_BRIDGE},
-    {HOTKEY_BUILD_SHIP_BRIDGE, TR_NONE, GROUP_BUILDINGS, BUILDING_SHIP_BRIDGE},
-    {HOTKEY_BUILD_SHIPYARD, TR_NONE, GROUP_BUILDINGS, BUILDING_SHIPYARD},
-    {HOTKEY_BUILD_DOCK, TR_NONE, GROUP_BUILDINGS, BUILDING_DOCK},
-    {HOTKEY_BUILD_WHARF, TR_NONE, GROUP_BUILDINGS, BUILDING_WHARF},
-    {HOTKEY_BUILD_WALL, TR_NONE, GROUP_BUILDINGS, BUILDING_WALL},
-    {HOTKEY_BUILD_TOWER, TR_NONE, GROUP_BUILDINGS, BUILDING_TOWER},
-    {HOTKEY_BUILD_GATEHOUSE, TR_NONE, GROUP_BUILDINGS, BUILDING_GATEHOUSE},
-    {HOTKEY_BUILD_PREFECTURE, TR_NONE, GROUP_BUILDINGS, BUILDING_PREFECTURE},
-    {HOTKEY_BUILD_FORT_LEGIONARIES, TR_NONE, GROUP_BUILDINGS, BUILDING_FORT_LEGIONARIES},
-    {HOTKEY_BUILD_FORT_JAVELIN, TR_NONE, GROUP_BUILDINGS, BUILDING_FORT_JAVELIN},
-    {HOTKEY_BUILD_FORT_MOUNTED, TR_NONE, GROUP_BUILDINGS, BUILDING_FORT_MOUNTED},
-    {HOTKEY_BUILD_MILITARY_ACADEMY, TR_NONE, GROUP_BUILDINGS, BUILDING_MILITARY_ACADEMY},
-    {HOTKEY_BUILD_BARRACKS, TR_NONE, GROUP_BUILDINGS, BUILDING_BARRACKS},
-    {HOTKEY_BUILD_WHEAT_FARM, TR_NONE, GROUP_BUILDINGS, BUILDING_WHEAT_FARM},
-    {HOTKEY_BUILD_VEGETABLE_FARM, TR_NONE, GROUP_BUILDINGS, BUILDING_VEGETABLE_FARM},
-    {HOTKEY_BUILD_FRUIT_FARM, TR_NONE, GROUP_BUILDINGS, BUILDING_FRUIT_FARM},
-    {HOTKEY_BUILD_OLIVE_FARM, TR_NONE, GROUP_BUILDINGS, BUILDING_OLIVE_FARM},
-    {HOTKEY_BUILD_VINES_FARM, TR_NONE, GROUP_BUILDINGS, BUILDING_VINES_FARM},
-    {HOTKEY_BUILD_PIG_FARM, TR_NONE, GROUP_BUILDINGS, BUILDING_PIG_FARM},
-    {HOTKEY_BUILD_CLAY_PIT, TR_NONE, GROUP_BUILDINGS, BUILDING_CLAY_PIT},
-    {HOTKEY_BUILD_MARBLE_QUARRY, TR_NONE, GROUP_BUILDINGS, BUILDING_MARBLE_QUARRY},
-    {HOTKEY_BUILD_IRON_MINE, TR_NONE, GROUP_BUILDINGS, BUILDING_IRON_MINE},
-    {HOTKEY_BUILD_TIMBER_YARD, TR_NONE, GROUP_BUILDINGS, BUILDING_TIMBER_YARD},
-    {HOTKEY_BUILD_WINE_WORKSHOP, TR_NONE, GROUP_BUILDINGS, BUILDING_WINE_WORKSHOP},
-    {HOTKEY_BUILD_OIL_WORKSHOP, TR_NONE, GROUP_BUILDINGS, BUILDING_OIL_WORKSHOP},
-    {HOTKEY_BUILD_WEAPONS_WORKSHOP, TR_NONE, GROUP_BUILDINGS, BUILDING_WEAPONS_WORKSHOP},
-    {HOTKEY_BUILD_FURNITURE_WORKSHOP, TR_NONE, GROUP_BUILDINGS, BUILDING_FURNITURE_WORKSHOP},
-    {HOTKEY_BUILD_POTTERY_WORKSHOP, TR_NONE, GROUP_BUILDINGS, BUILDING_POTTERY_WORKSHOP},
-    {HOTKEY_BUILD_MARKET, TR_NONE, GROUP_BUILDINGS, BUILDING_MARKET},
-    {HOTKEY_BUILD_GRANARY, TR_NONE, GROUP_BUILDINGS, BUILDING_GRANARY},
-    {HOTKEY_BUILD_WAREHOUSE, TR_NONE, GROUP_BUILDINGS, BUILDING_WAREHOUSE},
-    {HOTKEY_HEADER, TR_HOTKEY_HEADER_OVERLAYS, 0, 0},
-    {HOTKEY_SHOW_OVERLAY_WATER, TR_HOTKEY_SHOW_OVERLAY_WATER, 0, 0},
-    {HOTKEY_SHOW_OVERLAY_FIRE, TR_HOTKEY_SHOW_OVERLAY_FIRE, 0, 0},
-    {HOTKEY_SHOW_OVERLAY_DAMAGE, TR_HOTKEY_SHOW_OVERLAY_DAMAGE, 0, 0},
-    {HOTKEY_SHOW_OVERLAY_CRIME, TR_HOTKEY_SHOW_OVERLAY_CRIME, 0, 0},
-    {HOTKEY_SHOW_OVERLAY_PROBLEMS, TR_HOTKEY_SHOW_OVERLAY_PROBLEMS, 0, 0},
-    {HOTKEY_HEADER, TR_HOTKEY_HEADER_BOOKMARKS, 0, 0},
-    {HOTKEY_GO_TO_BOOKMARK_1, TR_HOTKEY_GO_TO_BOOKMARK_1, 0, 0},
-    {HOTKEY_GO_TO_BOOKMARK_2, TR_HOTKEY_GO_TO_BOOKMARK_2, 0, 0},
-    {HOTKEY_GO_TO_BOOKMARK_3, TR_HOTKEY_GO_TO_BOOKMARK_3, 0, 0},
-    {HOTKEY_GO_TO_BOOKMARK_4, TR_HOTKEY_GO_TO_BOOKMARK_4, 0, 0},
-    {HOTKEY_SET_BOOKMARK_1, TR_HOTKEY_SET_BOOKMARK_1, 0, 0},
-    {HOTKEY_SET_BOOKMARK_2, TR_HOTKEY_SET_BOOKMARK_2, 0, 0},
-    {HOTKEY_SET_BOOKMARK_3, TR_HOTKEY_SET_BOOKMARK_3, 0, 0},
-    {HOTKEY_SET_BOOKMARK_4, TR_HOTKEY_SET_BOOKMARK_4, 0, 0},
-    {HOTKEY_HEADER, TR_HOTKEY_HEADER_EDITOR, 0, 0},
-    {HOTKEY_EDITOR_TOGGLE_BATTLE_INFO, TR_HOTKEY_EDITOR_TOGGLE_BATTLE_INFO, 0, 0},
-    {HOTKEY_HEADER, TR_HOTKEY_HEADER_CHEATS, 0, 0},
-    {HOTKEY_CHEAT_MONEY, TR_HOTKEY_CHEAT_MONEY, 0, 0},
-    {HOTKEY_CHEAT_INVASION, TR_HOTKEY_CHEAT_INVASION, 0, 0},
-    {HOTKEY_CHEAT_VICTORY, TR_HOTKEY_CHEAT_VICTORY, 0, 0},
+    {HOTKEY_HEADER},
+    {HOTKEY_ARROW_UP},
+    {HOTKEY_ARROW_DOWN},
+    {HOTKEY_ARROW_LEFT},
+    {HOTKEY_ARROW_RIGHT},
+    {HOTKEY_HEADER},
+    {HOTKEY_TOGGLE_FULLSCREEN},
+    {HOTKEY_RESET_WINDOW},
+    {HOTKEY_SAVE_SCREENSHOT},
+    {HOTKEY_SAVE_CITY_SCREENSHOT},
+    {HOTKEY_LOAD_FILE},
+    {HOTKEY_SAVE_FILE},
+    {HOTKEY_HEADER},
+    {HOTKEY_DECREASE_GAME_SPEED},
+    {HOTKEY_INCREASE_GAME_SPEED},
+    {HOTKEY_TOGGLE_PAUSE},
+    {HOTKEY_ROTATE_MAP_LEFT},
+    {HOTKEY_ROTATE_MAP_RIGHT},
+    {HOTKEY_REPLAY_MAP},
+    {HOTKEY_CYCLE_LEGION},
+    {HOTKEY_RETURN_LEGIONS_TO_FORT},
+    {HOTKEY_SHOW_LAST_ADVISOR},
+    {HOTKEY_SHOW_EMPIRE_MAP},
+    {HOTKEY_SHOW_MESSAGES},
+    {HOTKEY_GO_TO_PROBLEM},
+    {HOTKEY_HEADER},
+    {HOTKEY_BUILD_CLONE},
+    {HOTKEY_CYCLE_BUILDINGS},
+    {HOTKEY_CYCLE_BUILDINGS_REVERSE},
+    {HOTKEY_UNDO},
+    {HOTKEY_BUILD_VACANT_HOUSE},
+    {HOTKEY_BUILD_CLEAR_LAND},
+    {HOTKEY_BUILD_ROAD},
+    {HOTKEY_BUILD_RESERVOIR},
+    {HOTKEY_BUILD_AQUEDUCT},
+    {HOTKEY_BUILD_FOUNTAIN},
+    {HOTKEY_BUILD_WELL},
+    {HOTKEY_BUILD_BARBER},
+    {HOTKEY_BUILD_BATHHOUSE},
+    {HOTKEY_BUILD_DOCTOR},
+    {HOTKEY_BUILD_HOSPITAL},
+    {HOTKEY_BUILD_SMALL_TEMPLE_CERES},
+    {HOTKEY_BUILD_SMALL_TEMPLE_NEPTUNE},
+    {HOTKEY_BUILD_SMALL_TEMPLE_MERCURY},
+    {HOTKEY_BUILD_SMALL_TEMPLE_MARS},
+    {HOTKEY_BUILD_SMALL_TEMPLE_VENUS},
+    {HOTKEY_BUILD_LARGE_TEMPLE_CERES},
+    {HOTKEY_BUILD_LARGE_TEMPLE_NEPTUNE},
+    {HOTKEY_BUILD_LARGE_TEMPLE_MERCURY},
+    {HOTKEY_BUILD_LARGE_TEMPLE_MARS},
+    {HOTKEY_BUILD_LARGE_TEMPLE_VENUS},
+    {HOTKEY_BUILD_ORACLE},
+    {HOTKEY_BUILD_SCHOOL},
+    {HOTKEY_BUILD_ACADEMY},
+    {HOTKEY_BUILD_LIBRARY},
+    {HOTKEY_BUILD_MISSION_POST},
+    {HOTKEY_BUILD_THEATER},
+    {HOTKEY_BUILD_AMPHITHEATER},
+    {HOTKEY_BUILD_COLOSSEUM},
+    {HOTKEY_BUILD_HIPPODROME},
+    {HOTKEY_BUILD_GLADIATOR_SCHOOL},
+    {HOTKEY_BUILD_LION_HOUSE},
+    {HOTKEY_BUILD_ACTOR_COLONY},
+    {HOTKEY_BUILD_CHARIOT_MAKER},
+    {HOTKEY_BUILD_FORUM},
+    {HOTKEY_BUILD_SENATE},
+    {HOTKEY_BUILD_GOVERNORS_HOUSE},
+    {HOTKEY_BUILD_GOVERNORS_VILLA},
+    {HOTKEY_BUILD_GOVERNORS_PALACE},
+    {HOTKEY_BUILD_SMALL_STATUE},
+    {HOTKEY_BUILD_MEDIUM_STATUE},
+    {HOTKEY_BUILD_LARGE_STATUE},
+    {HOTKEY_BUILD_TRIUMPHAL_ARCH},
+    {HOTKEY_BUILD_GARDENS},
+    {HOTKEY_BUILD_PLAZA},
+    {HOTKEY_BUILD_ENGINEERS_POST},
+    {HOTKEY_BUILD_LOW_BRIDGE},
+    {HOTKEY_BUILD_SHIP_BRIDGE},
+    {HOTKEY_BUILD_SHIPYARD},
+    {HOTKEY_BUILD_DOCK},
+    {HOTKEY_BUILD_WHARF},
+    {HOTKEY_BUILD_WALL},
+    {HOTKEY_BUILD_TOWER},
+    {HOTKEY_BUILD_GATEHOUSE},
+    {HOTKEY_BUILD_PREFECTURE},
+    {HOTKEY_BUILD_FORT_LEGIONARIES},
+    {HOTKEY_BUILD_FORT_JAVELIN},
+    {HOTKEY_BUILD_FORT_MOUNTED},
+    {HOTKEY_BUILD_MILITARY_ACADEMY},
+    {HOTKEY_BUILD_BARRACKS},
+    {HOTKEY_BUILD_WHEAT_FARM},
+    {HOTKEY_BUILD_VEGETABLE_FARM},
+    {HOTKEY_BUILD_FRUIT_FARM},
+    {HOTKEY_BUILD_OLIVE_FARM},
+    {HOTKEY_BUILD_VINES_FARM},
+    {HOTKEY_BUILD_PIG_FARM},
+    {HOTKEY_BUILD_CLAY_PIT},
+    {HOTKEY_BUILD_MARBLE_QUARRY},
+    {HOTKEY_BUILD_IRON_MINE},
+    {HOTKEY_BUILD_TIMBER_YARD},
+    {HOTKEY_BUILD_WINE_WORKSHOP},
+    {HOTKEY_BUILD_OIL_WORKSHOP},
+    {HOTKEY_BUILD_WEAPONS_WORKSHOP},
+    {HOTKEY_BUILD_FURNITURE_WORKSHOP},
+    {HOTKEY_BUILD_POTTERY_WORKSHOP},
+    {HOTKEY_BUILD_MARKET},
+    {HOTKEY_BUILD_GRANARY},
+    {HOTKEY_BUILD_WAREHOUSE},
+    {HOTKEY_HEADER},
+    {HOTKEY_SHOW_OVERLAY_WATER},
+    {HOTKEY_SHOW_OVERLAY_FIRE},
+    {HOTKEY_SHOW_OVERLAY_DAMAGE},
+    {HOTKEY_SHOW_OVERLAY_CRIME},
+    {HOTKEY_SHOW_OVERLAY_PROBLEMS},
+    {HOTKEY_HEADER},
+    {HOTKEY_GO_TO_BOOKMARK_1},
+    {HOTKEY_GO_TO_BOOKMARK_2},
+    {HOTKEY_GO_TO_BOOKMARK_3},
+    {HOTKEY_GO_TO_BOOKMARK_4},
+    {HOTKEY_SET_BOOKMARK_1},
+    {HOTKEY_SET_BOOKMARK_2},
+    {HOTKEY_SET_BOOKMARK_3},
+    {HOTKEY_SET_BOOKMARK_4},
+    {HOTKEY_HEADER},
+    {HOTKEY_EDITOR_TOGGLE_BATTLE_INFO},
+    {HOTKEY_HEADER},
+    {HOTKEY_CHEAT_MONEY},
+    {HOTKEY_CHEAT_INVASION},
+    {HOTKEY_CHEAT_VICTORY},
 };
 
 #define HOTKEY_X_OFFSET_1 270
@@ -205,17 +211,152 @@ static generic_button bottom_buttons[] = {
     {520, 430, 100, 30, button_close, button_none, 1, 0},
 };
 
-static custom_string_key bottom_button_texts[] = {
-    TR_BUTTON_RESET_DEFAULTS,
-    TR_BUTTON_CANCEL,
-    TR_BUTTON_OK
-};
-
 static struct {
     int focus_button;
     int bottom_focus_button;
     hotkey_mapping mappings[HOTKEY_MAX_ITEMS][2];
 } data;
+
+static uint8_t hotkey_strings[][28] = {
+    "Brutus hotkey configuration", // 0
+    "Hotkey", // 1
+    "Alternative", // 2
+    "Reset defaults", // 3
+    "Cancel", // 4
+    "OK", // 5
+};
+
+static uint8_t hotkey_widget_strings[][29] = {
+    "Arrow keys", // 0
+    "Up", // 1
+    "Down", // 2
+    "Left", // 3
+    "Right", // 4
+    "Global hotkeys", // 5
+    "Toggle fullscreen", // 6
+    "Reset window", // 7
+    "Save screenshot", // 8
+    "Save full city screenshot", // 9
+    "Load file", // 10
+    "Save file", // 11
+    "City hotkeys", // 12
+    "Decrease game speed", // 13
+    "Increase game speed", // 14
+    "Toggle pause", // 15
+    "Rotate map left", // 16
+    "Rotate map right", // 17
+    "Replay map", // 18
+    "Cycle through legions", // 19
+    "Return legions to fort", // 20
+    "Show last advisor", // 21
+    "Show empire map", // 22
+    "Show messages", // 23
+    "Go to problem", // 24
+    "Construction hotkeys", // 25
+    "Clone building under cursor", // 26
+    "Cycle through buildings", // 27
+    "Cycle back through buildings", // 28
+    "Undo last building", // 29
+    "Housing", // 30 --- structures strings overlap with allowed_buildings
+    "Clear terrain", // 31
+    "Road", // 32
+    "Reservoir", // 33
+    "Aqueduct", // 34
+    "Fountain", // 35
+    "Well", // 36
+    "Barber", // 37
+    "Bathhouse", // 38
+    "Doctor", // 39
+    "Hospital", // 40
+    "Small temple: Ceres", // 41
+    "Small temple: Neptune", // 42
+    "Small temple: Mercury", // 43
+    "Small temple: Mars", // 44
+    "Small temple: Venus", // 45
+    "Large temple: Ceres", // 46
+    "Large temple: Neptune", // 47
+    "Large temple: Mercury", // 48
+    "Large temple: Mars", // 49
+    "Large temple: Venus", // 50
+    "Oracle", // 51
+    "School", // 52
+    "Academy", // 53
+    "Library", // 54
+    "Mission post", // 55
+    "Theater", // 56
+    "Amphitheater", // 57
+    "Colosseum", // 58
+    "Hippodrome", // 59
+    "Gladiator school", // 60
+    "Lion house", // 61
+    "Actor colony", // 62
+    "Chariot maker", // 63
+    "Forum", // 64
+    "Senate", // 65
+    "Governor's house", // 66
+    "Governor's villa", // 67
+    "Governor's palace", // 68
+    "Statue: Small", // 69
+    "Statue: Medium", // 70
+    "Statue: Large", // 71
+    "Triumphal arch", // 72
+    "Gardens", // 73
+    "Plaza", // 74
+    "Engineers post", // 75
+    "Bridge: Low", // 76
+    "Bridge: Ship", // 77
+    "Shipyard", // 78
+    "Dock", // 79
+    "Wharf", // 80
+    "Wall", // 81
+    "Tower", // 82
+    "Gatehouse", // 83
+    "Prefecture", // 84
+    "Fort: Legionaries", // 85
+    "Fort: Javelin", // 86
+    "Fort: Mounted", // 87
+    "Military academy", // 88
+    "Barracks", // 89
+    "Farm: Wheat", // 90
+    "Farm: Vegetables", // 91
+    "Farm: Fruit", // 92
+    "Farm: Olives", // 93
+    "Farm: Vines", // 94
+    "Farm: Pigs", // 95
+    "Clay pit", // 96
+    "Marble quarry", // 97
+    "Iron mine", // 98
+    "Timber yard", // 99
+    "Workshop: Wine", // 100
+    "Workshop: Oil", // 101
+    "Workshop: Weapons", // 102
+    "Workshop: Furniture", // 103
+    "Workshop: Pottery", // 104
+    "Market", // 105
+    "Granary", // 106
+    "Warehouse", // 107 ---
+    "Overlays", // 108
+    "Show water overlay", // 109
+    "Show fire overlay", // 110
+    "Damage overlay", // 111
+    "Crime overlay", // 112
+    "Problems overlay", // 113
+    "City map bookmarks", // 114
+    "Go to bookmark 1", // 115
+    "Go to bookmark 2", // 116
+    "Go to bookmark 3", // 117
+    "Go to bookmark 4", // 118
+    "Set bookmark 1", // 119
+    "Set bookmark 2", // 120
+    "Set bookmark 3", // 121
+    "Set bookmark 4", // 122
+    "Editor", // 123
+    "Toggle battle info", // 124
+    "Cheats", // 125
+    "Cheat: money", // 126
+    "Cheat: invasion", // 127
+    "Cheat: victory", // 128
+};
 
 static void init(void)
 {
@@ -242,35 +383,27 @@ static void draw_background(void)
     graphics_in_dialog();
     outer_panel_draw(0, 0, 40, 30);
 
-    text_draw_centered(get_custom_string(TR_HOTKEY_TITLE), 16, 16, 608, FONT_LARGE_BLACK, 0);
+    text_draw_centered(hotkey_strings[0], 16, 16, 608, FONT_LARGE_BLACK, 0);
 
-    text_draw_centered(get_custom_string(TR_HOTKEY_LABEL), HOTKEY_X_OFFSET_1, 55,
-        HOTKEY_BTN_WIDTH, FONT_NORMAL_BLACK, 0);
-    text_draw_centered(get_custom_string(TR_HOTKEY_ALTERNATIVE_LABEL), HOTKEY_X_OFFSET_2, 55,
-        HOTKEY_BTN_WIDTH, FONT_NORMAL_BLACK, 0);
+    text_draw_centered(hotkey_strings[1], HOTKEY_X_OFFSET_1, 55, HOTKEY_BTN_WIDTH, FONT_NORMAL_BLACK, 0);
+    text_draw_centered(hotkey_strings[2], HOTKEY_X_OFFSET_2, 55, HOTKEY_BTN_WIDTH, FONT_NORMAL_BLACK, 0);
 
     inner_panel_draw(20, 72, 35, 22);
     int y_base = 80;
     for (int i = 0; i < NUM_VISIBLE_OPTIONS; i++) {
-        hotkey_widget *widget = &hotkey_widgets[i + scrollbar.scroll_position];
+        int current_pos = i + scrollbar.scroll_position;
+        hotkey_widget *widget = &hotkey_widgets[current_pos];
         int text_offset = y_base + 6 + 24 * i;
-        if (widget->action == HOTKEY_HEADER) {
-            text_draw(get_custom_string(widget->name_translation), 32, text_offset, FONT_NORMAL_WHITE, 0);
+        if (current_pos == 0 || current_pos == 5 || current_pos == 12 || current_pos == 25
+        || current_pos == 108 || current_pos == 114 || current_pos == 123 || current_pos == 125) { // headers
+            text_draw(hotkey_widget_strings[current_pos], 32, text_offset, FONT_NORMAL_WHITE, 0);
         } else {
-            if (widget->name_translation != TR_NONE) {
-                text_draw(get_custom_string(widget->name_translation),
-                    32, text_offset, FONT_NORMAL_GREEN, 0);
-            } else {
-                lang_text_draw(widget->name_text_group, widget->name_text_id,
-                    32, text_offset, FONT_NORMAL_GREEN);
-            }
-
+            text_draw(hotkey_widget_strings[current_pos], 32, text_offset, FONT_NORMAL_GREEN, 0);
             const hotkey_mapping *mapping1 = &data.mappings[widget->action][0];
             if (mapping1->key) {
                 const uint8_t *keyname = key_combination_display_name(mapping1->key, mapping1->modifiers);
                 graphics_set_clip_rectangle(HOTKEY_X_OFFSET_1, text_offset, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT);
-                text_draw_centered(keyname, HOTKEY_X_OFFSET_1 + 3, text_offset,
-                    HOTKEY_BTN_WIDTH - 6, FONT_NORMAL_WHITE, 0);
+                text_draw_centered(keyname, HOTKEY_X_OFFSET_1 + 3, text_offset, HOTKEY_BTN_WIDTH - 6, FONT_NORMAL_WHITE, 0);
                 graphics_reset_clip_rectangle();
             }
 
@@ -278,17 +411,14 @@ static void draw_background(void)
             if (mapping2->key) {
                 graphics_set_clip_rectangle(HOTKEY_X_OFFSET_2, text_offset, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT);
                 const uint8_t *keyname = key_combination_display_name(mapping2->key, mapping2->modifiers);
-                text_draw_centered(keyname, HOTKEY_X_OFFSET_2 + 3, text_offset,
-                    HOTKEY_BTN_WIDTH - 6, FONT_NORMAL_WHITE, 0);
+                text_draw_centered(keyname, HOTKEY_X_OFFSET_2 + 3, text_offset, HOTKEY_BTN_WIDTH - 6, FONT_NORMAL_WHITE, 0);
                 graphics_reset_clip_rectangle();
             }
         }
     }
 
     for (int i = 0; i < NUM_BOTTOM_BUTTONS; i++) {
-        text_draw_centered(get_custom_string(bottom_button_texts[i]),
-            bottom_buttons[i].x, bottom_buttons[i].y + 9,
-            bottom_buttons[i].width, FONT_NORMAL_BLACK, 0);
+        text_draw_centered(hotkey_strings[i + 3], bottom_buttons[i].x, bottom_buttons[i].y + 9, bottom_buttons[i].width, FONT_NORMAL_BLACK, 0);
     }
 
     graphics_reset_dialog();
@@ -335,53 +465,20 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static const uint8_t *hotkey_action_name_for(hotkey_action action)
-{
-    const uint8_t *name = 0;
-    for (int i = 0; i < NUM_VISIBLE_OPTIONS + scrollbar.max_scroll_position; i++) {
-        hotkey_widget *widget = &hotkey_widgets[i];
-        if (widget->action == action) {
-            if (widget->name_translation != TR_NONE) {
-                name = get_custom_string(widget->name_translation);
-            } else {
-                name = lang_get_string(widget->name_text_group, widget->name_text_id);
-            }
-            break;
-        }
-    }
-    return name;
-}
-
 static void set_hotkey(hotkey_action action, int index, key_type key, key_modifier_type modifiers)
 {
-    int is_duplicate_hotkey = 0;
-    // check if new key combination already assigned to another action
-    if (key != KEY_TYPE_NONE) {
-        for (int test_action = 0; test_action < HOTKEY_MAX_ITEMS; test_action++) {
-            for (int test_index = 0; test_index < 2; test_index++) {
-                if (data.mappings[test_action][test_index].key == key
-                    && data.mappings[test_action][test_index].modifiers == modifiers) {
-                    is_duplicate_hotkey = 1;
-                    // example explanation next "if" check:
-                    // "Fire overlay" already has hotkey "F" and user tries set same hotkey "F" again to "Fire overlay"
-                    // we must skip show warning window for better user experience
-                    if (!(test_action == action && test_index == index)) {
-                        window_plain_message_dialog_show_with_extra(
-                            TR_HOTKEY_DUPLICATE_TITLE, TR_HOTKEY_DUPLICATE_MESSAGE,
-                            hotkey_action_name_for(test_action));
-                    }
-                    break;
-                }
-            }
-            if (is_duplicate_hotkey) {
-                break;
+    // clear conflicting mappings
+    for (int i = 0; i < HOTKEY_MAX_ITEMS; i++) {
+        for (int j = 0; j < 2; j++) {
+            if (data.mappings[i][j].key == key && data.mappings[i][j].modifiers == modifiers) {
+                data.mappings[i][j].key = KEY_TYPE_NONE;
+                data.mappings[i][j].modifiers = KEY_MOD_NONE;
             }
         }
     }
-    if (!is_duplicate_hotkey) {
-        data.mappings[action][index].key = key;
-        data.mappings[action][index].modifiers = modifiers;
-    }
+    // set new mapping
+    data.mappings[action][index].key = key;
+    data.mappings[action][index].modifiers = modifiers;
 }
 
 static void button_hotkey(int row, int is_alternative)

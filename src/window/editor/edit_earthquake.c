@@ -1,6 +1,5 @@
 #include "edit_earthquake.h"
 
-#include "game/custom_strings.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -10,6 +9,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
+#include "window/editor/attributes.h"
 #include "window/editor/map.h"
 #include "window/editor/earthquakes.h"
 #include "window/numeric_input.h"
@@ -38,10 +38,11 @@ static struct {
     int focus_button_id;
 } data;
 
-static void draw_background(void)
-{
-    window_editor_map_draw_all();
-}
+static uint8_t edit_earthquake_strings[][25] = {
+    "Scheduling an earthquake", // 0
+    "Point", // 1
+    "Cancel earthquake", // 2
+};
 
 static void draw_foreground(void)
 {
@@ -49,22 +50,22 @@ static void draw_foreground(void)
 
     outer_panel_draw(0, 100, 29, 14);
     // Scheduling an earthquake
-    text_draw_centered(get_custom_string(TR_EDITOR_EDIT_EARTHQUAKE_TITLE), 0, 116, 464, FONT_LARGE_BLACK, COLOR_BLACK);
+    text_draw_centered(edit_earthquake_strings[0], 0, 116, 464, FONT_LARGE_BLACK, COLOR_BLACK);
 
     // Year offset
-    text_draw(get_custom_string(TR_EDITOR_OFFSET_YEAR), 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[0], 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(130, 152, 100, 25, data.focus_button_id == 1);
     text_draw_number_centered_prefix(scenario.earthquakes[data.id].year, '+', 132, 158, 100, FONT_NORMAL_BLACK);
     lang_text_draw_year(scenario.start_year + scenario.earthquakes[data.id].year, 240, 158, FONT_NORMAL_BLACK);
 
     // Month
-    text_draw(get_custom_string(TR_EDITOR_MONTH), 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[1], 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(130, 182, 100, 25, data.focus_button_id == 2);
     text_draw_number_centered(scenario.earthquakes[data.id].month + 1, 130, 188, 100, FONT_NORMAL_BLACK);
 
     // Invalid year/month combination
     if (scenario.earthquakes[data.id].year == 0 && scenario.earthquakes[data.id].month == 0) {
-        text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 245, 188, FONT_NORMAL_PLAIN, COLOR_RED);
+        text_draw(common_editor_strings[2], 245, 188, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 
     // Severity
@@ -73,13 +74,13 @@ static void draw_foreground(void)
     lang_text_draw_centered(40, scenario.earthquakes[data.id].severity, 130, 218, 100, FONT_NORMAL_BLACK);
 
     // Point
-    text_draw(get_custom_string(TR_EDITOR_EDIT_EARTHQUAKE_POINT), 30, 248, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(edit_earthquake_strings[1], 30, 248, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(130, 242, 200, 25, data.focus_button_id == 4);
-    text_draw_centered(get_custom_string(TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_1 + scenario.earthquakes[data.id].point), 130, 248, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw_centered(earthquakes_strings[scenario.earthquakes[data.id].point + 2], 130, 248, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
 
     // Cancel earthquake
     button_border_draw(130, 282, 200, 25, data.focus_button_id == 5);
-    text_draw_centered(get_custom_string(TR_EDITOR_EDIT_EARTHQUAKE_CANCEL), 130, 288, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw_centered(edit_earthquake_strings[2], 130, 288, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
 
     graphics_reset_dialog();
 }
@@ -201,14 +202,14 @@ void window_editor_edit_earthquake_show(int id)
 {
     window_type window = {
         WINDOW_EDITOR_EDIT_EARTHQUAKE,
-        draw_background,
+        window_editor_map_draw_all,
         draw_foreground,
         handle_input,
         0
     };
     data.id = id;
-    for (int i = TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_1; i <= TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_8; i++) {
-        data.earthquake_point_names[i - TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_1] = get_custom_string(i);
+    for (int i = 0; i <= MAX_EARTHQUAKE_POINTS; i++) {
+        data.earthquake_point_names[i] = earthquakes_strings[i + 2];
     }
     window_show(&window);
 }

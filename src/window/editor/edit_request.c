@@ -1,6 +1,5 @@
 #include "edit_request.h"
 
-#include "game/custom_strings.h"
 #include "game/resource.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -10,6 +9,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
+#include "window/editor/attributes.h"
 #include "window/editor/map.h"
 #include "window/editor/requests.h"
 #include "window/numeric_input.h"
@@ -38,47 +38,53 @@ static struct {
     int focus_button_id;
 } data;
 
+static uint8_t edit_request_strings[][25] = {
+    "Request from the Emperor", // 0
+    "Years deadline:", // 1
+    "Favor granted:", // 2
+};
+
 static void draw_foreground(void)
 {
     graphics_in_dialog();
 
     outer_panel_draw(0, 100, 26, 18);
     // Request from the Emperor
-    text_draw_centered(get_custom_string(TR_EDITOR_REQUEST_FROM_EMPEROR), 0, 116, 416, FONT_LARGE_BLACK, COLOR_BLACK);
+    text_draw_centered(edit_request_strings[0], 0, 116, 416, FONT_LARGE_BLACK, COLOR_BLACK);
 
     // Year offset
-    text_draw(get_custom_string(TR_EDITOR_OFFSET_YEAR), 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[0], 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(155, 152, 100, 25, data.focus_button_id == 1);
     text_draw_number_centered_prefix(scenario.requests[data.id].year, '+', 157, 158, 100, FONT_NORMAL_BLACK);
     lang_text_draw_year(scenario.start_year + scenario.requests[data.id].year, 275, 158, FONT_NORMAL_BLACK);
 
     // Month
-    text_draw(get_custom_string(TR_EDITOR_MONTH), 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[1], 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(155, 182, 100, 25, data.focus_button_id == 2);
     text_draw_number_centered(scenario.requests[data.id].month + 1, 155, 188, 100, FONT_NORMAL_BLACK);
 
     // Invalid year/month combination
     if (scenario.requests[data.id].year == 0 && scenario.requests[data.id].month == 0) {
-        text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 260, 188, FONT_NORMAL_PLAIN, COLOR_RED);
+        text_draw(common_editor_strings[2], 260, 188, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 
     // Amount
-    text_draw(get_custom_string(TR_EDITOR_AMOUNT), 30, 218, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[3], 30, 218, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(155, 212, 100, 25, data.focus_button_id == 3);
     text_draw_number_centered(scenario.requests[data.id].amount, 155, 218, 100, FONT_NORMAL_BLACK);
 
     // Resource
-    text_draw(get_custom_string(TR_EDITOR_RESOURCE), 30, 248, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[4], 30, 248, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(155, 242, 100, 25, data.focus_button_id == 4);
     lang_text_draw_centered(23, scenario.requests[data.id].resource, 155, 248, 100, FONT_NORMAL_BLACK);
 
     // Years deadline
-    text_draw(get_custom_string(TR_EDITOR_YEARS_DEADLINE), 30, 278, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(edit_request_strings[1], 30, 278, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(155, 272, 100, 25, data.focus_button_id == 5);
     lang_text_draw_amount(8, 8, scenario.requests[data.id].years_deadline, 160, 278, FONT_NORMAL_BLACK);
 
     // Favor granted
-    text_draw(get_custom_string(TR_EDITOR_FAVOR_GRANTED), 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(edit_request_strings[2], 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(155, 302, 100, 25, data.focus_button_id == 6);
     text_draw_number_centered_prefix(scenario.requests[data.id].favor, '+', 157, 308, 100, FONT_NORMAL_BLACK);
 

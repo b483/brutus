@@ -2,7 +2,6 @@
 
 #include "city/view.h"
 #include "editor/tool.h"
-#include "game/custom_strings.h"
 #include "graphics/generic_button.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
@@ -18,6 +17,7 @@
 #define MENU_ITEM_HEIGHT 24
 #define MENU_ITEM_WIDTH 160
 #define MENU_CLICK_MARGIN 20
+#define MAX_ITEMS_PER_MENU 16
 
 static void button_menu_item(int index, int param2);
 
@@ -40,29 +40,18 @@ static generic_button build_menu_buttons[] = {
     {0, 360, 160, 20, button_menu_item, button_none, 15, 0}
 };
 
-#define MAX_ITEMS_PER_MENU 17
-static const int MENU_TYPES[][MAX_ITEMS_PER_MENU] = {
-    {TR_EDITOR_TOOL_SUBMENU_SMALL_SHRUB, TR_EDITOR_TOOL_SUBMENU_MEDIUM_SHRUB, TR_EDITOR_TOOL_SUBMENU_LARGE_SHRUB, TR_EDITOR_TOOL_SUBMENU_LARGEST_SHRUB, -1},
-    {TR_EDITOR_TOOL_SUBMENU_RAISE_LAND, TR_EDITOR_TOOL_SUBMENU_LOWER_LAND, TR_EDITOR_TOOL_SUBMENU_ACCESS_RAMP, -1},
-    {TR_EDITOR_TOOL_SUBMENU_SMALL_ROCK, TR_EDITOR_TOOL_SUBMENU_MEDIUM_ROCK, TR_EDITOR_TOOL_SUBMENU_LARGE_ROCK, -1},
-    {TR_EDITOR_TOOL_SUBMENU_TINY_BRUSH, TR_EDITOR_TOOL_SUBMENU_SMALL_BRUSH,
-    TR_EDITOR_TOOL_SUBMENU_MEDIUM_BRUSH, TR_EDITOR_TOOL_SUBMENU_BIG_BRUSH, TR_EDITOR_TOOL_SUBMENU_BIGGEST_BRUSH, -1},
-    {TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_1, TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_2, TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_3,
-    TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_4, TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_5, TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_6,
-    TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_7, TR_EDITOR_TOOL_SUBMENU_EARTHQUAKE_POINT_8, -1},
-    {TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_1, TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_2, TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_3,
-    TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_4, TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_5, TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_6,
-    TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_7, TR_EDITOR_TOOL_SUBMENU_INVASION_POINT_8, -1},
-    {TR_EDITOR_TOOL_SUBMENU_ENTRY_POINT, TR_EDITOR_TOOL_SUBMENU_EXIT_POINT, -1},
-    {TR_EDITOR_TOOL_SUBMENU_RIVER_ENTRY, TR_EDITOR_TOOL_SUBMENU_RIVER_EXIT, -1},
-    {TR_EDITOR_TOOL_SUBMENU_NATIVE_HUT, TR_EDITOR_TOOL_SUBMENU_NATIVE_CENTER, TR_EDITOR_TOOL_SUBMENU_NATIVE_FIELD,
-    TR_EDITOR_TOOL_SUBMENU_VACANT_LOT, -1},
-    {TR_EDITOR_TOOL_SUBMENU_FISHING_POINT_1, TR_EDITOR_TOOL_SUBMENU_FISHING_POINT_2, TR_EDITOR_TOOL_SUBMENU_FISHING_POINT_3,
-    TR_EDITOR_TOOL_SUBMENU_FISHING_POINT_4, TR_EDITOR_TOOL_SUBMENU_FISHING_POINT_5, TR_EDITOR_TOOL_SUBMENU_FISHING_POINT_6,
-    TR_EDITOR_TOOL_SUBMENU_FISHING_POINT_7, TR_EDITOR_TOOL_SUBMENU_FISHING_POINT_8,
-    TR_EDITOR_TOOL_SUBMENU_HERD_POINT_1, TR_EDITOR_TOOL_SUBMENU_HERD_POINT_2, TR_EDITOR_TOOL_SUBMENU_HERD_POINT_3,
-    TR_EDITOR_TOOL_SUBMENU_HERD_POINT_4, TR_EDITOR_TOOL_SUBMENU_HERD_POINT_5, TR_EDITOR_TOOL_SUBMENU_HERD_POINT_6,
-    TR_EDITOR_TOOL_SUBMENU_HERD_POINT_7, TR_EDITOR_TOOL_SUBMENU_HERD_POINT_8, -1}
+static uint8_t editor_menu_types_strings[][MAX_ITEMS_PER_MENU][19] = {
+    {"Small shrub", "Medium shrub", "Large shrub", "Largest shrub"},
+    {"Raise land", "Lower land", "Access ramp"},
+    {"Small rock", "Medium rock", "Large rock"},
+    {"Tiny brush", "Small brush", "Medium brush", "Big brush", "Biggest brush"},
+    {"Earthquake point 1", "Earthquake point 2", "Earthquake point 3", "Earthquake point 4", "Earthquake point 5", "Earthquake point 6", "Earthquake point 7", "Earthquake point 8"},
+    {"Invasion point 1", "Invasion point 2", "Invasion point 3", "Invasion point 4", "Invasion point 5", "Invasion point 6", "Invasion point 7", "Invasion point 8"},
+    {"Entry point", "Exit point"},
+    {"River entry", "River exit"},
+    {"Native hut", "Native center", "Native field", "Vacant lot"},
+    {"Fishing point 1", "Fishing point 2", "Fishing point 3", "Fishing point 4", "Fishing point 5", "Fishing point 6", "Fishing point 7", "Fishing point 8",
+    "Herd point 1", "Herd point 2", "Herd point 3", "Herd point 4", "Herd point 5", "Herd point 6", "Herd point 7", "Herd point 8"},
 };
 
 static struct {
@@ -76,8 +65,10 @@ static void init(int submenu)
 {
     data.selected_submenu = submenu;
     data.num_items = 0;
-    for (int i = 0; i < MAX_ITEMS_PER_MENU && MENU_TYPES[submenu][i] >= 0; i++) {
-        data.num_items++;
+    for (int i = 0; i < MAX_ITEMS_PER_MENU; i++) {
+        if (editor_menu_types_strings[data.selected_submenu][i][0]) {
+            data.num_items++;
+        }
     }
     data.y_offset = 180;
 }
@@ -93,10 +84,8 @@ static void draw_menu_buttons(void)
 {
     int x_offset = get_sidebar_x_offset();
     for (int i = 0; i < data.num_items; i++) {
-        label_draw(x_offset - MENU_X_OFFSET, data.y_offset + MENU_Y_OFFSET + MENU_ITEM_HEIGHT * i, 10,
-            data.focus_button_id == i + 1 ? 1 : 2);
-        text_draw_centered(get_custom_string(MENU_TYPES[data.selected_submenu][i]), x_offset - MENU_X_OFFSET,
-            data.y_offset + MENU_Y_OFFSET + 3 + MENU_ITEM_HEIGHT * i,
+        label_draw(x_offset - MENU_X_OFFSET, data.y_offset + MENU_Y_OFFSET + MENU_ITEM_HEIGHT * i, 10, data.focus_button_id == i + 1 ? 1 : 2);
+        text_draw_centered(editor_menu_types_strings[data.selected_submenu][i], x_offset - MENU_X_OFFSET, data.y_offset + MENU_Y_OFFSET + 3 + MENU_ITEM_HEIGHT * i,
             MENU_ITEM_WIDTH, FONT_NORMAL_GREEN, COLOR_BLACK);
     }
 }

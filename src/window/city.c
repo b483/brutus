@@ -11,7 +11,6 @@
 #include "core/config.h"
 #include "figure/formation.h"
 #include "figure/formation_legion.h"
-#include "game/custom_strings.h"
 #include "game/file.h"
 #include "game/orientation.h"
 #include "game/settings.h"
@@ -41,6 +40,8 @@
 static int any_selected_legion_index = 0;
 static int current_selected_legion_index = 0;
 
+static uint8_t pause_string[] = "Game paused";
+
 void window_city_draw_background(void)
 {
     widget_sidebar_city_draw_background();
@@ -60,7 +61,7 @@ static void draw_paused_banner(void)
     if (game_state_is_paused()) {
         int x_offset = center_in_city(448);
         outer_panel_draw(x_offset, 40, 28, 3);
-        text_draw_centered(get_custom_string(TR_GAME_PAUSED), x_offset, 58, 448, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw_centered(pause_string, x_offset, 58, 448, FONT_NORMAL_BLACK, COLOR_BLACK);
     }
 }
 

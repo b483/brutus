@@ -1,7 +1,6 @@
 #include "briefing.h"
 
 #include "core/string.h"
-#include "game/custom_strings.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/lang_text.h"
@@ -14,6 +13,8 @@
 #include "widget/sidebar/editor.h"
 #include "window/editor/attributes.h"
 #include "window/editor/map.h"
+
+uint8_t briefing_reset_text[] = "Reset briefing";
 
 static void button_reset_briefing_text(int param1, int param2);
 
@@ -44,11 +45,6 @@ static void stop_briefing_box_input(void)
     }
 }
 
-static void draw_background(void)
-{
-    window_editor_map_draw_all();
-}
-
 static void draw_foreground(void)
 {
     graphics_in_dialog();
@@ -67,11 +63,11 @@ static void draw_foreground(void)
     graphics_reset_clip_rectangle();
 
     // @L, @P hint
-    text_draw(get_custom_string(TR_EDITOR_SCENARIO_RICH_TEXT_HINT), -285, 550, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
+    text_draw(common_editor_strings[5], -285, 550, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
 
     // Reset briefing
     button_border_draw(455, 540, 190, 35, focus_button_id);
-    text_draw_centered(get_custom_string(TR_EDITOR_SCENARIO_BRIEFING_RESET), 455, 545, 190, FONT_LARGE_PLAIN, COLOR_RED);
+    text_draw_centered(briefing_reset_text, 455, 545, 190, FONT_LARGE_PLAIN, COLOR_RED);
 
     graphics_reset_dialog();
 }
@@ -102,7 +98,7 @@ void window_editor_briefing_show(void)
 {
     window_type window = {
         WINDOW_EDITOR_BRIEFING,
-        draw_background,
+        window_editor_map_draw_all,
         draw_foreground,
         handle_input,
         0

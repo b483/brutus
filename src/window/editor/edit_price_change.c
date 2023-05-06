@@ -1,6 +1,5 @@
 #include "edit_price_change.h"
 
-#include "game/custom_strings.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -10,6 +9,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
+#include "window/editor/attributes.h"
 #include "window/editor/map.h"
 #include "window/editor/price_changes.h"
 #include "window/numeric_input.h"
@@ -50,23 +50,23 @@ static void draw_foreground(void)
     lang_text_draw_centered(44, 95, 0, 116, 464, FONT_LARGE_BLACK);
 
     // Year offset
-    text_draw(get_custom_string(TR_EDITOR_OFFSET_YEAR), 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[0], 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(130, 152, 100, 25, data.focus_button_id == 1);
     text_draw_number_centered_prefix(scenario.price_changes[data.id].year, '+', 132, 158, 100, FONT_NORMAL_BLACK);
     lang_text_draw_year(scenario.start_year + scenario.price_changes[data.id].year, 240, 158, FONT_NORMAL_BLACK);
 
     // Month
-    text_draw(get_custom_string(TR_EDITOR_MONTH), 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[1], 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(130, 182, 100, 25, data.focus_button_id == 2);
     text_draw_number_centered(scenario.price_changes[data.id].month + 1, 130, 188, 100, FONT_NORMAL_BLACK);
 
     // Invalid year/month combination
     if (scenario.price_changes[data.id].year == 0 && scenario.price_changes[data.id].month == 0) {
-        text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 245, 188, FONT_NORMAL_PLAIN, COLOR_RED);
+        text_draw(common_editor_strings[2], 245, 188, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 
     // Resource
-    text_draw(get_custom_string(TR_EDITOR_RESOURCE), 30, 218, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[4], 30, 218, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(130, 212, 100, 25, data.focus_button_id == 3);
     lang_text_draw_centered(23, scenario.price_changes[data.id].resource, 130, 218, 100, FONT_NORMAL_BLACK);
 

@@ -1,6 +1,5 @@
 #include "invasions.h"
 
-#include "game/custom_strings.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/lang_text.h"
@@ -59,6 +58,37 @@ static generic_button buttons_invasions[] = {
 
 static int focus_button_id;
 
+uint8_t invasions_enemy_type_strings[][14] = {
+    "Barbarians", // 0
+    "Carthaginians", // 1
+    "Britons", // 2
+    "Celts", // 3
+    "Picts", // 4
+    "Egyptians", // 5
+    "Etruscans", // 6
+    "Samnites", // 7
+    "Gauls", // 8
+    "Helvetii", // 9
+    "Huns", // 10
+    "Goths", // 11
+    "Visigoths", // 12
+    "Graeci", // 13
+    "Macedonians", // 14
+    "Numidians", // 15
+    "Pergamum", // 16
+    "Iberians", // 17
+    "Judaeans", // 18
+    "Seleucids", // 19
+};
+
+uint8_t invasions_enemy_army_type_strings[][17] = {
+    "No invaders", // 0
+    "Local raiders", // 1
+    "Enemy army", // 2
+    "Caesar's legions", // 3
+    "Distant battle", // 4
+};
+
 static void draw_foreground(void)
 {
     graphics_in_dialog();
@@ -87,10 +117,10 @@ static void draw_foreground(void)
             width += lang_text_draw_year(scenario.start_year + scenario.invasions[i].year_offset, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
             width += text_draw_number(scenario.invasions[i].amount, 0, 0, x + 12 + width, y + 6, FONT_NORMAL_BLACK);
             if (scenario.invasions[i].type == INVASION_TYPE_ENEMY_ARMY) {
-                uint8_t *enemy_type_text = get_custom_string(TR_EDITOR_ENEMY_TYPE_BARBARIANS + scenario.invasions[i].enemy_type);
+                uint8_t *enemy_type_text = invasions_enemy_type_strings[scenario.invasions[i].enemy_type];
                 text_draw(enemy_type_text, x - 12 + width + (290 - width - text_get_width(enemy_type_text, FONT_NORMAL_BLACK)), y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
             } else {
-                uint8_t *invasions_type_text = get_custom_string(TR_EDITOR_INVASION_TYPE_NO_INVADERS + scenario.invasions[i].type);
+                uint8_t *invasions_type_text = invasions_enemy_army_type_strings[scenario.invasions[i].type];
                 text_draw(invasions_type_text, x - 12 + width + (290 - width - text_get_width(invasions_type_text, FONT_NORMAL_BLACK)), y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
             }
         } else {

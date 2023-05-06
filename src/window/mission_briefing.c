@@ -2,7 +2,6 @@
 
 #include "core/image_group.h"
 #include "core/lang.h"
-#include "game/custom_strings.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
 #include "graphics/lang_text.h"
@@ -16,6 +15,11 @@
 #include "window/cck_selection.h"
 #include "window/city.h"
 #include "window/intermezzo.h"
+
+static uint8_t win_criteria_strings[][12] = {
+    "Fired after",
+    "Survive for",
+};
 
 static void draw_background(void)
 {
@@ -64,11 +68,11 @@ static void draw_background(void)
     }
     if (scenario.time_limit_win_criteria.enabled) {
         label_draw(492, 83, 13, 2);
-        int width = text_draw(get_custom_string(TR_BRIEFING_FIRED_AFTER), 500, 87, FONT_NORMAL_RED, COLOR_BLACK);
+        int width = text_draw(win_criteria_strings[0], 500, 87, FONT_NORMAL_RED, COLOR_BLACK);
         text_draw_number(scenario.time_limit_win_criteria.years, 0, " Years", width + 500, 87, FONT_NORMAL_RED);
     } else if (scenario.survival_time_win_criteria.enabled) {
         label_draw(492, 83, 13, 2);
-        int width = text_draw(get_custom_string(TR_BRIEFING_SURVIVE_FOR), 500, 87, FONT_NORMAL_RED, COLOR_BLACK);
+        int width = text_draw(win_criteria_strings[1], 500, 87, FONT_NORMAL_RED, COLOR_BLACK);
         text_draw_number(scenario.survival_time_win_criteria.years, 0, " Years", width + 500, 87, FONT_NORMAL_RED);
     }
 

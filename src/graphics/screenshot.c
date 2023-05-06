@@ -7,7 +7,6 @@
 #include "core/file.h"
 #include "core/log.h"
 #include "core/string.h"
-#include "game/custom_strings.h"
 #include "graphics/screen.h"
 #include "graphics/graphics.h"
 #include "graphics/menu.h"
@@ -182,10 +181,8 @@ static void image_finish(void)
 
 static void show_saved_notice(const char *filename)
 {
-    uint8_t notice_text[FILE_NAME_MAX];
-    const uint8_t *prefix = get_custom_string(TR_WARNING_SCREENSHOT_SAVED);
-    string_copy(prefix, notice_text, FILE_NAME_MAX);
-    int prefix_length = string_length(prefix);
+    uint8_t notice_text[FILE_NAME_MAX] = "Screenshot saved: ";
+    int prefix_length = strlen("Screenshot saved: ");
     string_copy(string_from_ascii(filename), &notice_text[prefix_length], FILE_NAME_MAX - prefix_length);
 
     city_warning_show_custom(notice_text);

@@ -1,7 +1,6 @@
 #include "edit_custom_message.h"
 
 #include "core/string.h"
-#include "game/custom_strings.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/lang_text.h"
@@ -12,6 +11,7 @@
 #include "graphics/window.h"
 #include "scenario/data.h"
 #include "widget/input_box.h"
+#include "window/editor/attributes.h"
 #include "window/editor/custom_messages.h"
 #include "window/editor/map.h"
 #include "window/numeric_input.h"
@@ -54,6 +54,16 @@ static struct {
     int focus_button_id;
 } data;
 
+static uint8_t edit_custom_messages_strings[][14] = {
+    "Urgent?", // 0
+    "Video file:", // 1
+    "smk/file", // 2
+    "Enabled?", // 3
+    "Reset message", // 4
+    "Reset title", // 5
+    "Reset text", // 6
+};
+
 static void init(int id, int category)
 {
     data.id = id;
@@ -78,61 +88,61 @@ static void draw_foreground(void)
         outer_panel_draw(-100, 0, 24, 15);
 
         // Attributes
-        text_draw_centered(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_ATTRIBUTES), -100, 16, 384, FONT_LARGE_BLACK, COLOR_BLACK);
+        text_draw_centered(custom_messages_strings[1], -100, 16, 384, FONT_LARGE_BLACK, COLOR_BLACK);
 
         // Year offset
-        text_draw(get_custom_string(TR_EDITOR_OFFSET_YEAR), -68, 64, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw(common_editor_strings[0], -68, 64, FONT_NORMAL_BLACK, COLOR_BLACK);
         button_border_draw(36, 58, 75, 25, data.focus_button_id == 1);
         text_draw_number_centered_prefix(scenario.editor_custom_messages[data.id].year, '+', 38, 64, 75, FONT_NORMAL_BLACK);
         lang_text_draw_year(scenario.start_year + scenario.editor_custom_messages[data.id].year, 118, 64, FONT_NORMAL_BLACK);
 
         // Month
-        text_draw(get_custom_string(TR_EDITOR_MONTH), -68, 94, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw(common_editor_strings[1], -68, 94, FONT_NORMAL_BLACK, COLOR_BLACK);
         button_border_draw(36, 88, 75, 25, data.focus_button_id == 2);
         text_draw_number_centered(scenario.editor_custom_messages[data.id].month + 1, 36, 94, 75, FONT_NORMAL_BLACK);
 
         // Invalid year/month combination
         if (scenario.editor_custom_messages[data.id].year == 0 && scenario.editor_custom_messages[data.id].month == 0) {
-            text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 122, 94, FONT_NORMAL_PLAIN, COLOR_RED);
+            text_draw(common_editor_strings[2], 122, 94, FONT_NORMAL_PLAIN, COLOR_RED);
         }
 
         // Urgent
-        text_draw(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_URGENT), -68, 124, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw(edit_custom_messages_strings[0], -68, 124, FONT_NORMAL_BLACK, COLOR_BLACK);
         button_border_draw(36, 118, 75, 25, data.focus_button_id == 3);
         lang_text_draw_centered(18, scenario.editor_custom_messages[data.id].urgent, 36, 124, 75, FONT_NORMAL_BLACK);
 
         // Video file
-        text_draw(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_VIDEO_FILE), -68, 160, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw(edit_custom_messages_strings[1], -68, 160, FONT_NORMAL_BLACK, COLOR_BLACK);
         input_box_draw(&editor_custom_message_input_video_file);
 
         // Video file hint
-        text_draw(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_VIDEO_FILE_HINT), 200, 160, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
+        text_draw(edit_custom_messages_strings[2], 200, 160, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
 
         // Enabled
-        text_draw(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_ENABLED), -68, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw(edit_custom_messages_strings[3], -68, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
         button_border_draw(36, 194, 75, 25, data.focus_button_id == 4);
         lang_text_draw_centered(18, scenario.editor_custom_messages[data.id].enabled, 36, 200, 75, FONT_NORMAL_BLACK);
 
         // Reset message
         button_border_draw(135, 194, 125, 25, data.focus_button_id == 5);
-        text_draw_centered(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_RESET), 135, 200, 125, FONT_NORMAL_PLAIN, COLOR_RED);
+        text_draw_centered(edit_custom_messages_strings[4], 135, 200, 125, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 
     else if (data.category == CUSTOM_MESSAGE_TITLE) {
         outer_panel_draw(-100, 0, 21, 10);
         // Title
-        text_draw_centered(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_TITLE), -100, 16, 336, FONT_LARGE_BLACK, COLOR_BLACK);
+        text_draw_centered(custom_messages_strings[2], -100, 16, 336, FONT_LARGE_BLACK, COLOR_BLACK);
         input_box_draw(&editor_custom_message_input_title);
 
         // Reset title
         button_border_draw(5, 110, 125, 25, data.focus_button_id == 1);
-        text_draw_centered(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_RESET_TITLE), 5, 116, 125, FONT_NORMAL_PLAIN, COLOR_RED);
+        text_draw_centered(edit_custom_messages_strings[5], 5, 116, 125, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 
     else if (data.category == CUSTOM_MESSAGE_TEXT) {
         outer_panel_draw(-100, 0, 50, 32);
         // Text
-        text_draw_centered(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_TEXT), -100, 16, 800, FONT_LARGE_BLACK, COLOR_BLACK);
+        text_draw_centered(custom_messages_strings[3], -100, 16, 800, FONT_LARGE_BLACK, COLOR_BLACK);
         input_box_draw(&editor_custom_message_input_text);
 
         // Formatted typed in text
@@ -145,11 +155,11 @@ static void draw_foreground(void)
         graphics_reset_clip_rectangle();
 
         // @L, @P hint
-        text_draw(get_custom_string(TR_EDITOR_SCENARIO_RICH_TEXT_HINT), -60, 475, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
+        text_draw(common_editor_strings[5], -60, 475, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
 
         // Reset text
         button_border_draw(515, 16, 150, 35, data.focus_button_id == 1);
-        text_draw_centered(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_RESET_TEXT), 515, 21, 150, FONT_LARGE_PLAIN, COLOR_RED);
+        text_draw_centered(edit_custom_messages_strings[6], 515, 21, 150, FONT_LARGE_PLAIN, COLOR_RED);
     }
 
     graphics_reset_dialog();

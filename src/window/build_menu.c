@@ -5,7 +5,6 @@
 #include "building/menu.h"
 #include "city/view.h"
 #include "graphics/generic_button.h"
-#include "game/custom_strings.h"
 #include "graphics/image.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
@@ -60,7 +59,7 @@ static generic_button build_menu_buttons[] = {
     {0, 696, 256, 20, button_menu_index, button_none, 30, 0},
 };
 
-static const uint8_t menu_strings[][25] = {
+static const uint8_t menu_strings[][22] = {
     "Reservoir",
     "Aqueduct",
     "Fountain",
@@ -143,6 +142,8 @@ static const uint8_t menu_strings[][25] = {
     "Granary",
     "Warehouse",
 };
+
+uint8_t build_menu_all_temples_string[] = {"All"};
 
 static const int Y_MENU_OFFSETS[] = {
     0, 322, 306, 274, 258, 226, 210, 178, 162, 130, 114,
@@ -261,8 +262,7 @@ static void draw_menu_buttons(void)
         label_draw(item_x_align, data.y_offset + MENU_Y_OFFSET + MENU_ITEM_HEIGHT * i, 16,
             data.focus_button_id == i + 1 ? 1 : 2);
         if (is_all_button(type)) {
-            text_draw_centered(get_custom_string(TR_BUILD_ALL_TEMPLES),
-                item_x_align, data.y_offset + MENU_Y_OFFSET + 3 + MENU_ITEM_HEIGHT * i,
+            text_draw_centered(build_menu_all_temples_string, item_x_align, data.y_offset + MENU_Y_OFFSET + 3 + MENU_ITEM_HEIGHT * i,
                 MENU_ITEM_WIDTH, FONT_NORMAL_GREEN, 0);
         } else {
             text_draw_centered(menu_strings[type - BUILDING_RESERVOIR], item_x_align, data.y_offset + MENU_Y_OFFSET + 3 + MENU_ITEM_HEIGHT * i,

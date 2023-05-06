@@ -20,14 +20,14 @@ static struct {
     const uint8_t *extra;
 } data;
 
-static int init(custom_string_key title, custom_string_key message, const uint8_t *extra)
+static int init(uint8_t *title, uint8_t *message, const uint8_t *extra)
 {
     if (window_is(WINDOW_PLAIN_MESSAGE_DIALOG)) {
         // don't show popup over popup
         return 0;
     }
-    data.title = get_custom_string(title);
-    data.message = get_custom_string(message);
+    data.title = title;
+    data.message = message;
     data.extra = extra;
     return 1;
 }
@@ -71,23 +71,9 @@ static void button_ok(__attribute__((unused)) int param1, __attribute__((unused)
     close();
 }
 
-void window_plain_message_dialog_show(custom_string_key title, custom_string_key message)
+void window_plain_message_dialog_show(uint8_t *title, uint8_t *message)
 {
     if (init(title, message, 0)) {
-        window_type window = {
-            WINDOW_PLAIN_MESSAGE_DIALOG,
-            draw_background,
-            draw_foreground,
-            handle_input,
-            0
-        };
-        window_show(&window);
-    }
-}
-
-void window_plain_message_dialog_show_with_extra(custom_string_key title, custom_string_key message, const uint8_t *extra)
-{
-    if (init(title, message, extra)) {
         window_type window = {
             WINDOW_PLAIN_MESSAGE_DIALOG,
             draw_background,

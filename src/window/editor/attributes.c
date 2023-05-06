@@ -3,7 +3,6 @@
 #include "core/image.h"
 #include "core/image_group_editor.h"
 #include "core/string.h"
-#include "game/custom_strings.h"
 #include "game/resource.h"
 #include "graphics/arrow_button.h"
 #include "graphics/button.h"
@@ -77,6 +76,37 @@ static input_box scenario_description_input = {
     data.brief_description, MAX_BRIEF_DESCRIPTION
 };
 
+static uint8_t attribute_window_strings[][22] = {
+    "Scenario briefing", // 0
+    "Requests scheduled", // 1
+    "No requests", // 2
+    "Messages scheduled", // 3
+    "No messages", // 4
+    "Earthquakes scheduled", // 5
+    "No earthquakes", // 6
+    "Invasions scheduled", // 7
+    "No invasions", // 8
+    "Price changes sch.", // 9
+    "No price changes", // 10
+    "Demand changes sch.", // 11
+    "No demand changes", // 12
+};
+
+uint8_t climate_types_strings[][19] = {
+    "Northern provinces",
+    "Central provinces",
+    "Desert provinces",
+};
+
+uint8_t common_editor_strings[][98] = {
+    "Year offset:", // 0
+    "Month:", // 1
+    "Jan year 0 invalid", // 2
+    "Amount:", // 3
+    "Resource:", // 4
+    "Hint: 'atL' for new line, 'atP' for new paragraph (replace 'at' with the symbol - will be hidden)", // 5
+};
+
 static void stop_brief_description_box_input(void)
 {
     input_box_stop(&scenario_description_input);
@@ -103,11 +133,11 @@ static void draw_foreground(void)
 
     // Briefing
     button_border_draw(213, 60, 195, 30, data.focus_button_id == 1);
-    text_draw_centered(get_custom_string(TR_EDITOR_SCENARIO_BRIEFING), 213, 69, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw_centered(attribute_window_strings[0], 213, 69, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
 
     // Terrain set
     button_border_draw(213, 100, 195, 30, data.focus_button_id == 2);
-    text_draw_centered(get_custom_string(TR_CLIMATE_NORTHERN + scenario.climate), 213, 109, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw_centered(climate_types_strings[scenario.climate], 213, 109, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
 
     // Starting conditions
     button_border_draw(213, 140, 195, 30, data.focus_button_id == 3);
@@ -128,49 +158,49 @@ static void draw_foreground(void)
     // Requests
     button_border_draw(17, 260, 185, 30, data.focus_button_id == 7);
     if (scenario.requests[0].resource) {
-        text_draw_centered(get_custom_string(TR_EDITOR_REQUEST_SCHEDULED), 17, 269, 185, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw_centered(attribute_window_strings[1], 17, 269, 185, FONT_NORMAL_BLACK, COLOR_BLACK);
     } else {
-        lang_text_draw_centered(44, 19, 17, 269, 185, FONT_NORMAL_BLACK);
+        text_draw_centered(attribute_window_strings[2], 17, 269, 185, FONT_NORMAL_BLACK, COLOR_BLACK);
     }
 
     // Custom messages
     button_border_draw(213, 260, 195, 30, data.focus_button_id == 8);
     if (scenario.editor_custom_messages[0].enabled) {
-        text_draw_centered(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_SCHEDULED), 213, 269, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw_centered(attribute_window_strings[3], 213, 269, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
     } else {
-        text_draw_centered(get_custom_string(TR_EDITOR_NO_CUSTOM_MESSAGE), 213, 269, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw_centered(attribute_window_strings[4], 213, 269, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
     }
 
     // Earthquakes
     button_border_draw(17, 300, 185, 30, data.focus_button_id == 9);
     if (scenario.earthquakes[0].state) {
-        text_draw_centered(get_custom_string(TR_EDITOR_EARTHQUAKES_SCHEDULED), 17, 309, 185, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw_centered(attribute_window_strings[5], 17, 309, 185, FONT_NORMAL_BLACK, COLOR_BLACK);
     } else {
-        text_draw_centered(get_custom_string(TR_EDITOR_NO_EARTHQUAKES), 17, 309, 185, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw_centered(attribute_window_strings[6], 17, 309, 185, FONT_NORMAL_BLACK, COLOR_BLACK);
     }
 
     // Invasions
     button_border_draw(213, 300, 195, 30, data.focus_button_id == 10);
     if (scenario.invasions[0].type) {
-        text_draw_centered(get_custom_string(TR_EDITOR_INVASION_SCHEDULED), 213, 309, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw_centered(attribute_window_strings[7], 213, 309, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
     } else {
-        lang_text_draw_centered(44, 20, 213, 309, 195, FONT_NORMAL_BLACK);
+        text_draw_centered(attribute_window_strings[8], 213, 309, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
     }
 
     // Price changes
     button_border_draw(17, 340, 185, 30, data.focus_button_id == 11);
     if (scenario.price_changes[0].resource) {
-        text_draw_centered(get_custom_string(TR_EDITOR_PRICE_CHANGE_SCHEDULED), 17, 349, 185, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw_centered(attribute_window_strings[9], 17, 349, 185, FONT_NORMAL_BLACK, COLOR_BLACK);
     } else {
-        text_draw_centered(get_custom_string(TR_EDITOR_NO_PRICE_CHANGE), 17, 349, 185, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw_centered(attribute_window_strings[10], 17, 349, 185, FONT_NORMAL_BLACK, COLOR_BLACK);
     }
 
     // Demand changes
     button_border_draw(213, 340, 195, 30, data.focus_button_id == 12);
     if (scenario.demand_changes[0].resource && scenario.demand_changes[0].trade_city_id) {
-        text_draw_centered(get_custom_string(TR_EDITOR_DEMAND_CHANGE_SCHEDULED), 213, 349, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw_centered(attribute_window_strings[11], 213, 349, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
     } else {
-        text_draw_centered(get_custom_string(TR_EDITOR_NO_DEMAND_CHANGE), 213, 349, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw_centered(attribute_window_strings[12], 213, 349, 195, FONT_NORMAL_BLACK, COLOR_BLACK);
     }
 
     graphics_reset_dialog();

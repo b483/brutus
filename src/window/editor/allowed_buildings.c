@@ -1,7 +1,6 @@
 #include "allowed_buildings.h"
 #include "building/type.h"
 #include "empire/object.h"
-#include "game/custom_strings.h"
 #include "graphics/button.h"
 #include "graphics/color.h"
 #include "graphics/generic_button.h"
@@ -97,7 +96,7 @@ static generic_button buttons[] = {
     {459, 390, 190, 20, toggle_building, button_none, 78, 0},
 };
 
-static const uint8_t allowed_buildings_strings[MAX_ALLOWED_BUILDINGS][25] = {
+static const uint8_t allowed_buildings_strings[MAX_ALLOWED_BUILDINGS][22] = {
     "Housing",
     "Clear terrain",
     "Road",

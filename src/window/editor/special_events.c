@@ -1,7 +1,6 @@
 #include "special_events.h"
 
 #include "core/random.h"
-#include "game/custom_strings.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -64,7 +63,7 @@ static void draw_foreground(void)
 
     // Invalid year/month combination
     if (scenario.gladiator_revolt.year == 0 && scenario.gladiator_revolt.month == 0) {
-        text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 346, 24, FONT_NORMAL_PLAIN, COLOR_RED);
+        text_draw(common_editor_strings[2], 346, 24, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 
     // random events

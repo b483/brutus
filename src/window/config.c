@@ -27,7 +27,7 @@
 
 #include <string.h>
 
-#define MAX_WIDGETS 16
+#define MAX_WIDGETS 14
 
 #define NUM_VISIBLE_ITEMS 16
 
@@ -84,26 +84,25 @@ typedef struct {
 typedef struct {
     int type;
     int subtype;
-    custom_string_key description;
     const uint8_t *(*get_display_text)(void);
     int enabled;
 } config_widget;
 
 static config_widget all_widgets[MAX_WIDGETS] = {
-    {TYPE_INPUT_BOX, 0, TR_CONFIG_PLAYER_NAME_LABEL, 0, 0},
-    {TYPE_NUMERICAL_DESC, RANGE_DISPLAY_SCALE, TR_CONFIG_DISPLAY_SCALE, 0, 0},
-    {TYPE_NUMERICAL_RANGE, RANGE_DISPLAY_SCALE, 0, display_text_display_scale, 0},
-    {TYPE_NUMERICAL_DESC, RANGE_CURSOR_SCALE, TR_CONFIG_CURSOR_SCALE, 0, 0},
-    {TYPE_NUMERICAL_RANGE, RANGE_CURSOR_SCALE, 0, display_text_cursor_scale, 0},
-    {TYPE_SPACE, 0, 0, 0, 0},
-    {TYPE_HEADER, 0, TR_CONFIG_HEADER_UI_CHANGES, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_SHOW_INTRO_VIDEO, TR_CONFIG_SHOW_INTRO_VIDEO, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_SIDEBAR_INFO, TR_CONFIG_SIDEBAR_INFO, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING, TR_CONFIG_DISABLE_MOUSE_EDGE_SCROLLING, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG, TR_CONFIG_DISABLE_RIGHT_CLICK_MAP_DRAG, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE, TR_CONFIG_VISUAL_FEEDBACK_ON_DELETE, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_ALLOW_CYCLING_TEMPLES, TR_CONFIG_ALLOW_CYCLING_TEMPLES, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_HIGHLIGHT_LEGIONS, TR_CONFIG_HIGHLIGHT_LEGIONS, 0, 0},
+    {TYPE_INPUT_BOX, 0, 0, 0},
+    {TYPE_NUMERICAL_DESC, RANGE_DISPLAY_SCALE, 0, 0},
+    {TYPE_NUMERICAL_RANGE, RANGE_DISPLAY_SCALE, display_text_display_scale, 0},
+    {TYPE_NUMERICAL_DESC, RANGE_CURSOR_SCALE, 0, 0},
+    {TYPE_NUMERICAL_RANGE, RANGE_CURSOR_SCALE, display_text_cursor_scale, 0},
+    {TYPE_SPACE, 0, 0, 0},
+    {TYPE_HEADER, 0, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_SHOW_INTRO_VIDEO, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_SIDEBAR_INFO, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_ALLOW_CYCLING_TEMPLES, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_HIGHLIGHT_LEGIONS, 0, 0},
 };
 
 static numerical_range_widget scale_ranges[] = {
@@ -116,13 +115,6 @@ static generic_button bottom_buttons[NUM_BOTTOM_BUTTONS] = {
     {230, 480, 180, 30, button_reset_defaults, button_none, 0, 0},
     {415, 480, 100, 30, button_close, button_none, 0, 0},
     {520, 480, 100, 30, button_close, button_none, 1, 0},
-};
-
-static custom_string_key bottom_button_texts[] = {
-    TR_BUTTON_CONFIGURE_HOTKEYS,
-    TR_BUTTON_RESET_DEFAULTS,
-    TR_BUTTON_CANCEL,
-    TR_BUTTON_OK
 };
 
 static struct {
@@ -150,6 +142,28 @@ static int config_change_string_basic(config_string_key key);
 static int config_change_display_scale(config_key key);
 static int config_change_cursor_scale(config_key key);
 
+static uint8_t config_title_string[] = "Brutus configuration options";
+
+static uint8_t config_bottom_button_strings[][18] = {
+    "Configure hotkeys", // 0
+    "Reset defaults", // 1
+    "Cancel", // 2
+    "OK", // 3
+};
+
+static uint8_t config_widget_strings[][43] = {
+    "Player name:",
+    "Display scale:",
+    "Cursor scale:",
+    "User interface changes",
+    "Play intro videos",
+    "Extra information in the control panel",
+    "Disable map scrolling on window edge",
+    "Disable right click to drag the map",
+    "Improve visual feedback when clearing land",
+    "Allow building each temple in succession",
+    "Highlight legion on cursor hover",
+};
 
 static void init_config_values(void)
 {
@@ -206,19 +220,6 @@ static void init(void)
     scrollbar_init(&scrollbar, 0, data.num_widgets - NUM_VISIBLE_ITEMS);
 }
 
-static void checkbox_draw_text(int x, int y, int value_key, custom_string_key description)
-{
-    if (data.config_values[value_key].new_value) {
-        text_draw(string_from_ascii("x"), x + 6, y + 3, FONT_NORMAL_BLACK, 0);
-    }
-    text_draw_ellipsized(get_custom_string(description), x + 30, y + 5, CHECKBOX_TEXT_WIDTH, FONT_NORMAL_BLACK, 0);
-}
-
-static void checkbox_draw(int x, int y, int has_focus)
-{
-    button_border_draw(x, y, CHECKBOX_CHECK_SIZE, CHECKBOX_CHECK_SIZE, has_focus);
-}
-
 static void numerical_range_draw(const numerical_range_widget *w, int x, int y, const uint8_t *value_text)
 {
     text_draw(value_text, x, y + 6, FONT_NORMAL_BLACK, 0);
@@ -271,27 +272,34 @@ static void draw_background(void)
     graphics_in_dialog();
     outer_panel_draw(0, 0, 40, 33);
 
-    text_draw_centered(get_custom_string(TR_CONFIG_TITLE), 16, 16, 608, FONT_LARGE_BLACK, 0);
+    text_draw_centered(config_title_string, 16, 16, 608, FONT_LARGE_BLACK, 0);
 
+    int drawn = 0;
     for (int i = 0; i < NUM_VISIBLE_ITEMS && i < data.num_widgets; i++) {
         config_widget *w = data.widgets[i + scrollbar.scroll_position];
         int y = ITEM_Y_OFFSET + ITEM_HEIGHT * i;
         if (w->type == TYPE_HEADER) {
-            text_draw(get_custom_string(w->description), 20, y, FONT_NORMAL_BLACK, 0);
+            text_draw(config_widget_strings[drawn + scrollbar.scroll_position], 20, y, FONT_NORMAL_BLACK, 0);
+            drawn++;
         } else if (w->type == TYPE_CHECKBOX) {
-            checkbox_draw_text(20, y, w->subtype, w->description);
+            if (data.config_values[w->subtype].new_value) {
+                text_draw(string_from_ascii("x"), 20 + 6, y + 3, FONT_NORMAL_BLACK, 0);
+            }
+            text_draw_ellipsized(config_widget_strings[drawn + scrollbar.scroll_position], 50, y + 5, CHECKBOX_TEXT_WIDTH, FONT_NORMAL_BLACK, 0);
+            drawn++;
         } else if (w->type == TYPE_INPUT_BOX) {
-            text_draw(get_custom_string(w->description), 20, y + 6, FONT_NORMAL_BLACK, 0);
+            text_draw(config_widget_strings[drawn + scrollbar.scroll_position], 20, y + 6, FONT_NORMAL_BLACK, 0);
+            drawn++;
         } else if (w->type == TYPE_NUMERICAL_RANGE) {
             numerical_range_draw(&scale_ranges[w->subtype], NUMERICAL_RANGE_X, y, w->get_display_text());
         } else if (w->type == TYPE_NUMERICAL_DESC) {
-            text_draw(get_custom_string(w->description), 20, y + 10, FONT_NORMAL_BLACK, 0);
+            text_draw(config_widget_strings[drawn + scrollbar.scroll_position], 20, y + 10, FONT_NORMAL_BLACK, 0);
+            drawn++;
         }
     }
 
     for (int i = 0; i < NUM_BOTTOM_BUTTONS; i++) {
-        text_draw_centered(get_custom_string(bottom_button_texts[i]),
-            bottom_buttons[i].x, bottom_buttons[i].y + 9, bottom_buttons[i].width, FONT_NORMAL_BLACK, 0);
+        text_draw_centered(config_bottom_button_strings[i], bottom_buttons[i].x, bottom_buttons[i].y + 9, bottom_buttons[i].width, FONT_NORMAL_BLACK, 0);
     }
 
     graphics_reset_dialog();
@@ -305,7 +313,7 @@ static void draw_foreground(void)
         config_widget *w = data.widgets[i + scrollbar.scroll_position];
         int y = ITEM_Y_OFFSET + ITEM_HEIGHT * i;
         if (w->type == TYPE_CHECKBOX) {
-            checkbox_draw(20, y, data.focus_button == i + 1);
+            button_border_draw(20, y, CHECKBOX_CHECK_SIZE, CHECKBOX_CHECK_SIZE, data.focus_button == i + 1);
         } else if (w->type == TYPE_INPUT_BOX) {
             input_box_draw(&player_name_input);
         }

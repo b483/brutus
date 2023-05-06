@@ -4,7 +4,6 @@
 #include "core/encoding.h"
 #include "core/file.h"
 #include "core/image_group.h"
-#include "game/custom_strings.h"
 #include "game/file.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -22,6 +21,8 @@
 #include "sound/music.h"
 #include "widget/scenario_minimap.h"
 #include "window/city.h"
+#include "window/editor/attributes.h"
+#include "window/file_dialog.h"
 #include "window/main_menu.h"
 #include "window/mission_briefing.h"
 
@@ -101,7 +102,7 @@ static void draw_scenario_list(void)
         text_draw(displayable_file, 24, 220 + 16 * i, font, 0);
     }
     if (data.scenarios->file_overflow) {
-        text_draw(get_custom_string(TR_TOO_MANY_FILES), 35, 186, FONT_NORMAL_PLAIN, COLOR_RED);
+        text_draw(too_many_files_string, 35, 186, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 }
 
@@ -132,7 +133,7 @@ static void draw_scenario_info(void)
             toggle_minimap_button.width - 6, toggle_minimap_button.height - 6
         );
 
-        text_draw_centered(get_custom_string(TR_CLIMATE_NORTHERN + scenario.climate), scenario_info_x, 150, scenario_info_width, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw_centered(climate_types_strings[scenario.climate], scenario_info_x, 150, scenario_info_width, FONT_NORMAL_BLACK, COLOR_BLACK);
 
         // map size
         int text_id;

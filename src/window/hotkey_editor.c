@@ -3,7 +3,6 @@
 #include "core/hotkey_config.h"
 #include "core/image_group.h"
 #include "core/string.h"
-#include "game/custom_strings.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
@@ -18,11 +17,6 @@ static void button_close(int save, int param2);
 static generic_button bottom_buttons[] = {
     {192, 228, 120, 24, button_close, button_none, 0, 0},
     {328, 228, 120, 24, button_close, button_none, 1, 0},
-};
-
-static custom_string_key bottom_button_texts[] = {
-    TR_BUTTON_CANCEL,
-    TR_BUTTON_OK
 };
 
 static struct {
@@ -45,6 +39,12 @@ static void init(hotkey_action action, int index,
     data.focus_button = 0;
 }
 
+static uint8_t hotkey_editor_bottom_button_strings[][17] = {
+    "Press new hotkey", // 0
+    "Cancel", // 1
+    "OK", // 2
+};
+
 static void draw_background(void)
 {
     window_draw_underlying_window();
@@ -52,12 +52,11 @@ static void draw_background(void)
     graphics_in_dialog();
     outer_panel_draw(128, 128, 24, 9);
 
-    text_draw_centered(get_custom_string(TR_HOTKEY_EDIT_TITLE), 136, 144, 376, FONT_LARGE_BLACK, 0);
+    text_draw_centered(hotkey_editor_bottom_button_strings[0], 136, 144, 376, FONT_LARGE_BLACK, 0);
 
     for (int i = 0; i < NUM_BOTTOM_BUTTONS; i++) {
         generic_button *btn = &bottom_buttons[i];
-        text_draw_centered(get_custom_string(bottom_button_texts[i]),
-            btn->x, btn->y + 6, btn->width, FONT_NORMAL_BLACK, 0);
+        text_draw_centered(hotkey_editor_bottom_button_strings[i + 1], btn->x, btn->y + 6, btn->width, FONT_NORMAL_BLACK, 0);
     }
 
     graphics_reset_dialog();

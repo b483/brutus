@@ -7,7 +7,6 @@
 #include "figure/formation.h"
 #include "figure/phrase.h"
 #include "figure/trader.h"
-#include "game/custom_strings.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
@@ -137,6 +136,89 @@ static struct {
     building_info_context *context_for_callback;
 } data;
 
+static uint8_t figure_desc_strings[][26] = {
+    "Nobody",
+    "Immigrant",
+    "Emigrant",
+    "Homeless",
+    "Patrician",
+    "Cart pusher",
+    "Citizen",
+    "Barber",
+    "Baths worker",
+    "Doctor",
+    "Surgeon",
+    "Priest",
+    "School child",
+    "Teacher",
+    "Librarian",
+    "Missionary",
+    "Actor",
+    "Gladiator",
+    "Lion tamer",
+    "Charioteer",
+    "Hippodrome horse",
+    "Tax collector",
+    "Engineer",
+    "Fishing boat",
+    "Seagulls",
+    "Shipwreck",
+    "Docker",
+    "Flotsam",
+    "Ballista",
+    "Bolt",
+    "Sentry",
+    "Javelin",
+    "Prefect",
+    "Standard bearer",
+    "Javelin thrower",
+    "Mounted auxiliary",
+    "Legionary",
+    "Market buyer",
+    "Market trader",
+    "Delivery boy",
+    "Warehouseman",
+    "Protestor",
+    "Criminal",
+    "Rioter",
+    "Caravan of merchants from",
+    "Caravan of merchants from",
+    "Trade ship from",
+    "Indigenous native",
+    "Native trader",
+    "Wolf",
+    "Sheep",
+    "Zebra",
+    "Enemy",
+    "Arrow",
+    "Map flag",
+    "Explosion",
+};
+
+static uint8_t enemy_desc_strings[][25] = {
+    "A barbarian warrior",
+    "A Carthaginian soldier",
+    "A Briton",
+    "Celtic warrior",
+    "Pictish warrior",
+    "An Egyptian soldier",
+    "An Etruscan soldier",
+    "A Samnite soldier",
+    "Gaulish warrior",
+    "A warrior of the Helvetii",
+    "A Hun warrior",
+    "A Goth warrior",
+    "A Visigoth warrior",
+    "A Greek soldier",
+    "A Macedonian soldier",
+    "A Numidian warrior",
+    "A soldier from Pergamum",
+    "An Iberian warrior",
+    "A Judaean warrior",
+    "A Seleucid soldier",
+    "Imperial soldier",
+};
+
 static int big_people_image(int type)
 {
     return image_group(GROUP_BIG_PEOPLE) + FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[type] - 1;
@@ -163,7 +245,7 @@ static void draw_trader(building_info_context *c, struct figure_t *f)
         f = &figures[f->leading_figure_id];
     }
     lang_text_draw(65, f->name_id, c->x_offset + 40, c->y_offset + 110, FONT_NORMAL_BROWN);
-    int width = text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 40, c->y_offset + 130, FONT_NORMAL_BROWN, COLOR_BLACK);
+    int width = text_draw(figure_desc_strings[f->type], c->x_offset + 40, c->y_offset + 130, FONT_NORMAL_BROWN, COLOR_BLACK);
     lang_text_draw(21, empire_objects[f->empire_city_id].city_name_id, c->x_offset + 40 + width, c->y_offset + 130, FONT_NORMAL_BROWN);
 
     width = lang_text_draw(129, 1, c->x_offset + 40, c->y_offset + 150, FONT_NORMAL_BROWN);
@@ -252,13 +334,13 @@ static void draw_enemy(building_info_context *c, struct figure_t *f)
 
     lang_text_draw(65, f->name_id, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
 
-    text_draw(get_custom_string(TR_ENEMY_TYPE_BARBARIAN + f->enemy_type), c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+    text_draw(enemy_desc_strings[f->enemy_type], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
 }
 
 static void draw_animal(building_info_context *c, struct figure_t *f)
 {
     image_draw(big_people_image(f->type), c->x_offset + 28, c->y_offset + 112);
-    text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
+    text_draw(figure_desc_strings[f->type], c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
 }
 
 static void draw_cartpusher(building_info_context *c, struct figure_t *f)
@@ -266,7 +348,7 @@ static void draw_cartpusher(building_info_context *c, struct figure_t *f)
     image_draw(big_people_image(f->type), c->x_offset + 28, c->y_offset + 112);
 
     lang_text_draw(65, f->name_id, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
-    int width = text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
+    int width = text_draw(figure_desc_strings[f->type], c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
 
     if (f->action_state != FIGURE_ACTION_DOCKER_IDLING && f->resource_id) {
         int resource = f->resource_id;
@@ -320,7 +402,7 @@ static void draw_market_buyer(building_info_context *c, struct figure_t *f)
     image_draw(big_people_image(f->type), c->x_offset + 28, c->y_offset + 112);
 
     lang_text_draw(65, f->name_id, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
-    int width = text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
+    int width = text_draw(figure_desc_strings[f->type], c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
 
     if (f->action_state == FIGURE_ACTION_MARKET_BUYER_GOING_TO_STORAGE) {
         width += lang_text_draw(129, 17, c->x_offset + 90 + width, c->y_offset + 139, FONT_NORMAL_BROWN);
@@ -350,9 +432,9 @@ static void draw_normal_figure(building_info_context *c, struct figure_t *f)
 
     lang_text_draw(65, f->name_id, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
     if (f->is_caesar_legion_unit) {
-        text_draw(get_custom_string(TR_ENEMY_TYPE_LEGION), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
+        text_draw(enemy_desc_strings[20], c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
     } else {
-        text_draw(get_custom_string(TR_FIGURE_DESC_NOBODY + f->type), c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
+        text_draw(figure_desc_strings[f->type], c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
     }
     if (c->figure.phrase_id >= 0) {
         lang_text_draw_multiline(130, 21 * c->figure.sound_id + c->figure.phrase_id + 1,

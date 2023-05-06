@@ -1,6 +1,5 @@
 #include "edit_invasion.h"
 
-#include "game/custom_strings.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -10,6 +9,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/data.h"
+#include "window/editor/attributes.h"
 #include "window/editor/invasions.h"
 #include "window/editor/map.h"
 #include "window/numeric_input.h"
@@ -44,10 +44,11 @@ static struct {
     int focus_button_id;
 } data;
 
-static void draw_background(void)
-{
-    window_editor_map_draw_all();
-}
+static uint8_t edit_invasion_strings[][13] = {
+    "Type:", // 0
+    "From:", // 1
+    "Target type:", // 2
+};
 
 static void draw_foreground(void)
 {
@@ -58,45 +59,45 @@ static void draw_foreground(void)
     lang_text_draw_centered(44, 22, 0, 116, 384, FONT_LARGE_BLACK);
 
     // Year offset
-    text_draw(get_custom_string(TR_EDITOR_OFFSET_YEAR), 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[0], 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(145, 152, 60, 25, data.focus_button_id == 1);
     text_draw_number_centered_prefix(scenario.invasions[data.id].year_offset, '+', 147, 158, 60, FONT_NORMAL_BLACK);
     lang_text_draw_year(scenario.start_year + scenario.invasions[data.id].year_offset, 215, 158, FONT_NORMAL_BLACK);
 
     // Month
-    text_draw(get_custom_string(TR_EDITOR_MONTH), 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[1], 30, 188, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(145, 182, 60, 25, data.focus_button_id == 2);
     text_draw_number_centered(scenario.invasions[data.id].month + 1, 145, 188, 60, FONT_NORMAL_BLACK);
 
     // Invalid year/month combination
     if (scenario.invasions[data.id].year_offset == 0 && scenario.invasions[data.id].month == 0) {
-        text_draw(get_custom_string(TR_EDITOR_INVALID_YEAR_MONTH), 220, 188, FONT_NORMAL_PLAIN, COLOR_RED);
+        text_draw(common_editor_strings[2], 220, 188, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 
     // Amount
-    text_draw(get_custom_string(TR_EDITOR_AMOUNT), 30, 218, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(common_editor_strings[3], 30, 218, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(145, 212, 60, 25, data.focus_button_id == 3);
     text_draw_number_centered(scenario.invasions[data.id].amount, 145, 218, 60, FONT_NORMAL_BLACK);
 
     // Type
-    text_draw(get_custom_string(TR_EDITOR_INVASION_TYPE), 30, 248, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw(edit_invasion_strings[0], 30, 248, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(145, 242, 200, 25, data.focus_button_id == 4);
-    text_draw_centered(get_custom_string(TR_EDITOR_INVASION_TYPE_NO_INVADERS + scenario.invasions[data.id].type), 145, 248, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw_centered(invasions_enemy_army_type_strings[scenario.invasions[data.id].type], 145, 248, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
 
     if (scenario.invasions[data.id].type != INVASION_TYPE_DISTANT_BATTLE) {
         if (scenario.invasions[data.id].type == INVASION_TYPE_LOCAL_UPRISING || scenario.invasions[data.id].type == INVASION_TYPE_ENEMY_ARMY) {
             if (scenario.invasions[data.id].type == INVASION_TYPE_ENEMY_ARMY) {
                 // Enemy type
                 button_border_draw(145, 272, 200, 25, data.focus_button_id == 5);
-                text_draw_centered(get_custom_string(TR_EDITOR_ENEMY_TYPE_BARBARIANS + scenario.invasions[data.id].enemy_type), 145, 278, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
+                text_draw_centered(invasions_enemy_type_strings[scenario.invasions[data.id].enemy_type], 145, 278, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
             }
             // From
-            text_draw(get_custom_string(TR_EDITOR_INVASION_FROM), 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
+            text_draw(edit_invasion_strings[1], 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
             button_border_draw(145, 302, 200, 25, data.focus_button_id == 6);
             lang_text_draw_centered(35, scenario.invasions[data.id].from, 145, 308, 200, FONT_NORMAL_BLACK);
         }
         // Attack type
-        text_draw(get_custom_string(TR_EDITOR_INVASION_TARGET_TYPE), 30, 338, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw(edit_invasion_strings[2], 30, 338, FONT_NORMAL_BLACK, COLOR_BLACK);
         button_border_draw(145, 332, 200, 25, data.focus_button_id == 7);
         lang_text_draw_centered(36, scenario.invasions[data.id].target_type, 145, 338, 200, FONT_NORMAL_BLACK);
     }
@@ -235,17 +236,17 @@ void window_editor_edit_invasion_show(int id)
 {
     window_type window = {
         WINDOW_EDITOR_EDIT_INVASION,
-        draw_background,
+        window_editor_map_draw_all,
         draw_foreground,
         handle_input,
         0
     };
     data.id = id;
-    for (int i = TR_EDITOR_INVASION_TYPE_NO_INVADERS; i <= TR_EDITOR_INVASION_TYPE_DISTANT_BATTLE; i++) {
-        data.invasion_type_names[i - TR_EDITOR_INVASION_TYPE_NO_INVADERS] = get_custom_string(i);
+    for (int i = 0; i <= INVASION_TYPE_MAX_COUNT; i++) {
+        data.invasion_type_names[i] = invasions_enemy_army_type_strings[i];
     }
-    for (int i = TR_EDITOR_ENEMY_TYPE_BARBARIANS; i <= TR_EDITOR_ENEMY_TYPE_SELEUCIDS; i++) {
-        data.enemy_type_names[i - TR_EDITOR_ENEMY_TYPE_BARBARIANS] = get_custom_string(i);
+    for (int i = 0; i <= ENEMY_TYPE_MAX_COUNT; i++) {
+        data.enemy_type_names[i] = invasions_enemy_type_strings[i];
     }
     window_show(&window);
 }

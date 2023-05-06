@@ -7,7 +7,6 @@
 #include "core/lang.h"
 #include "core/string.h"
 #include "core/time.h"
-#include "game/custom_strings.h"
 #include "game/file.h"
 #include "game/file_io.h"
 #include "game/file_editor.h"
@@ -80,6 +79,8 @@ static input_box file_name_input = { 144, 80, 20, 2, FONT_NORMAL_WHITE, 0, data.
 
 static file_type_data saved_game_data = { "sav", {0} };
 static file_type_data scenario_data = { "map", {0} };
+
+uint8_t too_many_files_string[] = "Too many files. Showing 128.";
 
 static int find_first_file_with_prefix(const char *prefix)
 {
@@ -184,7 +185,7 @@ static void draw_foreground(void)
     }
     if (data.file_list->file_overflow) {
         inner_panel_draw(184, 22, 15, 1);
-        text_draw_centered(get_custom_string(TR_TOO_MANY_FILES), 184, 25, 240, FONT_NORMAL_PLAIN, COLOR_RED);
+        text_draw_centered(too_many_files_string, 184, 25, 240, FONT_NORMAL_PLAIN, COLOR_RED);
     }
     image_buttons_draw(0, 0, image_buttons, 2);
     scrollbar_draw(&scrollbar);

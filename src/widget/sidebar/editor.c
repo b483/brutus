@@ -2,7 +2,6 @@
 
 #include "core/image_group_editor.h"
 #include "editor/tool.h"
-#include "game/custom_strings.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
 #include "graphics/image_button.h"
@@ -50,6 +49,36 @@ static image_button buttons_build[] = {
     {113, 411, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 51, button_build_menu, button_none, MENU_ANIMAL_POINTS, 0, 1, 0, 0, 0},
 };
 
+static uint8_t editor_sidebar_menu_tooltip_strings[][15] = {
+    "Grass",
+    "Small shrub",
+    "Medium shrub",
+    "Large shrub",
+    "Largest shrub",
+    "Water",
+    "Raise land",
+    "Lower land",
+    "Access ramp",
+    "Trees",
+    "Small rock",
+    "Medium rock",
+    "Large rock",
+    "Meadow",
+    "Road",
+    "Earthquake",
+    "Invasion point",
+    "Entry point",
+    "Exit point",
+    "River IN",
+    "River OUT",
+    "Native hut",
+    "Native center",
+    "Native field",
+    "Vacant lot",
+    "Fishing waters",
+    "Herd point",
+};
+
 static void draw_buttons(void)
 {
     image_buttons_draw(sidebar_common_get_x_offset_expanded(), TOP_MENU_HEIGHT, buttons_build, sizeof(buttons_build) / sizeof(image_button));
@@ -62,7 +91,7 @@ static void draw_status(void)
     int text_offset = x_offset + 6;
 
     int selected_tool = editor_tool_type();
-    text_draw(get_custom_string(selected_tool + TR_EDITOR_SIDEBAR_BUTTON_GRASS_TOOLTIP), text_offset, 178, FONT_NORMAL_WHITE, 0);
+    text_draw(editor_sidebar_menu_tooltip_strings[selected_tool], text_offset, 178, FONT_NORMAL_WHITE, 0);
     switch (selected_tool) {
         case TOOL_GRASS:
         case TOOL_SMALL_SHRUB:

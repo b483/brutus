@@ -10,7 +10,6 @@
 #include "editor/editor.h"
 #include "figure/type.h"
 #include "game/animation.h"
-#include "game/custom_strings.h"
 #include "game/file_editor.h"
 #include "game/settings.h"
 #include "game/speed.h"
@@ -37,7 +36,6 @@ static encoding_type update_encoding(void)
     encoding_type encoding = encoding_determine();
     log_info("Detected encoding:", 0, encoding);
     font_set_encoding();
-    custom_strings_load();
     return encoding;
 }
 

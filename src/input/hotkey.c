@@ -162,13 +162,13 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_HOSPITAL;
             break;
-        case HOTKEY_BUILD_SMALL_TEMPLES:
+        case HOTKEY_BUILD_SMALL_TEMPLE_CERES:
             def->action = &data.hotkey_state.building;
-            def->value = BUILDING_MENU_SMALL_TEMPLES;
+            def->value = BUILDING_SMALL_TEMPLE_CERES;
             break;
-        case HOTKEY_BUILD_LARGE_TEMPLES:
+        case HOTKEY_BUILD_LARGE_TEMPLE_CERES:
             def->action = &data.hotkey_state.building;
-            def->value = BUILDING_MENU_LARGE_TEMPLES;
+            def->value = BUILDING_LARGE_TEMPLE_CERES;
             break;
         case HOTKEY_BUILD_ORACLE:
             def->action = &data.hotkey_state.building;

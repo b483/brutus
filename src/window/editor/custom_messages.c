@@ -2,7 +2,6 @@
 
 #include "core/image_group_editor.h"
 #include "core/string.h"
-#include "game/custom_strings.h"
 #include "game/resource.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
@@ -167,12 +166,19 @@ static int focus_button_id_attr;
 static int focus_button_id_title;
 static int focus_button_id_text;
 
+uint8_t custom_messages_strings[][19] = {
+    "Messages to player", // 0
+    "Attributes", // 1
+    "Title", // 2
+    "Text", // 3
+};
+
 static void draw_foreground(void)
 {
     graphics_in_dialog();
 
     outer_panel_draw(-320, 0, 77, 32);
-    text_draw_centered(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_HEADER), -320, 16, 1232, FONT_LARGE_BLACK, COLOR_BLACK);
+    text_draw_centered(custom_messages_strings[0], -320, 16, 1232, FONT_LARGE_BLACK, COLOR_BLACK);
 
     for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
         int x, y;
@@ -191,7 +197,7 @@ static void draw_foreground(void)
             int width = lang_text_draw(25, scenario.editor_custom_messages[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
             lang_text_draw_year(scenario.start_year + scenario.editor_custom_messages[i].year, x + width + 6, y + 6, FONT_NORMAL_BLACK);
         } else {
-            text_draw_centered(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_ATTRIBUTES), x, y + 6, 125, FONT_NORMAL_BLACK, COLOR_BLACK);
+            text_draw_centered(custom_messages_strings[1], x, y + 6, 125, FONT_NORMAL_BLACK, COLOR_BLACK);
         }
         int max_preview_length = 12;
         button_border_draw(x + 130, y, 125, 25, focus_button_id_title == i + 1);
@@ -206,7 +212,7 @@ static void draw_foreground(void)
             }
             text_draw(title_preview, x + 138, y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
         } else {
-            text_draw_centered(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_TITLE), x + 130, y + 6, 125, FONT_NORMAL_BLACK, COLOR_BLACK);
+            text_draw_centered(custom_messages_strings[2], x + 130, y + 6, 125, FONT_NORMAL_BLACK, COLOR_BLACK);
         }
         button_border_draw(x + 260, y, 125, 25, focus_button_id_text == i + 1);
         if (scenario.editor_custom_messages[i].text[0] != '\0') {
@@ -220,7 +226,7 @@ static void draw_foreground(void)
             }
             text_draw(text_preview, x + 268, y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
         } else {
-            text_draw_centered(get_custom_string(TR_EDITOR_CUSTOM_MESSAGE_TEXT), x + 260, y + 6, 125, FONT_NORMAL_BLACK, COLOR_BLACK);
+            text_draw_centered(custom_messages_strings[3], x + 260, y + 6, 125, FONT_NORMAL_BLACK, COLOR_BLACK);
         }
     }
 
