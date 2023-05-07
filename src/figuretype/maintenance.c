@@ -22,7 +22,6 @@ void figure_engineer_action(struct figure_t *f)
 
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
-    f->max_roam_length = 640;
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
@@ -61,7 +60,7 @@ void figure_engineer_action(struct figure_t *f)
         case FIGURE_ACTION_ENGINEER_ROAMING:
             f->is_ghost = 0;
             f->roam_length++;
-            if (f->roam_length >= f->max_roam_length) {
+            if (f->roam_length >= figure_properties[f->type].max_roam_length) {
                 int x_road, y_road;
                 if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
                     f->action_state = FIGURE_ACTION_ENGINEER_RETURNING;
@@ -162,7 +161,6 @@ void figure_prefect_action(struct figure_t *f)
 
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
-    f->max_roam_length = 640;
 
     figure_image_increase_offset(f, 12);
 
@@ -201,7 +199,7 @@ void figure_prefect_action(struct figure_t *f)
             struct figure_t *target = melee_unit__set_closest_target(f);
             if (target && calc_maximum_distance(f->x, f->y, b->x, b->y) < PREFECT_LEASH_RANGE) {
                 f->terrain_usage = TERRAIN_USAGE_ANY;
-                f->roam_length = f->max_roam_length;
+                f->roam_length = figure_properties[f->type].max_roam_length;
                 f->prefect_recent_guard_duty = 1;
                 figure_movement_move_ticks(f, f->speed_multiplier);
                 if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
@@ -213,7 +211,7 @@ void figure_prefect_action(struct figure_t *f)
                 break;
             }
             f->roam_length++;
-            if (f->roam_length >= f->max_roam_length) {
+            if (f->roam_length >= figure_properties[f->type].max_roam_length) {
                 f->action_state = FIGURE_ACTION_PREFECT_RETURNING;
             }
             figure_movement_roam_ticks(f, f->speed_multiplier);

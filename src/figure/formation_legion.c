@@ -130,7 +130,7 @@ static int destination_is_clear(struct figure_t *legion_unit, int target_grid_of
     // check if any legion unit is heading towards the destination
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *f = &figures[i];
-        if (!figure_is_dead(f) && f->is_player_legion_unit && f->id != legion_unit->id) {
+        if (!figure_is_dead(f) && figure_properties[f->type].is_player_legion_unit && f->id != legion_unit->id) {
             if (f->destination_grid_offset == target_grid_offset) {
                 if (f->formation_id == legion_unit->formation_id) { // same formation, stationary units may not have received the command to move yet
                     if (f->action_state == FIGURE_ACTION_SOLDIER_GOING_TO_STANDARD) {
@@ -242,7 +242,7 @@ int formation_legion_at_grid_offset(int grid_offset)
     int figure_id = map_figures.items[grid_offset];
     while (figure_id) {
         struct figure_t *f = &figures[figure_id];
-        if (f->is_player_legion_unit || f->type == FIGURE_FORT_STANDARD) {
+        if (figure_properties[f->type].is_player_legion_unit || f->type == FIGURE_FORT_STANDARD) {
             return f->formation_id;
         }
         figure_id = f->next_figure_id_on_same_tile;

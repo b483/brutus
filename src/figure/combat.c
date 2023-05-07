@@ -29,33 +29,33 @@ enum {
 
 int is_valid_target_for_player_unit(struct figure_t *target)
 {
-    return target->is_criminal_unit
-        || (target->is_native_unit && target->action_state == FIGURE_ACTION_NATIVE_ATTACKING)
-        || target->is_herd_animal
-        || target->is_enemy_unit
-        || target->is_caesar_legion_unit;
+    return figure_properties[target->type].is_criminal_unit
+        || (figure_properties[target->type].is_native_unit && target->action_state == FIGURE_ACTION_NATIVE_ATTACKING)
+        || figure_properties[target->type].is_herd_animal
+        || figure_properties[target->type].is_enemy_unit
+        || figure_properties[target->type].is_caesar_legion_unit;
 }
 
 int is_valid_target_for_enemy_unit(struct figure_t *target)
 {
-    return target->is_unarmed_civilian_unit
-        || target->is_friendly_armed_unit
-        || target->is_player_legion_unit
-        || target->is_criminal_unit
-        || target->is_empire_trader
-        || (target->is_native_unit && target->action_state != FIGURE_ACTION_NATIVE_ATTACKING)
+    return figure_properties[target->type].is_unarmed_civilian_unit
+        || figure_properties[target->type].is_friendly_armed_unit
+        || figure_properties[target->type].is_player_legion_unit
+        || figure_properties[target->type].is_criminal_unit
+        || figure_properties[target->type].is_empire_trader
+        || (figure_properties[target->type].is_native_unit && target->action_state != FIGURE_ACTION_NATIVE_ATTACKING)
         || target->type == FIGURE_WOLF
-        || target->is_caesar_legion_unit;
+        || figure_properties[target->type].is_caesar_legion_unit;
 }
 
 static int is_valid_target_for_caesar_unit(struct figure_t *target)
 {
-    return target->is_friendly_armed_unit
-        || target->is_player_legion_unit
-        || target->is_criminal_unit
-        || (target->is_native_unit && target->action_state != FIGURE_ACTION_NATIVE_ATTACKING)
+    return figure_properties[target->type].is_friendly_armed_unit
+        || figure_properties[target->type].is_player_legion_unit
+        || figure_properties[target->type].is_criminal_unit
+        || (figure_properties[target->type].is_native_unit && target->action_state != FIGURE_ACTION_NATIVE_ATTACKING)
         || target->type == FIGURE_WOLF
-        || target->is_enemy_unit;
+        || figure_properties[target->type].is_enemy_unit;
 }
 
 static int figure__targeted_by_melee_unit(struct figure_t *f, struct figure_t *melee_targeter)
@@ -117,7 +117,7 @@ struct figure_t *melee_unit__set_closest_target(struct figure_t *f)
                     continue;
                 }
             }
-            if (f->is_friendly_armed_unit || f->is_player_legion_unit) {
+            if (figure_properties[f->type].is_friendly_armed_unit || figure_properties[f->type].is_player_legion_unit) {
                 if (is_valid_target_for_player_unit(potential_target)) {
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
@@ -130,13 +130,13 @@ struct figure_t *melee_unit__set_closest_target(struct figure_t *f)
                     continue;
                 }
 
-            } else if (f->is_enemy_unit) {
+            } else if (figure_properties[f->type].is_enemy_unit) {
                 if (is_valid_target_for_enemy_unit(potential_target)) {
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
                     continue;
                 }
-            } else if (f->is_caesar_legion_unit) {
+            } else if (figure_properties[f->type].is_caesar_legion_unit) {
                 if (is_valid_target_for_caesar_unit(potential_target)) {
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
@@ -174,7 +174,7 @@ static void engage_in_melee_combat(struct figure_t *attacker, struct figure_t *o
     attacker->action_state_before_attack = attacker->action_state;
     attacker->action_state = FIGURE_ACTION_ATTACK;
     // if ranged unit engages in melee combat, remove it from its (previous) target's ranged targeter list
-    if (attacker->max_range && attacker->target_figure_id) {
+    if (figure_properties[attacker->type].max_range && attacker->target_figure_id) {
         struct figure_t *target_of_ranged_unit = &figures[attacker->target_figure_id];
         figure__remove_ranged_targeter_from_list(target_of_ranged_unit, attacker);
     }
@@ -197,7 +197,7 @@ static void engage_in_melee_combat(struct figure_t *attacker, struct figure_t *o
         opponent->action_state_before_attack = opponent->action_state;
         opponent->action_state = FIGURE_ACTION_ATTACK;
         // if opponent ranged unit engaged in melee combat, remove it from its (previous) target's ranged targeter list
-        if (opponent->max_range && opponent->target_figure_id) {
+        if (figure_properties[opponent->type].max_range && opponent->target_figure_id) {
             struct figure_t *target_of_opponent_ranged_unit = &figures[opponent->target_figure_id];
             figure__remove_ranged_targeter_from_list(target_of_opponent_ranged_unit, opponent);
         }
@@ -227,7 +227,7 @@ void figure_combat_attack_figure_at(struct figure_t *attacker, int grid_offset)
         && !figure_is_dead(opponent)
         && opponent->is_targetable
         && opponent->num_melee_combatants < MAX_MELEE_COMBATANTS_PER_UNIT) {
-            if (attacker->is_friendly_armed_unit || attacker->is_player_legion_unit) {
+            if (figure_properties[attacker->type].is_friendly_armed_unit || figure_properties[attacker->type].is_player_legion_unit) {
                 if (is_valid_target_for_player_unit(opponent)) {
                     engage_in_melee_combat(attacker, opponent);
                     return;
@@ -237,12 +237,12 @@ void figure_combat_attack_figure_at(struct figure_t *attacker, int grid_offset)
                     engage_in_melee_combat(attacker, opponent);
                     return;
                 }
-            } else if (attacker->is_enemy_unit) {
+            } else if (figure_properties[attacker->type].is_enemy_unit) {
                 if (is_valid_target_for_enemy_unit(opponent)) {
                     engage_in_melee_combat(attacker, opponent);
                     return;
                 }
-            } else if (attacker->is_caesar_legion_unit) {
+            } else if (figure_properties[attacker->type].is_caesar_legion_unit) {
                 if (is_valid_target_for_caesar_unit(opponent)) {
                     engage_in_melee_combat(attacker, opponent);
                     return;
@@ -271,13 +271,13 @@ static int determine_attack_direction(int dir1, int dir2)
 
 static void hit_opponent(struct figure_t *attacker, struct figure_t *opponent)
 {
-    if (opponent->is_unarmed_civilian_unit || opponent->is_criminal_unit) {
+    if (figure_properties[opponent->type].is_unarmed_civilian_unit || figure_properties[opponent->type].is_criminal_unit) {
         attacker->attack_image_offset = 12;
     } else {
         attacker->attack_image_offset = 0;
     }
-    int attacker_attack_value = attacker->melee_attack_value;
-    int opponent_defense_value = opponent->melee_defense_value;
+    int attacker_attack_value = figure_properties[attacker->type].melee_attack_value;
+    int opponent_defense_value = figure_properties[opponent->type].melee_defense_value;
 
     switch (determine_attack_direction(attacker->attack_direction, opponent->attack_direction)) {
         case SIDE_ATTACK:
@@ -298,7 +298,7 @@ static void hit_opponent(struct figure_t *attacker, struct figure_t *opponent)
         net_attack = 0;
     }
     opponent->damage += net_attack;
-    if (opponent->damage <= opponent->max_damage) {
+    if (opponent->damage <= figure_properties[opponent->type].max_damage) {
         figure_play_hit_sound(attacker->type);
     } else {
         opponent->action_state = FIGURE_ACTION_CORPSE;
@@ -459,7 +459,7 @@ static int missile_trajectory_clear(struct figure_t *shooter, struct figure_t *t
 
 int set_missile_target(struct figure_t *shooter, map_point *tile, int limit_max_targeters)
 {
-    int closest_target_distance = shooter->max_range;
+    int closest_target_distance = figure_properties[shooter->type].max_range;
     struct figure_t *closest_eligible_target = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *potential_target = &figures[i];
@@ -487,25 +487,25 @@ int set_missile_target(struct figure_t *shooter, map_point *tile, int limit_max_
                     continue;
                 }
             }
-            if (shooter->is_friendly_armed_unit || shooter->is_player_legion_unit) {
+            if (figure_properties[shooter->type].is_friendly_armed_unit || figure_properties[shooter->type].is_player_legion_unit) {
                 if (is_valid_target_for_player_unit(potential_target)) {
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
                     continue;
                 }
-            } else if (shooter->is_enemy_unit) {
-                if (potential_target->is_unarmed_civilian_unit
-                || potential_target->is_friendly_armed_unit
-                || potential_target->is_player_legion_unit
-                || potential_target->is_criminal_unit
-                || potential_target->is_empire_trader
+            } else if (figure_properties[shooter->type].is_enemy_unit) {
+                if (figure_properties[potential_target->type].is_unarmed_civilian_unit
+                || figure_properties[potential_target->type].is_friendly_armed_unit
+                || figure_properties[potential_target->type].is_player_legion_unit
+                || figure_properties[potential_target->type].is_criminal_unit
+                || figure_properties[potential_target->type].is_empire_trader
                 || potential_target->type == FIGURE_NATIVE_TRADER // don't target native fighters as to not get stuck in place while they respawn
                 || potential_target->type == FIGURE_WOLF
-                || potential_target->is_caesar_legion_unit) {
+                || figure_properties[potential_target->type].is_caesar_legion_unit) {
                     // skip (closer) unarmed target if already targeting a dangerous foe
-                    if ((potential_target->is_unarmed_civilian_unit || potential_target->is_empire_trader || potential_target->type == FIGURE_NATIVE_TRADER)
+                    if ((figure_properties[potential_target->type].is_unarmed_civilian_unit || figure_properties[potential_target->type].is_empire_trader || potential_target->type == FIGURE_NATIVE_TRADER)
                         && closest_eligible_target
-                        && (closest_eligible_target->is_friendly_armed_unit || closest_eligible_target->is_player_legion_unit || closest_eligible_target->type == FIGURE_WOLF || closest_eligible_target->is_caesar_legion_unit)) {
+                        && (figure_properties[closest_eligible_target->type].is_friendly_armed_unit || figure_properties[closest_eligible_target->type].is_player_legion_unit || closest_eligible_target->type == FIGURE_WOLF || figure_properties[closest_eligible_target->type].is_caesar_legion_unit)) {
                         continue;
                     }
                     closest_target_distance = potential_target_distance;

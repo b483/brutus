@@ -15,7 +15,6 @@ void figure_indigenous_native_action(struct figure_t *f)
     struct building_t *b = &all_buildings[f->building_id];
     f->terrain_usage = TERRAIN_USAGE_ANY;
     f->use_cross_country = 0;
-    f->max_roam_length = 800;
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }

@@ -1,7 +1,7 @@
 #include "clone.h"
 
 #include "building/building.h"
-#include "figure/type.h"
+#include "figure/figure.h"
 #include "map/building.h"
 #include "map/property.h"
 #include "map/sprite.h"

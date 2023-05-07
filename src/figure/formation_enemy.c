@@ -348,7 +348,7 @@ static void mars_kill_enemies(void)
         if (figure_is_dead(f)) {
             continue;
         }
-        if ((f->is_enemy_unit && f->type != FIGURE_ENEMY_GLADIATOR) || f->is_caesar_legion_unit) {
+        if ((figure_properties[f->type].is_enemy_unit && f->type != FIGURE_ENEMY_GLADIATOR) || figure_properties[f->type].is_caesar_legion_unit) {
             f->action_state = FIGURE_ACTION_CORPSE;
             clear_targeting_on_unit_death(f);
             refresh_formation_figure_indexes(f);
@@ -509,7 +509,7 @@ static void update_enemy_formation(struct formation_t *m, int *roman_distance)
         struct figure_t *f = &figures[m->figures[n]];
         if (f->action_state == FIGURE_ACTION_ATTACK) {
             struct figure_t *opponent = &figures[f->target_figure_id];
-            if (!figure_is_dead(opponent) && opponent->is_player_legion_unit) {
+            if (!figure_is_dead(opponent) && figure_properties[opponent->type].is_player_legion_unit) {
                 m->recent_fight = 6;
             }
         }

@@ -16,7 +16,7 @@ static void roamer_action(struct figure_t *f, int num_ticks)
         case FIGURE_ACTION_ROAMING:
             f->is_ghost = 0;
             f->roam_length++;
-            if (f->roam_length >= f->max_roam_length) {
+            if (f->roam_length >= figure_properties[f->type].max_roam_length) {
                 int x, y;
                 struct building_t *b = &all_buildings[f->building_id];
                 if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x, &y)) {
@@ -45,7 +45,6 @@ static void culture_action(struct figure_t *f, int group)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
-    f->max_roam_length = 384;
     struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
@@ -64,7 +63,6 @@ void figure_school_child_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
-    f->max_roam_length = 96;
     struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_SCHOOL) {
         f->state = FIGURE_STATE_DEAD;
@@ -74,7 +72,7 @@ void figure_school_child_action(struct figure_t *f)
         case FIGURE_ACTION_ROAMING:
             f->is_ghost = 0;
             f->roam_length++;
-            if (f->roam_length >= f->max_roam_length) {
+            if (f->roam_length >= figure_properties[f->type].max_roam_length) {
                 f->state = FIGURE_STATE_DEAD;
             }
             figure_movement_roam_ticks(f, 2);
@@ -112,7 +110,6 @@ void figure_missionary_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
-    f->max_roam_length = 192;
     struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
@@ -126,7 +123,6 @@ void figure_patrician_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
-    f->max_roam_length = 128;
     if (all_buildings[f->building_id].state != BUILDING_STATE_IN_USE) {
         f->state = FIGURE_STATE_DEAD;
     }
@@ -139,7 +135,6 @@ void figure_labor_seeker_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
-    f->max_roam_length = 384;
     struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id2 != f->id) {
         f->state = FIGURE_STATE_DEAD;
@@ -153,7 +148,6 @@ void figure_market_trader_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
-    f->max_roam_length = 384;
     struct building_t *market = &all_buildings[f->building_id];
     if (market->state != BUILDING_STATE_IN_USE || market->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
@@ -164,7 +158,7 @@ void figure_market_trader_action(struct figure_t *f)
         int stock = building_market_get_max_food_stock(market) +
             building_market_get_max_goods_stock(market);
         if (f->roam_length >= 96 && stock <= 0) {
-            f->roam_length = f->max_roam_length;
+            f->roam_length = figure_properties[f->type].max_roam_length;
         }
     }
     roamer_action(f, 1);
@@ -177,7 +171,6 @@ void figure_tax_collector_action(struct figure_t *f)
 
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
-    f->max_roam_length = 512;
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
@@ -216,7 +209,7 @@ void figure_tax_collector_action(struct figure_t *f)
         case FIGURE_ACTION_TAX_COLLECTOR_ROAMING:
             f->is_ghost = 0;
             f->roam_length++;
-            if (f->roam_length >= f->max_roam_length) {
+            if (f->roam_length >= figure_properties[f->type].max_roam_length) {
                 int x_road, y_road;
                 if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
                     f->action_state = FIGURE_ACTION_TAX_COLLECTOR_RETURNING;

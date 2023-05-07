@@ -111,10 +111,10 @@ static int draw_figure(int x_view, int y_view, int grid_offset)
         int figure_id = map_figures.items[grid_offset];
         while (figure_id) {
             struct figure_t *f = &figures[figure_id];
-            if (f->is_player_legion_unit) {
+            if (figure_properties[f->type].is_player_legion_unit) {
                 color_type = formation_get_selected() == f->formation_id ? FIGURE_COLOR_SELECTED_SOLDIER : FIGURE_COLOR_SOLDIER;
                 break;
-            } else if (f->is_enemy_unit || f->is_caesar_legion_unit || (f->is_native_unit && f->action_state == FIGURE_ACTION_NATIVE_ATTACKING)) {
+            } else if (figure_properties[f->type].is_enemy_unit || figure_properties[f->type].is_caesar_legion_unit || (figure_properties[f->type].is_native_unit && f->action_state == FIGURE_ACTION_NATIVE_ATTACKING)) {
                 color_type = FIGURE_COLOR_ENEMY;
                 break;
             } else if (f->type == FIGURE_WOLF) {

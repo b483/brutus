@@ -720,7 +720,7 @@ void figure_phrase_determine(struct figure_t *f)
     }
     f->phrase_id = 0;
 
-    if (f->is_enemy_unit || f->is_caesar_legion_unit || f->is_native_unit) {
+    if (figure_properties[f->type].is_enemy_unit || figure_properties[f->type].is_caesar_legion_unit || figure_properties[f->type].is_native_unit) {
         f->phrase_id = -1;
         return;
     }

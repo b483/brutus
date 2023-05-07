@@ -4,7 +4,6 @@
 #include "core/buffer.h"
 #include "game/orientation.h"
 #include "figure/figure.h"
-#include "figure/type.h"
 
 #define MAX_FORMATIONS 50
 

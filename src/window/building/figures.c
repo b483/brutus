@@ -137,86 +137,86 @@ static struct {
 } data;
 
 static uint8_t figure_desc_strings[][26] = {
-    "Nobody",
-    "Immigrant",
-    "Emigrant",
-    "Homeless",
-    "Patrician",
-    "Cart pusher",
-    "Citizen",
-    "Barber",
-    "Baths worker",
-    "Doctor",
-    "Surgeon",
-    "Priest",
-    "School child",
-    "Teacher",
-    "Librarian",
-    "Missionary",
-    "Actor",
-    "Gladiator",
-    "Lion tamer",
-    "Charioteer",
-    "Hippodrome horse",
-    "Tax collector",
-    "Engineer",
-    "Fishing boat",
-    "Seagulls",
-    "Shipwreck",
-    "Docker",
-    "Flotsam",
-    "Ballista",
-    "Bolt",
-    "Sentry",
-    "Javelin",
-    "Prefect",
-    "Standard bearer",
-    "Javelin thrower",
-    "Mounted auxiliary",
-    "Legionary",
-    "Market buyer",
-    "Market trader",
-    "Delivery boy",
-    "Warehouseman",
-    "Protestor",
-    "Criminal",
-    "Rioter",
-    "Caravan of merchants from",
-    "Caravan of merchants from",
-    "Trade ship from",
-    "Indigenous native",
-    "Native trader",
-    "Wolf",
-    "Sheep",
-    "Zebra",
-    "Enemy",
-    "Arrow",
-    "Map flag",
-    "Explosion",
+    "Nobody", // 1
+    "Immigrant", // 2
+    "Emigrant", // 3
+    "Homeless", // 4
+    "Patrician", // 5
+    "Cart pusher", // 6
+    "Citizen", // 7
+    "Barber", // 8
+    "Baths worker", // 9
+    "Doctor", // 10
+    "Surgeon", // 11
+    "Priest", // 12
+    "School child", // 13
+    "Teacher", // 14
+    "Librarian", // 15
+    "Missionary", // 16
+    "Actor", // 17
+    "Gladiator", // 18
+    "Lion tamer", // 19
+    "Charioteer", // 20
+    "Hippodrome horse", // 21
+    "Tax collector", // 22
+    "Engineer", // 23
+    "Fishing boat", // 24
+    "Seagulls", // 25
+    "Shipwreck", // 26
+    "Docker", // 27
+    "Flotsam", // 28
+    "Ballista", // 29
+    "Bolt", // 30
+    "Sentry", // 31
+    "Javelin", // 32
+    "Prefect", // 33
+    "Standard bearer", // 34
+    "Javelin thrower", // 35
+    "Mounted auxiliary", // 36
+    "Legionary", // 37
+    "Market buyer", // 38
+    "Market trader", // 39
+    "Delivery boy", // 40
+    "Warehouseman", // 41
+    "Protestor", // 42
+    "Criminal", // 43
+    "Rioter", // 44
+    "Caravan of merchants from", // 45
+    "Caravan of merchants from", // 46
+    "Trade ship from", // 47
+    "Indigenous native", // 48
+    "Native trader", // 49
+    "Wolf", // 50
+    "Sheep", // 51
+    "Zebra", // 52
+    "Enemy", // 53
+    "Arrow", // 54
+    "Map flag", // 55
+    "Explosion", // 56
 };
 
 static uint8_t enemy_desc_strings[][25] = {
-    "A barbarian warrior",
-    "A Carthaginian soldier",
-    "A Briton",
-    "Celtic warrior",
-    "Pictish warrior",
-    "An Egyptian soldier",
-    "An Etruscan soldier",
-    "A Samnite soldier",
-    "Gaulish warrior",
-    "A warrior of the Helvetii",
-    "A Hun warrior",
-    "A Goth warrior",
-    "A Visigoth warrior",
-    "A Greek soldier",
-    "A Macedonian soldier",
-    "A Numidian warrior",
-    "A soldier from Pergamum",
-    "An Iberian warrior",
-    "A Judaean warrior",
-    "A Seleucid soldier",
-    "Imperial soldier",
+    "A barbarian warrior", // 0
+    "A Carthaginian soldier", // 1
+    "A Briton", // 2
+    "Celtic warrior", // 3
+    "Pictish warrior", // 4
+    "An Egyptian soldier", // 5
+    "An Etruscan soldier", // 6
+    "A Samnite soldier", // 7
+    "Gaulish warrior", // 8
+    "A warrior of the Helvetii", // 9
+    "A Hun warrior", // 10
+    "A Goth warrior", // 11
+    "A Visigoth warrior", // 12
+    "A Greek soldier", // 13
+    "A Macedonian soldier", // 14
+    "A Numidian warrior", // 15
+    "A soldier from Pergamum", // 16
+    "An Iberian warrior", // 17
+    "A Judaean warrior", // 18
+    "A Seleucid soldier", // 19
+    "Imperial soldier", // 20
 };
 
 static int big_people_image(int type)
@@ -334,7 +334,11 @@ static void draw_enemy(building_info_context *c, struct figure_t *f)
 
     lang_text_draw(65, f->name_id, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
 
-    text_draw(enemy_desc_strings[f->enemy_type], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+    if (f->type == FIGURE_ENEMY_BARBARIAN_SWORDSMAN) {
+        text_draw(enemy_desc_strings[0], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+    } else {
+        text_draw(enemy_desc_strings[(f->type - FIGURE_ENEMY_BARBARIAN_SWORDSMAN) / 2 + 1], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+    }
 }
 
 static void draw_animal(building_info_context *c, struct figure_t *f)
@@ -431,7 +435,7 @@ static void draw_normal_figure(building_info_context *c, struct figure_t *f)
     image_draw(image_id, c->x_offset + 28, c->y_offset + 112);
 
     lang_text_draw(65, f->name_id, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
-    if (f->is_caesar_legion_unit) {
+    if (figure_properties[f->type].is_caesar_legion_unit) {
         text_draw(enemy_desc_strings[20], c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
     } else {
         text_draw(figure_desc_strings[f->type], c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
@@ -447,11 +451,11 @@ static void draw_figure_info(building_info_context *c, int figure_id)
     button_border_draw(c->x_offset + 24, c->y_offset + 102, BLOCK_SIZE * (c->width_blocks - 3), 138, 0);
 
     struct figure_t *f = &figures[figure_id];
-    if (f->is_empire_trader) {
+    if (figure_properties[f->type].is_empire_trader) {
         draw_trader(c, f);
-    } else if (f->is_enemy_unit) {
+    } else if (figure_properties[f->type].is_enemy_unit) {
         draw_enemy(c, f);
-    } else if (f->type == FIGURE_SHIPWRECK || f->is_herd_animal) {
+    } else if (f->type == FIGURE_SHIPWRECK || figure_properties[f->type].is_herd_animal) {
         draw_animal(c, f);
     } else if (f->type == FIGURE_CART_PUSHER || f->type == FIGURE_WAREHOUSEMAN || f->type == FIGURE_DOCKER) {
         draw_cartpusher(c, f);

@@ -76,18 +76,18 @@ void figure_ballista_action(struct figure_t *f)
                 map_point tile;
                 if (set_missile_target(f, &tile, 1) || set_missile_target(f, &tile, 0)) {
                     f->action_state = FIGURE_ACTION_BALLISTA_FIRING;
-                    f->wait_ticks_missile = f->missile_delay;
+                    f->wait_ticks_missile = figure_properties[f->type].missile_delay;
                 }
             }
             break;
         case FIGURE_ACTION_BALLISTA_FIRING:
             f->wait_ticks_missile++;
-            if (f->wait_ticks_missile > f->missile_delay) {
+            if (f->wait_ticks_missile > figure_properties[f->type].missile_delay) {
                 map_point tile;
                 if (set_missile_target(f, &tile, 1) || set_missile_target(f, &tile, 0)) {
                     f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
                     f->wait_ticks_missile = 0;
-                    figure_create_missile(f, &tile, f->missile_type);
+                    figure_create_missile(f, &tile, figure_properties[f->type].missile_type);
                     sound_effect_play(SOUND_EFFECT_BALLISTA_SHOOT);
                 } else {
                     f->action_state = FIGURE_ACTION_BALLISTA_CREATED;
@@ -156,10 +156,10 @@ static int tower_sentry_shooting(struct figure_t *f)
             f->wait_ticks_missile++;
             f->progress_on_tile = 15; // align to wall
             f->image_id = image_group(GROUP_FIGURE_TOWER_SENTRY) + figure_image_direction(f) + 96 + 8 * TOWER_SENTRY_FIRING_OFFSETS[f->wait_ticks_missile / 2];
-            if (f->wait_ticks_missile > f->missile_delay) {
+            if (f->wait_ticks_missile > figure_properties[f->type].missile_delay) {
                 f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
                 f->wait_ticks_missile = 0;
-                figure_create_missile(f, &tile, f->missile_type);
+                figure_create_missile(f, &tile, figure_properties[f->type].missile_type);
             }
             return 1;
         }

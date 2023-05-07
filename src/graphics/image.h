@@ -2,7 +2,6 @@
 #define GRAPHICS_IMAGE_H
 
 #include "core/image.h"
-#include "figure/type.h"
 #include "graphics/color.h"
 #include "graphics/font.h"
 

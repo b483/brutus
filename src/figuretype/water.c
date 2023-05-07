@@ -53,7 +53,6 @@ void figure_create_flotsam(void)
 
 void figure_flotsam_action(struct figure_t *f)
 {
-    f->is_boat = 2;
     if (!scenario_map_has_river_exit()) {
         return;
     }
@@ -139,7 +138,6 @@ void figure_shipwreck_action(struct figure_t *f)
 {
     f->is_ghost = 0;
     f->height_adjusted_ticks = 0;
-    f->is_boat = 1;
     figure_image_increase_offset(f, 128);
     if (f->wait_ticks < 1000) {
         map_figure_delete(f);
@@ -184,7 +182,6 @@ void figure_fishing_boat_action(struct figure_t *f)
         }
     }
     f->is_ghost = 0;
-    f->is_boat = 1;
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     switch (f->action_state) {

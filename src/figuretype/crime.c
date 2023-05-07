@@ -193,7 +193,6 @@ void figure_rioter_action(struct figure_t *f)
 {
     city_data.figure.rioters++;
     f->terrain_usage = TERRAIN_USAGE_ENEMY;
-    f->max_roam_length = 480;
     f->cart_image_id = 0;
     f->is_ghost = 0;
     switch (f->action_state) {

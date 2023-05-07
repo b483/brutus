@@ -151,7 +151,7 @@ void figure_soldier_action(struct figure_t *f)
             if (f->type == FIGURE_FORT_JAVELIN) {
                 map_point tile = { -1, -1 };
                 f->wait_ticks_missile++;
-                if (f->wait_ticks_missile > f->missile_delay) {
+                if (f->wait_ticks_missile > figure_properties[f->type].missile_delay) {
                     f->wait_ticks_missile = 0;
                     int target_acquired = 0;
                     if (f->is_military_trained) {
@@ -171,7 +171,7 @@ void figure_soldier_action(struct figure_t *f)
                         if (tile.x == -1 || tile.y == -1) {
                             map_point_get_last_result(&tile);
                         }
-                        figure_create_missile(f, &tile, f->missile_type);
+                        figure_create_missile(f, &tile, figure_properties[f->type].missile_type);
                         formations[f->formation_id].missile_fired = 6;
                     }
                     f->attack_image_offset++;

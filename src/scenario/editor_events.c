@@ -425,422 +425,88 @@ static void create_enemy_squad(int figure_type, int enemy_type, int x, int y, in
 
         for (int fig = 0; fig < figures_amount; fig++) {
             struct figure_t *f = figure_create(figure_type, x, y, orientation);
+            f->is_targetable = 1;
             f->action_state = FIGURE_ACTION_ENEMY_INITIAL;
             f->wait_ticks = 40 * spawn_delay_offset + 10 * fig + 10;
             f->formation_id = m->id;
             switch (figure_type) {
                 case FIGURE_ENEMY_BARBARIAN_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 90;
-                    f->melee_attack_value = 7;
-                    f->melee_defense_value = 1;
                     f->speed_multiplier = 2;
                     f->enemy_image_group = ENEMY_IMG_TYPE_BARBARIAN;
                     break;
                 case FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 120;
-                    f->melee_attack_value = 12;
-                    f->melee_defense_value = 2;
-                    f->missile_defense_value = 2;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_CARTHAGINIAN;
-                    break;
                 case FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 200;
-                    f->melee_attack_value = 20;
-                    f->melee_defense_value = 5;
-                    f->missile_attack_value = 6;
-                    f->missile_defense_value = 8;
-                    f->missile_delay = 70;
-                    f->missile_type = FIGURE_ARROW;
-                    f->max_range = 15;
                     f->enemy_image_group = ENEMY_IMG_TYPE_CARTHAGINIAN;
                     break;
                 case FIGURE_ENEMY_BRITON_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 110;
-                    f->melee_attack_value = 10;
-                    f->melee_defense_value = 1;
-                    f->missile_defense_value = 2;
+                case FIGURE_ENEMY_CELT_SWORDSMAN:
+                case FIGURE_ENEMY_PICT_SWORDSMAN:
                     f->enemy_image_group = ENEMY_IMG_TYPE_CELT;
                     break;
                 case FIGURE_ENEMY_BRITON_CHARIOT:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 120;
-                    f->melee_attack_value = 12;
-                    f->melee_defense_value = 4;
-                    f->missile_defense_value = 4;
-                    f->speed_multiplier = 3;
-                    f->mounted_charge_ticks = 8;
-                    f->mounted_charge_ticks_max = 8;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_CELT;
-                    break;
-                case FIGURE_ENEMY_CELT_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 110;
-                    f->melee_attack_value = 10;
-                    f->melee_defense_value = 1;
-                    f->missile_defense_value = 2;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_CELT;
-                    break;
                 case FIGURE_ENEMY_CELT_CHARIOT:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 120;
-                    f->melee_attack_value = 12;
-                    f->melee_defense_value = 4;
-                    f->missile_defense_value = 4;
-                    f->speed_multiplier = 3;
-                    f->mounted_charge_ticks = 8;
-                    f->mounted_charge_ticks_max = 8;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_CELT;
-                    break;
-                case FIGURE_ENEMY_PICT_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 110;
-                    f->melee_attack_value = 10;
-                    f->melee_defense_value = 1;
-                    f->missile_defense_value = 2;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_CELT;
-                    break;
                 case FIGURE_ENEMY_PICT_CHARIOT:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 120;
-                    f->melee_attack_value = 12;
-                    f->melee_defense_value = 4;
-                    f->missile_defense_value = 4;
                     f->speed_multiplier = 3;
                     f->mounted_charge_ticks = 8;
                     f->mounted_charge_ticks_max = 8;
                     f->enemy_image_group = ENEMY_IMG_TYPE_CELT;
                     break;
                 case FIGURE_ENEMY_EGYPTIAN_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 90;
-                    f->melee_attack_value = 7;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_EGYPTIAN;
-                    break;
                 case FIGURE_ENEMY_EGYPTIAN_CAMEL:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 120;
-                    f->melee_attack_value = 7;
-                    f->melee_defense_value = 1;
-                    f->missile_attack_value = 5;
-                    f->missile_delay = 70;
-                    f->missile_type = FIGURE_ARROW;
-                    f->max_range = 15;
                     f->enemy_image_group = ENEMY_IMG_TYPE_EGYPTIAN;
                     break;
                 case FIGURE_ENEMY_ETRUSCAN_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 120;
-                    f->melee_attack_value = 12;
-                    f->melee_defense_value = 2;
-                    f->missile_defense_value = 2;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_ETRUSCAN;
-                    break;
                 case FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 70;
-                    f->melee_attack_value = 5;
-                    f->missile_attack_value = 4;
-                    f->missile_delay = 70;
-                    f->missile_type = FIGURE_JAVELIN;
-                    f->max_range = 10;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_ETRUSCAN;
-                    break;
                 case FIGURE_ENEMY_SAMNITE_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 120;
-                    f->melee_attack_value = 12;
-                    f->melee_defense_value = 2;
-                    f->missile_defense_value = 2;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_ETRUSCAN;
-                    break;
                 case FIGURE_ENEMY_SAMNITE_SPEAR_THROWER:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 70;
-                    f->melee_attack_value = 5;
-                    f->missile_attack_value = 4;
-                    f->missile_delay = 70;
-                    f->missile_type = FIGURE_JAVELIN;
-                    f->max_range = 10;
                     f->enemy_image_group = ENEMY_IMG_TYPE_ETRUSCAN;
                     break;
                 case FIGURE_ENEMY_GAUL_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 110;
-                    f->melee_attack_value = 10;
-                    f->melee_defense_value = 1;
-                    f->missile_defense_value = 2;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_GAUL;
-                    break;
                 case FIGURE_ENEMY_GAUL_AXEMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 120;
-                    f->melee_attack_value = 15;
-                    f->melee_defense_value = 2;
-                    f->missile_defense_value = 3;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_GAUL;
-                    break;
                 case FIGURE_ENEMY_HELVETIUS_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 110;
-                    f->melee_attack_value = 10;
-                    f->melee_defense_value = 1;
-                    f->missile_defense_value = 2;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_GAUL;
-                    break;
                 case FIGURE_ENEMY_HELVETIUS_AXEMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 120;
-                    f->melee_attack_value = 15;
-                    f->melee_defense_value = 2;
-                    f->missile_defense_value = 3;
                     f->enemy_image_group = ENEMY_IMG_TYPE_GAUL;
                     break;
                 case FIGURE_ENEMY_HUN_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 90;
-                    f->melee_attack_value = 7;
-                    f->melee_defense_value = 1;
+                case FIGURE_ENEMY_GOTH_SWORDSMAN:
+                case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
                     f->speed_multiplier = 2;
                     f->enemy_image_group = ENEMY_IMG_TYPE_GOTH;
                     break;
                 case FIGURE_ENEMY_HUN_MOUNTED_ARCHER:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 100;
-                    f->melee_attack_value = 6;
-                    f->melee_defense_value = 1;
-                    f->missile_attack_value = 4;
-                    f->missile_delay = 70;
-                    f->speed_multiplier = 3;
-                    f->missile_type = FIGURE_ARROW;
-                    f->max_range = 15;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_GOTH;
-                    break;
-                case FIGURE_ENEMY_GOTH_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 90;
-                    f->melee_attack_value = 7;
-                    f->melee_defense_value = 1;
-                    f->speed_multiplier = 2;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_GOTH;
-                    break;
                 case FIGURE_ENEMY_GOTH_MOUNTED_ARCHER:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 100;
-                    f->melee_attack_value = 6;
-                    f->melee_defense_value = 1;
-                    f->missile_attack_value = 4;
-                    f->missile_delay = 70;
-                    f->speed_multiplier = 3;
-                    f->missile_type = FIGURE_ARROW;
-                    f->max_range = 15;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_GOTH;
-                    break;
-                case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 90;
-                    f->melee_attack_value = 7;
-                    f->melee_defense_value = 1;
-                    f->speed_multiplier = 2;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_GOTH;
-                    break;
                 case FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 100;
-                    f->melee_attack_value = 6;
-                    f->melee_defense_value = 1;
-                    f->missile_attack_value = 4;
-                    f->missile_delay = 70;
                     f->speed_multiplier = 3;
-                    f->missile_type = FIGURE_ARROW;
-                    f->max_range = 15;
                     f->enemy_image_group = ENEMY_IMG_TYPE_GOTH;
                     break;
                 case FIGURE_ENEMY_GREEK_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 120;
-                    f->melee_attack_value = 12;
-                    f->melee_defense_value = 2;
-                    f->missile_defense_value = 2;
+                case FIGURE_ENEMY_MACEDONIAN_SWORDSMAN:
                     f->enemy_image_group = ENEMY_IMG_TYPE_GREEK;
                     break;
                 case FIGURE_ENEMY_GREEK_SPEAR_THROWER:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 70;
-                    f->melee_attack_value = 5;
-                    f->missile_attack_value = 4;
-                    f->missile_delay = 70;
-                    f->missile_type = FIGURE_JAVELIN;
-                    f->max_range = 10;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_GREEK;
-                    break;
-                case FIGURE_ENEMY_MACEDONIAN_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 120;
-                    f->melee_attack_value = 12;
-                    f->melee_defense_value = 2;
-                    f->missile_defense_value = 2;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_GREEK;
-                    break;
                 case FIGURE_ENEMY_MACEDONIAN_SPEAR_THROWER:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 70;
-                    f->melee_attack_value = 5;
-                    f->missile_attack_value = 4;
-                    f->missile_delay = 70;
-                    f->missile_type = FIGURE_JAVELIN;
-                    f->max_range = 10;
                     f->enemy_image_group = ENEMY_IMG_TYPE_GREEK;
                     break;
                 case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 90;
-                    f->melee_attack_value = 7;
-                    f->melee_defense_value = 1;
-                    f->speed_multiplier = 2;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_NORTH_AFRICAN;
-                    break;
                 case FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 70;
-                    f->melee_attack_value = 5;
-                    f->missile_attack_value = 3;
-                    f->missile_delay = 100;
                     f->speed_multiplier = 2;
-                    f->missile_type = FIGURE_JAVELIN;
-                    f->max_range = 10;
                     f->enemy_image_group = ENEMY_IMG_TYPE_NORTH_AFRICAN;
                     break;
                 case FIGURE_ENEMY_PERGAMUM_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 90;
-                    f->melee_attack_value = 7;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_PERSIAN;
-                    break;
                 case FIGURE_ENEMY_PERGAMUM_ARCHER:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 70;
-                    f->melee_attack_value = 5;
-                    f->missile_attack_value = 4;
-                    f->missile_delay = 70;
-                    f->missile_type = FIGURE_ARROW;
-                    f->max_range = 15;
                     f->enemy_image_group = ENEMY_IMG_TYPE_PERSIAN;
                     break;
                 case FIGURE_ENEMY_IBERIAN_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 90;
-                    f->melee_attack_value = 7;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_PHOENICIAN;
-                    break;
                 case FIGURE_ENEMY_IBERIAN_SPEAR_THROWER:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 70;
-                    f->melee_attack_value = 5;
-                    f->missile_attack_value = 4;
-                    f->missile_delay = 70;
-                    f->missile_type = FIGURE_JAVELIN;
-                    f->max_range = 10;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_PHOENICIAN;
-                    break;
                 case FIGURE_ENEMY_JUDEAN_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 90;
-                    f->melee_attack_value = 7;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_PHOENICIAN;
-                    break;
                 case FIGURE_ENEMY_JUDEAN_SPEAR_THROWER:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 70;
-                    f->melee_attack_value = 5;
-                    f->missile_attack_value = 4;
-                    f->missile_delay = 70;
-                    f->missile_type = FIGURE_JAVELIN;
-                    f->max_range = 10;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_PHOENICIAN;
-                    break;
                 case FIGURE_ENEMY_SELEUCID_SWORDSMAN:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 90;
-                    f->melee_attack_value = 7;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_PHOENICIAN;
-                    break;
                 case FIGURE_ENEMY_SELEUCID_SPEAR_THROWER:
-                    f->is_targetable = 1;
-                    f->is_enemy_unit = 1;
-                    f->max_damage = 70;
-                    f->melee_attack_value = 5;
-                    f->missile_attack_value = 4;
-                    f->missile_delay = 70;
-                    f->missile_type = FIGURE_JAVELIN;
-                    f->max_range = 10;
                     f->enemy_image_group = ENEMY_IMG_TYPE_PHOENICIAN;
                     break;
-                case FIGURE_ENEMY_CAESAR_JAVELIN:
-                    f->is_targetable = 1;
-                    f->is_caesar_legion_unit = 1;
-                    f->max_damage = 90;
-                    f->melee_attack_value = 4;
-                    f->missile_attack_value = 4;
-                    f->missile_delay = 100;
-                    break;
-                case FIGURE_ENEMY_CAESAR_MOUNTED:
-                    f->is_targetable = 1;
-                    f->is_caesar_legion_unit = 1;
-                    f->max_damage = 100;
-                    f->melee_attack_value = 8;
-                    break;
-                case FIGURE_ENEMY_CAESAR_LEGIONARY:
-                    f->is_targetable = 1;
-                    f->is_caesar_legion_unit = 1;
-                    f->max_damage = 150;
-                    f->melee_attack_value = 10;
-                    f->melee_defense_value = 3;
-                    f->missile_defense_value = 6;
+                default:
                     break;
             }
-            f->enemy_type = enemy_type;
             f->is_ghost = 1;
             add_figure_to_formation(f, m);
         }

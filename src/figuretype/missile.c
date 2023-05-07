@@ -69,11 +69,11 @@ static int get_target_on_tile(struct figure_t *projectile)
         while (figure_id) {
             struct figure_t *target = &figures[figure_id];
             if (target->action_state != FIGURE_ACTION_CORPSE && target->is_targetable) {
-                if (shooter->is_friendly_armed_unit || shooter->is_player_legion_unit) {
+                if (figure_properties[shooter->type].is_friendly_armed_unit || figure_properties[shooter->type].is_player_legion_unit) {
                     if (is_valid_target_for_player_unit(target)) {
                         return target->id;
                     }
-                } else if (shooter->is_enemy_unit) {
+                } else if (figure_properties[shooter->type].is_enemy_unit) {
                     if (is_valid_target_for_enemy_unit(target)) {
                         return target->id;
                     }
@@ -104,7 +104,7 @@ void figure_explosion_cloud_action(struct figure_t *f)
 static void missile_hit_target(struct figure_t *projectile, struct figure_t *target)
 {
     struct figure_t *shooter = &figures[projectile->building_id];
-    int damage_inflicted = (shooter->missile_attack_value + projectile->missile_attack_value) - target->missile_defense_value;
+    int damage_inflicted = (figure_properties[shooter->type].missile_attack_value + figure_properties[projectile->type].missile_attack_value) - figure_properties[target->type].missile_defense_value;
     if (damage_inflicted < 0) {
         damage_inflicted = 0;
     }
@@ -115,10 +115,10 @@ static void missile_hit_target(struct figure_t *projectile, struct figure_t *tar
         damage_inflicted = 1;
     }
     int target_damage = damage_inflicted + target->damage;
-    if (target_damage <= target->max_damage) {
+    if (target_damage <= figure_properties[target->type].max_damage) {
         target->damage = target_damage;
     } else { // kill target
-        target->damage = target->max_damage + 1;
+        target->damage = figure_properties[target->type].max_damage + 1;
         target->action_state = FIGURE_ACTION_CORPSE;
         target->wait_ticks = 0;
         figure_play_die_sound(target);

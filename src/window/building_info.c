@@ -315,7 +315,7 @@ static void init(int grid_offset)
             continue;
         }
         struct figure_t *f = &figures[figure_id];
-        if (f->type == FIGURE_FORT_STANDARD || f->is_player_legion_unit) {
+        if (f->type == FIGURE_FORT_STANDARD || figure_properties[f->type].is_player_legion_unit) {
             context.type = BUILDING_INFO_LEGION;
             context.formation_id = f->formation_id;
             if (formations[context.formation_id].figure_type != FIGURE_FORT_LEGIONARY) {

@@ -573,7 +573,6 @@ static int trade_ship_done_trading(struct figure_t *f)
 void figure_trade_ship_action(struct figure_t *f)
 {
     f->is_ghost = 0;
-    f->is_boat = 1;
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     switch (f->action_state) {

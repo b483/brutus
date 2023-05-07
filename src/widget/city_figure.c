@@ -184,7 +184,7 @@ static void adjust_pixel_offset(struct figure_t *f, int *pixel_x, int *pixel_y)
     x_offset += 29;
     y_offset += 15;
 
-    image *img = (f->is_native_unit || f->is_enemy_unit) ? image_get_enemy(f) : image_get(f->image_id);
+    image *img = (figure_properties[f->type].is_native_unit || figure_properties[f->type].is_enemy_unit) ? image_get_enemy(f) : image_get(f->image_id);
     *pixel_x += x_offset - img->sprite_offset_x;
     *pixel_y += y_offset - img->sprite_offset_y;
 }
@@ -243,7 +243,7 @@ static void draw_figure(struct figure_t *f, int x, int y, int highlight)
                 break;
         }
     } else {
-        if (f->is_native_unit || f->is_enemy_unit) {
+        if (figure_properties[f->type].is_native_unit || figure_properties[f->type].is_enemy_unit) {
             image_draw_enemy(f, x, y);
         } else {
             image_draw(f->image_id, x, y);

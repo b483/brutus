@@ -118,7 +118,8 @@ static void move_to_next_tile(struct figure_t *f)
         }
     }
 
-    if (f->is_friendly_armed_unit || f->is_player_legion_unit || f->is_native_unit || f->type == FIGURE_WOLF || f->is_enemy_unit || f->is_caesar_legion_unit) {
+    if (figure_properties[f->type].is_friendly_armed_unit || figure_properties[f->type].is_player_legion_unit
+    || figure_properties[f->type].is_native_unit || f->type == FIGURE_WOLF || figure_properties[f->type].is_enemy_unit || figure_properties[f->type].is_caesar_legion_unit) {
         figure_combat_attack_figure_at(f, f->grid_offset);
     }
     f->previous_tile_x = old_x;
@@ -149,7 +150,7 @@ static void advance_route_tile(struct figure_t *f, int roaming_enabled)
         return;
     }
     int target_grid_offset = f->grid_offset + map_grid_direction_delta(f->direction);
-    if (f->is_boat) {
+    if (figure_properties[f->type].is_boat) {
         if (!map_terrain_is(target_grid_offset, TERRAIN_WATER)) {
             f->direction = DIR_FIGURE_REROUTE;
         }
@@ -398,7 +399,7 @@ void figure_movement_roam_ticks(struct figure_t *f, int num_ticks)
                 }
             }
             if (adjacent_road_tiles <= 0) {
-                f->roam_length = f->max_roam_length; // end roaming walk
+                f->roam_length = figure_properties[f->type].max_roam_length; // end roaming walk
                 return;
             }
             if (adjacent_road_tiles == 1) {

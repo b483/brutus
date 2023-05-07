@@ -145,7 +145,6 @@ void figure_entertainer_action(struct figure_t *f)
     f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART);
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
-    f->max_roam_length = 512;
     figure_image_increase_offset(f, 12);
     f->wait_ticks_missile++;
     if (f->wait_ticks_missile >= 120) {
@@ -239,7 +238,7 @@ void figure_entertainer_action(struct figure_t *f)
         case FIGURE_ACTION_ENTERTAINER_ROAMING:
             f->is_ghost = 0;
             f->roam_length++;
-            if (f->roam_length >= f->max_roam_length) {
+            if (f->roam_length >= figure_properties[f->type].max_roam_length) {
                 int x_road, y_road;
                 if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
                     f->action_state = FIGURE_ACTION_ENTERTAINER_RETURNING;

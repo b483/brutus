@@ -102,7 +102,6 @@ void figure_market_buyer_action(struct figure_t *f)
 {
     f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
-    f->max_roam_length = 800;
 
     struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id2 != f->id) {

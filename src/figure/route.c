@@ -54,8 +54,8 @@ void figure_route_add(struct figure_t *f)
         return;
     }
     int path_length;
-    if (f->is_boat) {
-        if (f->is_boat == 2) { // flotsam
+    if (figure_properties[f->type].is_boat) {
+        if (figure_properties[f->type].is_boat == 2) { // flotsam
             map_routing_calculate_distances_water_flotsam(f->x, f->y);
             path_length = map_routing_get_path_on_water(data.direction_paths[path_id],
                 f->destination_x, f->destination_y, 1);

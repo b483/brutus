@@ -424,7 +424,7 @@ static int get_nearby_enemy_type(int x_start, int y_start, int x_end, int y_end)
 {
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *f = &figures[i];
-        if (!figure_is_dead(f) && (f->is_enemy_unit || f->is_caesar_legion_unit || f->type == FIGURE_WOLF)) {
+        if (!figure_is_dead(f) && (figure_properties[f->type].is_enemy_unit || figure_properties[f->type].is_caesar_legion_unit || f->type == FIGURE_WOLF)) {
             int dx = (f->x > x_start) ? (f->x - x_start) : (x_start - f->x);
             int dy = (f->y > y_start) ? (f->y - y_start) : (y_start - f->y);
             if (dx <= 12 && dy <= 12) {

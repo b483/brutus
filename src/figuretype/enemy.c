@@ -19,7 +19,7 @@ static void shoot_enemy_missile(struct figure_t *f, struct formation_t *m)
 {
     f->wait_ticks_missile++;
     map_point tile = { 0, 0 };
-    if (f->wait_ticks_missile > f->missile_delay) {
+    if (f->wait_ticks_missile > figure_properties[f->type].missile_delay) {
         f->wait_ticks_missile = 0;
         if (set_missile_target(f, &tile, 1) || set_missile_target(f, &tile, 0)) {
             f->attack_image_offset = 1;
@@ -33,10 +33,10 @@ static void shoot_enemy_missile(struct figure_t *f, struct formation_t *m)
             if (tile.x == -1 || tile.y == -1) {
                 map_point_get_last_result(&tile);
             }
-            figure_create_missile(f, &tile, f->missile_type);
+            figure_create_missile(f, &tile, figure_properties[f->type].missile_type);
             m->missile_fired = 6;
         }
-        if (f->missile_type == FIGURE_ARROW && f->attack_image_offset < 5) {
+        if (figure_properties[f->type].missile_type == FIGURE_ARROW && f->attack_image_offset < 5) {
             sound_effect_play(SOUND_EFFECT_ARROW);
         }
         f->attack_image_offset++;
@@ -71,7 +71,7 @@ static void enemy_initial(struct figure_t *f, struct formation_t *m)
             }
         }
     }
-    if (f->max_range) {
+    if (figure_properties[f->type].max_range) {
         // ranged enemies
         shoot_enemy_missile(f, m);
     }
@@ -104,7 +104,7 @@ static void engage_enemy(struct figure_t *f, struct formation_t *m)
     if (!m->recent_fight) {
         f->action_state = FIGURE_ACTION_ENEMY_INITIAL;
     }
-    if (f->max_range) {
+    if (figure_properties[f->type].max_range) {
         shoot_enemy_missile(f, m);
     } else {
         struct figure_t *target = melee_unit__set_closest_target(f);

@@ -102,11 +102,11 @@ void figure_play_die_sound(const struct figure_t *f)
         }
         sound_effect_play(SOUND_EFFECT_CITIZEN_DIE + city_data.sound.die_citizen);
     }
-    if (f->is_enemy_unit) {
+    if (figure_properties[f->type].is_enemy_unit) {
         if (city_data.figure.enemies == 1) {
             sound_speech_play_file("wavs/army_war_cry.wav");
         }
-    } else if (f->is_player_legion_unit) {
+    } else if (figure_properties[f->type].is_player_legion_unit) {
         if (city_data.figure.soldiers == 1) {
             sound_speech_play_file("wavs/barbarian_war_cry.wav");
         }

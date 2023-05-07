@@ -177,7 +177,7 @@ void window_building_draw_legion_info(building_info_context *c)
         struct figure_t *f = &figures[formations[c->formation_id].figures[i]];
         if (!figure_is_dead(f)) {
             formation_damage += f->damage;
-            formation_max_damage += f->max_damage;
+            formation_max_damage += figure_properties[f->type].max_damage;
         }
     }
     int formation_damage_perc = calc_percentage(formation_damage, formation_max_damage);

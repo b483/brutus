@@ -8,7 +8,6 @@
 #include "core/log.h"
 #include "core/random.h"
 #include "editor/editor.h"
-#include "figure/type.h"
 #include "game/animation.h"
 #include "game/file_editor.h"
 #include "game/settings.h"
