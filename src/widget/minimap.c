@@ -85,14 +85,14 @@ static void set_bounds(int x_offset, int y_offset, int width, int height)
     int view_width_tiles, view_height_tiles;
     city_view_get_viewport_size_tiles(&view_width_tiles, &view_height_tiles);
 
-    if ((map_grid_width() - data.width_tiles) / 2 > 0) {
+    if ((map_data.width - data.width_tiles) / 2 > 0) {
         if (data.camera_x < data.absolute_x) {
             data.absolute_x = data.camera_x;
         } else if (data.camera_x > data.width_tiles + data.absolute_x - view_width_tiles) {
             data.absolute_x = view_width_tiles + data.camera_x - data.width_tiles;
         }
     }
-    if ((2 * map_grid_height() - data.height_tiles) / 2 > 0) {
+    if ((2 * map_data.height - data.height_tiles) / 2 > 0) {
         if (data.camera_y < data.absolute_y) {
             data.absolute_y = data.camera_y;
         } else if (data.camera_y > data.height_tiles + data.absolute_y - view_height_tiles) {
@@ -151,7 +151,7 @@ static void draw_minimap_tile(int x_view, int y_view, int grid_offset)
         return;
     }
 
-    int terrain = map_terrain_get(grid_offset);
+    int terrain = terrain_grid.items[grid_offset];
     // exception for fort ground: display as empty land
     if (terrain & TERRAIN_BUILDING) {
         if (all_buildings[map_building_at(grid_offset)].type == BUILDING_FORT_GROUND) {

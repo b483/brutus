@@ -39,10 +39,10 @@ void map_water_add_building(int building_id, int x, int y, int size, int image_i
     for (int dy = 0; dy < size; dy++) {
         for (int dx = 0; dx < size; dx++) {
             int grid_offset = map_grid_offset(x + dx, y + dy);
-            map_terrain_add(grid_offset, TERRAIN_BUILDING);
+            terrain_grid.items[grid_offset] |= TERRAIN_BUILDING;
             if (!map_terrain_is(grid_offset, TERRAIN_WATER)) {
-                map_terrain_remove(grid_offset, TERRAIN_CLEARABLE);
-                map_terrain_add(grid_offset, TERRAIN_BUILDING);
+                terrain_grid.items[grid_offset] &= ~TERRAIN_CLEARABLE;
+                terrain_grid.items[grid_offset] |= TERRAIN_BUILDING;
             }
             map_building_set(grid_offset, building_id);
             map_property_clear_constructing(grid_offset);

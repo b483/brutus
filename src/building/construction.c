@@ -149,7 +149,7 @@ static int place_garden(int x_start, int y_start, int x_end, int y_end)
             int grid_offset = map_grid_offset(x, y);
             if (!map_terrain_is(grid_offset, TERRAIN_NOT_CLEAR)) {
                 items_placed++;
-                map_terrain_add(grid_offset, TERRAIN_GARDEN);
+                terrain_grid.items[grid_offset] |= TERRAIN_GARDEN;
             }
         }
     }
@@ -581,6 +581,18 @@ static void add_warehouse(struct building_t *b)
     prev = add_warehouse_space(b->x + 1, b->y + 2, prev);
     prev = add_warehouse_space(b->x + 2, b->y + 2, prev);
     prev->next_part_building_id = 0;
+}
+
+static void map_terrain_remove_with_radius(int x, int y, int size, int radius, int terrain)
+{
+    int x_min, y_min, x_max, y_max;
+    map_grid_get_area(x, y, size, radius, &x_min, &y_min, &x_max, &y_max);
+
+    for (int yy = y_min; yy <= y_max; yy++) {
+        for (int xx = x_min; xx <= x_max; xx++) {
+            terrain_grid.items[map_grid_offset(xx, yy)] &= ~terrain;
+        }
+    }
 }
 
 static void add_to_map(int type, struct building_t *b, int orientation, int waterside_orientation_abs, int waterside_orientation_rel)

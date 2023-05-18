@@ -124,6 +124,7 @@ static void missile_hit_target(struct figure_t *projectile, struct figure_t *tar
         figure_play_die_sound(target);
         formation_update_morale_after_death(&formations[target->formation_id]);
         clear_targeting_on_unit_death(target);
+        update_counters_on_unit_death(target);
         refresh_formation_figure_indexes(target);
     }
     projectile->state = FIGURE_STATE_DEAD;
@@ -141,13 +142,14 @@ void figure_arrow_action(struct figure_t *projectile)
     if (projectile->progress_on_tile > 120) {
         projectile->state = FIGURE_STATE_DEAD;
     }
-    int should_die = figure_movement_move_ticks_cross_country(projectile, 4);
+    int should_die = figure_movement_move_ticks_cross_country(projectile, 8);
     int target_id = get_target_on_tile(projectile);
     if (target_id) {
         struct figure_t *target = &figures[target_id];
         missile_hit_target(projectile, target);
         sound_effect_play(SOUND_EFFECT_ARROW_HIT);
-    } else if (should_die) {
+    }
+    if (should_die || target_id) {
         projectile->state = FIGURE_STATE_DEAD;
     }
     int dir = (16 + projectile->direction - 2 * city_view_orientation()) % 16;
@@ -167,7 +169,8 @@ void figure_javelin_action(struct figure_t *projectile)
         struct figure_t *target = &figures[target_id];
         missile_hit_target(projectile, target);
         sound_effect_play(SOUND_EFFECT_JAVELIN);
-    } else if (should_die) {
+    }
+    if (should_die || target_id) {
         projectile->state = FIGURE_STATE_DEAD;
     }
     int dir = (16 + projectile->direction - 2 * city_view_orientation()) % 16;
@@ -181,15 +184,16 @@ void figure_bolt_action(struct figure_t *projectile)
     if (projectile->progress_on_tile > 120) {
         projectile->state = FIGURE_STATE_DEAD;
     }
-    int should_die = figure_movement_move_ticks_cross_country(projectile, 4);
+    int should_die = figure_movement_move_ticks_cross_country(projectile, 10);
     int target_id = get_target_on_tile(projectile);
     if (target_id) {
         struct figure_t *target = &figures[target_id];
         missile_hit_target(projectile, target);
         sound_effect_play(SOUND_EFFECT_BALLISTA_HIT_PERSON);
-    } else if (should_die) {
-        projectile->state = FIGURE_STATE_DEAD;
+    }
+    if (should_die || target_id) {
         sound_effect_play(SOUND_EFFECT_BALLISTA_HIT_GROUND);
+        projectile->state = FIGURE_STATE_DEAD;
     }
     int dir = (16 + projectile->direction - 2 * city_view_orientation()) % 16;
     projectile->image_id = image_group(GROUP_FIGURE_MISSILE) + 32 + dir;

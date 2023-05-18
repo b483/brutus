@@ -205,19 +205,12 @@ void game_tick_run(void)
     random_generate_next();
     game_undo_reduce_time_available();
     advance_tick();
-    city_data.figure.enemies = 0;
-    city_data.figure.rioters = 0;
-    city_data.figure.attacking_natives = 0;
-    city_data.figure.animals = 0;
-    city_data.figure.imperial_soldiers = 0;
-    city_data.figure.soldiers = 0;
     city_data.entertainment.hippodrome_has_race = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *f = &figures[i];
         if (f->action_state == FIGURE_ACTION_CORPSE) {
             figure_handle_corpse(f);
-        }
-        if (f->action_state == FIGURE_ACTION_ATTACK) {
+        } else if (f->action_state == FIGURE_ACTION_ATTACK) {
             figure_combat_handle_attack(f);
         }
         if (f->state == FIGURE_STATE_ALIVE) {
@@ -374,26 +367,22 @@ void game_tick_run(void)
                 case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
                     figure_enemy_fast_swordsman_action(f);
                     break;
+                case FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN:
+                case FIGURE_ENEMY_BRITON_SWORDSMAN:
+                case FIGURE_ENEMY_CELT_SWORDSMAN:
+                case FIGURE_ENEMY_PICT_SWORDSMAN:
                 case FIGURE_ENEMY_EGYPTIAN_SWORDSMAN:
+                case FIGURE_ENEMY_ETRUSCAN_SWORDSMAN:
+                case FIGURE_ENEMY_SAMNITE_SWORDSMAN:
+                case FIGURE_ENEMY_GAUL_SWORDSMAN:
+                case FIGURE_ENEMY_HELVETIUS_SWORDSMAN:
+                case FIGURE_ENEMY_GREEK_SWORDSMAN:
+                case FIGURE_ENEMY_MACEDONIAN_SWORDSMAN:
                 case FIGURE_ENEMY_PERGAMUM_SWORDSMAN:
                 case FIGURE_ENEMY_IBERIAN_SWORDSMAN:
                 case FIGURE_ENEMY_JUDEAN_SWORDSMAN:
                 case FIGURE_ENEMY_SELEUCID_SWORDSMAN:
-                    figure_enemy_light_swordsman_action(f);
-                    break;
-                case FIGURE_ENEMY_BRITON_SWORDSMAN:
-                case FIGURE_ENEMY_CELT_SWORDSMAN:
-                case FIGURE_ENEMY_PICT_SWORDSMAN:
-                case FIGURE_ENEMY_GAUL_SWORDSMAN:
-                case FIGURE_ENEMY_HELVETIUS_SWORDSMAN:
-                    figure_enemy_medium_swordsman_action(f);
-                    break;
-                case FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN:
-                case FIGURE_ENEMY_ETRUSCAN_SWORDSMAN:
-                case FIGURE_ENEMY_SAMNITE_SWORDSMAN:
-                case FIGURE_ENEMY_GREEK_SWORDSMAN:
-                case FIGURE_ENEMY_MACEDONIAN_SWORDSMAN:
-                    figure_enemy_heavy_swordsman_action(f);
+                    figure_enemy_swordsman_action(f);
                     break;
                 case FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT:
                     figure_enemy_elephant_action(f);

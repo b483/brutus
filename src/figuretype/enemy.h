@@ -17,7 +17,7 @@ void figure_enemy_chariot_action(struct figure_t *f);
 
 void figure_enemy_fast_swordsman_action(struct figure_t *f);
 
-void figure_enemy_medium_swordsman_action(struct figure_t *f);
+void figure_enemy_swordsman_action(struct figure_t *f);
 
 void figure_enemy_light_ranged_spearman_action(struct figure_t *f);
 

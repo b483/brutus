@@ -189,7 +189,8 @@ static void spawn_figure_tower(struct building_t *b)
             struct figure_t *f = figure_create(FIGURE_BALLISTA, b->x, b->y, DIR_0_TOP);
             b->figure_id4 = f->id;
             f->building_id = b->id;
-            f->action_state = FIGURE_ACTION_BALLISTA_CREATED;
+            f->action_state = FIGURE_ACTION_BALLISTA_READY;
+            f->terrain_usage = TERRAIN_USAGE_WALLS;
         }
         has_figure_of_type(b, FIGURE_TOWER_SENTRY);
         if (b->figure_id <= 0) {

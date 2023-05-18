@@ -28,7 +28,7 @@ static int is_clear_terrain(const map_tile *tile, int *warning)
 
 static int is_edge(const map_tile *tile, int *warning)
 {
-    int result = tile->x == 0 || tile->y == 0 || tile->x == map_grid_width() - 1 || tile->y == map_grid_height() - 1;
+    int result = tile->x == 0 || tile->y == 0 || tile->x == map_data.width - 1 || tile->y == map_data.height - 1;
     if (!result && warning) {
         *warning = WARNING_EDITOR_NEED_MAP_EDGE;
     }
@@ -134,8 +134,7 @@ int editor_tool_can_place_building(const map_tile *tile, int num_tiles, int *blo
     int blocked = 0;
     for (int i = 0; i < num_tiles; i++) {
         int tile_offset = tile->grid_offset + TILE_GRID_OFFSETS[i];
-        int forbidden_terrain = map_terrain_get(tile_offset) & TERRAIN_NOT_CLEAR;
-        if (forbidden_terrain || map_has_figure_at(tile_offset)) {
+        if ((terrain_grid.items[tile_offset] & TERRAIN_NOT_CLEAR) || map_has_figure_at(tile_offset)) {
             blocked = 1;
             if (blocked_tiles) blocked_tiles[i] = 1;
         } else {

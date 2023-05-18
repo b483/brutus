@@ -99,9 +99,7 @@ static void draw_minimap_tile(int x_view, int y_view, int grid_offset)
         return;
     }
 
-    int terrain = map_terrain_get(grid_offset);
-
-    if (terrain & TERRAIN_BUILDING) {
+    if (terrain_grid.items[grid_offset] & TERRAIN_BUILDING) {
         // Native huts/fields
         if (map_property_is_draw_tile(grid_offset)) {
             int image_id = image_group(GROUP_MINIMAP_BUILDING);
@@ -114,15 +112,15 @@ static void draw_minimap_tile(int x_view, int y_view, int grid_offset)
         int rand = map_random_get(grid_offset);
         const tile_color *color;
         const tile_color_set *set = &MINIMAP_COLOR_SETS[scenario.climate];
-        if (terrain & TERRAIN_WATER) {
+        if (terrain_grid.items[grid_offset] & TERRAIN_WATER) {
             color = &set->water[rand & 3];
-        } else if (terrain & (TERRAIN_TREE | TERRAIN_SHRUB)) {
+        } else if (terrain_grid.items[grid_offset] & (TERRAIN_TREE | TERRAIN_SHRUB)) {
             color = &set->tree[rand & 3];
-        } else if (terrain & (TERRAIN_ROCK | TERRAIN_ELEVATION)) {
+        } else if (terrain_grid.items[grid_offset] & (TERRAIN_ROCK | TERRAIN_ELEVATION)) {
             color = &set->rock[rand & 3];
-        } else if (terrain & TERRAIN_ROAD) {
+        } else if (terrain_grid.items[grid_offset] & TERRAIN_ROAD) {
             color = &set->road;
-        } else if (terrain & TERRAIN_MEADOW) {
+        } else if (terrain_grid.items[grid_offset] & TERRAIN_MEADOW) {
             color = &set->meadow[rand & 3];
         } else {
             color = &set->grass[rand & 7];

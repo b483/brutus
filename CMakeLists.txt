@@ -167,7 +167,6 @@ set(EMPIRE_FILES
 )
 set(FIGURE_FILES
     ${PROJECT_SOURCE_DIR}/src/figure/combat.c
-    ${PROJECT_SOURCE_DIR}/src/figure/enemy_army.c
     ${PROJECT_SOURCE_DIR}/src/figure/figure.c
     ${PROJECT_SOURCE_DIR}/src/figure/formation.c
     ${PROJECT_SOURCE_DIR}/src/figure/formation_enemy.c
@@ -249,7 +248,6 @@ set(MAP_FILES
     ${PROJECT_SOURCE_DIR}/src/map/routing_data.c
     ${PROJECT_SOURCE_DIR}/src/map/routing_path.c
     ${PROJECT_SOURCE_DIR}/src/map/routing_terrain.c
-    ${PROJECT_SOURCE_DIR}/src/map/soldier_strength.c
     ${PROJECT_SOURCE_DIR}/src/map/sprite.c
     ${PROJECT_SOURCE_DIR}/src/map/terrain.c
     ${PROJECT_SOURCE_DIR}/src/map/tiles.c

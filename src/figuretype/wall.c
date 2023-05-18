@@ -6,7 +6,6 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"
-#include "figure/enemy_army.h"
 #include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
@@ -43,8 +42,6 @@ static const int TOWER_SENTRY_FIRING_OFFSETS[] = {
 void figure_ballista_action(struct figure_t *f)
 {
     struct building_t *b = &all_buildings[f->building_id];
-    f->terrain_usage = TERRAIN_USAGE_WALLS;
-    f->use_cross_country = 0;
     f->is_ghost = 1;
     f->height_adjusted_ticks = 10;
     f->current_height = 45;
@@ -69,36 +66,32 @@ void figure_ballista_action(struct figure_t *f)
         case FIGURE_ACTION_CORPSE:
             f->state = FIGURE_STATE_DEAD;
             break;
-        case FIGURE_ACTION_BALLISTA_CREATED:
-            f->wait_ticks++;
-            if (f->wait_ticks > 20) {
-                f->wait_ticks = 0;
-                map_point tile;
-                if (set_missile_target(f, &tile, 1) || set_missile_target(f, &tile, 0)) {
-                    f->action_state = FIGURE_ACTION_BALLISTA_FIRING;
-                    f->wait_ticks_missile = figure_properties[f->type].missile_delay;
+        case FIGURE_ACTION_BALLISTA_READY:
+            map_point tile = { -1, -1 };
+            if (f->is_shooting) {
+                f->attack_image_offset++;
+                if (f->attack_image_offset > 100) {
+                    f->attack_image_offset = 0;
+                    f->is_shooting = 0;
+                }
+            } else {
+                f->wait_ticks_missile++;
+                if (f->wait_ticks_missile > 250) {
+                    f->wait_ticks_missile = 250;
                 }
             }
-            break;
-        case FIGURE_ACTION_BALLISTA_FIRING:
-            f->wait_ticks_missile++;
-            if (f->wait_ticks_missile > figure_properties[f->type].missile_delay) {
-                map_point tile;
-                if (set_missile_target(f, &tile, 1) || set_missile_target(f, &tile, 0)) {
-                    f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
-                    f->wait_ticks_missile = 0;
-                    figure_create_missile(f, &tile, figure_properties[f->type].missile_type);
-                    sound_effect_play(SOUND_EFFECT_BALLISTA_SHOOT);
-                } else {
-                    f->action_state = FIGURE_ACTION_BALLISTA_CREATED;
-                }
+            if (f->wait_ticks_missile > figure_properties[f->type].missile_delay && set_missile_target(f, &tile)) {
+                f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
+                figure_create_missile(f, &tile, figure_properties[f->type].missile_type);
+                sound_effect_play(SOUND_EFFECT_BALLISTA_SHOOT);
+                f->wait_ticks_missile = 0;
+                f->is_shooting = 1;
             }
             break;
     }
     int dir = figure_image_direction(f);
-    if (f->action_state == FIGURE_ACTION_BALLISTA_FIRING) {
-        f->image_id = image_group(GROUP_FIGURE_BALLISTA) + dir +
-            8 * BALLISTA_FIRING_OFFSETS[f->wait_ticks_missile / 4];
+    if (f->action_state == FIGURE_ACTION_BALLISTA_READY) {
+        f->image_id = image_group(GROUP_FIGURE_BALLISTA) + dir + 8 * BALLISTA_FIRING_OFFSETS[f->attack_image_offset / 4];
     } else {
         f->image_id = image_group(GROUP_FIGURE_BALLISTA) + dir;
     }
@@ -144,25 +137,23 @@ static int tower_sentry_init_patrol(struct building_t *b, int *x_tile, int *y_ti
 
 static int tower_sentry_shooting(struct figure_t *f)
 {
-    map_point tile;
-    if (!f->in_building_wait_ticks) {
-        int target_acquired;
-        if (f->is_military_trained) {
-            target_acquired = set_missile_target(f, &tile, 1) || set_missile_target(f, &tile, 0);
-        } else {
-            target_acquired = set_missile_target(f, &tile, 0);
+    map_point tile = { -1, -1 };
+    if (f->is_shooting) {
+        f->attack_image_offset++;
+        if (f->attack_image_offset > 100) {
+            f->attack_image_offset = 0;
+            f->is_shooting = 0;
         }
-        if (target_acquired) {
-            f->wait_ticks_missile++;
-            f->progress_on_tile = 15; // align to wall
-            f->image_id = image_group(GROUP_FIGURE_TOWER_SENTRY) + figure_image_direction(f) + 96 + 8 * TOWER_SENTRY_FIRING_OFFSETS[f->wait_ticks_missile / 2];
-            if (f->wait_ticks_missile > figure_properties[f->type].missile_delay) {
-                f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
-                f->wait_ticks_missile = 0;
-                figure_create_missile(f, &tile, figure_properties[f->type].missile_type);
-            }
-            return 1;
-        }
+        f->image_id = image_group(GROUP_FIGURE_TOWER_SENTRY) + figure_image_direction(f) + 96 + 8 * TOWER_SENTRY_FIRING_OFFSETS[f->attack_image_offset / 2];
+        return 1;
+    }
+    if (!f->in_building_wait_ticks && f->wait_ticks_missile > figure_properties[f->type].missile_delay && set_missile_target(f, &tile)) {
+        f->progress_on_tile = 15; // align to wall
+        f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
+        figure_create_missile(f, &tile, figure_properties[f->type].missile_type);
+        f->wait_ticks_missile = 0;
+        f->is_shooting = 1;
+        return 1;
     }
     return 0;
 }
@@ -229,6 +220,10 @@ void figure_tower_sentry_action(struct figure_t *f)
             break;
         case FIGURE_ACTION_TOWER_SENTRY_PATROLLING:
             f->terrain_usage = TERRAIN_USAGE_WALLS;
+            f->wait_ticks_missile++;
+            if (f->wait_ticks_missile > 250) {
+                f->wait_ticks_missile = 250;
+            }
             if (tower_sentry_shooting(f)) {
                 return;
             } else {
@@ -245,6 +240,10 @@ void figure_tower_sentry_action(struct figure_t *f)
             break;
         case FIGURE_ACTION_TOWER_SENTRY_RETURNING:
             f->terrain_usage = TERRAIN_USAGE_WALLS;
+            f->wait_ticks_missile++;
+            if (f->wait_ticks_missile > 250) {
+                f->wait_ticks_missile = 250;
+            }
             if (tower_sentry_shooting(f)) {
                 return;
             } else {
@@ -258,6 +257,10 @@ void figure_tower_sentry_action(struct figure_t *f)
             break;
         case FIGURE_ACTION_SOLDIER_GOING_TO_MILITARY_ACADEMY:
             f->is_targetable = 1;
+            f->wait_ticks_missile++;
+            if (f->wait_ticks_missile > 250) {
+                f->wait_ticks_missile = 250;
+            }
             if (tower_sentry_shooting(f)) {
                 return;
             } else {
@@ -277,6 +280,10 @@ void figure_tower_sentry_action(struct figure_t *f)
             break;
         case FIGURE_ACTION_TOWER_SENTRY_GOING_TO_TOWER:
             f->is_targetable = 1;
+            f->wait_ticks_missile++;
+            if (f->wait_ticks_missile > 250) {
+                f->wait_ticks_missile = 250;
+            }
             if (tower_sentry_shooting(f)) {
                 return;
             } else {

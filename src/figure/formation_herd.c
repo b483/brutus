@@ -1,7 +1,6 @@
 #include "formation_herd.h"
 
 #include "city/data_private.h"
-#include "core/random.h"
 #include "figure/combat.h"
 #include "figure/figure.h"
 #include "figure/formation.h"
@@ -10,58 +9,57 @@
 #include "map/figure.h"
 #include "map/grid.h"
 #include "map/routing.h"
-#include "map/soldier_strength.h"
 #include "map/terrain.h"
+
+#include <stdlib.h>
 
 static int set_herd_roaming_destination(struct formation_t *m, int roam_distance)
 {
-    random_generate_next();
-    int target_direction = random_byte() % 8;
     int target_tile_x, target_tile_y;
-    switch (target_direction) {
+    switch (rand() % 8) {
         case DIR_0_TOP:
-            target_tile_x = m->x;
-            target_tile_y = m->y - roam_distance;
+            target_tile_x = figures[m->figures[0]].x;
+            target_tile_y = figures[m->figures[0]].y - roam_distance;
             break;
         case DIR_1_TOP_RIGHT:
-            target_tile_x = m->x + roam_distance;
-            target_tile_y = m->y - roam_distance;
+            target_tile_x = figures[m->figures[0]].x + roam_distance;
+            target_tile_y = figures[m->figures[0]].y - roam_distance;
             break;
         case DIR_2_RIGHT:
-            target_tile_x = m->x + roam_distance;
-            target_tile_y = m->y;
+            target_tile_x = figures[m->figures[0]].x + roam_distance;
+            target_tile_y = figures[m->figures[0]].y;
             break;
         case DIR_3_BOTTOM_RIGHT:
-            target_tile_x = m->x + roam_distance;
-            target_tile_y = m->y + roam_distance;
+            target_tile_x = figures[m->figures[0]].x + roam_distance;
+            target_tile_y = figures[m->figures[0]].y + roam_distance;
             break;
         case DIR_4_BOTTOM:
-            target_tile_x = m->x;
-            target_tile_y = m->y + roam_distance;
+            target_tile_x = figures[m->figures[0]].x;
+            target_tile_y = figures[m->figures[0]].y + roam_distance;
             break;
         case DIR_5_BOTTOM_LEFT:
-            target_tile_x = m->x - roam_distance;
-            target_tile_y = m->y + roam_distance;
+            target_tile_x = figures[m->figures[0]].x - roam_distance;
+            target_tile_y = figures[m->figures[0]].y + roam_distance;
             break;
         case DIR_6_LEFT:
-            target_tile_x = m->x - roam_distance;
-            target_tile_y = m->y;
+            target_tile_x = figures[m->figures[0]].x - roam_distance;
+            target_tile_y = figures[m->figures[0]].y;
             break;
         case DIR_7_TOP_LEFT:
-            target_tile_x = m->x - roam_distance;
-            target_tile_y = m->y - roam_distance;
+            target_tile_x = figures[m->figures[0]].x - roam_distance;
+            target_tile_y = figures[m->figures[0]].y - roam_distance;
             break;
         default:
             return 0;
     }
     if (target_tile_x <= 0 || target_tile_y <= 0) {
         return 0;
-    } else if (target_tile_x >= map_grid_width() - 1) {
-        target_tile_x = map_grid_width() - 2;
-    } else if (target_tile_y >= map_grid_height() - 1) {
-        target_tile_y = map_grid_height() - 2;
+    } else if (target_tile_x >= map_data.width - 1) {
+        target_tile_x = map_data.width - 2;
+    } else if (target_tile_y >= map_data.height - 1) {
+        target_tile_y = map_data.height - 2;
     }
-    if (map_soldier_strength_get(map_grid_offset(target_tile_x, target_tile_y))) {
+    if (map_has_figure_at(map_grid_offset(target_tile_x, target_tile_y))) {
         return 0;
     }
 
@@ -90,13 +88,9 @@ static int set_herd_roaming_destination(struct formation_t *m, int roam_distance
 
 void formation_herd_update(void)
 {
-    if (city_data.figure.animals <= 0) {
-        return;
-    }
     for (int i = 1; i < MAX_FORMATIONS; i++) {
         if (formations[i].in_use && formations[i].is_herd && formations[i].num_figures > 0) {
-            random_generate_next();
-            int random_factor = random_byte();
+            int random_factor = rand();
             int roam_distance;
             int roam_delay;
             switch (formations[i].figure_type) {

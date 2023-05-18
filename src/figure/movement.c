@@ -120,7 +120,7 @@ static void move_to_next_tile(struct figure_t *f)
 
     if (figure_properties[f->type].is_friendly_armed_unit || figure_properties[f->type].is_player_legion_unit
     || figure_properties[f->type].is_native_unit || f->type == FIGURE_WOLF || figure_properties[f->type].is_enemy_unit || figure_properties[f->type].is_caesar_legion_unit) {
-        figure_combat_attack_figure_at(f, f->grid_offset);
+        melee_attack_figure_at_offset(f, f->grid_offset);
     }
     f->previous_tile_x = old_x;
     f->previous_tile_y = old_y;

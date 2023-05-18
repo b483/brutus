@@ -8,8 +8,6 @@
 
 int formation_legion_create_for_fort(struct building_t *fort);
 
-void formation_calculate_legion_totals(void);
-
 int formation_get_num_legions(void);
 
 int get_legion_formation_by_index(int legion_index);

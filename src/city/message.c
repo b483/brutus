@@ -465,24 +465,6 @@ int city_message_problem_area_count(void)
     return data.problem_count;
 }
 
-static int has_problem_area(const city_message *msg, lang_message_type lang_msg_type)
-{
-    if (lang_msg_type == MESSAGE_TYPE_DISASTER) {
-        return 1;
-    }
-    if (lang_msg_type == MESSAGE_TYPE_INVASION) {
-        if (formation_grid_offset_for_invasion()) {
-            return 1;
-        }
-        // Formations have not been updated yet because the invasion just started.
-        // Invasions always start at the end of the month: return true when we're in
-        // the next month
-        return (msg->month + 1) % 12 == game_time_month() &&
-            msg->year + (msg->month + 1) / 12 == game_time_year();
-    }
-    return 0;
-}
-
 int city_message_next_problem_area_grid_offset(void)
 {
     time_millis now = time_get_millis();
@@ -498,7 +480,7 @@ int city_message_next_problem_area_grid_offset(void)
         if (msg->message_type && msg->year >= game_time_year() - 1) {
             const lang_message *lang_msg = lang_get_message(city_message_get_text_id(msg->message_type));
             lang_message_type lang_msg_type = lang_msg->message_type;
-            if (has_problem_area(msg, lang_msg_type)) {
+            if (lang_msg_type == MESSAGE_TYPE_DISASTER || lang_msg_type == MESSAGE_TYPE_INVASION) {
                 data.problem_count++;
             }
         }
@@ -517,18 +499,11 @@ int city_message_next_problem_area_grid_offset(void)
         if (msg->message_type && msg->year >= current_year - 1) {
             int text_id = city_message_get_text_id(msg->message_type);
             lang_message_type lang_msg_type = lang_get_message(text_id)->message_type;
-            if (has_problem_area(msg, lang_msg_type)) {
+            if (lang_msg_type == MESSAGE_TYPE_DISASTER || lang_msg_type == MESSAGE_TYPE_INVASION) {
                 index++;
                 if (data.problem_index < index) {
                     data.problem_index++;
-                    int grid_offset = msg->param2;
-                    if (lang_msg_type == MESSAGE_TYPE_INVASION) {
-                        int formation_grid_offset = formation_grid_offset_for_invasion();
-                        if (formation_grid_offset) {
-                            grid_offset = formation_grid_offset;
-                        }
-                    }
-                    return grid_offset;
+                    return msg->param2;
                 }
             }
         }

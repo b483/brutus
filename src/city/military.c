@@ -13,22 +13,6 @@
 #include "scenario/data.h"
 #include "scenario/editor_events.h"
 
-void city_military_update_totals(void)
-{
-    city_data.military.empire_service_legions = 0;
-    city_data.military.total_soldiers = 0;
-    city_data.military.total_legions = 0;
-    for (int i = 1; i < MAX_FORMATIONS; i++) {
-        if (formations[i].in_use && formations[i].is_legion) {
-            city_data.military.total_legions++;
-            city_data.military.total_soldiers += formations[i].num_figures;
-            if (formations[i].empire_service && formations[i].num_figures > 0) {
-                city_data.military.empire_service_legions++;
-            }
-        }
-    }
-}
-
 void city_military_determine_distant_battle_city(void)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {

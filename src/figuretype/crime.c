@@ -49,6 +49,7 @@ static void generate_rioter(struct building_t *b)
     for (int i = 0; i < people_in_mob; i++) {
         struct figure_t *f = figure_create(FIGURE_RIOTER, x_road, y_road, DIR_4_BOTTOM);
         f->action_state = FIGURE_ACTION_RIOTER_CREATED;
+        f->terrain_usage = TERRAIN_USAGE_ENEMY;
         f->roam_length = 0;
         f->wait_ticks = 10 + 4 * i;
         if (target_building_id) {
@@ -58,6 +59,7 @@ static void generate_rioter(struct building_t *b)
         } else {
             f->state = FIGURE_STATE_DEAD;
         }
+        city_data.figure.rioters++;
     }
     building_destroy_by_rioter(b);
     city_ratings_peace_record_rioter();
@@ -74,6 +76,7 @@ static void generate_mugger(struct building_t *b)
         int x_road, y_road;
         if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
             struct figure_t *f = figure_create(FIGURE_CRIMINAL, x_road, y_road, DIR_4_BOTTOM);
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->wait_ticks = 10 + (b->house_figure_generation_delay & 0xf);
             city_ratings_peace_record_criminal();
             if (city_data.finance.this_year.income.taxes > 20) {
@@ -97,6 +100,7 @@ static void generate_protestor(struct building_t *b)
         int x_road, y_road;
         if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
             struct figure_t *f = figure_create(FIGURE_PROTESTER, x_road, y_road, DIR_4_BOTTOM);
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->wait_ticks = 10 + (b->house_figure_generation_delay & 0xf);
             city_ratings_peace_record_criminal();
         }
@@ -151,9 +155,7 @@ void figure_generate_criminals(void)
 
 void figure_protestor_action(struct figure_t *f)
 {
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
     figure_image_increase_offset(f, 64);
-    f->cart_image_id = 0;
     if (f->action_state == FIGURE_ACTION_CORPSE) {
         f->state = FIGURE_STATE_DEAD;
     }
@@ -171,9 +173,7 @@ void figure_protestor_action(struct figure_t *f)
 
 void figure_criminal_action(struct figure_t *f)
 {
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
     figure_image_increase_offset(f, 32);
-    f->cart_image_id = 0;
     if (f->action_state == FIGURE_ACTION_CORPSE) {
         f->state = FIGURE_STATE_DEAD;
     }
@@ -191,10 +191,6 @@ void figure_criminal_action(struct figure_t *f)
 
 void figure_rioter_action(struct figure_t *f)
 {
-    city_data.figure.rioters++;
-    f->terrain_usage = TERRAIN_USAGE_ENEMY;
-    f->cart_image_id = 0;
-    f->is_ghost = 0;
     switch (f->action_state) {
         case FIGURE_ACTION_RIOTER_CREATED:
             figure_image_increase_offset(f, 32);

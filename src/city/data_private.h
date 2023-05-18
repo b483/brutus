@@ -44,7 +44,6 @@ extern struct city_data_t {
     } building;
     struct {
         int16_t animals;
-        int32_t attacking_natives;
         int32_t enemies;
         int32_t imperial_soldiers;
         int32_t rioters;
@@ -78,8 +77,6 @@ extern struct city_data_t {
     } emperor;
     struct {
         uint8_t total_legions;
-        uint8_t total_soldiers;
-        uint8_t empire_service_legions;
         int32_t legionary_legions;
         int32_t native_attack_duration;
     } military;

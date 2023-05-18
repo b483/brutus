@@ -368,6 +368,7 @@ static void figure_save(buffer *buf, const struct figure_t *f)
     buffer_write_u16(buf, f->image_id);
     buffer_write_u8(buf, f->image_offset);
     buffer_write_u8(buf, f->attack_image_offset);
+    buffer_write_u8(buf, f->is_shooting);
     buffer_write_u16(buf, f->cart_image_id);
     buffer_write_i8(buf, f->x_offset_cart);
     buffer_write_i8(buf, f->y_offset_cart);
@@ -463,6 +464,7 @@ static void figure_load(buffer *buf, struct figure_t *f)
     f->image_id = buffer_read_u16(buf);
     f->image_offset = buffer_read_u8(buf);
     f->attack_image_offset = buffer_read_u8(buf);
+    f->is_shooting = buffer_read_u8(buf);
     f->cart_image_id = buffer_read_u16(buf);
     f->x_offset_cart = buffer_read_i8(buf);
     f->y_offset_cart = buffer_read_i8(buf);

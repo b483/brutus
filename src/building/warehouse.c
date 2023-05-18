@@ -457,8 +457,7 @@ int building_warehouse_determine_worker_task(struct building_t *warehouse, int *
         }
     }
     // deliver weapons to barracks
-    if (building_count_active(BUILDING_BARRACKS) > 0 && city_data.military.legionary_legions &&
-        !city_data.resource.stockpiled[RESOURCE_WEAPONS]) {
+    if (building_count_active(BUILDING_BARRACKS) > 0 && city_data.military.legionary_legions && !city_data.resource.stockpiled[RESOURCE_WEAPONS]) {
         struct building_t *barracks = &all_buildings[city_data.building.barracks_building_id];
         if (barracks->loads_stored < 4 &&
                 warehouse->road_network_id == barracks->road_network_id) {

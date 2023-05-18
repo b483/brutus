@@ -129,7 +129,7 @@ static int clear_land_confirmed(int measure_only, int x_start, int y_start, int 
                     space->state = BUILDING_STATE_DELETED_BY_PLAYER;
                 }
             } else if (map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
-                map_terrain_remove(grid_offset, TERRAIN_CLEARABLE);
+                terrain_grid.items[grid_offset] &= ~TERRAIN_CLEARABLE;
                 items_placed++;
                 map_aqueduct_remove(grid_offset);
             } else if (map_terrain_is(grid_offset, TERRAIN_WATER)) {
@@ -143,7 +143,7 @@ static int clear_land_confirmed(int measure_only, int x_start, int y_start, int 
                 if (map_terrain_is(grid_offset, TERRAIN_ROAD)) {
                     map_property_clear_plaza_or_earthquake(grid_offset);
                 }
-                map_terrain_remove(grid_offset, TERRAIN_CLEARABLE);
+                terrain_grid.items[grid_offset] &= ~TERRAIN_CLEARABLE;
                 items_placed++;
             }
         }

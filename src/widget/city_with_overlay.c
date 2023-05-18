@@ -298,14 +298,13 @@ static void draw_footprint(int x, int y, int grid_offset)
     } else if (overlay->draw_custom_footprint) {
         overlay->draw_custom_footprint(x, y, grid_offset);
     } else if (map_property_is_draw_tile(grid_offset)) {
-        int terrain = map_terrain_get(grid_offset);
-        if (terrain & (TERRAIN_AQUEDUCT | TERRAIN_WALL)) {
+        if (terrain_grid.items[grid_offset] & (TERRAIN_AQUEDUCT | TERRAIN_WALL)) {
             // display grass
             int image_id = image_group(GROUP_TERRAIN_GRASS_1) + (map_random_get(grid_offset) & 7);
             image_draw_isometric_footprint_from_draw_tile(image_id, x, y, 0);
-        } else if ((terrain & TERRAIN_ROAD) && !(terrain & TERRAIN_BUILDING)) {
+        } else if ((terrain_grid.items[grid_offset] & TERRAIN_ROAD) && !(terrain_grid.items[grid_offset] & TERRAIN_BUILDING)) {
             image_draw_isometric_footprint_from_draw_tile(map_image_at(grid_offset), x, y, 0);
-        } else if (terrain & TERRAIN_BUILDING) {
+        } else if (terrain_grid.items[grid_offset] & TERRAIN_BUILDING) {
             city_with_overlay_draw_building_footprint(x, y, grid_offset, 0);
         } else {
             image_draw_isometric_footprint_from_draw_tile(map_image_at(grid_offset), x, y, 0);

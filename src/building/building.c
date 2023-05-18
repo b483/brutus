@@ -328,6 +328,7 @@ void building_clear_related_data(struct building_t *b)
         city_buildings_remove_barracks(b);
     }
     if (b->type == BUILDING_FORT) {
+        city_data.military.total_legions--;
         if (b->formation_id > 0) {
             if (formations[b->formation_id].in_use) {
                 for (int i = 0; i < formations[b->formation_id].num_figures; i++) {
@@ -346,7 +347,6 @@ void building_clear_related_data(struct building_t *b)
                 }
                 map_figure_delete(&figures[formations[b->formation_id].legion_standard__figure_id]);
                 formation_clear(b->formation_id);
-                formation_calculate_legion_totals();
             }
         }
     }

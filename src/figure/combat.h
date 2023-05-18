@@ -16,10 +16,12 @@ int is_valid_target_for_enemy_unit(struct figure_t *target);
 
 struct figure_t *melee_unit__set_closest_target(struct figure_t *f);
 
-int set_missile_target(struct figure_t *shooter, map_point *tile, int limit_max_targeters);
+int set_missile_target(struct figure_t *shooter, map_point *tile);
 
-void figure_combat_attack_figure_at(struct figure_t *f, int grid_offset);
+void melee_attack_figure_at_offset(struct figure_t *f, int grid_offset);
 
 void clear_targeting_on_unit_death(struct figure_t *unit);
+
+void update_counters_on_unit_death(struct figure_t *unit);
 
 #endif // FIGURE_COMBAT_H

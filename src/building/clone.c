@@ -43,22 +43,20 @@ static building_type get_clone_type_from_building(struct building_t *building)
 
 building_type building_clone_type_from_grid_offset(int grid_offset)
 {
-    int terrain = map_terrain_get(grid_offset);
-
-    if (terrain & TERRAIN_BUILDING) {
+    if (terrain_grid.items[grid_offset] & TERRAIN_BUILDING) {
         int building_id = map_building_at(grid_offset);
         if (building_id) {
             struct building_t *b = building_main(&all_buildings[building_id]);
             return get_clone_type_from_building(b);
         }
-    } else if (terrain & TERRAIN_AQUEDUCT) {
+    } else if (terrain_grid.items[grid_offset] & TERRAIN_AQUEDUCT) {
         return BUILDING_AQUEDUCT;
-    } else if (terrain & TERRAIN_WALL) {
+    } else if (terrain_grid.items[grid_offset] & TERRAIN_WALL) {
         return BUILDING_WALL;
-    } else if (terrain & TERRAIN_GARDEN) {
+    } else if (terrain_grid.items[grid_offset] & TERRAIN_GARDEN) {
         return BUILDING_GARDENS;
-    } else if (terrain & TERRAIN_ROAD) {
-        if (terrain & TERRAIN_WATER) {
+    } else if (terrain_grid.items[grid_offset] & TERRAIN_ROAD) {
+        if (terrain_grid.items[grid_offset] & TERRAIN_WATER) {
             if (map_sprite_bridge_at(grid_offset) > 6) {
                 return BUILDING_SHIP_BRIDGE;
             }

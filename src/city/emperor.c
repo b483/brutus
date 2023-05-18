@@ -86,7 +86,7 @@ void process_caesar_invasion(void)
             // pause legions
             for (int i = 1; i < MAX_FORMATIONS; i++) {
                 if (formations[i].in_use == 1 && formations[i].figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY) {
-                    formations[i].wait_ticks = 20;
+                    formations[i].wait_ticks = 0;
                 }
             }
         } else if (city_data.ratings.favor >= 22) {

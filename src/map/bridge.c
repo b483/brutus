@@ -25,6 +25,24 @@ void map_bridge_reset_building_length(void)
     bridge.length = 0;
 }
 
+static int map_terrain_count_diagonally_adjacent_with_type(int grid_offset, int terrain)
+{
+    int count = 0;
+    if (map_terrain_is(grid_offset + map_grid_delta(1, -1), terrain)) {
+        count++;
+    }
+    if (map_terrain_is(grid_offset + map_grid_delta(1, 1), terrain)) {
+        count++;
+    }
+    if (map_terrain_is(grid_offset + map_grid_delta(-1, 1), terrain)) {
+        count++;
+    }
+    if (map_terrain_is(grid_offset + map_grid_delta(-1, -1), terrain)) {
+        count++;
+    }
+    return count;
+}
+
 int map_bridge_calculate_length_direction(int x, int y, int *length, int *direction)
 {
     int grid_offset = map_grid_offset(x, y);
@@ -203,7 +221,7 @@ int map_bridge_add(int x, int y, int is_ship_bridge)
 
     int grid_offset = map_grid_offset(x, y);
     for (int i = 0; i < bridge.length; i++) {
-        map_terrain_add(grid_offset, TERRAIN_ROAD);
+        terrain_grid.items[grid_offset] |= TERRAIN_ROAD;
         int value = map_bridge_get_sprite_id(i, bridge.length, bridge.direction, is_ship_bridge);
         map_sprite_bridge_set(grid_offset, value);
         grid_offset += bridge.direction_grid_delta;
@@ -275,7 +293,7 @@ void map_bridge_remove(int grid_offset, int mark_deleted)
         map_property_mark_deleted(grid_offset);
     } else {
         map_sprite_clear_tile(grid_offset);
-        map_terrain_remove(grid_offset, TERRAIN_ROAD);
+        terrain_grid.items[grid_offset] &= ~TERRAIN_ROAD;
     }
     while (map_is_bridge(grid_offset + offset_up)) {
         grid_offset += offset_up;
@@ -283,7 +301,7 @@ void map_bridge_remove(int grid_offset, int mark_deleted)
             map_property_mark_deleted(grid_offset);
         } else {
             map_sprite_clear_tile(grid_offset);
-            map_terrain_remove(grid_offset, TERRAIN_ROAD);
+            terrain_grid.items[grid_offset] &= ~TERRAIN_ROAD;
         }
     }
 }

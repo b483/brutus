@@ -28,7 +28,7 @@ void scenario_request_dispatch(int id);
 
 void scenario_custom_messages_process(void);
 
-int start_invasion(int enemy_type, int amount, int invasion_point, int enemy_attack_priority, int invasion_id);
+int start_invasion(int enemy_type, int amount, int invasion_point, int enemy_attack_priority);
 
 void scenario_price_change_process(void);
 

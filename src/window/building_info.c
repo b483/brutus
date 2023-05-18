@@ -197,13 +197,13 @@ static void init(int grid_offset)
         } else {
             context.terrain_type = TERRAIN_INFO_ROCK;
         }
-    } else if ((map_terrain_get(grid_offset) & (TERRAIN_WATER | TERRAIN_BUILDING)) == TERRAIN_WATER) {
+    } else if ((terrain_grid.items[grid_offset] & (TERRAIN_WATER | TERRAIN_BUILDING)) == TERRAIN_WATER) {
         context.terrain_type = TERRAIN_INFO_WATER;
     } else if (map_terrain_is(grid_offset, TERRAIN_TREE)) {
         context.terrain_type = TERRAIN_INFO_SHRUB;
     } else if (map_terrain_is(grid_offset, TERRAIN_GARDEN)) {
         context.terrain_type = TERRAIN_INFO_GARDEN;
-    } else if ((map_terrain_get(grid_offset) & (TERRAIN_ROAD | TERRAIN_BUILDING)) == TERRAIN_ROAD) {
+    } else if ((terrain_grid.items[grid_offset] & (TERRAIN_ROAD | TERRAIN_BUILDING)) == TERRAIN_ROAD) {
         context.terrain_type = TERRAIN_INFO_ROAD;
     } else if (map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
         context.terrain_type = TERRAIN_INFO_AQUEDUCT;

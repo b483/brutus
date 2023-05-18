@@ -21,7 +21,6 @@
 #include "core/string.h"
 #include "empire/empire.h"
 #include "empire/trade_prices.h"
-#include "figure/enemy_army.h"
 #include "figure/formation.h"
 #include "figure/name.h"
 #include "figure/route.h"
@@ -49,7 +48,6 @@
 #include "map/random.h"
 #include "map/road_network.h"
 #include "map/routing_terrain.h"
-#include "map/soldier_strength.h"
 #include "map/sprite.h"
 #include "map/terrain.h"
 #include "map/tiles.h"
@@ -77,7 +75,6 @@ static void clear_scenario_data(void)
     building_clear_all();
     building_storage_clear_all();
     figure_init_scenario();
-    enemy_armies_clear();
     figure_name_init();
     formations_clear();
     figure_route_clear_all();
@@ -95,7 +92,6 @@ static void clear_scenario_data(void)
     map_random_clear();
     map_desirability_clear();
     map_elevation_clear();
-    map_soldier_strength_clear();
     map_road_network_clear();
 
     map_image_context_init();

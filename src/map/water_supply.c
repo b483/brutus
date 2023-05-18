@@ -144,7 +144,7 @@ static void fill_aqueducts_from_offset(int grid_offset)
 
 void map_water_supply_update_reservoir_fountain(void)
 {
-    map_terrain_remove_all(TERRAIN_FOUNTAIN_RANGE | TERRAIN_RESERVOIR_RANGE);
+    map_grid_and_u16(terrain_grid.items, ~(TERRAIN_FOUNTAIN_RANGE | TERRAIN_RESERVOIR_RANGE));
     // reservoirs
     set_all_aqueducts_to_no_water();
     building_list_large_clear(1);

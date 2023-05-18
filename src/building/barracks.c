@@ -68,7 +68,9 @@ void building_barracks_create_soldier(struct building_t *barracks, int x, int y)
             barracks->loads_stored--;
         }
         f->building_id = m->building_id;
-        if (f->type == FIGURE_FORT_MOUNTED) {
+        if (f->type == FIGURE_FORT_LEGIONARY) {
+            city_data.military.legionary_legions++;
+        } else if (f->type == FIGURE_FORT_MOUNTED) {
             f->mounted_charge_ticks = 10;
             f->mounted_charge_ticks_max = 10;
         }
@@ -87,8 +89,8 @@ void building_barracks_create_soldier(struct building_t *barracks, int x, int y)
                 deploy_legion_unit_to_formation_location(f, m);
             }
         }
+        city_data.figure.soldiers++;
     }
-    formation_calculate_figures();
 }
 
 int building_barracks_create_tower_sentry(struct building_t *barracks, int x, int y)

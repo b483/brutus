@@ -86,7 +86,7 @@ static int building_preview_blocked(int grid_offset, int num_tiles, int *blocked
     int blocked = 0;
     for (int i = 0; i < num_tiles; i++) {
         int tile_offset = grid_offset + TILE_GRID_OFFSETS[orientation_index][i];
-        int forbidden_terrain = map_terrain_get(tile_offset) & TERRAIN_NOT_CLEAR;
+        int forbidden_terrain = terrain_grid.items[tile_offset] & TERRAIN_NOT_CLEAR;
         if (type == BUILDING_GATEHOUSE || type == BUILDING_TRIUMPHAL_ARCH) {
             forbidden_terrain &= ~TERRAIN_ROAD;
         }

@@ -195,7 +195,7 @@ static uint8_t figure_desc_strings[][26] = {
     "Explosion", // 56
 };
 
-static uint8_t enemy_desc_strings[][25] = {
+static uint8_t enemy_desc_strings[][26] = {
     "A barbarian warrior", // 0
     "A Carthaginian soldier", // 1
     "A Briton", // 2
@@ -334,10 +334,86 @@ static void draw_enemy(building_info_context *c, struct figure_t *f)
 
     lang_text_draw(65, f->name_id, c->x_offset + 90, c->y_offset + 108, FONT_LARGE_BROWN);
 
-    if (f->type == FIGURE_ENEMY_BARBARIAN_SWORDSMAN) {
-        text_draw(enemy_desc_strings[0], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
-    } else {
-        text_draw(enemy_desc_strings[(f->type - FIGURE_ENEMY_BARBARIAN_SWORDSMAN) / 2 + 1], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+    switch (f->type) {
+        case FIGURE_ENEMY_BARBARIAN_SWORDSMAN:
+            text_draw(enemy_desc_strings[0], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN:
+        case FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT:
+            text_draw(enemy_desc_strings[1], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_BRITON_SWORDSMAN:
+        case FIGURE_ENEMY_BRITON_CHARIOT:
+            text_draw(enemy_desc_strings[2], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_CELT_SWORDSMAN:
+        case FIGURE_ENEMY_CELT_CHARIOT:
+            text_draw(enemy_desc_strings[3], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_PICT_SWORDSMAN:
+        case FIGURE_ENEMY_PICT_CHARIOT:
+            text_draw(enemy_desc_strings[4], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_EGYPTIAN_SWORDSMAN:
+        case FIGURE_ENEMY_EGYPTIAN_CAMEL:
+            text_draw(enemy_desc_strings[5], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_ETRUSCAN_SWORDSMAN:
+        case FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER:
+            text_draw(enemy_desc_strings[6], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_SAMNITE_SWORDSMAN:
+        case FIGURE_ENEMY_SAMNITE_SPEAR_THROWER:
+            text_draw(enemy_desc_strings[7], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_GAUL_SWORDSMAN:
+        case FIGURE_ENEMY_GAUL_AXEMAN:
+            text_draw(enemy_desc_strings[8], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_HELVETIUS_SWORDSMAN:
+        case FIGURE_ENEMY_HELVETIUS_AXEMAN:
+            text_draw(enemy_desc_strings[9], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_HUN_SWORDSMAN:
+        case FIGURE_ENEMY_HUN_MOUNTED_ARCHER:
+            text_draw(enemy_desc_strings[10], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_GOTH_SWORDSMAN:
+        case FIGURE_ENEMY_GOTH_MOUNTED_ARCHER:
+            text_draw(enemy_desc_strings[11], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
+        case FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER:
+            text_draw(enemy_desc_strings[12], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_GREEK_SWORDSMAN:
+        case FIGURE_ENEMY_GREEK_SPEAR_THROWER:
+            text_draw(enemy_desc_strings[13], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_MACEDONIAN_SWORDSMAN:
+        case FIGURE_ENEMY_MACEDONIAN_SPEAR_THROWER:
+            text_draw(enemy_desc_strings[14], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
+        case FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER:
+            text_draw(enemy_desc_strings[15], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_PERGAMUM_SWORDSMAN:
+        case FIGURE_ENEMY_PERGAMUM_ARCHER:
+            text_draw(enemy_desc_strings[16], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_IBERIAN_SWORDSMAN:
+        case FIGURE_ENEMY_IBERIAN_SPEAR_THROWER:
+            text_draw(enemy_desc_strings[17], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_JUDEAN_SWORDSMAN:
+        case FIGURE_ENEMY_JUDEAN_SPEAR_THROWER:
+            text_draw(enemy_desc_strings[18], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
+        case FIGURE_ENEMY_SELEUCID_SWORDSMAN:
+        case FIGURE_ENEMY_SELEUCID_SPEAR_THROWER:
+            text_draw(enemy_desc_strings[19], c->x_offset + 92, c->y_offset + 149, FONT_NORMAL_BROWN, COLOR_BLACK);
+            break;
     }
 }
 

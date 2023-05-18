@@ -16,7 +16,6 @@
 #include "empire/empire.h"
 #include "empire/object.h"
 #include "empire/trade_prices.h"
-#include "figure/enemy_army.h"
 #include "figure/formation.h"
 #include "figure/name.h"
 #include "figure/route.h"
@@ -120,7 +119,6 @@ typedef struct {
     buffer *building_list_small;
     buffer *building_list_large;
     buffer *building_count_military;
-    buffer *enemy_army_totals;
     buffer *building_storages;
     buffer *building_count_culture2;
     buffer *building_count_support;
@@ -128,7 +126,6 @@ typedef struct {
     buffer *building_extra_sequence;
     buffer *routing_counters;
     buffer *building_count_culture3;
-    buffer *enemy_armies;
     buffer *city_entry_exit_xy;
     buffer *building_extra_corrupt_houses;
     buffer *bookmarks;
@@ -209,11 +206,11 @@ static void init_savegame_data(void)
     state->building_damage_grid = create_savegame_piece(26244, 1);
     state->aqueduct_backup_grid = create_savegame_piece(26244, 1);
     state->sprite_backup_grid = create_savegame_piece(26244, 1);
-    state->figures = create_savegame_piece(129000, 1);
+    state->figures = create_savegame_piece(130000, 1);
     state->route_figures = create_savegame_piece(1200, 1);
     state->route_paths = create_savegame_piece(300000, 1);
-    state->formations = create_savegame_piece(4750, 1);
-    state->city_data = create_savegame_piece(11599, 1);
+    state->formations = create_savegame_piece(3700, 1);
+    state->city_data = create_savegame_piece(11593, 1);
     state->player_name = create_savegame_piece(24, 0);
     state->buildings = create_savegame_piece(162000, 1);
     state->city_view_orientation = create_savegame_piece(4, 0);
@@ -243,7 +240,6 @@ static void init_savegame_data(void)
     state->building_list_small = create_savegame_piece(1000, 1);
     state->building_list_large = create_savegame_piece(4000, 1);
     state->building_count_military = create_savegame_piece(16, 0);
-    state->enemy_army_totals = create_savegame_piece(20, 0);
     state->building_storages = create_savegame_piece(4400, 0);
     state->building_count_culture2 = create_savegame_piece(32, 0);
     state->building_count_support = create_savegame_piece(24, 0);
@@ -251,7 +247,6 @@ static void init_savegame_data(void)
     state->building_extra_sequence = create_savegame_piece(4, 0);
     state->routing_counters = create_savegame_piece(8, 0);
     state->building_count_culture3 = create_savegame_piece(40, 0);
-    state->enemy_armies = create_savegame_piece(900, 0);
     state->city_entry_exit_xy = create_savegame_piece(16, 0);
     state->building_extra_corrupt_houses = create_savegame_piece(8, 0);
     state->bookmarks = create_savegame_piece(32, 0);
@@ -346,7 +341,6 @@ static void savegame_load_from_state(savegame_state *state)
 
     building_storage_load_state(state->building_storages);
     map_routing_load_state(state->routing_counters);
-    enemy_armies_load_state(state->enemy_armies, state->enemy_army_totals);
     map_bookmark_load_state(state->bookmarks);
 }
 
@@ -408,7 +402,6 @@ static void savegame_save_to_state(savegame_state *state)
 
     building_storage_save_state(state->building_storages);
     map_routing_save_state(state->routing_counters);
-    enemy_armies_save_state(state->enemy_armies, state->enemy_army_totals);
     map_bookmark_save_state(state->bookmarks);
 }
 

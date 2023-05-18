@@ -11,7 +11,6 @@
 #include "core/image_group_editor.h"
 #include "empire/empire.h"
 #include "empire/object.h"
-#include "figure/enemy_army.h"
 #include "figure/figure.h"
 #include "figure/formation.h"
 #include "figure/name.h"
@@ -35,7 +34,6 @@
 #include "map/random.h"
 #include "map/road_network.h"
 #include "map/routing_terrain.h"
-#include "map/soldier_strength.h"
 #include "map/sprite.h"
 #include "map/terrain.h"
 #include "map/tiles.h"
@@ -60,12 +58,27 @@ void game_file_editor_clear_data(void)
     building_clear_all();
     building_storage_clear_all();
     figure_init_scenario();
-    enemy_armies_clear();
     figure_name_init();
     formations_clear();
     figure_route_clear_all();
     traders_clear();
     game_time_init(2098);
+}
+
+static void map_terrain_init_outside_map(void)
+{
+    int map_width, map_height;
+    map_grid_size(&map_width, &map_height);
+    int y_start = (GRID_SIZE - map_height) / 2;
+    int x_start = (GRID_SIZE - map_width) / 2;
+    for (int y = 0; y < GRID_SIZE; y++) {
+        int y_outside_map = y < y_start || y >= y_start + map_height;
+        for (int x = 0; x < GRID_SIZE; x++) {
+            if (y_outside_map || x < x_start || x >= x_start + map_width) {
+                terrain_grid.items[x + GRID_SIZE * y] = TERRAIN_SHRUB | TERRAIN_WATER;
+            }
+        }
+    }
 }
 
 static void clear_map_data(void)
@@ -80,7 +93,6 @@ static void clear_map_data(void)
     map_random_clear();
     map_desirability_clear();
     map_elevation_clear();
-    map_soldier_strength_clear();
     map_road_network_clear();
 
     map_image_context_init();

@@ -175,13 +175,19 @@ static int draw_background(void)
 static int get_request_status(int index)
 {
     int num_requests = 0;
-    if (city_data.distant_battle.months_until_battle
-        && !city_data.distant_battle.roman_months_to_travel_forth) {
+    if (city_data.distant_battle.months_until_battle && !city_data.distant_battle.roman_months_to_travel_forth) {
         num_requests = 1;
         if (index == 0) {
+            int legions_selected_emp_service = 0;
+            for (int i = 1; i < MAX_FORMATIONS; i++) {
+                if (formations[i].in_use && formations[i].is_legion && formations[i].empire_service && formations[i].num_figures > 0) {
+                    legions_selected_emp_service = 1;
+                    break;
+                }
+            }
             if (!city_data.military.total_legions) {
                 return STATUS_NO_LEGIONS_AVAILABLE;
-            } else if (!city_data.military.empire_service_legions) {
+            } else if (!legions_selected_emp_service) {
                 return STATUS_NO_LEGIONS_SELECTED;
             } else {
                 return STATUS_CONFIRM_SEND_LEGIONS;
@@ -316,7 +322,6 @@ static void confirm_send_troops(void)
         city_data.distant_battle.roman_months_to_travel_forth = scenario.empire.distant_battle_roman_travel_months;
         city_data.distant_battle.roman_strength = roman_strength;
     }
-    city_data.military.empire_service_legions = 0;
     window_empire_show();
 }
 

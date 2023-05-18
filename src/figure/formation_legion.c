@@ -5,7 +5,6 @@
 #include "city/military.h"
 #include "city/warning.h"
 #include "core/calc.h"
-#include "figure/enemy_army.h"
 #include "figure/figure.h"
 #include "figure/route.h"
 #include "map/building.h"
@@ -19,7 +18,6 @@
 
 int formation_legion_create_for_fort(struct building_t *fort)
 {
-    formation_calculate_legion_totals();
     struct formation_t *m = create_formation_type(fort->subtype.fort_figure_type);
     m->is_legion = 1;
     // assign first available legion_id (factors in fort deletes)
@@ -39,7 +37,6 @@ int formation_legion_create_for_fort(struct building_t *fort)
         }
     }
     m->layout = FORMATION_DOUBLE_LINE_1;
-    m->prev.layout = FORMATION_DOUBLE_LINE_1;
     if (fort->subtype.fort_figure_type == FIGURE_FORT_LEGIONARY) {
         m->max_morale = 80;
     } else {
@@ -47,37 +44,19 @@ int formation_legion_create_for_fort(struct building_t *fort)
     }
     m->morale = m->max_morale;
     m->max_figures = MAX_FORMATION_FIGURES;
-    m->x = m->standard_x = m->x_home = fort->x + 3;
-    m->y = m->standard_y = m->y_home = fort->y - 1;
+    m->standard_x = fort->x + 3;
+    m->standard_y = fort->y - 1;
     m->building_id = fort->id;
 
-    struct figure_t *standard = figure_create(FIGURE_FORT_STANDARD, m->x, m->y, DIR_0_TOP);
+    struct figure_t *standard = figure_create(FIGURE_FORT_STANDARD, m->standard_x, m->standard_y, DIR_0_TOP);
     standard->building_id = fort->id;
     standard->formation_id = m->id;
 
     m->legion_standard__figure_id = standard->id;
 
-    return m->id;
-}
+    city_data.military.total_legions++;
 
-void formation_calculate_legion_totals(void)
-{
-    city_data.military.legionary_legions = 0;
-    for (int i = 1; i < MAX_FORMATIONS; i++) {
-        if (formations[i].in_use) {
-            if (formations[i].is_legion) {
-                if (formations[i].figure_type == FIGURE_FORT_LEGIONARY) {
-                    city_data.military.legionary_legions++;
-                }
-            }
-            if (formations[i].missile_attack_timeout <= 0 && formations[i].figures[0]) {
-                struct figure_t *f = &figures[formations[i].figures[0]];
-                if (f->state == FIGURE_STATE_ALIVE) {
-                    formation_set_home(&formations[i], f->x, f->y);
-                }
-            }
-        }
-    }
+    return m->id;
 }
 
 int formation_get_num_legions(void)
@@ -218,12 +197,12 @@ void formation_legion_move_to(struct formation_t *m, map_tile *tile)
 
 void formation_legion_return_home(struct formation_t *m)
 {
-    map_routing_calculate_distances(m->x_home, m->y_home);
-    if (map_routing_distance(map_grid_offset(m->x, m->y)) <= 0) {
+    map_routing_calculate_distances(m->standard_x, m->standard_y);
+    if (map_routing_distance(map_grid_offset(figures[m->figures[0]].x, figures[m->figures[0]].y)) <= 0) {
         return; // unable to route home
     }
-    m->standard_x = m->x;
-    m->standard_y = m->y;
+    m->standard_x = all_buildings[m->building_id].x + 3;
+    m->standard_y = all_buildings[m->building_id].y - 1;
     update_legion_standard_map_location(m);
 
     for (int i = 0; i < MAX_FORMATION_FIGURES && m->figures[i]; i++) {
@@ -254,25 +233,25 @@ void formation_legion_update(void)
 {
     for (int i = 1; i < MAX_FORMATIONS; i++) {
         if (formations[i].in_use && formations[i].is_legion) {
-            formation_adjust_counters(&formations[i]);
+            struct formation_t *m = &formations[i];
+            formation_adjust_counters(m);
             if (city_data.figure.enemies <= 0) {
-                formation_clear_counters(&formations[i]);
+                formation_clear_counters(m);
             }
-            if (formations[i].morale > ROUT_MORALE_THRESHOLD) {
-                formations[i].routed = 0;
+            if (m->morale > ROUT_MORALE_THRESHOLD) {
+                m->routed = 0;
             }
-
             // check formation military training status, send untrained units to train
-            int formation_military_training = 1;
-            for (int n = 0; n < formations[i].num_figures; n++) {
-                struct figure_t *f = &figures[formations[i].figures[n]];
+            int formation_military_trained = 1;
+            for (int n = 0; n < m->num_figures; n++) {
+                struct figure_t *f = &figures[m->figures[n]];
                 if (!f->is_military_trained) {
-                    formation_military_training = 0;
-                    formations[i].has_military_training = 0;
-                    if (formations[i].figure_type == FIGURE_FORT_LEGIONARY) {
-                        formations[i].max_morale = 80;
+                    formation_military_trained = 0;
+                    m->has_military_training = 0;
+                    if (m->figure_type == FIGURE_FORT_LEGIONARY) {
+                        m->max_morale = 80;
                     } else {
-                        formations[i].max_morale = 60;
+                        m->max_morale = 60;
                     }
                     if (scenario.allowed_buildings[BUILDING_MILITARY_ACADEMY] && f->action_state == FIGURE_ACTION_SOLDIER_AT_REST) {
                         map_point mil_acad_road = { 0 };
@@ -286,44 +265,36 @@ void formation_legion_update(void)
                     }
                 }
             }
-            if (formation_military_training) {
-                formations[i].has_military_training = 1;
-                if (formations[i].figure_type == FIGURE_FORT_LEGIONARY) {
-                    formations[i].max_morale = 100;
+            if (formation_military_trained) {
+                m->has_military_training = 1;
+                if (m->figure_type == FIGURE_FORT_LEGIONARY) {
+                    m->max_morale = 100;
                 } else {
-                    formations[i].max_morale = 80;
+                    m->max_morale = 80;
                 }
             }
 
             // check if all units of a formation are at rest (not deployed)
             int formation_at_rest = 1;
-            for (int n = 0; n < formations[i].num_figures; n++) {
-                struct figure_t *f = &figures[formations[i].figures[n]];
+            for (int n = 0; n < m->num_figures; n++) {
+                struct figure_t *f = &figures[m->figures[n]];
                 if (f->action_state == FIGURE_ACTION_ATTACK
                 || f->action_state == FIGURE_ACTION_SOLDIER_GOING_TO_STANDARD
                 || f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD
                 || f->action_state == FIGURE_ACTION_SOLDIER_MOPPING_UP
                 || f->action_state == FIGURE_ACTION_SOLDIER_GOING_TO_DISTANT_BATTLE) {
                     formation_at_rest = 0;
-                    formations[i].is_at_rest = 0;
+                    m->is_at_rest = 0;
                     break;
                 }
             }
             if (formation_at_rest) {
-                formations[i].is_at_rest = 1;
-            }
-
-            for (int n = 0; n < formations[i].num_figures; n++) {
-                struct figure_t *f = &figures[formations[i].figures[n]];
-                if (f->action_state == FIGURE_ACTION_ATTACK) {
-                    formations[i].recent_fight = 6;
-                    break;
-                }
+                m->is_at_rest = 1;
             }
 
             // decrease damage
-            for (int n = 0; n < formations[i].num_figures; n++) {
-                struct figure_t *f = &figures[formations[i].figures[n]];
+            for (int n = 0; n < m->num_figures; n++) {
+                struct figure_t *f = &figures[m->figures[n]];
                 if (!figure_is_dead(f) && f->action_state == FIGURE_ACTION_SOLDIER_AT_REST) {
                     if (f->damage) {
                         f->damage--;
@@ -331,13 +302,13 @@ void formation_legion_update(void)
                 }
             }
 
-            if (formations[i].morale <= ROUT_MORALE_THRESHOLD) {
-                formations[i].standard_x = formations[i].x;
-                formations[i].standard_y = formations[i].y;
-                update_legion_standard_map_location(&formations[i]);
+            if (m->morale <= ROUT_MORALE_THRESHOLD) {
+                m->standard_x = all_buildings[m->building_id].x + 3;
+                m->standard_y = all_buildings[m->building_id].y - 1;
+                update_legion_standard_map_location(m);
                 // flee back to fort
-                for (int n = 0; n < formations[i].num_figures; n++) {
-                    struct figure_t *f = &figures[formations[i].figures[n]];
+                for (int n = 0; n < m->num_figures; n++) {
+                    struct figure_t *f = &figures[m->figures[n]];
                     if (f->action_state != FIGURE_ACTION_ATTACK &&
                         f->action_state != FIGURE_ACTION_CORPSE &&
                         f->action_state != FIGURE_ACTION_FLEEING) {
@@ -346,7 +317,7 @@ void formation_legion_update(void)
                     }
                 }
                 // on formation rout, reduce morale of all legions, improve morale of all enemy formations
-                if (!formations[i].routed) {
+                if (!m->routed) {
                     for (int j = 1; j < MAX_FORMATIONS; j++) {
                         if (formations[j].in_use && !formations[j].is_herd) {
                             if (formations[j].is_legion) {
@@ -356,7 +327,7 @@ void formation_legion_update(void)
                             }
                         }
                     }
-                    formations[i].routed = 1;
+                    m->routed = 1;
                 }
             }
         }

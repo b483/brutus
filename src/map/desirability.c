@@ -84,12 +84,11 @@ static void update_terrain(void)
     int grid_offset = map_data.start_offset;
     for (int y = 0; y < map_data.height; y++, grid_offset += map_data.border_size) {
         for (int x = 0; x < map_data.width; x++, grid_offset++) {
-            int terrain = map_terrain_get(grid_offset);
             if (map_property_is_plaza_or_earthquake(grid_offset)) {
                 int type;
-                if (terrain & TERRAIN_ROAD) {
+                if (terrain_grid.items[grid_offset] & TERRAIN_ROAD) {
                     type = BUILDING_PLAZA;
-                } else if (terrain & TERRAIN_ROCK) {
+                } else if (terrain_grid.items[grid_offset] & TERRAIN_ROCK) {
                     // earthquake fault line: slight negative
                     type = BUILDING_HOUSE_VACANT_LOT;
                 } else {
@@ -102,19 +101,19 @@ static void update_terrain(void)
                     building_properties[type].desirability_step,
                     building_properties[type].desirability_step_size,
                     building_properties[type].desirability_range);
-            } else if (terrain & TERRAIN_GARDEN) {
+            } else if (terrain_grid.items[grid_offset] & TERRAIN_GARDEN) {
                 add_to_terrain(x, y, 1,
                     building_properties[BUILDING_GARDENS].desirability_value,
                     building_properties[BUILDING_GARDENS].desirability_step,
                     building_properties[BUILDING_GARDENS].desirability_step_size,
                     building_properties[BUILDING_GARDENS].desirability_range);
-            } else if (terrain & TERRAIN_RUBBLE) {
+            } else if (terrain_grid.items[grid_offset] & TERRAIN_RUBBLE) {
                 add_to_terrain(x, y, 1, -2, 1, 1, 2);
-            } else if (terrain & TERRAIN_WATER) {
+            } else if (terrain_grid.items[grid_offset] & TERRAIN_WATER) {
                 add_to_terrain(x, y, 1, 1, 1, 0, 3);
-            } else if (terrain & TERRAIN_SHRUB) {
+            } else if (terrain_grid.items[grid_offset] & TERRAIN_SHRUB) {
                 add_to_terrain(x, y, 1, 1, 1, 0, 1);
-            } else if (terrain & TERRAIN_TREE) {
+            } else if (terrain_grid.items[grid_offset] & TERRAIN_TREE) {
                 add_to_terrain(x, y, 1, 1, 1, 0, 3);
             }
         }

@@ -305,7 +305,7 @@ static void draw_footprint_water(int x, int y, int grid_offset)
         image_draw_isometric_footprint_from_draw_tile(image_id, x, y, 0);
     } else if (map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
         struct building_t *b = &all_buildings[map_building_at(grid_offset)];
-        int terrain = map_terrain_get(grid_offset);
+        int terrain = terrain_grid.items[grid_offset];
         if (b->id && (b->has_well_access || (b->house_size && b->has_water_access))) {
             terrain |= TERRAIN_FOUNTAIN_RANGE;
         }
@@ -327,7 +327,7 @@ static void draw_footprint_water(int x, int y, int grid_offset)
         city_with_overlay_draw_building_footprint(x, y, grid_offset, image_offset);
     } else {
         int image_id = image_group(GROUP_TERRAIN_OVERLAY);
-        switch (map_terrain_get(grid_offset) & (TERRAIN_RESERVOIR_RANGE | TERRAIN_FOUNTAIN_RANGE)) {
+        switch (terrain_grid.items[grid_offset] & (TERRAIN_RESERVOIR_RANGE | TERRAIN_FOUNTAIN_RANGE)) {
             case TERRAIN_RESERVOIR_RANGE | TERRAIN_FOUNTAIN_RANGE:
                 image_id += 27;
                 break;

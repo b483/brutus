@@ -6,7 +6,6 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"
-#include "figure/enemy_army.h"
 #include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"

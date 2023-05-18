@@ -56,28 +56,53 @@ static const struct {
     int pct_type[MAX_ENEMY_TYPES_PER_ARMY];
     int figure_types[MAX_ENEMY_TYPES_PER_ARMY];
     int formation_layout;
+    int enemy_img_group;
 } ENEMY_PROPERTIES[] = {
-    {{100, 0, 0}, {FIGURE_ENEMY_BARBARIAN_SWORDSMAN, 0, 0}, FORMATION_ENEMY_MOB}, // barbarian
-    {{90, 10, 0}, {FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN, FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT, 0}, FORMATION_ENEMY_WIDE_COLUMN}, // carthaginian
-    {{80, 20, 0}, {FIGURE_ENEMY_BRITON_SWORDSMAN, FIGURE_ENEMY_BRITON_CHARIOT, 0}, FORMATION_ENEMY_MOB}, // briton
-    {{80, 20, 0}, {FIGURE_ENEMY_CELT_SWORDSMAN, FIGURE_ENEMY_CELT_CHARIOT, 0}, FORMATION_ENEMY_MOB}, // celt
-    {{80, 20, 0}, {FIGURE_ENEMY_PICT_SWORDSMAN, FIGURE_ENEMY_PICT_CHARIOT, 0}, FORMATION_ENEMY_MOB}, // pict
-    {{80, 20, 0}, {FIGURE_ENEMY_EGYPTIAN_SWORDSMAN, FIGURE_ENEMY_EGYPTIAN_CAMEL, 0}, FORMATION_ENEMY_WIDE_COLUMN}, // egyptian
-    {{50, 50, 0}, {FIGURE_ENEMY_ETRUSCAN_SWORDSMAN, FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // etruscan
-    {{50, 50, 0}, {FIGURE_ENEMY_SAMNITE_SWORDSMAN, FIGURE_ENEMY_SAMNITE_SPEAR_THROWER, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // samnite
-    {{50, 50, 0}, {FIGURE_ENEMY_GAUL_SWORDSMAN, FIGURE_ENEMY_GAUL_AXEMAN, 0}, FORMATION_ENEMY_MOB}, // gaul
-    {{50, 50, 0}, {FIGURE_ENEMY_HELVETIUS_SWORDSMAN, FIGURE_ENEMY_HELVETIUS_AXEMAN, 0}, FORMATION_ENEMY_MOB}, // helvetius
-    {{50, 50, 0}, {FIGURE_ENEMY_GOTH_SWORDSMAN, FIGURE_ENEMY_GOTH_MOUNTED_ARCHER, 0}, FORMATION_ENEMY_MOB}, // goth
-    {{50, 50, 0}, {FIGURE_ENEMY_VISIGOTH_SWORDSMAN, FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER, 0}, FORMATION_ENEMY_MOB}, // visigoth
-    {{50, 50, 0}, {FIGURE_ENEMY_HUN_SWORDSMAN, FIGURE_ENEMY_HUN_MOUNTED_ARCHER, 0}, FORMATION_ENEMY_MOB}, // hun
-    {{80, 20, 0}, {FIGURE_ENEMY_GREEK_SWORDSMAN, FIGURE_ENEMY_GREEK_SPEAR_THROWER, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // greek
-    {{80, 20, 0}, {FIGURE_ENEMY_MACEDONIAN_SWORDSMAN, FIGURE_ENEMY_MACEDONIAN_SPEAR_THROWER, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // macedonian
-    {{40, 60, 0}, {FIGURE_ENEMY_NUMIDIAN_SWORDSMAN, FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER, 0}, FORMATION_ENEMY_MOB}, // numidian
-    {{30, 70, 0}, {FIGURE_ENEMY_PERGAMUM_SWORDSMAN, FIGURE_ENEMY_PERGAMUM_ARCHER, 0}, FORMATION_TORTOISE}, // pergamum
-    {{50, 50, 0}, {FIGURE_ENEMY_IBERIAN_SWORDSMAN, FIGURE_ENEMY_IBERIAN_SPEAR_THROWER, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // iberian
-    {{50, 50, 0}, {FIGURE_ENEMY_JUDEAN_SWORDSMAN, FIGURE_ENEMY_JUDEAN_SPEAR_THROWER, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // judean
-    {{50, 50, 0}, {FIGURE_ENEMY_SELEUCID_SWORDSMAN, FIGURE_ENEMY_SELEUCID_SPEAR_THROWER, 0}, FORMATION_ENEMY_DOUBLE_LINE}, // seleucid
-    {{100, 0, 0}, {FIGURE_ENEMY_CAESAR_LEGIONARY, 0, 0}, FORMATION_TORTOISE} // caesar
+    {{100, 0, 0}, {FIGURE_ENEMY_BARBARIAN_SWORDSMAN, 0, 0}, FORMATION_ENEMY_MOB, ENEMY_IMG_TYPE_BARBARIAN}, // barbarian
+    {{90, 10, 0}, {FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN, FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT, 0}, FORMATION_ENEMY_WIDE_COLUMN, ENEMY_IMG_TYPE_CARTHAGINIAN}, // carthaginian
+    {{80, 20, 0}, {FIGURE_ENEMY_BRITON_SWORDSMAN, FIGURE_ENEMY_BRITON_CHARIOT, 0}, FORMATION_ENEMY_MOB, ENEMY_IMG_TYPE_CELT}, // briton
+    {{80, 20, 0}, {FIGURE_ENEMY_CELT_SWORDSMAN, FIGURE_ENEMY_CELT_CHARIOT, 0}, FORMATION_ENEMY_MOB, ENEMY_IMG_TYPE_CELT}, // celt
+    {{80, 20, 0}, {FIGURE_ENEMY_PICT_SWORDSMAN, FIGURE_ENEMY_PICT_CHARIOT, 0}, FORMATION_ENEMY_MOB, ENEMY_IMG_TYPE_CELT}, // pict
+    {{80, 20, 0}, {FIGURE_ENEMY_EGYPTIAN_SWORDSMAN, FIGURE_ENEMY_EGYPTIAN_CAMEL, 0}, FORMATION_ENEMY_WIDE_COLUMN, ENEMY_IMG_TYPE_EGYPTIAN}, // egyptian
+    {{50, 50, 0}, {FIGURE_ENEMY_ETRUSCAN_SWORDSMAN, FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER, 0}, FORMATION_DOUBLE_LINE_1, ENEMY_IMG_TYPE_ETRUSCAN}, // etruscan
+    {{50, 50, 0}, {FIGURE_ENEMY_SAMNITE_SWORDSMAN, FIGURE_ENEMY_SAMNITE_SPEAR_THROWER, 0}, FORMATION_DOUBLE_LINE_1, ENEMY_IMG_TYPE_ETRUSCAN}, // samnite
+    {{50, 50, 0}, {FIGURE_ENEMY_GAUL_SWORDSMAN, FIGURE_ENEMY_GAUL_AXEMAN, 0}, FORMATION_ENEMY_MOB, ENEMY_IMG_TYPE_GAUL}, // gaul
+    {{50, 50, 0}, {FIGURE_ENEMY_HELVETIUS_SWORDSMAN, FIGURE_ENEMY_HELVETIUS_AXEMAN, 0}, FORMATION_ENEMY_MOB, ENEMY_IMG_TYPE_GAUL}, // helvetius
+    {{50, 50, 0}, {FIGURE_ENEMY_HUN_SWORDSMAN, FIGURE_ENEMY_HUN_MOUNTED_ARCHER, 0}, FORMATION_ENEMY_MOB, ENEMY_IMG_TYPE_GOTH}, // hun
+    {{50, 50, 0}, {FIGURE_ENEMY_GOTH_SWORDSMAN, FIGURE_ENEMY_GOTH_MOUNTED_ARCHER, 0}, FORMATION_ENEMY_MOB, ENEMY_IMG_TYPE_GOTH}, // goth
+    {{50, 50, 0}, {FIGURE_ENEMY_VISIGOTH_SWORDSMAN, FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER, 0}, FORMATION_ENEMY_MOB, ENEMY_IMG_TYPE_GOTH}, // visigoth
+    {{80, 20, 0}, {FIGURE_ENEMY_GREEK_SWORDSMAN, FIGURE_ENEMY_GREEK_SPEAR_THROWER, 0}, FORMATION_DOUBLE_LINE_1, ENEMY_IMG_TYPE_GREEK}, // greek
+    {{80, 20, 0}, {FIGURE_ENEMY_MACEDONIAN_SWORDSMAN, FIGURE_ENEMY_MACEDONIAN_SPEAR_THROWER, 0}, FORMATION_DOUBLE_LINE_1, ENEMY_IMG_TYPE_GREEK}, // macedonian
+    {{40, 60, 0}, {FIGURE_ENEMY_NUMIDIAN_SWORDSMAN, FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER, 0}, FORMATION_ENEMY_MOB, ENEMY_IMG_TYPE_NORTH_AFRICAN}, // numidian
+    {{30, 70, 0}, {FIGURE_ENEMY_PERGAMUM_SWORDSMAN, FIGURE_ENEMY_PERGAMUM_ARCHER, 0}, FORMATION_TORTOISE, ENEMY_IMG_TYPE_PERSIAN}, // pergamum
+    {{50, 50, 0}, {FIGURE_ENEMY_IBERIAN_SWORDSMAN, FIGURE_ENEMY_IBERIAN_SPEAR_THROWER, 0}, FORMATION_DOUBLE_LINE_1, ENEMY_IMG_TYPE_PHOENICIAN}, // iberian
+    {{50, 50, 0}, {FIGURE_ENEMY_JUDEAN_SWORDSMAN, FIGURE_ENEMY_JUDEAN_SPEAR_THROWER, 0}, FORMATION_DOUBLE_LINE_1, ENEMY_IMG_TYPE_PHOENICIAN}, // judean
+    {{50, 50, 0}, {FIGURE_ENEMY_SELEUCID_SWORDSMAN, FIGURE_ENEMY_SELEUCID_SPEAR_THROWER, 0}, FORMATION_DOUBLE_LINE_1, ENEMY_IMG_TYPE_PHOENICIAN}, // seleucid
+    {{100, 0, 0}, {FIGURE_ENEMY_CAESAR_LEGIONARY, 0, 0}, FORMATION_TORTOISE, ENEMY_IMG_TYPE_CAESAR} // caesar
+};
+
+static int LAYOUT_OFFSETS_FROM_MAP_EDGE[][2] = {
+    {4, 9}, // FORMATION_TORTOISE
+    {2, 5}, // FORMATION_DOUBLE_LINE_1
+    {2, 5}, // FORMATION_DOUBLE_LINE_2
+    {0, 0}, // FORMATION_SINGLE_LINE_1 (not used by enemies)
+    {0, 0}, // FORMATION_SINGLE_LINE_2 (not used by enemies)
+    {0, 0}, // FORMATION_MOP_UP (not used by enemies)
+    {0, 0}, // FORMATION_AT_REST (not used by enemies)
+    {4, 11}, // FORMATION_ENEMY_MOB
+    {5, 12}, // FORMATION_ENEMY_WIDE_COLUMN
+};
+
+static int LAYOUT_SPACING_BETWEEN_FORMATIONS[] = {
+    3, // FORMATION_TORTOISE
+    5, // FORMATION_DOUBLE_LINE_1
+    5, // FORMATION_DOUBLE_LINE_2
+    0, // FORMATION_SINGLE_LINE_1 (not used by enemies)
+    0, // FORMATION_SINGLE_LINE_2 (not used by enemies)
+    0, // FORMATION_MOP_UP (not used by enemies)
+    0, // FORMATION_AT_REST (not used by enemies)
+    4, // FORMATION_ENEMY_MOB
+    4, // FORMATION_ENEMY_WIDE_COLUMN
 };
 
 void scenario_empire_process_expansion(void)
@@ -141,7 +166,7 @@ static void advance_earthquake_to_tile(int x, int y)
             map_building_set(grid_offset, 0);
         }
     }
-    map_terrain_set(grid_offset, 0);
+    terrain_grid.items[grid_offset] = 0;
     map_tiles_set_earthquake(x, y);
     map_tiles_update_all_gardens();
     map_tiles_update_all_roads();
@@ -371,20 +396,10 @@ void scenario_custom_messages_process(void)
     }
 }
 
-static void create_enemy_squad(int figure_type, int enemy_type, int x, int y, int figures_amount, int orientation, int spawn_delay_offset, int enemy_attack_priority, int invasion_id)
+static void create_enemy_formation(int figure_type, int enemy_type, int x, int y, int figures_amount_to_spawn, int orientation, int formation_index, int enemy_attack_priority)
 {
     struct formation_t *m = create_formation_type(figure_type);
     if (m) {
-        if (ENEMY_PROPERTIES[enemy_type].formation_layout == FORMATION_ENEMY_DOUBLE_LINE) {
-            if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
-                m->layout = FORMATION_DOUBLE_LINE_1;
-            } else {
-                m->layout = FORMATION_DOUBLE_LINE_2;
-            }
-        } else {
-            m->layout = ENEMY_PROPERTIES[enemy_type].formation_layout;
-        }
-        m->orientation = orientation;
         switch (enemy_type) {
             case ENEMY_TYPE_BARBARIAN:
             case ENEMY_TYPE_BRITON:
@@ -403,9 +418,6 @@ static void create_enemy_squad(int figure_type, int enemy_type, int x, int y, in
             case ENEMY_TYPE_MACEDONIAN:
                 m->max_morale = 90;
                 break;
-            case ENEMY_TYPE_CAESAR:
-                m->max_morale = 100;
-                break;
             case ENEMY_TYPE_PERGAMUM:
             case ENEMY_TYPE_IBERIAN:
             case ENEMY_TYPE_JUDEAN:
@@ -415,33 +427,76 @@ static void create_enemy_squad(int figure_type, int enemy_type, int x, int y, in
             case ENEMY_TYPE_SAMNITE:
                 m->max_morale = 70;
                 break;
+            case ENEMY_TYPE_CAESAR:
+                m->max_morale = 100;
+                break;
         }
         m->morale = m->max_morale;
-        m->max_figures = figures_amount;
-        m->x = x;
-        m->y = y;
+        m->max_figures = figures_amount_to_spawn;
         m->attack_priority = enemy_attack_priority;
-        m->invasion_id = invasion_id;
+        m->layout = ENEMY_PROPERTIES[enemy_type].formation_layout;
+        if (ENEMY_PROPERTIES[enemy_type].formation_layout == FORMATION_DOUBLE_LINE_1) {
+            if (orientation == DIR_2_RIGHT || orientation == DIR_6_LEFT) {
+                m->layout = FORMATION_DOUBLE_LINE_2;
+            }
+        }
 
-        for (int fig = 0; fig < figures_amount; fig++) {
+        if (orientation == DIR_0_TOP) {
+            if (formation_index % 2) {
+                m->destination_x = x;
+                m->destination_y = y - LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][1];
+            } else {
+                m->destination_x = x;
+                m->destination_y = y - LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][0];
+            }
+        } else if (orientation == DIR_4_BOTTOM) {
+            if (formation_index % 2) {
+                m->destination_x = x;
+                m->destination_y = y + LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][1];
+            } else {
+                m->destination_x = x;
+                m->destination_y = y + LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][0];
+            }
+        } else if (orientation == DIR_2_RIGHT) {
+            if (formation_index % 2) {
+                m->destination_x = x + LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][1];
+                m->destination_y = y;
+            } else {
+                m->destination_x = x + LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][0];
+                m->destination_y = y;
+            }
+        } else if (orientation == DIR_6_LEFT) {
+            if (formation_index % 2) {
+                m->destination_x = x - LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][1];
+                m->destination_y = y;
+            } else {
+                m->destination_x = x - LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][0];
+                m->destination_y = y;
+            }
+        }
+
+        for (int fig = 0; fig < figures_amount_to_spawn; fig++) {
             struct figure_t *f = figure_create(figure_type, x, y, orientation);
             f->is_targetable = 1;
-            f->action_state = FIGURE_ACTION_ENEMY_INITIAL;
-            f->wait_ticks = 40 * spawn_delay_offset + 10 * fig + 10;
+            f->action_state = FIGURE_ACTION_ENEMY_SPAWNING;
             f->formation_id = m->id;
+            f->enemy_image_group = ENEMY_PROPERTIES[enemy_type].enemy_img_group;
+            if (formation_index) {
+                f->wait_ticks = 50 * formation_index + 15 * fig + 300;
+            } else { // first formation is "scouting party"
+                f->wait_ticks = 15 * fig + 10;
+            }
+
+            f->terrain_usage = TERRAIN_USAGE_ENEMY;
+            f->is_ghost = 1;
             switch (figure_type) {
                 case FIGURE_ENEMY_BARBARIAN_SWORDSMAN:
+                case FIGURE_ENEMY_HUN_SWORDSMAN:
+                case FIGURE_ENEMY_GOTH_SWORDSMAN:
+                case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
+                case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
+                case FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER:
                     f->speed_multiplier = 2;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_BARBARIAN;
-                    break;
-                case FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN:
-                case FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT:
-                    f->enemy_image_group = ENEMY_IMG_TYPE_CARTHAGINIAN;
-                    break;
-                case FIGURE_ENEMY_BRITON_SWORDSMAN:
-                case FIGURE_ENEMY_CELT_SWORDSMAN:
-                case FIGURE_ENEMY_PICT_SWORDSMAN:
-                    f->enemy_image_group = ENEMY_IMG_TYPE_CELT;
                     break;
                 case FIGURE_ENEMY_BRITON_CHARIOT:
                 case FIGURE_ENEMY_CELT_CHARIOT:
@@ -449,71 +504,81 @@ static void create_enemy_squad(int figure_type, int enemy_type, int x, int y, in
                     f->speed_multiplier = 3;
                     f->mounted_charge_ticks = 8;
                     f->mounted_charge_ticks_max = 8;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_CELT;
-                    break;
-                case FIGURE_ENEMY_EGYPTIAN_SWORDSMAN:
-                case FIGURE_ENEMY_EGYPTIAN_CAMEL:
-                    f->enemy_image_group = ENEMY_IMG_TYPE_EGYPTIAN;
-                    break;
-                case FIGURE_ENEMY_ETRUSCAN_SWORDSMAN:
-                case FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER:
-                case FIGURE_ENEMY_SAMNITE_SWORDSMAN:
-                case FIGURE_ENEMY_SAMNITE_SPEAR_THROWER:
-                    f->enemy_image_group = ENEMY_IMG_TYPE_ETRUSCAN;
-                    break;
-                case FIGURE_ENEMY_GAUL_SWORDSMAN:
-                case FIGURE_ENEMY_GAUL_AXEMAN:
-                case FIGURE_ENEMY_HELVETIUS_SWORDSMAN:
-                case FIGURE_ENEMY_HELVETIUS_AXEMAN:
-                    f->enemy_image_group = ENEMY_IMG_TYPE_GAUL;
-                    break;
-                case FIGURE_ENEMY_HUN_SWORDSMAN:
-                case FIGURE_ENEMY_GOTH_SWORDSMAN:
-                case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
-                    f->speed_multiplier = 2;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_GOTH;
                     break;
                 case FIGURE_ENEMY_HUN_MOUNTED_ARCHER:
                 case FIGURE_ENEMY_GOTH_MOUNTED_ARCHER:
                 case FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER:
                     f->speed_multiplier = 3;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_GOTH;
-                    break;
-                case FIGURE_ENEMY_GREEK_SWORDSMAN:
-                case FIGURE_ENEMY_MACEDONIAN_SWORDSMAN:
-                    f->enemy_image_group = ENEMY_IMG_TYPE_GREEK;
-                    break;
-                case FIGURE_ENEMY_GREEK_SPEAR_THROWER:
-                case FIGURE_ENEMY_MACEDONIAN_SPEAR_THROWER:
-                    f->enemy_image_group = ENEMY_IMG_TYPE_GREEK;
-                    break;
-                case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
-                case FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER:
-                    f->speed_multiplier = 2;
-                    f->enemy_image_group = ENEMY_IMG_TYPE_NORTH_AFRICAN;
-                    break;
-                case FIGURE_ENEMY_PERGAMUM_SWORDSMAN:
-                case FIGURE_ENEMY_PERGAMUM_ARCHER:
-                    f->enemy_image_group = ENEMY_IMG_TYPE_PERSIAN;
-                    break;
-                case FIGURE_ENEMY_IBERIAN_SWORDSMAN:
-                case FIGURE_ENEMY_IBERIAN_SPEAR_THROWER:
-                case FIGURE_ENEMY_JUDEAN_SWORDSMAN:
-                case FIGURE_ENEMY_JUDEAN_SPEAR_THROWER:
-                case FIGURE_ENEMY_SELEUCID_SWORDSMAN:
-                case FIGURE_ENEMY_SELEUCID_SPEAR_THROWER:
-                    f->enemy_image_group = ENEMY_IMG_TYPE_PHOENICIAN;
                     break;
                 default:
                     break;
             }
-            f->is_ghost = 1;
             add_figure_to_formation(f, m);
+            if (enemy_type == ENEMY_TYPE_CAESAR) {
+                city_data.figure.imperial_soldiers++;
+            } else {
+                city_data.figure.enemies++;
+            }
         }
     }
 }
 
-int start_invasion(int enemy_type, int amount, int invasion_point, int enemy_attack_priority, int invasion_id)
+static int terrain_at_offset_clear(int grid_offset)
+{
+    if (map_terrain_is(grid_offset, TERRAIN_SHRUB | TERRAIN_ROCK | TERRAIN_TREE | TERRAIN_ELEVATION)
+    || (map_terrain_is(grid_offset, TERRAIN_WATER) && !map_terrain_is(grid_offset, TERRAIN_ROAD))) {
+        return 0;
+    } else {
+        if (map_terrain_is(grid_offset, TERRAIN_BUILDING | TERRAIN_AQUEDUCT | TERRAIN_GATEHOUSE | TERRAIN_WALL)) {
+            building_destroy_by_enemy(map_grid_offset_to_x(grid_offset), map_grid_offset_to_y(grid_offset), grid_offset);
+        }
+        return 1;
+    }
+}
+
+static int find_closest_clear_y_offset(int x, int y)
+{
+    for (int j = y; j < scenario.map.height; j++) {
+        int grid_offset = map_grid_offset(x, j);
+        if (terrain_at_offset_clear(grid_offset)) {
+            return j;
+        } else {
+            continue;
+        }
+    }
+    for (int j = y; j < scenario.map.height; j--) {
+        int grid_offset = map_grid_offset(x, j);
+        if (terrain_at_offset_clear(grid_offset)) {
+            return j;
+        } else {
+            continue;
+        }
+    }
+    return -1;
+}
+
+static int find_closest_clear_x_offset(int x, int y)
+{
+    for (int j = x; j < scenario.map.width; j++) {
+        int grid_offset = map_grid_offset(j, y);
+        if (terrain_at_offset_clear(grid_offset)) {
+            return j;
+        } else {
+            continue;
+        }
+    }
+    for (int j = x; j < scenario.map.width; j--) {
+        int grid_offset = map_grid_offset(j, y);
+        if (terrain_at_offset_clear(grid_offset)) {
+            return j;
+        } else {
+            continue;
+        }
+    }
+    return -1;
+}
+
+int start_invasion(int enemy_type, int amount, int invasion_point, int enemy_attack_priority)
 {
     if (amount <= 0) {
         return -1;
@@ -524,6 +589,7 @@ int start_invasion(int enemy_type, int amount, int invasion_point, int enemy_att
     if (enemy_type == ENEMY_TYPE_CAESAR) {
         x = scenario.entry_point.x;
         y = scenario.entry_point.y;
+        city_data.emperor.invasion.from_editor = 1;
     } else {
         int invasion_flags_placed = 0;
         for (int i = 0; i < MAX_INVASION_POINTS; i++) {
@@ -557,31 +623,14 @@ int start_invasion(int enemy_type, int amount, int invasion_point, int enemy_att
         }
     }
 
-    // check terrain
-    int grid_offset = map_grid_offset(x, y);
-    if (map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ROCK | TERRAIN_SHRUB)) {
-        return -1;
-    }
-    if (map_terrain_is(grid_offset, TERRAIN_WATER)) {
-        if (!map_terrain_is(grid_offset, TERRAIN_ROAD)) { // bridge
-            return -1;
-        }
-    } else if (map_terrain_is(grid_offset, TERRAIN_BUILDING | TERRAIN_AQUEDUCT | TERRAIN_GATEHOUSE | TERRAIN_WALL)) {
-        building_destroy_by_enemy(x, y, grid_offset);
-    }
-
     // determine orientation
-    int orientation;
+    int orientation = DIR_0_TOP;
     if (y == 0) {
         orientation = DIR_4_BOTTOM;
-    } else if (y >= scenario.map.height - 1) {
-        orientation = DIR_0_TOP;
     } else if (x == 0) {
         orientation = DIR_2_RIGHT;
     } else if (x >= scenario.map.width - 1) {
         orientation = DIR_6_LEFT;
-    } else {
-        orientation = DIR_4_BOTTOM;
     }
 
     int enemy_count_per_type[MAX_ENEMY_TYPES_PER_ARMY];
@@ -590,22 +639,56 @@ int start_invasion(int enemy_type, int amount, int invasion_point, int enemy_att
     }
     enemy_count_per_type[0] += amount - (enemy_count_per_type[0] + enemy_count_per_type[1] + enemy_count_per_type[2]); // assign leftovers to first type
 
-    int spawn_delay_offset = 0;
+    int formation_index = 0;
     for (int i = 0; i < MAX_ENEMY_TYPES_PER_ARMY; i++) {
-        int figure_type = ENEMY_PROPERTIES[enemy_type].figure_types[i];
         while (enemy_count_per_type[i]) {
-            if (enemy_count_per_type[i] >= MAX_FORMATION_FIGURES) {
-                create_enemy_squad(figure_type, enemy_type, x, y, MAX_FORMATION_FIGURES, orientation, spawn_delay_offset, enemy_attack_priority, invasion_id);
-                enemy_count_per_type[i] -= MAX_FORMATION_FIGURES;
-                spawn_delay_offset++;
-            } else {
-                create_enemy_squad(figure_type, enemy_type, x, y, enemy_count_per_type[i], orientation, spawn_delay_offset, enemy_attack_priority, invasion_id);
-                enemy_count_per_type[i] = 0;
+            int figures_amount_to_spawn = enemy_count_per_type[i] >= MAX_FORMATION_FIGURES ? MAX_FORMATION_FIGURES : enemy_count_per_type[i];
+            // determine spawn point for each formation
+            if (orientation == DIR_0_TOP || orientation == DIR_4_BOTTOM) {
+                int x_offseted = -1;
+                if (x >= scenario.map.width / 2) {
+                    if (formation_index % 2) {
+                        x_offseted = find_closest_clear_x_offset(x - LAYOUT_SPACING_BETWEEN_FORMATIONS[ENEMY_PROPERTIES[enemy_type].formation_layout] * formation_index, y);
+                    } else {
+                        x_offseted = find_closest_clear_x_offset(x - LAYOUT_SPACING_BETWEEN_FORMATIONS[ENEMY_PROPERTIES[enemy_type].formation_layout] * (formation_index + 1), y);
+                    }
+                } else {
+                    if (formation_index % 2) {
+                        x_offseted = find_closest_clear_x_offset(x + LAYOUT_SPACING_BETWEEN_FORMATIONS[ENEMY_PROPERTIES[enemy_type].formation_layout] * formation_index, y);
+                    } else {
+                        x_offseted = find_closest_clear_x_offset(x + LAYOUT_SPACING_BETWEEN_FORMATIONS[ENEMY_PROPERTIES[enemy_type].formation_layout] * (formation_index + 1), y);
+                    }
+                }
+                if (x_offseted > -1) {
+                    create_enemy_formation(ENEMY_PROPERTIES[enemy_type].figure_types[i], enemy_type, x_offseted, y, figures_amount_to_spawn, orientation, formation_index, enemy_attack_priority);
+                    enemy_count_per_type[i] -= figures_amount_to_spawn;
+                    formation_index++;
+                }
+            } else { // left/right
+                int y_offseted = -1;
+                if (y >= scenario.map.height / 2) {
+                    if (formation_index % 2) {
+                        y_offseted = find_closest_clear_y_offset(x, y - LAYOUT_SPACING_BETWEEN_FORMATIONS[ENEMY_PROPERTIES[enemy_type].formation_layout] * formation_index);
+                    } else {
+                        y_offseted = find_closest_clear_y_offset(x, y - LAYOUT_SPACING_BETWEEN_FORMATIONS[ENEMY_PROPERTIES[enemy_type].formation_layout] * (formation_index + 1));
+                    }
+                } else {
+                    if (formation_index % 2) {
+                        y_offseted = find_closest_clear_y_offset(x, y + LAYOUT_SPACING_BETWEEN_FORMATIONS[ENEMY_PROPERTIES[enemy_type].formation_layout] * formation_index);
+                    } else {
+                        y_offseted = find_closest_clear_y_offset(x, y + LAYOUT_SPACING_BETWEEN_FORMATIONS[ENEMY_PROPERTIES[enemy_type].formation_layout] * (formation_index + 1));
+                    }
+                }
+                if (y_offseted > -1) {
+                    create_enemy_formation(ENEMY_PROPERTIES[enemy_type].figure_types[i], enemy_type, x, y_offseted, figures_amount_to_spawn, orientation, formation_index, enemy_attack_priority);
+                    enemy_count_per_type[i] -= figures_amount_to_spawn;
+                    formation_index++;
+                }
             }
         }
     }
 
-    return grid_offset;
+    return map_grid_offset(x, y);
 }
 
 void scenario_invasion_process(void)
@@ -631,8 +714,7 @@ void scenario_invasion_process(void)
                     scenario.invasions[i].enemy_type,
                     scenario.invasions[i].amount,
                     scenario.invasions[i].from,
-                    scenario.invasions[i].target_type,
-                    i);
+                    scenario.invasions[i].target_type);
                 if (grid_offset > 0) {
                     if (scenario.invasions[i].enemy_type) {
                         city_message_post(1, MESSAGE_ENEMY_ARMY_ATTACK, 0, grid_offset);
@@ -647,13 +729,10 @@ void scenario_invasion_process(void)
                     ENEMY_TYPE_CAESAR,
                     scenario.invasions[i].amount,
                     scenario.invasions[i].from,
-                    scenario.invasions[i].target_type,
-                    i);
+                    scenario.invasions[i].target_type);
                 if (grid_offset > 0) {
                     city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, 0, grid_offset);
                 }
-                city_data.emperor.invasion.from_editor = 1;
-                city_data.emperor.invasion.size = scenario.invasions[i].amount;
             }
             // local uprisings
             if (scenario.invasions[i].type == INVASION_TYPE_LOCAL_UPRISING) {
@@ -661,8 +740,7 @@ void scenario_invasion_process(void)
                     ENEMY_TYPE_BARBARIAN,
                     scenario.invasions[i].amount,
                     scenario.invasions[i].from,
-                    scenario.invasions[i].target_type,
-                    i);
+                    scenario.invasions[i].target_type);
                 if (grid_offset > 0) {
                     city_message_post(1, MESSAGE_LOCAL_UPRISING, 0, grid_offset);
                 }
@@ -674,7 +752,7 @@ void scenario_invasion_process(void)
 
 int scenario_invasion_start_from_caesar(int size)
 {
-    int grid_offset = start_invasion(ENEMY_TYPE_CAESAR, size, 0, FORMATION_ATTACK_BEST_BUILDINGS, 24);
+    int grid_offset = start_invasion(ENEMY_TYPE_CAESAR, size, 0, FORMATION_ATTACK_BEST_BUILDINGS);
     if (grid_offset > 0) {
         city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, 0, grid_offset);
         return 1;
@@ -684,7 +762,7 @@ int scenario_invasion_start_from_caesar(int size)
 
 void scenario_invasion_start_from_cheat(void)
 {
-    start_invasion(rand() % (ENEMY_TYPE_MAX_COUNT + 1), 160, MAX_INVASION_POINTS, FORMATION_ATTACK_FOOD_CHAIN, 23);
+    city_message_post(1, MESSAGE_ENEMY_ARMY_ATTACK, 0, start_invasion(rand() % (ENEMY_TYPE_MAX_COUNT + 1), 160, MAX_INVASION_POINTS, FORMATION_ATTACK_RANDOM));
 }
 
 void scenario_distant_battle_process(void)

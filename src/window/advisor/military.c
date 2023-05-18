@@ -144,7 +144,13 @@ static int draw_background(void)
         }
         // x soldiers in y legions
         image_draw(image_group(GROUP_BULLET), 60, 349);
-        int width = lang_text_draw_amount(8, 46, city_data.military.total_soldiers, 80, 348, FONT_NORMAL_BLACK);
+        int total_soldiers = 0;
+        for (int i = 1; i < MAX_FORMATIONS; i++) {
+            if (formations[i].in_use && formations[i].is_legion) {
+                total_soldiers += formations[i].num_figures;
+            }
+        }
+        int width = lang_text_draw_amount(8, 46, total_soldiers, 80, 348, FONT_NORMAL_BLACK);
         width += lang_text_draw(51, 7, 80 + width, 348, FONT_NORMAL_BLACK);
         lang_text_draw_amount(8, 48, city_data.military.total_legions, 80 + width, 348, FONT_NORMAL_BLACK);
         // Enemy threat status
@@ -184,7 +190,7 @@ static int handle_mouse(const mouse *m)
 static void button_go_to_legion(int legion_id, __attribute__((unused)) int param2)
 {
     const struct formation_t *m = &formations[get_legion_formation_by_index(legion_id)];
-    city_view_go_to_grid_offset(map_grid_offset(m->x_home, m->y_home));
+    city_view_go_to_grid_offset(map_grid_offset(m->standard_x, m->standard_y));
     window_city_show();
 }
 
@@ -202,7 +208,6 @@ static void button_empire_service(int legion_id, __attribute__((unused)) int par
     int formation_id = get_legion_formation_by_index(legion_id);
     if (!formations[formation_id].in_distant_battle) {
         formations[formation_id].empire_service = formations[formation_id].empire_service ? 0 : 1;
-        formation_calculate_figures();
         window_invalidate();
     }
 

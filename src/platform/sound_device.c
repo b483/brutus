@@ -1,6 +1,5 @@
 #include "core/file.h"
 #include "core/log.h"
-#include "core/random.h"
 #include "sound/device.h"
 #include "game/settings.h"
 #include "platform/platform.h"
@@ -209,8 +208,7 @@ void sound_device_play_channel_panned(int channel, int sound_variety_index, int 
     if (data.initialized) {
         int random_factor = 0;
         if (sound_variety_index) {
-            random_generate_next();
-            random_factor = random_byte() % sound_variety_index;
+            random_factor = rand() % sound_variety_index;
             channel = channel + random_factor;
         }
         sound_channel *ch = &data.channels[channel];

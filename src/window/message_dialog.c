@@ -591,14 +591,7 @@ static void button_advisor(int advisor, __attribute__((unused)) int param2)
 static void button_go_to_problem(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     cleanup();
-    const lang_message *msg = lang_get_message(data.text_id);
     int grid_offset = player_message.param2;
-    if (msg->message_type == MESSAGE_TYPE_INVASION) {
-        int invasion_grid_offset = formation_grid_offset_for_invasion();
-        if (invasion_grid_offset > 0) {
-            grid_offset = invasion_grid_offset;
-        }
-    }
     if (grid_offset > 0 && grid_offset < 26244) {
         city_view_go_to_grid_offset(grid_offset);
     }

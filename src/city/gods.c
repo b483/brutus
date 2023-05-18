@@ -49,7 +49,7 @@ static void perform_blessing(god_type god)
 
 static void cause_invasion_mars(int enemy_amount)
 {
-    int grid_offset = start_invasion(ENEMY_TYPE_BARBARIAN, enemy_amount, MAX_INVASION_POINTS, FORMATION_ATTACK_FOOD_CHAIN, 23);
+    int grid_offset = start_invasion(ENEMY_TYPE_BARBARIAN, enemy_amount, MAX_INVASION_POINTS, FORMATION_ATTACK_FOOD_CHAIN);
     if (grid_offset > 0) {
         city_message_post(1, MESSAGE_LOCAL_UPRISING_MARS, 0, grid_offset);
     }
@@ -140,7 +140,6 @@ static int perform_large_curse(god_type god)
                     }
                 }
                 best_legion->cursed_by_mars = 96;
-                formation_calculate_figures();
                 city_message_post(1, MESSAGE_WRATH_OF_MARS, 0, 0);
             } else {
                 city_message_post(1, MESSAGE_WRATH_OF_MARS_NO_MILITARY, 0, 0);

@@ -2,6 +2,7 @@
 #define MAP_TERRAIN_H
 
 #include "core/buffer.h"
+#include "map/grid.h"
 
 enum {
     TERRAIN_SHRUB = 1,
@@ -28,25 +29,13 @@ enum {
     TERRAIN_ALL = 65535
 };
 
+extern grid_u16 terrain_grid;
+
 int map_terrain_is(int grid_offset, int terrain);
-
-int map_terrain_get(int grid_offset);
-
-void map_terrain_set(int grid_offset, int terrain);
-
-void map_terrain_add(int grid_offset, int terrain);
-
-void map_terrain_remove(int grid_offset, int terrain);
 
 void map_terrain_add_with_radius(int x, int y, int size, int radius, int terrain);
 
-void map_terrain_remove_with_radius(int x, int y, int size, int radius, int terrain);
-
-void map_terrain_remove_all(int terrain);
-
 int map_terrain_count_directly_adjacent_with_type(int grid_offset, int terrain);
-
-int map_terrain_count_diagonally_adjacent_with_type(int grid_offset, int terrain);
 
 int map_terrain_has_adjacent_x_with_type(int grid_offset, int terrain);
 
@@ -63,8 +52,6 @@ int map_terrain_exists_clear_tile_in_radius(int x, int y, int size, int radius, 
 
 int map_terrain_all_tiles_in_radius_are(int x, int y, int size, int radius, int terrain);
 
-int map_terrain_is_adjacent_to_wall(int x, int y, int size);
-
 int map_terrain_is_adjacent_to_open_water(int x, int y, int size);
 
 int map_terrain_get_adjacent_road_or_clear_land(int x, int y, int size, int *x_tile, int *y_tile);
@@ -77,8 +64,6 @@ void map_terrain_backup(void);
 void map_terrain_restore(void);
 
 void map_terrain_clear(void);
-
-void map_terrain_init_outside_map(void);
 
 void map_terrain_save_state(buffer *buf);
 

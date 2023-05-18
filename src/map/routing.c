@@ -345,7 +345,7 @@ static int callback_delete_wall_aqueduct(int next_offset, int dist)
 {
     if (terrain_land_citizen.items[next_offset] < CITIZEN_0_ROAD) {
         if (map_terrain_is(next_offset, TERRAIN_AQUEDUCT | TERRAIN_WALL)) {
-            map_terrain_remove(next_offset, TERRAIN_CLEARABLE);
+            terrain_grid.items[next_offset] &= ~TERRAIN_CLEARABLE;
             return UNTIL_STOP;
         }
     } else {

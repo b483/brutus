@@ -7,6 +7,7 @@
 #include "city/houses.h"
 #include "city/labor.h"
 #include "city/migration.h"
+#include "city/military.h"
 #include "city/ratings.h"
 #include "city/resource.h"
 #include "city/warning.h"
@@ -128,7 +129,6 @@ static void init(void)
     city_culture_update_coverage();
 
     city_resource_calculate_food_stocks_and_supply_wheat();
-    formation_calculate_figures();
 
     city_ratings_update_explanations();
 }

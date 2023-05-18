@@ -117,6 +117,17 @@ static void check_weapons_access(int type)
     }
 }
 
+static int map_terrain_is_adjacent_to_wall(int x, int y, int size)
+{
+    int base_offset = map_grid_offset(x, y);
+    for (const int *tile_delta = map_grid_adjacent_offsets(size); *tile_delta; tile_delta++) {
+        if (map_terrain_is(base_offset + *tile_delta, TERRAIN_WALL)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static void check_wall(int type, int x, int y, int size)
 {
     if (!has_warning && type == BUILDING_TOWER) {

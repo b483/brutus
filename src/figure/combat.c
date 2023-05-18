@@ -27,6 +27,101 @@ enum {
     BACK_ATTACK = 3,
 };
 
+static int tile_obstructed(int grid_offset)
+{
+    int map_img_at_offset = map_image_at(grid_offset);
+
+    // low elevation between targets does not obstruct
+    if (map_elevation_at(grid_offset) > 1) {
+        return 1;
+    }
+    // shrubs lower to the ground do not obstruct
+    if (terrain_grid.items[grid_offset] & TERRAIN_SHRUB) {
+        int shrub_first_img_id = image_group(GROUP_TERRAIN_SHRUB);
+        if (((scenario.climate == CLIMATE_CENTRAL || scenario.climate == CLIMATE_NORTHERN) && map_img_at_offset >= shrub_first_img_id + 8)
+        || (scenario.climate == CLIMATE_DESERT && map_img_at_offset >= shrub_first_img_id + 24)) {
+            return 1;
+        }
+    }
+    // rocks lower to the ground do not obstruct
+    if (terrain_grid.items[grid_offset] & TERRAIN_ROCK) {
+        int rock_first_img_id = image_group(GROUP_TERRAIN_ROCK);
+        if (map_img_at_offset >= rock_first_img_id + 8) {
+            return 1;
+        }
+    }
+    if (terrain_grid.items[grid_offset] & (TERRAIN_TREE | TERRAIN_WALL | TERRAIN_GATEHOUSE)) { // "terrain contains any of"
+        return 1;
+    }
+    if (terrain_grid.items[grid_offset] & TERRAIN_BUILDING) {
+        struct building_t *b = &all_buildings[map_building_at(grid_offset)];
+        // buildings with a low max height do not obstruct
+        if (b->type != BUILDING_FORT_GROUND && b->type != BUILDING_CLAY_PIT && b->type != BUILDING_MARBLE_QUARRY) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static int can_see_target(struct figure_t *observer, struct figure_t *target)
+{
+    int observer_elevation = 0;
+    if (map_elevation_at(observer->grid_offset)) {
+        observer_elevation += map_elevation_at(observer->grid_offset);
+    }
+    if (map_terrain_is(observer->grid_offset, TERRAIN_WALL_OR_GATEHOUSE)) {
+        observer_elevation += 6;
+    }
+    int target_elevation = 0;
+    if (map_elevation_at(target->grid_offset)) {
+        target_elevation += map_elevation_at(target->grid_offset);
+    }
+
+    int x_delta = abs(observer->x - target->x);
+    int y_delta = abs(observer->y - target->y);
+    double slope;
+    int x_check = 0;
+    int y_check = 0;
+    int delta;
+    if (x_delta > y_delta) {
+        slope = (double) (target->y - observer->y) / (double) (target->x - observer->x);
+        x_check = observer->x;
+        delta = x_delta;
+    } else {
+        slope = (double) (target->x - observer->x) / (double) (target->y - observer->y);
+        y_check = observer->y;
+        delta = y_delta;
+    }
+    while (delta > 1) {
+        delta--;
+        if (x_delta > y_delta) {
+            if (observer->x < target->x) {
+                x_check++;
+            } else {
+                x_check--;
+            }
+            y_check = slope * (x_check - observer->x) + observer->y;
+        } else {
+            if (observer->y < target->y) {
+                y_check++;
+            } else {
+                y_check--;
+            }
+            x_check = slope * (y_check - observer->y) + observer->x;
+        }
+        if (observer_elevation > target_elevation) {
+            observer_elevation--;
+            continue;
+        }
+        if (tile_obstructed(map_grid_offset(x_check, y_check))) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
 int is_valid_target_for_player_unit(struct figure_t *target)
 {
     return figure_properties[target->type].is_criminal_unit
@@ -89,12 +184,12 @@ struct figure_t *melee_unit__set_closest_target(struct figure_t *f)
             closest_target_distance = 5;
             break;
         default:
-            closest_target_distance = 30;
+            closest_target_distance = 20;
             break;
     }
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *potential_target = &figures[i];
-        if (figure_is_dead(potential_target) || !potential_target->is_targetable) {
+        if (potential_target->action_state == FIGURE_ACTION_CORPSE || !potential_target->is_targetable) {
             continue;
         }
         int potential_target_distance = calc_maximum_distance(f->x, f->y, potential_target->x, potential_target->y);
@@ -118,26 +213,25 @@ struct figure_t *melee_unit__set_closest_target(struct figure_t *f)
                 }
             }
             if (figure_properties[f->type].is_friendly_armed_unit || figure_properties[f->type].is_player_legion_unit) {
-                if (is_valid_target_for_player_unit(potential_target)) {
+                if (is_valid_target_for_player_unit(potential_target) && can_see_target(f, potential_target)) { // can_see_target is expensive, call it last (allows for short-circuiting)
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
                     continue;
                 }
             } else if (f->type == FIGURE_WOLF) {
-                if (potential_target->type != FIGURE_WOLF) {
+                if (potential_target->type != FIGURE_WOLF && can_see_target(f, potential_target)) {
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
                     continue;
                 }
-
             } else if (figure_properties[f->type].is_enemy_unit) {
-                if (is_valid_target_for_enemy_unit(potential_target)) {
+                if (is_valid_target_for_enemy_unit(potential_target) && can_see_target(f, potential_target)) {
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
                     continue;
                 }
             } else if (figure_properties[f->type].is_caesar_legion_unit) {
-                if (is_valid_target_for_caesar_unit(potential_target)) {
+                if (is_valid_target_for_caesar_unit(potential_target) && can_see_target(f, potential_target)) {
                     closest_target_distance = potential_target_distance;
                     closest_eligible_target = potential_target;
                     continue;
@@ -215,7 +309,7 @@ static void engage_in_melee_combat(struct figure_t *attacker, struct figure_t *o
     opponent->num_melee_combatants++;
 }
 
-void figure_combat_attack_figure_at(struct figure_t *attacker, int grid_offset)
+void melee_attack_figure_at_offset(struct figure_t *attacker, int grid_offset)
 {
     if (attacker->action_state == FIGURE_ACTION_ATTACK) {
         return;
@@ -306,6 +400,7 @@ static void hit_opponent(struct figure_t *attacker, struct figure_t *opponent)
         figure_play_die_sound(opponent);
         formation_update_morale_after_death(&formations[opponent->formation_id]);
         clear_targeting_on_unit_death(opponent);
+        update_counters_on_unit_death(opponent);
         refresh_formation_figure_indexes(opponent);
     }
 }
@@ -334,6 +429,7 @@ void figure_combat_handle_attack(struct figure_t *f)
                 sound_effect_play(SOUND_EFFECT_HORSE_MOVING);
                 f->mounted_charge_ticks--;
             }
+            formations[opponent->formation_id].recent_fight = 6;
         }
     } else {
         f->action_state = f->action_state_before_attack;
@@ -361,177 +457,90 @@ void figure__remove_ranged_targeter_from_list(struct figure_t *f, struct figure_
     }
 }
 
-static int tile_obstructed(int grid_offset)
+static int target_ranged_targeter_list_full(struct figure_t *target)
 {
-    int map_terrain_at_offset = map_terrain_get(grid_offset);
-    int map_img_at_offset = map_image_at(grid_offset);
-
-    // low elevation between targets does not obstruct
-    if (map_elevation_at(grid_offset) > 1) {
-        return 1;
-    }
-    // shrubs lower to the ground do not obstruct
-    if (map_terrain_at_offset & TERRAIN_SHRUB) {
-        int shrub_first_img_id = image_group(GROUP_TERRAIN_SHRUB);
-        if (((scenario.climate == CLIMATE_CENTRAL || scenario.climate == CLIMATE_NORTHERN) && map_img_at_offset >= shrub_first_img_id + 8)
-        || (scenario.climate == CLIMATE_DESERT && map_img_at_offset >= shrub_first_img_id + 24)) {
-            return 1;
-        }
-    }
-    // rocks lower to the ground do not obstruct
-    if (map_terrain_at_offset & TERRAIN_ROCK) {
-        int rock_first_img_id = image_group(GROUP_TERRAIN_ROCK);
-        if (map_img_at_offset >= rock_first_img_id + 8) {
-            return 1;
-        }
-    }
-    if (map_terrain_at_offset & (TERRAIN_TREE | TERRAIN_WALL | TERRAIN_GATEHOUSE)) { // "terrain contains any of"
-        return 1;
-    }
-    if (map_terrain_at_offset & TERRAIN_BUILDING) {
-        struct building_t *b = &all_buildings[map_building_at(grid_offset)];
-        // buildings with a low max height do not obstruct
-        if (b->type != BUILDING_FORT_GROUND && b->type != BUILDING_CLAY_PIT && b->type != BUILDING_MARBLE_QUARRY) {
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
-static int missile_trajectory_clear(struct figure_t *shooter, struct figure_t *target)
-{
-    int shooter_elevation = 0;
-    if (map_elevation_at(shooter->grid_offset)) {
-        shooter_elevation += map_elevation_at(shooter->grid_offset);
-    }
-    if (map_terrain_is(shooter->grid_offset, TERRAIN_WALL_OR_GATEHOUSE)) {
-        shooter_elevation += 6;
-    }
-    int target_elevation = 0;
-    if (map_elevation_at(target->grid_offset)) {
-        target_elevation += map_elevation_at(target->grid_offset);
-    }
-
-    int x_delta = abs(shooter->x - target->x);
-    int y_delta = abs(shooter->y - target->y);
-    double slope;
-    int x_check = 0;
-    int y_check = 0;
-    int delta;
-    if (x_delta > y_delta) {
-        slope = (double) (target->y - shooter->y) / (double) (target->x - shooter->x);
-        x_check = shooter->x;
-        delta = x_delta;
-    } else {
-        slope = (double) (target->x - shooter->x) / (double) (target->y - shooter->y);
-        y_check = shooter->y;
-        delta = y_delta;
-    }
-    while (delta > 1) {
-        delta--;
-        if (x_delta > y_delta) {
-            if (shooter->x < target->x) {
-                x_check++;
-            } else {
-                x_check--;
-            }
-            y_check = slope * (x_check - shooter->x) + shooter->y;
-        } else {
-            if (shooter->y < target->y) {
-                y_check++;
-            } else {
-                y_check--;
-            }
-            x_check = slope * (y_check - shooter->y) + shooter->x;
-        }
-        if (shooter_elevation > target_elevation) {
-            shooter_elevation--;
-            continue;
-        }
-        if (tile_obstructed(map_grid_offset(x_check, y_check))) {
+    for (int j = 0; j < MAX_RANGED_TARGETERS_PER_UNIT; j++) {
+        if (!target->ranged_targeter_ids[j]) {
             return 0;
         }
     }
-
     return 1;
 }
 
-int set_missile_target(struct figure_t *shooter, map_point *tile, int limit_max_targeters)
+static void update_ranged_targeting(struct figure_t *shooter, struct figure_t *target, map_point *tile)
+{
+    if (shooter->target_figure_id && shooter->target_figure_id != target->id) {
+        // if switching targets, remove targeter from previous target's ranged targeters list
+        struct figure_t *previous_target = &figures[shooter->target_figure_id];
+        figure__remove_ranged_targeter_from_list(previous_target, shooter);
+    }
+    shooter->target_figure_id = target->id;
+    if (!figure__targeted_by_ranged_unit(target, shooter)) {
+        // update new target's ranged targeters list
+        for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
+            if (!target->ranged_targeter_ids[i]) {
+                target->ranged_targeter_ids[i] = shooter->id;
+                break;
+            }
+        };
+    }
+    map_point_store_result(target->x, target->y, tile);
+}
+
+int set_missile_target(struct figure_t *shooter, map_point *tile)
 {
     int closest_target_distance = figure_properties[shooter->type].max_range;
     struct figure_t *closest_eligible_target = 0;
+    struct figure_t *closest_eligible_overhit_target = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *potential_target = &figures[i];
-        if (figure_is_dead(potential_target) || !potential_target->is_targetable) {
+        if (potential_target->action_state == FIGURE_ACTION_CORPSE || !potential_target->is_targetable) {
             continue;
         }
         int potential_target_distance = calc_maximum_distance(shooter->x, shooter->y, potential_target->x, potential_target->y);
-        if ((potential_target_distance < closest_target_distance) && missile_trajectory_clear(shooter, potential_target)) {
+        if ((potential_target_distance < closest_target_distance)) {
             // if potential target is the current target, it's eligible (could still end up being switched for a nearer one)
             if (figure__targeted_by_ranged_unit(potential_target, shooter)) {
                 closest_target_distance = potential_target_distance;
                 closest_eligible_target = potential_target;
                 continue;
             }
-            if (limit_max_targeters) {
-                // if ranged targeter list of potential enemy target is full, skip potential target
-                int potential_target_ranged_targeter_list_full = 1;
-                for (int j = 0; j < MAX_RANGED_TARGETERS_PER_UNIT; j++) {
-                    if (!potential_target->ranged_targeter_ids[j]) {
-                        potential_target_ranged_targeter_list_full = 0;
-                        break;
-                    }
-                }
-                if (potential_target_ranged_targeter_list_full) {
-                    continue;
-                }
-            }
             if (figure_properties[shooter->type].is_friendly_armed_unit || figure_properties[shooter->type].is_player_legion_unit) {
-                if (is_valid_target_for_player_unit(potential_target)) {
-                    closest_target_distance = potential_target_distance;
-                    closest_eligible_target = potential_target;
+                if (is_valid_target_for_player_unit(potential_target) && can_see_target(shooter, potential_target)) {
+                    if (shooter->is_military_trained && target_ranged_targeter_list_full(potential_target)) {
+                        // prefer targets that aren't already aimed at to prevent overhit, but keep overhit targets as a second option
+                        closest_eligible_overhit_target = potential_target;
+                    } else {
+                        closest_target_distance = potential_target_distance;
+                        closest_eligible_target = potential_target;
+                    }
                     continue;
                 }
             } else if (figure_properties[shooter->type].is_enemy_unit) {
-                if (figure_properties[potential_target->type].is_unarmed_civilian_unit
-                || figure_properties[potential_target->type].is_friendly_armed_unit
-                || figure_properties[potential_target->type].is_player_legion_unit
-                || figure_properties[potential_target->type].is_criminal_unit
-                || figure_properties[potential_target->type].is_empire_trader
-                || potential_target->type == FIGURE_NATIVE_TRADER // don't target native fighters as to not get stuck in place while they respawn
-                || potential_target->type == FIGURE_WOLF
-                || figure_properties[potential_target->type].is_caesar_legion_unit) {
-                    // skip (closer) unarmed target if already targeting a dangerous foe
-                    if ((figure_properties[potential_target->type].is_unarmed_civilian_unit || figure_properties[potential_target->type].is_empire_trader || potential_target->type == FIGURE_NATIVE_TRADER)
-                        && closest_eligible_target
-                        && (figure_properties[closest_eligible_target->type].is_friendly_armed_unit || figure_properties[closest_eligible_target->type].is_player_legion_unit || closest_eligible_target->type == FIGURE_WOLF || figure_properties[closest_eligible_target->type].is_caesar_legion_unit)) {
-                        continue;
+                // skip (closer) unarmed target if already targeting a dangerous foe
+                if ((figure_properties[potential_target->type].is_unarmed_civilian_unit || figure_properties[potential_target->type].is_empire_trader || potential_target->type == FIGURE_NATIVE_TRADER)
+                    && closest_eligible_target
+                    && (figure_properties[closest_eligible_target->type].is_friendly_armed_unit || figure_properties[closest_eligible_target->type].is_player_legion_unit || closest_eligible_target->type == FIGURE_WOLF || figure_properties[closest_eligible_target->type].is_caesar_legion_unit)) {
+                    continue;
+                }
+                if (is_valid_target_for_enemy_unit(potential_target) && can_see_target(shooter, potential_target)) {
+                    if (target_ranged_targeter_list_full(potential_target)) {
+                        // prefer targets that aren't already aimed at to prevent overhit, but keep overhit targets as a second option
+                        closest_eligible_overhit_target = potential_target;
+                    } else {
+                        closest_target_distance = potential_target_distance;
+                        closest_eligible_target = potential_target;
                     }
-                    closest_target_distance = potential_target_distance;
-                    closest_eligible_target = potential_target;
                     continue;
                 }
             }
         }
     }
     if (closest_eligible_target) {
-        if (shooter->target_figure_id && shooter->target_figure_id != closest_eligible_target->id) {
-            // if switching targets, remove targeter from previous target's ranged targeters list
-            struct figure_t *previous_target = &figures[shooter->target_figure_id];
-            figure__remove_ranged_targeter_from_list(previous_target, shooter);
-        }
-        shooter->target_figure_id = closest_eligible_target->id;
-        if (!figure__targeted_by_ranged_unit(closest_eligible_target, shooter)) {
-            // update new target's ranged targeters list
-            for (int i = 0; i < MAX_RANGED_TARGETERS_PER_UNIT; i++) {
-                if (!closest_eligible_target->ranged_targeter_ids[i]) {
-                    closest_eligible_target->ranged_targeter_ids[i] = shooter->id;
-                    break;
-                }
-            };
-        }
-        map_point_store_result(closest_eligible_target->x, closest_eligible_target->y, tile);
+        update_ranged_targeting(shooter, closest_eligible_target, tile);
+        return 1;
+    } else if (closest_eligible_overhit_target) {
+        update_ranged_targeting(shooter, closest_eligible_overhit_target, tile);
         return 1;
     }
 
@@ -559,5 +568,23 @@ void clear_targeting_on_unit_death(struct figure_t *unit)
                 }
             }
         }
+    }
+}
+
+void update_counters_on_unit_death(struct figure_t *unit)
+{
+    if (figure_properties[unit->type].is_player_legion_unit) {
+        city_data.figure.soldiers--;
+        if (unit->type == FIGURE_FORT_LEGIONARY) {
+            city_data.military.legionary_legions--;
+        }
+    } else if (unit->type == FIGURE_RIOTER) {
+        city_data.figure.rioters--;
+    } else if (figure_properties[unit->type].is_herd_animal) {
+        city_data.figure.animals--;
+    } else if (figure_properties[unit->type].is_enemy_unit) {
+        city_data.figure.enemies--;
+    } else if (figure_properties[unit->type].is_caesar_legion_unit) {
+        city_data.figure.imperial_soldiers--;
     }
 }

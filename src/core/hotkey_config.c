@@ -116,7 +116,7 @@ static const char *ini_keys[] = {
     "build_pottery_workshop",
     "build_market",
     "build_granary",
-    "build_granary",
+    "build_warehouse",
     "show_overlay_water",
     "show_overlay_fire",
     "show_overlay_damage",

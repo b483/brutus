@@ -43,8 +43,8 @@ void map_building_tiles_add(int building_id, int x, int y, int size, int image_i
     for (int dy = 0; dy < size; dy++) {
         for (int dx = 0; dx < size; dx++) {
             int grid_offset = map_grid_offset(x + dx, y + dy);
-            map_terrain_remove(grid_offset, TERRAIN_CLEARABLE);
-            map_terrain_add(grid_offset, terrain);
+            terrain_grid.items[grid_offset] &= ~TERRAIN_CLEARABLE;
+            terrain_grid.items[grid_offset] |= terrain;
             map_building_set(grid_offset, building_id);
             map_property_clear_constructing(grid_offset);
             map_property_set_multi_tile_size(grid_offset, size);
@@ -57,8 +57,8 @@ void map_building_tiles_add(int building_id, int x, int y, int size, int image_i
 static void set_crop_tile(int building_id, int x, int y, int dx, int dy, int crop_image_id, int growth)
 {
     int grid_offset = map_grid_offset(x + dx, y + dy);
-    map_terrain_remove(grid_offset, TERRAIN_CLEARABLE);
-    map_terrain_add(grid_offset, TERRAIN_BUILDING);
+    terrain_grid.items[grid_offset] &= ~TERRAIN_CLEARABLE;
+    terrain_grid.items[grid_offset] |= TERRAIN_BUILDING;
     map_building_set(grid_offset, building_id);
     map_property_clear_constructing(grid_offset);
     map_property_set_multi_tile_xy(grid_offset, dx, dy, 1);
@@ -95,8 +95,8 @@ void map_building_tiles_add_farm(int building_id, int x, int y, int crop_image_i
     for (int dy = 0; dy < 2; dy++) {
         for (int dx = 0; dx < 2; dx++) {
             int grid_offset = map_grid_offset(x + dx, y + dy);
-            map_terrain_remove(grid_offset, TERRAIN_CLEARABLE);
-            map_terrain_add(grid_offset, TERRAIN_BUILDING);
+            terrain_grid.items[grid_offset] &= ~TERRAIN_CLEARABLE;
+            terrain_grid.items[grid_offset] |= TERRAIN_BUILDING;
             map_building_set(grid_offset, building_id);
             map_property_clear_constructing(grid_offset);
             map_property_set_multi_tile_size(grid_offset, 2);
@@ -141,7 +141,7 @@ void map_building_tiles_add_farm(int building_id, int x, int y, int crop_image_i
 int map_building_tiles_add_aqueduct(int x, int y)
 {
     int grid_offset = map_grid_offset(x, y);
-    map_terrain_add(grid_offset, TERRAIN_AQUEDUCT);
+    terrain_grid.items[grid_offset] |= TERRAIN_AQUEDUCT;
     map_property_clear_constructing(grid_offset);
     return 1;
 }
@@ -168,7 +168,7 @@ void map_building_tiles_remove(int building_id, int x, int y)
     int base_grid_offset = north_tile_grid_offset(x, y, &size);
     x = map_grid_offset_to_x(base_grid_offset);
     y = map_grid_offset_to_y(base_grid_offset);
-    if (map_terrain_get(base_grid_offset) == TERRAIN_ROCK) {
+    if (terrain_grid.items[base_grid_offset] == TERRAIN_ROCK) {
         return;
     }
     struct building_t *b = &all_buildings[building_id];
@@ -193,13 +193,11 @@ void map_building_tiles_remove(int building_id, int x, int y)
             map_building_damage_clear(grid_offset);
             map_sprite_clear_tile(grid_offset);
             if (map_terrain_is(grid_offset, TERRAIN_WATER)) {
-                map_terrain_set(grid_offset, TERRAIN_WATER); // clear other flags
+                terrain_grid.items[grid_offset] = TERRAIN_WATER; // clear other flags
                 map_tiles_set_water(x + dx, y + dy);
             } else {
-                map_image_set(grid_offset,
-                    image_group(GROUP_TERRAIN_UGLY_GRASS) +
-                    (map_random_get(grid_offset) & 7));
-                map_terrain_remove(grid_offset, TERRAIN_CLEARABLE);
+                map_image_set(grid_offset, image_group(GROUP_TERRAIN_UGLY_GRASS) + (map_random_get(grid_offset) & 7));
+                terrain_grid.items[grid_offset] &= ~TERRAIN_CLEARABLE;
             }
         }
     }
@@ -222,7 +220,7 @@ void map_building_tiles_set_rubble(int building_id, int x, int y, int size)
             }
             if (building_id && all_buildings[map_building_at(grid_offset)].type != BUILDING_BURNING_RUIN) {
                 map_set_rubble_building_type(grid_offset, b->type);
-            } else if (!building_id && map_terrain_get(grid_offset) & TERRAIN_WALL) {
+            } else if (!building_id && terrain_grid.items[grid_offset] & TERRAIN_WALL) {
                 map_set_rubble_building_type(grid_offset, BUILDING_WALL);
             }
             map_property_clear_constructing(grid_offset);
@@ -233,11 +231,11 @@ void map_building_tiles_set_rubble(int building_id, int x, int y, int size)
             map_sprite_clear_tile(grid_offset);
             map_property_set_multi_tile_xy(grid_offset, 0, 0, 1);
             if (map_terrain_is(grid_offset, TERRAIN_WATER)) {
-                map_terrain_set(grid_offset, TERRAIN_WATER); // clear other flags
+                terrain_grid.items[grid_offset] = TERRAIN_WATER; // clear other flags
                 map_tiles_set_water(x + dx, y + dy);
             } else {
-                map_terrain_remove(grid_offset, TERRAIN_CLEARABLE);
-                map_terrain_add(grid_offset, TERRAIN_RUBBLE);
+                terrain_grid.items[grid_offset] &= ~TERRAIN_CLEARABLE;
+                terrain_grid.items[grid_offset] |= TERRAIN_RUBBLE;
                 map_image_set(grid_offset, image_group(GROUP_TERRAIN_RUBBLE) + (map_random_get(grid_offset) & 7));
             }
         }

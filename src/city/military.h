@@ -1,8 +1,6 @@
 #ifndef CITY_MILITARY_H
 #define CITY_MILITARY_H
 
-void city_military_update_totals(void);
-
 void city_military_determine_distant_battle_city(void);
 
 int city_military_distant_battle_roman_army_is_traveling(void);

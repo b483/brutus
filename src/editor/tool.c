@@ -133,7 +133,7 @@ static void place_rock_at(int x, int y, int grid_offset, int size)
     // set terrain rock for all covered tiles
     for (int dy = 0; dy < size; dy++) {
         for (int dx = 0; dx < x_size_adjusted; dx++) {
-            map_terrain_set(map_grid_offset(x + dx, y - dy), TERRAIN_ROCK);
+            terrain_grid.items[map_grid_offset(x + dx, y - dy)] = TERRAIN_ROCK;
         }
     }
     // set multitile rock image
@@ -167,30 +167,30 @@ static void add_terrain_at(int x, int y)
                 if (map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
                     map_building_tiles_remove(0, x, y);
                 }
-                map_terrain_set(grid_offset, 0);
+                terrain_grid.items[grid_offset] = 0;
             }
             break;
         case TOOL_SMALL_SHRUB:
             if (!map_terrain_is(grid_offset, TERRAIN_NOT_DISPLACEABLE)) {
-                map_terrain_set(grid_offset, TERRAIN_SHRUB);
+                terrain_grid.items[grid_offset] = TERRAIN_SHRUB;
                 map_image_set(grid_offset, image_group(GROUP_TERRAIN_SHRUB) + shrub_rnd);
             }
             break;
         case TOOL_MEDIUM_SHRUB:
             if (!map_terrain_is(grid_offset, TERRAIN_NOT_DISPLACEABLE)) {
-                map_terrain_set(grid_offset, TERRAIN_SHRUB);
+                terrain_grid.items[grid_offset] = TERRAIN_SHRUB;
                 map_image_set(grid_offset, image_group(GROUP_TERRAIN_SHRUB) + shrub_rnd + 8);
             }
             break;
         case TOOL_LARGE_SHRUB:
             if (!map_terrain_is(grid_offset, TERRAIN_NOT_DISPLACEABLE)) {
-                map_terrain_set(grid_offset, TERRAIN_SHRUB);
+                terrain_grid.items[grid_offset] = TERRAIN_SHRUB;
                 map_image_set(grid_offset, image_group(GROUP_TERRAIN_SHRUB) + shrub_rnd + 16);
             }
             break;
         case TOOL_LARGEST_SHRUB:
             if (!map_terrain_is(grid_offset, TERRAIN_NOT_DISPLACEABLE)) {
-                map_terrain_set(grid_offset, TERRAIN_SHRUB);
+                terrain_grid.items[grid_offset] = TERRAIN_SHRUB;
                 map_image_set(grid_offset, image_group(GROUP_TERRAIN_SHRUB) + shrub_rnd + 24);
             }
             break;
@@ -205,18 +205,18 @@ static void add_terrain_at(int x, int y)
             break;
         case TOOL_WATER:
             if (!map_terrain_is(grid_offset, TERRAIN_NOT_DISPLACEABLE)) {
-                map_terrain_set(grid_offset, TERRAIN_WATER);
+                terrain_grid.items[grid_offset] = TERRAIN_WATER;
             }
             break;
         case TOOL_TREES:
             if (!map_terrain_is(grid_offset, TERRAIN_NOT_DISPLACEABLE)) {
-                map_terrain_set(grid_offset, TERRAIN_TREE);
+                terrain_grid.items[grid_offset] = TERRAIN_TREE;
                 map_image_set(grid_offset, image_group(GROUP_TERRAIN_TREE) + (map_random_get(grid_offset) & 7));
             }
             break;
         case TOOL_MEADOW:
             if (!map_terrain_is(grid_offset, TERRAIN_NOT_DISPLACEABLE)) {
-                map_terrain_set(grid_offset, TERRAIN_MEADOW);
+                terrain_grid.items[grid_offset] = TERRAIN_MEADOW;
                 // dupl with set_meadow_image
                 int random = map_random_get(grid_offset) & 3;
                 int image_id = image_group(GROUP_TERRAIN_MEADOW);
@@ -233,17 +233,17 @@ static void add_terrain_at(int x, int y)
             if (elevation < 5 && elevation == data.start_elevation) {
                 map_property_set_multi_tile_size(grid_offset, 1);
                 map_elevation_set(grid_offset, elevation + 1);
-                map_terrain_set(grid_offset, TERRAIN_ELEVATION);
+                terrain_grid.items[grid_offset] = TERRAIN_ELEVATION;
             }
             break;
         case TOOL_LOWER_LAND:
             if (elevation == data.start_elevation) {
                 if (elevation == 1) {
                     map_elevation_set(grid_offset, 0);
-                    map_terrain_set(grid_offset, 0);
+                    terrain_grid.items[grid_offset] = 0;
                 } else if (elevation) {
                     map_elevation_set(grid_offset, elevation - 1);
-                    map_terrain_set(grid_offset, TERRAIN_ELEVATION);
+                    terrain_grid.items[grid_offset] = TERRAIN_ELEVATION;
                 }
             }
             break;
@@ -378,7 +378,7 @@ static void place_access_ramp(const map_tile *tile)
         for (int dy = 0; dy < 2; dy++) {
             for (int dx = 0; dx < 2; dx++) {
                 int grid_offset = tile->grid_offset + map_grid_delta(dx, dy);
-                map_terrain_set(grid_offset, map_terrain_get(grid_offset) & terrain_mask);
+                terrain_grid.items[grid_offset] = terrain_grid.items[grid_offset] & terrain_mask;
             }
         }
         map_building_tiles_add(0, tile->x, tile->y, 2,

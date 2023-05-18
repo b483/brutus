@@ -3,12 +3,45 @@
 #include "building/building.h"
 #include "city/data_private.h"
 #include "city/military.h"
-#include "figure/combat.h"
+#include "core/calc.h"
 #include "figure/formation.h"
 #include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "map/terrain.h"
+
+static void set_target_building_for_native(struct figure_t *f)
+{
+    struct building_t *min_building = 0;
+    int min_distance = 10000;
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state != BUILDING_STATE_IN_USE) {
+            continue;
+        }
+        switch (b->type) {
+            case BUILDING_MISSION_POST:
+            case BUILDING_NATIVE_HUT:
+            case BUILDING_NATIVE_CROPS:
+            case BUILDING_NATIVE_MEETING:
+            case BUILDING_WAREHOUSE:
+            case BUILDING_FORT:
+                break;
+            default:
+            {
+                int distance = calc_maximum_distance(city_data.building.main_native_meeting.x, city_data.building.main_native_meeting.y, b->x, b->y);
+                if (distance < min_distance) {
+                    min_building = b;
+                    min_distance = distance;
+                }
+            }
+        }
+    }
+    if (min_building) {
+        f->destination_x = min_building->x;
+        f->destination_y = min_building->y;
+    }
+}
 
 void figure_indigenous_native_action(struct figure_t *f)
 {
@@ -43,7 +76,10 @@ void figure_indigenous_native_action(struct figure_t *f)
             f->wait_ticks++;
             if (f->wait_ticks > 10 + (f->id & 3)) {
                 f->wait_ticks = 0;
-                if (!city_data.military.native_attack_duration) {
+                if (city_data.military.native_attack_duration) {
+                    f->action_state = FIGURE_ACTION_NATIVE_ATTACKING;
+                    set_target_building_for_native(f);
+                } else {
                     int x_tile, y_tile;
                     struct building_t *meeting = &all_buildings[b->subtype.native_meeting_center_id];
                     if (map_terrain_get_adjacent_road_or_clear_land(
@@ -52,17 +88,11 @@ void figure_indigenous_native_action(struct figure_t *f)
                         f->destination_x = x_tile;
                         f->destination_y = y_tile;
                     }
-                } else {
-                    f->action_state = FIGURE_ACTION_NATIVE_ATTACKING;
-                    f->destination_x = formations[0].destination_x;
-                    f->destination_y = formations[0].destination_y;
-                    f->destination_building_id = formations[0].destination_building_id;
                 }
                 figure_route_remove(f);
             }
             break;
         case FIGURE_ACTION_NATIVE_ATTACKING:
-            city_data.figure.attacking_natives++;
             f->terrain_usage = TERRAIN_USAGE_ENEMY;
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION ||

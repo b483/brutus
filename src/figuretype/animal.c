@@ -89,16 +89,18 @@ void figure_create_herds(void)
             m->is_herd = 1;
             m->layout = FORMATION_HERD;
             m->max_figures = num_animals;
-            m->x = scenario.herd_points[i].x;
-            m->y = scenario.herd_points[i].y;
             m->wait_ticks = 24;
 
             // create animal figures and assign to formation
             for (int fig = 0; fig < num_animals; fig++) {
-                struct figure_t *f = figure_create(herd_type, scenario.herd_points[i].x, scenario.herd_points[i].y, DIR_0_TOP);
+                struct figure_t *f = figure_create(herd_type,
+                    scenario.herd_points[i].x + formation_layout_position_x(FORMATION_HERD, fig),
+                    scenario.herd_points[i].y + formation_layout_position_y(FORMATION_HERD, fig), DIR_0_TOP);
+                f->terrain_usage = TERRAIN_USAGE_ANIMAL;
                 f->action_state = FIGURE_ACTION_HERD_ANIMAL_AT_REST;
                 f->formation_id = m->id;
                 add_figure_to_formation(f, m);
+                city_data.figure.animals++;
             }
         }
     }
@@ -130,10 +132,6 @@ void figure_seagulls_action(struct figure_t *f)
 void figure_wolf_action(struct figure_t *f)
 {
     struct formation_t *m = &formations[f->formation_id];
-    f->terrain_usage = TERRAIN_USAGE_ANIMAL;
-    f->use_cross_country = 0;
-    f->is_ghost = 0;
-    city_data.figure.animals++;
     figure_image_increase_offset(f, 12);
 
     switch (f->action_state) {
@@ -175,10 +173,10 @@ void figure_wolf_action(struct figure_t *f)
             } else if (m->missile_attack_formation_id) {
                 figure_route_remove(f);
                 struct formation_t *target_formation = &formations[m->missile_attack_formation_id];
-                f->destination_x = target_formation->x_home;
-                f->destination_y = target_formation->y_home;
-                m->destination_x = target_formation->x_home;
-                m->destination_y = target_formation->y_home;
+                f->destination_x = figures[target_formation->figures[0]].x;
+                f->destination_y = figures[target_formation->figures[0]].y;
+                m->destination_x = figures[target_formation->figures[0]].x;
+                m->destination_y = figures[target_formation->figures[0]].y;
                 figure_movement_move_ticks(f, 2);
             } else {
                 // roaming
@@ -214,10 +212,6 @@ void figure_wolf_action(struct figure_t *f)
 
 void figure_sheep_action(struct figure_t *f)
 {
-    f->terrain_usage = TERRAIN_USAGE_ANIMAL;
-    f->use_cross_country = 0;
-    f->is_ghost = 0;
-    city_data.figure.animals++;
     figure_image_increase_offset(f, 6);
 
     switch (f->action_state) {
@@ -263,10 +257,6 @@ void figure_sheep_action(struct figure_t *f)
 
 void figure_zebra_action(struct figure_t *f)
 {
-    f->terrain_usage = TERRAIN_USAGE_ANIMAL;
-    f->use_cross_country = 0;
-    f->is_ghost = 0;
-    city_data.figure.animals++;
     figure_image_increase_offset(f, 12);
 
     switch (f->action_state) {

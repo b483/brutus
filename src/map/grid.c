@@ -93,16 +93,6 @@ void map_grid_size(int *width, int *height)
     *height = map_data.height;
 }
 
-int map_grid_width(void)
-{
-    return map_data.width;
-}
-
-int map_grid_height(void)
-{
-    return map_data.height;
-}
-
 void map_grid_bound(int *x, int *y)
 {
     if (*x < 0) {

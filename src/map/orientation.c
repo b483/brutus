@@ -180,33 +180,33 @@ int map_orientation_for_triumphal_arch(int x, int y)
     }
     // road tiles top to bottom
     int top_offset = grid_offset + map_grid_delta(1, 0);
-    if ((map_terrain_get(top_offset) & TERRAIN_NOT_CLEAR) == TERRAIN_ROAD) {
+    if ((terrain_grid.items[top_offset] & TERRAIN_NOT_CLEAR) == TERRAIN_ROAD) {
         num_road_tiles_top_bottom++;
     } else if (map_terrain_is(top_offset, TERRAIN_NOT_CLEAR)) {
         num_blocked_tiles++;
     }
     int bottom_offset = grid_offset + map_grid_delta(1, 2);
-    if ((map_terrain_get(bottom_offset) & TERRAIN_NOT_CLEAR) == TERRAIN_ROAD) {
+    if ((terrain_grid.items[bottom_offset] & TERRAIN_NOT_CLEAR) == TERRAIN_ROAD) {
         num_road_tiles_top_bottom++;
     } else if (map_terrain_is(bottom_offset, TERRAIN_NOT_CLEAR)) {
         num_blocked_tiles++;
     }
     // road tiles left to right
     int left_offset = grid_offset + map_grid_delta(0, 1);
-    if ((map_terrain_get(left_offset) & TERRAIN_NOT_CLEAR) == TERRAIN_ROAD) {
+    if ((terrain_grid.items[left_offset] & TERRAIN_NOT_CLEAR) == TERRAIN_ROAD) {
         num_road_tiles_left_right++;
     } else if (map_terrain_is(left_offset, TERRAIN_NOT_CLEAR)) {
         num_blocked_tiles++;
     }
     int right_offset = grid_offset + map_grid_delta(2, 1);
-    if ((map_terrain_get(right_offset) & TERRAIN_NOT_CLEAR) == TERRAIN_ROAD) {
+    if ((terrain_grid.items[right_offset] & TERRAIN_NOT_CLEAR) == TERRAIN_ROAD) {
         num_road_tiles_left_right++;
     } else if (map_terrain_is(right_offset, TERRAIN_NOT_CLEAR)) {
         num_blocked_tiles++;
     }
     // center tile
     int center_offset = grid_offset + map_grid_delta(2, 1);
-    if ((map_terrain_get(center_offset) & TERRAIN_NOT_CLEAR) == TERRAIN_ROAD) {
+    if ((terrain_grid.items[center_offset] & TERRAIN_NOT_CLEAR) == TERRAIN_ROAD) {
         // do nothing
     } else if (map_terrain_is(center_offset, TERRAIN_NOT_CLEAR)) {
         num_blocked_tiles++;
