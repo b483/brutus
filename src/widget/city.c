@@ -208,7 +208,7 @@ static void handle_mouse(const mouse *m)
         // handle legion click
         if (tile->grid_offset) {
             int formation_id = formation_legion_at_grid_offset(tile->grid_offset);
-            if (formation_id && !formations[formation_id].in_distant_battle) {
+            if (formation_id > -1 && !legion_formations[formation_id].in_distant_battle) {
                 window_city_military_show(formation_id);
                 return;
             }
@@ -293,21 +293,22 @@ void widget_city_handle_input_military(const mouse *m, const hotkeys *h, int leg
             if (!tile->grid_offset) {
                 return;
             }
-            if (formations[legion_formation_id].in_distant_battle || formations[legion_formation_id].cursed_by_mars) {
+            struct formation_t *legion_formation = &legion_formations[legion_formation_id];
+            if (legion_formation->in_distant_battle || legion_formation->cursed_by_mars) {
                 return;
             }
             // return legion home upon clicking on own fort/fort ground
             struct building_t *b = &all_buildings[map_building_at(tile->grid_offset)];
             if (b && b->state == BUILDING_STATE_IN_USE && (b->type == BUILDING_FORT || b->type == BUILDING_FORT_GROUND) && b->formation_id == legion_formation_id) {
-                formation_legion_return_home(&formations[legion_formation_id]);
+                return_legion_formation_home(legion_formation);
             } else { // move legion if route available
-                map_routing_calculate_distances(formations[legion_formation_id].standard_x, formations[legion_formation_id].standard_y);
+                map_routing_calculate_distances(legion_formation->standard_x, legion_formation->standard_y);
                 if (map_routing_distance(tile->grid_offset)
-                && !formations[legion_formation_id].cursed_by_mars
-                && formations[legion_formation_id].morale > ROUT_MORALE_THRESHOLD
-                && formations[legion_formation_id].num_figures) {
-                    formation_legion_move_to(&formations[legion_formation_id], tile);
-                } else if (formations[legion_formation_id].morale <= ROUT_MORALE_THRESHOLD) {
+                && !legion_formation->cursed_by_mars
+                && legion_formation->morale > ROUT_MORALE_THRESHOLD
+                && legion_formation->num_figures) {
+                    move_legion_formation_to(legion_formation, tile);
+                } else if (legion_formation->morale <= ROUT_MORALE_THRESHOLD) {
                     city_warning_show(WARNING_LEGION_MORALE_TOO_LOW);
                 }
             }

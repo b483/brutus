@@ -3,7 +3,9 @@
 #include "city/view.h"
 #include "core/image.h"
 #include "figure/combat.h"
-#include "figure/formation.h"
+#include "figure/formation_enemy.h"
+#include "figure/formation_herd.h"
+#include "figure/formation_legion.h"
 #include "figure/movement.h"
 #include "figure/sound.h"
 #include "map/figure.h"
@@ -109,9 +111,9 @@ static void missile_hit_target(struct figure_t *projectile, struct figure_t *tar
         damage_inflicted = 0;
     }
     if (projectile->type != FIGURE_BOLT
-        && (target->type == FIGURE_FORT_LEGIONARY || target->type == FIGURE_ENEMY_CAESAR_LEGIONARY)
-        && target->figure_is_halted
-        && formations[target->formation_id].layout == FORMATION_TORTOISE) {
+        && ((target->type == FIGURE_FORT_LEGIONARY && legion_formations[target->formation_id].layout == FORMATION_TORTOISE)
+            || (target->type == FIGURE_ENEMY_CAESAR_LEGIONARY && enemy_formations[target->formation_id].layout == FORMATION_TORTOISE))
+            && target->figure_is_halted) {
         damage_inflicted = 1;
     }
     int target_damage = damage_inflicted + target->damage;
@@ -122,14 +124,23 @@ static void missile_hit_target(struct figure_t *projectile, struct figure_t *tar
         target->action_state = FIGURE_ACTION_CORPSE;
         target->wait_ticks = 0;
         figure_play_die_sound(target);
-        formation_update_morale_after_death(&formations[target->formation_id]);
+        if (figure_properties[target->type].is_player_legion_unit) {
+            update_formation_morale_after_death(&legion_formations[target->formation_id]);
+        } else {
+            update_formation_morale_after_death(&enemy_formations[target->formation_id]);
+        }
         clear_targeting_on_unit_death(target);
         update_counters_on_unit_death(target);
         refresh_formation_figure_indexes(target);
     }
     projectile->state = FIGURE_STATE_DEAD;
-    formations[target->formation_id].missile_attack_timeout = 6;
-    formations[target->formation_id].missile_attack_formation_id = shooter->formation_id;
+    if (figure_properties[target->type].is_player_legion_unit) {
+        legion_formations[target->formation_id].missile_attack_timeout = 6;
+    } else if (figure_properties[target->type].is_herd_animal) {
+        herd_formations[target->formation_id].missile_attack_timeout = 6;
+    } else if (figure_properties[target->type].is_enemy_unit || figure_properties[target->type].is_caesar_legion_unit) {
+        enemy_formations[target->formation_id].missile_attack_timeout = 6;
+    }
     // clear targeting
     shooter->target_figure_id = 0;
     figure__remove_ranged_targeter_from_list(target, shooter);

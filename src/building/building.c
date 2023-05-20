@@ -329,25 +329,25 @@ void building_clear_related_data(struct building_t *b)
     }
     if (b->type == BUILDING_FORT) {
         city_data.military.total_legions--;
-        if (b->formation_id > 0) {
-            if (formations[b->formation_id].in_use) {
-                for (int i = 0; i < formations[b->formation_id].num_figures; i++) {
-                    struct figure_t *f = &figures[formations[b->formation_id].figures[i]];
-                    map_point nearest_barracks_road_tile = { 0 };
-                    set_destination__closest_building_of_type(b->id, BUILDING_BARRACKS, &nearest_barracks_road_tile);
-                    figure_route_remove(f);
-                    if (nearest_barracks_road_tile.x) {
-                        f->destination_x = nearest_barracks_road_tile.x;
-                        f->destination_y = nearest_barracks_road_tile.y;
-                    } else {
-                        f->destination_x = city_data.map.exit_point.x;
-                        f->destination_y = city_data.map.exit_point.y;
-                    }
-                    f->action_state = FIGURE_ACTION_SOLDIER_RETURNING_TO_BARRACKS;
+        struct formation_t *m = &legion_formations[b->formation_id];
+        if (m->in_use) {
+            for (int i = 0; i < m->num_figures; i++) {
+                struct figure_t *f = &figures[m->figures[i]];
+                map_point nearest_barracks_road_tile = { 0 };
+                set_destination__closest_building_of_type(b->id, BUILDING_BARRACKS, &nearest_barracks_road_tile);
+                figure_route_remove(f);
+                if (nearest_barracks_road_tile.x) {
+                    f->destination_x = nearest_barracks_road_tile.x;
+                    f->destination_y = nearest_barracks_road_tile.y;
+                } else {
+                    f->destination_x = city_data.map.exit_point.x;
+                    f->destination_y = city_data.map.exit_point.y;
                 }
-                map_figure_delete(&figures[formations[b->formation_id].legion_standard__figure_id]);
-                formation_clear(b->formation_id);
+                f->action_state = FIGURE_ACTION_SOLDIER_RETURNING_TO_BARRACKS;
             }
+            map_figure_delete(&figures[m->legion_standard__figure_id]);
+            memset(&legion_formations[b->formation_id], 0, sizeof(struct formation_t));
+            m->id = b->formation_id;
         }
     }
     if (b->type == BUILDING_HIPPODROME) {

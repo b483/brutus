@@ -5,8 +5,6 @@
 
 void figure_create_fishing_points(void);
 
-void figure_create_herds(void);
-
 void figure_seagulls_action(struct figure_t *f);
 
 void figure_sheep_action(struct figure_t *f);

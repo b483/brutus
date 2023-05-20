@@ -59,7 +59,7 @@ void game_file_editor_clear_data(void)
     building_storage_clear_all();
     figure_init_scenario();
     figure_name_init();
-    formations_clear();
+    reset_all_formations();
     figure_route_clear_all();
     traders_clear();
     game_time_init(2098);

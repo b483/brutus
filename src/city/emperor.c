@@ -5,7 +5,7 @@
 #include "city/message.h"
 #include "city/ratings.h"
 #include "core/calc.h"
-#include "figure/formation.h"
+#include "figure/formation_enemy.h"
 #include "game/time.h"
 #include "scenario/data.h"
 #include "scenario/editor_events.h"
@@ -84,17 +84,17 @@ void process_caesar_invasion(void)
         city_data.emperor.invasion.duration_day_countdown--;
         if (city_data.ratings.favor >= 35 && city_data.emperor.invasion.duration_day_countdown < 176) {
             // pause legions
-            for (int i = 1; i < MAX_FORMATIONS; i++) {
-                if (formations[i].in_use == 1 && formations[i].figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY) {
-                    formations[i].wait_ticks = 0;
+            for (int i = 0; i < MAX_ENEMY_FORMATIONS; i++) {
+                if (enemy_formations[i].in_use == 1 && enemy_formations[i].figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY) {
+                    enemy_formations[i].wait_ticks_movement = 0;
                 }
             }
         } else if (city_data.ratings.favor >= 22) {
             if (city_data.emperor.invasion.duration_day_countdown > 0) {
                 // retreat
-                for (int i = 1; i < MAX_FORMATIONS; i++) {
-                    if (formations[i].in_use && formations[i].figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY) {
-                        formations[i].morale = 0;
+                for (int i = 0; i < MAX_ENEMY_FORMATIONS; i++) {
+                    if (enemy_formations[i].in_use && enemy_formations[i].figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY) {
+                        enemy_formations[i].morale = 0;
                     }
                 }
                 if (!city_data.emperor.invasion.retreat_message_shown) {

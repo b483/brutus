@@ -110,15 +110,15 @@ static int perform_large_curse(god_type god)
         case GOD_MARS:
             struct formation_t *best_legion = 0;
             int best_legion_weight = 0;
-            for (int i = 1; i <= MAX_FORMATIONS; i++) {
-                if (formations[i].in_use && formations[i].is_legion) {
-                    int weight = formations[i].num_figures;
-                    if (formations[i].figure_type == FIGURE_FORT_LEGIONARY) {
+            for (int i = 0; i < MAX_LEGIONS; i++) {
+                if (legion_formations[i].in_use) {
+                    int weight = legion_formations[i].num_figures;
+                    if (legion_formations[i].figure_type == FIGURE_FORT_LEGIONARY) {
                         weight *= 2;
                     }
                     if (weight > best_legion_weight) {
                         best_legion_weight = weight;
-                        best_legion = &formations[i];
+                        best_legion = &legion_formations[i];
                     }
                 }
             }

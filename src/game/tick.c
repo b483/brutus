@@ -30,7 +30,7 @@
 #include "editor/editor.h"
 #include "empire/object.h"
 #include "figure/combat.h"
-#include "figure/formation.h"
+#include "figure/formation_legion.h"
 #include "figuretype/animal.h"
 #include "figuretype/cartpusher.h"
 #include "figuretype/crime.h"
@@ -93,7 +93,7 @@ static void advance_month(void)
     city_finance_handle_month_change();
     city_resource_consume_food();
     city_victory_update_months_to_govern();
-    legions_update_morale_monthly();
+    update_legion_morale_monthly();
     city_message_decrease_delays();
 
     map_tiles_update_all_roads();

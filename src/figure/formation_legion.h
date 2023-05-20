@@ -6,20 +6,28 @@
 #include "figure/formation.h"
 #include "map/point.h"
 
-int formation_legion_create_for_fort(struct building_t *fort);
+#define MAX_LEGIONS 6
 
-int formation_get_num_legions(void);
+extern struct formation_t legion_formations[MAX_LEGIONS];
 
-int get_legion_formation_by_index(int legion_index);
+extern int selected_legion_formation;
+
+int create_legion_formation_for_fort(struct building_t *fort);
+
+void update_legion_morale_monthly(void);
 
 void deploy_legion_unit_to_formation_location(struct figure_t *legion_unit, struct formation_t *legion_formation);
 
-void formation_legion_move_to(struct formation_t *m, map_tile *tile);
+void move_legion_formation_to(struct formation_t *m, map_tile *tile);
 
-void formation_legion_return_home(struct formation_t *m);
+void return_legion_formation_home(struct formation_t *m);
 
 int formation_legion_at_grid_offset(int grid_offset);
 
-void formation_legion_update(void);
+void update_legion_formations(void);
+
+void legion_formations_save_state(buffer *buf);
+
+void legion_formations_load_state(buffer *buf);
 
 #endif // FIGURE_FORMATION_LEGION_H

@@ -541,7 +541,7 @@ void city_building_ghost_draw(const map_tile *tile)
         case BUILDING_FORT_MOUNTED:
             int num_fort_ground_tiles = building_properties[BUILDING_FORT_GROUND].size * building_properties[BUILDING_FORT_GROUND].size;
             int blocked_tiles_ground[MAX_TILES];
-            if (formation_get_num_legions() >= MAX_LEGIONS) {
+            if (city_data.military.total_legions >= MAX_LEGIONS) {
                 draw_blocked_building_preview(x, y, num_tiles, blocked_tiles, 1);
                 draw_blocked_building_preview(x + FORT_GROUND_X_VIEW_OFFSETS[orientation_index], y + FORT_GROUND_Y_VIEW_OFFSETS[orientation_index], num_fort_ground_tiles, blocked_tiles_ground, 1);
                 return;

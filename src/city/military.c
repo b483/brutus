@@ -113,13 +113,14 @@ static int player_has_won(void)
         }
     }
     // apply legion losses
-    for (int i = 1; i < MAX_FORMATIONS; i++) {
-        if (formations[i].in_use && formations[i].is_legion && formations[i].in_distant_battle) {
-            formations[i].morale = calc_bound(formations[i].morale - 75, 0, formations[i].max_morale);
+    for (int i = 0; i < MAX_LEGIONS; i++) {
+        if (legion_formations[i].in_use && legion_formations[i].in_distant_battle) {
+            struct formation_t *m = &legion_formations[i];
+            m->morale = calc_bound(m->morale - 75, 0, m->max_morale);
             int soldiers_total = 0;
-            for (int fig = 0; fig < formations[i].num_figures; fig++) {
-                if (formations[i].figures[fig] > 0) {
-                    struct figure_t *f = &figures[formations[i].figures[fig]];
+            for (int fig = 0; fig < m->num_figures; fig++) {
+                if (m->figures[fig] > 0) {
+                    struct figure_t *f = &figures[m->figures[fig]];
                     if (!figure_is_dead(f)) {
                         soldiers_total++;
                     }
@@ -127,11 +128,11 @@ static int player_has_won(void)
             }
             int soldiers_to_kill = calc_adjust_with_percentage(soldiers_total, pct_loss);
             if (soldiers_to_kill >= soldiers_total) {
-                formations[i].in_distant_battle = 0;
+                m->in_distant_battle = 0;
             }
-            for (int fig = 0; fig < formations[i].num_figures; fig++) {
-                if (formations[i].figures[fig] > 0) {
-                    struct figure_t *f = &figures[formations[i].figures[fig]];
+            for (int fig = 0; fig < m->num_figures; fig++) {
+                if (m->figures[fig] > 0) {
+                    struct figure_t *f = &figures[m->figures[fig]];
                     if (!figure_is_dead(f)) {
                         if (soldiers_to_kill) {
                             soldiers_to_kill--;
@@ -195,12 +196,12 @@ static void update_aftermath(void)
             }
             city_data.distant_battle.roman_months_traveled = 0;
             // return soldiers
-            for (int i = 1; i < MAX_FORMATIONS; i++) {
-                if (formations[i].in_use && formations[i].is_legion && formations[i].in_distant_battle) {
-                    formations[i].in_distant_battle = 0;
-                    for (int fig = 0; fig < formations[i].num_figures; fig++) {
-                        if (formations[i].figures[fig] > 0) {
-                            struct figure_t *f = &figures[formations[i].figures[fig]];
+            for (int i = 0; i < MAX_LEGIONS; i++) {
+                if (legion_formations[i].in_use && legion_formations[i].in_distant_battle) {
+                    legion_formations[i].in_distant_battle = 0;
+                    for (int fig = 0; fig < legion_formations[i].num_figures; fig++) {
+                        if (legion_formations[i].figures[fig] > 0) {
+                            struct figure_t *f = &figures[legion_formations[i].figures[fig]];
                             if (!figure_is_dead(f)) {
                                 f->action_state = FIGURE_ACTION_SOLDIER_RETURNING_FROM_DISTANT_BATTLE;
                             }

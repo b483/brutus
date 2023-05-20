@@ -22,6 +22,7 @@
 #include "empire/empire.h"
 #include "empire/trade_prices.h"
 #include "figure/formation.h"
+#include "figure/formation_herd.h"
 #include "figure/name.h"
 #include "figure/route.h"
 #include "figure/trader.h"
@@ -76,7 +77,7 @@ static void clear_scenario_data(void)
     building_storage_clear_all();
     figure_init_scenario();
     figure_name_init();
-    formations_clear();
+    reset_all_formations();
     figure_route_clear_all();
 
     game_time_init(2098);
@@ -118,7 +119,7 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
     city_view_init();
 
     figure_create_fishing_points();
-    figure_create_herds();
+    create_herds();
     figure_create_flotsam();
 
     map_routing_update_all();

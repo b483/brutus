@@ -179,8 +179,8 @@ static int get_request_status(int index)
         num_requests = 1;
         if (index == 0) {
             int legions_selected_emp_service = 0;
-            for (int i = 1; i < MAX_FORMATIONS; i++) {
-                if (formations[i].in_use && formations[i].is_legion && formations[i].empire_service && formations[i].num_figures > 0) {
+            for (int i = 0; i < MAX_LEGIONS; i++) {
+                if (legion_formations[i].in_use && legion_formations[i].empire_service && legion_formations[i].num_figures) {
                     legions_selected_emp_service = 1;
                     break;
                 }
@@ -297,24 +297,25 @@ static void confirm_send_troops(void)
 {
     int legions_sent = 0;
     int roman_strength = 0;
-    for (int i = 1; i < MAX_FORMATIONS; i++) {
-        if (formations[i].in_use && formations[i].is_legion && formations[i].empire_service && formations[i].num_figures > 0) {
-            formations[i].in_distant_battle = 1;
-            for (int fig = 0; fig < formations[i].num_figures; fig++) {
-                if (formations[i].figures[fig] > 0) {
-                    struct figure_t *f = &figures[formations[i].figures[fig]];
+    for (int i = 0; i < MAX_LEGIONS; i++) {
+        if (legion_formations[i].in_use && legion_formations[i].empire_service && legion_formations[i].num_figures) {
+            struct formation_t *m = &legion_formations[i];
+            m->in_distant_battle = 1;
+            for (int fig = 0; fig < m->num_figures; fig++) {
+                if (m->figures[fig] > 0) {
+                    struct figure_t *f = &figures[m->figures[fig]];
                     if (!figure_is_dead(f)) {
                         f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_DISTANT_BATTLE;
                     }
                 }
             }
             int strength_factor;
-            if (formations[i].has_military_training) {
-                strength_factor = formations[i].figure_type == FIGURE_FORT_LEGIONARY ? 3 : 2;
+            if (m->has_military_training) {
+                strength_factor = m->figure_type == FIGURE_FORT_LEGIONARY ? 3 : 2;
             } else {
-                strength_factor = formations[i].figure_type == FIGURE_FORT_LEGIONARY ? 2 : 1;
+                strength_factor = m->figure_type == FIGURE_FORT_LEGIONARY ? 2 : 1;
             }
-            roman_strength += strength_factor * formations[i].num_figures;
+            roman_strength += strength_factor * m->num_figures;
             legions_sent++;
         }
     }

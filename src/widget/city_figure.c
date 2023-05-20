@@ -1,7 +1,7 @@
 #include "city_figure.h"
 
 #include "city/view.h"
-#include "figure/formation.h"
+#include "figure/formation_legion.h"
 #include "figure/image.h"
 #include "figuretype/editor.h"
 #include "graphics/image.h"
@@ -206,14 +206,14 @@ static void draw_figure(struct figure_t *f, int x, int y, int highlight)
                 draw_hippodrome_horse(f, x, y);
                 break;
             case FIGURE_FORT_STANDARD:
-                if (!formations[f->formation_id].in_distant_battle) {
+                if (!legion_formations[f->formation_id].in_distant_battle) {
                     // base
                     image_draw(f->image_id, x, y);
                     // flag
                     int flag_height = image_get(f->cart_image_id)->height;
                     image_draw(f->cart_image_id, x, y - flag_height);
                     // top icon
-                    int icon_image_id = image_group(GROUP_FIGURE_FORT_STANDARD_ICONS) + formations[f->formation_id].legion_id;
+                    int icon_image_id = image_group(GROUP_FIGURE_FORT_STANDARD_ICONS) + legion_formations[f->formation_id].id;
                     image_draw(icon_image_id, x, y - image_get(icon_image_id)->height - flag_height);
                 }
                 break;

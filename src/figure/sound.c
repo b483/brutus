@@ -2,7 +2,6 @@
 
 #include "city/data_private.h"
 #include "sound/effect.h"
-#include "sound/speech.h"
 
 void figure_play_die_sound(const struct figure_t *f)
 {
@@ -101,15 +100,6 @@ void figure_play_die_sound(const struct figure_t *f)
             city_data.sound.die_citizen = 0;
         }
         sound_effect_play(SOUND_EFFECT_CITIZEN_DIE + city_data.sound.die_citizen);
-    }
-    if (figure_properties[f->type].is_enemy_unit) {
-        if (city_data.figure.enemies == 1) {
-            sound_speech_play_file("wavs/army_war_cry.wav");
-        }
-    } else if (figure_properties[f->type].is_player_legion_unit) {
-        if (city_data.figure.soldiers == 1) {
-            sound_speech_play_file("wavs/barbarian_war_cry.wav");
-        }
     }
 }
 

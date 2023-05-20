@@ -5,7 +5,8 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"
-#include "figure/formation.h"
+#include "figure/formation_enemy.h"
+#include "figure/formation_legion.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "figure/sound.h"
@@ -126,7 +127,7 @@ int is_valid_target_for_player_unit(struct figure_t *target)
 {
     return figure_properties[target->type].is_criminal_unit
         || (figure_properties[target->type].is_native_unit && target->action_state == FIGURE_ACTION_NATIVE_ATTACKING)
-        || figure_properties[target->type].is_herd_animal
+        || target->type == FIGURE_WOLF
         || figure_properties[target->type].is_enemy_unit
         || figure_properties[target->type].is_caesar_legion_unit;
 }
@@ -322,7 +323,7 @@ void melee_attack_figure_at_offset(struct figure_t *attacker, int grid_offset)
         && opponent->is_targetable
         && opponent->num_melee_combatants < MAX_MELEE_COMBATANTS_PER_UNIT) {
             if (figure_properties[attacker->type].is_friendly_armed_unit || figure_properties[attacker->type].is_player_legion_unit) {
-                if (is_valid_target_for_player_unit(opponent)) {
+                if (is_valid_target_for_player_unit(opponent) || (opponent->type == FIGURE_SHEEP || opponent->type == FIGURE_ZEBRA)) {
                     engage_in_melee_combat(attacker, opponent);
                     return;
                 }
@@ -398,7 +399,12 @@ static void hit_opponent(struct figure_t *attacker, struct figure_t *opponent)
         opponent->action_state = FIGURE_ACTION_CORPSE;
         opponent->wait_ticks = 0;
         figure_play_die_sound(opponent);
-        formation_update_morale_after_death(&formations[opponent->formation_id]);
+        if (figure_properties[opponent->type].is_player_legion_unit) {
+            update_formation_morale_after_death(&legion_formations[opponent->formation_id]);
+        } else {
+            update_formation_morale_after_death(&enemy_formations[opponent->formation_id]);
+        }
+
         clear_targeting_on_unit_death(opponent);
         update_counters_on_unit_death(opponent);
         refresh_formation_figure_indexes(opponent);
@@ -429,7 +435,11 @@ void figure_combat_handle_attack(struct figure_t *f)
                 sound_effect_play(SOUND_EFFECT_HORSE_MOVING);
                 f->mounted_charge_ticks--;
             }
-            formations[opponent->formation_id].recent_fight = 6;
+            if (figure_properties[opponent->type].is_player_legion_unit) {
+                legion_formations[opponent->formation_id].recent_fight = 6;
+            } else if (figure_properties[opponent->type].is_enemy_unit || figure_properties[opponent->type].is_caesar_legion_unit) {
+                enemy_formations[opponent->formation_id].recent_fight = 6;
+            }
         }
     } else {
         f->action_state = f->action_state_before_attack;
@@ -547,22 +557,22 @@ int set_missile_target(struct figure_t *shooter, map_point *tile)
     return 0;
 }
 
-void clear_targeting_on_unit_death(struct figure_t *unit)
+void clear_targeting_on_unit_death(struct figure_t *dead_unit)
 {
     // remove unit from its target's targeter lists
-    struct figure_t *target = &figures[unit->target_figure_id];
-    figure__remove_melee_targeter_from_list(target, unit);
-    figure__remove_ranged_targeter_from_list(target, unit);
+    struct figure_t *target = &figures[dead_unit->target_figure_id];
+    figure__remove_melee_targeter_from_list(target, dead_unit);
+    figure__remove_ranged_targeter_from_list(target, dead_unit);
 
     // reset target of all opponents targeting the unit; remove unit from melee combatant list of all opponents fighting it
     for (int i = 0; i < MAX_FIGURES; i++) {
         struct figure_t *opponent = &figures[i];
         if (!figure_is_dead(opponent)) {
-            if (opponent->target_figure_id == unit->id) {
+            if (opponent->target_figure_id == dead_unit->id) {
                 opponent->target_figure_id = 0;
             }
             for (int j = 0; j < MAX_MELEE_COMBATANTS_PER_UNIT; j++) {
-                if (opponent->melee_combatant_ids[j] == unit->id) {
+                if (opponent->melee_combatant_ids[j] == dead_unit->id) {
                     opponent->melee_combatant_ids[j] = 0;
                     opponent->num_melee_combatants--;
                 }
@@ -571,20 +581,20 @@ void clear_targeting_on_unit_death(struct figure_t *unit)
     }
 }
 
-void update_counters_on_unit_death(struct figure_t *unit)
+void update_counters_on_unit_death(struct figure_t *dead_unit)
 {
-    if (figure_properties[unit->type].is_player_legion_unit) {
+    if (figure_properties[dead_unit->type].is_player_legion_unit) {
         city_data.figure.soldiers--;
-        if (unit->type == FIGURE_FORT_LEGIONARY) {
+        if (dead_unit->type == FIGURE_FORT_LEGIONARY) {
             city_data.military.legionary_legions--;
         }
-    } else if (unit->type == FIGURE_RIOTER) {
+    } else if (dead_unit->type == FIGURE_RIOTER) {
         city_data.figure.rioters--;
-    } else if (figure_properties[unit->type].is_herd_animal) {
+    } else if (figure_properties[dead_unit->type].is_herd_animal) {
         city_data.figure.animals--;
-    } else if (figure_properties[unit->type].is_enemy_unit) {
+    } else if (figure_properties[dead_unit->type].is_enemy_unit) {
         city_data.figure.enemies--;
-    } else if (figure_properties[unit->type].is_caesar_legion_unit) {
+    } else if (figure_properties[dead_unit->type].is_caesar_legion_unit) {
         city_data.figure.imperial_soldiers--;
     }
 }

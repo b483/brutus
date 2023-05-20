@@ -310,8 +310,12 @@ static void draw_figures(int x, int y, int grid_offset)
                 city_draw_selected_figure(f, x, y, draw_context.selected_figure_coord);
             }
         } else if (!f->is_ghost) {
-            int highlight = f->formation_id > 0 && f->formation_id == draw_context.highlighted_formation;
-            city_draw_figure(f, x, y, highlight);
+            if (figure_properties[f->type].is_player_legion_unit && f->formation_id == draw_context.highlighted_formation) {
+                city_draw_figure(f, x, y, 1);
+            } else {
+                city_draw_figure(f, x, y, 0);
+            }
+
         }
         figure_id = f->next_figure_id_on_same_tile;
     }
@@ -516,16 +520,15 @@ static void deletion_draw_remaining(int x, int y, int grid_offset)
 
 void city_without_overlay_draw(int selected_figure_id, pixel_coordinate *figure_coord, const map_tile *tile)
 {
-    int highlighted_formation = 0;
+    int highlighted_formation = -1;
     if (config_get(CONFIG_UI_HIGHLIGHT_LEGIONS)) {
         highlighted_formation = formation_legion_at_grid_offset(tile->grid_offset);
-        if (highlighted_formation) {
-            int selected_formation = formation_get_selected();
-            if (selected_formation && highlighted_formation != selected_formation) {
-                highlighted_formation = 0;
+        if (highlighted_formation > -1) {
+            if (selected_legion_formation > -1 && highlighted_formation != selected_legion_formation) {
+                highlighted_formation = -1;
             }
-            if (formations[highlighted_formation].in_distant_battle) {
-                highlighted_formation = 0;
+            if (legion_formations[highlighted_formation].in_distant_battle) {
+                highlighted_formation = -1;
             }
         }
     }

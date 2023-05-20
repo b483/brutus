@@ -398,127 +398,131 @@ void scenario_custom_messages_process(void)
 
 static void create_enemy_formation(int figure_type, int enemy_type, int x, int y, int figures_amount_to_spawn, int orientation, int formation_index, int enemy_attack_priority)
 {
-    struct formation_t *m = create_formation_type(figure_type);
-    if (m) {
-        switch (enemy_type) {
-            case ENEMY_TYPE_BARBARIAN:
-            case ENEMY_TYPE_BRITON:
-            case ENEMY_TYPE_CELT:
-            case ENEMY_TYPE_PICT:
-            case ENEMY_TYPE_GAUL:
-            case ENEMY_TYPE_HELVETIUS:
-            case ENEMY_TYPE_HUN:
-            case ENEMY_TYPE_GOTH:
-            case ENEMY_TYPE_VISIGOTH:
-            case ENEMY_TYPE_NUMIDIAN:
-                m->max_morale = 80;
-                break;
-            case ENEMY_TYPE_CARTHAGINIAN:
-            case ENEMY_TYPE_GREEK:
-            case ENEMY_TYPE_MACEDONIAN:
-                m->max_morale = 90;
-                break;
-            case ENEMY_TYPE_PERGAMUM:
-            case ENEMY_TYPE_IBERIAN:
-            case ENEMY_TYPE_JUDEAN:
-            case ENEMY_TYPE_SELEUCID:
-            case ENEMY_TYPE_EGYPTIAN:
-            case ENEMY_TYPE_ETRUSCAN:
-            case ENEMY_TYPE_SAMNITE:
-                m->max_morale = 70;
-                break;
-            case ENEMY_TYPE_CAESAR:
-                m->max_morale = 100;
-                break;
-        }
-        m->morale = m->max_morale;
-        m->max_figures = figures_amount_to_spawn;
-        m->attack_priority = enemy_attack_priority;
-        m->layout = ENEMY_PROPERTIES[enemy_type].formation_layout;
-        if (ENEMY_PROPERTIES[enemy_type].formation_layout == FORMATION_DOUBLE_LINE_1) {
-            if (orientation == DIR_2_RIGHT || orientation == DIR_6_LEFT) {
-                m->layout = FORMATION_DOUBLE_LINE_2;
+    for (int i = 0; i < MAX_ENEMY_FORMATIONS; i++) {
+        if (!enemy_formations[i].in_use) {
+            struct formation_t *m = &enemy_formations[i];
+            m->in_use = 1;
+            m->figure_type = figure_type;
+            m->layout = ENEMY_PROPERTIES[enemy_type].formation_layout;
+            if (ENEMY_PROPERTIES[enemy_type].formation_layout == FORMATION_DOUBLE_LINE_1) {
+                if (orientation == DIR_2_RIGHT || orientation == DIR_6_LEFT) {
+                    m->layout = FORMATION_DOUBLE_LINE_2;
+                }
             }
-        }
-
-        if (orientation == DIR_0_TOP) {
-            if (formation_index % 2) {
-                m->destination_x = x;
-                m->destination_y = y - LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][1];
-            } else {
-                m->destination_x = x;
-                m->destination_y = y - LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][0];
+            m->max_figures = figures_amount_to_spawn;
+            m->attack_priority = enemy_attack_priority;
+            switch (enemy_type) {
+                case ENEMY_TYPE_BARBARIAN:
+                case ENEMY_TYPE_BRITON:
+                case ENEMY_TYPE_CELT:
+                case ENEMY_TYPE_PICT:
+                case ENEMY_TYPE_GAUL:
+                case ENEMY_TYPE_HELVETIUS:
+                case ENEMY_TYPE_HUN:
+                case ENEMY_TYPE_GOTH:
+                case ENEMY_TYPE_VISIGOTH:
+                case ENEMY_TYPE_NUMIDIAN:
+                    m->max_morale = 80;
+                    break;
+                case ENEMY_TYPE_CARTHAGINIAN:
+                case ENEMY_TYPE_GREEK:
+                case ENEMY_TYPE_MACEDONIAN:
+                    m->max_morale = 90;
+                    break;
+                case ENEMY_TYPE_PERGAMUM:
+                case ENEMY_TYPE_IBERIAN:
+                case ENEMY_TYPE_JUDEAN:
+                case ENEMY_TYPE_SELEUCID:
+                case ENEMY_TYPE_EGYPTIAN:
+                case ENEMY_TYPE_ETRUSCAN:
+                case ENEMY_TYPE_SAMNITE:
+                    m->max_morale = 70;
+                    break;
+                case ENEMY_TYPE_CAESAR:
+                    m->max_morale = 100;
+                    break;
             }
-        } else if (orientation == DIR_4_BOTTOM) {
-            if (formation_index % 2) {
-                m->destination_x = x;
-                m->destination_y = y + LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][1];
-            } else {
-                m->destination_x = x;
-                m->destination_y = y + LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][0];
-            }
-        } else if (orientation == DIR_2_RIGHT) {
-            if (formation_index % 2) {
-                m->destination_x = x + LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][1];
-                m->destination_y = y;
-            } else {
-                m->destination_x = x + LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][0];
-                m->destination_y = y;
-            }
-        } else if (orientation == DIR_6_LEFT) {
-            if (formation_index % 2) {
-                m->destination_x = x - LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][1];
-                m->destination_y = y;
-            } else {
-                m->destination_x = x - LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][0];
-                m->destination_y = y;
-            }
-        }
-
-        for (int fig = 0; fig < figures_amount_to_spawn; fig++) {
-            struct figure_t *f = figure_create(figure_type, x, y, orientation);
-            f->is_targetable = 1;
-            f->action_state = FIGURE_ACTION_ENEMY_SPAWNING;
-            f->formation_id = m->id;
-            f->enemy_image_group = ENEMY_PROPERTIES[enemy_type].enemy_img_group;
-            if (formation_index) {
-                f->wait_ticks = 50 * formation_index + 15 * fig + 300;
-            } else { // first formation is "scouting party"
-                f->wait_ticks = 15 * fig + 10;
+            m->morale = m->max_morale;
+            if (orientation == DIR_0_TOP) {
+                if (formation_index % 2) {
+                    m->destination_x = x;
+                    m->destination_y = y - LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][1];
+                } else {
+                    m->destination_x = x;
+                    m->destination_y = y - LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][0];
+                }
+            } else if (orientation == DIR_4_BOTTOM) {
+                if (formation_index % 2) {
+                    m->destination_x = x;
+                    m->destination_y = y + LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][1];
+                } else {
+                    m->destination_x = x;
+                    m->destination_y = y + LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][0];
+                }
+            } else if (orientation == DIR_2_RIGHT) {
+                if (formation_index % 2) {
+                    m->destination_x = x + LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][1];
+                    m->destination_y = y;
+                } else {
+                    m->destination_x = x + LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][0];
+                    m->destination_y = y;
+                }
+            } else if (orientation == DIR_6_LEFT) {
+                if (formation_index % 2) {
+                    m->destination_x = x - LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][1];
+                    m->destination_y = y;
+                } else {
+                    m->destination_x = x - LAYOUT_OFFSETS_FROM_MAP_EDGE[m->layout][0];
+                    m->destination_y = y;
+                }
             }
 
-            f->terrain_usage = TERRAIN_USAGE_ENEMY;
-            f->is_ghost = 1;
-            switch (figure_type) {
-                case FIGURE_ENEMY_BARBARIAN_SWORDSMAN:
-                case FIGURE_ENEMY_HUN_SWORDSMAN:
-                case FIGURE_ENEMY_GOTH_SWORDSMAN:
-                case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
-                case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
-                case FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER:
-                    f->speed_multiplier = 2;
-                    break;
-                case FIGURE_ENEMY_BRITON_CHARIOT:
-                case FIGURE_ENEMY_CELT_CHARIOT:
-                case FIGURE_ENEMY_PICT_CHARIOT:
-                    f->speed_multiplier = 3;
-                    f->mounted_charge_ticks = 8;
-                    f->mounted_charge_ticks_max = 8;
-                    break;
-                case FIGURE_ENEMY_HUN_MOUNTED_ARCHER:
-                case FIGURE_ENEMY_GOTH_MOUNTED_ARCHER:
-                case FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER:
-                    f->speed_multiplier = 3;
-                    break;
-                default:
-                    break;
+            for (int fig = 0; fig < figures_amount_to_spawn; fig++) {
+                struct figure_t *f = figure_create(figure_type, x, y, orientation);
+                f->is_targetable = 1;
+                f->action_state = FIGURE_ACTION_ENEMY_SPAWNING;
+                f->formation_id = m->id;
+                f->enemy_image_group = ENEMY_PROPERTIES[enemy_type].enemy_img_group;
+                if (formation_index) {
+                    f->wait_ticks = 50 * formation_index + 15 * fig + 300;
+                } else { // first formation is "scouting party"
+                    f->wait_ticks = 15 * fig + 10;
+                }
+
+                f->terrain_usage = TERRAIN_USAGE_ENEMY;
+                f->is_ghost = 1;
+                switch (figure_type) {
+                    case FIGURE_ENEMY_BARBARIAN_SWORDSMAN:
+                    case FIGURE_ENEMY_HUN_SWORDSMAN:
+                    case FIGURE_ENEMY_GOTH_SWORDSMAN:
+                    case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
+                    case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
+                    case FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER:
+                        f->speed_multiplier = 2;
+                        break;
+                    case FIGURE_ENEMY_BRITON_CHARIOT:
+                    case FIGURE_ENEMY_CELT_CHARIOT:
+                    case FIGURE_ENEMY_PICT_CHARIOT:
+                        f->speed_multiplier = 3;
+                        f->mounted_charge_ticks = 8;
+                        f->mounted_charge_ticks_max = 8;
+                        break;
+                    case FIGURE_ENEMY_HUN_MOUNTED_ARCHER:
+                    case FIGURE_ENEMY_GOTH_MOUNTED_ARCHER:
+                    case FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER:
+                        f->speed_multiplier = 3;
+                        break;
+                    default:
+                        break;
+                }
+                add_figure_to_formation(f, m);
+                if (enemy_type == ENEMY_TYPE_CAESAR) {
+                    city_data.figure.imperial_soldiers++;
+                } else {
+                    city_data.figure.enemies++;
+                }
             }
-            add_figure_to_formation(f, m);
-            if (enemy_type == ENEMY_TYPE_CAESAR) {
-                city_data.figure.imperial_soldiers++;
-            } else {
-                city_data.figure.enemies++;
-            }
+            break;
         }
     }
 }

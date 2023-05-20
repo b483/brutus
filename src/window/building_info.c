@@ -231,8 +231,8 @@ static void init(int grid_offset)
                 break;
             case BUILDING_BARRACKS:
                 context.barracks_soldiers_requested = 0;
-                for (int i = 1; i < MAX_FORMATIONS; i++) {
-                    if (formations[i].in_use && formations[i].is_legion && formations[i].num_figures < formations[i].max_figures) {
+                for (int i = 0; i < MAX_LEGIONS; i++) {
+                    if (legion_formations[i].in_use && legion_formations[i].num_figures < legion_formations[i].max_figures) {
                         context.barracks_soldiers_requested = 1;
                         break;
                     }
@@ -318,9 +318,9 @@ static void init(int grid_offset)
         if (f->type == FIGURE_FORT_STANDARD || figure_properties[f->type].is_player_legion_unit) {
             context.type = BUILDING_INFO_LEGION;
             context.formation_id = f->formation_id;
-            if (formations[context.formation_id].figure_type != FIGURE_FORT_LEGIONARY) {
+            if (legion_formations[context.formation_id].figure_type != FIGURE_FORT_LEGIONARY) {
                 context.formation_types = 5;
-            } else if (formations[context.formation_id].has_military_training) {
+            } else if (legion_formations[context.formation_id].has_military_training) {
                 context.formation_types = 4;
             } else {
                 context.formation_types = 3;

@@ -2,7 +2,6 @@
 #define BUILDING_BARRACKS_H
 
 #include "building/building.h"
-#include "map/point.h"
 
 int building_get_barracks_for_weapon(int resource, int road_network_id, map_point *dst);
 

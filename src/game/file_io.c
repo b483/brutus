@@ -16,7 +16,9 @@
 #include "empire/empire.h"
 #include "empire/object.h"
 #include "empire/trade_prices.h"
-#include "figure/formation.h"
+#include "figure/formation_legion.h"
+#include "figure/formation_herd.h"
+#include "figure/formation_enemy.h"
 #include "figure/name.h"
 #include "figure/route.h"
 #include "figure/trader.h"
@@ -88,7 +90,9 @@ typedef struct {
     buffer *figures;
     buffer *route_figures;
     buffer *route_paths;
-    buffer *formations;
+    buffer *legion_formations;
+    buffer *herd_formations;
+    buffer *enemy_formations;
     buffer *city_data;
     buffer *player_name;
     buffer *buildings;
@@ -209,7 +213,9 @@ static void init_savegame_data(void)
     state->figures = create_savegame_piece(130000, 1);
     state->route_figures = create_savegame_piece(1200, 1);
     state->route_paths = create_savegame_piece(300000, 1);
-    state->formations = create_savegame_piece(3700, 1);
+    state->legion_formations = create_savegame_piece(420, 1);
+    state->herd_formations = create_savegame_piece(560, 1);
+    state->enemy_formations = create_savegame_piece(7000, 1);
     state->city_data = create_savegame_piece(11593, 1);
     state->player_name = create_savegame_piece(24, 0);
     state->buildings = create_savegame_piece(162000, 1);
@@ -300,7 +306,9 @@ static void savegame_load_from_state(savegame_state *state)
 
     figure_load_state(state->figures);
     figure_route_load_state(state->route_figures, state->route_paths);
-    formations_load_state(state->formations);
+    legion_formations_load_state(state->legion_formations);
+    herd_formations_load_state(state->herd_formations);
+    enemy_formations_load_state(state->enemy_formations);
 
     city_data_load_state(state->city_data,
                          state->city_graph_order,
@@ -361,7 +369,9 @@ static void savegame_save_to_state(savegame_state *state)
 
     figure_save_state(state->figures);
     figure_route_save_state(state->route_figures, state->route_paths);
-    formations_save_state(state->formations);
+    legion_formations_save_state(state->legion_formations);
+    herd_formations_save_state(state->herd_formations);
+    enemy_formations_save_state(state->enemy_formations);
 
     city_data_save_state(state->city_data,
                          state->city_graph_order,

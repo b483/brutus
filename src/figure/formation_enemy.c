@@ -9,6 +9,7 @@
 #include "figure/combat.h"
 #include "figure/figure.h"
 #include "figure/formation.h"
+#include "figure/formation_legion.h"
 #include "figure/route.h"
 #include "map/figure.h"
 #include "map/grid.h"
@@ -64,6 +65,8 @@ static int LAYOUT_REGROUP_DURATION[] = {
     5, // FORMATION_ENEMY_MOB
     9, // FORMATION_ENEMY_WIDE_COLUMN
 };
+
+struct formation_t enemy_formations[MAX_ENEMY_FORMATIONS];
 
 int formation_rioter_get_target_building(int *x_tile, int *y_tile)
 {
@@ -144,50 +147,6 @@ static struct building_t *get_building_target_for_enemy(struct formation_t *m)
     return 0;
 }
 
-int formation_enemy_move_formation_to(const struct formation_t *m, int x, int y, int *x_tile, int *y_tile)
-{
-    int base_offset = map_grid_offset(formation_layout_position_x(m->layout, 0), formation_layout_position_y(m->layout, 0));
-    int figure_offsets[MAX_FORMATION_FIGURES];
-    for (int i = 0; i < m->num_figures; i++) {
-        figure_offsets[i] = map_grid_offset(formation_layout_position_x(m->layout, i), formation_layout_position_y(m->layout, i)) - base_offset;
-    }
-    map_routing_noncitizen_can_travel_over_land(x, y, -1, -1, 0, 600);
-    for (int r = 0; r <= 10; r++) {
-        int x_min, y_min, x_max, y_max;
-        map_grid_get_area(x, y, 1, r, &x_min, &y_min, &x_max, &y_max);
-        for (int yy = y_min; yy <= y_max; yy++) {
-            for (int xx = x_min; xx <= x_max; xx++) {
-                int can_move = 1;
-                for (int fig = 0; fig < m->num_figures; fig++) {
-                    int grid_offset = map_grid_offset(xx, yy) + figure_offsets[fig];
-                    if (!map_grid_is_valid_offset(grid_offset)) {
-                        can_move = 0;
-                        break;
-                    }
-                    if (map_terrain_is(grid_offset, TERRAIN_IMPASSABLE)) {
-                        can_move = 0;
-                        break;
-                    }
-                    if (map_routing_distance(grid_offset) <= 0) {
-                        can_move = 0;
-                        break;
-                    }
-                    if (map_has_figure_at(grid_offset) && figures[map_figure_at(grid_offset)].formation_id != m->id) {
-                        can_move = 0;
-                        break;
-                    }
-                }
-                if (can_move) {
-                    *x_tile = xx;
-                    *y_tile = yy;
-                    return 1;
-                }
-            }
-        }
-    }
-    return 0;
-}
-
 static void mars_kill_enemies(void)
 {
     int grid_offset = 0;
@@ -213,9 +172,16 @@ static void mars_kill_enemies(void)
 
 void update_enemy_formations(void)
 {
-    for (int i = 1; i < MAX_FORMATIONS; i++) {
-        if (formations[i].in_use && !formations[i].is_herd && !formations[i].is_legion) {
-            struct formation_t *m = &formations[i];
+    for (int i = 0; i < MAX_ENEMY_FORMATIONS; i++) {
+        if (enemy_formations[i].in_use) {
+            struct formation_t *m = &enemy_formations[i];
+            decrease_formation_combat_counters(m);
+            if (!city_data.figure.soldiers) {
+                clear_formation_combat_counters(m);
+            }
+            if (city_data.religion.mars_spirit_power && m->wait_ticks_movement > 16) {
+                mars_kill_enemies();
+            }
             int formation_spawning = 0;
             for (int n = 0; n < m->num_figures; n++) {
                 if (figures[m->figures[n]].is_ghost) {
@@ -224,20 +190,13 @@ void update_enemy_formations(void)
                 }
             }
             if (formation_spawning) {
-                // delay all other (already spawned) formations so they move together after
-                for (int j = 1; j < MAX_FORMATIONS; j++) {
-                    if (formations[j].in_use && !formations[j].is_herd && !formations[j].is_legion) {
-                        formations[j].wait_ticks = 0;
+                // delay all other (already spawned, but not engaged) formations so they move together after
+                for (int j = 0; j < MAX_ENEMY_FORMATIONS; j++) {
+                    if (enemy_formations[j].in_use && !(enemy_formations[j].recent_fight || enemy_formations[j].missile_attack_timeout)) {
+                        enemy_formations[j].wait_ticks_movement = 0;
                     }
                 }
                 continue;
-            }
-            formation_adjust_counters(m);
-            if (!city_data.figure.soldiers) {
-                formation_clear_counters(m);
-            }
-            if (city_data.religion.mars_spirit_power && m->wait_ticks > 16) {
-                mars_kill_enemies();
             }
             if (m->morale <= ROUT_MORALE_THRESHOLD) {
                 for (int n = 0; n < MAX_FORMATION_FIGURES; n++) {
@@ -251,29 +210,29 @@ void update_enemy_formations(void)
                 }
                 // on formation rout, reduce morale of all enemy formations, improve morale of all legions
                 if (!m->routed) {
-                    for (int j = 1; j < MAX_FORMATIONS; j++) {
-                        if (formations[j].in_use && !formations[j].is_herd) {
-                            if (formations[j].is_legion) {
-                                formations[j].morale = calc_bound(formations[j].morale + 5, 0, formations[j].max_morale);
-                            } else {
-                                formations[j].morale = calc_bound(formations[j].morale - 5, 0, formations[j].max_morale);
-                            }
+                    for (int j = 0; j < MAX_ENEMY_FORMATIONS; j++) {
+                        if (enemy_formations[j].in_use) {
+                            enemy_formations[j].morale = calc_bound(enemy_formations[j].morale - 5, 0, enemy_formations[j].max_morale);
                         }
+                    }
+                    for (int j = 0; j < MAX_LEGIONS; j++) {
+                        legion_formations[j].morale = calc_bound(legion_formations[j].morale + 5, 0, legion_formations[j].max_morale);
                     }
                     m->routed = 1;
                     sound_effect_play(SOUND_EFFECT_HORN3);
+                    sound_speech_play_file("wavs/army_war_cry.wav");
                 }
                 continue;
             }
 
             if (m->recent_fight || m->missile_attack_timeout) {
-                for (int j = 1; j < MAX_FORMATIONS; j++) {
-                    if (formations[j].in_use && !formations[j].is_herd && !formations[j].is_legion) {
-                        formations[j].wait_ticks += 2;
+                for (int j = 0; j < MAX_ENEMY_FORMATIONS; j++) {
+                    if (enemy_formations[j].in_use) {
+                        enemy_formations[j].wait_ticks_movement += 2;
                     }
                 }
             } else {
-                m->wait_ticks++;
+                m->wait_ticks_movement++;
             }
 
             struct figure_t *target_unit = 0;
@@ -294,14 +253,14 @@ void update_enemy_formations(void)
                 }
             }
 
-            if (m->wait_ticks > LAYOUT_REGROUP_DURATION[m->layout]) {
+            if (m->wait_ticks_movement > LAYOUT_REGROUP_DURATION[m->layout]) {
                 if (target_unit) {
                     int reinforcements_sent = 0;
-                    for (int j = 1; j < MAX_FORMATIONS; j++) {
-                        if (formations[j].in_use && !formations[j].is_herd && !formations[j].is_legion) {
-                            for (int n = 0; n < formations[j].num_figures; n++) {
-                                struct figure_t *f = &figures[formations[j].figures[n]];
-                                if (f->action_state != FIGURE_ACTION_CORPSE && f->action_state != FIGURE_ACTION_ATTACK && f->action_state != FIGURE_ACTION_FLEEING) {
+                    for (int j = 0; j < MAX_ENEMY_FORMATIONS; j++) {
+                        if (enemy_formations[j].in_use) {
+                            for (int n = 0; n < enemy_formations[j].num_figures; n++) {
+                                struct figure_t *f = &figures[enemy_formations[j].figures[n]];
+                                if (!f->is_ghost && (f->action_state != FIGURE_ACTION_CORPSE && f->action_state != FIGURE_ACTION_ATTACK && f->action_state != FIGURE_ACTION_FLEEING)) {
                                     f->destination_x = target_unit->x;
                                     f->destination_y = target_unit->y;
                                     f->target_figure_id = target_unit->id;
@@ -331,11 +290,26 @@ void update_enemy_formations(void)
                                     f->action_state = FIGURE_ACTION_ENEMY_ADVANCING;
                                 }
                             }
-                            m->wait_ticks = 0;
+                            m->wait_ticks_movement = 0;
                         }
                     }
                 }
             }
         }
+    }
+}
+
+void enemy_formations_save_state(buffer *buf)
+{
+    for (int i = 0; i < MAX_ENEMY_FORMATIONS; i++) {
+        formation_save_state(buf, &enemy_formations[i]);
+    }
+}
+
+void enemy_formations_load_state(buffer *buf)
+{
+    for (int i = 0; i < MAX_ENEMY_FORMATIONS; i++) {
+        enemy_formations[i].id = i;
+        formation_load_state(buf, &enemy_formations[i]);
     }
 }

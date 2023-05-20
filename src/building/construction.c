@@ -18,6 +18,7 @@
 #include "core/image.h"
 #include "core/random.h"
 #include "core/time.h"
+#include "figure/formation_herd.h"
 #include "figure/formation_legion.h"
 #include "game/undo.h"
 #include "graphics/window.h"
@@ -372,7 +373,7 @@ void building_construction_update(int x, int y, int grid_offset)
     } else if (type == BUILDING_WAREHOUSE) {
         mark_construction(x, y, 3, TERRAIN_ALL, 0);
     } else if (building_is_fort(type)) {
-        if (formation_get_num_legions() < MAX_LEGIONS) {
+        if (city_data.military.total_legions < MAX_LEGIONS) {
             const int offsets_x[] = { 3, 4, 4, 3 };
             const int offsets_y[] = { -1, -1, 0, 0 };
             int orient_index = city_view_orientation() / 2;
@@ -460,7 +461,7 @@ static void add_fort(int type, struct building_t *fort)
         fort->subtype.fort_figure_type = FIGURE_FORT_MOUNTED;
     }
 
-    fort->formation_id = formation_legion_create_for_fort(fort);
+    fort->formation_id = create_legion_formation_for_fort(fort);
     // create parade ground
     struct building_t *ground = building_create(BUILDING_FORT_GROUND, fort->x + 3, fort->y - 1);
     game_undo_add_building(ground);
@@ -993,7 +994,7 @@ static int building_construction_place_building(building_type type, int x, int y
             city_warning_show(WARNING_CLEAR_LAND_NEEDED);
             return 0;
         }
-        if (formation_get_num_legions() >= MAX_LEGIONS) {
+        if (city_data.military.total_legions >= MAX_LEGIONS) {
             city_warning_show(WARNING_MAX_LEGIONS_REACHED);
             return 0;
         }
@@ -1143,11 +1144,11 @@ void building_construction_place(void)
     }
     city_finance_process_construction(placement_cost);
     // move herds away
-    for (int i = 1; i < MAX_FORMATIONS; i++) {
-        if (formations[i].in_use && (formations[i].figure_type == FIGURE_SHEEP || formations[i].figure_type == FIGURE_ZEBRA) && formations[i].num_figures > 0) {
-            if (calc_maximum_distance(x_end, y_end, formations[i].destination_x, formations[i].destination_y) <= 6) {
+    for (int i = 0; i < MAX_HERD_POINTS; i++) {
+        if (herd_formations[i].in_use && herd_formations[i].figure_type != FIGURE_WOLF) {
+            if (calc_maximum_distance(x_end, y_end, herd_formations[i].destination_x, herd_formations[i].destination_y) <= 6) {
                 // force new roaming destination search
-                formations[i].wait_ticks = 50;
+                herd_formations[i].wait_ticks_movement = SHEEP_HERD_ROAM_DELAY; // largest roam delay
             }
         }
     }

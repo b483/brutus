@@ -7,7 +7,6 @@
 #include "city/resource.h"
 #include "core/calc.h"
 #include "figure/figure.h"
-#include "figure/formation.h"
 #include "figure/formation_legion.h"
 #include "map/grid.h"
 #include "map/road_access.h"
@@ -38,19 +37,20 @@ static struct formation_t *get_closest_legion_needing_soldiers(const struct buil
 {
     struct formation_t *closest_formation = 0;
     int closest_formation_distance = 10000;
-    for (int i = 1; i < MAX_FORMATIONS; i++) {
-        if (formations[i].in_use && formations[i].is_legion && !formations[i].in_distant_battle && !formations[i].cursed_by_mars && formations[i].num_figures < formations[i].max_figures) {
-            if (formations[i].figure_type == FIGURE_FORT_LEGIONARY && !barracks->loads_stored) {
+    for (int i = 0; i < MAX_LEGIONS; i++) {
+        struct formation_t *m = &legion_formations[i];
+        if (m->in_use && !m->in_distant_battle && !m->cursed_by_mars && m->num_figures < m->max_figures) {
+            if (m->figure_type == FIGURE_FORT_LEGIONARY && !barracks->loads_stored) {
                 continue;
             }
-            struct building_t *fort = &all_buildings[formations[i].building_id];
+            struct building_t *fort = &all_buildings[m->building_id];
             int dist = calc_maximum_distance(barracks->x, barracks->y, fort->x, fort->y);
             if (dist < closest_formation_distance) {
                 // prefer legionaries
-                if (closest_formation && closest_formation->figure_type == FIGURE_FORT_LEGIONARY && formations[i].figure_type != FIGURE_FORT_LEGIONARY) {
+                if (closest_formation && closest_formation->figure_type == FIGURE_FORT_LEGIONARY && m->figure_type != FIGURE_FORT_LEGIONARY) {
                     continue;
                 }
-                closest_formation = &formations[i];
+                closest_formation = &legion_formations[i];
                 closest_formation_distance = dist;
             }
         }
@@ -68,9 +68,7 @@ void building_barracks_create_soldier(struct building_t *barracks, int x, int y)
             barracks->loads_stored--;
         }
         f->building_id = m->building_id;
-        if (f->type == FIGURE_FORT_LEGIONARY) {
-            city_data.military.legionary_legions++;
-        } else if (f->type == FIGURE_FORT_MOUNTED) {
+        if (f->type == FIGURE_FORT_MOUNTED) {
             f->mounted_charge_ticks = 10;
             f->mounted_charge_ticks_max = 10;
         }

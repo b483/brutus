@@ -37,7 +37,6 @@
 #include "window/message_list.h"
 #include "window/popup_dialog.h"
 
-static int any_selected_legion_index = 0;
 static int current_selected_legion_index = 0;
 
 static uint8_t pause_string[] = "Game paused";
@@ -116,40 +115,29 @@ static void show_overlay(int overlay)
     window_invalidate();
 }
 
-static void cycle_legion(void)
+static void cycle_legions(void)
 {
-    int n_legions = formation_get_num_legions();
-    // check if any legions (forts) exist
-    if (!n_legions) {
-        return;
+    int selectable_legions_count = 0;
+    for (int i = 0; i < MAX_LEGIONS; i++) {
+        struct formation_t *m = &legion_formations[i];
+        if (m->in_use && !m->in_distant_battle && m->num_figures && m->morale > ROUT_MORALE_THRESHOLD) {
+            selectable_legions_count++;
+        }
     }
-
-    // wrap around if last legion was selected previously or forts deleted
-    if (current_selected_legion_index >= n_legions) {
+    // handle wrap around and index mismatches caused by fort delete/recreate, formation rout/destruction, allocation to distant battle
+    if (current_selected_legion_index >= selectable_legions_count) {
         current_selected_legion_index = 0;
     }
-    // legion indexes are 1-6
-    current_selected_legion_index++;
-
-    int current_selected_legion_formation_id;
-    while (current_selected_legion_index <= n_legions) {
-        // formation id needed to prevent mismatch with index if forts deleted
-        current_selected_legion_formation_id = get_legion_formation_by_index(current_selected_legion_index);
-        if (formations[current_selected_legion_formation_id].in_distant_battle || !formations[current_selected_legion_formation_id].num_figures) {
-            // wrap around if last legion can't be selected but any other had been available previously
-            if ((current_selected_legion_index == n_legions) && any_selected_legion_index) {
-                current_selected_legion_index = 1;
-                // prevent infinite loop if e.g. all forts were re-built after a legion had already been selected, or all legions were vanquished
-                any_selected_legion_index = 0;
-            } else {
+    int next_available_legion_index = 0;
+    for (int i = 0; i < MAX_LEGIONS; i++) {
+        struct formation_t *m = &legion_formations[i];
+        if (m->in_use && !m->in_distant_battle && m->num_figures && m->morale > ROUT_MORALE_THRESHOLD) {
+            if (next_available_legion_index == current_selected_legion_index) {
+                window_city_military_show(m->id);
                 current_selected_legion_index++;
+                return;
             }
-        } else {
-            window_city_military_show(current_selected_legion_formation_id);
-            if (!any_selected_legion_index) {
-                any_selected_legion_index = current_selected_legion_index;
-            }
-            return;
+            next_available_legion_index++;
         }
     }
 }
@@ -277,12 +265,14 @@ static void handle_hotkeys(const hotkeys *h)
         replay_map();
     }
     if (h->cycle_legion) {
-        cycle_legion();
+        if (city_data.military.total_legions) {
+            cycle_legions();
+        }
     }
     if (h->return_legions_to_fort) {
-        for (int i = 1; i < MAX_FORMATIONS; i++) {
-            if (formations[i].in_use && formations[i].is_legion && !formations[i].in_distant_battle && !formations[i].is_at_rest) {
-                formation_legion_return_home(&formations[i]);
+        for (int i = 0; i < MAX_LEGIONS; i++) {
+            if (legion_formations[i].in_use && !legion_formations[i].in_distant_battle && !legion_formations[i].is_at_rest) {
+                return_legion_formation_home(&legion_formations[i]);
             }
         }
     }
@@ -362,7 +352,7 @@ static void handle_input_military(const mouse *m, const hotkeys *h)
     if (widget_top_menu_handle_input(m, h)) {
         return;
     }
-    widget_city_handle_input_military(m, h, formation_get_selected());
+    widget_city_handle_input_military(m, h, selected_legion_formation);
 }
 
 static void get_tooltip(tooltip_context *c)
@@ -387,8 +377,8 @@ void window_city_draw_all(void)
 
 void window_city_show(void)
 {
-    if (formation_get_selected()) {
-        formation_set_selected(0);
+    if (selected_legion_formation > -1) {
+        selected_legion_formation = -1;
     }
     window_type window = {
         WINDOW_CITY,
@@ -406,7 +396,7 @@ void window_city_military_show(int legion_formation_id)
         building_construction_cancel();
         building_construction_clear_type();
     }
-    formation_set_selected(legion_formation_id);
+    selected_legion_formation = legion_formation_id;
     window_type window = {
         WINDOW_CITY_MILITARY,
         window_city_draw_background,
@@ -419,9 +409,8 @@ void window_city_military_show(int legion_formation_id)
 
 void window_city_return(void)
 {
-    int formation_id = formation_get_selected();
-    if (formation_id) {
-        window_city_military_show(formation_id);
+    if (selected_legion_formation > -1) {
+        window_city_military_show(selected_legion_formation);
     } else {
         window_city_show();
     }

@@ -61,7 +61,7 @@ static void spawn_enemy(struct figure_t *f, struct formation_t *m)
 
 static void melee_enemy_action(struct figure_t *f)
 {
-    struct formation_t *m = &formations[f->formation_id];
+    struct formation_t *m = &enemy_formations[f->formation_id];
     switch (f->action_state) {
         case FIGURE_ACTION_FLEEING:
             rout_enemy_unit(f);
@@ -72,21 +72,19 @@ static void melee_enemy_action(struct figure_t *f)
         case FIGURE_ACTION_ENEMY_REGROUPING:
             map_figure_update(f);
             f->image_offset = 0;
-            figure_route_remove(f);
             break;
         case FIGURE_ACTION_ENEMY_ADVANCING:
             f->destination_x = m->destination_x + formation_layout_position_x(m->layout, f->index_in_formation);
             f->destination_y = m->destination_y + formation_layout_position_y(m->layout, f->index_in_formation);
-            figure_route_remove(f);
             figure_movement_move_ticks(f, f->speed_multiplier);
             if (f->direction == DIR_FIGURE_AT_DESTINATION
                 || f->direction == DIR_FIGURE_REROUTE
                 || f->direction == DIR_FIGURE_LOST) {
+                figure_route_remove(f);
                 f->action_state = FIGURE_ACTION_ENEMY_REGROUPING;
             }
             break;
         case FIGURE_ACTION_ENEMY_ENGAGED:
-            figure_route_remove(f);
             struct figure_t *target_unit = melee_unit__set_closest_target(f);
             if (target_unit) {
                 f->destination_x = target_unit->x;
@@ -98,6 +96,7 @@ static void melee_enemy_action(struct figure_t *f)
             if (f->direction == DIR_FIGURE_AT_DESTINATION
                 || f->direction == DIR_FIGURE_REROUTE
                 || f->direction == DIR_FIGURE_LOST) {
+                figure_route_remove(f);
                 f->action_state = FIGURE_ACTION_ENEMY_REGROUPING;
             }
             break;
@@ -106,8 +105,7 @@ static void melee_enemy_action(struct figure_t *f)
 
 static void ranged_enemy_action(struct figure_t *f)
 {
-    struct formation_t *m = &formations[f->formation_id];
-
+    struct formation_t *m = &enemy_formations[f->formation_id];
     map_point tile = { -1, -1 };
     if (f->is_shooting) {
         f->attack_image_offset++;
@@ -131,7 +129,6 @@ static void ranged_enemy_action(struct figure_t *f)
         case FIGURE_ACTION_ENEMY_REGROUPING:
             map_figure_update(f);
             f->image_offset = 0;
-            figure_route_remove(f);
             if (f->wait_ticks_missile > figure_properties[f->type].missile_delay && set_missile_target(f, &tile)) {
                 f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
                 shoot_enemy_missile(f, &tile);
@@ -140,7 +137,6 @@ static void ranged_enemy_action(struct figure_t *f)
         case FIGURE_ACTION_ENEMY_ADVANCING:
             f->destination_x = m->destination_x + formation_layout_position_x(m->layout, f->index_in_formation);
             f->destination_y = m->destination_y + formation_layout_position_y(m->layout, f->index_in_formation);
-            figure_route_remove(f);
             figure_movement_move_ticks(f, f->speed_multiplier);
             if ((f->type == FIGURE_ENEMY_HUN_MOUNTED_ARCHER || f->type == FIGURE_ENEMY_GOTH_MOUNTED_ARCHER || f->type == FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER)
             && f->wait_ticks_missile > figure_properties[f->type].missile_delay
@@ -150,11 +146,13 @@ static void ranged_enemy_action(struct figure_t *f)
             if (f->direction == DIR_FIGURE_AT_DESTINATION
                 || f->direction == DIR_FIGURE_REROUTE
                 || f->direction == DIR_FIGURE_LOST) {
+                figure_route_remove(f);
                 f->action_state = FIGURE_ACTION_ENEMY_REGROUPING;
             }
             break;
         case FIGURE_ACTION_ENEMY_ENGAGED:
             if (f->target_figure_id && calc_maximum_distance(f->x, f->y, f->destination_x, f->destination_y) < figure_properties[f->type].max_range) {
+                figure_route_remove(f);
                 f->destination_x = f->x;
                 f->destination_y = f->y;
                 f->image_offset = 0;
@@ -164,11 +162,11 @@ static void ranged_enemy_action(struct figure_t *f)
                     break;
                 }
             } else {
-                figure_route_remove(f);
                 figure_movement_move_ticks(f, f->speed_multiplier);
                 if (f->direction == DIR_FIGURE_AT_DESTINATION
                     || f->direction == DIR_FIGURE_REROUTE
                     || f->direction == DIR_FIGURE_LOST) {
+                    figure_route_remove(f);
                     f->action_state = FIGURE_ACTION_ENEMY_REGROUPING;
                 }
             }
@@ -394,7 +392,6 @@ void figure_enemy_gladiator_action(struct figure_t *f)
             f->wait_ticks = 0;
             f->direction = 0;
             clear_targeting_on_unit_death(f);
-            refresh_formation_figure_indexes(f);
         }
     }
     switch (f->action_state) {
@@ -470,7 +467,7 @@ void figure_enemy_caesar_legionary_action(struct figure_t *f)
             }
             break;
         default:
-            if (f->figure_is_halted && formations[f->formation_id].missile_attack_timeout) {
+            if (f->figure_is_halted && enemy_formations[f->formation_id].missile_attack_timeout) {
                 f->image_id = img_group_base_id + 144 + dir + 8 * f->image_offset;
             } else {
                 f->image_id = img_group_base_id + 48 + dir + 8 * f->image_offset;
