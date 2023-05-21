@@ -58,6 +58,7 @@ void create_herds(void)
                     scenario.herd_points[i].x + HERD_FORMATION_LAYOUT_POSITION_X_OFFSETS[fig],
                     scenario.herd_points[i].y + HERD_FORMATION_LAYOUT_POSITION_Y_OFFSETS[fig],
                     DIR_0_TOP);
+                f->is_targetable = 1;
                 f->terrain_usage = TERRAIN_USAGE_ANIMAL;
                 f->action_state = FIGURE_ACTION_HERD_ANIMAL_AT_REST;
                 f->formation_id = m->id;

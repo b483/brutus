@@ -48,6 +48,7 @@ static void generate_rioter(struct building_t *b)
     int target_building_id = formation_rioter_get_target_building(&x_target, &y_target);
     for (int i = 0; i < people_in_mob; i++) {
         struct figure_t *f = figure_create(FIGURE_RIOTER, x_road, y_road, DIR_4_BOTTOM);
+        f->is_targetable = 1;
         f->action_state = FIGURE_ACTION_RIOTER_CREATED;
         f->terrain_usage = TERRAIN_USAGE_ENEMY;
         f->roam_length = 0;
@@ -76,6 +77,7 @@ static void generate_mugger(struct building_t *b)
         int x_road, y_road;
         if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
             struct figure_t *f = figure_create(FIGURE_CRIMINAL, x_road, y_road, DIR_4_BOTTOM);
+            f->is_targetable = 1;
             f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->wait_ticks = 10 + (b->house_figure_generation_delay & 0xf);
             city_ratings_peace_record_criminal();
@@ -100,6 +102,7 @@ static void generate_protestor(struct building_t *b)
         int x_road, y_road;
         if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
             struct figure_t *f = figure_create(FIGURE_PROTESTER, x_road, y_road, DIR_4_BOTTOM);
+            f->is_targetable = 1;
             f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->wait_ticks = 10 + (b->house_figure_generation_delay & 0xf);
             city_ratings_peace_record_criminal();
@@ -156,37 +159,23 @@ void figure_generate_criminals(void)
 void figure_protestor_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 64);
-    if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->state = FIGURE_STATE_DEAD;
-    }
     f->wait_ticks++;
     if (f->wait_ticks > 200) {
         f->state = FIGURE_STATE_DEAD;
         f->image_offset = 0;
     }
-    if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + figure_image_corpse_offset(f) + 96;
-    } else {
-        f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + CRIMINAL_OFFSETS[f->image_offset / 4] + 104;
-    }
+    f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + CRIMINAL_OFFSETS[f->image_offset / 4] + 104;
 }
 
 void figure_criminal_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 32);
-    if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->state = FIGURE_STATE_DEAD;
-    }
     f->wait_ticks++;
     if (f->wait_ticks > 200) {
         f->state = FIGURE_STATE_DEAD;
         f->image_offset = 0;
     }
-    if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + figure_image_corpse_offset(f) + 96;
-    } else {
-        f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + CRIMINAL_OFFSETS[f->image_offset / 2] + 104;
-    }
+    f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + CRIMINAL_OFFSETS[f->image_offset / 2] + 104;
 }
 
 void figure_rioter_action(struct figure_t *f)
@@ -243,9 +232,7 @@ void figure_rioter_action(struct figure_t *f)
     }
     dir = figure_image_normalize_direction(dir);
 
-    if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + 96 + figure_image_corpse_offset(f);
-    } else if (f->direction == DIR_FIGURE_ATTACK) {
+    if (f->direction == DIR_FIGURE_ATTACK) {
         f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + 104 + CRIMINAL_OFFSETS[f->image_offset % 16];
     } else if (f->action_state == FIGURE_ACTION_RIOTER_MOVING) {
         f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + dir + 8 * f->image_offset;

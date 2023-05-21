@@ -190,7 +190,7 @@ struct figure_t *melee_unit__set_closest_target(struct figure_t *f)
     }
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *potential_target = &figures[i];
-        if (potential_target->action_state == FIGURE_ACTION_CORPSE || !potential_target->is_targetable) {
+        if (!potential_target->is_targetable) {
             continue;
         }
         int potential_target_distance = calc_maximum_distance(f->x, f->y, potential_target->x, potential_target->y);
@@ -397,6 +397,7 @@ static void hit_opponent(struct figure_t *attacker, struct figure_t *opponent)
         figure_play_hit_sound(attacker->type);
     } else {
         opponent->action_state = FIGURE_ACTION_CORPSE;
+        opponent->is_targetable = 0;
         opponent->wait_ticks = 0;
         figure_play_die_sound(opponent);
         if (figure_properties[opponent->type].is_player_legion_unit) {
@@ -404,7 +405,6 @@ static void hit_opponent(struct figure_t *attacker, struct figure_t *opponent)
         } else {
             update_formation_morale_after_death(&enemy_formations[opponent->formation_id]);
         }
-
         clear_targeting_on_unit_death(opponent);
         update_counters_on_unit_death(opponent);
         refresh_formation_figure_indexes(opponent);
@@ -504,7 +504,7 @@ int set_missile_target(struct figure_t *shooter, map_point *tile)
     struct figure_t *closest_eligible_overhit_target = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *potential_target = &figures[i];
-        if (potential_target->action_state == FIGURE_ACTION_CORPSE || !potential_target->is_targetable) {
+        if (!potential_target->is_targetable) {
             continue;
         }
         int potential_target_distance = calc_maximum_distance(shooter->x, shooter->y, potential_target->x, potential_target->y);

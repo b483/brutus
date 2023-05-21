@@ -43,15 +43,13 @@ static void roamer_action(struct figure_t *f, int num_ticks)
 
 static void culture_action(struct figure_t *f, int group)
 {
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
-    f->use_cross_country = 0;
     struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
     figure_image_increase_offset(f, 12);
     roamer_action(f, 1);
-    figure_image_update(f, image_group(group));
+    f->image_id = image_group(group) + figure_image_direction(f) + 8 * f->image_offset;
 }
 
 void figure_priest_action(struct figure_t *f)
@@ -61,8 +59,6 @@ void figure_priest_action(struct figure_t *f)
 
 void figure_school_child_action(struct figure_t *f)
 {
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
-    f->use_cross_country = 0;
     struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_SCHOOL) {
         f->state = FIGURE_STATE_DEAD;
@@ -78,7 +74,7 @@ void figure_school_child_action(struct figure_t *f)
             figure_movement_roam_ticks(f, 2);
             break;
     }
-    figure_image_update(f, image_group(GROUP_FIGURE_SCHOOL_CHILD));
+    f->image_id = image_group(GROUP_FIGURE_SCHOOL_CHILD) + figure_image_direction(f) + 8 * f->image_offset;
 }
 
 void figure_teacher_action(struct figure_t *f)
@@ -108,46 +104,38 @@ void figure_doctor_action(struct figure_t *f)
 
 void figure_missionary_action(struct figure_t *f)
 {
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
-    f->use_cross_country = 0;
     struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
     figure_image_increase_offset(f, 12);
     roamer_action(f, 1);
-    figure_image_update(f, image_group(GROUP_FIGURE_MISSIONARY));
+    f->image_id = image_group(GROUP_FIGURE_MISSIONARY) + figure_image_direction(f) + 8 * f->image_offset;
 }
 
 void figure_patrician_action(struct figure_t *f)
 {
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
-    f->use_cross_country = 0;
     if (all_buildings[f->building_id].state != BUILDING_STATE_IN_USE) {
         f->state = FIGURE_STATE_DEAD;
     }
     figure_image_increase_offset(f, 12);
     roamer_action(f, 1);
-    figure_image_update(f, image_group(GROUP_FIGURE_PATRICIAN));
+    f->image_id = image_group(GROUP_FIGURE_PATRICIAN) + figure_image_direction(f) + 8 * f->image_offset;
 }
 
 void figure_labor_seeker_action(struct figure_t *f)
 {
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
-    f->use_cross_country = 0;
     struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id2 != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
     figure_image_increase_offset(f, 12);
     roamer_action(f, 1);
-    figure_image_update(f, image_group(GROUP_FIGURE_LABOR_SEEKER));
+    f->image_id = image_group(GROUP_FIGURE_LABOR_SEEKER) + figure_image_direction(f) + 8 * f->image_offset;
 }
 
 void figure_market_trader_action(struct figure_t *f)
 {
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
-    f->use_cross_country = 0;
     struct building_t *market = &all_buildings[f->building_id];
     if (market->state != BUILDING_STATE_IN_USE || market->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
@@ -162,14 +150,13 @@ void figure_market_trader_action(struct figure_t *f)
         }
     }
     roamer_action(f, 1);
-    figure_image_update(f, image_group(GROUP_FIGURE_MARKET_LADY));
+    f->image_id = image_group(GROUP_FIGURE_MARKET_LADY) + figure_image_direction(f) + 8 * f->image_offset;
 }
 
 void figure_tax_collector_action(struct figure_t *f)
 {
     struct building_t *b = &all_buildings[f->building_id];
 
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
@@ -232,5 +219,5 @@ void figure_tax_collector_action(struct figure_t *f)
             }
             break;
     }
-    figure_image_update(f, image_group(GROUP_FIGURE_TAX_COLLECTOR));
+    f->image_id = image_group(GROUP_FIGURE_TAX_COLLECTOR) + figure_image_direction(f) + 8 * f->image_offset;
 }

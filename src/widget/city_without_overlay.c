@@ -217,8 +217,7 @@ static void draw_entertainment_spectators(struct building_t *b, int x, int y, co
     if (b->type == BUILDING_COLOSSEUM && b->num_workers > 0) {
         image_draw_masked(image_group(GROUP_BUILDING_COLOSSEUM_SHOW), x + 70, y - 90, color_mask);
     }
-    if (b->type == BUILDING_HIPPODROME && building_main(b)->num_workers > 0
-        && city_data.entertainment.hippodrome_has_race) {
+    if (b->type == BUILDING_HIPPODROME && building_main(b)->num_workers > 0 && city_data.entertainment.hippodrome_has_race) {
         draw_hippodrome_spectators(b, x, y, color_mask);
     }
 }

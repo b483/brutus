@@ -89,16 +89,22 @@ static int generate_trader(struct empire_object_t *city)
         if (!city_data.trade.land_trade_problem_duration) {
             // caravan head
             struct figure_t *caravan = figure_create(FIGURE_TRADE_CARAVAN, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
+            caravan->is_targetable = 1;
             caravan->empire_city_id = city->id;
             caravan->action_state = FIGURE_ACTION_TRADE_CARAVAN_CREATED;
+            caravan->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
             caravan->wait_ticks = 10;
             // donkey 1
             struct figure_t *donkey1 = figure_create(FIGURE_TRADE_CARAVAN_DONKEY, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
+            donkey1->is_targetable = 1;
             donkey1->action_state = FIGURE_ACTION_TRADE_CARAVAN_CREATED;
+            donkey1->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
             donkey1->leading_figure_id = caravan->id;
             // donkey 2
             struct figure_t *donkey2 = figure_create(FIGURE_TRADE_CARAVAN_DONKEY, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
+            donkey2->is_targetable = 1;
             donkey2->action_state = FIGURE_ACTION_TRADE_CARAVAN_CREATED;
+            donkey2->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
             donkey2->leading_figure_id = donkey1->id;
             city->trader_figure_ids[index] = caravan->id;
 

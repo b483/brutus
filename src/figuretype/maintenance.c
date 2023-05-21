@@ -19,7 +19,6 @@ void figure_engineer_action(struct figure_t *f)
 {
     struct building_t *b = &all_buildings[f->building_id];
 
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
@@ -82,7 +81,7 @@ void figure_engineer_action(struct figure_t *f)
             }
             break;
     }
-    figure_image_update(f, image_group(GROUP_FIGURE_ENGINEER));
+    f->image_id = image_group(GROUP_FIGURE_ENGINEER) + figure_image_direction(f) + 8 * f->image_offset;
 }
 
 static int fight_fire(struct figure_t *f)
@@ -265,28 +264,20 @@ void figure_prefect_action(struct figure_t *f)
     dir = figure_image_normalize_direction(dir);
     switch (f->action_state) {
         case FIGURE_ACTION_PREFECT_GOING_TO_FIRE:
-            f->image_id = image_group(GROUP_FIGURE_PREFECT_WITH_BUCKET) +
-                dir + 8 * f->image_offset;
+            f->image_id = image_group(GROUP_FIGURE_PREFECT_WITH_BUCKET) + dir + 8 * f->image_offset;
             break;
         case FIGURE_ACTION_PREFECT_AT_FIRE:
-            f->image_id = image_group(GROUP_FIGURE_PREFECT_WITH_BUCKET) +
-                dir + 96 + 8 * (f->image_offset / 2);
+            f->image_id = image_group(GROUP_FIGURE_PREFECT_WITH_BUCKET) + dir + 96 + 8 * (f->image_offset / 2);
             break;
         case FIGURE_ACTION_ATTACK:
             if (f->attack_image_offset >= 12) {
-                f->image_id = image_group(GROUP_FIGURE_PREFECT) +
-                    104 + dir + 8 * ((f->attack_image_offset - 12) / 2);
+                f->image_id = image_group(GROUP_FIGURE_PREFECT) + 104 + dir + 8 * ((f->attack_image_offset - 12) / 2);
             } else {
                 f->image_id = image_group(GROUP_FIGURE_PREFECT) + 104 + dir;
             }
             break;
-        case FIGURE_ACTION_CORPSE:
-            f->image_id = image_group(GROUP_FIGURE_PREFECT) +
-                96 + figure_image_corpse_offset(f);
-            break;
         default:
-            f->image_id = image_group(GROUP_FIGURE_PREFECT) +
-                dir + 8 * f->image_offset;
+            f->image_id = image_group(GROUP_FIGURE_PREFECT) + dir + 8 * f->image_offset;
             break;
     }
 }

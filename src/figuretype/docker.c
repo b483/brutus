@@ -296,7 +296,6 @@ void figure_docker_action(struct figure_t *f)
             b->data.dock.trade_ship_id = 0;
         }
     }
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
     switch (f->action_state) {
         case FIGURE_ACTION_DOCKER_IDLING:
             f->resource_id = 0;
@@ -474,12 +473,7 @@ void figure_docker_action(struct figure_t *f)
 
     int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
 
-    if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + figure_image_corpse_offset(f) + 96;
-        f->cart_image_id = 0;
-    } else {
-        f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + dir + 8 * f->image_offset;
-    }
+    f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + dir + 8 * f->image_offset;
     if (f->cart_image_id) {
         f->cart_image_id += dir;
         figure_image_set_cart_offset(f, dir);

@@ -45,6 +45,7 @@ void figure_create_flotsam(void)
 
     for (int i = 0; i < 20; i++) {
         struct figure_t *f = figure_create(FIGURE_FLOTSAM, scenario.river_entry_point.x, scenario.river_entry_point.y, DIR_0_TOP);
+        f->terrain_usage = TERRAIN_USAGE_ANY;
         f->action_state = FIGURE_ACTION_FLOTSAM_CREATED;
         f->resource_id = FLOTSAM_RESOURCE_IDS[i];
         f->wait_ticks = FLOTSAM_WAIT_TICKS[i];
@@ -53,12 +54,7 @@ void figure_create_flotsam(void)
 
 void figure_flotsam_action(struct figure_t *f)
 {
-    if (!scenario_map_has_river_exit()) {
-        return;
-    }
     f->is_ghost = 0;
-    f->cart_image_id = 0;
-    f->terrain_usage = TERRAIN_USAGE_ANY;
     switch (f->action_state) {
         case FIGURE_ACTION_FLOTSAM_CREATED:
             f->is_ghost = 1;
@@ -136,8 +132,6 @@ void figure_flotsam_action(struct figure_t *f)
 
 void figure_shipwreck_action(struct figure_t *f)
 {
-    f->is_ghost = 0;
-    f->height_adjusted_ticks = 0;
     figure_image_increase_offset(f, 128);
     if (f->wait_ticks < 1000) {
         map_figure_delete(f);
@@ -181,7 +175,6 @@ void figure_fishing_boat_action(struct figure_t *f)
             f->state = FIGURE_STATE_DEAD;
         }
     }
-    f->is_ghost = 0;
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     switch (f->action_state) {

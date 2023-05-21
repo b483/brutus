@@ -51,6 +51,7 @@ void figure_create_fishing_points(void)
         if (scenario.fishing_points[i].x > 0) {
             random_generate_next();
             struct figure_t *fish = figure_create(FIGURE_FISH_GULLS, scenario.fishing_points[i].x, scenario.fishing_points[i].y, DIR_0_TOP);
+            fish->terrain_usage = TERRAIN_USAGE_ANY;
             fish->image_offset = random_byte() & 0x1f;
             fish->progress_on_tile = random_byte() & 7;
             figure_movement_set_cross_country_direction(fish,
@@ -62,8 +63,6 @@ void figure_create_fishing_points(void)
 
 void figure_seagulls_action(struct figure_t *f)
 {
-    f->terrain_usage = TERRAIN_USAGE_ANY;
-    f->is_ghost = 0;
     f->use_cross_country = 1;
     if (!(f->image_offset & 3) && figure_movement_move_ticks_cross_country(f, 1)) {
         f->progress_on_tile++;
@@ -132,9 +131,7 @@ void figure_wolf_action(struct figure_t *f)
             break;
     }
     int dir = figure_image_direction(f);
-    if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->image_id = image_group(GROUP_FIGURE_WOLF) + 96 + figure_image_corpse_offset(f);
-    } else if (f->action_state == FIGURE_ACTION_ATTACK) {
+    if (f->action_state == FIGURE_ACTION_ATTACK) {
         f->image_id = image_group(GROUP_FIGURE_WOLF) + 104 + dir + 8 * (f->attack_image_offset / 4);
     } else if (f->action_state == FIGURE_ACTION_HERD_ANIMAL_AT_REST) {
         f->image_id = image_group(GROUP_FIGURE_WOLF) + 152 + dir;
@@ -169,9 +166,7 @@ void figure_sheep_action(struct figure_t *f)
             break;
     }
     int dir = figure_image_direction(f);
-    if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->image_id = image_group(GROUP_FIGURE_SHEEP) + 104 + figure_image_corpse_offset(f);
-    } else if (f->action_state == FIGURE_ACTION_HERD_ANIMAL_AT_REST) {
+    if (f->action_state == FIGURE_ACTION_HERD_ANIMAL_AT_REST) {
         if (f->id & 3) {
             f->image_id = image_group(GROUP_FIGURE_SHEEP) + 48 + dir + 8 * SHEEP_IMAGE_OFFSETS[f->wait_ticks & 0x3f];
         } else {
@@ -206,9 +201,7 @@ void figure_zebra_action(struct figure_t *f)
             break;
     }
     int dir = figure_image_direction(f);
-    if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->image_id = image_group(GROUP_FIGURE_ZEBRA) + 96 + figure_image_corpse_offset(f);
-    } else if (f->action_state == FIGURE_ACTION_HERD_ANIMAL_AT_REST) {
+    if (f->action_state == FIGURE_ACTION_HERD_ANIMAL_AT_REST) {
         f->image_id = image_group(GROUP_FIGURE_ZEBRA) + dir;
     } else {
         f->image_id = image_group(GROUP_FIGURE_ZEBRA) + dir + 8 * f->image_offset;
@@ -270,7 +263,6 @@ void figure_hippodrome_horse_action(struct figure_t *f)
 {
     city_data.entertainment.hippodrome_has_race = 1;
     f->use_cross_country = 1;
-    f->is_ghost = 0;
     figure_image_increase_offset(f, 8);
 
     switch (f->action_state) {
@@ -344,12 +336,10 @@ void figure_hippodrome_horse_action(struct figure_t *f)
 
     int dir = figure_image_direction(f);
     if (f->resource_id == 0) {
-        f->image_id = image_group(GROUP_FIGURE_HIPPODROME_HORSE_1) +
-            dir + 8 * f->image_offset;
+        f->image_id = image_group(GROUP_FIGURE_HIPPODROME_HORSE_1) + dir + 8 * f->image_offset;
         f->cart_image_id = image_group(GROUP_FIGURE_HIPPODROME_CART_1) + dir;
     } else {
-        f->image_id = image_group(GROUP_FIGURE_HIPPODROME_HORSE_2) +
-            dir + 8 * f->image_offset;
+        f->image_id = image_group(GROUP_FIGURE_HIPPODROME_HORSE_2) + dir + 8 * f->image_offset;
         f->cart_image_id = image_group(GROUP_FIGURE_HIPPODROME_CART_2) + dir;
     }
     int cart_dir = (dir + 4) % 8;
@@ -358,9 +348,6 @@ void figure_hippodrome_horse_action(struct figure_t *f)
 
 void figure_hippodrome_horse_reroute(void)
 {
-    if (!city_data.entertainment.hippodrome_has_race) {
-        return;
-    }
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *f = &figures[i];
         if (f->state == FIGURE_STATE_ALIVE && f->type == FIGURE_HIPPODROME_HORSES) {

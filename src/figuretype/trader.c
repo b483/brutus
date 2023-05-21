@@ -299,9 +299,7 @@ static void go_to_next_warehouse(struct figure_t *f, int x_src, int y_src, int d
 void figure_trade_caravan_action(struct figure_t *f)
 {
     f->is_ghost = 0;
-    f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
     figure_image_increase_offset(f, 12);
-    f->cart_image_id = 0;
     switch (f->action_state) {
         case FIGURE_ACTION_TRADE_CARAVAN_CREATED:
             f->is_ghost = 1;
@@ -397,19 +395,13 @@ void figure_trade_caravan_action(struct figure_t *f)
 void figure_trade_caravan_donkey_action(struct figure_t *f)
 {
     f->is_ghost = 0;
-    f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
     figure_image_increase_offset(f, 12);
-    f->cart_image_id = 0;
 
     struct figure_t *leader = &figures[f->leading_figure_id];
     if (f->leading_figure_id <= 0) {
         f->state = FIGURE_STATE_DEAD;
     } else {
-        if (leader->action_state == FIGURE_ACTION_CORPSE) {
-            f->state = FIGURE_STATE_DEAD;
-        } else if (leader->state != FIGURE_STATE_ALIVE) {
-            f->state = FIGURE_STATE_DEAD;
-        } else if (leader->type != FIGURE_TRADE_CARAVAN && leader->type != FIGURE_TRADE_CARAVAN_DONKEY) {
+        if (leader->type != FIGURE_TRADE_CARAVAN && leader->type != FIGURE_TRADE_CARAVAN_DONKEY) {
             f->state = FIGURE_STATE_DEAD;
         } else {
             figure_movement_follow_ticks(f, 1);
@@ -426,7 +418,6 @@ void figure_trade_caravan_donkey_action(struct figure_t *f)
 void figure_native_trader_action(struct figure_t *f)
 {
     f->is_ghost = 0;
-    f->terrain_usage = TERRAIN_USAGE_ANY;
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     switch (f->action_state) {
@@ -498,13 +489,8 @@ void figure_native_trader_action(struct figure_t *f)
     }
     int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
 
-    if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + 96 + figure_image_corpse_offset(f);
-        f->cart_image_id = 0;
-    } else {
-        f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + dir + 8 * f->image_offset;
-        f->cart_image_id = image_group(GROUP_FIGURE_MIGRANT_CART) + 8 + 8 * f->resource_id;
-    }
+    f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + dir + 8 * f->image_offset;
+    f->cart_image_id = image_group(GROUP_FIGURE_MIGRANT_CART) + 8 + 8 * f->resource_id;
     if (f->cart_image_id) {
         f->cart_image_id += dir;
         figure_image_set_cart_offset(f, dir);
@@ -574,7 +560,6 @@ void figure_trade_ship_action(struct figure_t *f)
 {
     f->is_ghost = 0;
     figure_image_increase_offset(f, 12);
-    f->cart_image_id = 0;
     switch (f->action_state) {
         case FIGURE_ACTION_TRADE_SHIP_CREATED:
             f->loads_sold_or_carrying = 12;

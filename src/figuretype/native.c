@@ -46,8 +46,6 @@ static void set_target_building_for_native(struct figure_t *f)
 void figure_indigenous_native_action(struct figure_t *f)
 {
     struct building_t *b = &all_buildings[f->building_id];
-    f->terrain_usage = TERRAIN_USAGE_ANY;
-    f->use_cross_country = 0;
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
@@ -118,8 +116,6 @@ void figure_indigenous_native_action(struct figure_t *f)
         } else {
             f->image_id = 393 + dir;
         }
-    } else if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->image_id = 441 + figure_image_corpse_offset(f);
     } else if (f->direction == DIR_FIGURE_ATTACK) {
         f->image_id = 393 + dir + 8 * (f->image_offset / 2);
     } else if (f->action_state == FIGURE_ACTION_NATIVE_ATTACKING) {

@@ -16,6 +16,8 @@ void figure_create_immigrant(struct building_t *house, int num_people)
 {
     struct figure_t *f = figure_create(FIGURE_IMMIGRANT, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
     f->action_state = FIGURE_ACTION_IMMIGRANT_CREATED;
+    f->is_targetable = 1;
+    f->terrain_usage = TERRAIN_USAGE_ANY;
     f->immigrant_building_id = house->id;
     f->wait_ticks = 10 + (house->house_figure_generation_delay & 0x7f);
     f->migrant_num_people = num_people;
@@ -33,6 +35,8 @@ void figure_create_emigrant(struct building_t *house, int num_people)
     }
     struct figure_t *f = figure_create(FIGURE_EMIGRANT, house->x, house->y, DIR_0_TOP);
     f->action_state = FIGURE_ACTION_EMIGRANT_CREATED;
+    f->is_targetable = 1;
+    f->terrain_usage = TERRAIN_USAGE_ANY;
     f->wait_ticks = 0;
     f->migrant_num_people = num_people;
 }
@@ -41,6 +45,8 @@ void figure_create_homeless(int x, int y, int num_people)
 {
     struct figure_t *f = figure_create(FIGURE_HOMELESS, x, y, DIR_0_TOP);
     f->action_state = FIGURE_ACTION_HOMELESS_CREATED;
+    f->is_targetable = 1;
+    f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
     f->wait_ticks = 0;
     f->migrant_num_people = num_people;
     city_population_remove_homeless(num_people);
@@ -48,7 +54,6 @@ void figure_create_homeless(int x, int y, int num_people)
 
 static void update_direction_and_image(struct figure_t *f)
 {
-    figure_image_update(f, image_group(GROUP_FIGURE_MIGRANT));
     if (f->action_state == FIGURE_ACTION_IMMIGRANT_ARRIVING ||
         f->action_state == FIGURE_ACTION_EMIGRANT_LEAVING) {
         int dir = figure_image_direction(f);
@@ -83,7 +88,6 @@ void figure_immigrant_action(struct figure_t *f)
 {
     struct building_t *b = &all_buildings[f->immigrant_building_id];
 
-    f->terrain_usage = TERRAIN_USAGE_ANY;
     f->cart_image_id = 0;
     if (b->state != BUILDING_STATE_IN_USE || b->immigrant_figure_id != f->id || !b->house_size) {
         f->state = FIGURE_STATE_DEAD;
@@ -155,13 +159,12 @@ void figure_immigrant_action(struct figure_t *f)
             f->is_ghost = f->in_building_wait_ticks ? 1 : 0;
             break;
     }
-
     update_direction_and_image(f);
+    f->image_id = image_group(GROUP_FIGURE_MIGRANT) + figure_image_direction(f) + 8 * f->image_offset;
 }
 
 void figure_emigrant_action(struct figure_t *f)
 {
-    f->terrain_usage = TERRAIN_USAGE_ANY;
     f->cart_image_id = 0;
 
     figure_image_increase_offset(f, 12);
@@ -205,12 +208,12 @@ void figure_emigrant_action(struct figure_t *f)
             break;
     }
     update_direction_and_image(f);
+    f->image_id = image_group(GROUP_FIGURE_MIGRANT) + figure_image_direction(f) + 8 * f->image_offset;
 }
 
 void figure_homeless_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
-    f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
 
     switch (f->action_state) {
         case FIGURE_ACTION_HOMELESS_CREATED:
@@ -308,5 +311,5 @@ void figure_homeless_action(struct figure_t *f)
             }
             break;
     }
-    figure_image_update(f, image_group(GROUP_FIGURE_HOMELESS));
+    f->image_id = image_group(GROUP_FIGURE_HOMELESS) + figure_image_direction(f) + 8 * f->image_offset;
 }

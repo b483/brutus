@@ -3,6 +3,8 @@
 #include "building/building.h"
 #include "city/data_private.h"
 #include "city/emperor.h"
+#include "core/image.h"
+#include "core/image_group.h"
 #include "core/random.h"
 #include "empire/object.h"
 #include "figure/formation.h"
@@ -117,6 +119,17 @@ struct figure_properties_t figure_properties[FIGURE_TYPE_MAX] = {
 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0,   0, 0,   0,              0,  0, 0,     0},  // FIGURE_EXPLOSION = 97,
 };
 
+static const int CORPSE_IMAGE_OFFSETS[128] = {
+    0, 1, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+    5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
+};
+
 struct figure_t *figure_create(int type, int x, int y, direction_type dir)
 {
     int id = 0;
@@ -147,62 +160,6 @@ struct figure_t *figure_create(int type, int x, int y, direction_type dir)
     map_figure_add(f);
     if (type == FIGURE_TRADE_CARAVAN || type == FIGURE_TRADE_SHIP) {
         f->trader_id = trader_create();
-    }
-
-    switch (f->type) {
-        case FIGURE_IMMIGRANT:
-        case FIGURE_EMIGRANT:
-        case FIGURE_HOMELESS:
-        case FIGURE_PATRICIAN:
-        case FIGURE_CART_PUSHER:
-        case FIGURE_LABOR_SEEKER:
-        case FIGURE_BARBER:
-        case FIGURE_BATHHOUSE_WORKER:
-        case FIGURE_DOCTOR:
-        case FIGURE_SURGEON:
-        case FIGURE_PRIEST:
-        case FIGURE_SCHOOL_CHILD:
-        case FIGURE_TEACHER:
-        case FIGURE_LIBRARIAN:
-        case FIGURE_MISSIONARY:
-        case FIGURE_ACTOR:
-        case FIGURE_GLADIATOR:
-        case FIGURE_LION_TAMER:
-        case FIGURE_CHARIOTEER:
-        case FIGURE_TAX_COLLECTOR:
-        case FIGURE_ENGINEER:
-        case FIGURE_DOCKER:
-        case FIGURE_PREFECT:
-            f->is_targetable = 1;
-            break;
-        case FIGURE_FORT_JAVELIN:
-            f->is_targetable = 1;
-            f->speed_multiplier = 2;
-            break;
-        case FIGURE_FORT_MOUNTED:
-            f->is_targetable = 1;
-            f->speed_multiplier = 3;
-            break;
-        case FIGURE_FORT_LEGIONARY:
-        case FIGURE_MARKET_BUYER:
-        case FIGURE_MARKET_TRADER:
-        case FIGURE_DELIVERY_BOY:
-        case FIGURE_WAREHOUSEMAN:
-        case FIGURE_PROTESTER:
-        case FIGURE_CRIMINAL:
-        case FIGURE_RIOTER:
-        case FIGURE_TRADE_CARAVAN:
-        case FIGURE_TRADE_CARAVAN_DONKEY:
-        case FIGURE_INDIGENOUS_NATIVE:
-        case FIGURE_NATIVE_TRADER:
-        case FIGURE_WOLF:
-        case FIGURE_SHEEP:
-        case FIGURE_ZEBRA:
-        case FIGURE_ENEMY_GLADIATOR:
-            f->is_targetable = 1;
-            break;
-        default:
-            break;
     }
 
     return f;
@@ -283,6 +240,165 @@ void figure_handle_corpse(struct figure_t *f)
     if (f->wait_ticks >= 128) {
         f->wait_ticks = 127;
         f->state = FIGURE_STATE_DEAD;
+        return;
+    }
+    switch (f->type) {
+        case FIGURE_IMMIGRANT:
+        case FIGURE_EMIGRANT:
+        case FIGURE_CHARIOTEER: // corpse images missing for charioteer, assign migrant ones
+        case FIGURE_TRADE_CARAVAN:
+        case FIGURE_TRADE_CARAVAN_DONKEY:
+            f->image_id = image_group(GROUP_FIGURE_MIGRANT) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;  // corpse images missing for trade caravan, assign migrant ones
+            break;
+        case FIGURE_HOMELESS:
+            f->image_id = image_group(GROUP_FIGURE_HOMELESS) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_PATRICIAN:
+            f->image_id = image_group(GROUP_FIGURE_PATRICIAN) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_CART_PUSHER:
+        case FIGURE_DOCKER:
+        case FIGURE_WAREHOUSEMAN:
+        case FIGURE_NATIVE_TRADER:
+            f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            f->cart_image_id = 0;
+            break;
+        case FIGURE_LABOR_SEEKER:
+            f->image_id = image_group(GROUP_FIGURE_LABOR_SEEKER) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_BARBER:
+            f->image_id = image_group(GROUP_FIGURE_BARBER) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_BATHHOUSE_WORKER:
+            f->image_id = image_group(GROUP_FIGURE_BATHHOUSE_WORKER) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_DOCTOR:
+        case FIGURE_SURGEON:
+            f->image_id = image_group(GROUP_FIGURE_DOCTOR_SURGEON) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_PRIEST:
+            f->image_id = image_group(GROUP_FIGURE_PRIEST) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_SCHOOL_CHILD:
+            f->image_id = image_group(GROUP_FIGURE_SCHOOL_CHILD) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_TEACHER:
+        case FIGURE_LIBRARIAN:
+            f->image_id = image_group(GROUP_FIGURE_TEACHER_LIBRARIAN) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_MISSIONARY:
+            f->image_id = image_group(GROUP_FIGURE_MISSIONARY) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_ACTOR:
+            f->image_id = image_group(GROUP_FIGURE_ACTOR) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_GLADIATOR:
+        case FIGURE_ENEMY_GLADIATOR:
+            f->image_id = image_group(GROUP_FIGURE_GLADIATOR) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_LION_TAMER:
+            f->image_id = image_group(GROUP_FIGURE_LION_TAMER) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            f->cart_image_id = 0;
+            break;
+        case FIGURE_TAX_COLLECTOR:
+            f->image_id = image_group(GROUP_FIGURE_TAX_COLLECTOR) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_ENGINEER:
+            f->image_id = image_group(GROUP_FIGURE_ENGINEER) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_TOWER_SENTRY:
+            f->image_id = image_group(GROUP_FIGURE_TOWER_SENTRY) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 136;
+            break;
+        case FIGURE_PREFECT:
+            f->image_id = image_group(GROUP_FIGURE_PREFECT) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_FORT_JAVELIN:
+            f->image_id = image_group(GROUP_BUILDING_FORT_JAVELIN) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 144;
+            break;
+        case FIGURE_FORT_MOUNTED:
+            f->image_id = image_group(GROUP_FIGURE_FORT_MOUNTED) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 144;
+            break;
+        case FIGURE_FORT_LEGIONARY:
+            f->image_id = image_group(GROUP_BUILDING_FORT_LEGIONARY) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 152;
+            break;
+        case FIGURE_MARKET_BUYER:
+        case FIGURE_MARKET_TRADER:
+            f->image_id = image_group(GROUP_FIGURE_MARKET_LADY) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_DELIVERY_BOY:
+            f->image_id = image_group(GROUP_FIGURE_DELIVERY_BOY) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_PROTESTER:
+        case FIGURE_CRIMINAL:
+        case FIGURE_RIOTER:
+            f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_INDIGENOUS_NATIVE:
+        case FIGURE_ENEMY_BARBARIAN_SWORDSMAN:
+            f->image_id = 441 + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2];
+            break;
+        case FIGURE_WOLF:
+            f->image_id = image_group(GROUP_FIGURE_WOLF) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_SHEEP:
+            f->image_id = image_group(GROUP_FIGURE_SHEEP) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 104;
+            break;
+        case FIGURE_ZEBRA:
+            f->image_id = image_group(GROUP_FIGURE_ZEBRA) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
+            break;
+        case FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN:
+        case FIGURE_ENEMY_BRITON_SWORDSMAN:
+        case FIGURE_ENEMY_CELT_SWORDSMAN:
+        case FIGURE_ENEMY_PICT_SWORDSMAN:
+        case FIGURE_ENEMY_EGYPTIAN_SWORDSMAN:
+        case FIGURE_ENEMY_ETRUSCAN_SWORDSMAN:
+        case FIGURE_ENEMY_SAMNITE_SWORDSMAN:
+        case FIGURE_ENEMY_GAUL_SWORDSMAN:
+        case FIGURE_ENEMY_HELVETIUS_SWORDSMAN:
+        case FIGURE_ENEMY_HUN_SWORDSMAN:
+        case FIGURE_ENEMY_GOTH_SWORDSMAN:
+        case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
+        case FIGURE_ENEMY_GREEK_SWORDSMAN:
+        case FIGURE_ENEMY_MACEDONIAN_SWORDSMAN:
+        case FIGURE_ENEMY_IBERIAN_SWORDSMAN:
+        case FIGURE_ENEMY_PERGAMUM_SWORDSMAN:
+        case FIGURE_ENEMY_JUDEAN_SWORDSMAN:
+        case FIGURE_ENEMY_SELEUCID_SWORDSMAN:
+            f->image_id = 593 + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2];
+            break;
+        case FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT:
+            f->image_id = 705 + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2];
+            break;
+        case FIGURE_ENEMY_BRITON_CHARIOT:
+        case FIGURE_ENEMY_CELT_CHARIOT:
+        case FIGURE_ENEMY_PICT_CHARIOT:
+        case FIGURE_ENEMY_EGYPTIAN_CAMEL:
+        case FIGURE_ENEMY_GAUL_AXEMAN:
+        case FIGURE_ENEMY_HELVETIUS_AXEMAN:
+        case FIGURE_ENEMY_HUN_MOUNTED_ARCHER:
+        case FIGURE_ENEMY_GOTH_MOUNTED_ARCHER:
+        case FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER:
+            f->image_id = 745 + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2];
+            break;
+        case FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER:
+        case FIGURE_ENEMY_SAMNITE_SPEAR_THROWER:
+        case FIGURE_ENEMY_GREEK_SPEAR_THROWER:
+        case FIGURE_ENEMY_MACEDONIAN_SPEAR_THROWER:
+        case FIGURE_ENEMY_PERGAMUM_ARCHER:
+        case FIGURE_ENEMY_IBERIAN_SPEAR_THROWER:
+        case FIGURE_ENEMY_JUDEAN_SPEAR_THROWER:
+        case FIGURE_ENEMY_SELEUCID_SPEAR_THROWER:
+            f->image_id = 793 + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2];
+            break;
+        case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
+        case FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER:
+            f->image_id = 641 + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2];
+            break;
+        case FIGURE_ENEMY_CAESAR_JAVELIN:
+        case FIGURE_ENEMY_CAESAR_MOUNTED:
+        case FIGURE_ENEMY_CAESAR_LEGIONARY:
+            f->image_id = image_group(GROUP_FIGURE_CAESAR_LEGIONARY) + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 152;
+            break;
     }
 }
 

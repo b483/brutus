@@ -46,6 +46,8 @@ static void generate_labor_seeker(struct building_t *b, int x, int y)
     } else {
         struct figure_t *f = figure_create(FIGURE_LABOR_SEEKER, x, y, DIR_0_TOP);
         f->action_state = FIGURE_ACTION_ROAMING;
+        f->is_targetable = 1;
+        f->terrain_usage = TERRAIN_USAGE_ROADS;
         f->building_id = b->id;
         b->figure_id2 = f->id;
         figure_movement_init_roaming(f);
@@ -100,6 +102,8 @@ static void create_roaming_figure(struct building_t *b, int x, int y, int type)
 {
     struct figure_t *f = figure_create(type, x, y, DIR_0_TOP);
     f->action_state = FIGURE_ACTION_ROAMING;
+    f->is_targetable = 1;
+    f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->building_id = b->id;
     b->figure_id = f->id;
     figure_movement_init_roaming(f);
@@ -114,6 +118,8 @@ static int spawn_patrician(struct building_t *b, int spawned)
             b->figure_spawn_delay = 0;
             struct figure_t *f = figure_create(FIGURE_PATRICIAN, road.x, road.y, DIR_4_BOTTOM);
             f->action_state = FIGURE_ACTION_ROAMING;
+            f->is_targetable = 1;
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->building_id = b->id;
             figure_movement_init_roaming(f);
             return 1;
@@ -143,6 +149,7 @@ static void spawn_figure_warehouse(struct building_t *b)
         int task = building_warehouse_determine_worker_task(b, &resource);
         if (task != WAREHOUSE_TASK_NONE) {
             struct figure_t *f = figure_create(FIGURE_WAREHOUSEMAN, road.x, road.y, DIR_4_BOTTOM);
+            f->is_targetable = 1;
             f->action_state = FIGURE_ACTION_WAREHOUSEMAN_CREATED;
             if (task == WAREHOUSE_TASK_GETTING) {
                 f->resource_id = RESOURCE_NONE;
@@ -168,6 +175,7 @@ static void spawn_figure_granary(struct building_t *b)
         int task = building_granary_determine_worker_task(b);
         if (task != GRANARY_TASK_NONE) {
             struct figure_t *f = figure_create(FIGURE_WAREHOUSEMAN, road.x, road.y, DIR_4_BOTTOM);
+            f->is_targetable = 1;
             f->action_state = FIGURE_ACTION_WAREHOUSEMAN_CREATED;
             f->resource_id = task;
             b->figure_id = f->id;
@@ -228,6 +236,8 @@ static void spawn_figure_engineers_post(struct building_t *b)
             b->figure_spawn_delay = 0;
             struct figure_t *f = figure_create(FIGURE_ENGINEER, road.x, road.y, DIR_0_TOP);
             f->action_state = FIGURE_ACTION_ENGINEER_CREATED;
+            f->is_targetable = 1;
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->building_id = b->id;
             b->figure_id = f->id;
         }
@@ -263,6 +273,7 @@ static void spawn_figure_prefecture(struct building_t *b)
             b->figure_spawn_delay = 0;
             struct figure_t *f = figure_create(FIGURE_PREFECT, road.x, road.y, DIR_0_TOP);
             f->action_state = FIGURE_ACTION_PREFECT_CREATED;
+            f->is_targetable = 1;
             f->building_id = b->id;
             b->figure_id = f->id;
         }
@@ -284,6 +295,8 @@ static void spawn_figure_actor_colony(struct building_t *b)
             b->figure_spawn_delay = 0;
             struct figure_t *f = figure_create(FIGURE_ACTOR, road.x, road.y, DIR_0_TOP);
             f->action_state = FIGURE_ACTION_ENTERTAINER_AT_SCHOOL_CREATED;
+            f->is_targetable = 1;
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->building_id = b->id;
             b->figure_id = f->id;
         }
@@ -306,6 +319,8 @@ static void spawn_figure_gladiator_school(struct building_t *b)
             if (scenario.gladiator_revolt.state != EVENT_IN_PROGRESS) {
                 struct figure_t *f = figure_create(FIGURE_GLADIATOR, road.x, road.y, DIR_0_TOP);
                 f->action_state = FIGURE_ACTION_ENTERTAINER_AT_SCHOOL_CREATED;
+                f->is_targetable = 1;
+                f->terrain_usage = TERRAIN_USAGE_ROADS;
                 f->building_id = b->id;
                 b->figure_id = f->id;
             }
@@ -339,6 +354,8 @@ static void spawn_figure_lion_house(struct building_t *b)
             b->figure_spawn_delay = 0;
             struct figure_t *f = figure_create(FIGURE_LION_TAMER, road.x, road.y, DIR_0_TOP);
             f->action_state = FIGURE_ACTION_ENTERTAINER_AT_SCHOOL_CREATED;
+            f->is_targetable = 1;
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->building_id = b->id;
             b->figure_id = f->id;
         }
@@ -371,6 +388,8 @@ static void spawn_figure_chariot_maker(struct building_t *b)
             b->figure_spawn_delay = 0;
             struct figure_t *f = figure_create(FIGURE_CHARIOTEER, road.x, road.y, DIR_0_TOP);
             f->action_state = FIGURE_ACTION_ENTERTAINER_AT_SCHOOL_CREATED;
+            f->is_targetable = 1;
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->building_id = b->id;
             b->figure_id = f->id;
         }
@@ -411,6 +430,8 @@ static void spawn_figure_amphitheater(struct building_t *b)
                 if (scenario.gladiator_revolt.state != EVENT_IN_PROGRESS) {
                     struct figure_t *f = figure_create(FIGURE_GLADIATOR, road.x, road.y, DIR_0_TOP);
                     f->action_state = FIGURE_ACTION_ENTERTAINER_ROAMING;
+                    f->is_targetable = 1;
+                    f->terrain_usage = TERRAIN_USAGE_ROADS;
                     f->building_id = b->id;
                     b->figure_id = f->id;
                     figure_movement_init_roaming(f);
@@ -418,6 +439,8 @@ static void spawn_figure_amphitheater(struct building_t *b)
             } else {
                 struct figure_t *f = figure_create(FIGURE_ACTOR, road.x, road.y, DIR_0_TOP);
                 f->action_state = FIGURE_ACTION_ENTERTAINER_ROAMING;
+                f->is_targetable = 1;
+                f->terrain_usage = TERRAIN_USAGE_ROADS;
                 f->building_id = b->id;
                 b->figure_id = f->id;
                 figure_movement_init_roaming(f);
@@ -446,6 +469,8 @@ static void spawn_figure_theater(struct building_t *b)
             b->figure_spawn_delay = 0;
             struct figure_t *f = figure_create(FIGURE_ACTOR, road.x, road.y, DIR_0_TOP);
             f->action_state = FIGURE_ACTION_ENTERTAINER_ROAMING;
+            f->is_targetable = 1;
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->building_id = b->id;
             b->figure_id = f->id;
             figure_movement_init_roaming(f);
@@ -494,6 +519,8 @@ static void spawn_figure_hippodrome(struct building_t *b)
             b->figure_spawn_delay = 0;
             struct figure_t *f = figure_create(FIGURE_CHARIOTEER, road.x, road.y, DIR_0_TOP);
             f->action_state = FIGURE_ACTION_ENTERTAINER_ROAMING;
+            f->is_targetable = 1;
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->building_id = b->id;
             b->figure_id = f->id;
             figure_movement_init_roaming(f);
@@ -502,12 +529,14 @@ static void spawn_figure_hippodrome(struct building_t *b)
                 // create mini-horses
                 struct figure_t *horse1 = figure_create(FIGURE_HIPPODROME_HORSES, b->x + 2, b->y + 1, DIR_2_RIGHT);
                 horse1->action_state = FIGURE_ACTION_HIPPODROME_HORSE_CREATED;
+                horse1->use_cross_country = 1;
                 horse1->building_id = b->id;
                 horse1->resource_id = 0;
                 horse1->speed_multiplier = 3;
 
                 struct figure_t *horse2 = figure_create(FIGURE_HIPPODROME_HORSES, b->x + 2, b->y + 2, DIR_2_RIGHT);
                 horse2->action_state = FIGURE_ACTION_HIPPODROME_HORSE_CREATED;
+                horse2->use_cross_country = 1;
                 horse2->building_id = b->id;
                 horse2->resource_id = 1;
                 horse2->speed_multiplier = 2;
@@ -556,6 +585,8 @@ static void spawn_figure_colosseum(struct building_t *b)
                 if (scenario.gladiator_revolt.state != EVENT_IN_PROGRESS) {
                     struct figure_t *f = figure_create(FIGURE_LION_TAMER, road.x, road.y, DIR_0_TOP);
                     f->action_state = FIGURE_ACTION_ENTERTAINER_ROAMING;
+                    f->is_targetable = 1;
+                    f->terrain_usage = TERRAIN_USAGE_ROADS;
                     f->building_id = b->id;
                     b->figure_id = f->id;
                     figure_movement_init_roaming(f);
@@ -563,6 +594,8 @@ static void spawn_figure_colosseum(struct building_t *b)
             } else {
                 struct figure_t *f = figure_create(FIGURE_GLADIATOR, road.x, road.y, DIR_0_TOP);
                 f->action_state = FIGURE_ACTION_ENTERTAINER_ROAMING;
+                f->is_targetable = 1;
+                f->terrain_usage = TERRAIN_USAGE_ROADS;
                 f->building_id = b->id;
                 b->figure_id = f->id;
                 figure_movement_init_roaming(f);
@@ -634,6 +667,8 @@ static void spawn_figure_market(struct building_t *b)
             if (dst_building_id > 0) {
                 struct figure_t *f = figure_create(FIGURE_MARKET_BUYER, road.x, road.y, DIR_0_TOP);
                 f->action_state = FIGURE_ACTION_MARKET_BUYER_GOING_TO_STORAGE;
+                f->is_targetable = 1;
+                f->terrain_usage = TERRAIN_USAGE_ROADS;
                 f->building_id = b->id;
                 b->figure_id2 = f->id;
                 f->destination_building_id = dst_building_id;
@@ -726,22 +761,30 @@ static void spawn_figure_school(struct building_t *b)
 
             struct figure_t *child1 = figure_create(FIGURE_SCHOOL_CHILD, road.x, road.y, DIR_0_TOP);
             child1->action_state = FIGURE_ACTION_ROAMING;
+            child1->is_targetable = 1;
+            child1->terrain_usage = TERRAIN_USAGE_ROADS;
             child1->building_id = b->id;
             b->figure_id = child1->id;
             figure_movement_init_roaming(child1);
 
             struct figure_t *child2 = figure_create(FIGURE_SCHOOL_CHILD, road.x, road.y, DIR_0_TOP);
             child2->action_state = FIGURE_ACTION_ROAMING;
+            child2->is_targetable = 1;
+            child2->terrain_usage = TERRAIN_USAGE_ROADS;
             child2->building_id = b->id;
             figure_movement_init_roaming(child2);
 
             struct figure_t *child3 = figure_create(FIGURE_SCHOOL_CHILD, road.x, road.y, DIR_0_TOP);
             child3->action_state = FIGURE_ACTION_ROAMING;
+            child3->is_targetable = 1;
+            child3->terrain_usage = TERRAIN_USAGE_ROADS;
             child3->building_id = b->id;
             figure_movement_init_roaming(child3);
 
             struct figure_t *child4 = figure_create(FIGURE_SCHOOL_CHILD, road.x, road.y, DIR_0_TOP);
             child4->action_state = FIGURE_ACTION_ROAMING;
+            child4->is_targetable = 1;
+            child4->terrain_usage = TERRAIN_USAGE_ROADS;
             child4->building_id = b->id;
             figure_movement_init_roaming(child4);
         }
@@ -931,6 +974,8 @@ static void spawn_figure_senate_forum(struct building_t *b)
             b->figure_spawn_delay = 0;
             struct figure_t *f = figure_create(FIGURE_TAX_COLLECTOR, road.x, road.y, DIR_0_TOP);
             f->action_state = FIGURE_ACTION_TAX_COLLECTOR_CREATED;
+            f->is_targetable = 1;
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->building_id = b->id;
             b->figure_id = f->id;
         }
@@ -968,6 +1013,8 @@ static void spawn_figure_industry(struct building_t *b)
             building_industry_start_new_production(b);
             struct figure_t *f = figure_create(FIGURE_CART_PUSHER, road.x, road.y, DIR_4_BOTTOM);
             f->action_state = FIGURE_ACTION_CARTPUSHER_INITIAL;
+            f->is_targetable = 1;
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->resource_id = b->output_resource_id;
             f->building_id = b->id;
             b->figure_id = f->id;
@@ -997,6 +1044,8 @@ static void spawn_figure_wharf(struct building_t *b)
             b->output_resource_id = RESOURCE_MEAT;
             struct figure_t *f = figure_create(FIGURE_CART_PUSHER, road.x, road.y, DIR_4_BOTTOM);
             f->action_state = FIGURE_ACTION_CARTPUSHER_INITIAL;
+            f->is_targetable = 1;
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->resource_id = RESOURCE_MEAT;
             f->building_id = b->id;
             b->figure_id = f->id;
@@ -1078,6 +1127,8 @@ static void spawn_figure_dock(struct building_t *b)
         } else if (existing_dockers < max_dockers) {
             struct figure_t *f = figure_create(FIGURE_DOCKER, road.x, road.y, DIR_4_BOTTOM);
             f->action_state = FIGURE_ACTION_DOCKER_IDLING;
+            f->is_targetable = 1;
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->building_id = b->id;
             for (int i = 0; i < 3; i++) {
                 if (!b->data.dock.docker_ids[i]) {
@@ -1102,7 +1153,9 @@ static void spawn_figure_native_hut(struct building_t *b)
         if (b->figure_spawn_delay > 4) {
             b->figure_spawn_delay = 0;
             struct figure_t *f = figure_create(FIGURE_INDIGENOUS_NATIVE, x_out, y_out, DIR_0_TOP);
+            f->is_targetable = 1;
             f->action_state = FIGURE_ACTION_NATIVE_CREATED;
+            f->terrain_usage = TERRAIN_USAGE_ANY;
             f->building_id = b->id;
             b->figure_id = f->id;
         }
@@ -1119,7 +1172,9 @@ static void spawn_figure_native_meeting(struct building_t *b)
             if (b->figure_spawn_delay > 8) {
                 b->figure_spawn_delay = 0;
                 struct figure_t *f = figure_create(FIGURE_NATIVE_TRADER, x_out, y_out, DIR_0_TOP);
+                f->is_targetable = 1;
                 f->action_state = FIGURE_ACTION_NATIVE_TRADER_CREATED;
+                f->terrain_usage = TERRAIN_USAGE_ANY;
                 f->building_id = b->id;
                 b->figure_id = f->id;
             }

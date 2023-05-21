@@ -122,6 +122,7 @@ static void missile_hit_target(struct figure_t *projectile, struct figure_t *tar
     } else { // kill target
         target->damage = figure_properties[target->type].max_damage + 1;
         target->action_state = FIGURE_ACTION_CORPSE;
+        target->is_targetable = 0;
         target->wait_ticks = 0;
         figure_play_die_sound(target);
         if (figure_properties[target->type].is_player_legion_unit) {

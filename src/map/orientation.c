@@ -1,5 +1,6 @@
 #include "orientation.h"
 
+#include "city/data_private.h"
 #include "city/view.h"
 #include "core/image.h"
 #include "figuretype/animal.h"
@@ -60,7 +61,10 @@ void map_orientation_change(int counter_clockwise)
     map_routing_update_walls();
 
     figure_tower_sentry_reroute();
-    figure_hippodrome_horse_reroute();
+    if (city_data.entertainment.hippodrome_has_race) {
+        figure_hippodrome_horse_reroute();
+    }
+
 }
 
 int map_orientation_for_gatehouse(int x, int y)

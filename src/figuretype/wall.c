@@ -63,9 +63,6 @@ void figure_ballista_action(struct figure_t *f)
     map_figure_add(f);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_CORPSE:
-            f->state = FIGURE_STATE_DEAD;
-            break;
         case FIGURE_ACTION_BALLISTA_READY:
             map_point tile = { -1, -1 };
             if (f->is_shooting) {
@@ -168,9 +165,6 @@ void figure_tower_sentry_action(struct figure_t *f)
     figure_image_increase_offset(f, 12);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_CORPSE:
-            f->image_id = image_group(GROUP_FIGURE_TOWER_SENTRY) + 136 + figure_image_corpse_offset(f);
-            return;
         case FIGURE_ACTION_ATTACK:
             int image_id = image_group(GROUP_FIGURE_TOWER_SENTRY);
             if (f->attack_image_offset < 12) {

@@ -59,6 +59,7 @@
 #include "map/tiles.h"
 #include "map/water_supply.h"
 #include "scenario/editor_events.h"
+#include "scenario/map.h"
 #include "sound/music.h"
 #include "widget/minimap.h"
 
@@ -205,11 +206,18 @@ void game_tick_run(void)
     random_generate_next();
     game_undo_reduce_time_available();
     advance_tick();
+    scenario_earthquake_process();
+    city_victory_check();
     city_data.entertainment.hippodrome_has_race = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *f = &figures[i];
+        if (f->state == FIGURE_STATE_DEAD) {
+            figure_delete(f);
+            continue;
+        }
         if (f->action_state == FIGURE_ACTION_CORPSE) {
             figure_handle_corpse(f);
+            continue;
         } else if (f->action_state == FIGURE_ACTION_ATTACK) {
             figure_combat_handle_attack(f);
         }
@@ -287,7 +295,9 @@ void game_tick_run(void)
                     figure_docker_action(f);
                     break;
                 case FIGURE_FLOTSAM:
-                    figure_flotsam_action(f);
+                    if (scenario_map_has_river_exit()) {
+                        figure_flotsam_action(f);
+                    }
                     break;
                 case FIGURE_BALLISTA:
                     figure_ballista_action(f);
@@ -434,10 +444,6 @@ void game_tick_run(void)
                 default:
                     break;
             }
-        } else if (f->state == FIGURE_STATE_DEAD) {
-            figure_delete(f);
         }
     }
-    scenario_earthquake_process();
-    city_victory_check();
 }

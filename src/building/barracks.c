@@ -63,15 +63,25 @@ void building_barracks_create_soldier(struct building_t *barracks, int x, int y)
     struct formation_t *m = get_closest_legion_needing_soldiers(barracks);
     if (m) {
         struct figure_t *f = figure_create(m->figure_type, x, y, DIR_0_TOP);
+        f->is_targetable = 1;
+        f->terrain_usage = TERRAIN_USAGE_ANY;
         f->formation_id = m->id;
-        if (f->type == FIGURE_FORT_LEGIONARY && barracks->loads_stored) {
-            barracks->loads_stored--;
+        switch (f->type) {
+            case FIGURE_FORT_JAVELIN:
+                f->speed_multiplier = 2;
+                break;
+            case FIGURE_FORT_MOUNTED:
+                f->mounted_charge_ticks = 10;
+                f->mounted_charge_ticks_max = 10;
+                f->speed_multiplier = 3;
+                break;
+            case FIGURE_FORT_LEGIONARY:
+                if (barracks->loads_stored) {
+                    barracks->loads_stored--;
+                }
+                break;
         }
         f->building_id = m->building_id;
-        if (f->type == FIGURE_FORT_MOUNTED) {
-            f->mounted_charge_ticks = 10;
-            f->mounted_charge_ticks_max = 10;
-        }
         add_figure_to_formation(f, m);
         map_point mil_acad_road = { 0 };
         set_destination__closest_building_of_type(m->building_id, BUILDING_MILITARY_ACADEMY, &mil_acad_road);

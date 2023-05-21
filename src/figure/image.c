@@ -2,17 +2,6 @@
 
 #include "city/view.h"
 
-static const int CORPSE_IMAGE_OFFSETS[128] = {
-    0, 1, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-    5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7,
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
-};
-
 static const int MISSILE_LAUNCHER_OFFSETS[128] = {
     0, 1, 2, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -27,15 +16,6 @@ static const int MISSILE_LAUNCHER_OFFSETS[128] = {
 static const int CART_OFFSETS_X[] = {13, 18, 12, 0, -13, -18, -13, 0};
 static const int CART_OFFSETS_Y[] = {-7, -1, 7, 11, 6, -1, -7, -12};
 
-void figure_image_update(struct figure_t *f, int image_base)
-{
-    if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->image_id = image_base + CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2] + 96;
-    } else {
-        f->image_id = image_base + figure_image_direction(f) + 8 * f->image_offset;
-    }
-}
-
 void figure_image_increase_offset(struct figure_t *f, int max)
 {
     f->image_offset++;
@@ -48,11 +28,6 @@ void figure_image_set_cart_offset(struct figure_t *f, int direction)
 {
     f->x_offset_cart = CART_OFFSETS_X[direction];
     f->y_offset_cart = CART_OFFSETS_Y[direction];
-}
-
-int figure_image_corpse_offset(struct figure_t *f)
-{
-    return CORPSE_IMAGE_OFFSETS[f->wait_ticks / 2];
 }
 
 int figure_image_missile_launcher_offset(struct figure_t *f)

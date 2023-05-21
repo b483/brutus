@@ -56,8 +56,6 @@ static void update_image(struct figure_t *f, struct formation_t *m)
             } else {
                 f->image_id = image_id + 96 + dir + 8 * ((f->attack_image_offset - 12) / 2);
             }
-        } else if (f->action_state == FIGURE_ACTION_CORPSE) {
-            f->image_id = image_id + 144 + figure_image_corpse_offset(f);
         } else if (f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD) {
             f->image_id = image_id + 96 + dir + 8 * figure_image_missile_launcher_offset(f);
         } else {
@@ -71,8 +69,6 @@ static void update_image(struct figure_t *f, struct formation_t *m)
             } else {
                 f->image_id = image_id + 96 + dir + 8 * ((f->attack_image_offset - 12) / 2);
             }
-        } else if (f->action_state == FIGURE_ACTION_CORPSE) {
-            f->image_id = image_id + 144 + figure_image_corpse_offset(f);
         } else {
             f->image_id = image_id + dir + 8 * f->image_offset;
         }
@@ -84,8 +80,6 @@ static void update_image(struct figure_t *f, struct formation_t *m)
             } else {
                 f->image_id = image_id + 96 + dir + 8 * ((f->attack_image_offset - 12) / 2);
             }
-        } else if (f->action_state == FIGURE_ACTION_CORPSE) {
-            f->image_id = image_id + 152 + figure_image_corpse_offset(f);
         } else if (f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD) {
             if (f->figure_is_halted && m->layout == FORMATION_TORTOISE && m->missile_attack_timeout) {
                 f->image_id = image_id + dir + 144;
@@ -135,7 +129,6 @@ static void update_legion_facing_direction(struct formation_t *m)
 
 void figure_soldier_action(struct figure_t *f)
 {
-    f->terrain_usage = TERRAIN_USAGE_ANY;
     figure_image_increase_offset(f, 12);
     struct formation_t *m = &legion_formations[f->formation_id];
     if (f->is_shooting) {

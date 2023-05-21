@@ -157,6 +157,7 @@ static void mars_kill_enemies(void)
         }
         if ((figure_properties[f->type].is_enemy_unit && f->type != FIGURE_ENEMY_GLADIATOR) || figure_properties[f->type].is_caesar_legion_unit) {
             f->action_state = FIGURE_ACTION_CORPSE;
+            f->is_targetable = 0;
             clear_targeting_on_unit_death(f);
             update_counters_on_unit_death(f);
             refresh_formation_figure_indexes(f);

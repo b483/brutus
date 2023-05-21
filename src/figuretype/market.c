@@ -13,6 +13,8 @@
 static int create_delivery_boy(int leader_id, struct figure_t *f)
 {
     struct figure_t *boy = figure_create(FIGURE_DELIVERY_BOY, f->x, f->y, 0);
+    boy->is_targetable = 1;
+    boy->terrain_usage = TERRAIN_USAGE_ROADS;
     boy->leading_figure_id = leader_id;
     boy->collecting_item_id = f->collecting_item_id;
     boy->building_id = f->building_id;
@@ -100,9 +102,6 @@ static int take_resource_from_warehouse(struct figure_t *f, int warehouse_id)
 
 void figure_market_buyer_action(struct figure_t *f)
 {
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
-    f->use_cross_country = 0;
-
     struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id2 != f->id) {
         f->state = FIGURE_STATE_DEAD;
@@ -140,18 +139,16 @@ void figure_market_buyer_action(struct figure_t *f)
             }
             break;
     }
-    figure_image_update(f, image_group(GROUP_FIGURE_MARKET_LADY));
+    f->image_id = image_group(GROUP_FIGURE_MARKET_LADY) + figure_image_direction(f) + 8 * f->image_offset;
 }
 
 void figure_delivery_boy_action(struct figure_t *f)
 {
     f->is_ghost = 0;
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
     figure_image_increase_offset(f, 12);
-    f->cart_image_id = 0;
 
     struct figure_t *leader = &figures[f->leading_figure_id];
-    if (f->leading_figure_id <= 0 || leader->action_state == FIGURE_ACTION_CORPSE) {
+    if (f->leading_figure_id <= 0) {
         f->state = FIGURE_STATE_DEAD;
     } else {
         if (leader->state == FIGURE_STATE_ALIVE) {
@@ -169,11 +166,5 @@ void figure_delivery_boy_action(struct figure_t *f)
         f->is_ghost = 1;
     }
     int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
-    if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->image_id = image_group(GROUP_FIGURE_DELIVERY_BOY) + 96 +
-            figure_image_corpse_offset(f);
-    } else {
-        f->image_id = image_group(GROUP_FIGURE_DELIVERY_BOY) +
-            dir + 8 * f->image_offset;
-    }
+    f->image_id = image_group(GROUP_FIGURE_DELIVERY_BOY) + dir + 8 * f->image_offset;
 }

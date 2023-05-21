@@ -15,9 +15,9 @@
 #include "map/road_network.h"
 #include "map/routing_terrain.h"
 
-static const int CART_OFFSET_MULTIPLE_LOADS_FOOD[] = {0, 0, 8, 16, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-static const int CART_OFFSET_MULTIPLE_LOADS_NON_FOOD[] = {0, 0, 0, 0, 0, 8, 0, 16, 24, 32, 40, 48, 56, 64, 72, 80};
-static const int CART_OFFSET_8_LOADS_FOOD[] = {0, 40, 48, 56, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static const int CART_OFFSET_MULTIPLE_LOADS_FOOD[] = { 0, 0, 8, 16, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static const int CART_OFFSET_MULTIPLE_LOADS_NON_FOOD[] = { 0, 0, 0, 0, 0, 8, 0, 16, 24, 32, 40, 48, 56, 64, 72, 80 };
+static const int CART_OFFSET_8_LOADS_FOOD[] = { 0, 40, 48, 56, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 static void set_cart_graphic(struct figure_t *f)
 {
@@ -124,12 +124,7 @@ static void update_image(struct figure_t *f)
     int dir = figure_image_normalize_direction(
         f->direction < 8 ? f->direction : f->previous_tile_direction);
 
-    if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + figure_image_corpse_offset(f) + 96;
-        f->cart_image_id = 0;
-    } else {
-        f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + dir + 8 * f->image_offset;
-    }
+    f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + dir + 8 * f->image_offset;
     if (f->cart_image_id) {
         f->cart_image_id += dir;
         figure_image_set_cart_offset(f, dir);
@@ -153,7 +148,6 @@ void figure_cartpusher_action(struct figure_t *f)
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     int road_network_id = map_road_network_get(f->grid_offset);
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
     struct building_t *b = &all_buildings[f->building_id];
 
     switch (f->action_state) {
@@ -408,7 +402,8 @@ void figure_warehouseman_action(struct figure_t *f)
     int road_network_id = map_road_network_get(f->grid_offset);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_WAREHOUSEMAN_CREATED: {
+        case FIGURE_ACTION_WAREHOUSEMAN_CREATED:
+        {
             struct building_t *b = &all_buildings[f->building_id];
             if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
                 f->state = FIGURE_STATE_DEAD;

@@ -98,8 +98,7 @@ static void update_image(struct figure_t *f)
 
     if (f->type == FIGURE_CHARIOTEER) {
         f->cart_image_id = 0;
-        if (f->action_state == FIGURE_ACTION_ATTACK ||
-            f->action_state == FIGURE_ACTION_CORPSE) {
+        if (f->action_state == FIGURE_ACTION_ATTACK) {
             f->image_id = image_group(GROUP_FIGURE_CHARIOTEER) + dir;
         } else {
             f->image_id = image_group(GROUP_FIGURE_CHARIOTEER) +
@@ -127,9 +126,6 @@ static void update_image(struct figure_t *f)
         } else {
             f->image_id = image_id + dir;
         }
-    } else if (f->action_state == FIGURE_ACTION_CORPSE) {
-        f->image_id = image_id + 96 + figure_image_corpse_offset(f);
-        f->cart_image_id = 0;
     } else {
         f->image_id = image_id + dir + 8 * f->image_offset;
     }
@@ -143,7 +139,6 @@ void figure_entertainer_action(struct figure_t *f)
 {
     struct building_t *b = &all_buildings[f->building_id];
     f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART);
-    f->terrain_usage = TERRAIN_USAGE_ROADS;
     f->use_cross_country = 0;
     figure_image_increase_offset(f, 12);
     f->wait_ticks_missile++;
@@ -158,6 +153,8 @@ void figure_entertainer_action(struct figure_t *f)
             figure_route_remove(f);
             f->roam_length = 0;
             f->action_state = FIGURE_ACTION_NATIVE_CREATED;
+            f->is_targetable = 1;
+            f->terrain_usage = TERRAIN_USAGE_ANY;
             return;
         }
     }
