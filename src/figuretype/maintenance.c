@@ -90,7 +90,6 @@ static int fight_fire(struct figure_t *f)
         return 0;
     }
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
         case FIGURE_ACTION_CORPSE:
         case FIGURE_ACTION_PREFECT_CREATED:
         case FIGURE_ACTION_PREFECT_ENTERING_EXITING:
@@ -253,8 +252,7 @@ void figure_prefect_action(struct figure_t *f)
     }
     // graphic id
     int dir;
-    if (f->action_state == FIGURE_ACTION_PREFECT_AT_FIRE ||
-        f->action_state == FIGURE_ACTION_ATTACK) {
+    if (f->action_state == FIGURE_ACTION_PREFECT_AT_FIRE) {
         dir = f->attack_direction;
     } else if (f->direction < 8) {
         dir = f->direction;
@@ -268,13 +266,6 @@ void figure_prefect_action(struct figure_t *f)
             break;
         case FIGURE_ACTION_PREFECT_AT_FIRE:
             f->image_id = image_group(GROUP_FIGURE_PREFECT_WITH_BUCKET) + dir + 96 + 8 * (f->image_offset / 2);
-            break;
-        case FIGURE_ACTION_ATTACK:
-            if (f->attack_image_offset >= 12) {
-                f->image_id = image_group(GROUP_FIGURE_PREFECT) + 104 + dir + 8 * ((f->attack_image_offset - 12) / 2);
-            } else {
-                f->image_id = image_group(GROUP_FIGURE_PREFECT) + 104 + dir;
-            }
             break;
         default:
             f->image_id = image_group(GROUP_FIGURE_PREFECT) + dir + 8 * f->image_offset;

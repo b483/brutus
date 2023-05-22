@@ -193,7 +193,6 @@ set(FIGURETYPE_FILES
     ${PROJECT_SOURCE_DIR}/src/figuretype/market.c
     ${PROJECT_SOURCE_DIR}/src/figuretype/migrant.c
     ${PROJECT_SOURCE_DIR}/src/figuretype/missile.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/native.c
     ${PROJECT_SOURCE_DIR}/src/figuretype/service.c
     ${PROJECT_SOURCE_DIR}/src/figuretype/soldier.c
     ${PROJECT_SOURCE_DIR}/src/figuretype/trader.c

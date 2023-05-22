@@ -383,11 +383,6 @@ static int lion_tamer_phrase(struct figure_t *f)
     return 0;
 }
 
-static int gladiator_phrase(struct figure_t *f)
-{
-    return f->action_state == FIGURE_ACTION_ATTACK ? 7 : 0;
-}
-
 static int tax_collector_phrase(struct figure_t *f)
 {
     if (f->min_max_seen >= HOUSE_LARGE_CASA) {
@@ -611,7 +606,7 @@ static int phrase_based_on_figure_state(struct figure_t *f)
         case FIGURE_LION_TAMER:
             return lion_tamer_phrase(f);
         case FIGURE_GLADIATOR:
-            return gladiator_phrase(f);
+            return f->action_state == FIGURE_ACTION_ATTACK ? 7 : 0;
         case FIGURE_TAX_COLLECTOR:
             return tax_collector_phrase(f);
         case FIGURE_MARKET_TRADER:

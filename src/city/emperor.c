@@ -106,8 +106,7 @@ void process_caesar_invasion(void)
                 city_message_post(1, MESSAGE_CAESAR_ARMY_CONTINUE, 0, 0);
             }
         }
-    } else if (city_data.emperor.invasion.soldiers_killed
-        && city_data.emperor.invasion.soldiers_killed >= city_data.emperor.invasion.size) {
+    } else if (city_data.emperor.invasion.soldiers_killed && city_data.emperor.invasion.soldiers_killed >= city_data.emperor.invasion.size) {
         // player defeated caesar army
         city_data.emperor.invasion.size = 0;
         city_data.emperor.invasion.soldiers_killed = 0;

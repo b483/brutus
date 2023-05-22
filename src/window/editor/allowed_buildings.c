@@ -1,5 +1,6 @@
 #include "allowed_buildings.h"
-#include "building/type.h"
+
+#include "building/building.h"
 #include "empire/object.h"
 #include "graphics/button.h"
 #include "graphics/color.h"
@@ -96,87 +97,6 @@ static generic_button buttons[] = {
     {459, 390, 190, 20, toggle_building, button_none, 78, 0},
 };
 
-static const uint8_t allowed_buildings_strings[MAX_ALLOWED_BUILDINGS][22] = {
-    "Housing",
-    "Clear terrain",
-    "Road",
-    "Reservoir",
-    "Aqueduct",
-    "Fountain",
-    "Well",
-    "Barber",
-    "Bathhouse",
-    "Doctor",
-    "Hospital",
-    "Small temple: Ceres",
-    "Small temple: Neptune",
-    "Small temple: Mercury",
-    "Small temple: Mars",
-    "Small temple: Venus",
-    "Large temple: Ceres",
-    "Large temple: Neptune",
-    "Large temple: Mercury",
-    "Large temple: Mars",
-    "Large temple: Venus",
-    "Oracle",
-    "School",
-    "Academy",
-    "Library",
-    "Mission post",
-    "Theater",
-    "Amphitheater",
-    "Colosseum",
-    "Hippodrome",
-    "Gladiator school",
-    "Lion house",
-    "Actor colony",
-    "Chariot maker",
-    "Forum",
-    "Senate",
-    "Governor's house",
-    "Governor's villa",
-    "Governor's palace",
-    "Statue: Small",
-    "Statue: Medium",
-    "Statue: Large",
-    "Triumphal arch",
-    "Gardens",
-    "Plaza",
-    "Engineers post",
-    "Bridge: Low",
-    "Bridge: Ship",
-    "Shipyard",
-    "Dock",
-    "Wharf",
-    "Wall",
-    "Tower",
-    "Gatehouse",
-    "Prefecture",
-    "Fort: Legionaries",
-    "Fort: Javelin",
-    "Fort: Mounted",
-    "Military academy",
-    "Barracks",
-    "Farm: Wheat",
-    "Farm: Vegetables",
-    "Farm: Fruit",
-    "Farm: Olives",
-    "Farm: Vines",
-    "Farm: Pigs",
-    "Clay pit",
-    "Marble quarry",
-    "Iron mine",
-    "Timber yard",
-    "Workshop: Wine",
-    "Workshop: Oil",
-    "Workshop: Weapons",
-    "Workshop: Furniture",
-    "Workshop: Pottery",
-    "Market",
-    "Granary",
-    "Warehouse",
-};
-
 static int focus_button_id;
 
 static void draw_background(void)
@@ -208,32 +128,11 @@ static void draw_foreground(void)
             y = 50 + 20 * (i - 60);
         }
         button_border_draw(x, y, 190, 20, focus_button_id == i + 1);
-        int building_index = i + 1;
-        if (building_index >= BUILDING_HOUSE_SMALL_TENT) {
-            building_index += MAX_HOUSE_TYPES;
-        }
-        if (building_index >= BUILDING_MENU_SMALL_TEMPLES) {
-            building_index++;
-        }
-        if (building_index >= BUILDING_MENU_LARGE_TEMPLES) {
-            building_index++;
-        }
-        if (building_index >= BUILDING_FORT) {
-            building_index++;
-        }
-        if (building_index >= BUILDING_MENU_FARMS) {
-            building_index++;
-        }
-        if (building_index >= BUILDING_MENU_RAW_MATERIALS) {
-            building_index++;
-        }
-        if (building_index >= BUILDING_MENU_WORKSHOPS) {
-            building_index++;
-        }
+        int building_index = align_bulding_type_index_to_strings(i + 1);
         if (scenario.allowed_buildings[building_index]) {
-            text_draw_centered(allowed_buildings_strings[i], x, y + 5, 190, FONT_NORMAL_BLACK, 0);
+            text_draw_centered(all_buildings_strings[building_index], x, y + 5, 190, FONT_NORMAL_BLACK, 0);
         } else {
-            text_draw_centered(allowed_buildings_strings[i], x, y + 5, 190, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
+            text_draw_centered(all_buildings_strings[building_index], x, y + 5, 190, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
         }
 
     }

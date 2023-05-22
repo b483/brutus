@@ -175,6 +175,120 @@ struct house_properties_t house_properties[MAX_HOUSE_TYPES] = {
     { 85,        100,     80,   2,      4,     3,    1,     1,       2,     3,     1,    1,     1,     2,     1750,   200,      16},
 };
 
+uint8_t all_buildings_strings[][23] = {
+"None",  // 0
+"Vacant Lot",  // 1
+"Small Tent",  // 2
+"Large Tent",  // 3
+"Small Shack",  // 4
+"Large Shack",  // 5
+"Small Hovel",  // 6
+"Large Hovel",  // 7
+"Small Casa",  // 8
+"Large Casa",  // 9
+"Small Insula",  // 10
+"Medium Insula",  // 11
+"Large Insula",  // 12
+"Grand Insula",  // 13
+"Small Villa",  // 14
+"Medium Villa",  // 15
+"Large Villa",  // 16
+"Grand Villa",  // 17
+"Small Palace",  // 18
+"Medium Palace",  // 19
+"Large Palace",  // 20
+"Luxury Palace",  // 21
+"Clear Land",  // 22
+"Road",  // 23
+"Reservoir",  // 24
+"Aqueduct",  // 25
+"Fountain",  // 26
+"Well",  // 27
+"Barber",  // 28
+"Bathhouse",  // 29
+"Doctor",  // 30
+"Hospital",  // 31
+"Menu: Small Temples",  // 32
+"Small Temple: Ceres",  // 33
+"Small Temple: Neptune",  // 34
+"Small Temple: Mercury",  // 35
+"Small Temple: Mars",  // 36
+"Small Temple: Venus",  // 37
+"Menu: Large Temples",  // 38
+"Large Temple: Ceres",  // 39
+"Large Temple: Neptune",  // 40
+"Large Temple: Mercury",  // 41
+"Large Temple: Mars",  // 42
+"Large Temple: Venus",  // 43
+"Oracle",  // 44
+"School",  // 45
+"Academy",  // 46
+"Library",  // 47
+"Mission Post",  // 48
+"Theater",  // 49
+"Amphitheater",  // 50
+"Colosseum",  // 51
+"Hippodrome",  // 52
+"Gladiator School",  // 53
+"Lion House",  // 54
+"Actor Colony",  // 55
+"Chariot Maker",  // 56
+"Forum",  // 57
+"Senate",  // 58
+"Governors House",  // 59
+"Governors Villa",  // 60
+"Governors Palace",  // 61
+"Small Statue",  // 62
+"Medium Statue",  // 63
+"Large Statue",  // 64
+"Triumphal Arch",  // 65
+"Gardens",  // 66
+"Plaza",  // 67
+"Engineers Post",  // 68
+"Low Bridge",  // 69
+"Ship Bridge",  // 70
+"Shipyard",  // 71
+"Dock",  // 72
+"Wharf",  // 73
+"Wall",  // 74
+"Tower",  // 75
+"Gatehouse",  // 76
+"Prefecture",  // 77
+"Fort",  // 78
+"Fort: Legionaries",  // 79
+"Fort: Javelin",  // 80
+"Fort: Mounted",  // 81
+"Military Academy",  // 82
+"Barracks",  // 83
+"Menu: Farms",  // 84
+"Wheat Farm",  // 85
+"Vegetable Farm",  // 86
+"Fruit Farm",  // 87
+"Olive Farm",  // 88
+"Vines Farm",  // 89
+"Pig Farm",  // 90
+"Menu: Raw Materials",  // 91
+"Clay Pit",  // 92
+"Marble Quarry",  // 93
+"Iron Mine",  // 94
+"Timber Yard",  // 95
+"Menu: Workshops",  // 96
+"Wine Workshop",  // 97
+"Oil Workshop",  // 98
+"Weapons Workshop",  // 99
+"Furniture Workshop",  // 100
+"Pottery Workshop",  // 101
+"Market",  // 102
+"Granary",  // 103
+"Warehouse",  // 104
+"Warehouse Space",  // 105
+"Native Hut",  // 106
+"Native Meeting",  // 107
+"Native Crops",  // 108
+"Fort Ground",  // 109
+"Burning Ruin",  // 110
+};
+
 struct building_t *building_main(struct building_t *b)
 {
     for (int guard = 0; guard < 9; guard++) {
@@ -399,6 +513,32 @@ void building_update_desirability(void)
         }
         b->desirability = map_desirability_get_max(b->x, b->y, b->size);
     }
+}
+
+int align_bulding_type_index_to_strings(int building_type_index)
+{
+    if (building_type_index >= BUILDING_HOUSE_SMALL_TENT) {
+        building_type_index += MAX_HOUSE_TYPES;
+    }
+    if (building_type_index >= BUILDING_MENU_SMALL_TEMPLES) {
+        building_type_index++;
+    }
+    if (building_type_index >= BUILDING_MENU_LARGE_TEMPLES) {
+        building_type_index++;
+    }
+    if (building_type_index >= BUILDING_FORT) {
+        building_type_index++;
+    }
+    if (building_type_index >= BUILDING_MENU_FARMS) {
+        building_type_index++;
+    }
+    if (building_type_index >= BUILDING_MENU_RAW_MATERIALS) {
+        building_type_index++;
+    }
+    if (building_type_index >= BUILDING_MENU_WORKSHOPS) {
+        building_type_index++;
+    }
+    return building_type_index;
 }
 
 int building_is_house(building_type type)

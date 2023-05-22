@@ -131,9 +131,7 @@ void figure_wolf_action(struct figure_t *f)
             break;
     }
     int dir = figure_image_direction(f);
-    if (f->action_state == FIGURE_ACTION_ATTACK) {
-        f->image_id = image_group(GROUP_FIGURE_WOLF) + 104 + dir + 8 * (f->attack_image_offset / 4);
-    } else if (f->action_state == FIGURE_ACTION_HERD_ANIMAL_AT_REST) {
+    if (f->action_state == FIGURE_ACTION_HERD_ANIMAL_AT_REST) {
         f->image_id = image_group(GROUP_FIGURE_WOLF) + 152 + dir;
     } else {
         f->image_id = image_group(GROUP_FIGURE_WOLF) + dir + 8 * f->image_offset;

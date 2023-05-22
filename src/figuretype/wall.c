@@ -165,18 +165,6 @@ void figure_tower_sentry_action(struct figure_t *f)
     figure_image_increase_offset(f, 12);
 
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            int image_id = image_group(GROUP_FIGURE_TOWER_SENTRY);
-            if (f->attack_image_offset < 12) {
-                f->image_id = image_id + 96 + figure_image_direction(f);
-            } else {
-                f->image_id = image_id + 96 + figure_image_direction(f) + 8 * ((f->attack_image_offset - 12) / 2);
-                // some buffer images missing, img ids 6841+ are for corpse
-                if (f->image_id >= 6841) {
-                    f->image_id = f->image_id - 8;
-                }
-            }
-            return;
         case FIGURE_ACTION_TOWER_SENTRY_AT_REST:
             f->is_targetable = 0;
             if (!f->is_military_trained) {

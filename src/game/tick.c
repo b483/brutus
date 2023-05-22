@@ -42,7 +42,6 @@
 #include "figuretype/market.h"
 #include "figuretype/migrant.h"
 #include "figuretype/missile.h"
-#include "figuretype/native.h"
 #include "figuretype/service.h"
 #include "figuretype/soldier.h"
 #include "figuretype/trader.h"
@@ -220,6 +219,7 @@ void game_tick_run(void)
             continue;
         } else if (f->action_state == FIGURE_ACTION_ATTACK) {
             figure_combat_handle_attack(f);
+            continue;
         }
         if (f->state == FIGURE_STATE_ALIVE) {
             switch (f->type) {

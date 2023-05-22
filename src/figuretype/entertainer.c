@@ -98,12 +98,7 @@ static void update_image(struct figure_t *f)
 
     if (f->type == FIGURE_CHARIOTEER) {
         f->cart_image_id = 0;
-        if (f->action_state == FIGURE_ACTION_ATTACK) {
-            f->image_id = image_group(GROUP_FIGURE_CHARIOTEER) + dir;
-        } else {
-            f->image_id = image_group(GROUP_FIGURE_CHARIOTEER) +
-                dir + 8 * f->image_offset;
-        }
+        f->image_id = image_group(GROUP_FIGURE_CHARIOTEER) + dir + 8 * f->image_offset;
         return;
     }
     int image_id;
@@ -120,15 +115,7 @@ static void update_image(struct figure_t *f)
     } else {
         return;
     }
-    if (f->action_state == FIGURE_ACTION_ATTACK) {
-        if (f->type == FIGURE_GLADIATOR) {
-            f->image_id = image_id + 104 + dir + 8 * (f->image_offset / 2);
-        } else {
-            f->image_id = image_id + dir;
-        }
-    } else {
-        f->image_id = image_id + dir + 8 * f->image_offset;
-    }
+    f->image_id = image_id + dir + 8 * f->image_offset;
     if (f->cart_image_id) {
         f->cart_image_id += dir + 8 * f->image_offset;
         figure_image_set_cart_offset(f, dir);
@@ -160,9 +147,6 @@ void figure_entertainer_action(struct figure_t *f)
     }
     int speed_factor = f->type == FIGURE_CHARIOTEER ? 2 : 1;
     switch (f->action_state) {
-        case FIGURE_ACTION_ATTACK:
-            figure_image_increase_offset(f, 32);
-            break;
         case FIGURE_ACTION_ENTERTAINER_AT_SCHOOL_CREATED:
             f->is_ghost = 1;
             f->image_offset = 0;

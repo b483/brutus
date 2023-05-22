@@ -185,9 +185,6 @@ void figure_delete(struct figure_t *f)
                 }
             }
             break;
-        case FIGURE_ENEMY_CAESAR_LEGIONARY:
-            city_data.emperor.invasion.soldiers_killed++;
-            break;
         case FIGURE_EXPLOSION:
         case FIGURE_FORT_STANDARD:
         case FIGURE_ARROW:

@@ -443,8 +443,6 @@ static void draw_cartpusher(building_info_context *c, struct figure_t *f)
     if (!f->building_id) {
         return;
     }
-    struct building_t *source_building = &all_buildings[f->building_id];
-    struct building_t *target_building = &all_buildings[f->destination_building_id];
     int is_returning = 0;
     switch (f->action_state) {
         case FIGURE_ACTION_CARTPUSHER_RETURNING:
@@ -463,16 +461,18 @@ static void draw_cartpusher(building_info_context *c, struct figure_t *f)
         if (phrase_height > 60) {
             y_base += 8;
         }
+        struct building_t *source_building = &all_buildings[f->building_id];
+        struct building_t *target_building = &all_buildings[f->destination_building_id];
         if (is_returning) {
             width = lang_text_draw(129, 16, x_base, y_base, FONT_NORMAL_BROWN);
-            width += lang_text_draw(41, source_building->type, x_base + width, y_base, FONT_NORMAL_BROWN);
+            width += text_draw(all_buildings_strings[source_building->type], x_base + width, y_base, FONT_NORMAL_BROWN, COLOR_BLACK);
             width += lang_text_draw(129, 14, x_base + width, y_base, FONT_NORMAL_BROWN);
-            lang_text_draw(41, target_building->type, x_base + width, y_base, FONT_NORMAL_BROWN);
+            text_draw(all_buildings_strings[target_building->type], x_base + width, y_base, FONT_NORMAL_BROWN, COLOR_BLACK);
         } else {
             width = lang_text_draw(129, 15, x_base, y_base, FONT_NORMAL_BROWN);
-            width += lang_text_draw(41, target_building->type, x_base + width, y_base, FONT_NORMAL_BROWN);
+            width += text_draw(all_buildings_strings[target_building->type], x_base + width, y_base, FONT_NORMAL_BROWN, COLOR_BLACK);
             width += lang_text_draw(129, 14, x_base + width, y_base, FONT_NORMAL_BROWN);
-            lang_text_draw(41, source_building->type, x_base + width, y_base, FONT_NORMAL_BROWN);
+            text_draw(all_buildings_strings[source_building->type], x_base + width, y_base, FONT_NORMAL_BROWN, COLOR_BLACK);
         }
     }
 }

@@ -108,8 +108,8 @@ void figure_missionary_action(struct figure_t *f)
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
-    figure_image_increase_offset(f, 12);
     roamer_action(f, 1);
+    figure_image_increase_offset(f, 12);
     f->image_id = image_group(GROUP_FIGURE_MISSIONARY) + figure_image_direction(f) + 8 * f->image_offset;
 }
 
@@ -118,8 +118,8 @@ void figure_patrician_action(struct figure_t *f)
     if (all_buildings[f->building_id].state != BUILDING_STATE_IN_USE) {
         f->state = FIGURE_STATE_DEAD;
     }
-    figure_image_increase_offset(f, 12);
     roamer_action(f, 1);
+    figure_image_increase_offset(f, 12);
     f->image_id = image_group(GROUP_FIGURE_PATRICIAN) + figure_image_direction(f) + 8 * f->image_offset;
 }
 
@@ -129,8 +129,8 @@ void figure_labor_seeker_action(struct figure_t *f)
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id2 != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
-    figure_image_increase_offset(f, 12);
     roamer_action(f, 1);
+    figure_image_increase_offset(f, 12);
     f->image_id = image_group(GROUP_FIGURE_LABOR_SEEKER) + figure_image_direction(f) + 8 * f->image_offset;
 }
 
@@ -140,7 +140,6 @@ void figure_market_trader_action(struct figure_t *f)
     if (market->state != BUILDING_STATE_IN_USE || market->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
-    figure_image_increase_offset(f, 12);
     if (f->action_state == FIGURE_ACTION_ROAMING) {
         // force return on out of stock
         int stock = building_market_get_max_food_stock(market) +
@@ -150,6 +149,7 @@ void figure_market_trader_action(struct figure_t *f)
         }
     }
     roamer_action(f, 1);
+    figure_image_increase_offset(f, 12);
     f->image_id = image_group(GROUP_FIGURE_MARKET_LADY) + figure_image_direction(f) + 8 * f->image_offset;
 }
 
@@ -161,7 +161,6 @@ void figure_tax_collector_action(struct figure_t *f)
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
         f->state = FIGURE_STATE_DEAD;
     }
-    figure_image_increase_offset(f, 12);
 
     switch (f->action_state) {
         case FIGURE_ACTION_TAX_COLLECTOR_CREATED:
@@ -219,5 +218,6 @@ void figure_tax_collector_action(struct figure_t *f)
             }
             break;
     }
+    figure_image_increase_offset(f, 12);
     f->image_id = image_group(GROUP_FIGURE_TAX_COLLECTOR) + figure_image_direction(f) + 8 * f->image_offset;
 }

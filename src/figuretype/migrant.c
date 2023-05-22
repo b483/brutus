@@ -52,10 +52,11 @@ void figure_create_homeless(int x, int y, int num_people)
     city_population_remove_homeless(num_people);
 }
 
-static void update_direction_and_image(struct figure_t *f)
+static void update_migrant_dir_and_image(struct figure_t *f)
 {
-    if (f->action_state == FIGURE_ACTION_IMMIGRANT_ARRIVING ||
-        f->action_state == FIGURE_ACTION_EMIGRANT_LEAVING) {
+    figure_image_increase_offset(f, 12);
+    f->image_id = image_group(GROUP_FIGURE_MIGRANT) + figure_image_direction(f) + 8 * f->image_offset;
+    if (f->action_state == FIGURE_ACTION_IMMIGRANT_ARRIVING || f->action_state == FIGURE_ACTION_EMIGRANT_LEAVING) {
         int dir = figure_image_direction(f);
         f->cart_image_id = image_group(GROUP_FIGURE_MIGRANT_CART) + dir;
         figure_image_set_cart_offset(f, (dir + 4) % 8);
@@ -94,12 +95,9 @@ void figure_immigrant_action(struct figure_t *f)
         return;
     }
 
-    figure_image_increase_offset(f, 12);
-
     switch (f->action_state) {
         case FIGURE_ACTION_IMMIGRANT_CREATED:
             f->is_ghost = 1;
-            f->image_offset = 0;
             f->wait_ticks--;
             if (f->wait_ticks <= 0) {
                 int x_road, y_road;
@@ -159,20 +157,16 @@ void figure_immigrant_action(struct figure_t *f)
             f->is_ghost = f->in_building_wait_ticks ? 1 : 0;
             break;
     }
-    update_direction_and_image(f);
-    f->image_id = image_group(GROUP_FIGURE_MIGRANT) + figure_image_direction(f) + 8 * f->image_offset;
+    update_migrant_dir_and_image(f);
 }
 
 void figure_emigrant_action(struct figure_t *f)
 {
     f->cart_image_id = 0;
 
-    figure_image_increase_offset(f, 12);
-
     switch (f->action_state) {
         case FIGURE_ACTION_EMIGRANT_CREATED:
             f->is_ghost = 1;
-            f->image_offset = 0;
             f->wait_ticks++;
             if (f->wait_ticks >= 5) {
                 int x_road, y_road;
@@ -207,14 +201,11 @@ void figure_emigrant_action(struct figure_t *f)
             }
             break;
     }
-    update_direction_and_image(f);
-    f->image_id = image_group(GROUP_FIGURE_MIGRANT) + figure_image_direction(f) + 8 * f->image_offset;
+    update_migrant_dir_and_image(f);
 }
 
 void figure_homeless_action(struct figure_t *f)
 {
-    figure_image_increase_offset(f, 12);
-
     switch (f->action_state) {
         case FIGURE_ACTION_HOMELESS_CREATED:
             f->image_offset = 0;
@@ -311,5 +302,6 @@ void figure_homeless_action(struct figure_t *f)
             }
             break;
     }
+    figure_image_increase_offset(f, 12);
     f->image_id = image_group(GROUP_FIGURE_HOMELESS) + figure_image_direction(f) + 8 * f->image_offset;
 }

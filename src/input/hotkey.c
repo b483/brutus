@@ -104,6 +104,71 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
         case HOTKEY_GO_TO_PROBLEM:
             def->action = &data.hotkey_state.go_to_problem;
             break;
+        case HOTKEY_SHOW_OVERLAY_WATER:
+            def->action = &data.hotkey_state.show_overlay;
+            def->value = OVERLAY_WATER;
+            break;
+        case HOTKEY_SHOW_OVERLAY_FIRE:
+            def->action = &data.hotkey_state.show_overlay;
+            def->value = OVERLAY_FIRE;
+            break;
+        case HOTKEY_SHOW_OVERLAY_DAMAGE:
+            def->action = &data.hotkey_state.show_overlay;
+            def->value = OVERLAY_DAMAGE;
+            break;
+        case HOTKEY_SHOW_OVERLAY_CRIME:
+            def->action = &data.hotkey_state.show_overlay;
+            def->value = OVERLAY_CRIME;
+            break;
+        case HOTKEY_SHOW_OVERLAY_PROBLEMS:
+            def->action = &data.hotkey_state.show_overlay;
+            def->value = OVERLAY_PROBLEMS;
+            break;
+        case HOTKEY_GO_TO_BOOKMARK_1:
+            def->action = &data.hotkey_state.go_to_bookmark;
+            def->value = 1;
+            break;
+        case HOTKEY_GO_TO_BOOKMARK_2:
+            def->action = &data.hotkey_state.go_to_bookmark;
+            def->value = 2;
+            break;
+        case HOTKEY_GO_TO_BOOKMARK_3:
+            def->action = &data.hotkey_state.go_to_bookmark;
+            def->value = 3;
+            break;
+        case HOTKEY_GO_TO_BOOKMARK_4:
+            def->action = &data.hotkey_state.go_to_bookmark;
+            def->value = 4;
+            break;
+        case HOTKEY_SET_BOOKMARK_1:
+            def->action = &data.hotkey_state.set_bookmark;
+            def->value = 1;
+            break;
+        case HOTKEY_SET_BOOKMARK_2:
+            def->action = &data.hotkey_state.set_bookmark;
+            def->value = 2;
+            break;
+        case HOTKEY_SET_BOOKMARK_3:
+            def->action = &data.hotkey_state.set_bookmark;
+            def->value = 3;
+            break;
+        case HOTKEY_SET_BOOKMARK_4:
+            def->action = &data.hotkey_state.set_bookmark;
+            def->value = 4;
+            break;
+        case HOTKEY_EDITOR_TOGGLE_BATTLE_INFO:
+            def->action = &data.hotkey_state.toggle_editor_battle_info;
+            break;
+        case HOTKEY_CHEAT_MONEY:
+            def->action = &data.hotkey_state.cheat_money;
+            def->repeatable = 1;
+            break;
+        case HOTKEY_CHEAT_INVASION:
+            def->action = &data.hotkey_state.cheat_invasion;
+            break;
+        case HOTKEY_CHEAT_VICTORY:
+            def->action = &data.hotkey_state.cheat_victory;
+            break;
         case HOTKEY_BUILD_CLONE:
             def->action = &data.hotkey_state.clone_building;
             break;
@@ -393,71 +458,6 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
         case HOTKEY_BUILD_WAREHOUSE:
             def->action = &data.hotkey_state.building;
             def->value = BUILDING_WAREHOUSE;
-            break;
-        case HOTKEY_SHOW_OVERLAY_WATER:
-            def->action = &data.hotkey_state.show_overlay;
-            def->value = OVERLAY_WATER;
-            break;
-        case HOTKEY_SHOW_OVERLAY_FIRE:
-            def->action = &data.hotkey_state.show_overlay;
-            def->value = OVERLAY_FIRE;
-            break;
-        case HOTKEY_SHOW_OVERLAY_DAMAGE:
-            def->action = &data.hotkey_state.show_overlay;
-            def->value = OVERLAY_DAMAGE;
-            break;
-        case HOTKEY_SHOW_OVERLAY_CRIME:
-            def->action = &data.hotkey_state.show_overlay;
-            def->value = OVERLAY_CRIME;
-            break;
-        case HOTKEY_SHOW_OVERLAY_PROBLEMS:
-            def->action = &data.hotkey_state.show_overlay;
-            def->value = OVERLAY_PROBLEMS;
-            break;
-        case HOTKEY_GO_TO_BOOKMARK_1:
-            def->action = &data.hotkey_state.go_to_bookmark;
-            def->value = 1;
-            break;
-        case HOTKEY_GO_TO_BOOKMARK_2:
-            def->action = &data.hotkey_state.go_to_bookmark;
-            def->value = 2;
-            break;
-        case HOTKEY_GO_TO_BOOKMARK_3:
-            def->action = &data.hotkey_state.go_to_bookmark;
-            def->value = 3;
-            break;
-        case HOTKEY_GO_TO_BOOKMARK_4:
-            def->action = &data.hotkey_state.go_to_bookmark;
-            def->value = 4;
-            break;
-        case HOTKEY_SET_BOOKMARK_1:
-            def->action = &data.hotkey_state.set_bookmark;
-            def->value = 1;
-            break;
-        case HOTKEY_SET_BOOKMARK_2:
-            def->action = &data.hotkey_state.set_bookmark;
-            def->value = 2;
-            break;
-        case HOTKEY_SET_BOOKMARK_3:
-            def->action = &data.hotkey_state.set_bookmark;
-            def->value = 3;
-            break;
-        case HOTKEY_SET_BOOKMARK_4:
-            def->action = &data.hotkey_state.set_bookmark;
-            def->value = 4;
-            break;
-        case HOTKEY_EDITOR_TOGGLE_BATTLE_INFO:
-            def->action = &data.hotkey_state.toggle_editor_battle_info;
-            break;
-        case HOTKEY_CHEAT_MONEY:
-            def->action = &data.hotkey_state.cheat_money;
-            def->repeatable = 1;
-            break;
-        case HOTKEY_CHEAT_INVASION:
-            def->action = &data.hotkey_state.cheat_invasion;
-            break;
-        case HOTKEY_CHEAT_VICTORY:
-            def->action = &data.hotkey_state.cheat_victory;
             break;
         default:
             def->action = 0;

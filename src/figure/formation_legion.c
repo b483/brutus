@@ -239,7 +239,7 @@ void update_legion_formations(void)
                     }
                 }
             }
-            if (city_data.figure.enemies <= 0) {
+            if (!city_data.figure.enemies) {
                 clear_formation_combat_counters(m);
             }
             if (m->morale > ROUT_MORALE_THRESHOLD) {
@@ -331,7 +331,9 @@ void update_legion_formations(void)
                         }
                     }
                     m->routed = 1;
-                    sound_speech_play_file("wavs/barbarian_war_cry.wav");
+                    if (city_data.figure.enemies) {
+                        sound_speech_play_file("wavs/barbarian_war_cry.wav");
+                    }
                 }
             }
         }

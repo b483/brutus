@@ -175,6 +175,8 @@ struct house_properties_t {
 
 extern struct house_properties_t house_properties[MAX_HOUSE_TYPES];
 
+extern uint8_t all_buildings_strings[][23];
+
 struct building_t *building_main(struct building_t *b);
 
 struct building_t *building_next(struct building_t *b);
@@ -186,6 +188,8 @@ void building_clear_related_data(struct building_t *b);
 void building_update_state(void);
 
 void building_update_desirability(void);
+
+int align_bulding_type_index_to_strings(int building_type_index);
 
 int building_is_house(building_type type);
 

@@ -35,9 +35,7 @@ void figure_military_standard_action(struct figure_t *f)
 static void update_image(struct figure_t *f, struct formation_t *m)
 {
     int dir;
-    if (f->action_state == FIGURE_ACTION_ATTACK) {
-        dir = f->attack_direction;
-    } else if (f->is_shooting) {
+    if (f->is_shooting) {
         dir = f->direction;
         m->direction = f->direction;
     } else if (f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD) {
@@ -50,37 +48,17 @@ static void update_image(struct figure_t *f, struct formation_t *m)
     dir = figure_image_normalize_direction(dir);
     if (f->type == FIGURE_FORT_JAVELIN) {
         int image_id = image_group(GROUP_BUILDING_FORT_JAVELIN);
-        if (f->action_state == FIGURE_ACTION_ATTACK) {
-            if (f->attack_image_offset < 12) {
-                f->image_id = image_id + 96 + dir;
-            } else {
-                f->image_id = image_id + 96 + dir + 8 * ((f->attack_image_offset - 12) / 2);
-            }
-        } else if (f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD) {
+        if (f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD) {
             f->image_id = image_id + 96 + dir + 8 * figure_image_missile_launcher_offset(f);
         } else {
             f->image_id = image_id + dir + 8 * f->image_offset;
         }
     } else if (f->type == FIGURE_FORT_MOUNTED) {
         int image_id = image_group(GROUP_FIGURE_FORT_MOUNTED);
-        if (f->action_state == FIGURE_ACTION_ATTACK) {
-            if (f->attack_image_offset < 12) {
-                f->image_id = image_id + 96 + dir;
-            } else {
-                f->image_id = image_id + 96 + dir + 8 * ((f->attack_image_offset - 12) / 2);
-            }
-        } else {
-            f->image_id = image_id + dir + 8 * f->image_offset;
-        }
+        f->image_id = image_id + dir + 8 * f->image_offset;
     } else if (f->type == FIGURE_FORT_LEGIONARY) {
         int image_id = image_group(GROUP_BUILDING_FORT_LEGIONARY);
-        if (f->action_state == FIGURE_ACTION_ATTACK) {
-            if (f->attack_image_offset < 12) {
-                f->image_id = image_id + 96 + dir;
-            } else {
-                f->image_id = image_id + 96 + dir + 8 * ((f->attack_image_offset - 12) / 2);
-            }
-        } else if (f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD) {
+        if (f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD) {
             if (f->figure_is_halted && m->layout == FORMATION_TORTOISE && m->missile_attack_timeout) {
                 f->image_id = image_id + dir + 144;
             } else {

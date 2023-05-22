@@ -1,6 +1,6 @@
 #include "hotkey_config.h"
 
-#include "building/type.h"
+#include "building/building.h"
 #include "core/hotkey_config.h"
 #include "core/image_group.h"
 #include "core/lang.h"
@@ -63,6 +63,27 @@ static hotkey_widget hotkey_widgets[] = {
     {HOTKEY_SHOW_EMPIRE_MAP},
     {HOTKEY_SHOW_MESSAGES},
     {HOTKEY_GO_TO_PROBLEM},
+    {HOTKEY_HEADER},
+    {HOTKEY_SHOW_OVERLAY_WATER},
+    {HOTKEY_SHOW_OVERLAY_FIRE},
+    {HOTKEY_SHOW_OVERLAY_DAMAGE},
+    {HOTKEY_SHOW_OVERLAY_CRIME},
+    {HOTKEY_SHOW_OVERLAY_PROBLEMS},
+    {HOTKEY_HEADER},
+    {HOTKEY_GO_TO_BOOKMARK_1},
+    {HOTKEY_GO_TO_BOOKMARK_2},
+    {HOTKEY_GO_TO_BOOKMARK_3},
+    {HOTKEY_GO_TO_BOOKMARK_4},
+    {HOTKEY_SET_BOOKMARK_1},
+    {HOTKEY_SET_BOOKMARK_2},
+    {HOTKEY_SET_BOOKMARK_3},
+    {HOTKEY_SET_BOOKMARK_4},
+    {HOTKEY_HEADER},
+    {HOTKEY_EDITOR_TOGGLE_BATTLE_INFO},
+    {HOTKEY_HEADER},
+    {HOTKEY_CHEAT_MONEY},
+    {HOTKEY_CHEAT_INVASION},
+    {HOTKEY_CHEAT_VICTORY},
     {HOTKEY_HEADER},
     {HOTKEY_BUILD_CLONE},
     {HOTKEY_CYCLE_BUILDINGS},
@@ -146,27 +167,6 @@ static hotkey_widget hotkey_widgets[] = {
     {HOTKEY_BUILD_MARKET},
     {HOTKEY_BUILD_GRANARY},
     {HOTKEY_BUILD_WAREHOUSE},
-    {HOTKEY_HEADER},
-    {HOTKEY_SHOW_OVERLAY_WATER},
-    {HOTKEY_SHOW_OVERLAY_FIRE},
-    {HOTKEY_SHOW_OVERLAY_DAMAGE},
-    {HOTKEY_SHOW_OVERLAY_CRIME},
-    {HOTKEY_SHOW_OVERLAY_PROBLEMS},
-    {HOTKEY_HEADER},
-    {HOTKEY_GO_TO_BOOKMARK_1},
-    {HOTKEY_GO_TO_BOOKMARK_2},
-    {HOTKEY_GO_TO_BOOKMARK_3},
-    {HOTKEY_GO_TO_BOOKMARK_4},
-    {HOTKEY_SET_BOOKMARK_1},
-    {HOTKEY_SET_BOOKMARK_2},
-    {HOTKEY_SET_BOOKMARK_3},
-    {HOTKEY_SET_BOOKMARK_4},
-    {HOTKEY_HEADER},
-    {HOTKEY_EDITOR_TOGGLE_BATTLE_INFO},
-    {HOTKEY_HEADER},
-    {HOTKEY_CHEAT_MONEY},
-    {HOTKEY_CHEAT_INVASION},
-    {HOTKEY_CHEAT_VICTORY},
 };
 
 #define HOTKEY_X_OFFSET_1 270
@@ -252,110 +252,33 @@ static uint8_t hotkey_widget_strings[][29] = {
     "Show empire map", // 22
     "Show messages", // 23
     "Go to problem", // 24
-    "Construction hotkeys", // 25
-    "Clone building under cursor", // 26
-    "Cycle through buildings", // 27
-    "Cycle back through buildings", // 28
-    "Undo last building", // 29
-    "Housing", // 30 --- structures strings overlap with allowed_buildings
-    "Clear terrain", // 31
-    "Road", // 32
-    "Reservoir", // 33
-    "Aqueduct", // 34
-    "Fountain", // 35
-    "Well", // 36
-    "Barber", // 37
-    "Bathhouse", // 38
-    "Doctor", // 39
-    "Hospital", // 40
-    "Small temple: Ceres", // 41
-    "Small temple: Neptune", // 42
-    "Small temple: Mercury", // 43
-    "Small temple: Mars", // 44
-    "Small temple: Venus", // 45
-    "Large temple: Ceres", // 46
-    "Large temple: Neptune", // 47
-    "Large temple: Mercury", // 48
-    "Large temple: Mars", // 49
-    "Large temple: Venus", // 50
-    "Oracle", // 51
-    "School", // 52
-    "Academy", // 53
-    "Library", // 54
-    "Mission post", // 55
-    "Theater", // 56
-    "Amphitheater", // 57
-    "Colosseum", // 58
-    "Hippodrome", // 59
-    "Gladiator school", // 60
-    "Lion house", // 61
-    "Actor colony", // 62
-    "Chariot maker", // 63
-    "Forum", // 64
-    "Senate", // 65
-    "Governor's house", // 66
-    "Governor's villa", // 67
-    "Governor's palace", // 68
-    "Statue: Small", // 69
-    "Statue: Medium", // 70
-    "Statue: Large", // 71
-    "Triumphal arch", // 72
-    "Gardens", // 73
-    "Plaza", // 74
-    "Engineers post", // 75
-    "Bridge: Low", // 76
-    "Bridge: Ship", // 77
-    "Shipyard", // 78
-    "Dock", // 79
-    "Wharf", // 80
-    "Wall", // 81
-    "Tower", // 82
-    "Gatehouse", // 83
-    "Prefecture", // 84
-    "Fort: Legionaries", // 85
-    "Fort: Javelin", // 86
-    "Fort: Mounted", // 87
-    "Military academy", // 88
-    "Barracks", // 89
-    "Farm: Wheat", // 90
-    "Farm: Vegetables", // 91
-    "Farm: Fruit", // 92
-    "Farm: Olives", // 93
-    "Farm: Vines", // 94
-    "Farm: Pigs", // 95
-    "Clay pit", // 96
-    "Marble quarry", // 97
-    "Iron mine", // 98
-    "Timber yard", // 99
-    "Workshop: Wine", // 100
-    "Workshop: Oil", // 101
-    "Workshop: Weapons", // 102
-    "Workshop: Furniture", // 103
-    "Workshop: Pottery", // 104
-    "Market", // 105
-    "Granary", // 106
-    "Warehouse", // 107 ---
-    "Overlays", // 108
-    "Show water overlay", // 109
-    "Show fire overlay", // 110
-    "Damage overlay", // 111
-    "Crime overlay", // 112
-    "Problems overlay", // 113
-    "City map bookmarks", // 114
-    "Go to bookmark 1", // 115
-    "Go to bookmark 2", // 116
-    "Go to bookmark 3", // 117
-    "Go to bookmark 4", // 118
-    "Set bookmark 1", // 119
-    "Set bookmark 2", // 120
-    "Set bookmark 3", // 121
-    "Set bookmark 4", // 122
-    "Editor", // 123
-    "Toggle battle info", // 124
-    "Cheats", // 125
-    "Cheat: money", // 126
-    "Cheat: invasion", // 127
-    "Cheat: victory", // 128
+    "Overlays", // 25
+    "Show water overlay", // 26
+    "Show fire overlay", // 27
+    "Damage overlay", // 28
+    "Crime overlay", // 29
+    "Problems overlay", // 30
+    "City map bookmarks", // 31
+    "Go to bookmark 1", // 32
+    "Go to bookmark 2", // 33
+    "Go to bookmark 3", // 34
+    "Go to bookmark 4", // 35
+    "Set bookmark 1", // 36
+    "Set bookmark 2", // 37
+    "Set bookmark 3", // 38
+    "Set bookmark 4", // 39
+    "Editor", // 40
+    "Toggle battle info", // 41
+    "Cheats", // 42
+    "Cheat: money", // 43
+    "Cheat: invasion", // 44
+    "Cheat: victory", // 45
+    "Construction hotkeys", // 46
+    "Clone building under cursor", // 47
+    "Cycle through buildings", // 48
+    "Cycle back through buildings", // 49
+    "Undo last building", // 50
+    "Housing", // 51
 };
 
 static void init(void)
@@ -395,10 +318,15 @@ static void draw_background(void)
         hotkey_widget *widget = &hotkey_widgets[current_pos];
         int text_offset = y_base + 6 + 24 * i;
         if (current_pos == 0 || current_pos == 5 || current_pos == 12 || current_pos == 25
-        || current_pos == 108 || current_pos == 114 || current_pos == 123 || current_pos == 125) { // headers
+        || current_pos == 31 || current_pos == 40 || current_pos == 42 || current_pos == 46) { // headers
             text_draw(hotkey_widget_strings[current_pos], 32, text_offset, FONT_NORMAL_WHITE, 0);
         } else {
-            text_draw(hotkey_widget_strings[current_pos], 32, text_offset, FONT_NORMAL_GREEN, 0);
+            if (current_pos <= 51) { // number of entries in hotkey_widget_strings
+                text_draw(hotkey_widget_strings[current_pos], 32, text_offset, FONT_NORMAL_GREEN, 0);
+            } else {
+                int building_index = align_bulding_type_index_to_strings(current_pos - 50);
+                text_draw(all_buildings_strings[building_index], 32, text_offset, FONT_NORMAL_GREEN, 0); // reuse building strings
+            }
             const hotkey_mapping *mapping1 = &data.mappings[widget->action][0];
             if (mapping1->key) {
                 const uint8_t *keyname = key_combination_display_name(mapping1->key, mapping1->modifiers);

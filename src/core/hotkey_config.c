@@ -35,6 +35,23 @@ static const char *ini_keys[] = {
     "show_empire_map",
     "show_messages",
     "go_to_problem",
+    "show_overlay_water",
+    "show_overlay_fire",
+    "show_overlay_damage",
+    "show_overlay_crime",
+    "show_overlay_problems",
+    "go_to_bookmark_1",
+    "go_to_bookmark_2",
+    "go_to_bookmark_3",
+    "go_to_bookmark_4",
+    "set_bookmark_1",
+    "set_bookmark_2",
+    "set_bookmark_3",
+    "set_bookmark_4",
+    "editor_toggle_battle_info",
+    "cheat money",
+    "cheat invasion",
+    "cheat victory",
     "clone_building",
     "cycle_buildings",
     "cycle_buildings_reverse",
@@ -117,23 +134,6 @@ static const char *ini_keys[] = {
     "build_market",
     "build_granary",
     "build_warehouse",
-    "show_overlay_water",
-    "show_overlay_fire",
-    "show_overlay_damage",
-    "show_overlay_crime",
-    "show_overlay_problems",
-    "go_to_bookmark_1",
-    "go_to_bookmark_2",
-    "go_to_bookmark_3",
-    "go_to_bookmark_4",
-    "set_bookmark_1",
-    "set_bookmark_2",
-    "set_bookmark_3",
-    "set_bookmark_4",
-    "editor_toggle_battle_info",
-    "cheat money",
-    "cheat invasion",
-    "cheat victory",
 };
 
 static struct {
@@ -191,6 +191,27 @@ static void init_defaults(void)
     set_mapping(KEY_TYPE_2, KEY_MOD_NONE, HOTKEY_SHOW_EMPIRE_MAP);
     set_mapping(KEY_TYPE_GRAVE, KEY_MOD_NONE, HOTKEY_SHOW_MESSAGES);
     set_mapping(KEY_TYPE_GRAVE, KEY_MOD_ALT, HOTKEY_GO_TO_PROBLEM);
+    // Overlays
+    set_mapping(KEY_TYPE_W, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_WATER);
+    set_mapping(KEY_TYPE_F, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_FIRE);
+    set_mapping(KEY_TYPE_D, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_DAMAGE);
+    set_mapping(KEY_TYPE_C, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_CRIME);
+    set_mapping(KEY_TYPE_R, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_PROBLEMS);
+    // City map bookmarks
+    set_mapping(KEY_TYPE_F1, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_1);
+    set_mapping(KEY_TYPE_F2, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_2);
+    set_mapping(KEY_TYPE_F3, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_3);
+    set_mapping(KEY_TYPE_F4, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_4);
+    set_mapping(KEY_TYPE_F1, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_1);
+    set_mapping(KEY_TYPE_F2, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_2);
+    set_mapping(KEY_TYPE_F3, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_3);
+    set_mapping(KEY_TYPE_F4, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_4);
+    // Editor
+    set_mapping(KEY_TYPE_A, KEY_MOD_CTRL, HOTKEY_EDITOR_TOGGLE_BATTLE_INFO);
+    // Cheats
+    set_mapping(KEY_TYPE_COMMA, KEY_MOD_CTRL, HOTKEY_CHEAT_MONEY);
+    set_mapping(KEY_TYPE_PERIOD, KEY_MOD_CTRL, HOTKEY_CHEAT_INVASION);
+    set_mapping(KEY_TYPE_SLASH, KEY_MOD_CTRL, HOTKEY_CHEAT_VICTORY);
     // Construction hotkeys
     set_mapping(KEY_TYPE_Q, KEY_MOD_ALT, HOTKEY_BUILD_CLONE);
     set_mapping(KEY_TYPE_TAB, KEY_MOD_NONE, HOTKEY_CYCLE_BUILDINGS);
@@ -222,27 +243,6 @@ static void init_defaults(void)
     set_mapping(KEY_TYPE_X, KEY_MOD_NONE, HOTKEY_BUILD_MARKET);
     set_mapping(KEY_TYPE_V, KEY_MOD_NONE, HOTKEY_BUILD_GRANARY);
     set_mapping(KEY_TYPE_V, KEY_MOD_ALT, HOTKEY_BUILD_WAREHOUSE);
-    // Overlays
-    set_mapping(KEY_TYPE_W, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_WATER);
-    set_mapping(KEY_TYPE_F, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_FIRE);
-    set_mapping(KEY_TYPE_D, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_DAMAGE);
-    set_mapping(KEY_TYPE_C, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_CRIME);
-    set_mapping(KEY_TYPE_R, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_PROBLEMS);
-    // City map bookmarks
-    set_mapping(KEY_TYPE_F1, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_1);
-    set_mapping(KEY_TYPE_F2, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_2);
-    set_mapping(KEY_TYPE_F3, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_3);
-    set_mapping(KEY_TYPE_F4, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_4);
-    set_mapping(KEY_TYPE_F1, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_1);
-    set_mapping(KEY_TYPE_F2, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_2);
-    set_mapping(KEY_TYPE_F3, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_3);
-    set_mapping(KEY_TYPE_F4, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_4);
-    // Editor
-    set_mapping(KEY_TYPE_A, KEY_MOD_CTRL, HOTKEY_EDITOR_TOGGLE_BATTLE_INFO);
-    // Cheats
-    set_mapping(KEY_TYPE_COMMA, KEY_MOD_CTRL, HOTKEY_CHEAT_MONEY);
-    set_mapping(KEY_TYPE_PERIOD, KEY_MOD_CTRL, HOTKEY_CHEAT_INVASION);
-    set_mapping(KEY_TYPE_SLASH, KEY_MOD_CTRL, HOTKEY_CHEAT_VICTORY);
 }
 
 const hotkey_mapping *hotkey_for_action(hotkey_action action, int index)

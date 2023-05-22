@@ -121,8 +121,7 @@ static void determine_cartpusher_destination_food(struct figure_t *f, int road_n
 
 static void update_image(struct figure_t *f)
 {
-    int dir = figure_image_normalize_direction(
-        f->direction < 8 ? f->direction : f->previous_tile_direction);
+    int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
 
     f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + dir + 8 * f->image_offset;
     if (f->cart_image_id) {
@@ -145,7 +144,6 @@ static void reroute_cartpusher(struct figure_t *f)
 
 void figure_cartpusher_action(struct figure_t *f)
 {
-    figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     int road_network_id = map_road_network_get(f->grid_offset);
     struct building_t *b = &all_buildings[f->building_id];
@@ -259,6 +257,7 @@ void figure_cartpusher_action(struct figure_t *f)
             }
             break;
     }
+    figure_image_increase_offset(f, 12);
     update_image(f);
 }
 

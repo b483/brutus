@@ -7,9 +7,11 @@
 #include "figure/combat.h"
 #include "figure/formation_enemy.h"
 #include "figure/formation_legion.h"
+#include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "figure/sound.h"
+#include "figuretype/enemy.h"
 #include "map/building.h"
 #include "map/elevation.h"
 #include "map/figure.h"
@@ -445,6 +447,147 @@ void figure_combat_handle_attack(struct figure_t *f)
         f->action_state = f->action_state_before_attack;
         figure_route_remove(f);
     }
+
+    figure_image_increase_offset(f, 12);
+    int dir = get_direction(f);
+    switch (f->type) {
+        case FIGURE_GLADIATOR:
+        case FIGURE_ENEMY_GLADIATOR:
+            f->image_id = image_group(GROUP_FIGURE_GLADIATOR) + dir + 104 + 8 * (f->image_offset / 2);
+            break;
+        case FIGURE_LION_TAMER:
+            f->image_id = image_group(GROUP_FIGURE_LION_TAMER) + dir + 8 * f->image_offset;
+            break;
+        case FIGURE_TOWER_SENTRY:
+            if (f->attack_image_offset < 12) {
+                f->image_id = image_group(GROUP_FIGURE_TOWER_SENTRY) + 96 + figure_image_direction(f);
+            } else {
+                f->image_id = image_group(GROUP_FIGURE_TOWER_SENTRY) + 96 + figure_image_direction(f) + 8 * ((f->attack_image_offset - 12) / 2);
+                // some buffer images missing, img ids 6841+ are for corpse
+                if (f->image_id >= 6841) {
+                    f->image_id = f->image_id - 8;
+                }
+            }
+            break;
+        case FIGURE_PREFECT:
+            if (f->attack_image_offset >= 12) {
+                f->image_id = image_group(GROUP_FIGURE_PREFECT) + 104 + dir + 8 * ((f->attack_image_offset - 12) / 2);
+            } else {
+                f->image_id = image_group(GROUP_FIGURE_PREFECT) + 104 + dir;
+            }
+            break;
+        case FIGURE_FORT_JAVELIN:
+            if (f->attack_image_offset < 12) {
+                f->image_id = image_group(GROUP_BUILDING_FORT_JAVELIN) + 96 + dir;
+            } else {
+                f->image_id = image_group(GROUP_BUILDING_FORT_JAVELIN) + 96 + dir + 8 * ((f->attack_image_offset - 12) / 2);
+            }
+            break;
+        case FIGURE_FORT_MOUNTED:
+            if (f->attack_image_offset < 12) {
+                f->image_id = image_group(GROUP_FIGURE_FORT_MOUNTED) + 96 + dir;
+            } else {
+                f->image_id = image_group(GROUP_FIGURE_FORT_MOUNTED) + 96 + dir + 8 * ((f->attack_image_offset - 12) / 2);
+            }
+            break;
+        case FIGURE_FORT_LEGIONARY:
+            if (f->attack_image_offset < 12) {
+                f->image_id = image_group(GROUP_BUILDING_FORT_LEGIONARY) + 96 + f->attack_direction;
+            } else {
+                f->image_id = image_group(GROUP_BUILDING_FORT_LEGIONARY) + 96 + f->attack_direction + 8 * ((f->attack_image_offset - 12) / 2);
+            }
+            break;
+        case FIGURE_INDIGENOUS_NATIVE:
+        case FIGURE_ENEMY_BARBARIAN_SWORDSMAN:
+            if (f->attack_image_offset >= 12) {
+                f->image_id = 393 + dir + 8 * ((f->attack_image_offset - 12) / 2);
+            } else {
+                f->image_id = 393 + dir;
+            }
+            break;
+        case FIGURE_WOLF:
+            f->image_id = image_group(GROUP_FIGURE_WOLF) + 104 + dir + 8 * (f->attack_image_offset / 4);
+            break;
+        case FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN:
+        case FIGURE_ENEMY_BRITON_SWORDSMAN:
+        case FIGURE_ENEMY_CELT_SWORDSMAN:
+        case FIGURE_ENEMY_PICT_SWORDSMAN:
+        case FIGURE_ENEMY_EGYPTIAN_SWORDSMAN:
+        case FIGURE_ENEMY_ETRUSCAN_SWORDSMAN:
+        case FIGURE_ENEMY_SAMNITE_SWORDSMAN:
+        case FIGURE_ENEMY_GAUL_SWORDSMAN:
+        case FIGURE_ENEMY_HELVETIUS_SWORDSMAN:
+        case FIGURE_ENEMY_GREEK_SWORDSMAN:
+        case FIGURE_ENEMY_MACEDONIAN_SWORDSMAN:
+        case FIGURE_ENEMY_PERGAMUM_SWORDSMAN:
+        case FIGURE_ENEMY_IBERIAN_SWORDSMAN:
+        case FIGURE_ENEMY_JUDEAN_SWORDSMAN:
+        case FIGURE_ENEMY_SELEUCID_SWORDSMAN:
+            if (f->attack_image_offset >= 12) {
+                f->image_id = 545 + dir + 8 * ((f->attack_image_offset - 12) / 2);
+            } else {
+                f->image_id = 545 + dir;
+            }
+            break;
+        case FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT:
+        case FIGURE_ENEMY_EGYPTIAN_CAMEL:
+        case FIGURE_ENEMY_HUN_MOUNTED_ARCHER:
+        case FIGURE_ENEMY_GOTH_MOUNTED_ARCHER:
+        case FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER:
+            f->image_id = 601 + dir + 8 * f->image_offset;
+            break;
+        case FIGURE_ENEMY_BRITON_CHARIOT:
+        case FIGURE_ENEMY_CELT_CHARIOT:
+        case FIGURE_ENEMY_PICT_CHARIOT:
+            f->image_id = 697 + dir + 8 * (f->image_offset / 2);
+            break;
+        case FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER:
+        case FIGURE_ENEMY_SAMNITE_SPEAR_THROWER:
+        case FIGURE_ENEMY_GREEK_SPEAR_THROWER:
+        case FIGURE_ENEMY_MACEDONIAN_SPEAR_THROWER:
+        case FIGURE_ENEMY_PERGAMUM_ARCHER:
+        case FIGURE_ENEMY_IBERIAN_SPEAR_THROWER:
+        case FIGURE_ENEMY_JUDEAN_SPEAR_THROWER:
+        case FIGURE_ENEMY_SELEUCID_SPEAR_THROWER:
+            if (f->attack_image_offset >= 12) {
+                f->image_id = 745 + dir + 8 * ((f->attack_image_offset - 12) / 2);
+            } else {
+                f->image_id = 745 + dir;
+            }
+            break;
+        case FIGURE_ENEMY_GAUL_AXEMAN:
+        case FIGURE_ENEMY_HELVETIUS_AXEMAN:
+            if (f->attack_image_offset >= 12) {
+                f->image_id = 697 + dir + 8 * ((f->attack_image_offset - 12) / 2);
+            } else {
+                f->image_id = 697 + dir;
+            }
+            break;
+        case FIGURE_ENEMY_HUN_SWORDSMAN:
+        case FIGURE_ENEMY_GOTH_SWORDSMAN:
+        case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
+            if (f->attack_image_offset >= 12) {
+                f->image_id = 545 + dir + 8 * ((f->attack_image_offset - 12) / 2);
+            } else {
+                f->image_id = 545 + dir;
+            }
+            break;
+        case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
+        case FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER:
+            if (f->attack_image_offset >= 12) {
+                f->image_id = 593 + dir + 8 * ((f->attack_image_offset - 12) / 2);
+            } else {
+                f->image_id = 593 + dir;
+            }
+            break;
+        case FIGURE_ENEMY_CAESAR_LEGIONARY:
+            if (f->attack_image_offset >= 12) {
+                f->image_id = image_group(GROUP_FIGURE_CAESAR_LEGIONARY) + dir + 8 * ((f->attack_image_offset - 12) / 2);
+            } else {
+                f->image_id = image_group(GROUP_FIGURE_CAESAR_LEGIONARY) + dir;
+            }
+            break;
+    }
     return;
 }
 
@@ -596,5 +739,6 @@ void update_counters_on_unit_death(struct figure_t *dead_unit)
         city_data.figure.enemies--;
     } else if (figure_properties[dead_unit->type].is_caesar_legion_unit) {
         city_data.figure.imperial_soldiers--;
+        city_data.emperor.invasion.soldiers_killed++;
     }
 }
