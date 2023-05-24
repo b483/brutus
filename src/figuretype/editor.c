@@ -1,7 +1,6 @@
 #include "editor.h"
 
 #include "core/image.h"
-#include "figure/image.h"
 #include "map/figure.h"
 #include "map/grid.h"
 #include "scenario/data.h"

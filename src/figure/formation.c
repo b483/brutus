@@ -74,39 +74,6 @@ void add_figure_to_formation(struct figure_t *f, struct formation_t *m)
     }
 }
 
-void refresh_formation_figure_indexes(struct figure_t *unit_to_remove)
-{
-    struct formation_t *m = 0;
-
-    if (figure_properties[unit_to_remove->type].is_player_legion_unit) {
-        m = &legion_formations[unit_to_remove->formation_id];
-    } else if (figure_properties[unit_to_remove->type].is_herd_animal) {
-        m = &herd_formations[unit_to_remove->formation_id];
-    } else {
-        m = &enemy_formations[unit_to_remove->formation_id];
-    }
-
-    if (m) {
-        for (int i = 0; i < m->num_figures; i++) {
-            m->figures[i] = 0;
-        }
-        m->num_figures = 0;
-        for (int i = 1; i < MAX_FIGURES; i++) {
-            struct figure_t *unit = &figures[i];
-            if (!figure_is_dead(unit) && unit->type == m->figure_type && unit->formation_id == m->id) {
-                for (int j = 0; j < m->max_figures; j++) {
-                    if (!m->figures[j]) {
-                        m->figures[j] = unit->id;
-                        m->num_figures++;
-                        unit->index_in_formation = j;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-}
-
 void decrease_formation_combat_counters(struct formation_t *m)
 {
     if (m->missile_attack_timeout) {
@@ -145,38 +112,6 @@ void update_formation_morale_after_death(struct formation_t *m)
 
 void formation_update_all(void)
 {
-    // clear empty herd formations
-    for (int i = 0; i < MAX_HERD_POINTS; i++) {
-        if (herd_formations[i].in_use && !herd_formations[i].num_figures) {
-            int all_units_decayed = 1;
-            for (int j = 0; j < herd_formations[i].max_figures; j++) {
-                if (figures[herd_formations[i].figures[j]].state != FIGURE_STATE_DEAD) {
-                    all_units_decayed = 0;
-                    break;
-                }
-            }
-            if (all_units_decayed) {
-                memset(&herd_formations[i], 0, sizeof(struct formation_t));
-                herd_formations[i].id = i;
-            }
-        }
-    }
-    // clear empty enemy formations
-    for (int i = 0; i < MAX_ENEMY_FORMATIONS; i++) {
-        if (enemy_formations[i].in_use && !enemy_formations[i].num_figures) {
-            int all_units_decayed = 1;
-            for (int j = 0; j < enemy_formations[i].max_figures; j++) {
-                if (figures[enemy_formations[i].figures[j]].state != FIGURE_STATE_DEAD) {
-                    all_units_decayed = 0;
-                    break;
-                }
-            }
-            if (all_units_decayed) {
-                memset(&enemy_formations[i], 0, sizeof(struct formation_t));
-                enemy_formations[i].id = i;
-            }
-        }
-    }
     update_legion_formations();
     update_enemy_formations();
     if (city_data.figure.animals) {

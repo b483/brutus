@@ -70,7 +70,7 @@ static int get_target_on_tile(struct figure_t *projectile)
         int figure_id = map_figures.items[projectile->grid_offset];
         while (figure_id) {
             struct figure_t *target = &figures[figure_id];
-            if (target->action_state != FIGURE_ACTION_CORPSE && target->is_targetable) {
+            if (figure_is_alive(target) && target->is_targetable) {
                 if (figure_properties[shooter->type].is_friendly_armed_unit || figure_properties[shooter->type].is_player_legion_unit) {
                     if (is_valid_target_for_player_unit(target)) {
                         return target->id;
@@ -92,12 +92,12 @@ void figure_explosion_cloud_action(struct figure_t *f)
     f->use_cross_country = 1;
     f->progress_on_tile++;
     if (f->progress_on_tile > 44) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
+        return;
     }
     figure_movement_move_ticks_cross_country(f, f->speed_multiplier);
     if (f->progress_on_tile < 48) {
-        f->image_id = image_group(GROUP_FIGURE_EXPLOSION) +
-            CLOUD_IMAGE_OFFSETS[f->progress_on_tile / 2];
+        f->image_id = image_group(GROUP_FIGURE_EXPLOSION) + CLOUD_IMAGE_OFFSETS[f->progress_on_tile / 2];
     } else {
         f->image_id = image_group(GROUP_FIGURE_EXPLOSION) + 7;
     }
@@ -121,7 +121,7 @@ static void missile_hit_target(struct figure_t *projectile, struct figure_t *tar
         target->damage = target_damage;
     } else { // kill target
         target->damage = figure_properties[target->type].max_damage + 1;
-        target->action_state = FIGURE_ACTION_CORPSE;
+        target->is_corpse = 1;
         target->is_targetable = 0;
         target->wait_ticks = 0;
         figure_play_die_sound(target);
@@ -131,10 +131,7 @@ static void missile_hit_target(struct figure_t *projectile, struct figure_t *tar
             update_formation_morale_after_death(&enemy_formations[target->formation_id]);
         }
         clear_targeting_on_unit_death(target);
-        update_counters_on_unit_death(target);
-        refresh_formation_figure_indexes(target);
     }
-    projectile->state = FIGURE_STATE_DEAD;
     if (figure_properties[target->type].is_player_legion_unit) {
         legion_formations[target->formation_id].missile_attack_timeout = 6;
     } else if (figure_properties[target->type].is_herd_animal) {
@@ -145,15 +142,13 @@ static void missile_hit_target(struct figure_t *projectile, struct figure_t *tar
     // clear targeting
     shooter->target_figure_id = 0;
     figure__remove_ranged_targeter_from_list(target, shooter);
+    figure_delete(projectile);
 }
 
 void figure_arrow_action(struct figure_t *projectile)
 {
     projectile->use_cross_country = 1;
     projectile->progress_on_tile++;
-    if (projectile->progress_on_tile > 120) {
-        projectile->state = FIGURE_STATE_DEAD;
-    }
     int should_die = figure_movement_move_ticks_cross_country(projectile, 8);
     int target_id = get_target_on_tile(projectile);
     if (target_id) {
@@ -161,20 +156,20 @@ void figure_arrow_action(struct figure_t *projectile)
         missile_hit_target(projectile, target);
         sound_effect_play(SOUND_EFFECT_ARROW_HIT);
     }
-    if (should_die || target_id) {
-        projectile->state = FIGURE_STATE_DEAD;
-    }
     int dir = (16 + projectile->direction - 2 * city_view_orientation()) % 16;
     projectile->image_id = image_group(GROUP_FIGURE_MISSILE) + 16 + dir;
+    if (projectile->progress_on_tile > 120) {
+        figure_delete(projectile);
+    }
+    if (should_die || target_id) {
+        figure_delete(projectile);
+    }
 }
 
 void figure_javelin_action(struct figure_t *projectile)
 {
     projectile->use_cross_country = 1;
     projectile->progress_on_tile++;
-    if (projectile->progress_on_tile > 120) {
-        projectile->state = FIGURE_STATE_DEAD;
-    }
     int should_die = figure_movement_move_ticks_cross_country(projectile, 4);
     int target_id = get_target_on_tile(projectile);
     if (target_id) {
@@ -182,20 +177,20 @@ void figure_javelin_action(struct figure_t *projectile)
         missile_hit_target(projectile, target);
         sound_effect_play(SOUND_EFFECT_JAVELIN);
     }
-    if (should_die || target_id) {
-        projectile->state = FIGURE_STATE_DEAD;
-    }
     int dir = (16 + projectile->direction - 2 * city_view_orientation()) % 16;
     projectile->image_id = image_group(GROUP_FIGURE_MISSILE) + dir;
+    if (should_die || target_id) {
+        figure_delete(projectile);
+    }
+    if (projectile->progress_on_tile > 120) {
+        figure_delete(projectile);
+    }
 }
 
 void figure_bolt_action(struct figure_t *projectile)
 {
     projectile->use_cross_country = 1;
     projectile->progress_on_tile++;
-    if (projectile->progress_on_tile > 120) {
-        projectile->state = FIGURE_STATE_DEAD;
-    }
     int should_die = figure_movement_move_ticks_cross_country(projectile, 10);
     int target_id = get_target_on_tile(projectile);
     if (target_id) {
@@ -203,10 +198,13 @@ void figure_bolt_action(struct figure_t *projectile)
         missile_hit_target(projectile, target);
         sound_effect_play(SOUND_EFFECT_BALLISTA_HIT_PERSON);
     }
-    if (should_die || target_id) {
-        sound_effect_play(SOUND_EFFECT_BALLISTA_HIT_GROUND);
-        projectile->state = FIGURE_STATE_DEAD;
-    }
     int dir = (16 + projectile->direction - 2 * city_view_orientation()) % 16;
     projectile->image_id = image_group(GROUP_FIGURE_MISSILE) + 32 + dir;
+    if (projectile->progress_on_tile > 120) {
+        figure_delete(projectile);
+    }
+    if (should_die || target_id) {
+        sound_effect_play(SOUND_EFFECT_BALLISTA_HIT_GROUND);
+        figure_delete(projectile);
+    }
 }

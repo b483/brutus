@@ -12,7 +12,6 @@
 #include "core/random.h"
 #include "figure/combat.h"
 #include "figure/formation_enemy.h"
-#include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "map/building.h"
@@ -58,7 +57,8 @@ static void generate_rioter(struct building_t *b)
             f->destination_y = y_target;
             f->destination_building_id = target_building_id;
         } else {
-            f->state = FIGURE_STATE_DEAD;
+            figure_delete(f);
+            return;
         }
         city_data.figure.rioters++;
     }
@@ -161,8 +161,8 @@ void figure_protestor_action(struct figure_t *f)
     figure_image_increase_offset(f, 64);
     f->wait_ticks++;
     if (f->wait_ticks > 200) {
-        f->state = FIGURE_STATE_DEAD;
-        f->image_offset = 0;
+        figure_delete(f);
+        return;
     }
     f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + CRIMINAL_OFFSETS[f->image_offset / 4] + 104;
 }
@@ -172,8 +172,8 @@ void figure_criminal_action(struct figure_t *f)
     figure_image_increase_offset(f, 32);
     f->wait_ticks++;
     if (f->wait_ticks > 200) {
-        f->state = FIGURE_STATE_DEAD;
-        f->image_offset = 0;
+        figure_delete(f);
+        return;
     }
     f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + CRIMINAL_OFFSETS[f->image_offset / 2] + 104;
 }
@@ -194,7 +194,8 @@ void figure_rioter_action(struct figure_t *f)
                     f->destination_building_id = building_id;
                     figure_route_remove(f);
                 } else {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             }
             break;
@@ -210,7 +211,8 @@ void figure_rioter_action(struct figure_t *f)
                     f->destination_building_id = building_id;
                     figure_route_remove(f);
                 } else {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
                 f->action_state = FIGURE_ACTION_RIOTER_CREATED;

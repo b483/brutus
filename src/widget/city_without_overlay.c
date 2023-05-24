@@ -305,10 +305,10 @@ static void draw_figures(int x, int y, int grid_offset)
     while (figure_id) {
         struct figure_t *f = &figures[figure_id];
         if (figure_id == draw_context.selected_figure_id) {
-            if (!f->is_ghost || f->height_adjusted_ticks) {
+            if (!f->is_invisible || f->height_adjusted_ticks) {
                 city_draw_selected_figure(f, x, y, draw_context.selected_figure_coord);
             }
-        } else if (!f->is_ghost) {
+        } else if (!f->is_invisible) {
             if (figure_properties[f->type].is_player_legion_unit && f->formation_id == draw_context.highlighted_formation) {
                 city_draw_figure(f, x, y, 1);
             } else {
@@ -465,7 +465,7 @@ static void draw_elevated_figures(int x, int y, int grid_offset)
     int figure_id = map_figure_at(grid_offset);
     while (figure_id > 0) {
         struct figure_t *f = &figures[figure_id];
-        if ((f->use_cross_country && !f->is_ghost) || f->height_adjusted_ticks) {
+        if ((f->use_cross_country && !f->is_invisible) || f->height_adjusted_ticks) {
             city_draw_figure(f, x, y, 0);
         }
         figure_id = f->next_figure_id_on_same_tile;

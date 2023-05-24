@@ -102,7 +102,7 @@ static int destination_is_clear(struct figure_t *legion_unit, int target_grid_of
     // check if any legion unit is heading towards the destination
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *f = &figures[i];
-        if (!figure_is_dead(f) && figure_properties[f->type].is_player_legion_unit && f->id != legion_unit->id) {
+        if (figure_is_alive(f) && figure_properties[f->type].is_player_legion_unit && f->id != legion_unit->id) {
             if (f->destination_grid_offset == target_grid_offset) {
                 if (f->formation_id == legion_unit->formation_id) { // same formation, stationary units may not have received the command to move yet
                     if (f->action_state == FIGURE_ACTION_SOLDIER_GOING_TO_STANDARD) {
@@ -182,28 +182,19 @@ void move_legion_formation_to(struct formation_t *m, map_tile *tile)
 
     for (int i = 0; i < m->num_figures && m->figures[i]; i++) {
         struct figure_t *f = &figures[m->figures[i]];
-        if (f->action_state != FIGURE_ACTION_CORPSE && f->action_state != FIGURE_ACTION_ATTACK) {
-            deploy_legion_unit_to_formation_location(f, m);
-        }
+        deploy_legion_unit_to_formation_location(f, m);
     }
 }
 
 void return_legion_formation_home(struct formation_t *m)
 {
     map_routing_calculate_distances(m->standard_x, m->standard_y);
-    if (map_routing_distance(map_grid_offset(figures[m->figures[0]].x, figures[m->figures[0]].y)) <= 0) {
-        return; // unable to route home
-    }
     m->standard_x = all_buildings[m->building_id].x + 3;
     m->standard_y = all_buildings[m->building_id].y - 1;
     update_legion_standard_map_location(m);
 
     for (int i = 0; i < MAX_FORMATION_FIGURES && m->figures[i]; i++) {
         struct figure_t *f = &figures[m->figures[i]];
-        if (f->action_state == FIGURE_ACTION_CORPSE ||
-            f->action_state == FIGURE_ACTION_ATTACK) {
-            continue;
-        }
         f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_FORT;
         figure_route_remove(f);
     }
@@ -242,9 +233,6 @@ void update_legion_formations(void)
             if (!city_data.figure.enemies) {
                 clear_formation_combat_counters(m);
             }
-            if (m->morale > ROUT_MORALE_THRESHOLD) {
-                m->routed = 0;
-            }
             // check formation military training status, send untrained units to train
             int formation_military_trained = 1;
             for (int n = 0; n < m->num_figures; n++) {
@@ -282,7 +270,7 @@ void update_legion_formations(void)
             int formation_at_rest = 1;
             for (int n = 0; n < m->num_figures; n++) {
                 struct figure_t *f = &figures[m->figures[n]];
-                if (f->action_state == FIGURE_ACTION_ATTACK
+                if (f->engaged_in_combat
                 || f->action_state == FIGURE_ACTION_SOLDIER_GOING_TO_STANDARD
                 || f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD
                 || f->action_state == FIGURE_ACTION_SOLDIER_MOPPING_UP
@@ -299,24 +287,24 @@ void update_legion_formations(void)
             // decrease damage
             for (int n = 0; n < m->num_figures; n++) {
                 struct figure_t *f = &figures[m->figures[n]];
-                if (!figure_is_dead(f) && f->action_state == FIGURE_ACTION_SOLDIER_AT_REST) {
+                if (figure_is_alive(f) && f->action_state == FIGURE_ACTION_SOLDIER_AT_REST) {
                     if (f->damage) {
                         f->damage--;
                     }
                 }
             }
 
-            if (m->morale <= ROUT_MORALE_THRESHOLD) {
+            if (m->morale > ROUT_MORALE_THRESHOLD) {
+                m->routed = 0;
+            } else {
                 m->standard_x = all_buildings[m->building_id].x + 3;
                 m->standard_y = all_buildings[m->building_id].y - 1;
                 update_legion_standard_map_location(m);
                 // flee back to fort
                 for (int n = 0; n < m->num_figures; n++) {
                     struct figure_t *f = &figures[m->figures[n]];
-                    if (f->action_state != FIGURE_ACTION_ATTACK &&
-                        f->action_state != FIGURE_ACTION_CORPSE &&
-                        f->action_state != FIGURE_ACTION_FLEEING) {
-                        f->action_state = FIGURE_ACTION_FLEEING;
+                    if (f->action_state != FIGURE_ACTION_SOLDIER_AT_REST) {
+                        f->is_fleeing = 1;
                         figure_route_remove(f);
                     }
                 }

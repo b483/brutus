@@ -10,7 +10,6 @@
 #include "core/image.h"
 #include "empire/object.h"
 #include "figure/combat.h"
-#include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "figure/trader.h"
@@ -278,17 +277,19 @@ void figure_docker_action(struct figure_t *f)
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     if (b->state != BUILDING_STATE_IN_USE) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
+        return;
     }
     if (b->type != BUILDING_DOCK && b->type != BUILDING_WHARF) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
+        return;
     }
     if (b->data.dock.num_ships) {
         b->data.dock.num_ships--;
     }
     if (b->data.dock.trade_ship_id) {
         struct figure_t *ship = &figures[b->data.dock.trade_ship_id];
-        if (ship->state != FIGURE_STATE_ALIVE || ship->type != FIGURE_TRADE_SHIP) {
+        if (!figure_is_alive(ship) || ship->type != FIGURE_TRADE_SHIP) {
             b->data.dock.trade_ship_id = 0;
         } else if (trader_has_traded_max(ship->trader_id)) {
             b->data.dock.trade_ship_id = 0;
@@ -326,7 +327,7 @@ void figure_docker_action(struct figure_t *f)
                 for (int i = 0; i < 3; i++) {
                     if (b->data.dock.docker_ids[i]) {
                         struct figure_t *docker = &figures[b->data.dock.docker_ids[i]];
-                        if (docker->id == b->data.dock.queued_docker_id && docker->state == FIGURE_STATE_ALIVE) {
+                        if (docker->id == b->data.dock.queued_docker_id && figure_is_alive(docker)) {
                             if (docker->action_state == FIGURE_ACTION_DOCKER_IMPORT_QUEUE ||
                                 docker->action_state == FIGURE_ACTION_DOCKER_EXPORT_QUEUE) {
                                 has_queued_docker = 1;
@@ -371,10 +372,12 @@ void figure_docker_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_DOCKER_EXPORT_GOING_TO_WAREHOUSE:
@@ -385,10 +388,12 @@ void figure_docker_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_DOCKER_EXPORT_RETURNING:
@@ -400,10 +405,12 @@ void figure_docker_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_DOCKER_IMPORT_RETURNING:
@@ -414,7 +421,8 @@ void figure_docker_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_DOCKER_IMPORT_AT_WAREHOUSE:

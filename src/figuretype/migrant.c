@@ -7,7 +7,6 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"
-#include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "map/road_access.h"
@@ -91,13 +90,13 @@ void figure_immigrant_action(struct figure_t *f)
 
     f->cart_image_id = 0;
     if (b->state != BUILDING_STATE_IN_USE || b->immigrant_figure_id != f->id || !b->house_size) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
         return;
     }
 
     switch (f->action_state) {
         case FIGURE_ACTION_IMMIGRANT_CREATED:
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             f->wait_ticks--;
             if (f->wait_ticks <= 0) {
                 int x_road, y_road;
@@ -107,12 +106,13 @@ void figure_immigrant_action(struct figure_t *f)
                     f->destination_y = y_road;
                     f->roam_length = 0;
                 } else {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             }
             break;
         case FIGURE_ACTION_IMMIGRANT_ARRIVING:
-            f->is_ghost = 0;
+            f->is_invisible = 0;
             figure_movement_move_ticks(f, 1);
             switch (f->direction) {
                 case DIR_FIGURE_AT_DESTINATION:
@@ -126,15 +126,14 @@ void figure_immigrant_action(struct figure_t *f)
                 case DIR_FIGURE_LOST:
                     b->immigrant_figure_id = 0;
                     b->distance_from_entry = 0;
-                    f->state = FIGURE_STATE_DEAD;
-                    break;
+                    figure_delete(f);
+                    return;
             }
             break;
         case FIGURE_ACTION_IMMIGRANT_ENTERING_HOUSE:
             f->use_cross_country = 1;
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
-                f->state = FIGURE_STATE_DEAD;
                 int max_people = house_properties[b->subtype.house_level].max_people;
                 if (b->house_is_merged) {
                     max_people *= 4;
@@ -153,8 +152,10 @@ void figure_immigrant_action(struct figure_t *f)
                 b->house_population_room = max_people - b->house_population;
                 city_population_add(f->migrant_num_people);
                 b->immigrant_figure_id = 0;
+                figure_delete(f);
+                return;
             }
-            f->is_ghost = f->in_building_wait_ticks ? 1 : 0;
+            f->is_invisible = f->in_building_wait_ticks ? 1 : 0;
             break;
     }
     update_migrant_dir_and_image(f);
@@ -166,12 +167,13 @@ void figure_emigrant_action(struct figure_t *f)
 
     switch (f->action_state) {
         case FIGURE_ACTION_EMIGRANT_CREATED:
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             f->wait_ticks++;
             if (f->wait_ticks >= 5) {
                 int x_road, y_road;
                 if (!map_closest_road_within_radius(f->x, f->y, 1, 5, &x_road, &y_road)) {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
                 f->action_state = FIGURE_ACTION_EMIGRANT_EXITING_HOUSE;
                 figure_movement_set_cross_country_destination(f, x_road, y_road);
@@ -180,7 +182,7 @@ void figure_emigrant_action(struct figure_t *f)
             break;
         case FIGURE_ACTION_EMIGRANT_EXITING_HOUSE:
             f->use_cross_country = 1;
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
                 f->action_state = FIGURE_ACTION_EMIGRANT_LEAVING;
                 f->destination_x = city_data.map.entry_point.x;
@@ -188,16 +190,17 @@ void figure_emigrant_action(struct figure_t *f)
                 f->roam_length = 0;
                 f->progress_on_tile = 15;
             }
-            f->is_ghost = f->in_building_wait_ticks ? 1 : 0;
+            f->is_invisible = f->in_building_wait_ticks ? 1 : 0;
             break;
         case FIGURE_ACTION_EMIGRANT_LEAVING:
             f->use_cross_country = 0;
-            f->is_ghost = 0;
+            f->is_invisible = 0;
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION ||
                 f->direction == DIR_FIGURE_REROUTE ||
                 f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
     }
@@ -223,7 +226,8 @@ void figure_homeless_action(struct figure_t *f)
                         f->destination_y = y_road;
                         f->roam_length = 0;
                     } else {
-                        f->state = FIGURE_STATE_DEAD;
+                        figure_delete(f);
+                        return;
                     }
                 } else {
                     f->action_state = FIGURE_ACTION_HOMELESS_LEAVING;
@@ -235,11 +239,12 @@ void figure_homeless_action(struct figure_t *f)
             }
             break;
         case FIGURE_ACTION_HOMELESS_GOING_TO_HOUSE:
-            f->is_ghost = 0;
+            f->is_invisible = 0;
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
                 all_buildings[f->immigrant_building_id].immigrant_figure_id = 0;
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             } else if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                 struct building_t *b = &all_buildings[f->immigrant_building_id];
                 f->action_state = FIGURE_ACTION_HOMELESS_ENTERING_HOUSE;
@@ -249,9 +254,8 @@ void figure_homeless_action(struct figure_t *f)
             break;
         case FIGURE_ACTION_HOMELESS_ENTERING_HOUSE:
             f->use_cross_country = 1;
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
-                f->state = FIGURE_STATE_DEAD;
                 struct building_t *b = &all_buildings[f->immigrant_building_id];
                 if (f->immigrant_building_id && building_is_house(b->type)) {
                     int max_people = house_properties[b->subtype.house_level].max_people;
@@ -273,12 +277,15 @@ void figure_homeless_action(struct figure_t *f)
                     city_population_add_homeless(f->migrant_num_people);
                     b->immigrant_figure_id = 0;
                 }
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_HOMELESS_LEAVING:
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             }

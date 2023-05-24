@@ -271,7 +271,7 @@ static void handle_hotkeys(const hotkeys *h)
     }
     if (h->return_legions_to_fort) {
         for (int i = 0; i < MAX_LEGIONS; i++) {
-            if (legion_formations[i].in_use && !legion_formations[i].in_distant_battle && !legion_formations[i].is_at_rest) {
+            if (legion_formations[i].in_use && !legion_formations[i].in_distant_battle) {
                 return_legion_formation_home(&legion_formations[i]);
             }
         }

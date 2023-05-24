@@ -137,11 +137,9 @@ static void set_herd_animals_in_motion(struct formation_t *m)
 {
     for (int j = 0; j < m->num_figures; j++) {
         struct figure_t *f = &figures[m->figures[j]];
-        if (f->action_state != FIGURE_ACTION_CORPSE && f->action_state != FIGURE_ACTION_ATTACK) {
-            f->destination_x = m->destination_x + HERD_FORMATION_LAYOUT_POSITION_X_OFFSETS[f->index_in_formation];
-            f->destination_y = m->destination_y + HERD_FORMATION_LAYOUT_POSITION_Y_OFFSETS[f->index_in_formation];
-            f->action_state = FIGURE_ACTION_HERD_ANIMAL_MOVING;
-        }
+        f->destination_x = m->destination_x + HERD_FORMATION_LAYOUT_POSITION_X_OFFSETS[f->index_in_formation];
+        f->destination_y = m->destination_y + HERD_FORMATION_LAYOUT_POSITION_Y_OFFSETS[f->index_in_formation];
+        f->action_state = FIGURE_ACTION_HERD_ANIMAL_MOVING;
     }
 }
 
@@ -163,7 +161,7 @@ static void set_herd_formation_in_motion(struct formation_t *m, int roam_distanc
     if (set_herd_roaming_destination(m, roam_distance)) {
         for (int j = 0; j < m->num_figures; j++) {
             struct figure_t *f = &figures[m->figures[j]];
-            if (f->type == FIGURE_SHEEP) {
+            if (f->type == FIGURE_SHEEP && figure_is_alive(f)) {
                 f->wait_ticks = f->id & 0x1f;
             }
             set_herd_animals_in_motion(m);
@@ -206,7 +204,7 @@ void update_herd_formations(void)
             }
             for (int j = 0; j < m->num_figures; j++) {
                 struct figure_t *f = &figures[m->figures[j]];
-                if (f->action_state == FIGURE_ACTION_ATTACK) {
+                if (f->engaged_in_combat) {
                     set_herd_formation_in_motion(m, roam_distance);
                     return;
                 }

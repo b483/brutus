@@ -40,7 +40,7 @@ static void generate_labor_seeker(struct building_t *b, int x, int y)
     }
     if (b->figure_id2) {
         struct figure_t *f = &figures[b->figure_id2];
-        if (!f->state || f->type != FIGURE_LABOR_SEEKER || f->building_id != b->id) {
+        if (!figure_is_alive(f) || f->type != FIGURE_LABOR_SEEKER || f->building_id != b->id) {
             b->figure_id2 = 0;
         }
     } else {
@@ -67,7 +67,7 @@ static int has_figure_of_types(struct building_t *b, int type1, int type2)
         return 0;
     }
     struct figure_t *f = &figures[b->figure_id];
-    if (f->state && f->building_id == b->id && (f->type == type1 || f->type == type2)) {
+    if (figure_is_alive(f) && f->building_id == b->id && (f->type == type1 || f->type == type2)) {
         return 1;
     } else {
         b->figure_id = 0;
@@ -658,7 +658,7 @@ static void spawn_figure_market(struct building_t *b)
         // market buyer or labor seeker
         if (b->figure_id2) {
             struct figure_t *f = &figures[b->figure_id2];
-            if (f->state != FIGURE_STATE_ALIVE || (f->type != FIGURE_MARKET_BUYER && f->type != FIGURE_LABOR_SEEKER)) {
+            if (!figure_is_alive(f) || (f->type != FIGURE_MARKET_BUYER && f->type != FIGURE_LABOR_SEEKER)) {
                 b->figure_id2 = 0;
             }
         } else {
@@ -1028,7 +1028,7 @@ static void spawn_figure_wharf(struct building_t *b)
     check_labor_problem(b);
     if (b->data.industry.fishing_boat_id) {
         struct figure_t *f = &figures[b->data.industry.fishing_boat_id];
-        if (f->state != FIGURE_STATE_ALIVE || f->type != FIGURE_FISHING_BOAT) {
+        if (!figure_is_alive(f) || f->type != FIGURE_FISHING_BOAT) {
             b->data.industry.fishing_boat_id = 0;
         }
     }
@@ -1120,7 +1120,7 @@ static void spawn_figure_dock(struct building_t *b)
             // too many dockers, kill one of them
             for (int i = 2; i >= 0; i--) {
                 if (b->data.dock.docker_ids[i]) {
-                    figures[b->data.dock.docker_ids[i]].state = FIGURE_STATE_DEAD;
+                    figure_delete(&figures[b->data.dock.docker_ids[i]]);
                     break;
                 }
             }

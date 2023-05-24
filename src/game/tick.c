@@ -194,10 +194,8 @@ void game_tick_run(void)
         random_generate_next(); // update random to randomize native huts
         for (int i = 1; i < MAX_FIGURES; i++) {
             struct figure_t *f = &figures[i];
-            if (f->state == FIGURE_STATE_ALIVE && f->type == FIGURE_MAP_FLAG) {
+            if (f->in_use && f->type == FIGURE_MAP_FLAG) {
                 figure_editor_flag_action(f);
-            } else if (f->state == FIGURE_STATE_DEAD) {
-                figure_delete(f);
             }
         }
         return;
@@ -210,20 +208,18 @@ void game_tick_run(void)
     city_data.entertainment.hippodrome_has_race = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *f = &figures[i];
-        if (f->state == FIGURE_STATE_DEAD) {
-            figure_delete(f);
-            continue;
-        }
-        if (f->action_state == FIGURE_ACTION_CORPSE) {
+        if (f->is_corpse) {
             figure_handle_corpse(f);
             continue;
-        } else if (f->action_state == FIGURE_ACTION_ATTACK) {
+        } else if (f->engaged_in_combat) {
             figure_combat_handle_attack(f);
             continue;
+        } else if (f->is_fleeing) {
+            rout_unit(f);
+            continue;
         }
-        if (f->state == FIGURE_STATE_ALIVE) {
+        if (f->in_use) {
             switch (f->type) {
-                case FIGURE_NONE:
                 case FIGURE_IMMIGRANT:
                     figure_immigrant_action(f);
                     break;
@@ -371,12 +367,6 @@ void game_tick_run(void)
                     figure_enemy_gladiator_action(f);
                     break;
                 case FIGURE_ENEMY_BARBARIAN_SWORDSMAN:
-                case FIGURE_ENEMY_HUN_SWORDSMAN:
-                case FIGURE_ENEMY_GOTH_SWORDSMAN:
-                case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
-                case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
-                    figure_enemy_fast_swordsman_action(f);
-                    break;
                 case FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN:
                 case FIGURE_ENEMY_BRITON_SWORDSMAN:
                 case FIGURE_ENEMY_CELT_SWORDSMAN:
@@ -386,6 +376,10 @@ void game_tick_run(void)
                 case FIGURE_ENEMY_SAMNITE_SWORDSMAN:
                 case FIGURE_ENEMY_GAUL_SWORDSMAN:
                 case FIGURE_ENEMY_HELVETIUS_SWORDSMAN:
+                case FIGURE_ENEMY_HUN_SWORDSMAN:
+                case FIGURE_ENEMY_GOTH_SWORDSMAN:
+                case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
+                case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
                 case FIGURE_ENEMY_GREEK_SWORDSMAN:
                 case FIGURE_ENEMY_MACEDONIAN_SWORDSMAN:
                 case FIGURE_ENEMY_PERGAMUM_SWORDSMAN:
@@ -403,11 +397,6 @@ void game_tick_run(void)
                     figure_enemy_chariot_action(f);
                     break;
                 case FIGURE_ENEMY_EGYPTIAN_CAMEL:
-                    figure_enemy_camel_action(f);
-                    break;
-                case FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER:
-                    figure_enemy_light_ranged_spearman_action(f);
-                    break;
                 case FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER:
                 case FIGURE_ENEMY_SAMNITE_SPEAR_THROWER:
                 case FIGURE_ENEMY_GREEK_SPEAR_THROWER:
@@ -416,8 +405,12 @@ void game_tick_run(void)
                 case FIGURE_ENEMY_IBERIAN_SPEAR_THROWER:
                 case FIGURE_ENEMY_JUDEAN_SPEAR_THROWER:
                 case FIGURE_ENEMY_SELEUCID_SPEAR_THROWER:
-                    figure_enemy_heavy_ranged_spearman_action(f);
+                    figure_enemy_heavy_ranged_action(f);
                     break;
+                case FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER:
+                    figure_enemy_light_ranged_spearman_action(f);
+                    break;
+
                 case FIGURE_ENEMY_GAUL_AXEMAN:
                 case FIGURE_ENEMY_HELVETIUS_AXEMAN:
                     figure_enemy_axeman_action(f);

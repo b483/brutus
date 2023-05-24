@@ -9,7 +9,6 @@
 #include "core/random.h"
 #include "figure/combat.h"
 #include "figure/formation_herd.h"
-#include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "map/figure.h"
@@ -327,7 +326,8 @@ void figure_hippodrome_horse_action(struct figure_t *f)
             }
             f->wait_ticks++;
             if (f->wait_ticks > 150) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
     }
@@ -348,7 +348,7 @@ void figure_hippodrome_horse_reroute(void)
 {
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *f = &figures[i];
-        if (f->state == FIGURE_STATE_ALIVE && f->type == FIGURE_HIPPODROME_HORSES) {
+        if (figure_is_alive(f) && f->type == FIGURE_HIPPODROME_HORSES) {
             f->wait_ticks_missile = 0;
             set_horse_destination(f, HORSE_CREATED);
         }

@@ -285,8 +285,7 @@ static void init(int grid_offset)
         int figure_id = map_figure_at(grid_offset + FIGURE_OFFSETS[i]);
         while (figure_id > 0 && context.figure.count < 7) {
             struct figure_t *f = &figures[figure_id];
-            if (f->state != FIGURE_STATE_DEAD &&
-                f->action_state != FIGURE_ACTION_CORPSE) {
+            if (figure_is_alive(f)) {
                 switch (f->type) {
                     case FIGURE_NONE:
                     case FIGURE_EXPLOSION:

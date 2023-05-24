@@ -210,7 +210,7 @@ static void init_savegame_data(void)
     state->building_damage_grid = create_savegame_piece(26244, 1);
     state->aqueduct_backup_grid = create_savegame_piece(26244, 1);
     state->sprite_backup_grid = create_savegame_piece(26244, 1);
-    state->figures = create_savegame_piece(130000, 1);
+    state->figures = create_savegame_piece(132000, 1);
     state->route_figures = create_savegame_piece(1200, 1);
     state->route_paths = create_savegame_piece(300000, 1);
     state->legion_formations = create_savegame_piece(420, 1);

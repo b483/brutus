@@ -54,7 +54,7 @@ static void advance_tick(struct figure_t *f)
     if (f->height_adjusted_ticks) {
         f->height_adjusted_ticks--;
         if (f->height_adjusted_ticks > 0) {
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             if (f->current_height < f->target_height) {
                 f->current_height++;
             }
@@ -62,7 +62,7 @@ static void advance_tick(struct figure_t *f)
                 f->current_height--;
             }
         } else {
-            f->is_ghost = 0;
+            f->is_invisible = 0;
         }
     } else {
         if (f->current_height) {
@@ -318,7 +318,7 @@ void figure_movement_follow_ticks(struct figure_t *f, int num_ticks)
 {
     const struct figure_t *leader = &figures[f->leading_figure_id];
     if (f->x == f->source_x && f->y == f->source_y) {
-        f->is_ghost = 1;
+        f->is_invisible = 1;
     }
     while (num_ticks > 0) {
         num_ticks--;

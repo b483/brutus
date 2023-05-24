@@ -5,7 +5,6 @@
 #include "building/warehouse.h"
 #include "core/image.h"
 #include "figure/combat.h"
-#include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "game/resource.h"
@@ -104,7 +103,8 @@ void figure_market_buyer_action(struct figure_t *f)
 {
     struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id2 != f->id) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
+        return;
     }
     figure_image_increase_offset(f, 12);
     switch (f->action_state) {
@@ -113,11 +113,13 @@ void figure_market_buyer_action(struct figure_t *f)
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                 if (f->collecting_item_id > 3) {
                     if (!take_resource_from_warehouse(f, f->destination_building_id)) {
-                        f->state = FIGURE_STATE_DEAD;
+                        figure_delete(f);
+                        return;
                     }
                 } else {
                     if (!take_food_from_granary(f, f->building_id, f->destination_building_id)) {
-                        f->state = FIGURE_STATE_DEAD;
+                        figure_delete(f);
+                        return;
                     }
                 }
                 f->action_state = FIGURE_ACTION_MARKET_BUYER_RETURNING;
@@ -133,7 +135,8 @@ void figure_market_buyer_action(struct figure_t *f)
         case FIGURE_ACTION_MARKET_BUYER_RETURNING:
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             }
@@ -144,26 +147,29 @@ void figure_market_buyer_action(struct figure_t *f)
 
 void figure_delivery_boy_action(struct figure_t *f)
 {
-    f->is_ghost = 0;
+    f->is_invisible = 0;
     figure_image_increase_offset(f, 12);
 
     struct figure_t *leader = &figures[f->leading_figure_id];
     if (f->leading_figure_id <= 0) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
+        return;
     } else {
-        if (leader->state == FIGURE_STATE_ALIVE) {
+        if (figure_is_alive(leader)) {
             if (leader->type == FIGURE_MARKET_BUYER || leader->type == FIGURE_DELIVERY_BOY) {
                 figure_movement_follow_ticks(f, 1);
             } else {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
         } else { // leader arrived at market, drop resource at market
             all_buildings[f->building_id].data.market.inventory[f->collecting_item_id] += 100;
-            f->state = FIGURE_STATE_DEAD;
+            figure_delete(f);
+            return;
         }
     }
-    if (leader->is_ghost) {
-        f->is_ghost = 1;
+    if (leader->is_invisible) {
+        f->is_invisible = 1;
     }
     int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
     f->image_id = image_group(GROUP_FIGURE_DELIVERY_BOY) + dir + 8 * f->image_offset;

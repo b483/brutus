@@ -152,18 +152,15 @@ static void mars_kill_enemies(void)
     int grid_offset = 0;
     for (int i = 1; i < MAX_FIGURES && city_data.religion.mars_spirit_power > 0; i++) {
         struct figure_t *f = &figures[i];
-        if (figure_is_dead(f)) {
-            continue;
-        }
-        if ((figure_properties[f->type].is_enemy_unit && f->type != FIGURE_ENEMY_GLADIATOR) || figure_properties[f->type].is_caesar_legion_unit) {
-            f->action_state = FIGURE_ACTION_CORPSE;
-            f->is_targetable = 0;
-            clear_targeting_on_unit_death(f);
-            update_counters_on_unit_death(f);
-            refresh_formation_figure_indexes(f);
-            city_data.religion.mars_spirit_power--;
-            if (!grid_offset) {
-                grid_offset = f->grid_offset;
+        if (figure_is_alive(f)) {
+            if ((figure_properties[f->type].is_enemy_unit && f->type != FIGURE_ENEMY_GLADIATOR) || figure_properties[f->type].is_caesar_legion_unit) {
+                f->is_corpse = 1;
+                f->is_targetable = 0;
+                clear_targeting_on_unit_death(f);
+                city_data.religion.mars_spirit_power--;
+                if (!grid_offset) {
+                    grid_offset = f->grid_offset;
+                }
             }
         }
     }
@@ -185,7 +182,7 @@ void update_enemy_formations(void)
             }
             int formation_spawning = 0;
             for (int n = 0; n < m->num_figures; n++) {
-                if (figures[m->figures[n]].is_ghost) {
+                if (figures[m->figures[n]].is_invisible) {
                     formation_spawning = 1;
                     break;
                 }
@@ -202,12 +199,8 @@ void update_enemy_formations(void)
             if (m->morale <= ROUT_MORALE_THRESHOLD) {
                 for (int n = 0; n < MAX_FORMATION_FIGURES; n++) {
                     struct figure_t *f = &figures[m->figures[n]];
-                    if (f->action_state != FIGURE_ACTION_ATTACK &&
-                        f->action_state != FIGURE_ACTION_CORPSE &&
-                        f->action_state != FIGURE_ACTION_FLEEING) {
-                        f->action_state = FIGURE_ACTION_FLEEING;
-                        figure_route_remove(f);
-                    }
+                    f->is_fleeing = 1;
+                    figure_route_remove(f);
                 }
                 // on formation rout, reduce morale of all enemy formations, improve morale of all legions
                 if (!m->routed) {
@@ -242,13 +235,11 @@ void update_enemy_formations(void)
                 if (!figure_properties[f->type].max_range) {
                     target_unit = melee_unit__set_closest_target(f);
                     if (target_unit) {
-                        if (f->action_state != FIGURE_ACTION_CORPSE && f->action_state != FIGURE_ACTION_ATTACK && f->action_state != FIGURE_ACTION_FLEEING) {
-                            if (m->layout == FORMATION_ENEMY_MOB  // melee units in a mob break rank to chase enemies
-                            || (target_unit->type == FIGURE_FORT_JAVELIN && f->speed_multiplier >= target_unit->speed_multiplier)) { // melee units in other formations chase javelins only, and only if they are at least as fast as them
-                                f->destination_x = target_unit->x;
-                                f->destination_y = target_unit->y;
-                                f->action_state = FIGURE_ACTION_ENEMY_ENGAGED;
-                            }
+                        if (m->layout == FORMATION_ENEMY_MOB  // melee units in a mob break rank to chase enemies
+                        || (target_unit->type == FIGURE_FORT_JAVELIN && f->speed_multiplier >= target_unit->speed_multiplier)) { // melee units in other formations chase javelins only, and only if they are at least as fast as them
+                            f->destination_x = target_unit->x;
+                            f->destination_y = target_unit->y;
+                            f->action_state = FIGURE_ACTION_ENEMY_ENGAGED;
                         }
                     }
                 }
@@ -261,7 +252,7 @@ void update_enemy_formations(void)
                         if (enemy_formations[j].in_use) {
                             for (int n = 0; n < enemy_formations[j].num_figures; n++) {
                                 struct figure_t *f = &figures[enemy_formations[j].figures[n]];
-                                if (!f->is_ghost && (f->action_state != FIGURE_ACTION_CORPSE && f->action_state != FIGURE_ACTION_ATTACK && f->action_state != FIGURE_ACTION_FLEEING)) {
+                                if (!f->is_invisible) {
                                     f->destination_x = target_unit->x;
                                     f->destination_y = target_unit->y;
                                     f->target_figure_id = target_unit->id;
@@ -287,7 +278,7 @@ void update_enemy_formations(void)
                             m->destination_y = y_tile;
                             for (int n = 0; n < m->num_figures; n++) {
                                 struct figure_t *f = &figures[m->figures[n]];
-                                if (!f->is_ghost && (f->action_state == FIGURE_ACTION_ENEMY_SPAWNING || f->action_state == FIGURE_ACTION_ENEMY_REGROUPING)) {
+                                if (!f->is_invisible && (f->action_state == FIGURE_ACTION_ENEMY_SPAWNING || f->action_state == FIGURE_ACTION_ENEMY_REGROUPING)) {
                                     f->action_state = FIGURE_ACTION_ENEMY_ADVANCING;
                                 }
                             }

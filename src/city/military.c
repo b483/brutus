@@ -121,7 +121,7 @@ static int player_has_won(void)
             for (int fig = 0; fig < m->num_figures; fig++) {
                 if (m->figures[fig] > 0) {
                     struct figure_t *f = &figures[m->figures[fig]];
-                    if (!figure_is_dead(f)) {
+                    if (figure_is_alive(f)) {
                         soldiers_total++;
                     }
                 }
@@ -133,10 +133,10 @@ static int player_has_won(void)
             for (int fig = 0; fig < m->num_figures; fig++) {
                 if (m->figures[fig] > 0) {
                     struct figure_t *f = &figures[m->figures[fig]];
-                    if (!figure_is_dead(f)) {
+                    if (figure_is_alive(f)) {
                         if (soldiers_to_kill) {
                             soldiers_to_kill--;
-                            f->state = FIGURE_STATE_DEAD;
+                            figure_delete(f);
                         }
                     }
                 }
@@ -202,7 +202,7 @@ static void update_aftermath(void)
                     for (int fig = 0; fig < legion_formations[i].num_figures; fig++) {
                         if (legion_formations[i].figures[fig] > 0) {
                             struct figure_t *f = &figures[legion_formations[i].figures[fig]];
-                            if (!figure_is_dead(f)) {
+                            if (figure_is_alive(f)) {
                                 f->action_state = FIGURE_ACTION_SOLDIER_RETURNING_FROM_DISTANT_BATTLE;
                             }
                         }

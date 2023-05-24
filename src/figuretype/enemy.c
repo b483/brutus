@@ -7,7 +7,6 @@
 #include "figure/combat.h"
 #include "figure/formation.h"
 #include "figure/formation_enemy.h"
-#include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "figuretype/missile.h"
@@ -16,32 +15,6 @@
 #include "scenario/data.h"
 #include "sound/effect.h"
 #include "sound/speech.h"
-
-static void shoot_enemy_missile(struct figure_t *f, map_point *tile)
-{
-    f->is_shooting = 1;
-    f->attack_image_offset = 1;
-    figure_create_missile(f, tile, figure_properties[f->type].missile_type);
-    if (figure_properties[f->type].missile_type == FIGURE_ARROW) {
-        sound_effect_play(SOUND_EFFECT_ARROW);
-    }
-    f->wait_ticks_missile = 0;
-    // clear targeting
-    figure__remove_ranged_targeter_from_list(&figures[f->target_figure_id], f);
-    f->target_figure_id = 0;
-}
-
-static void rout_enemy_unit(struct figure_t *f)
-{
-    f->destination_x = f->source_x;
-    f->destination_y = f->source_y;
-    figure_movement_move_ticks(f, f->speed_multiplier);
-    if (f->direction == DIR_FIGURE_AT_DESTINATION ||
-        f->direction == DIR_FIGURE_REROUTE ||
-        f->direction == DIR_FIGURE_LOST) {
-        f->state = FIGURE_STATE_DEAD;
-    }
-}
 
 static void spawn_enemy(struct figure_t *f, struct formation_t *m)
 {
@@ -55,7 +28,7 @@ static void spawn_enemy(struct figure_t *f, struct formation_t *m)
                     sound_speech_play_file("wavs/horn1.wav");
                 }
             }
-            f->is_ghost = 0;
+            f->is_invisible = 0;
             f->action_state = FIGURE_ACTION_ENEMY_ADVANCING;
         }
     }
@@ -65,9 +38,6 @@ static void melee_enemy_action(struct figure_t *f)
 {
     struct formation_t *m = &enemy_formations[f->formation_id];
     switch (f->action_state) {
-        case FIGURE_ACTION_FLEEING:
-            rout_enemy_unit(f);
-            break;
         case FIGURE_ACTION_ENEMY_SPAWNING:
             spawn_enemy(f, m);
             break;
@@ -105,6 +75,20 @@ static void melee_enemy_action(struct figure_t *f)
     }
 }
 
+static void shoot_enemy_missile(struct figure_t *f, map_point *tile)
+{
+    f->is_shooting = 1;
+    f->attack_image_offset = 1;
+    figure_create_missile(f, tile, figure_properties[f->type].missile_type);
+    if (figure_properties[f->type].missile_type == FIGURE_ARROW) {
+        sound_effect_play(SOUND_EFFECT_ARROW);
+    }
+    f->wait_ticks_missile = 0;
+    // clear targeting
+    figure__remove_ranged_targeter_from_list(&figures[f->target_figure_id], f);
+    f->target_figure_id = 0;
+}
+
 static void ranged_enemy_action(struct figure_t *f)
 {
     struct formation_t *m = &enemy_formations[f->formation_id];
@@ -122,9 +106,6 @@ static void ranged_enemy_action(struct figure_t *f)
         }
     }
     switch (f->action_state) {
-        case FIGURE_ACTION_FLEEING:
-            rout_enemy_unit(f);
-            break;
         case FIGURE_ACTION_ENEMY_SPAWNING:
             spawn_enemy(f, m);
             break;
@@ -176,44 +157,14 @@ static void ranged_enemy_action(struct figure_t *f)
     }
 }
 
-int get_direction(struct figure_t *f)
-{
-    int dir;
-    if (f->action_state == FIGURE_ACTION_ATTACK) {
-        dir = f->attack_direction;
-    } else if (f->direction < 8) {
-        dir = f->direction;
-    } else {
-        dir = f->previous_tile_direction;
-    }
-    return figure_image_normalize_direction(dir);
-}
-
-void figure_enemy_heavy_ranged_spearman_action(struct figure_t *f)
+void figure_enemy_heavy_ranged_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     ranged_enemy_action(f);
     int dir = get_direction(f);
 
     if (f->action_state == FIGURE_ACTION_ENEMY_REGROUPING) {
-        f->image_id = 697 + dir + 8 * figure_image_missile_launcher_offset(f);
-    } else if (f->direction == DIR_FIGURE_ATTACK) {
-        f->image_id = 745 + dir + 8 * (f->image_offset / 2);
-    } else {
-        f->image_id = 601 + dir + 8 * f->image_offset;
-    }
-}
-
-void figure_enemy_camel_action(struct figure_t *f)
-{
-    figure_image_increase_offset(f, 12);
-    ranged_enemy_action(f);
-    int dir = get_direction(f);
-
-    if (f->direction == DIR_FIGURE_ATTACK) {
-        f->image_id = 601 + dir + 8 * f->image_offset;
-    } else if (f->action_state == FIGURE_ACTION_ENEMY_REGROUPING) {
-        f->image_id = 697 + dir + 8 * figure_image_missile_launcher_offset(f);
+        f->image_id = 697 + dir + 8 * MISSILE_LAUNCHER_OFFSETS[f->attack_image_offset / 2];
     } else {
         f->image_id = 601 + dir + 8 * f->image_offset;
     }
@@ -236,7 +187,7 @@ void figure_enemy_chariot_action(struct figure_t *f)
     f->image_id = 601 + dir + 8 * f->image_offset;
 }
 
-void figure_enemy_fast_swordsman_action(struct figure_t *f)
+void figure_enemy_swordsman_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 12);
     melee_enemy_action(f);
@@ -245,23 +196,10 @@ void figure_enemy_fast_swordsman_action(struct figure_t *f)
     int image_id;
     if (f->enemy_image_group == ENEMY_IMG_TYPE_BARBARIAN) {
         image_id = 297;
-    } else if (f->enemy_image_group == ENEMY_IMG_TYPE_NORTH_AFRICAN) {
-        image_id = 449;
-    } else if (f->enemy_image_group == ENEMY_IMG_TYPE_GOTH) {
-        image_id = 449;
     } else {
-        return;
+        image_id = 449;
     }
     f->image_id = image_id + dir + 8 * f->image_offset;
-}
-
-void figure_enemy_swordsman_action(struct figure_t *f)
-{
-    figure_image_increase_offset(f, 12);
-    melee_enemy_action(f);
-    int dir = get_direction(f);
-
-    f->image_id = 449 + dir + 8 * f->image_offset;
 }
 
 void figure_enemy_light_ranged_spearman_action(struct figure_t *f)
@@ -271,7 +209,7 @@ void figure_enemy_light_ranged_spearman_action(struct figure_t *f)
     int dir = get_direction(f);
 
     if (f->action_state == FIGURE_ACTION_ENEMY_REGROUPING) {
-        f->image_id = 545 + dir + 8 * figure_image_missile_launcher_offset(f);
+        f->image_id = 545 + dir + 8 * MISSILE_LAUNCHER_OFFSETS[f->attack_image_offset / 2];
     } else {
         f->image_id = 449 + dir + 8 * f->image_offset;
     }
@@ -284,7 +222,7 @@ void figure_enemy_mounted_archer_action(struct figure_t *f)
     int dir = get_direction(f);
 
     if (f->action_state == FIGURE_ACTION_ENEMY_REGROUPING) {
-        f->image_id = 697 + dir + 8 * figure_image_missile_launcher_offset(f);
+        f->image_id = 697 + dir + 8 * MISSILE_LAUNCHER_OFFSETS[f->attack_image_offset / 2];
     } else {
         f->image_id = 601 + dir + 8 * f->image_offset;
     }
@@ -304,7 +242,7 @@ void figure_enemy_gladiator_action(struct figure_t *f)
     figure_image_increase_offset(f, 12);
     if (scenario.gladiator_revolt.state == EVENT_FINISHED) {
         // end of gladiator revolt: kill gladiators
-        f->action_state = FIGURE_ACTION_CORPSE;
+        f->is_corpse = 1;
         f->is_targetable = 0;
         f->wait_ticks = 0;
         f->direction = 0;
@@ -325,7 +263,8 @@ void figure_enemy_gladiator_action(struct figure_t *f)
                     f->destination_building_id = building_id;
                     figure_route_remove(f);
                 } else {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             }
             break;
@@ -397,7 +336,8 @@ void figure_indigenous_native_action(struct figure_t *f)
 {
     struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
+        return;
     }
     figure_image_increase_offset(f, 12);
     switch (f->action_state) {
@@ -408,7 +348,8 @@ void figure_indigenous_native_action(struct figure_t *f)
                 f->destination_x = f->source_x;
                 f->destination_y = f->source_y;
             } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_NATIVE_RETURNING_FROM_MEETING:
@@ -416,7 +357,8 @@ void figure_indigenous_native_action(struct figure_t *f)
             if (f->direction == DIR_FIGURE_AT_DESTINATION ||
                 f->direction == DIR_FIGURE_REROUTE ||
                 f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_NATIVE_CREATED:

@@ -374,7 +374,7 @@ int figure_phrase_play(struct figure_t *f)
 
 static int lion_tamer_phrase(struct figure_t *f)
 {
-    if (f->action_state == FIGURE_ACTION_ATTACK) {
+    if (f->engaged_in_combat) {
         if (++f->phrase_sequence_exact >= 3) {
             f->phrase_sequence_exact = 0;
         }
@@ -456,7 +456,7 @@ static int prefect_phrase(struct figure_t *f)
         return 10;
     } else if (f->action_state == FIGURE_ACTION_PREFECT_AT_FIRE) {
         return 11 + (f->phrase_sequence_exact % 2);
-    } else if (f->action_state == FIGURE_ACTION_ATTACK) {
+    } else if (f->engaged_in_combat) {
         return 13 + f->phrase_sequence_exact;
     } else if (f->min_max_seen >= 50) {
         // alternate between "no sign of crime around here" and the regular city phrases
@@ -606,7 +606,7 @@ static int phrase_based_on_figure_state(struct figure_t *f)
         case FIGURE_LION_TAMER:
             return lion_tamer_phrase(f);
         case FIGURE_GLADIATOR:
-            return f->action_state == FIGURE_ACTION_ATTACK ? 7 : 0;
+            return f->engaged_in_combat ? 7 : 0;
         case FIGURE_TAX_COLLECTOR:
             return tax_collector_phrase(f);
         case FIGURE_MARKET_TRADER:

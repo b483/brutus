@@ -304,7 +304,7 @@ static void confirm_send_troops(void)
             for (int fig = 0; fig < m->num_figures; fig++) {
                 if (m->figures[fig] > 0) {
                     struct figure_t *f = &figures[m->figures[fig]];
-                    if (!figure_is_dead(f)) {
+                    if (figure_is_alive(f)) {
                         f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_DISTANT_BATTLE;
                     }
                 }

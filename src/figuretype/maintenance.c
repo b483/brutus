@@ -6,7 +6,6 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"
-#include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "map/building.h"
@@ -21,13 +20,14 @@ void figure_engineer_action(struct figure_t *f)
 
     f->use_cross_country = 0;
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
+        return;
     }
     figure_image_increase_offset(f, 12);
 
     switch (f->action_state) {
         case FIGURE_ACTION_ENGINEER_CREATED:
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             f->image_offset = 0;
             f->wait_ticks--;
             if (f->wait_ticks <= 0) {
@@ -37,17 +37,19 @@ void figure_engineer_action(struct figure_t *f)
                     figure_movement_set_cross_country_destination(f, x_road, y_road);
                     f->roam_length = 0;
                 } else {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             }
             break;
         case FIGURE_ACTION_ENGINEER_ENTERING_EXITING:
             f->use_cross_country = 1;
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
                 if (map_building_at(f->grid_offset) == f->building_id) {
                     // returned to own building
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 } else {
                     f->action_state = FIGURE_ACTION_ENGINEER_ROAMING;
                     figure_movement_init_roaming(f);
@@ -56,7 +58,7 @@ void figure_engineer_action(struct figure_t *f)
             }
             break;
         case FIGURE_ACTION_ENGINEER_ROAMING:
-            f->is_ghost = 0;
+            f->is_invisible = 0;
             f->roam_length++;
             if (f->roam_length >= figure_properties[f->type].max_roam_length) {
                 int x_road, y_road;
@@ -65,7 +67,8 @@ void figure_engineer_action(struct figure_t *f)
                     f->destination_x = x_road;
                     f->destination_y = y_road;
                 } else {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             }
             figure_movement_roam_ticks(f, 1);
@@ -77,7 +80,8 @@ void figure_engineer_action(struct figure_t *f)
                 figure_movement_set_cross_country_destination(f, b->x, b->y);
                 f->roam_length = 0;
             } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
     }
@@ -90,7 +94,6 @@ static int fight_fire(struct figure_t *f)
         return 0;
     }
     switch (f->action_state) {
-        case FIGURE_ACTION_CORPSE:
         case FIGURE_ACTION_PREFECT_CREATED:
         case FIGURE_ACTION_PREFECT_ENTERING_EXITING:
         case FIGURE_ACTION_PREFECT_GOING_TO_FIRE:
@@ -143,7 +146,8 @@ static void extinguish_fire(struct figure_t *f)
                 f->destination_y = y_road;
                 figure_route_remove(f);
             } else {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
         }
     }
@@ -153,7 +157,8 @@ void figure_prefect_action(struct figure_t *f)
 {
     struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
+        return;
     }
 
     f->terrain_usage = TERRAIN_USAGE_ROADS;
@@ -163,7 +168,7 @@ void figure_prefect_action(struct figure_t *f)
 
     switch (f->action_state) {
         case FIGURE_ACTION_PREFECT_CREATED:
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             f->image_offset = 0;
             f->wait_ticks--;
             if (f->wait_ticks <= 0) {
@@ -173,17 +178,19 @@ void figure_prefect_action(struct figure_t *f)
                     figure_movement_set_cross_country_destination(f, x_road, y_road);
                     f->roam_length = 0;
                 } else {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             }
             break;
         case FIGURE_ACTION_PREFECT_ENTERING_EXITING:
             f->use_cross_country = 1;
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             if (figure_movement_move_ticks_cross_country(f, f->speed_multiplier) == 1) {
                 if (map_building_at(f->grid_offset) == f->building_id) {
                     // returned to own building
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 } else {
                     f->action_state = FIGURE_ACTION_PREFECT_ROAMING;
                     figure_movement_init_roaming(f);
@@ -192,7 +199,7 @@ void figure_prefect_action(struct figure_t *f)
             }
             break;
         case FIGURE_ACTION_PREFECT_ROAMING:
-            f->is_ghost = 0;
+            f->is_invisible = 0;
             struct figure_t *target = melee_unit__set_closest_target(f);
             if (target && calc_maximum_distance(f->x, f->y, b->x, b->y) < PREFECT_LEASH_RANGE) {
                 f->terrain_usage = TERRAIN_USAGE_ANY;
@@ -231,7 +238,8 @@ void figure_prefect_action(struct figure_t *f)
                 f->prefect_recent_guard_duty = 0;
                 f->target_figure_id = 0;
             } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_PREFECT_GOING_TO_FIRE:
@@ -243,7 +251,8 @@ void figure_prefect_action(struct figure_t *f)
                 f->roam_length = 0;
                 f->wait_ticks = 50;
             } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_PREFECT_AT_FIRE:

@@ -207,7 +207,7 @@ void window_building_draw_granary(building_info_context *c)
     }
     // cartpusher state
     int cartpusher = b->figure_id;
-    int has_cart_orders = cartpusher && figures[cartpusher].state == FIGURE_STATE_ALIVE;
+    int has_cart_orders = cartpusher && figure_is_alive(&figures[cartpusher]);
     inner_panel_draw(c->x_offset + 16, c->y_offset + 136, c->width_blocks - 2, has_cart_orders ? 5 : 4);
     window_building_draw_employment(c, 142);
     if (has_cart_orders) {
@@ -348,7 +348,7 @@ void window_building_draw_warehouse(building_info_context *c)
     window_building_draw_employment(c, 173);
     // cartpusher state
     int cartpusher = b->figure_id;
-    if (cartpusher && figures[cartpusher].state == FIGURE_STATE_ALIVE) {
+    if (cartpusher && figure_is_alive(&figures[cartpusher])) {
         image_draw(image_group(GROUP_RESOURCE_ICONS) + figures[cartpusher].resource_id +
             resource_image_offset(figures[cartpusher].resource_id, RESOURCE_IMAGE_ICON),
             c->x_offset + 32, c->y_offset + 220);

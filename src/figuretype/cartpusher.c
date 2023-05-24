@@ -8,7 +8,6 @@
 #include "city/resource.h"
 #include "core/image.h"
 #include "figure/combat.h"
-#include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "game/resource.h"
@@ -152,10 +151,12 @@ void figure_cartpusher_action(struct figure_t *f)
         case FIGURE_ACTION_CARTPUSHER_INITIAL:
             set_cart_graphic(f);
             if (!map_routing_citizen_is_passable(f->grid_offset)) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             f->wait_ticks++;
             if (f->wait_ticks > 30) {
@@ -171,10 +172,12 @@ void figure_cartpusher_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 reroute_cartpusher(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_GRANARY:
@@ -189,7 +192,8 @@ void figure_cartpusher_action(struct figure_t *f)
                 f->wait_ticks = 0;
             }
             if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_WORKSHOP:
@@ -200,7 +204,8 @@ void figure_cartpusher_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 reroute_cartpusher(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_CARTPUSHER_AT_WAREHOUSE:
@@ -248,12 +253,13 @@ void figure_cartpusher_action(struct figure_t *f)
             f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART);
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                f->action_state = FIGURE_ACTION_CARTPUSHER_INITIAL;
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
     }
@@ -273,7 +279,7 @@ static void determine_granaryman_destination(struct figure_t *f, int road_networ
             f->loads_sold_or_carrying = 0;
             set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_GETTING_FOOD, dst_building_id, dst.x, dst.y);
         } else {
-            f->state = FIGURE_STATE_DEAD;
+            figure_delete(f);
         }
         return;
     }
@@ -306,15 +312,15 @@ static void determine_granaryman_destination(struct figure_t *f, int road_networ
         return;
     }
     // nowhere to go to: kill figure
-    f->state = FIGURE_STATE_DEAD;
+    figure_delete(f);
 }
 
 static void remove_resource_from_warehouse(struct figure_t *f)
 {
-    if (f->state != FIGURE_STATE_DEAD) {
+    if (figure_is_alive(f)) {
         int err = building_warehouse_remove_resource(&all_buildings[f->building_id], f->resource_id, 1);
         if (err) {
-            f->state = FIGURE_STATE_DEAD;
+            figure_delete(f);
         }
     }
 }
@@ -332,7 +338,7 @@ static void determine_warehouseman_destination(struct figure_t *f, int road_netw
             set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_GETTING_RESOURCE, dst_building_id, dst.x, dst.y);
             f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
         } else {
-            f->state = FIGURE_STATE_DEAD;
+            figure_delete(f);
         }
         return;
     }
@@ -374,7 +380,7 @@ static void determine_warehouseman_destination(struct figure_t *f, int road_netw
         warehouse->distance_from_entry, road_network_id, 0, &dst);
     if (dst_building_id) {
         if (dst_building_id == f->building_id) {
-            f->state = FIGURE_STATE_DEAD;
+            figure_delete(f);
         } else {
             set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE, dst_building_id, dst.x, dst.y);
             remove_resource_from_warehouse(f);
@@ -390,7 +396,7 @@ static void determine_warehouseman_destination(struct figure_t *f, int road_netw
         return;
     }
     // no destination: kill figure
-    f->state = FIGURE_STATE_DEAD;
+    figure_delete(f);
 }
 
 void figure_warehouseman_action(struct figure_t *f)
@@ -405,7 +411,8 @@ void figure_warehouseman_action(struct figure_t *f)
         {
             struct building_t *b = &all_buildings[f->building_id];
             if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             f->wait_ticks++;
             if (f->wait_ticks > 2) {
@@ -431,7 +438,8 @@ void figure_warehouseman_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_WAREHOUSEMAN_AT_DELIVERY_BUILDING:
@@ -465,7 +473,8 @@ void figure_warehouseman_action(struct figure_t *f)
             f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART); // empty
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             }
@@ -478,7 +487,8 @@ void figure_warehouseman_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_WAREHOUSEMAN_AT_GRANARY:
@@ -517,11 +527,13 @@ void figure_warehouseman_action(struct figure_t *f)
                 for (int i = 0; i < f->loads_sold_or_carrying; i++) {
                     building_granary_add_resource(&all_buildings[f->building_id], f->resource_id, 0);
                 }
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_WAREHOUSEMAN_GETTING_RESOURCE:
@@ -533,7 +545,8 @@ void figure_warehouseman_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_WAREHOUSEMAN_AT_WAREHOUSE:
@@ -577,11 +590,13 @@ void figure_warehouseman_action(struct figure_t *f)
                 for (int i = 0; i < f->loads_sold_or_carrying; i++) {
                     building_warehouse_add_resource(&all_buildings[f->building_id], f->resource_id);
                 }
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
     }

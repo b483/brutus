@@ -2,7 +2,6 @@
 
 #include "city/view.h"
 #include "figure/formation_legion.h"
-#include "figure/image.h"
 #include "figuretype/editor.h"
 #include "graphics/image.h"
 #include "graphics/text.h"

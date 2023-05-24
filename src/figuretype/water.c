@@ -6,7 +6,6 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "core/random.h"
-#include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "map/figure.h"
@@ -38,7 +37,7 @@ void figure_create_flotsam(void)
     }
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *f = &figures[i];
-        if (f->state && f->type == FIGURE_FLOTSAM) {
+        if (figure_is_alive(f) && f->type == FIGURE_FLOTSAM) {
             figure_delete(f);
         }
     }
@@ -54,10 +53,10 @@ void figure_create_flotsam(void)
 
 void figure_flotsam_action(struct figure_t *f)
 {
-    f->is_ghost = 0;
+    f->is_invisible = 0;
     switch (f->action_state) {
         case FIGURE_ACTION_FLOTSAM_CREATED:
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             f->wait_ticks--;
             if (f->wait_ticks <= 0) {
                 f->action_state = FIGURE_ACTION_FLOTSAM_FLOATING;
@@ -76,7 +75,7 @@ void figure_flotsam_action(struct figure_t *f)
                 f->flotsam_visible = 1;
                 f->wait_ticks++;
                 figure_movement_move_ticks(f, 1);
-                f->is_ghost = 0;
+                f->is_invisible = 0;
                 f->height_adjusted_ticks = 0;
                 if (f->direction == DIR_FIGURE_AT_DESTINATION ||
                     f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
@@ -85,7 +84,7 @@ void figure_flotsam_action(struct figure_t *f)
             }
             break;
         case FIGURE_ACTION_FLOTSAM_OFF_MAP:
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             f->min_max_seen = 0;
             f->action_state = FIGURE_ACTION_FLOTSAM_CREATED;
             if (f->wait_ticks >= 400) {
@@ -148,7 +147,8 @@ void figure_shipwreck_action(struct figure_t *f)
     }
     f->wait_ticks++;
     if (f->wait_ticks > 2000) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
+        return;
     }
     f->image_id = image_group(GROUP_FIGURE_SHIPWRECK) + f->image_offset / 16;
 }
@@ -157,7 +157,8 @@ void figure_fishing_boat_action(struct figure_t *f)
 {
     struct building_t *b = &all_buildings[f->building_id];
     if (b->state != BUILDING_STATE_IN_USE) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
+        return;
     }
     if (f->action_state != FIGURE_ACTION_FISHING_BOAT_CREATED && b->data.industry.fishing_boat_id != f->id) {
         map_point tile;
@@ -172,7 +173,8 @@ void figure_fishing_boat_action(struct figure_t *f)
             f->source_y = tile.y;
             figure_route_remove(f);
         } else {
-            f->state = FIGURE_STATE_DEAD;
+            figure_delete(f);
+            return;
         }
     }
     figure_image_increase_offset(f, 12);
@@ -238,7 +240,8 @@ void figure_fishing_boat_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_LOST) {
                 // cannot reach grounds
                 city_message_post_with_message_delay(MESSAGE_CAT_FISHING_BLOCKED, 1, MESSAGE_FISHING_BOAT_BLOCKED, 12);
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_FISHING_BOAT_AT_WHARF:
@@ -274,7 +277,8 @@ void figure_fishing_boat_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
     }
@@ -291,7 +295,7 @@ void figure_sink_all_ships(void)
 {
     for (int i = 1; i < MAX_FIGURES; i++) {
         struct figure_t *f = &figures[i];
-        if (f->state != FIGURE_STATE_ALIVE) {
+        if (!figure_is_alive(f)) {
             continue;
         }
         if (f->type == FIGURE_TRADE_SHIP) {

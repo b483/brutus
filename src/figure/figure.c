@@ -3,14 +3,19 @@
 #include "building/building.h"
 #include "city/data_private.h"
 #include "city/emperor.h"
+#include "city/view.h"
 #include "core/image.h"
 #include "core/image_group.h"
 #include "core/random.h"
 #include "empire/object.h"
-#include "figure/formation.h"
+#include "figure/formation_enemy.h"
+#include "figure/formation_herd.h"
+#include "figure/formation_legion.h"
+#include "figure/movement.h"
 #include "figure/name.h"
 #include "figure/route.h"
 #include "figure/trader.h"
+#include "figuretype/soldier.h"
 #include "map/figure.h"
 #include "map/grid.h"
 
@@ -119,6 +124,17 @@ struct figure_properties_t figure_properties[FIGURE_TYPE_MAX] = {
 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0,   0, 0,   0,              0,  0, 0,     0},  // FIGURE_EXPLOSION = 97,
 };
 
+const int MISSILE_LAUNCHER_OFFSETS[128] = {
+    0, 1, 2, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
 static const int CORPSE_IMAGE_OFFSETS[128] = {
     0, 1, 2, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
     5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
@@ -130,11 +146,22 @@ static const int CORPSE_IMAGE_OFFSETS[128] = {
     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
 };
 
+static const int CART_OFFSETS_X[] = { 13, 18, 12, 0, -13, -18, -13, 0 };
+static const int CART_OFFSETS_Y[] = { -7, -1, 7, 11, 6, -1, -7, -12 };
+
+void figure_init_scenario(void)
+{
+    for (int i = 0; i < MAX_FIGURES; i++) {
+        memset(&figures[i], 0, sizeof(struct figure_t));
+        figures[i].id = i;
+    }
+}
+
 struct figure_t *figure_create(int type, int x, int y, direction_type dir)
 {
     int id = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
-        if (!figures[i].state) {
+        if (!figures[i].in_use) {
             id = i;
             break;
         }
@@ -144,9 +171,8 @@ struct figure_t *figure_create(int type, int x, int y, direction_type dir)
     }
 
     struct figure_t *f = &figures[id];
-    f->state = FIGURE_STATE_ALIVE;
+    f->in_use = 1;
     f->type = type;
-    f->use_cross_country = 0;
     f->speed_multiplier = 1;
     f->direction = dir;
     f->source_x = f->destination_x = f->previous_tile_x = f->x = x;
@@ -185,19 +211,6 @@ void figure_delete(struct figure_t *f)
                 }
             }
             break;
-        case FIGURE_EXPLOSION:
-        case FIGURE_FORT_STANDARD:
-        case FIGURE_ARROW:
-        case FIGURE_JAVELIN:
-        case FIGURE_BOLT:
-        case FIGURE_FISH_GULLS:
-        case FIGURE_SHEEP:
-        case FIGURE_WOLF:
-        case FIGURE_ZEBRA:
-        case FIGURE_DELIVERY_BOY:
-        case FIGURE_PATRICIAN:
-            // nothing to do here
-            break;
         default:
             if (f->building_id) {
                 b->figure_id = 0;
@@ -215,6 +228,55 @@ void figure_delete(struct figure_t *f)
     if (f->immigrant_building_id) {
         b->immigrant_figure_id = 0;
     }
+
+    struct formation_t *m = 0;
+    // adjust unit-related counters
+    if (figure_properties[f->type].is_player_legion_unit) {
+        m = &legion_formations[f->formation_id];
+        city_data.figure.soldiers--;
+        if (f->type == FIGURE_FORT_LEGIONARY) {
+            city_data.military.legionary_legions--;
+        }
+    } else if (f->type == FIGURE_RIOTER) {
+        city_data.figure.rioters--;
+    } else if (figure_properties[f->type].is_herd_animal) {
+        m = &herd_formations[f->formation_id];
+        city_data.figure.animals--;
+    } else if (figure_properties[f->type].is_enemy_unit) {
+        m = &enemy_formations[f->formation_id];
+        city_data.figure.enemies--;
+    } else if (figure_properties[f->type].is_caesar_legion_unit) {
+        m = &enemy_formations[f->formation_id];
+        city_data.figure.imperial_soldiers--;
+        city_data.emperor.invasion.soldiers_killed++;
+    }
+
+    if (m) {  // refresh unit formation indexes and formation figures number
+        for (int i = 0; i < m->num_figures; i++) {
+            m->figures[i] = 0;
+        }
+        m->num_figures = 0;
+        for (int i = 1; i < MAX_FIGURES; i++) {
+            struct figure_t *unit = &figures[i];
+            if (figure_is_alive(unit) && unit->type == m->figure_type && unit->formation_id == m->id) {
+                for (int j = 0; j < m->max_figures; j++) {
+                    if (!m->figures[j]) {
+                        m->figures[j] = unit->id;
+                        m->num_figures++;
+                        unit->index_in_formation = j;
+                        break;
+                    }
+                }
+            }
+        }
+        if (!m->num_figures) { // non-legion formation empty, clear it
+            if (figure_properties[f->type].is_herd_animal || figure_properties[f->type].is_enemy_unit || figure_properties[f->type].is_caesar_legion_unit) {
+                memset(m, 0, sizeof(struct formation_t));
+                m->id = f->formation_id;
+            }
+        }
+    }
+
     figure_route_remove(f);
     map_figure_delete(f);
 
@@ -223,9 +285,54 @@ void figure_delete(struct figure_t *f)
     f->id = figure_id;
 }
 
-int figure_is_dead(const struct figure_t *f)
+void figure_image_increase_offset(struct figure_t *f, int max)
 {
-    return f->state != FIGURE_STATE_ALIVE || f->action_state == FIGURE_ACTION_CORPSE;
+    f->image_offset++;
+    if (f->image_offset >= max) {
+        f->image_offset = 0;
+    }
+}
+
+void figure_image_set_cart_offset(struct figure_t *f, int direction)
+{
+    f->x_offset_cart = CART_OFFSETS_X[direction];
+    f->y_offset_cart = CART_OFFSETS_Y[direction];
+}
+
+int figure_image_direction(struct figure_t *f)
+{
+    int dir = f->direction - city_view_orientation();
+    if (dir < 0) {
+        dir += 8;
+    }
+    return dir;
+}
+
+int figure_image_normalize_direction(int direction)
+{
+    int normalized_direction = direction - city_view_orientation();
+    if (normalized_direction < 0) {
+        normalized_direction += 8;
+    }
+    return normalized_direction;
+}
+
+int get_direction(struct figure_t *f)
+{
+    int dir;
+    if (f->engaged_in_combat) {
+        dir = f->attack_direction;
+    } else if (f->direction < 8) {
+        dir = f->direction;
+    } else {
+        dir = f->previous_tile_direction;
+    }
+    return figure_image_normalize_direction(dir);
+}
+
+int figure_is_alive(const struct figure_t *f)
+{
+    return f->in_use && !f->is_corpse;
 }
 
 void figure_handle_corpse(struct figure_t *f)
@@ -236,7 +343,7 @@ void figure_handle_corpse(struct figure_t *f)
     f->wait_ticks++;
     if (f->wait_ticks >= 128) {
         f->wait_ticks = 127;
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
         return;
     }
     switch (f->type) {
@@ -404,21 +511,104 @@ int city_figures_total_invading_enemies(void)
     return city_data.figure.imperial_soldiers + city_data.figure.enemies;
 }
 
-void figure_init_scenario(void)
+void rout_unit(struct figure_t *f)
 {
-    for (int i = 0; i < MAX_FIGURES; i++) {
-        memset(&figures[i], 0, sizeof(struct figure_t));
-        figures[i].id = i;
+    if (figure_properties[f->type].is_player_legion_unit) {
+        struct formation_t *m = &legion_formations[f->formation_id];
+        f->destination_x = all_buildings[m->building_id].x + 3 + formation_layout_position_x(FORMATION_AT_REST, f->index_in_formation);
+        f->destination_y = all_buildings[m->building_id].y - 1 + formation_layout_position_y(FORMATION_AT_REST, f->index_in_formation);
+        f->destination_grid_offset = map_grid_offset(f->destination_x, f->destination_y);
+        figure_movement_move_ticks(f, f->speed_multiplier);
+        if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+            f->action_state = FIGURE_ACTION_SOLDIER_AT_REST;
+            f->is_fleeing = 0;
+        } else if (f->direction == DIR_FIGURE_REROUTE) {
+            figure_route_remove(f);
+        }
+    } else if (figure_properties[f->type].is_enemy_unit || figure_properties[f->type].is_caesar_legion_unit) {
+        f->destination_x = f->source_x;
+        f->destination_y = f->source_y;
+        figure_movement_move_ticks(f, f->speed_multiplier);
+        if (f->direction == DIR_FIGURE_AT_DESTINATION ||
+            f->direction == DIR_FIGURE_REROUTE ||
+            f->direction == DIR_FIGURE_LOST) {
+            figure_delete(f);
+            return;
+        }
     }
+
+    figure_image_increase_offset(f, 12);
+    int dir = get_direction(f);
+    switch (f->type) {
+        case FIGURE_FORT_JAVELIN:
+            f->image_id = image_group(GROUP_BUILDING_FORT_JAVELIN) + dir + 8 * f->image_offset;
+            break;
+        case FIGURE_FORT_MOUNTED:
+            f->image_id = image_group(GROUP_FIGURE_FORT_MOUNTED) + dir + 8 * f->image_offset;
+            break;
+        case FIGURE_FORT_LEGIONARY:
+            f->image_id = image_group(GROUP_BUILDING_FORT_LEGIONARY) + dir + 8 * f->image_offset;
+            break;
+        case FIGURE_ENEMY_BARBARIAN_SWORDSMAN:
+            f->image_id = 297 + dir + 8 * f->image_offset;
+            break;
+        case FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN:
+        case FIGURE_ENEMY_BRITON_SWORDSMAN:
+        case FIGURE_ENEMY_CELT_SWORDSMAN:
+        case FIGURE_ENEMY_PICT_SWORDSMAN:
+        case FIGURE_ENEMY_EGYPTIAN_SWORDSMAN:
+        case FIGURE_ENEMY_ETRUSCAN_SWORDSMAN:
+        case FIGURE_ENEMY_SAMNITE_SWORDSMAN:
+        case FIGURE_ENEMY_GAUL_SWORDSMAN:
+        case FIGURE_ENEMY_HELVETIUS_SWORDSMAN:
+        case FIGURE_ENEMY_HUN_SWORDSMAN:
+        case FIGURE_ENEMY_GOTH_SWORDSMAN:
+        case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
+        case FIGURE_ENEMY_GREEK_SWORDSMAN:
+        case FIGURE_ENEMY_MACEDONIAN_SWORDSMAN:
+        case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
+        case FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER:
+        case FIGURE_ENEMY_PERGAMUM_SWORDSMAN:
+        case FIGURE_ENEMY_IBERIAN_SWORDSMAN:
+        case FIGURE_ENEMY_JUDEAN_SWORDSMAN:
+        case FIGURE_ENEMY_SELEUCID_SWORDSMAN:
+            f->image_id = 449 + dir + 8 * f->image_offset;
+            break;
+        case FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT:
+        case FIGURE_ENEMY_BRITON_CHARIOT:
+        case FIGURE_ENEMY_CELT_CHARIOT:
+        case FIGURE_ENEMY_PICT_CHARIOT:
+        case FIGURE_ENEMY_EGYPTIAN_CAMEL:
+        case FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER:
+        case FIGURE_ENEMY_SAMNITE_SPEAR_THROWER:
+        case FIGURE_ENEMY_GAUL_AXEMAN:
+        case FIGURE_ENEMY_HELVETIUS_AXEMAN:
+        case FIGURE_ENEMY_HUN_MOUNTED_ARCHER:
+        case FIGURE_ENEMY_GOTH_MOUNTED_ARCHER:
+        case FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER:
+        case FIGURE_ENEMY_GREEK_SPEAR_THROWER:
+        case FIGURE_ENEMY_MACEDONIAN_SPEAR_THROWER:
+        case FIGURE_ENEMY_PERGAMUM_ARCHER:
+        case FIGURE_ENEMY_IBERIAN_SPEAR_THROWER:
+        case FIGURE_ENEMY_JUDEAN_SPEAR_THROWER:
+        case FIGURE_ENEMY_SELEUCID_SPEAR_THROWER:
+            f->image_id = 601 + dir + 8 * f->image_offset;
+            break;
+        case FIGURE_ENEMY_CAESAR_LEGIONARY:
+            f->image_id = image_group(GROUP_FIGURE_CAESAR_LEGIONARY) + 48 + dir + 8 * f->image_offset;
+            break;
+    }
+
 }
 
 static void figure_save(buffer *buf, const struct figure_t *f)
 {
+    buffer_write_u8(buf, f->in_use);
     buffer_write_u8(buf, f->is_targetable);
+    buffer_write_u8(buf, f->is_corpse);
     buffer_write_u8(buf, f->type);
-    buffer_write_u8(buf, f->state);
     buffer_write_u8(buf, f->action_state);
-    buffer_write_u8(buf, f->action_state_before_attack);
+    buffer_write_u8(buf, f->is_fleeing);
     buffer_write_u8(buf, f->formation_id);
     buffer_write_u8(buf, f->index_in_formation);
     buffer_write_u8(buf, f->damage);
@@ -438,23 +628,24 @@ static void figure_save(buffer *buf, const struct figure_t *f)
     }
     buffer_write_u8(buf, f->prefect_recent_guard_duty);
     buffer_write_i8(buf, f->attack_direction);
-    buffer_write_u8(buf, f->source_x);
-    buffer_write_u8(buf, f->source_y);
+    buffer_write_u8(buf, f->engaged_in_combat);
+    buffer_write_i8(buf, f->source_x);
+    buffer_write_i8(buf, f->source_y);
     buffer_write_u16(buf, f->routing_path_id);
     buffer_write_u16(buf, f->routing_path_current_tile);
     buffer_write_u16(buf, f->routing_path_length);
     buffer_write_u8(buf, f->terrain_usage);
     buffer_write_u8(buf, f->speed_multiplier);
     buffer_write_i8(buf, f->previous_tile_direction);
-    buffer_write_u8(buf, f->previous_tile_x);
-    buffer_write_u8(buf, f->previous_tile_y);
+    buffer_write_i8(buf, f->previous_tile_x);
+    buffer_write_i8(buf, f->previous_tile_y);
     buffer_write_i8(buf, f->direction);
     buffer_write_u8(buf, f->progress_on_tile);
-    buffer_write_u8(buf, f->x);
-    buffer_write_u8(buf, f->y);
+    buffer_write_i8(buf, f->x);
+    buffer_write_i8(buf, f->y);
     buffer_write_u16(buf, f->grid_offset);
-    buffer_write_u8(buf, f->destination_x);
-    buffer_write_u8(buf, f->destination_y);
+    buffer_write_i8(buf, f->destination_x);
+    buffer_write_i8(buf, f->destination_y);
     buffer_write_u16(buf, f->destination_grid_offset);
     buffer_write_u16(buf, f->destination_building_id);
     buffer_write_u8(buf, f->figure_is_halted);
@@ -489,7 +680,7 @@ static void figure_save(buffer *buf, const struct figure_t *f)
     buffer_write_i16(buf, f->wait_ticks);
     buffer_write_u8(buf, f->wait_ticks_missile);
     buffer_write_u16(buf, f->name_id);
-    buffer_write_u8(buf, f->is_ghost);
+    buffer_write_u8(buf, f->is_invisible);
     buffer_write_u16(buf, f->building_id);
     buffer_write_u16(buf, f->immigrant_building_id);
     buffer_write_u8(buf, f->migrant_num_people);
@@ -510,11 +701,12 @@ static void figure_save(buffer *buf, const struct figure_t *f)
 
 static void figure_load(buffer *buf, struct figure_t *f)
 {
+    f->in_use = buffer_read_u8(buf);
     f->is_targetable = buffer_read_u8(buf);
+    f->is_corpse = buffer_read_u8(buf);
     f->type = buffer_read_u8(buf);
-    f->state = buffer_read_u8(buf);
     f->action_state = buffer_read_u8(buf);
-    f->action_state_before_attack = buffer_read_u8(buf);
+    f->is_fleeing = buffer_read_u8(buf);
     f->formation_id = buffer_read_u8(buf);
     f->index_in_formation = buffer_read_u8(buf);
     f->damage = buffer_read_u8(buf);
@@ -534,23 +726,24 @@ static void figure_load(buffer *buf, struct figure_t *f)
     }
     f->prefect_recent_guard_duty = buffer_read_u8(buf);
     f->attack_direction = buffer_read_i8(buf);
-    f->source_x = buffer_read_u8(buf);
-    f->source_y = buffer_read_u8(buf);
+    f->engaged_in_combat = buffer_read_u8(buf);
+    f->source_x = buffer_read_i8(buf);
+    f->source_y = buffer_read_i8(buf);
     f->routing_path_id = buffer_read_u16(buf);
     f->routing_path_current_tile = buffer_read_u16(buf);
     f->routing_path_length = buffer_read_u16(buf);
     f->terrain_usage = buffer_read_u8(buf);
     f->speed_multiplier = buffer_read_u8(buf);
     f->previous_tile_direction = buffer_read_i8(buf);
-    f->previous_tile_x = buffer_read_u8(buf);
-    f->previous_tile_y = buffer_read_u8(buf);
+    f->previous_tile_x = buffer_read_i8(buf);
+    f->previous_tile_y = buffer_read_i8(buf);
     f->direction = buffer_read_i8(buf);
     f->progress_on_tile = buffer_read_u8(buf);
-    f->x = buffer_read_u8(buf);
-    f->y = buffer_read_u8(buf);
+    f->x = buffer_read_i8(buf);
+    f->y = buffer_read_i8(buf);
     f->grid_offset = buffer_read_u16(buf);
-    f->destination_x = buffer_read_u8(buf);
-    f->destination_y = buffer_read_u8(buf);
+    f->destination_x = buffer_read_i8(buf);
+    f->destination_y = buffer_read_i8(buf);
     f->destination_grid_offset = buffer_read_u16(buf);
     f->destination_building_id = buffer_read_u16(buf);
     f->figure_is_halted = buffer_read_u8(buf);
@@ -585,7 +778,7 @@ static void figure_load(buffer *buf, struct figure_t *f)
     f->wait_ticks = buffer_read_i16(buf);
     f->wait_ticks_missile = buffer_read_u8(buf);
     f->name_id = buffer_read_u16(buf);
-    f->is_ghost = buffer_read_u8(buf);
+    f->is_invisible = buffer_read_u8(buf);
     f->building_id = buffer_read_u16(buf);
     f->immigrant_building_id = buffer_read_u16(buf);
     f->migrant_num_people = buffer_read_u8(buf);

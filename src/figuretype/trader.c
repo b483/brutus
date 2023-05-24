@@ -16,7 +16,6 @@
 #include "empire/object.h"
 #include "empire/trade_prices.h"
 #include "figure/combat.h"
-#include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "figure/trader.h"
@@ -298,11 +297,11 @@ static void go_to_next_warehouse(struct figure_t *f, int x_src, int y_src, int d
 
 void figure_trade_caravan_action(struct figure_t *f)
 {
-    f->is_ghost = 0;
+    f->is_invisible = 0;
     figure_image_increase_offset(f, 12);
     switch (f->action_state) {
         case FIGURE_ACTION_TRADE_CARAVAN_CREATED:
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             f->wait_ticks++;
             if (f->wait_ticks > 20) {
                 f->wait_ticks = 0;
@@ -329,12 +328,12 @@ void figure_trade_caravan_action(struct figure_t *f)
                     figure_route_remove(f);
                     break;
                 case DIR_FIGURE_LOST:
-                    f->state = FIGURE_STATE_DEAD;
-                    f->is_ghost = 1;
-                    break;
+                    figure_delete(f);
+                    return;
             }
             if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_TRADE_CARAVAN_TRADING:
@@ -377,14 +376,14 @@ void figure_trade_caravan_action(struct figure_t *f)
             switch (f->direction) {
                 case DIR_FIGURE_AT_DESTINATION:
                     f->action_state = FIGURE_ACTION_TRADE_CARAVAN_CREATED;
-                    f->state = FIGURE_STATE_DEAD;
-                    break;
+                    figure_delete(f);
+                    return;
                 case DIR_FIGURE_REROUTE:
                     figure_route_remove(f);
                     break;
                 case DIR_FIGURE_LOST:
-                    f->state = FIGURE_STATE_DEAD;
-                    break;
+                    figure_delete(f);
+                    return;
             }
             break;
     }
@@ -394,22 +393,24 @@ void figure_trade_caravan_action(struct figure_t *f)
 
 void figure_trade_caravan_donkey_action(struct figure_t *f)
 {
-    f->is_ghost = 0;
+    f->is_invisible = 0;
     figure_image_increase_offset(f, 12);
 
     struct figure_t *leader = &figures[f->leading_figure_id];
     if (f->leading_figure_id <= 0) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
+        return;
     } else {
         if (leader->type != FIGURE_TRADE_CARAVAN && leader->type != FIGURE_TRADE_CARAVAN_DONKEY) {
-            f->state = FIGURE_STATE_DEAD;
+            figure_delete(f);
+            return;
         } else {
             figure_movement_follow_ticks(f, 1);
         }
     }
 
-    if (leader->is_ghost) {
-        f->is_ghost = 1;
+    if (leader->is_invisible) {
+        f->is_invisible = 1;
     }
     int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
     f->image_id = image_group(GROUP_FIGURE_TRADE_CARAVAN) + dir + 8 * f->image_offset;
@@ -417,7 +418,7 @@ void figure_trade_caravan_donkey_action(struct figure_t *f)
 
 void figure_native_trader_action(struct figure_t *f)
 {
-    f->is_ghost = 0;
+    f->is_invisible = 0;
     figure_image_increase_offset(f, 12);
     f->cart_image_id = 0;
     switch (f->action_state) {
@@ -428,23 +429,25 @@ void figure_native_trader_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
-                f->is_ghost = 1;
+                figure_delete(f);
+                return;
             }
             if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_NATIVE_TRADER_RETURNING:
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             }
             break;
         case FIGURE_ACTION_NATIVE_TRADER_CREATED:
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             f->wait_ticks++;
             if (f->wait_ticks > 10) {
                 f->wait_ticks = 0;
@@ -456,7 +459,8 @@ void figure_native_trader_action(struct figure_t *f)
                     f->destination_x = tile.x;
                     f->destination_y = tile.y;
                 } else {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             }
             f->image_offset = 0;
@@ -505,7 +509,7 @@ int figure_trade_ship_is_trading(struct figure_t *ship)
     }
     for (int i = 0; i < 3; i++) {
         struct figure_t *f = &figures[b->data.dock.docker_ids[i]];
-        if (!b->data.dock.docker_ids[i] || f->state != FIGURE_STATE_ALIVE) {
+        if (!b->data.dock.docker_ids[i] || !figure_is_alive(f)) {
             continue;
         }
         switch (f->action_state) {
@@ -541,7 +545,7 @@ static int trade_ship_done_trading(struct figure_t *f)
         for (int i = 0; i < 3; i++) {
             if (b->data.dock.docker_ids[i]) {
                 struct figure_t *docker = &figures[b->data.dock.docker_ids[i]];
-                if (docker->state == FIGURE_STATE_ALIVE && docker->action_state != FIGURE_ACTION_DOCKER_IDLING) {
+                if (figure_is_alive(docker) && docker->action_state != FIGURE_ACTION_DOCKER_IDLING) {
                     return 0;
                 }
             }
@@ -558,13 +562,13 @@ static int trade_ship_done_trading(struct figure_t *f)
 
 void figure_trade_ship_action(struct figure_t *f)
 {
-    f->is_ghost = 0;
+    f->is_invisible = 0;
     figure_image_increase_offset(f, 12);
     switch (f->action_state) {
         case FIGURE_ACTION_TRADE_SHIP_CREATED:
             f->loads_sold_or_carrying = 12;
             f->trader_amount_bought = 0;
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             f->wait_ticks++;
             if (f->wait_ticks > 20) {
                 f->wait_ticks = 0;
@@ -580,7 +584,8 @@ void figure_trade_ship_action(struct figure_t *f)
                     f->destination_x = tile.x;
                     f->destination_y = tile.y;
                 } else {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             }
             f->image_offset = 0;
@@ -593,11 +598,12 @@ void figure_trade_ship_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
                 if (!city_message_get_category_count(MESSAGE_CAT_BLOCKED_DOCK)) {
                     city_message_post(1, MESSAGE_NAVIGATION_IMPOSSIBLE, 0, 0);
                     city_message_increase_category_count(MESSAGE_CAT_BLOCKED_DOCK);
                 }
+                return;
             }
             if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
                 f->action_state = FIGURE_ACTION_TRADE_SHIP_LEAVING;
@@ -640,7 +646,8 @@ void figure_trade_ship_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_TRADE_SHIP_ANCHORED:
@@ -668,11 +675,13 @@ void figure_trade_ship_action(struct figure_t *f)
             f->height_adjusted_ticks = 0;
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                 f->action_state = FIGURE_ACTION_TRADE_SHIP_CREATED;
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
     }

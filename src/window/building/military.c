@@ -176,7 +176,7 @@ void window_building_draw_legion_info(building_info_context *c)
     int formation_max_damage = 0;
     for (int i = 0; i < m->num_figures; i++) {
         struct figure_t *f = &figures[m->figures[i]];
-        if (!figure_is_dead(f)) {
+        if (figure_is_alive(f)) {
             formation_damage += f->damage;
             formation_max_damage += figure_properties[f->type].max_damage;
         }
@@ -400,9 +400,7 @@ static void button_layout(int index, __attribute__((unused)) int param2)
     if (index == 4) { // mop up
         for (int i = 0; i < m->num_figures; i++) {
             struct figure_t *unit = &figures[m->figures[i]];
-            if (unit->action_state != FIGURE_ACTION_CORPSE && unit->action_state != FIGURE_ACTION_FLEEING && unit->action_state != FIGURE_ACTION_ATTACK) {
-                unit->action_state = FIGURE_ACTION_SOLDIER_MOPPING_UP;
-            }
+            unit->action_state = FIGURE_ACTION_SOLDIER_MOPPING_UP;
         }
     }
 

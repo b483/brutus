@@ -490,7 +490,7 @@ static void create_enemy_formation(int figure_type, int enemy_type, int x, int y
                 }
 
                 f->terrain_usage = TERRAIN_USAGE_ENEMY;
-                f->is_ghost = 1;
+                f->is_invisible = 1;
                 switch (figure_type) {
                     case FIGURE_ENEMY_BARBARIAN_SWORDSMAN:
                     case FIGURE_ENEMY_HUN_SWORDSMAN:

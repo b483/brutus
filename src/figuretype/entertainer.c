@@ -5,7 +5,6 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"
-#include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "map/grid.h"
@@ -148,7 +147,7 @@ void figure_entertainer_action(struct figure_t *f)
     int speed_factor = f->type == FIGURE_CHARIOTEER ? 2 : 1;
     switch (f->action_state) {
         case FIGURE_ACTION_ENTERTAINER_AT_SCHOOL_CREATED:
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             f->image_offset = 0;
             f->wait_ticks_missile = 0;
             f->wait_ticks--;
@@ -159,13 +158,14 @@ void figure_entertainer_action(struct figure_t *f)
                     figure_movement_set_cross_country_destination(f, x_road, y_road);
                     f->roam_length = 0;
                 } else {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             }
             break;
         case FIGURE_ACTION_ENTERTAINER_EXITING_SCHOOL:
             f->use_cross_country = 1;
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
                 int dst_building_id = 0;
                 switch (f->type) {
@@ -192,32 +192,37 @@ void figure_entertainer_action(struct figure_t *f)
                         f->destination_y = y_road;
                         f->roam_length = 0;
                     } else {
-                        f->state = FIGURE_STATE_DEAD;
+                        figure_delete(f);
+                        return;
                     }
                 } else {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             }
-            f->is_ghost = 1;
+            f->is_invisible = 1;
             break;
         case FIGURE_ACTION_ENTERTAINER_GOING_TO_VENUE:
-            f->is_ghost = 0;
+            f->is_invisible = 0;
             f->roam_length++;
             if (f->roam_length >= 3200) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             figure_movement_move_ticks(f, speed_factor);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                 update_shows(f);
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_ENTERTAINER_ROAMING:
-            f->is_ghost = 0;
+            f->is_invisible = 0;
             f->roam_length++;
             if (f->roam_length >= figure_properties[f->type].max_roam_length) {
                 int x_road, y_road;
@@ -226,7 +231,8 @@ void figure_entertainer_action(struct figure_t *f)
                     f->destination_x = x_road;
                     f->destination_y = y_road;
                 } else {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             }
             figure_movement_roam_ticks(f, speed_factor);
@@ -235,7 +241,8 @@ void figure_entertainer_action(struct figure_t *f)
             figure_movement_move_ticks(f, speed_factor);
             if (f->direction == DIR_FIGURE_AT_DESTINATION ||
                 f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
     }

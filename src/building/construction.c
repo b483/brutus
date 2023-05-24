@@ -421,34 +421,6 @@ void building_construction_update(int x, int y, int grid_offset)
     data.cost_preview = current_cost;
 }
 
-static int get_nearby_enemy_type(int x_start, int y_start, int x_end, int y_end)
-{
-    for (int i = 1; i < MAX_FIGURES; i++) {
-        struct figure_t *f = &figures[i];
-        if (!figure_is_dead(f) && (figure_properties[f->type].is_enemy_unit || figure_properties[f->type].is_caesar_legion_unit || f->type == FIGURE_WOLF)) {
-            int dx = (f->x > x_start) ? (f->x - x_start) : (x_start - f->x);
-            int dy = (f->y > y_start) ? (f->y - y_start) : (y_start - f->y);
-            if (dx <= 12 && dy <= 12) {
-                if (f->type == FIGURE_WOLF) {
-                    return 1;
-                } else {
-                    return 2;
-                }
-            }
-            dx = (f->x > x_end) ? (f->x - x_end) : (x_end - f->x);
-            dy = (f->y > y_end) ? (f->y - y_end) : (y_end - f->y);
-            if (dx <= 12 && dy <= 12) {
-                if (f->type == FIGURE_WOLF) {
-                    return 1;
-                } else {
-                    return 2;
-                }
-            }
-        }
-    }
-    return 0;
-}
-
 static void add_fort(int type, struct building_t *fort)
 {
     fort->prev_part_building_id = 0;
@@ -1035,6 +1007,34 @@ static int building_construction_place_building(building_type type, int x, int y
     return 1;
 }
 
+static int get_nearby_enemy_type(int x_start, int y_start, int x_end, int y_end)
+{
+    for (int i = 1; i < MAX_FIGURES; i++) {
+        struct figure_t *f = &figures[i];
+        if (figure_is_alive(f) && (figure_properties[f->type].is_enemy_unit || figure_properties[f->type].is_caesar_legion_unit || f->type == FIGURE_WOLF)) {
+            int dx = (f->x > x_start) ? (f->x - x_start) : (x_start - f->x);
+            int dy = (f->y > y_start) ? (f->y - y_start) : (y_start - f->y);
+            if (dx <= 12 && dy <= 12) {
+                if (f->type == FIGURE_WOLF) {
+                    return 1;
+                } else {
+                    return 2;
+                }
+            }
+            dx = (f->x > x_end) ? (f->x - x_end) : (x_end - f->x);
+            dy = (f->y > y_end) ? (f->y - y_end) : (y_end - f->y);
+            if (dx <= 12 && dy <= 12) {
+                if (f->type == FIGURE_WOLF) {
+                    return 1;
+                } else {
+                    return 2;
+                }
+            }
+        }
+    }
+    return 0;
+}
+
 void building_construction_place(void)
 {
     data.cost_preview = 0;
@@ -1060,7 +1060,7 @@ void building_construction_place(void)
         return;
     }
     int enemy_type = get_nearby_enemy_type(x_start, y_start, x_end, y_end);
-    if (enemy_type) {
+    if (type != BUILDING_CLEAR_LAND && enemy_type) {
         if (type == BUILDING_WALL || type == BUILDING_ROAD || type == BUILDING_AQUEDUCT) {
             game_undo_restore_map(0);
         } else if (type == BUILDING_PLAZA || type == BUILDING_GARDENS) {

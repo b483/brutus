@@ -22,6 +22,4 @@ void melee_attack_figure_at_offset(struct figure_t *f, int grid_offset);
 
 void clear_targeting_on_unit_death(struct figure_t *unit);
 
-void update_counters_on_unit_death(struct figure_t *unit);
-
 #endif // FIGURE_COMBAT_H

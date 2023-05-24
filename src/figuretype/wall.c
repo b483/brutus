@@ -6,7 +6,6 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"
-#include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "figuretype/missile.h"
@@ -42,15 +41,17 @@ static const int TOWER_SENTRY_FIRING_OFFSETS[] = {
 void figure_ballista_action(struct figure_t *f)
 {
     struct building_t *b = &all_buildings[f->building_id];
-    f->is_ghost = 1;
+    f->is_invisible = 1;
     f->height_adjusted_ticks = 10;
     f->current_height = 45;
 
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id4 != f->id) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
+        return;
     }
     if (b->num_workers <= 0 || b->figure_id <= 0) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
+        return;
     }
     map_figure_delete(f);
     switch (city_view_orientation()) {
@@ -160,7 +161,8 @@ void figure_tower_sentry_action(struct figure_t *f)
     struct building_t *b = &all_buildings[f->building_id];
     f->height_adjusted_ticks = 10;
     if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
-        f->state = FIGURE_STATE_DEAD;
+        figure_delete(f);
+        return;
     }
     figure_image_increase_offset(f, 12);
 
@@ -233,7 +235,8 @@ void figure_tower_sentry_action(struct figure_t *f)
                 if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                     f->action_state = FIGURE_ACTION_TOWER_SENTRY_AT_REST;
                 } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             }
             break;
@@ -256,7 +259,8 @@ void figure_tower_sentry_action(struct figure_t *f)
                 } else if (f->direction == DIR_FIGURE_REROUTE) {
                     figure_route_remove(f);
                 } else if (f->direction == DIR_FIGURE_LOST) {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             }
             break;
@@ -276,7 +280,8 @@ void figure_tower_sentry_action(struct figure_t *f)
                     f->destination_x = road.x;
                     f->destination_y = road.y;
                 } else {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
                 figure_movement_move_ticks(f, 1);
                 if (f->direction == DIR_FIGURE_AT_DESTINATION) {
@@ -288,7 +293,8 @@ void figure_tower_sentry_action(struct figure_t *f)
                     f->action_state = FIGURE_ACTION_TOWER_SENTRY_AT_REST;
                     figure_route_remove(f);
                 } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
-                    f->state = FIGURE_STATE_DEAD;
+                    figure_delete(f);
+                    return;
                 }
             }
             break;
@@ -345,9 +351,9 @@ void figure_kill_tower_sentries_at(int x, int y)
 {
     for (int i = 0; i < MAX_FIGURES; i++) {
         struct figure_t *f = &figures[i];
-        if (!figure_is_dead(f) && f->type == FIGURE_TOWER_SENTRY) {
+        if (figure_is_alive(f) && f->type == FIGURE_TOWER_SENTRY) {
             if (calc_maximum_distance(f->x, f->y, x, y) <= 1) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
             }
         }
     }

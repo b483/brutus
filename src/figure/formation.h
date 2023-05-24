@@ -69,8 +69,6 @@ void reset_all_formations(void);
 
 void add_figure_to_formation(struct figure_t *f, struct formation_t *m);
 
-void refresh_formation_figure_indexes(struct figure_t *unit_to_remove);
-
 void decrease_formation_combat_counters(struct formation_t *m);
 
 void clear_formation_combat_counters(struct formation_t *m);

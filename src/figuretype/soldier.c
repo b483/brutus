@@ -5,9 +5,7 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"
-#include "figure/formation.h"
 #include "figure/formation_legion.h"
-#include "figure/image.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "figuretype/missile.h"
@@ -32,7 +30,7 @@ void figure_military_standard_action(struct figure_t *f)
     }
 }
 
-static void update_image(struct figure_t *f, struct formation_t *m)
+static void update_soldier_image(struct figure_t *f, struct formation_t *m)
 {
     int dir;
     if (f->is_shooting) {
@@ -49,7 +47,7 @@ static void update_image(struct figure_t *f, struct formation_t *m)
     if (f->type == FIGURE_FORT_JAVELIN) {
         int image_id = image_group(GROUP_BUILDING_FORT_JAVELIN);
         if (f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD) {
-            f->image_id = image_id + 96 + dir + 8 * figure_image_missile_launcher_offset(f);
+            f->image_id = image_id + 96 + dir + 8 * MISSILE_LAUNCHER_OFFSETS[f->attack_image_offset / 2];
         } else {
             f->image_id = image_id + dir + 8 * f->image_offset;
         }
@@ -127,23 +125,13 @@ void figure_soldier_action(struct figure_t *f)
             f->image_offset = 0;
             break;
         case FIGURE_ACTION_SOLDIER_GOING_TO_FORT:
-        case FIGURE_ACTION_FLEEING:
-            f->destination_x = all_buildings[m->building_id].x + 3 + formation_layout_position_x(FORMATION_AT_REST, f->index_in_formation);
-            f->destination_y = all_buildings[m->building_id].y - 1 + formation_layout_position_y(FORMATION_AT_REST, f->index_in_formation);
-            f->destination_grid_offset = map_grid_offset(f->destination_x, f->destination_y);
-            figure_movement_move_ticks(f, f->speed_multiplier);
-            if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                f->action_state = FIGURE_ACTION_SOLDIER_AT_REST;
-            } else if (f->direction == DIR_FIGURE_REROUTE) {
-                figure_route_remove(f);
-            } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
-            }
+            rout_unit(f);
             break;
         case FIGURE_ACTION_SOLDIER_RETURNING_TO_BARRACKS:
             figure_movement_move_ticks(f, f->speed_multiplier);
             if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             }
@@ -178,7 +166,7 @@ void figure_soldier_action(struct figure_t *f)
                 }
             } else if (f->type == FIGURE_FORT_LEGIONARY) {
                 // attack adjacent enemy
-                for (int i = 0; i < 8 && f->action_state != FIGURE_ACTION_ATTACK; i++) {
+                for (int i = 0; i < 8; i++) {
                     melee_attack_figure_at_offset(f, f->grid_offset + map_grid_direction_delta(i));
                 }
             }
@@ -199,7 +187,8 @@ void figure_soldier_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         case FIGURE_ACTION_SOLDIER_MOPPING_UP:
@@ -222,17 +211,18 @@ void figure_soldier_action(struct figure_t *f)
             f->destination_y = city_data.map.exit_point.y;
             figure_movement_move_ticks(f, f->speed_multiplier);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                f->is_ghost = 1;
+                f->is_invisible = 1;
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
         }
         case FIGURE_ACTION_SOLDIER_RETURNING_FROM_DISTANT_BATTLE:
-            f->is_ghost = 0;
+            f->is_invisible = 0;
             f->destination_x = m->standard_x + formation_layout_position_x(FORMATION_AT_REST, f->index_in_formation);
             f->destination_y = m->standard_y + formation_layout_position_y(FORMATION_AT_REST, f->index_in_formation);
             f->destination_grid_offset = map_grid_offset(f->destination_x, f->destination_y);
@@ -242,9 +232,10 @@ void figure_soldier_action(struct figure_t *f)
             } else if (f->direction == DIR_FIGURE_REROUTE) {
                 figure_route_remove(f);
             } else if (f->direction == DIR_FIGURE_LOST) {
-                f->state = FIGURE_STATE_DEAD;
+                figure_delete(f);
+                return;
             }
             break;
     }
-    update_image(f, m);
+    update_soldier_image(f, m);
 }
