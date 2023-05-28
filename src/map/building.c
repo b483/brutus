@@ -32,7 +32,7 @@ int map_rubble_building_type(int grid_offset)
     return rubble_type_grid.items[grid_offset];
 }
 
-void map_set_rubble_building_type(int grid_offset, building_type type)
+void map_set_rubble_building_type(int grid_offset, int type)
 {
     rubble_type_grid.items[grid_offset] = type;
 }

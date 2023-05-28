@@ -1,8 +1,6 @@
 #ifndef CITY_RATINGS_H
 #define CITY_RATINGS_H
 
-#include "building/type.h"
-
 typedef enum {
     SELECTED_RATING_NONE = 0,
     SELECTED_RATING_CULTURE = 1,
@@ -15,7 +13,7 @@ int city_rating_selected_explanation(void);
 
 void city_ratings_reduce_prosperity_after_bailout(void);
 
-void city_ratings_peace_building_destroyed(building_type type);
+void city_ratings_peace_building_destroyed(int type);
 
 void city_ratings_peace_record_criminal(void);
 

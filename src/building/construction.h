@@ -1,15 +1,13 @@
 #ifndef BUILDING_CONSTRUCTION_H
 #define BUILDING_CONSTRUCTION_H
 
-#include "building/type.h"
-
 void building_construction_set_cost(int cost);
 
-void building_construction_set_type(building_type type);
+void building_construction_set_type(int type);
 
 void building_construction_clear_type(void);
 
-building_type building_construction_type(void);
+int building_construction_type(void);
 
 int building_construction_cost(void);
 

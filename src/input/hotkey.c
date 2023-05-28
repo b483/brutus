@@ -1,6 +1,6 @@
 #include "hotkey.h"
 
-#include "building/type.h"
+#include "building/building.h"
 #include "city/constants.h"
 #include "game/settings.h"
 #include "game/state.h"

@@ -2,7 +2,6 @@
 #define BUILDING_COUNT_H
 
 #include "core/buffer.h"
-#include "building/type.h"
 #include "game/resource.h"
 
 /**
@@ -20,14 +19,14 @@ void building_count_update(void);
  * @param type Building type
  * @return Number of active buildings
  */
-int building_count_active(building_type type);
+int building_count_active(int type);
 
 /**
  * Returns the building count for the type
  * @param type Building type
  * @return Total number of buildings
  */
-int building_count_total(building_type type);
+int building_count_total(int type);
 
 /**
  * Returns the active building count for the resource type

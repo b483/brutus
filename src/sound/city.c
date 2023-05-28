@@ -286,7 +286,7 @@ void sound_city_set_volume(int percentage)
     }
 }
 
-void sound_city_mark_building_view(building_type type, int num_workers, int direction)
+void sound_city_mark_building_view(int type, int num_workers, int direction)
 {
     // mute city sounds during invasion
     if (city_data.figure.enemies || city_data.figure.imperial_soldiers) {

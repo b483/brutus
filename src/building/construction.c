@@ -1,5 +1,6 @@
 #include "construction.h"
 
+#include "building/building.h"
 #include "building/construction_clear.h"
 #include "building/construction_routed.h"
 #include "building/construction_warning.h"
@@ -40,7 +41,7 @@
 #include "window/build_menu.h"
 
 static struct {
-    building_type type;
+    int type;
     int in_progress;
     map_tile start;
     map_tile end;
@@ -162,7 +163,7 @@ void building_construction_set_cost(int cost)
     data.cost_preview = cost;
 }
 
-void building_construction_set_type(building_type type)
+void building_construction_set_type(int type)
 {
     data.type = type;
     data.in_progress = 0;
@@ -220,7 +221,7 @@ void building_construction_clear_type(void)
     data.type = BUILDING_NONE;
 }
 
-building_type building_construction_type(void)
+int building_construction_type(void)
 {
     return data.type;
 }
@@ -874,7 +875,7 @@ static void add_to_map(struct building_t *b, int orientation, int waterside_orie
     map_routing_update_walls();
 }
 
-static int building_construction_place_building(building_type type, int x, int y)
+static int building_construction_place_building(int type, int x, int y)
 {
     int terrain_mask = TERRAIN_ALL;
     if (type == BUILDING_GATEHOUSE || type == BUILDING_TRIUMPHAL_ARCH) {

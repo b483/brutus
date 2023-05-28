@@ -32,7 +32,7 @@ void city_ratings_reduce_prosperity_after_bailout(void)
     city_data.ratings.prosperity_explanation = 8;
 }
 
-void city_ratings_peace_building_destroyed(building_type type)
+void city_ratings_peace_building_destroyed(int type)
 {
     switch (type) {
         case BUILDING_HOUSE_SMALL_TENT:

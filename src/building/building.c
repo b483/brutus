@@ -293,7 +293,7 @@ struct building_t *building_next(struct building_t *b)
     return &all_buildings[b->next_part_building_id];
 }
 
-struct building_t *building_create(building_type type, int x, int y)
+struct building_t *building_create(int type, int x, int y)
 {
     struct building_t *b = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
@@ -511,12 +511,12 @@ int align_bulding_type_index_to_strings(int building_type_index)
     return building_type_index;
 }
 
-int building_is_house(building_type type)
+int building_is_house(int type)
 {
     return type >= BUILDING_HOUSE_VACANT_LOT && type <= BUILDING_HOUSE_LUXURY_PALACE;
 }
 
-int building_is_fort(building_type type)
+int building_is_fort(int type)
 {
     return type == BUILDING_FORT_LEGIONARIES ||
         type == BUILDING_FORT_JAVELIN ||

@@ -50,7 +50,7 @@ static struct {
     int population;
 } merge_data;
 
-void building_house_change_to(struct building_t *house, building_type type)
+void building_house_change_to(struct building_t *house, int type)
 {
     house->type = type;
     house->subtype.house_level = house->type - BUILDING_HOUSE_SMALL_TENT;
@@ -255,7 +255,7 @@ static int house_image_group(int level)
     return image_group(HOUSE_IMAGE[level].group) + HOUSE_IMAGE[level].offset;
 }
 
-static void create_house_tile(building_type type, int x, int y, int image_id, int population, const int *inventory)
+static void create_house_tile(int type, int x, int y, int image_id, int population, const int *inventory)
 {
     struct building_t *house = building_create(type, x, y);
     house->house_population = population;
@@ -267,7 +267,7 @@ static void create_house_tile(building_type type, int x, int y, int image_id, in
                            image_id + (map_random_get(house->grid_offset) & 1), TERRAIN_BUILDING);
 }
 
-static void split_size2(struct building_t *house, building_type new_type)
+static void split_size2(struct building_t *house, int new_type)
 {
     int inventory_per_tile[INVENTORY_MAX];
     int inventory_remainder[INVENTORY_MAX];

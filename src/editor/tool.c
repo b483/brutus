@@ -323,7 +323,7 @@ static void place_building(const map_tile *tile)
 {
     int image_id;
     int size;
-    building_type type;
+    int type;
     switch (data.type) {
         case TOOL_NATIVE_HUT:
             type = BUILDING_NATIVE_HUT;

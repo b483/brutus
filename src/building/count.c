@@ -23,7 +23,7 @@ static void clear_counters(void)
     memset(&data, 0, sizeof(data));
 }
 
-static void increase_count(building_type type, int active)
+static void increase_count(int type, int active)
 {
     ++data.buildings[type].total;
     if (active) {
@@ -209,12 +209,12 @@ void building_count_update(void)
     limit_hippodrome();
 }
 
-int building_count_active(building_type type)
+int building_count_active(int type)
 {
     return data.buildings[type].active;
 }
 
-int building_count_total(building_type type)
+int building_count_total(int type)
 {
     return data.buildings[type].total;
 }

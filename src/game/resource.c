@@ -1,6 +1,5 @@
 #include "resource.h"
 
-#include "building/type.h"
 #include "scenario/data.h"
 
 int resource_image_offset(resource_type resource, resource_image_type type)

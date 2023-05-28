@@ -1,5 +1,6 @@
 #include "cursor.h"
 
+#include "building/building.h"
 #include "building/construction.h"
 #include "game/system.h"
 #include "window/city.h"

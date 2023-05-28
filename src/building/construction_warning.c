@@ -184,7 +184,7 @@ static int empire_offers_resource(resource_type resource)
     return 0;
 }
 
-void building_construction_warning_check_all(building_type type, int x, int y, int size)
+void building_construction_warning_check_all(int type, int x, int y, int size)
 {
     building_construction_warning_check_food_stocks(type);
     check_workers(type);
@@ -254,7 +254,7 @@ void building_construction_warning_check_all(building_type type, int x, int y, i
     }
 }
 
-void building_construction_warning_check_food_stocks(building_type type)
+void building_construction_warning_check_food_stocks(int type)
 {
     if (!has_warning && type == BUILDING_HOUSE_VACANT_LOT) {
         if (city_data.population.population >= 200 && !scenario.rome_supplies_wheat) {
@@ -265,7 +265,7 @@ void building_construction_warning_check_food_stocks(building_type type)
     }
 }
 
-void building_construction_warning_check_reservoir(building_type type)
+void building_construction_warning_check_reservoir(int type)
 {
     if (!has_warning && type == BUILDING_RESERVOIR) {
         if (building_count_active(BUILDING_RESERVOIR)) {

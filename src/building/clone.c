@@ -15,9 +15,9 @@
  * @param building Building to examine
  * @return the building_type value to clone, or BUILDING_NONE if not cloneable
  */
-static building_type get_clone_type_from_building(struct building_t *building)
+static int get_clone_type_from_building(struct building_t *building)
 {
-    building_type clone_type = building->type;
+    int clone_type = building->type;
 
     if (building_is_house(clone_type)) {
         return BUILDING_HOUSE_VACANT_LOT;
@@ -34,7 +34,7 @@ static building_type get_clone_type_from_building(struct building_t *building)
     }
 }
 
-building_type building_clone_type_from_grid_offset(int grid_offset)
+int building_clone_type_from_grid_offset(int grid_offset)
 {
     if (terrain_grid.items[grid_offset] & TERRAIN_BUILDING) {
         int building_id = map_building_at(grid_offset);

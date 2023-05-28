@@ -147,7 +147,7 @@ static void toggle_pause(void)
     city_warning_clear_all();
 }
 
-static void set_construction_building_type(building_type type)
+static void set_construction_building_type(int type)
 {
     building_construction_cancel();
     building_construction_set_type(type);
@@ -266,7 +266,7 @@ static void handle_hotkeys(const hotkeys *h)
         button_go_to_problem(0, 0);
     }
     if (h->clone_building) {
-        building_type type = building_clone_type_from_grid_offset(widget_city_current_grid_offset());
+        int type = building_clone_type_from_grid_offset(widget_city_current_grid_offset());
         if (type) {
             set_construction_building_type(type);
         }

@@ -80,7 +80,7 @@ static const int FORT_GROUND_Y_VIEW_OFFSETS[4] = { 30, -75, -60, 45 };
 static const int HIPPODROME_X_VIEW_OFFSETS[4] = { 150, 150, -150, -150 };
 static const int HIPPODROME_Y_VIEW_OFFSETS[4] = { 75, -75, -75, 75 };
 
-static int building_preview_blocked(int grid_offset, int num_tiles, int *blocked_tiles, building_type type)
+static int building_preview_blocked(int grid_offset, int num_tiles, int *blocked_tiles, int type)
 {
     int orientation_index = city_view_orientation() / 2;
     int blocked = 0;
@@ -135,7 +135,7 @@ static void draw_water_range_preview(int x, int y, int radius)
     }
 }
 
-static int get_building_image_id(int map_x, int map_y, building_type type, struct building_properties_t *props)
+static int get_building_image_id(int map_x, int map_y, int type, struct building_properties_t *props)
 {
     int image_id = image_group(props->image_group) + props->image_offset;
     if (type == BUILDING_GATEHOUSE) {
@@ -196,7 +196,7 @@ static void get_building_base_xy(int map_x, int map_y, int building_size, int *x
     }
 }
 
-static void draw_bridge(const map_tile *tile, int x, int y, building_type type)
+static void draw_bridge(const map_tile *tile, int x, int y, int type)
 {
     int length, direction;
     int end_grid_offset = map_bridge_calculate_length_direction(tile->x, tile->y, &length, &direction);
@@ -277,7 +277,7 @@ void city_building_ghost_draw(const map_tile *tile)
         return;
     }
 
-    building_type type = building_construction_type();
+    int type = building_construction_type();
     if (building_construction_draw_as_constructing() || type == BUILDING_NONE || type == BUILDING_CLEAR_LAND) {
         return;
     }
