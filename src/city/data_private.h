@@ -34,7 +34,6 @@ extern struct city_data_t {
         int32_t barracks_placed;
         int32_t trade_center_building_id;
         int8_t triumphal_arches_available;
-        int8_t triumphal_arches_placed;
         int16_t working_wharfs;
         int32_t shipyard_boats_requested;
         int16_t working_docks;

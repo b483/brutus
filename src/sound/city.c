@@ -124,13 +124,11 @@ static const int BUILDING_TYPE_TO_CHANNEL_ID[] = {
 13,  // BUILDING_BATHHOUSE
 14,  // BUILDING_DOCTOR
 15,  // BUILDING_HOSPITAL
-0,  // BUILDING_MENU_SMALL_TEMPLES
 16,  // BUILDING_SMALL_TEMPLE_CERES
 17,  // BUILDING_SMALL_TEMPLE_NEPTUNE
 18,  // BUILDING_SMALL_TEMPLE_MERCURY
 19,  // BUILDING_SMALL_TEMPLE_MARS
 20,  // BUILDING_SMALL_TEMPLE_VENUS
-0,  // BUILDING_MENU_LARGE_TEMPLES
 16,  // BUILDING_LARGE_TEMPLE_CERES
 17,  // BUILDING_LARGE_TEMPLE_NEPTUNE
 18,  // BUILDING_LARGE_TEMPLE_MERCURY
@@ -176,19 +174,16 @@ static const int BUILDING_TYPE_TO_CHANNEL_ID[] = {
 0,  // BUILDING_FORT_MOUNTED
 43,  // BUILDING_MILITARY_ACADEMY
 44,  // BUILDING_BARRACKS
-0,  // BUILDING_MENU_FARMS
 45,  // BUILDING_WHEAT_FARM
 46,  // BUILDING_VEGETABLE_FARM
 47,  // BUILDING_FRUIT_FARM
 48,  // BUILDING_OLIVE_FARM
 49,  // BUILDING_VINES_FARM
 50,  // BUILDING_PIG_FARM
-0,  // BUILDING_MENU_RAW_MATERIALS
 51,  // BUILDING_CLAY_PIT
 52,  // BUILDING_MARBLE_QUARRY
 53,  // BUILDING_IRON_MINE
 54,  // BUILDING_TIMBER_YARD
-0,  // BUILDING_MENU_WORKSHOPS
 55,  // BUILDING_WINE_WORKSHOP
 56,  // BUILDING_OIL_WORKSHOP
 57,  // BUILDING_WEAPONS_WORKSHOP
@@ -217,7 +212,7 @@ void sound_city_init(void)
     for (int i = 1; i < MAX_CHANNELS; i++) {
         channels[i].in_use = 1;
         channels[i].views_threshold = 200;
-        channels[i].delay_millis = 100;
+        channels[i].delay_millis = 1000;
     }
     channels[1].channel = SOUND_CHANNEL_CITY_VACANT_LOT;
     channels[2].channel = SOUND_CHANNEL_CITY_HOUSE_SLUM;
@@ -297,7 +292,10 @@ void sound_city_mark_building_view(building_type type, int num_workers, int dire
     if (city_data.figure.enemies || city_data.figure.imperial_soldiers) {
         return;
     }
-    if (num_workers > 0 || type == BUILDING_RESERVOIR || type == BUILDING_AQUEDUCT || type == BUILDING_WELL || type == BUILDING_GARDENS || type == BUILDING_FORT || building_is_house(type)) {
+    if (num_workers > 0
+    || building_is_house(type)
+    || type == BUILDING_RESERVOIR || type == BUILDING_AQUEDUCT || type == BUILDING_WELL || type == BUILDING_GARDENS
+    || building_is_fort(type)) {
         int channel = BUILDING_TYPE_TO_CHANNEL_ID[type];
         if (!channel) {
             return;

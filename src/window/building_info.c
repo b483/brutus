@@ -113,7 +113,9 @@ static int get_height_id(void)
             case BUILDING_LIBRARY:
             case BUILDING_GATEHOUSE:
             case BUILDING_TOWER:
-            case BUILDING_FORT:
+            case BUILDING_FORT_LEGIONARIES:
+            case BUILDING_FORT_JAVELIN:
+            case BUILDING_FORT_MOUNTED:
             case BUILDING_MILITARY_ACADEMY:
             case BUILDING_BARRACKS:
             case BUILDING_MARKET:
@@ -221,7 +223,9 @@ static void init(int grid_offset)
             case BUILDING_FORT_GROUND:
                 context.building_id = b->prev_part_building_id;
                 // fallthrough
-            case BUILDING_FORT:
+            case BUILDING_FORT_LEGIONARIES:
+            case BUILDING_FORT_JAVELIN:
+            case BUILDING_FORT_MOUNTED:
                 context.formation_id = b->formation_id;
                 break;
             case BUILDING_WAREHOUSE_SPACE:
@@ -489,7 +493,7 @@ static void draw_background(void)
             window_building_draw_military_academy(&context);
         } else if (btype == BUILDING_BARRACKS) {
             window_building_draw_barracks(&context);
-        } else if (btype == BUILDING_FORT) {
+        } else if (building_is_fort(btype)) {
             window_building_draw_fort(&context);
         } else if (btype == BUILDING_BURNING_RUIN) {
             window_building_draw_burning_ruin(&context);

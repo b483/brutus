@@ -419,7 +419,7 @@ static void draw_animation(int x, int y, int grid_offset)
         }
     } else if (map_sprite_bridge_at(grid_offset)) {
         city_draw_bridge(x, y, grid_offset);
-    } else if (all_buildings[map_building_at(grid_offset)].type == BUILDING_FORT) {
+    } else if (building_is_fort(all_buildings[map_building_at(grid_offset)].type)) {
         if (map_property_is_draw_tile(grid_offset)) {
             struct building_t *fort = &all_buildings[map_building_at(grid_offset)];
             int offset = 0;
@@ -429,8 +429,7 @@ static void draw_animation(int x, int y, int grid_offset)
                 case FIGURE_FORT_JAVELIN: offset = 2; break;
             }
             if (offset) {
-                image_draw_masked(image_group(GROUP_BUILDING_FORT) + offset, x + 81, y + 5,
-                    draw_building_as_deleted(fort) ? COLOR_MASK_RED : 0);
+                image_draw_masked(image_group(GROUP_BUILDING_FORT) + offset, x + 81, y + 5, draw_building_as_deleted(fort) ? COLOR_MASK_RED : 0);
             }
         }
     } else if (all_buildings[map_building_at(grid_offset)].type == BUILDING_GATEHOUSE) {

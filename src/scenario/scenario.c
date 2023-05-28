@@ -61,7 +61,7 @@ void scenario_editor_create(int map_size)
     scenario.favor_win_criteria.goal = 10;
 
     // Buildings allowed
-    for (int i = 0; i < BUILDING_TYPE_MAX; i++) {
+    for (int i = 1; i < BUILDING_TYPE_MAX; i++) {
         scenario.allowed_buildings[i] = 1;
     }
 

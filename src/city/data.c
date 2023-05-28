@@ -383,7 +383,6 @@ static void save_main_data(buffer *main)
     buffer_write_i8(main, city_data.distant_battle.enemy_months_traveled);
     buffer_write_i8(main, city_data.distant_battle.roman_months_traveled);
     buffer_write_u8(main, city_data.military.total_legions);
-    buffer_write_i8(main, city_data.building.triumphal_arches_placed);
     buffer_write_u8(main, city_data.sound.die_citizen);
     buffer_write_u8(main, city_data.sound.die_soldier);
     buffer_write_i32(main, city_data.building.trade_center_building_id);
@@ -751,7 +750,6 @@ static void load_main_data(buffer *main)
     city_data.distant_battle.enemy_months_traveled = buffer_read_i8(main);
     city_data.distant_battle.roman_months_traveled = buffer_read_i8(main);
     city_data.military.total_legions = buffer_read_u8(main);
-    city_data.building.triumphal_arches_placed = buffer_read_i8(main);
     city_data.sound.die_citizen = buffer_read_u8(main);
     city_data.sound.die_soldier = buffer_read_u8(main);
     city_data.building.trade_center_building_id = buffer_read_i32(main);

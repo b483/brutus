@@ -216,7 +216,7 @@ static void init_savegame_data(void)
     state->legion_formations = create_savegame_piece(420, 1);
     state->herd_formations = create_savegame_piece(560, 1);
     state->enemy_formations = create_savegame_piece(7000, 1);
-    state->city_data = create_savegame_piece(11593, 1);
+    state->city_data = create_savegame_piece(11592, 1);
     state->player_name = create_savegame_piece(24, 0);
     state->buildings = create_savegame_piece(162000, 1);
     state->city_view_orientation = create_savegame_piece(4, 0);

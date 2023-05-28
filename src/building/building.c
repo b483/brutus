@@ -70,13 +70,11 @@ struct building_properties_t building_properties[BUILDING_TYPE_MAX] = {
     {  2,     0,        185,      0,        50,    4,          1,        -1,             4,          10}, // BUILDING_BATHHOUSE
     {  1,     0,        68,       0,        30,    0,          0,         0,             0,          5}, // BUILDING_DOCTOR
     {  3,     0,        70,       0,        300,  -1,          2,         1,             2,          30}, // BUILDING_HOSPITAL
-    {  0,     0,        0,        0,        0,     0,          0,         0,             0,          0}, // BUILDING_MENU_SMALL_TEMPLES
     {  2,     0,        71,       0,        50,    4,          2,        -1,             6,          2}, // BUILDING_SMALL_TEMPLE_CERES
     {  2,     0,        72,       0,        50,    4,          2,        -1,             6,          2}, // BUILDING_SMALL_TEMPLE_NEPTUNE
     {  2,     0,        73,       0,        50,    4,          2,        -1,             6,          2}, // BUILDING_SMALL_TEMPLE_MERCURY
     {  2,     0,        74,       0,        50,    4,          2,        -1,             6,          2}, // BUILDING_SMALL_TEMPLE_MARS
     {  2,     0,        75,       0,        50,    4,          2,        -1,             6,          2}, // BUILDING_SMALL_TEMPLE_VENUS
-    {  0,     0,        0,        0,        0,     0,          0,         0,             0,          0}, // BUILDING_MENU_LARGE_TEMPLES
     {  3,     0,        71,       1,        150,   8,          2,        -1,             8,          5}, // BUILDING_LARGE_TEMPLE_CERES
     {  3,     0,        72,       1,        150,   8,          2,        -1,             8,          5}, // BUILDING_LARGE_TEMPLE_NEPTUNE
     {  3,     0,        73,       1,        150,   8,          2,        -1,             8,          5}, // BUILDING_LARGE_TEMPLE_MERCURY
@@ -116,25 +114,21 @@ struct building_properties_t building_properties[BUILDING_TYPE_MAX] = {
     {  2,     1,        17,       0,        150,  -8,          1,         2,             3,          6}, // BUILDING_TOWER
     {  2,     1,        17,       1,        100,  -4,          1,         1,             3,          0}, // BUILDING_GATEHOUSE
     {  1,     0,        64,       0,        30,   -2,          1,         1,             2,          6}, // BUILDING_PREFECTURE
-    {  3,     1,        66,       0,        250,  -20,         2,         2,             8,          0}, // BUILDING_FORT
     {  3,     1,        66,       0,        1000, -20,         2,         2,             8,          0}, // BUILDING_FORT_LEGIONARIES
     {  3,     1,        66,       0,        1000, -20,         2,         2,             8,          0}, // BUILDING_FORT_JAVELIN
     {  3,     1,        66,       0,        1000, -20,         2,         2,             8,          0}, // BUILDING_FORT_MOUNTED
     {  3,     0,        201,      0,        1000, -3,          1,         1,             3,          20}, // BUILDING_MILITARY_ACADEMY
     {  3,     0,        166,      0,        150,  -6,          1,         1,             3,          10}, // BUILDING_BARRACKS
-    {  0,     0,        0,        0,        0,     0,          0,         0,             0,          0}, // BUILDING_MENU_FARMS
     {  3,     0,        37,       0,        40,   -2,          1,         1,             2,          10}, // BUILDING_WHEAT_FARM
     {  3,     0,        37,       0,        40,   -2,          1,         1,             2,          10}, // BUILDING_VEGETABLE_FARM
     {  3,     0,        37,       0,        40,   -2,          1,         1,             2,          10}, // BUILDING_FRUIT_FARM
     {  3,     0,        37,       0,        40,   -2,          1,         1,             2,          10}, // BUILDING_OLIVE_FARM
     {  3,     0,        37,       0,        40,   -2,          1,         1,             2,          10}, // BUILDING_VINES_FARM
     {  3,     0,        37,       0,        40,   -2,          1,         1,             2,          10}, // BUILDING_PIG_FARM
-    {  0,     0,        0,        0,        0,     0,          0,         0,             0,          0}, // BUILDING_MENU_RAW_MATERIALS
     {  2,     0,        40,       0,        40,   -3,          1,         1,             3,          10}, // BUILDING_CLAY_PIT
     {  2,     0,        38,       0,        50,   -6,          1,         1,             4,          10}, // BUILDING_MARBLE_QUARRY
     {  2,     0,        39,       0,        50,   -6,          1,         1,             4,          10}, // BUILDING_IRON_MINE
     {  2,     0,        65,       0,        40,   -4,          1,         1,             3,          10}, // BUILDING_TIMBER_YARD
-    {  0,     0,        0,        0,        0,     0,          0,         0,             0,          0}, // BUILDING_MENU_WORKSHOPS
     {  2,     0,        44,       0,        45,   -1,          1,         1,             1,          10}, // BUILDING_WINE_WORKSHOP
     {  2,     0,        122,      0,        50,   -4,          1,         1,             2,          10}, // BUILDING_OIL_WORKSHOP
     {  2,     0,        123,      0,        50,   -4,          1,         1,             2,          10}, // BUILDING_WEAPONS_WORKSHOP
@@ -208,85 +202,79 @@ uint8_t all_buildings_strings[][23] = {
 "Bathhouse",  // 29
 "Doctor",  // 30
 "Hospital",  // 31
-"Menu: Small Temples",  // 32
-"Small Temple: Ceres",  // 33
-"Small Temple: Neptune",  // 34
-"Small Temple: Mercury",  // 35
-"Small Temple: Mars",  // 36
-"Small Temple: Venus",  // 37
-"Menu: Large Temples",  // 38
-"Large Temple: Ceres",  // 39
-"Large Temple: Neptune",  // 40
-"Large Temple: Mercury",  // 41
-"Large Temple: Mars",  // 42
-"Large Temple: Venus",  // 43
-"Oracle",  // 44
-"School",  // 45
-"Academy",  // 46
-"Library",  // 47
-"Mission Post",  // 48
-"Theater",  // 49
-"Amphitheater",  // 50
-"Colosseum",  // 51
-"Hippodrome",  // 52
-"Gladiator School",  // 53
-"Lion House",  // 54
-"Actor Colony",  // 55
-"Chariot Maker",  // 56
-"Forum",  // 57
-"Senate",  // 58
-"Governors House",  // 59
-"Governors Villa",  // 60
-"Governors Palace",  // 61
-"Small Statue",  // 62
-"Medium Statue",  // 63
-"Large Statue",  // 64
-"Triumphal Arch",  // 65
-"Gardens",  // 66
-"Plaza",  // 67
-"Engineers Post",  // 68
-"Low Bridge",  // 69
-"Ship Bridge",  // 70
-"Shipyard",  // 71
-"Dock",  // 72
-"Wharf",  // 73
-"Wall",  // 74
-"Tower",  // 75
-"Gatehouse",  // 76
-"Prefecture",  // 77
-"Fort",  // 78
-"Fort: Legionaries",  // 79
-"Fort: Javelin",  // 80
-"Fort: Mounted",  // 81
-"Military Academy",  // 82
-"Barracks",  // 83
-"Menu: Farms",  // 84
-"Wheat Farm",  // 85
-"Vegetable Farm",  // 86
-"Fruit Farm",  // 87
-"Olive Farm",  // 88
-"Vines Farm",  // 89
-"Pig Farm",  // 90
-"Menu: Raw Materials",  // 91
-"Clay Pit",  // 92
-"Marble Quarry",  // 93
-"Iron Mine",  // 94
-"Timber Yard",  // 95
-"Menu: Workshops",  // 96
-"Wine Workshop",  // 97
-"Oil Workshop",  // 98
-"Weapons Workshop",  // 99
-"Furniture Workshop",  // 100
-"Pottery Workshop",  // 101
-"Market",  // 102
-"Granary",  // 103
-"Warehouse",  // 104
-"Warehouse Space",  // 105
-"Native Hut",  // 106
-"Native Meeting",  // 107
-"Native Crops",  // 108
-"Fort Ground",  // 109
-"Burning Ruin",  // 110
+"Small Temple: Ceres",  // 32
+"Small Temple: Neptune",  // 33
+"Small Temple: Mercury",  // 34
+"Small Temple: Mars",  // 35
+"Small Temple: Venus",  // 36
+"Large Temple: Ceres",  // 37
+"Large Temple: Neptune",  // 38
+"Large Temple: Mercury",  // 39
+"Large Temple: Mars",  // 40
+"Large Temple: Venus",  // 41
+"Oracle",  // 42
+"School",  // 43
+"Academy",  // 44
+"Library",  // 45
+"Mission Post",  // 46
+"Theater",  // 47
+"Amphitheater",  // 48
+"Colosseum",  // 49
+"Hippodrome",  // 50
+"Gladiator School",  // 51
+"Lion House",  // 52
+"Actor Colony",  // 53
+"Chariot Maker",  // 54
+"Forum",  // 55
+"Senate",  // 56
+"Governors House",  // 57
+"Governors Villa",  // 58
+"Governors Palace",  // 59
+"Small Statue",  // 60
+"Medium Statue",  // 61
+"Large Statue",  // 62
+"Triumphal Arch",  // 63
+"Gardens",  // 64
+"Plaza",  // 65
+"Engineers Post",  // 66
+"Low Bridge",  // 67
+"Ship Bridge",  // 68
+"Shipyard",  // 69
+"Dock",  // 70
+"Wharf",  // 71
+"Wall",  // 72
+"Tower",  // 73
+"Gatehouse",  // 74
+"Prefecture",  // 75
+"Fort: Legionaries",  // 76
+"Fort: Javelin",  // 77
+"Fort: Mounted",  // 78
+"Military Academy",  // 79
+"Barracks",  // 80
+"Wheat Farm",  // 81
+"Vegetable Farm",  // 82
+"Fruit Farm",  // 83
+"Olive Farm",  // 84
+"Vines Farm",  // 85
+"Pig Farm",  // 86
+"Clay Pit",  // 87
+"Marble Quarry",  // 88
+"Iron Mine",  // 89
+"Timber Yard",  // 90
+"Wine Workshop",  // 91
+"Oil Workshop",  // 92
+"Weapons Workshop",  // 93
+"Furniture Workshop",  // 94
+"Pottery Workshop",  // 95
+"Market",  // 96
+"Granary",  // 97
+"Warehouse",  // 98
+"Warehouse Space",  // 99
+"Native Hut",  // 100
+"Native Meeting",  // 101
+"Native Crops",  // 102
+"Fort Ground",  // 103
+"Burning Ruin",  // 104
 };
 
 struct building_t *building_main(struct building_t *b)
@@ -441,7 +429,7 @@ void building_clear_related_data(struct building_t *b)
     if (b->type == BUILDING_BARRACKS) {
         city_buildings_remove_barracks(b);
     }
-    if (b->type == BUILDING_FORT) {
+    if (building_is_fort(b->type)) {
         city_data.military.total_legions--;
         struct formation_t *m = &legion_formations[b->formation_id];
         if (m->in_use) {
@@ -519,24 +507,6 @@ int align_bulding_type_index_to_strings(int building_type_index)
 {
     if (building_type_index >= BUILDING_HOUSE_SMALL_TENT) {
         building_type_index += MAX_HOUSE_TYPES;
-    }
-    if (building_type_index >= BUILDING_MENU_SMALL_TEMPLES) {
-        building_type_index++;
-    }
-    if (building_type_index >= BUILDING_MENU_LARGE_TEMPLES) {
-        building_type_index++;
-    }
-    if (building_type_index >= BUILDING_FORT) {
-        building_type_index++;
-    }
-    if (building_type_index >= BUILDING_MENU_FARMS) {
-        building_type_index++;
-    }
-    if (building_type_index >= BUILDING_MENU_RAW_MATERIALS) {
-        building_type_index++;
-    }
-    if (building_type_index >= BUILDING_MENU_WORKSHOPS) {
-        building_type_index++;
     }
     return building_type_index;
 }

@@ -299,7 +299,7 @@ void widget_city_handle_input_military(const mouse *m, const hotkeys *h, int leg
             }
             // return legion home upon clicking on own fort/fort ground
             struct building_t *b = &all_buildings[map_building_at(tile->grid_offset)];
-            if (b && b->state == BUILDING_STATE_IN_USE && (b->type == BUILDING_FORT || b->type == BUILDING_FORT_GROUND) && b->formation_id == legion_formation_id) {
+            if (b && b->state == BUILDING_STATE_IN_USE && (building_is_fort(b->type) || b->type == BUILDING_FORT_GROUND) && b->formation_id == legion_formation_id) {
                 return_legion_formation_home(legion_formation);
             } else { // move legion if route available
                 map_routing_calculate_distances(legion_formation->standard_x, legion_formation->standard_y);

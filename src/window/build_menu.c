@@ -2,7 +2,6 @@
 
 #include "building/building.h"
 #include "building/construction.h"
-#include "building/menu.h"
 #include "city/view.h"
 #include "graphics/generic_button.h"
 #include "graphics/image.h"
@@ -15,51 +14,29 @@
 #include "widget/sidebar/city.h"
 #include "window/city.h"
 
+#include <string.h>
+
 #define MENU_X_OFFSET 258
 #define MENU_Y_OFFSET 110
 #define MENU_ITEM_HEIGHT 24
 #define MENU_ITEM_WIDTH 176
 #define MENU_CLICK_MARGIN 20
 
-#define SUBMENU_NONE -1
+#define MENU_NONE -1
 
-static void button_menu_index(int param1, int param2);
-static void button_menu_item(int item);
+static void button_submenu_or_building(int param1, int param2);
 
-static generic_button build_menu_buttons[] = {
-    {0, 0, 256, 20, button_menu_index, button_none, 1, 0},
-    {0, 24, 256, 20, button_menu_index, button_none, 2, 0},
-    {0, 48, 256, 20, button_menu_index, button_none, 3, 0},
-    {0, 72, 256, 20, button_menu_index, button_none, 4, 0},
-    {0, 96, 256, 20, button_menu_index, button_none, 5, 0},
-    {0, 120, 256, 20, button_menu_index, button_none, 6, 0},
-    {0, 144, 256, 20, button_menu_index, button_none, 7, 0},
-    {0, 168, 256, 20, button_menu_index, button_none, 8, 0},
-    {0, 192, 256, 20, button_menu_index, button_none, 9, 0},
-    {0, 216, 256, 20, button_menu_index, button_none, 10, 0},
-    {0, 240, 256, 20, button_menu_index, button_none, 11, 0},
-    {0, 264, 256, 20, button_menu_index, button_none, 12, 0},
-    {0, 288, 256, 20, button_menu_index, button_none, 13, 0},
-    {0, 312, 256, 20, button_menu_index, button_none, 14, 0},
-    {0, 336, 256, 20, button_menu_index, button_none, 15, 0},
-    {0, 360, 256, 20, button_menu_index, button_none, 16, 0},
-    {0, 384, 256, 20, button_menu_index, button_none, 17, 0},
-    {0, 408, 256, 20, button_menu_index, button_none, 18, 0},
-    {0, 432, 256, 20, button_menu_index, button_none, 19, 0},
-    {0, 456, 256, 20, button_menu_index, button_none, 20, 0},
-    {0, 480, 256, 20, button_menu_index, button_none, 21, 0},
-    {0, 504, 256, 20, button_menu_index, button_none, 22, 0},
-    {0, 528, 256, 20, button_menu_index, button_none, 23, 0},
-    {0, 552, 256, 20, button_menu_index, button_none, 24, 0},
-    {0, 576, 256, 20, button_menu_index, button_none, 25, 0},
-    {0, 600, 256, 20, button_menu_index, button_none, 26, 0},
-    {0, 624, 256, 20, button_menu_index, button_none, 27, 0},
-    {0, 648, 256, 20, button_menu_index, button_none, 28, 0},
-    {0, 672, 256, 20, button_menu_index, button_none, 29, 0},
-    {0, 696, 256, 20, button_menu_index, button_none, 30, 0},
+static generic_button build_menu_buttons[MAX_ITEMS_PER_BUILD_MENU] = {
+    {0, 0, 256, 20, button_submenu_or_building, button_none, 0, 0},
+    {0, 24, 256, 20, button_submenu_or_building, button_none, 1, 0},
+    {0, 48, 256, 20, button_submenu_or_building, button_none, 2, 0},
+    {0, 72, 256, 20, button_submenu_or_building, button_none, 3, 0},
+    {0, 96, 256, 20, button_submenu_or_building, button_none, 4, 0},
+    {0, 120, 256, 20, button_submenu_or_building, button_none, 5, 0},
+    {0, 144, 256, 20, button_submenu_or_building, button_none, 6, 0},
+    {0, 168, 256, 20, button_submenu_or_building, button_none, 7, 0},
+    {0, 192, 256, 20, button_submenu_or_building, button_none, 8, 0},
 };
-
-uint8_t build_menu_all_temples_string[] = {"All"};
 
 static const int Y_MENU_OFFSETS[] = {
     0, 322, 306, 274, 258, 226, 210, 178, 162, 130, 114,
@@ -68,90 +45,165 @@ static const int Y_MENU_OFFSETS[] = {
     0, 0, 0, 0, 0, 0
 };
 
+const int BUILDING_MENU_SUBMENU_ITEM_MAPPING[BUILD_MENU_BUTTONS_COUNT][MAX_ITEMS_PER_BUILD_MENU][MAX_ITEMS_PER_SUBMENU] = {
+    { // MENU_VACANT_HOUSE
+        {BUILDING_HOUSE_VACANT_LOT},
+    },
+    { // MENU_CLEAR_LAND
+        {BUILDING_CLEAR_LAND},
+    },
+    { // MENU_ROAD
+        {BUILDING_ROAD}
+    },
+    { // MENU_WATER
+        {BUILDING_RESERVOIR},
+        {BUILDING_AQUEDUCT},
+        {BUILDING_FOUNTAIN},
+        {BUILDING_WELL}
+    },
+    { // MENU_HEALTH
+        {BUILDING_BARBER},
+        {BUILDING_BATHHOUSE},
+        {BUILDING_DOCTOR},
+        {BUILDING_HOSPITAL}
+    },
+    { // MENU_TEMPLES
+        {BUILDING_SMALL_TEMPLE_CERES, BUILDING_SMALL_TEMPLE_NEPTUNE, BUILDING_SMALL_TEMPLE_MERCURY, BUILDING_SMALL_TEMPLE_MARS, BUILDING_SMALL_TEMPLE_VENUS},
+        {BUILDING_LARGE_TEMPLE_CERES, BUILDING_LARGE_TEMPLE_NEPTUNE, BUILDING_LARGE_TEMPLE_MERCURY, BUILDING_LARGE_TEMPLE_MARS, BUILDING_LARGE_TEMPLE_VENUS},
+        {BUILDING_ORACLE}
+    },
+    { // MENU_EDUCATION
+        {BUILDING_SCHOOL},
+        {BUILDING_ACADEMY},
+        {BUILDING_LIBRARY},
+        {BUILDING_MISSION_POST}
+    },
+    { // MENU_ENTERTAINMENT
+        {BUILDING_THEATER},
+        {BUILDING_AMPHITHEATER},
+        {BUILDING_COLOSSEUM},
+        {BUILDING_HIPPODROME},
+        {BUILDING_GLADIATOR_SCHOOL},
+        {BUILDING_LION_HOUSE},
+        {BUILDING_ACTOR_COLONY},
+        {BUILDING_CHARIOT_MAKER}
+    },
+    { // MENU_ADMINISTRATION
+        {BUILDING_FORUM},
+        {BUILDING_SENATE},
+        {BUILDING_GOVERNORS_HOUSE},
+        {BUILDING_GOVERNORS_VILLA},
+        {BUILDING_GOVERNORS_PALACE},
+        {BUILDING_SMALL_STATUE},
+        {BUILDING_MEDIUM_STATUE},
+        {BUILDING_LARGE_STATUE},
+        {BUILDING_TRIUMPHAL_ARCH}
+    },
+    { // MENU_ENGINEERING
+        {BUILDING_GARDENS},
+        {BUILDING_PLAZA},
+        {BUILDING_ENGINEERS_POST},
+        {BUILDING_LOW_BRIDGE},
+        {BUILDING_SHIP_BRIDGE},
+        {BUILDING_SHIPYARD},
+        {BUILDING_DOCK},
+        {BUILDING_WHARF}
+    },
+    { // MENU_SECURITY
+        {BUILDING_WALL},
+        {BUILDING_TOWER},
+        {BUILDING_GATEHOUSE},
+        {BUILDING_PREFECTURE},
+        {BUILDING_FORT_LEGIONARIES, BUILDING_FORT_JAVELIN, BUILDING_FORT_MOUNTED},
+        {BUILDING_MILITARY_ACADEMY},
+        {BUILDING_BARRACKS}
+    },
+    { // MENU_INDUSTRY
+        {BUILDING_WHEAT_FARM, BUILDING_VEGETABLE_FARM, BUILDING_FRUIT_FARM, BUILDING_OLIVE_FARM, BUILDING_VINES_FARM, BUILDING_PIG_FARM},
+        {BUILDING_CLAY_PIT, BUILDING_MARBLE_QUARRY, BUILDING_IRON_MINE, BUILDING_TIMBER_YARD},
+        {BUILDING_WINE_WORKSHOP, BUILDING_OIL_WORKSHOP, BUILDING_WEAPONS_WORKSHOP, BUILDING_FURNITURE_WORKSHOP, BUILDING_POTTERY_WORKSHOP},
+        {BUILDING_MARKET},
+        {BUILDING_GRANARY},
+        {BUILDING_WAREHOUSE}
+    }
+};
+
+static uint8_t submenu_strings[][20] = {
+"Menu: Small Temples",  // 0
+"Menu: Large Temples",  // 1
+"Menu: Forts", // 2
+"Menu: Farms",  // 3
+"Menu: Raw Materials",  // 4
+"Menu: Workshops"  // 5
+};
+
+struct build_menu_t build_menus[BUILD_MENU_BUTTONS_COUNT];
+
 static struct {
-    build_menu_group selected_submenu;
-    int num_items;
+    int selected_menu;
+    int selected_submenu;
+    int num_items_to_draw;
     int y_offset;
-
     int focus_button_id;
-} data = { SUBMENU_NONE, 0, 0, 0 };
+} data = { MENU_NONE, MENU_NONE, 0, 0, 0 };
 
-static int init(build_menu_group submenu)
+static void map_submenu_items(int menu_index, int submenu_index, int submenu_string_index)
 {
-    data.selected_submenu = submenu;
-    data.num_items = building_menu_count_items(submenu);
-    data.y_offset = Y_MENU_OFFSETS[data.num_items];
-    if (submenu == BUILD_MENU_VACANT_HOUSE ||
-        submenu == BUILD_MENU_CLEAR_LAND ||
-        submenu == BUILD_MENU_ROAD) {
-        button_menu_item(0);
-        return 0;
-    } else {
-        return 1;
+    build_menus[menu_index].menu_items[submenu_index].building_id = 0;
+    build_menus[menu_index].menu_items[submenu_index].is_submenu = 1;
+    build_menus[menu_index].menu_items[submenu_index].submenu_string = submenu_strings[submenu_string_index];
+    for (int k = 0; k < MAX_ITEMS_PER_SUBMENU; k++) {
+        if (scenario.allowed_buildings[BUILDING_MENU_SUBMENU_ITEM_MAPPING[menu_index][submenu_index][k]]) {
+            build_menus[menu_index].is_enabled = 1;
+            build_menus[menu_index].menu_items[submenu_index].is_enabled = 1;
+            build_menus[menu_index].menu_items[submenu_index].submenu_items[k] = BUILDING_MENU_SUBMENU_ITEM_MAPPING[menu_index][submenu_index][k];
+        }
     }
 }
 
-int window_build_menu_image(void)
+void map_building_menu_items(void)
 {
-    building_type type = building_construction_type();
-    int image_base = image_group(GROUP_PANEL_WINDOWS);
-    if (type == BUILDING_NONE) {
-        return image_base + 12;
+    // reset values so as to not carry over between maps
+    for (int i = 0; i < BUILD_MENU_BUTTONS_COUNT; i++) {
+        memset(&build_menus[i], 0, sizeof(struct build_menu_t));
     }
-    switch (get_building_menu_for_type(type)) {
-        default:
-        case BUILD_MENU_VACANT_HOUSE:
-            return image_base;
-        case BUILD_MENU_CLEAR_LAND:
-            if (scenario.climate == CLIMATE_DESERT) {
-                return image_group(GROUP_PANEL_WINDOWS_DESERT);
+
+    for (int i = 0; i < BUILD_MENU_BUTTONS_COUNT; i++) {
+        for (int j = 0; j < MAX_ITEMS_PER_BUILD_MENU; j++) {
+            if (i == 5 && j == 0) { // small temples
+                map_submenu_items(i, j, 0);
+            } else if (i == 5 && j == 1) { // large temples
+                map_submenu_items(i, j, 1);
+            } else if (i == 10 && j == 4) { // forts
+                map_submenu_items(i, j, 2);
+            } else if (i == 11 && j == 0) { // farms
+                map_submenu_items(i, j, 3);
+            } else if (i == 11 && j == 1) { // raw materials
+                map_submenu_items(i, j, 4);
+            } else if (i == 11 && j == 2) { // workshops
+                map_submenu_items(i, j, 5);
             } else {
-                return image_base + 11;
+                if (scenario.allowed_buildings[BUILDING_MENU_SUBMENU_ITEM_MAPPING[i][j][0]] && BUILDING_MENU_SUBMENU_ITEM_MAPPING[i][j][0] != BUILDING_TRIUMPHAL_ARCH) {
+                    build_menus[i].is_enabled = 1;
+                    build_menus[i].menu_items[j].building_id = BUILDING_MENU_SUBMENU_ITEM_MAPPING[i][j][0];
+                    build_menus[i].menu_items[j].is_enabled = 1;
+                }
             }
-        case BUILD_MENU_ROAD:
-            if (scenario.climate == CLIMATE_DESERT) {
-                return image_group(GROUP_PANEL_WINDOWS_DESERT) + 1;
-            } else {
-                return image_base + 10;
-            }
-        case BUILD_MENU_WATER:
-            if (scenario.climate == CLIMATE_DESERT) {
-                return image_group(GROUP_PANEL_WINDOWS_DESERT) + 2;
-            } else {
-                return image_base + 3;
-            }
-        case BUILD_MENU_HEALTH:
-            return image_base + 5;
-        case BUILD_MENU_TEMPLES:
-        case BUILD_MENU_SMALL_TEMPLES:
-        case BUILD_MENU_LARGE_TEMPLES:
-            return image_base + 1;
-        case BUILD_MENU_EDUCATION:
-            return image_base + 6;
-        case BUILD_MENU_ENTERTAINMENT:
-            return image_base + 4;
-        case BUILD_MENU_ADMINISTRATION:
-            return image_base + 2;
-        case BUILD_MENU_ENGINEERING:
-            return image_base + 7;
-        case BUILD_MENU_SECURITY:
-        case BUILD_MENU_FORTS:
-            if (scenario.climate == CLIMATE_DESERT) {
-                return image_group(GROUP_PANEL_WINDOWS_DESERT) + 3;
-            } else {
-                return image_base + 8;
-            }
-        case BUILD_MENU_INDUSTRY:
-        case BUILD_MENU_FARMS:
-        case BUILD_MENU_RAW_MATERIALS:
-        case BUILD_MENU_WORKSHOPS:
-            return image_base + 9;
+        }
     }
 }
 
-static void draw_background(void)
+static void init(int menu)
 {
-    window_city_draw_background();
+    data.selected_menu = menu;
+    data.selected_submenu = MENU_NONE;
+    data.num_items_to_draw = 0;
+    for (int j = 0; j < MAX_ITEMS_PER_BUILD_MENU; j++) {
+        if (build_menus[menu].menu_items[j].is_enabled) {
+            data.num_items_to_draw++;
+        }
+    }
+    data.y_offset = Y_MENU_OFFSETS[data.num_items_to_draw];
 }
 
 static int get_sidebar_x_offset(void)
@@ -161,40 +213,37 @@ static int get_sidebar_x_offset(void)
     return view_x + view_width;
 }
 
-static int is_all_button(building_type type)
-{
-    return (type == BUILDING_MENU_SMALL_TEMPLES && data.selected_submenu == BUILD_MENU_SMALL_TEMPLES) ||
-        (type == BUILDING_MENU_LARGE_TEMPLES && data.selected_submenu == BUILD_MENU_LARGE_TEMPLES);
-}
-
 static void draw_menu_buttons(void)
 {
     int x_offset = get_sidebar_x_offset();
-    int item_index = -1;
     int item_x_align = x_offset - MENU_X_OFFSET - 8;
-    for (int i = 0; i < data.num_items; i++) {
-        item_index = building_menu_next_index(data.selected_submenu, item_index);
-        int type = building_menu_type(data.selected_submenu, item_index);
-        label_draw(item_x_align, data.y_offset + MENU_Y_OFFSET + MENU_ITEM_HEIGHT * i, 16,
-            data.focus_button_id == i + 1 ? 1 : 2);
-        if (is_all_button(type)) {
-            text_draw_centered(build_menu_all_temples_string, item_x_align, data.y_offset + MENU_Y_OFFSET + 3 + MENU_ITEM_HEIGHT * i,
-                MENU_ITEM_WIDTH, FONT_NORMAL_GREEN, 0);
-        } else {
-            text_draw_centered(all_buildings_strings[type], item_x_align, data.y_offset + MENU_Y_OFFSET + 3 + MENU_ITEM_HEIGHT * i,
-                MENU_ITEM_WIDTH, FONT_NORMAL_GREEN, COLOR_BLACK);
-        }
-        int cost = building_properties[type].cost;
-        if (type == BUILDING_FORT) {
-            cost = 0;
-        } else if (type == BUILDING_MENU_SMALL_TEMPLES && data.selected_submenu == BUILD_MENU_SMALL_TEMPLES) {
-            cost = building_properties[BUILDING_SMALL_TEMPLE_CERES].cost;
-        } else if (type == BUILDING_MENU_LARGE_TEMPLES && data.selected_submenu == BUILD_MENU_LARGE_TEMPLES) {
-            cost = building_properties[BUILDING_LARGE_TEMPLE_CERES].cost;
-        }
-        if (cost) {
-            text_draw_money(cost, x_offset - 82, data.y_offset + MENU_Y_OFFSET + 4 + MENU_ITEM_HEIGHT * i,
-                FONT_NORMAL_GREEN);
+    int n_skipped_items = 0;
+    for (int j = 0; j < data.num_items_to_draw; j++) {
+        label_draw(item_x_align, data.y_offset + MENU_Y_OFFSET + MENU_ITEM_HEIGHT * j, 16, data.focus_button_id == j + 1 ? 1 : 2);
+        if (data.selected_submenu > MENU_NONE) { // drawing submenu items
+            for (int k = j + n_skipped_items; k < MAX_ITEMS_PER_SUBMENU; k++) { // draw next enabled item
+                if (build_menus[data.selected_menu].menu_items[data.selected_submenu].submenu_items[k]) {
+                    text_draw_centered(all_buildings_strings[build_menus[data.selected_menu].menu_items[data.selected_submenu].submenu_items[k]], item_x_align, data.y_offset + MENU_Y_OFFSET + 4 + MENU_ITEM_HEIGHT * j, MENU_ITEM_WIDTH, FONT_NORMAL_GREEN, COLOR_BLACK);
+                    text_draw_money(building_properties[build_menus[data.selected_menu].menu_items[data.selected_submenu].submenu_items[k]].cost, x_offset - 82, data.y_offset + MENU_Y_OFFSET + 4 + MENU_ITEM_HEIGHT * j, FONT_NORMAL_GREEN);
+                    break;
+                } else {
+                    n_skipped_items++;
+                }
+            }
+        } else { // drawing menu items
+            for (int k = j + n_skipped_items; k < MAX_ITEMS_PER_BUILD_MENU; k++) { // draw next enabled item
+                if (build_menus[data.selected_menu].menu_items[k].is_enabled) {
+                    if (build_menus[data.selected_menu].menu_items[k].is_submenu) {
+                        text_draw_centered(build_menus[data.selected_menu].menu_items[k].submenu_string, item_x_align, data.y_offset + MENU_Y_OFFSET + 4 + MENU_ITEM_HEIGHT * j, MENU_ITEM_WIDTH, FONT_NORMAL_GREEN, COLOR_BLACK);
+                    } else {
+                        text_draw_centered(all_buildings_strings[build_menus[data.selected_menu].menu_items[k].building_id], item_x_align, data.y_offset + MENU_Y_OFFSET + 4 + MENU_ITEM_HEIGHT * j, MENU_ITEM_WIDTH, FONT_NORMAL_GREEN, COLOR_BLACK);
+                        text_draw_money(building_properties[build_menus[data.selected_menu].menu_items[k].building_id].cost, x_offset - 82, data.y_offset + MENU_Y_OFFSET + 4 + MENU_ITEM_HEIGHT * j, FONT_NORMAL_GREEN);
+                    }
+                    break;
+                } else {
+                    n_skipped_items++;
+                }
+            }
         }
     }
 }
@@ -211,108 +260,136 @@ static int click_outside_menu(const mouse *m, int x_offset)
         (m->x < x_offset - MENU_X_OFFSET - MENU_CLICK_MARGIN ||
          m->x > x_offset + MENU_CLICK_MARGIN ||
          m->y < data.y_offset + MENU_Y_OFFSET - MENU_CLICK_MARGIN ||
-         m->y > data.y_offset + MENU_Y_OFFSET + MENU_CLICK_MARGIN + MENU_ITEM_HEIGHT * data.num_items);
-}
-
-static int handle_build_submenu(const mouse *m)
-{
-    return generic_buttons_handle_mouse(
-        m, get_sidebar_x_offset() - MENU_X_OFFSET, data.y_offset + MENU_Y_OFFSET,
-               build_menu_buttons, data.num_items, &data.focus_button_id);
+         m->y > data.y_offset + MENU_Y_OFFSET + MENU_CLICK_MARGIN + MENU_ITEM_HEIGHT * data.num_items_to_draw);
 }
 
 static void handle_input(const mouse *m, const hotkeys *h)
 {
-    if (handle_build_submenu(m) ||
-        widget_sidebar_city_handle_mouse_build_menu(m)) {
+    if (generic_buttons_handle_mouse(m, get_sidebar_x_offset() - MENU_X_OFFSET, data.y_offset + MENU_Y_OFFSET, build_menu_buttons, data.num_items_to_draw, &data.focus_button_id)
+        || widget_sidebar_city_handle_mouse_build_menu(m)
+        ) {
         return;
     }
     if (m->right.went_up || h->escape_pressed || click_outside_menu(m, get_sidebar_x_offset())) {
-        data.selected_submenu = SUBMENU_NONE;
+        data.selected_menu = MENU_NONE;
+        data.selected_submenu = MENU_NONE;
         window_city_show();
         return;
     }
 }
 
-static int button_index_to_submenu_item(int index)
+static void button_submenu_or_building(int param1, __attribute__((unused)) int param2)
 {
-    int item = -1;
-    for (int i = 0; i <= index; i++) {
-        item = building_menu_next_index(data.selected_submenu, item);
-    }
-    return item;
-}
-
-static void button_menu_index(int param1, __attribute__((unused)) int param2)
-{
-    button_menu_item(button_index_to_submenu_item(param1 - 1));
-}
-
-static int set_submenu_for_type(building_type type)
-{
-    build_menu_group current_menu = data.selected_submenu;
-    switch (type) {
-        case BUILDING_MENU_FARMS:
-            data.selected_submenu = BUILD_MENU_FARMS;
-            break;
-        case BUILDING_MENU_RAW_MATERIALS:
-            data.selected_submenu = BUILD_MENU_RAW_MATERIALS;
-            break;
-        case BUILDING_MENU_WORKSHOPS:
-            data.selected_submenu = BUILD_MENU_WORKSHOPS;
-            break;
-        case BUILDING_MENU_SMALL_TEMPLES:
-            data.selected_submenu = BUILD_MENU_SMALL_TEMPLES;
-            break;
-        case BUILDING_MENU_LARGE_TEMPLES:
-            data.selected_submenu = BUILD_MENU_LARGE_TEMPLES;
-            break;
-        case BUILDING_FORT:
-            data.selected_submenu = BUILD_MENU_FORTS;
-            break;
-        default:
-            return 0;
-    }
-    return current_menu != data.selected_submenu;
-}
-
-static void button_menu_item(int item)
-{
-    widget_city_clear_current_tile();
-
-    building_type type = building_menu_type(data.selected_submenu, item);
-    building_construction_set_type(type);
-
-    if (set_submenu_for_type(type)) {
-        data.num_items = building_menu_count_items(data.selected_submenu);
-        data.y_offset = Y_MENU_OFFSETS[data.num_items];
-        building_construction_clear_type();
+    int n_skipped_items = 0;
+    if (data.selected_submenu > MENU_NONE) { // select building from submenu
+        for (int k = 0; k < MAX_ITEMS_PER_SUBMENU; k++) { // select next enabled item
+            if (build_menus[data.selected_menu].menu_items[data.selected_submenu].submenu_items[k]) {
+                if (k - n_skipped_items >= param1) {
+                    building_construction_set_type(build_menus[data.selected_menu].menu_items[data.selected_submenu].submenu_items[k]);
+                    data.selected_menu = MENU_NONE;
+                    data.selected_submenu = MENU_NONE;
+                    window_city_show();
+                    break;
+                }
+            } else {
+                n_skipped_items++;
+            }
+        }
     } else {
-        data.selected_submenu = SUBMENU_NONE;
-        window_city_show();
+        for (int j = 0; j < MAX_ITEMS_PER_BUILD_MENU; j++) { // select next enabled item
+            if (build_menus[data.selected_menu].menu_items[j].is_enabled) {
+                if (j - n_skipped_items >= param1) {
+                    if (build_menus[data.selected_menu].menu_items[j].is_submenu) { // select submenu
+                        data.selected_submenu = j;
+                        data.num_items_to_draw = 0;
+                        for (int k = 0; k < MAX_ITEMS_PER_SUBMENU; k++) {
+                            if (build_menus[data.selected_menu].menu_items[j].submenu_items[k]) {
+                                data.num_items_to_draw++;
+                            }
+                        }
+                    } else { // select building from menu
+                        building_construction_set_type(build_menus[data.selected_menu].menu_items[j].building_id);
+                        data.selected_menu = MENU_NONE;
+                        data.selected_submenu = MENU_NONE;
+                        window_city_show();
+                    }
+                    break;
+                }
+            } else {
+                n_skipped_items++;
+            }
+        }
     }
 }
 
-void window_build_menu_show(int submenu)
+int window_build_menu_image(void)
 {
-    if (submenu == SUBMENU_NONE || submenu == data.selected_submenu) {
+    int image_base = image_group(GROUP_PANEL_WINDOWS);
+    switch (data.selected_menu) {
+        case MENU_VACANT_HOUSE:
+            return image_base;
+        case MENU_CLEAR_LAND:
+            if (scenario.climate == CLIMATE_DESERT) {
+                return image_group(GROUP_PANEL_WINDOWS_DESERT);
+            } else {
+                return image_base + 11;
+            }
+        case MENU_ROAD:
+            if (scenario.climate == CLIMATE_DESERT) {
+                return image_group(GROUP_PANEL_WINDOWS_DESERT) + 1;
+            } else {
+                return image_base + 10;
+            }
+        case MENU_WATER:
+            if (scenario.climate == CLIMATE_DESERT) {
+                return image_group(GROUP_PANEL_WINDOWS_DESERT) + 2;
+            } else {
+                return image_base + 3;
+            }
+        case MENU_HEALTH:
+            return image_base + 5;
+        case MENU_TEMPLES:
+            return image_base + 1;
+        case MENU_EDUCATION:
+            return image_base + 6;
+        case MENU_ENTERTAINMENT:
+            return image_base + 4;
+        case MENU_ADMINISTRATION:
+            return image_base + 2;
+        case MENU_ENGINEERING:
+            return image_base + 7;
+        case MENU_SECURITY:
+            if (scenario.climate == CLIMATE_DESERT) {
+                return image_group(GROUP_PANEL_WINDOWS_DESERT) + 3;
+            } else {
+                return image_base + 8;
+            }
+        case MENU_INDUSTRY:
+            return image_base + 9;
+        default:
+            return image_base + 12;
+    }
+}
+
+void window_build_menu_show(int menu)
+{
+    if (menu == MENU_NONE || menu == data.selected_menu) {
         window_build_menu_hide();
         return;
     }
-    if (init(submenu)) {
-        window_type window = {
-            WINDOW_BUILD_MENU,
-            draw_background,
-            draw_foreground,
-            handle_input,
-            0
-        };
-        window_show(&window);
-    }
+    init(menu);
+    window_type window = {
+        WINDOW_BUILD_MENU,
+        window_city_draw_background,
+        draw_foreground,
+        handle_input,
+        0
+    };
+    window_show(&window);
 }
 
 void window_build_menu_hide(void)
 {
-    data.selected_submenu = SUBMENU_NONE;
+    data.selected_menu = MENU_NONE;
     window_city_show();
 }

@@ -154,29 +154,9 @@ static void handle_input(const mouse *m, const hotkeys *h)
 void toggle_building(int id, __attribute__((unused)) int param2)
 {
     // sync with building types index
-    if (id >= BUILDING_HOUSE_SMALL_TENT) {
-        id += MAX_HOUSE_TYPES;
-    }
-    if (id >= BUILDING_MENU_SMALL_TEMPLES) {
-        id++;
-    }
-    if (id >= BUILDING_MENU_LARGE_TEMPLES) {
-        id++;
-    }
-    if (id >= BUILDING_FORT) {
-        id++;
-    }
-    if (id >= BUILDING_MENU_FARMS) {
-        id++;
-    }
-    if (id >= BUILDING_MENU_RAW_MATERIALS) {
-        id++;
-    }
-    if (id >= BUILDING_MENU_WORKSHOPS) {
-        id++;
-    }
+    int building_index = align_bulding_type_index_to_strings(id);
 
-    scenario.allowed_buildings[id] = !scenario.allowed_buildings[id];
+    scenario.allowed_buildings[building_index] = !scenario.allowed_buildings[building_index];
     scenario.is_saved = 0;
 }
 

@@ -1,6 +1,5 @@
 #include "military.h"
 
-#include "building/menu.h"
 #include "city/buildings.h"
 #include "city/data_private.h"
 #include "city/message.h"
@@ -12,6 +11,7 @@
 #include "figure/formation_legion.h"
 #include "scenario/data.h"
 #include "scenario/editor_events.h"
+#include "window/build_menu.h"
 
 void city_military_determine_distant_battle_city(void)
 {
@@ -167,7 +167,9 @@ static void fight_distant_battle(void)
         if (scenario.allowed_buildings[BUILDING_TRIUMPHAL_ARCH]) {
             city_message_post(1, MESSAGE_DISTANT_BATTLE_WON, 0, 0);
             city_data.building.triumphal_arches_available++;
-            building_menu_update();
+            build_menus[MENU_ADMINISTRATION].is_enabled = 1; // in case every other item in the menu was disabled
+            build_menus[MENU_ADMINISTRATION].menu_items[8].building_id = BUILDING_TRIUMPHAL_ARCH;
+            build_menus[MENU_ADMINISTRATION].menu_items[8].is_enabled = 1;
         } else {
             city_message_post(1, MESSAGE_DISTANT_BATTLE_WON_TRIUMPHAL_ARCH_DISABLED, 0, 0);
         }

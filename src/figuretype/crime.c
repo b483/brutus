@@ -255,7 +255,9 @@ int figure_rioter_collapse_building(struct figure_t *f)
             case BUILDING_WAREHOUSE_SPACE:
             case BUILDING_WAREHOUSE:
             case BUILDING_FORT_GROUND:
-            case BUILDING_FORT:
+            case BUILDING_FORT_LEGIONARIES:
+            case BUILDING_FORT_JAVELIN:
+            case BUILDING_FORT_MOUNTED:
             case BUILDING_BURNING_RUIN:
                 continue;
         }

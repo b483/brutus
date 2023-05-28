@@ -1,6 +1,5 @@
 #include "empire.h"
 
-#include "building/menu.h"
 #include "city/data_private.h"
 #include "city/military.h"
 #include "city/warning.h"
@@ -653,7 +652,6 @@ static void confirmed_open_trade(void)
 {
     city_finance_process_construction(data.selected_object->trade_route_cost);
     data.selected_object->trade_route_open = 1;
-    building_menu_update();
     window_trade_opened_show(data.selected_object);
 }
 

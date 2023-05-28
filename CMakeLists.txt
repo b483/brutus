@@ -131,7 +131,6 @@ set(BUILDING_FILES
     ${PROJECT_SOURCE_DIR}/src/building/list.c
     ${PROJECT_SOURCE_DIR}/src/building/maintenance.c
     ${PROJECT_SOURCE_DIR}/src/building/market.c
-    ${PROJECT_SOURCE_DIR}/src/building/menu.c
     ${PROJECT_SOURCE_DIR}/src/building/storage.c
     ${PROJECT_SOURCE_DIR}/src/building/warehouse.c
 )

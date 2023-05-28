@@ -1,7 +1,6 @@
 #include "file_editor.h"
 
 #include "building/construction.h"
-#include "building/menu.h"
 #include "building/storage.h"
 #include "city/data.h"
 #include "city/message.h"
@@ -54,7 +53,6 @@ void game_file_editor_clear_data(void)
     game_state_init();
     game_animation_init();
     sound_city_init();
-    building_menu_disable_all();
     building_clear_all();
     building_storage_clear_all();
     figure_init_scenario();

@@ -27,7 +27,7 @@
 
 #include <string.h>
 
-#define MAX_WIDGETS 14
+#define MAX_WIDGETS 13
 
 #define NUM_VISIBLE_ITEMS 16
 
@@ -96,12 +96,11 @@ static config_widget all_widgets[MAX_WIDGETS] = {
     {TYPE_NUMERICAL_RANGE, RANGE_CURSOR_SCALE, display_text_cursor_scale, 0},
     {TYPE_SPACE, 0, 0, 0},
     {TYPE_HEADER, 0, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_SHOW_INTRO_VIDEO, 0, 0},
     {TYPE_CHECKBOX, CONFIG_UI_SIDEBAR_INFO, 0, 0},
+    {TYPE_CHECKBOX, CONFIG_UI_SHOW_INTRO_VIDEO, 0, 0},
     {TYPE_CHECKBOX, CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING, 0, 0},
     {TYPE_CHECKBOX, CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG, 0, 0},
     {TYPE_CHECKBOX, CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_ALLOW_CYCLING_TEMPLES, 0, 0},
     {TYPE_CHECKBOX, CONFIG_UI_HIGHLIGHT_LEGIONS, 0, 0},
 };
 
@@ -156,12 +155,11 @@ static uint8_t config_widget_strings[][43] = {
     "Display scale:",
     "Cursor scale:",
     "User interface changes",
-    "Play intro videos",
     "Extra information in the control panel",
+    "Play intro videos",
     "Disable map scrolling on window edge",
     "Disable right click to drag the map",
     "Improve visual feedback when clearing land",
-    "Allow building each temple in succession",
     "Highlight legion on cursor hover",
 };
 

@@ -2,7 +2,6 @@
 
 #include "building/clone.h"
 #include "building/construction.h"
-#include "building/menu.h"
 #include "city/data_private.h"
 #include "city/message.h"
 #include "city/victory.h"
@@ -150,15 +149,9 @@ static void toggle_pause(void)
 
 static void set_construction_building_type(building_type type)
 {
-    if (type == BUILDING_CLEAR_LAND) {
-        building_construction_cancel();
-        building_construction_set_type(type);
-        window_request_refresh();
-    } else if (scenario.allowed_buildings[type] && building_menu_is_enabled(type)) {
-        building_construction_cancel();
-        building_construction_set_type(type);
-        window_request_refresh();
-    }
+    building_construction_cancel();
+    building_construction_set_type(type);
+    window_request_refresh();
 }
 
 static void replay_map_confirmed(void)
@@ -184,16 +177,8 @@ static void cycle_buildings(void)
         last_building_type_selected++;
     }
     while (last_building_type_selected <= BUILDING_WAREHOUSE) {
-        if (last_building_type_selected == BUILDING_MENU_SMALL_TEMPLES
-        || last_building_type_selected == BUILDING_MENU_LARGE_TEMPLES
-        || last_building_type_selected == BUILDING_FORT
-        || last_building_type_selected == BUILDING_MENU_FARMS
-        || last_building_type_selected == BUILDING_MENU_RAW_MATERIALS
-        || last_building_type_selected == BUILDING_MENU_WORKSHOPS) {
-            last_building_type_selected++;
-        }
         if (last_building_type_selected == BUILDING_TRIUMPHAL_ARCH) {
-            if (city_data.building.triumphal_arches_available <= city_data.building.triumphal_arches_placed) {
+            if (!city_data.building.triumphal_arches_available) {
                 last_building_type_selected++;
             }
         }
@@ -215,16 +200,8 @@ static void cycle_buildings_reverse(void)
         last_building_type_selected--;
     }
     while (last_building_type_selected >= BUILDING_RESERVOIR) {
-        if (last_building_type_selected == BUILDING_MENU_SMALL_TEMPLES
-        || last_building_type_selected == BUILDING_MENU_LARGE_TEMPLES
-        || last_building_type_selected == BUILDING_FORT
-        || last_building_type_selected == BUILDING_MENU_FARMS
-        || last_building_type_selected == BUILDING_MENU_RAW_MATERIALS
-        || last_building_type_selected == BUILDING_MENU_WORKSHOPS) {
-            last_building_type_selected--;
-        }
         if (last_building_type_selected == BUILDING_TRIUMPHAL_ARCH) {
-            if (city_data.building.triumphal_arches_available <= city_data.building.triumphal_arches_placed) {
+            if (!city_data.building.triumphal_arches_available) {
                 last_building_type_selected--;
             }
         }
@@ -304,7 +281,11 @@ static void handle_hotkeys(const hotkeys *h)
         game_undo_perform();
     }
     if (h->building) {
-        set_construction_building_type(h->building);
+        if (h->building == BUILDING_CLEAR_LAND
+        || (h->building == BUILDING_TRIUMPHAL_ARCH && city_data.building.triumphal_arches_available && scenario.allowed_buildings[h->building])
+        || (h->building != BUILDING_TRIUMPHAL_ARCH && scenario.allowed_buildings[h->building])) {
+            set_construction_building_type(h->building);
+        }
     }
     if (h->show_overlay) {
         show_overlay(h->show_overlay);

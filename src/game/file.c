@@ -3,7 +3,6 @@
 #include "building/construction.h"
 #include "building/granary.h"
 #include "building/maintenance.h"
-#include "building/menu.h"
 #include "building/storage.h"
 #include "city/data.h"
 #include "city/emperor.h"
@@ -58,6 +57,7 @@
 #include "scenario/scenario.h"
 #include "sound/city.h"
 #include "sound/music.h"
+#include "window/build_menu.h"
 
 #include <string.h>
 
@@ -72,7 +72,6 @@ static void clear_scenario_data(void)
     game_state_init();
     game_animation_init();
     sound_city_init();
-    building_menu_disable_all();
     building_clear_all();
     building_storage_clear_all();
     figure_init_scenario();
@@ -137,7 +136,6 @@ static void initialize_scenario_data(const uint8_t *scenario_name)
     empire_init_scenario();
     traders_clear();
     city_military_determine_distant_battle_city();
-    building_menu_update();
     image_load_climate(scenario.climate, 0, 0);
 
     city_data_init_scenario();
@@ -160,7 +158,7 @@ static void initialize_saved_game(void)
     map_road_network_update();
     building_maintenance_check_rome_access();
     building_granaries_calculate_stocks();
-    building_menu_update();
+    map_building_menu_items();
     city_message_init_problem_areas();
 
     sound_city_init();
@@ -205,7 +203,7 @@ int game_file_start_scenario(const char *scenario_selected)
     initialize_scenario_data(scenario_name);
     set_player_name_from_config();
     city_emperor_init_scenario();
-    building_menu_update();
+    map_building_menu_items();
     city_message_init_scenario();
     return 1;
 }

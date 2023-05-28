@@ -24,13 +24,6 @@ static building_type get_clone_type_from_building(struct building_t *building)
     }
 
     switch (clone_type) {
-        case BUILDING_FORT:
-            switch (building->subtype.fort_figure_type) {
-                case FIGURE_FORT_LEGIONARY: return BUILDING_FORT_LEGIONARIES;
-                case FIGURE_FORT_JAVELIN: return BUILDING_FORT_JAVELIN;
-                case FIGURE_FORT_MOUNTED: return BUILDING_FORT_MOUNTED;
-            }
-            return BUILDING_NONE;
         case BUILDING_NATIVE_CROPS:
         case BUILDING_NATIVE_HUT:
         case BUILDING_NATIVE_MEETING:

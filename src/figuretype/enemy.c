@@ -310,11 +310,14 @@ static void set_target_building_for_native(struct figure_t *f)
         }
         switch (b->type) {
             case BUILDING_MISSION_POST:
+            case BUILDING_FORT_LEGIONARIES:
+            case BUILDING_FORT_JAVELIN:
+            case BUILDING_FORT_MOUNTED:
+            case BUILDING_FORT_GROUND:
             case BUILDING_NATIVE_HUT:
             case BUILDING_NATIVE_CROPS:
             case BUILDING_NATIVE_MEETING:
             case BUILDING_WAREHOUSE:
-            case BUILDING_FORT:
                 break;
             default:
             {
