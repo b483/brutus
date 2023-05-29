@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define BUILD_MENU_BUTTONS_COUNT 12
-#define MAX_ITEMS_PER_BUILD_MENU 9
+#define MAX_ITEMS_PER_BUILD_MENU 11
 
 #define MAX_ITEMS_PER_SUBMENU 6
 
@@ -27,8 +27,6 @@ extern const int BUILDING_MENU_SUBMENU_ITEM_MAPPING[BUILD_MENU_BUTTONS_COUNT][MA
 
 struct submenu_t {
     int building_id;
-    int is_enabled;
-    int is_submenu;
     uint8_t *submenu_string;
     int submenu_items[MAX_ITEMS_PER_SUBMENU];
 };

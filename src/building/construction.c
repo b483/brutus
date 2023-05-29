@@ -837,8 +837,18 @@ static void add_to_map(struct building_t *b, int orientation, int waterside_orie
             map_tiles_update_all_plazas();
             city_data.building.triumphal_arches_available--;
             if (!city_data.building.triumphal_arches_available) { // none left
-                build_menus[MENU_ADMINISTRATION].is_enabled = 0; // in case every other item in the menu was disabled
-                build_menus[MENU_ADMINISTRATION].menu_items[8].is_enabled = 0;
+                build_menus[MENU_ADMINISTRATION].menu_items[10].building_id = 0;
+                // disable menu if this was the only enabled item
+                int menu_enabled = 0;
+                for (int j = 0; j < MAX_ITEMS_PER_BUILD_MENU; j++) {
+                    if (build_menus[MENU_ADMINISTRATION].menu_items[j].building_id) {
+                        menu_enabled = 1;
+                        break;
+                    }
+                }
+                if (!menu_enabled) {
+                    build_menus[MENU_ADMINISTRATION].is_enabled = 0;
+                }
             }
             building_construction_clear_type();
             break;

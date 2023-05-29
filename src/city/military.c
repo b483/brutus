@@ -168,8 +168,7 @@ static void fight_distant_battle(void)
             city_message_post(1, MESSAGE_DISTANT_BATTLE_WON, 0, 0);
             city_data.building.triumphal_arches_available++;
             build_menus[MENU_ADMINISTRATION].is_enabled = 1; // in case every other item in the menu was disabled
-            build_menus[MENU_ADMINISTRATION].menu_items[8].building_id = BUILDING_TRIUMPHAL_ARCH;
-            build_menus[MENU_ADMINISTRATION].menu_items[8].is_enabled = 1;
+            build_menus[MENU_ADMINISTRATION].menu_items[10].building_id = BUILDING_TRIUMPHAL_ARCH;
         } else {
             city_message_post(1, MESSAGE_DISTANT_BATTLE_WON_TRIUMPHAL_ARCH_DISABLED, 0, 0);
         }

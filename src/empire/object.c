@@ -270,7 +270,7 @@ int empire_object_update_animation(struct empire_object_t *obj, int image_id)
     return obj->animation_index;
 }
 
-void empire_object_our_city_set_resources_sell(void)
+void empire_object_our_city_set_resources_sell(void) // TODO fix after resource.h reordered
 {
     struct empire_object_t *our_city = empire_object_get_our_city();
     for (int resource = 1; resource < RESOURCE_MAX; resource++) {

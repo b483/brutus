@@ -63,9 +63,9 @@ static const char *ini_keys[] = {
     "build_aqueduct",
     "build_fountain",
     "build_well",
-    "build_barber",
-    "build_bathhouse",
     "build_doctor",
+    "build_bathhouse",
+    "build_barber",
     "build_hospital",
     "build_small_temple_ceres",
     "build_small_temple_neptune",
@@ -79,58 +79,58 @@ static const char *ini_keys[] = {
     "build_large_temple_venus",
     "build_oracle",
     "build_school",
-    "build_academy",
     "build_library",
+    "build_academy",
     "build_mission_post",
     "build_theater",
+    "build_actor_colony",
     "build_amphitheater",
-    "build_colosseum",
-    "build_hippodrome",
     "build_gladiator_school",
     "build_lion_house",
-    "build_actor_colony",
+    "build_colosseum",
     "build_chariot_maker",
-    "build_forum",
-    "build_senate",
-    "build_governor's house",
-    "build_governor's villa",
-    "build_governor's palace",
+    "build_hippodrome",
+    "build_gardens",
+    "build_plaza",
     "build_small_statue",
     "build_medium_statue",
     "build_large_statue",
+    "build_governor's house",
+    "build_governor's villa",
+    "build_governor's palace",
+    "build_forum",
+    "build_senate",
     "build_triumphal_arch",
-    "build_gardens",
-    "build_plaza",
     "build_engineers_post",
     "build_low_bridge",
     "build_ship_bridge",
     "build_shipyard",
-    "build_dock",
     "build_wharf",
+    "build_dock",
+    "build_prefecture",
     "build_wall",
     "build_tower",
     "build_gatehouse",
-    "build_prefecture",
     "build_fort_legionaries",
     "build_fort_javelin",
     "build_fort_mounted",
-    "build_military_academy",
     "build_barracks",
+    "build_military_academy",
     "build_wheat_farm",
     "build_vegetable_farm",
     "build_fruit_farm",
+    "build_pig_farm",
     "build_olive_farm",
     "build_vines_farm",
-    "build_pig_farm",
     "build_clay_pit",
+    "build_timber_yard",
     "build_marble_quarry",
     "build_iron_mine",
-    "build_timber_yard",
-    "build_wine_workshop",
     "build_oil_workshop",
-    "build_weapons_workshop",
-    "build_furniture_workshop",
+    "build_wine_workshop",
     "build_pottery_workshop",
+    "build_furniture_workshop",
+    "build_weapons_workshop",
     "build_market",
     "build_granary",
     "build_warehouse",
@@ -222,19 +222,19 @@ static void init_defaults(void)
     set_mapping(KEY_TYPE_E, KEY_MOD_NONE, HOTKEY_BUILD_ROAD);
     set_mapping(KEY_TYPE_R, KEY_MOD_NONE, HOTKEY_BUILD_RESERVOIR);
     set_mapping(KEY_TYPE_R, KEY_MOD_ALT, HOTKEY_BUILD_FOUNTAIN);
-    set_mapping(KEY_TYPE_G, KEY_MOD_ALT, HOTKEY_BUILD_BARBER);
-    set_mapping(KEY_TYPE_F, KEY_MOD_NONE, HOTKEY_BUILD_BATHHOUSE);
     set_mapping(KEY_TYPE_S, KEY_MOD_ALT, HOTKEY_BUILD_DOCTOR);
+    set_mapping(KEY_TYPE_F, KEY_MOD_NONE, HOTKEY_BUILD_BATHHOUSE);
+    set_mapping(KEY_TYPE_G, KEY_MOD_ALT, HOTKEY_BUILD_BARBER);
     set_mapping(KEY_TYPE_S, KEY_MOD_NONE, HOTKEY_BUILD_SMALL_TEMPLE_CERES);
     set_mapping(KEY_TYPE_D, KEY_MOD_ALT, HOTKEY_BUILD_SCHOOL);
     set_mapping(KEY_TYPE_G, KEY_MOD_NONE, HOTKEY_BUILD_LIBRARY);
     set_mapping(KEY_TYPE_D, KEY_MOD_NONE, HOTKEY_BUILD_THEATER);
     set_mapping(KEY_TYPE_F, KEY_MOD_ALT, HOTKEY_BUILD_AMPHITHEATER);
-    set_mapping(KEY_TYPE_Z, KEY_MOD_NONE, HOTKEY_BUILD_COLOSSEUM);
     set_mapping(KEY_TYPE_Z, KEY_MOD_ALT, HOTKEY_BUILD_LION_HOUSE);
-    set_mapping(KEY_TYPE_T, KEY_MOD_NONE, HOTKEY_BUILD_FORUM);
+    set_mapping(KEY_TYPE_Z, KEY_MOD_NONE, HOTKEY_BUILD_COLOSSEUM);
     set_mapping(KEY_TYPE_W, KEY_MOD_ALT, HOTKEY_BUILD_GARDENS);
     set_mapping(KEY_TYPE_E, KEY_MOD_ALT, HOTKEY_BUILD_PLAZA);
+    set_mapping(KEY_TYPE_T, KEY_MOD_NONE, HOTKEY_BUILD_FORUM);
     set_mapping(KEY_TYPE_A, KEY_MOD_NONE, HOTKEY_BUILD_ENGINEERS_POST);
     set_mapping(KEY_TYPE_A, KEY_MOD_ALT, HOTKEY_BUILD_PREFECTURE);
     set_mapping(KEY_TYPE_X, KEY_MOD_ALT, HOTKEY_BUILD_WHEAT_FARM);
