@@ -10,7 +10,7 @@
 #include "figure/combat.h"
 #include "figure/movement.h"
 #include "figure/route.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "map/road_network.h"
 #include "map/routing_terrain.h"
 
@@ -20,8 +20,7 @@ static const int CART_OFFSET_8_LOADS_FOOD[] = { 0, 40, 48, 56, 0, 0, 64, 0, 0, 0
 
 static void set_cart_graphic(struct figure_t *f)
 {
-    f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART) +
-        8 * f->resource_id + resource_image_offset(f->resource_id, RESOURCE_IMAGE_CART);
+    f->cart_image_id = EMPTY_CART_IMG_ID + resource_images[f->resource_id].cart_img_id + resource_image_offset(f->resource_id, RESOURCE_IMAGE_CART);
 }
 
 static void set_destination(struct figure_t *f, int action, int building_id, int x_dst, int y_dst)
@@ -250,7 +249,7 @@ void figure_cartpusher_action(struct figure_t *f)
             f->image_offset = 0;
             break;
         case FIGURE_ACTION_CARTPUSHER_RETURNING:
-            f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART);
+            f->cart_image_id = EMPTY_CART_IMG_ID;
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                 figure_delete(f);
@@ -470,7 +469,7 @@ void figure_warehouseman_action(struct figure_t *f)
             f->image_offset = 0;
             break;
         case FIGURE_ACTION_WAREHOUSEMAN_RETURNING_EMPTY:
-            f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART); // empty
+            f->cart_image_id = EMPTY_CART_IMG_ID;
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
                 figure_delete(f);
@@ -480,7 +479,7 @@ void figure_warehouseman_action(struct figure_t *f)
             }
             break;
         case FIGURE_ACTION_WAREHOUSEMAN_GETTING_FOOD:
-            f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART); // empty
+            f->cart_image_id = EMPTY_CART_IMG_ID;
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                 f->action_state = FIGURE_ACTION_WAREHOUSEMAN_AT_GRANARY;
@@ -509,7 +508,7 @@ void figure_warehouseman_action(struct figure_t *f)
         case FIGURE_ACTION_WAREHOUSEMAN_RETURNING_WITH_FOOD:
             // update graphic
             if (f->loads_sold_or_carrying <= 0) {
-                f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART); // empty
+                f->cart_image_id = EMPTY_CART_IMG_ID;
             } else if (f->loads_sold_or_carrying == 1) {
                 set_cart_graphic(f);
             } else {
@@ -538,7 +537,7 @@ void figure_warehouseman_action(struct figure_t *f)
             break;
         case FIGURE_ACTION_WAREHOUSEMAN_GETTING_RESOURCE:
             f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
-            f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART); // empty
+            f->cart_image_id = EMPTY_CART_IMG_ID;
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                 f->action_state = FIGURE_ACTION_WAREHOUSEMAN_AT_WAREHOUSE;
@@ -571,7 +570,7 @@ void figure_warehouseman_action(struct figure_t *f)
             f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
             // update graphic
             if (f->loads_sold_or_carrying <= 0) {
-                f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART); // empty
+                f->cart_image_id = EMPTY_CART_IMG_ID;
             } else if (f->loads_sold_or_carrying == 1) {
                 set_cart_graphic(f);
             } else {

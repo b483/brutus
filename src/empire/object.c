@@ -104,7 +104,7 @@ void empire_object_load_state(buffer *buf)
         for (int f = 0; f < 3; f++) {
             empire_objects[i].trader_figure_ids[f] = buffer_read_i16(buf);
         }
-        for (int r = 0; r < RESOURCE_MAX; r++) {
+        for (int r = 0; r < RESOURCE_TYPES_MAX; r++) {
             empire_objects[i].resource_buy_limit[r] = buffer_read_u8(buf);
             empire_objects[i].resource_sell_limit[r] = buffer_read_u8(buf);
             empire_objects[i].resource_bought[r] = buffer_read_u8(buf);
@@ -155,7 +155,7 @@ void empire_object_save_state(buffer *buf)
         for (int f = 0; f < 3; f++) {
             buffer_write_i16(buf, empire_objects[i].trader_figure_ids[f]);
         }
-        for (int r = 0; r < RESOURCE_MAX; r++) {
+        for (int r = 0; r < RESOURCE_TYPES_MAX; r++) {
             buffer_write_u8(buf, empire_objects[i].resource_buy_limit[r]);
             buffer_write_u8(buf, empire_objects[i].resource_sell_limit[r]);
             buffer_write_u8(buf, empire_objects[i].resource_bought[r]);
@@ -270,58 +270,19 @@ int empire_object_update_animation(struct empire_object_t *obj, int image_id)
     return obj->animation_index;
 }
 
-void empire_object_our_city_set_resources_sell(void) // TODO fix after resource.h reordered
+void empire_object_our_city_set_resources_sell(void)
 {
     struct empire_object_t *our_city = empire_object_get_our_city();
-    for (int resource = 1; resource < RESOURCE_MAX; resource++) {
-        // farms match across enums, rest don't
-        if (resource <= RESOURCE_VINES) {
-            if (scenario.allowed_buildings[resource + BUILDING_WHEAT_FARM - 1])
-                our_city->resource_sell_limit[resource] = 1;
-            else {
-                our_city->resource_sell_limit[resource] = 0;
-            }
-        }
+    for (int resource = RESOURCE_WHEAT; resource < RESOURCE_TYPES_MAX; resource++) {
         if (resource == RESOURCE_MEAT) {
-            if (scenario.allowed_buildings[BUILDING_WHARF] || scenario.allowed_buildings[BUILDING_PIG_FARM]
-            ) {
-                our_city->resource_sell_limit[resource] = 1;
-            } else {
-                our_city->resource_sell_limit[resource] = 0;
-            }
-        }
-        if (resource >= RESOURCE_WINE && resource <= RESOURCE_OIL) {
-            if (scenario.allowed_buildings[resource + BUILDING_WINE_WORKSHOP - 7])
-                our_city->resource_sell_limit[resource] = 1;
-            else {
-                our_city->resource_sell_limit[resource] = 0;
-            }
-        }
-        if (resource >= RESOURCE_IRON && resource <= RESOURCE_TIMBER) {
-            if (scenario.allowed_buildings[resource + BUILDING_IRON_MINE - 9])
-                our_city->resource_sell_limit[resource] = 1;
-            else {
-                our_city->resource_sell_limit[resource] = 0;
-            }
-        }
-        if (resource >= RESOURCE_CLAY && resource <= RESOURCE_MARBLE) {
-            if (scenario.allowed_buildings[resource + BUILDING_CLAY_PIT - 11])
-                our_city->resource_sell_limit[resource] = 1;
-            else {
-                our_city->resource_sell_limit[resource] = 0;
-            }
-        }
-        if (resource >= RESOURCE_WEAPONS) {
-            if (scenario.allowed_buildings[resource + BUILDING_WEAPONS_WORKSHOP - 13])
-                our_city->resource_sell_limit[resource] = 1;
-            else {
-                our_city->resource_sell_limit[resource] = 0;
-            }
+            our_city->resource_sell_limit[resource] = (scenario.allowed_buildings[BUILDING_WHARF] || scenario.allowed_buildings[BUILDING_PIG_FARM]) ? 1 : 0;
+        } else {
+            our_city->resource_sell_limit[resource] = scenario.allowed_buildings[resource + BUILDING_WHEAT_FARM - 1] ? 1 : 0;
         }
     }
 }
 
-int resource_import_trade_route_open(resource_type resource)
+int resource_import_trade_route_open(int resource)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
         if (empire_objects[i].in_use
@@ -334,7 +295,7 @@ int resource_import_trade_route_open(resource_type resource)
     return 0;
 }
 
-int resource_export_trade_route_open(resource_type resource)
+int resource_export_trade_route_open(int resource)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
         if (empire_objects[i].in_use

@@ -42,7 +42,7 @@ static void draw_foreground(void)
     outer_panel_draw(108, 172, 27, 8);
 
     // Coin image
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_DENARII, 124, 188);
+    image_draw(COIN_IMAGE_ID, 124, 188);
 
     // Give money to the city
     lang_text_draw_centered(52, 16, 108, 188, 432, FONT_LARGE_BLACK);

@@ -9,9 +9,9 @@
 #include "game/time.h"
 #include "scenario/data.h"
 
-#define MAX_CATS 10
+#define LABOR_CATEGORIES_COUNT 9
 
-typedef enum {
+enum {
     LABOR_CATEGORY_INDUSTRY_COMMERCE = 0,
     LABOR_CATEGORY_FOOD_PRODUCTION = 1,
     LABOR_CATEGORY_ENGINEERING = 2,
@@ -21,120 +21,12 @@ typedef enum {
     LABOR_CATEGORY_ENTERTAINMENT = 6,
     LABOR_CATEGORY_HEALTH_EDUCATION = 7,
     LABOR_CATEGORY_GOVERNANCE_RELIGION = 8
-} labor_category;
-
-static const int CATEGORY_FOR_BUILDING_TYPE[] = {
--1, // BUILDING_NONE
--1, // BUILDING_HOUSE_VACANT_LOT
--1, // BUILDING_HOUSE_SMALL_TENT
--1, // BUILDING_HOUSE_LARGE_TENT
--1, // BUILDING_HOUSE_SMALL_SHACK
--1, // BUILDING_HOUSE_LARGE_SHACK
--1, // BUILDING_HOUSE_SMALL_HOVEL
--1, // BUILDING_HOUSE_LARGE_HOVEL
--1, // BUILDING_HOUSE_SMALL_CASA
--1, // BUILDING_HOUSE_LARGE_CASA
--1, // BUILDING_HOUSE_SMALL_INSULA
--1, // BUILDING_HOUSE_MEDIUM_INSULA
--1, // BUILDING_HOUSE_LARGE_INSULA
--1, // BUILDING_HOUSE_GRAND_INSULA
--1, // BUILDING_HOUSE_SMALL_VILLA
--1, // BUILDING_HOUSE_MEDIUM_VILLA
--1, // BUILDING_HOUSE_LARGE_VILLA
--1, // BUILDING_HOUSE_GRAND_VILLA
--1, // BUILDING_HOUSE_SMALL_PALACE
--1, // BUILDING_HOUSE_MEDIUM_PALACE
--1, // BUILDING_HOUSE_LARGE_PALACE
--1, // BUILDING_HOUSE_LUXURY_PALACE
--1, // BUILDING_CLEAR_LAND
--1, // BUILDING_ROAD
--1, // BUILDING_RESERVOIR
--1, // BUILDING_AQUEDUCT
-3, // BUILDING_FOUNTAIN
--1, // BUILDING_WELL
-7, // BUILDING_DOCTOR
-7, // BUILDING_BATHHOUSE
-7, // BUILDING_BARBER
-7, // BUILDING_HOSPITAL
-8, // BUILDING_SMALL_TEMPLE_CERES
-8, // BUILDING_SMALL_TEMPLE_NEPTUNE
-8, // BUILDING_SMALL_TEMPLE_MERCURY
-8, // BUILDING_SMALL_TEMPLE_MARS
-8, // BUILDING_SMALL_TEMPLE_VENUS
-8, // BUILDING_LARGE_TEMPLE_CERES
-8, // BUILDING_LARGE_TEMPLE_NEPTUNE
-8, // BUILDING_LARGE_TEMPLE_MERCURY
-8, // BUILDING_LARGE_TEMPLE_MARS
-8, // BUILDING_LARGE_TEMPLE_VENUS
-8, // BUILDING_ORACLE
-7, // BUILDING_SCHOOL
-7, // BUILDING_LIBRARY
-7, // BUILDING_ACADEMY
-7, // BUILDING_MISSION_POST
-6, // BUILDING_THEATER
-6, // BUILDING_ACTOR_COLONY
-6, // BUILDING_AMPHITHEATER
-6, // BUILDING_GLADIATOR_SCHOOL
-6, // BUILDING_LION_HOUSE
-6, // BUILDING_COLOSSEUM
-6, // BUILDING_CHARIOT_MAKER
-6, // BUILDING_HIPPODROME
--1, // BUILDING_GARDENS
--1, // BUILDING_PLAZA
--1, // BUILDING_SMALL_STATUE
--1, // BUILDING_MEDIUM_STATUE
--1, // BUILDING_LARGE_STATUE
--1, // BUILDING_GOVERNORS_HOUSE
--1, // BUILDING_GOVERNORS_VILLA
--1, // BUILDING_GOVERNORS_PALACE
-8, // BUILDING_FORUM
-8, // BUILDING_SENATE
--1, // BUILDING_TRIUMPHAL_ARCH
-2, // BUILDING_ENGINEERS_POST
--1, // BUILDING_LOW_BRIDGE
--1, // BUILDING_SHIP_BRIDGE
-0, // BUILDING_SHIPYARD
-0, // BUILDING_WHARF
-0, // BUILDING_DOCK
-4, // BUILDING_PREFECTURE
--1, // BUILDING_WALL
-5, // BUILDING_TOWER
-5, // BUILDING_GATEHOUSE
--1, // BUILDING_FORT_LEGIONARIES
--1, // BUILDING_FORT_JAVELIN
--1, // BUILDING_FORT_MOUNTED
-5, // BUILDING_BARRACKS
-5, // BUILDING_MILITARY_ACADEMY
-1, // BUILDING_WHEAT_FARM
-1, // BUILDING_VEGETABLE_FARM
-1, // BUILDING_FRUIT_FARM
-1, // BUILDING_PIG_FARM
-0, // BUILDING_OLIVE_FARM
-0, // BUILDING_VINES_FARM
-0, // BUILDING_CLAY_PIT
-0, // BUILDING_TIMBER_YARD
-0, // BUILDING_MARBLE_QUARRY
-0, // BUILDING_IRON_MINE
-0, // BUILDING_OIL_WORKSHOP
-0, // BUILDING_WINE_WORKSHOP
-0, // BUILDING_POTTERY_WORKSHOP
-0, // BUILDING_FURNITURE_WORKSHOP
-0, // BUILDING_WEAPONS_WORKSHOP
-0, // BUILDING_MARKET
-1, // BUILDING_GRANARY
-0, // BUILDING_WAREHOUSE
--1, // BUILDING_WAREHOUSE_SPACE
--1, // BUILDING_NATIVE_HUT
--1, // BUILDING_NATIVE_MEETING
--1, // BUILDING_NATIVE_CROPS
--1, // BUILDING_FORT_GROUND
--1, // BUILDING_BURNING_RUIN
 };
 
 static struct {
-    labor_category category;
+    int category;
     int workers;
-} DEFAULT_PRIORITY[MAX_CATS] = {
+} DEFAULT_PRIORITY[LABOR_CATEGORIES_COUNT] = {
     {LABOR_CATEGORY_ENGINEERING, 3},
     {LABOR_CATEGORY_WATER, 1},
     {LABOR_CATEGORY_PREFECTURES, 3},
@@ -182,7 +74,7 @@ void city_labor_calculate_workers(int num_plebs, int num_patricians)
 
 static int is_industry_disabled(struct building_t *b)
 {
-    if (b->type < BUILDING_WHEAT_FARM || b->type > BUILDING_POTTERY_WORKSHOP) {
+    if (b->type < BUILDING_WHEAT_FARM || b->type > BUILDING_WEAPONS_WORKSHOP) {
         return 0;
     }
     int resource = b->output_resource_id;
@@ -192,23 +84,23 @@ static int is_industry_disabled(struct building_t *b)
     return 0;
 }
 
-static int should_have_workers(struct building_t *b, int category, int check_access)
+static int should_have_workers(struct building_t *b, int check_access)
 {
-    if (category < 0) {
+    if (b->labor_category < 0) {
         return 0;
     }
 
-    if (category == LABOR_CATEGORY_ENTERTAINMENT) {
+    if (b->labor_category == LABOR_CATEGORY_ENTERTAINMENT) {
         if (b->type == BUILDING_HIPPODROME && b->prev_part_building_id) {
             return 0;
         }
-    } else if (category == LABOR_CATEGORY_FOOD_PRODUCTION || category == LABOR_CATEGORY_INDUSTRY_COMMERCE) {
+    } else if (b->labor_category == LABOR_CATEGORY_FOOD_PRODUCTION || b->labor_category == LABOR_CATEGORY_INDUSTRY_COMMERCE) {
         if (is_industry_disabled(b)) {
             return 0;
         }
     }
     // engineering and water are always covered
-    if (category == LABOR_CATEGORY_ENGINEERING || category == LABOR_CATEGORY_WATER) {
+    if (b->labor_category == LABOR_CATEGORY_ENGINEERING || b->labor_category == LABOR_CATEGORY_WATER) {
         return 1;
     }
     if (check_access) {
@@ -219,7 +111,7 @@ static int should_have_workers(struct building_t *b, int category, int check_acc
 
 static void calculate_workers_needed_per_category(void)
 {
-    for (int cat = 0; cat < MAX_CATS; cat++) {
+    for (int cat = 0; cat < LABOR_CATEGORIES_COUNT; cat++) {
         city_data.labor.categories[cat].buildings = 0;
         city_data.labor.categories[cat].total_houses_covered = 0;
         city_data.labor.categories[cat].workers_allocated = 0;
@@ -230,27 +122,26 @@ static void calculate_workers_needed_per_category(void)
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
-        int category = CATEGORY_FOR_BUILDING_TYPE[b->type];
-        b->labor_category = category;
-        if (!should_have_workers(b, category, 1)) {
+        b->labor_category = building_properties[b->type].labor_category;
+        if (!should_have_workers(b, 1)) {
             continue;
         }
-        city_data.labor.categories[category].workers_needed += building_properties[b->type].laborers;
-        city_data.labor.categories[category].total_houses_covered += b->houses_covered;
-        city_data.labor.categories[category].buildings++;
+        city_data.labor.categories[b->labor_category].workers_needed += building_properties[b->type].n_laborers;
+        city_data.labor.categories[b->labor_category].total_houses_covered += b->houses_covered;
+        city_data.labor.categories[b->labor_category].buildings++;
     }
 }
 
 static void allocate_workers_to_categories(void)
 {
     int workers_needed = 0;
-    for (int i = 0; i < MAX_CATS; i++) {
+    for (int i = 0; i < LABOR_CATEGORIES_COUNT; i++) {
         city_data.labor.categories[i].workers_allocated = 0;
         workers_needed += city_data.labor.categories[i].workers_needed;
     }
     city_data.labor.workers_needed = 0;
     if (workers_needed <= city_data.labor.workers_available) {
-        for (int i = 0; i < MAX_CATS; i++) {
+        for (int i = 0; i < LABOR_CATEGORIES_COUNT; i++) {
             city_data.labor.categories[i].workers_allocated = city_data.labor.categories[i].workers_needed;
         }
         city_data.labor.workers_employed = workers_needed;
@@ -344,7 +235,7 @@ static void set_building_worker_weight(void)
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
-        int cat = CATEGORY_FOR_BUILDING_TYPE[b->type];
+        int cat = building_properties[b->type].labor_category;
         if (cat == LABOR_CATEGORY_WATER) {
             b->percentage_houses_covered = water_per_10k_per_building;
         } else if (cat >= 0) {
@@ -380,7 +271,7 @@ static void allocate_workers_to_water(void)
             building_id = 1;
         }
         struct building_t *b = &all_buildings[building_id];
-        if (b->state != BUILDING_STATE_IN_USE || CATEGORY_FOR_BUILDING_TYPE[b->type] != LABOR_CATEGORY_WATER) {
+        if (b->state != BUILDING_STATE_IN_USE || building_properties[b->type].labor_category != LABOR_CATEGORY_WATER) {
             continue;
         }
         b->num_workers = 0;
@@ -395,7 +286,7 @@ static void allocate_workers_to_water(void)
                     b->num_workers = workers_per_building;
                 }
             } else {
-                b->num_workers = building_properties[b->type].laborers;
+                b->num_workers = building_properties[b->type].n_laborers;
             }
         }
     }
@@ -407,9 +298,9 @@ static void allocate_workers_to_water(void)
 
 static void allocate_workers_to_non_water_buildings(void)
 {
-    int category_workers_needed[MAX_CATS];
-    int category_workers_allocated[MAX_CATS];
-    for (int i = 0; i < MAX_CATS; i++) {
+    int category_workers_needed[LABOR_CATEGORIES_COUNT];
+    int category_workers_allocated[LABOR_CATEGORIES_COUNT];
+    for (int i = 0; i < LABOR_CATEGORIES_COUNT; i++) {
         category_workers_allocated[i] = 0;
         category_workers_needed[i] =
             city_data.labor.categories[i].workers_allocated < city_data.labor.categories[i].workers_needed
@@ -420,13 +311,13 @@ static void allocate_workers_to_non_water_buildings(void)
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
-        int cat = CATEGORY_FOR_BUILDING_TYPE[b->type];
+        int cat = building_properties[b->type].labor_category;
         if (cat == LABOR_CATEGORY_WATER || cat < 0) {
             // water is handled by allocate_workers_to_water(void)
             continue;
         }
         b->num_workers = 0;
-        if (!should_have_workers(b, cat, 0)) {
+        if (!should_have_workers(b, 0)) {
             continue;
         }
         if (b->percentage_houses_covered > 0) {
@@ -434,17 +325,17 @@ static void allocate_workers_to_non_water_buildings(void)
                 int num_workers = calc_adjust_with_percentage(
                     city_data.labor.categories[cat].workers_allocated,
                     b->percentage_houses_covered) / 100;
-                if (num_workers > building_properties[b->type].laborers) {
-                    num_workers = building_properties[b->type].laborers;
+                if (num_workers > building_properties[b->type].n_laborers) {
+                    num_workers = building_properties[b->type].n_laborers;
                 }
                 b->num_workers = num_workers;
                 category_workers_allocated[cat] += num_workers;
             } else {
-                b->num_workers = building_properties[b->type].laborers;
+                b->num_workers = building_properties[b->type].n_laborers;
             }
         }
     }
-    for (int i = 0; i < MAX_CATS; i++) {
+    for (int i = 0; i < LABOR_CATEGORIES_COUNT; i++) {
         if (category_workers_needed[i]) {
             // watch out: category_workers_needed is now reset to 'unallocated workers available'
             if (category_workers_allocated[i] >= city_data.labor.categories[i].workers_allocated) {
@@ -461,16 +352,16 @@ static void allocate_workers_to_non_water_buildings(void)
         if (b->state != BUILDING_STATE_IN_USE) {
             continue;
         }
-        int cat = CATEGORY_FOR_BUILDING_TYPE[b->type];
+        int cat = building_properties[b->type].labor_category;
         if (cat < 0 || cat == LABOR_CATEGORY_WATER || cat == LABOR_CATEGORY_MILITARY) {
             continue;
         }
-        if (!should_have_workers(b, cat, 0)) {
+        if (!should_have_workers(b, 0)) {
             continue;
         }
         if (b->percentage_houses_covered > 0 && category_workers_needed[cat]) {
-            if (b->num_workers < building_properties[b->type].laborers) {
-                int needed = building_properties[b->type].laborers - b->num_workers;
+            if (b->num_workers < building_properties[b->type].n_laborers) {
+                int needed = building_properties[b->type].n_laborers - b->num_workers;
                 if (needed > category_workers_needed[cat]) {
                     b->num_workers += category_workers_needed[cat];
                     category_workers_needed[cat] = 0;

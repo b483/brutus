@@ -1,7 +1,7 @@
 #include "price_changes.h"
 
 #include "core/image_group_editor.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"

@@ -5,7 +5,7 @@
 #include "city/finance.h"
 #include "core/calc.h"
 #include "core/config.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "game/state.h"
 #include "graphics/image.h"
 #include "map/building.h"
@@ -82,7 +82,7 @@ static int get_column_height_food_stocks(const struct building_t *b)
     if (b->house_size && house_properties[b->subtype.house_level].food_types) {
         int pop = b->house_population;
         int stocks = 0;
-        for (int i = INVENTORY_MIN_FOOD; i < INVENTORY_MAX_FOOD; i++) {
+        for (int i = INVENTORY_WHEAT; i <= INVENTORY_MEAT; i++) {
             stocks += b->data.house.inventory[i];
         }
         int pct_stocks = calc_percentage(stocks, pop);
@@ -166,7 +166,7 @@ static int get_tooltip_food_stocks(__attribute__((unused)) tooltip_context *c, c
         return 104;
     } else {
         int stocks_present = 0;
-        for (int i = INVENTORY_MIN_FOOD; i < INVENTORY_MAX_FOOD; i++) {
+        for (int i = INVENTORY_WHEAT; i <= INVENTORY_MEAT; i++) {
             stocks_present += b->data.house.inventory[i];
         }
         int stocks_per_pop = calc_percentage(stocks_present, b->house_population);

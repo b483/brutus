@@ -7,7 +7,7 @@
 #include "figure/combat.h"
 #include "figure/movement.h"
 #include "figure/route.h"
-#include "game/resource.h"
+#include "city/resource.h"
 
 static int create_delivery_boy(int leader_id, struct figure_t *f)
 {

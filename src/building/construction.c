@@ -523,8 +523,7 @@ static struct building_t *add_warehouse_space(int x, int y, struct building_t *p
     game_undo_add_building(b);
     b->prev_part_building_id = prev->id;
     prev->next_part_building_id = b->id;
-    map_building_tiles_add(b->id, x, y, 1,
-        image_group(GROUP_BUILDING_WAREHOUSE_STORAGE_EMPTY), TERRAIN_BUILDING);
+    map_building_tiles_add(b->id, x, y, 1, EMPTY_WAREHOUSE_IMG_ID, TERRAIN_BUILDING);
     return b;
 }
 

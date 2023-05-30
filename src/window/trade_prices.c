@@ -17,7 +17,7 @@ static void draw_foreground(void)
     outer_panel_draw(16, 140, 38, 10);
 
     // Coin image
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_DENARII, 32, 156);
+    image_draw(COIN_IMAGE_ID, 32, 156);
 
     // Prices set by Rome
     lang_text_draw_centered(54, 21, 26, 156, 608, FONT_LARGE_BLACK);
@@ -27,8 +27,8 @@ static void draw_foreground(void)
     // Sellers receive
     lang_text_draw(54, 23, 32, 257, FONT_NORMAL_BLACK);
 
-    for (int i = RESOURCE_MIN; i < RESOURCE_MAX; i++) {
-        image_draw(image_group(GROUP_RESOURCE_ICONS) + i + resource_image_offset(i, RESOURCE_IMAGE_ICON), 126 + 30 * i, 201);
+    for (int i = RESOURCE_WHEAT; i < RESOURCE_TYPES_MAX; i++) {
+        image_draw(resource_images[i].icon_img_id + resource_image_offset(i, RESOURCE_IMAGE_ICON), 126 + 30 * i, 201);
         text_draw_number_centered(trade_price_buy(i), 120 + 30 * i, 234, 30, FONT_SMALL_PLAIN);
         text_draw_number_centered(trade_price_sell(i), 120 + 30 * i, 259, 30, FONT_SMALL_PLAIN);
     }
@@ -58,7 +58,7 @@ static int get_tooltip_resource(tooltip_context *c)
     int x_mouse = c->mouse_x;
     int y_mouse = c->mouse_y;
 
-    for (int i = RESOURCE_MIN; i < RESOURCE_MAX; i++) {
+    for (int i = RESOURCE_WHEAT; i < RESOURCE_TYPES_MAX; i++) {
         int x = x_base + 30 * i;
         if (x <= x_mouse && x + 24 > x_mouse && y <= y_mouse && y + 24 > y_mouse) {
             return i;

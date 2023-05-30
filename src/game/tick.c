@@ -73,7 +73,7 @@ static void advance_year(void)
     // reset yearly trade amounts
     for (int i = 0; i < MAX_OBJECTS; i++) {
         if (empire_objects[i].in_use && empire_objects[i].trade_route_open) {
-            for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+            for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
                 empire_objects[i].resource_bought[r] = 0;
                 empire_objects[i].resource_sold[r] = 0;
             }

@@ -204,7 +204,6 @@ set(GAME_FILES
     ${PROJECT_SOURCE_DIR}/src/game/file_io.c
     ${PROJECT_SOURCE_DIR}/src/game/game.c
     ${PROJECT_SOURCE_DIR}/src/game/orientation.c
-    ${PROJECT_SOURCE_DIR}/src/game/resource.c
     ${PROJECT_SOURCE_DIR}/src/game/settings.c
     ${PROJECT_SOURCE_DIR}/src/game/speed.c
     ${PROJECT_SOURCE_DIR}/src/game/state.c

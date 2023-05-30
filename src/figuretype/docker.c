@@ -75,11 +75,11 @@ static int get_closest_warehouse_for_import(int x, int y, int city_id, int dista
 {
     int importable[16];
     importable[RESOURCE_NONE] = 0;
-    for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
         importable[r] = can_import_resource_from_trade_city(city_id, r);
     }
     int resource = city_trade_next_docker_import_resource();
-    for (int i = RESOURCE_MIN; i < RESOURCE_MAX && !importable[resource]; i++) {
+    for (int i = RESOURCE_WHEAT; i < RESOURCE_TYPES_MAX && !importable[resource]; i++) {
         resource = city_trade_next_docker_import_resource();
     }
     if (!importable[resource]) {
@@ -98,7 +98,7 @@ static int get_closest_warehouse_for_import(int x, int y, int city_id, int dista
         if (b->road_network_id != road_network_id) {
             continue;
         }
-        const building_storage *storage = building_storage_get(b->storage_id);
+        struct building_storage_t *storage = building_storage_get(b->storage_id);
         if (storage->resource_state[resource] != BUILDING_STORAGE_STATE_NOT_ACCEPTING && !storage->empty_all) {
             int distance_penalty = 32;
             struct building_t *space = b;
@@ -139,13 +139,13 @@ static int get_closest_warehouse_for_import(int x, int y, int city_id, int dista
 static int get_closest_warehouse_for_export(int x, int y, int city_id, int distance_from_entry, int road_network_id,
                                             map_point *warehouse, int *export_resource)
 {
-    int exportable[16];
+    int exportable[RESOURCE_TYPES_MAX];
     exportable[RESOURCE_NONE] = 0;
-    for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
         exportable[r] = can_export_resource_to_trade_city(city_id, r);
     }
     int resource = city_trade_next_docker_export_resource();
-    for (int i = RESOURCE_MIN; i < RESOURCE_MAX && !exportable[resource]; i++) {
+    for (int i = RESOURCE_WHEAT; i < RESOURCE_TYPES_MAX && !exportable[resource]; i++) {
         resource = city_trade_next_docker_export_resource();
     }
     if (!exportable[resource]) {
@@ -267,8 +267,7 @@ static int fetch_export_resource(struct figure_t *f, struct building_t *dock)
 
 static void set_cart_graphic(struct figure_t *f)
 {
-    f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART) + 8 * f->resource_id;
-    f->cart_image_id += resource_image_offset(f->resource_id, RESOURCE_IMAGE_CART);
+    f->cart_image_id = EMPTY_CART_IMG_ID + resource_images[f->resource_id].cart_img_id + resource_image_offset(f->resource_id, RESOURCE_IMAGE_CART);
 }
 
 void figure_docker_action(struct figure_t *f)
@@ -381,7 +380,7 @@ void figure_docker_action(struct figure_t *f)
             }
             break;
         case FIGURE_ACTION_DOCKER_EXPORT_GOING_TO_WAREHOUSE:
-            f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART); // empty
+            f->cart_image_id = EMPTY_CART_IMG_ID;
             figure_movement_move_ticks(f, 1);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                 f->action_state = FIGURE_ACTION_DOCKER_EXPORT_AT_WAREHOUSE;
@@ -454,7 +453,7 @@ void figure_docker_action(struct figure_t *f)
             f->image_offset = 0;
             break;
         case FIGURE_ACTION_DOCKER_EXPORT_AT_WAREHOUSE:
-            f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART); // empty
+            f->cart_image_id = EMPTY_CART_IMG_ID;
             f->wait_ticks++;
             if (f->wait_ticks > 10) {
                 int trade_city_id;

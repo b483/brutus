@@ -53,12 +53,12 @@ int figure_trade_caravan_can_sell(struct figure_t *trader, int warehouse_id, int
     if (trader->loads_sold_or_carrying >= 8) {
         return 0;
     }
-    const building_storage *storage = building_storage_get(warehouse->storage_id);
+    struct building_storage_t *storage = building_storage_get(warehouse->storage_id);
     if (storage->empty_all) {
         return 0;
     }
     int num_importable = 0;
-    for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
         if (storage->resource_state[r] != BUILDING_STORAGE_STATE_NOT_ACCEPTING) {
             if (can_import_resource_from_trade_city(city_id, r)) {
                 num_importable++;
@@ -74,7 +74,7 @@ int figure_trade_caravan_can_sell(struct figure_t *trader, int warehouse_id, int
         can_import_resource_from_trade_city(city_id, resource)) {
         can_import = 1;
     } else {
-        for (int i = RESOURCE_MIN; i < RESOURCE_MAX; i++) {
+        for (int i = RESOURCE_WHEAT; i < RESOURCE_TYPES_MAX; i++) {
             resource = city_trade_next_caravan_import_resource();
             if (storage->resource_state[resource] != BUILDING_STORAGE_STATE_NOT_ACCEPTING &&
                     can_import_resource_from_trade_city(city_id, resource)) {
@@ -141,12 +141,12 @@ static int trader_get_sell_resource(int warehouse_id, int city_id)
         return 0;
     }
     int resource_to_import = city_data.trade.caravan_import_resource;
-    int imp = RESOURCE_MIN;
-    while (imp < RESOURCE_MAX && !can_import_resource_from_trade_city(city_id, resource_to_import)) {
+    int imp = RESOURCE_WHEAT;
+    while (imp < RESOURCE_TYPES_MAX && !can_import_resource_from_trade_city(city_id, resource_to_import)) {
         imp++;
         resource_to_import = city_trade_next_caravan_import_resource();
     }
-    if (imp >= RESOURCE_MAX) {
+    if (imp >= RESOURCE_TYPES_MAX) {
         return 0;
     }
     // add to existing bay with room
@@ -171,7 +171,7 @@ static int trader_get_sell_resource(int warehouse_id, int city_id)
         }
     }
     // find another importable resource that can be added to this warehouse
-    for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
         resource_to_import = city_trade_next_caravan_backup_import_resource();
         if (can_import_resource_from_trade_city(city_id, resource_to_import)) {
             space = warehouse;
@@ -191,11 +191,11 @@ static int trader_get_sell_resource(int warehouse_id, int city_id)
 static int get_closest_warehouse(
     const struct figure_t *f, int x, int y, int city_id, int distance_from_entry, map_point *warehouse)
 {
-    int exportable[RESOURCE_MAX];
-    int importable[RESOURCE_MAX];
+    int exportable[RESOURCE_TYPES_MAX];
+    int importable[RESOURCE_TYPES_MAX];
     exportable[RESOURCE_NONE] = 0;
     importable[RESOURCE_NONE] = 0;
-    for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
         exportable[r] = can_export_resource_to_trade_city(city_id, r);
         if (f->trader_amount_bought >= 8) {
             exportable[r] = 0;
@@ -210,7 +210,7 @@ static int get_closest_warehouse(
         }
     }
     int num_importable = 0;
-    for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
         if (importable[r]) {
             num_importable++;
         }
@@ -225,9 +225,9 @@ static int get_closest_warehouse(
         if (!b->has_road_access || b->distance_from_entry <= 0) {
             continue;
         }
-        const building_storage *s = building_storage_get(b->storage_id);
+        struct building_storage_t *s = building_storage_get(b->storage_id);
         int num_imports_for_warehouse = 0;
-        for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+        for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
             if (s->resource_state[r] != BUILDING_STORAGE_STATE_NOT_ACCEPTING
                 && can_import_resource_from_trade_city(city_id, r)) {
                 num_imports_for_warehouse++;
@@ -241,7 +241,7 @@ static int get_closest_warehouse(
                 distance_penalty -= 4;
             }
             if (num_importable && num_imports_for_warehouse && !s->empty_all) {
-                for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+                for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
                     int import_resource = city_trade_next_caravan_import_resource();
                     if (s->resource_state[import_resource] != BUILDING_STORAGE_STATE_NOT_ACCEPTING) {
                         break;

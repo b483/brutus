@@ -83,7 +83,7 @@ static void check_water(int type, int x, int y)
 static void check_workers(int type)
 {
     if (!has_warning && type != BUILDING_WELL && !building_is_fort(type)) {
-        if (building_properties[type].laborers > 0 && city_data.labor.workers_needed >= 10) {
+        if (building_properties[type].n_laborers > 0 && city_data.labor.workers_needed >= 10) {
             show(WARNING_WORKERS_NEEDED);
         }
     }
@@ -172,7 +172,7 @@ static void check_charioteer_access(int type)
     }
 }
 
-static int empire_offers_resource(resource_type resource)
+static int empire_offers_resource(int resource)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
         if (empire_objects[i].in_use
@@ -202,8 +202,8 @@ void building_construction_warning_check_all(int type, int x, int y, int size)
     check_road_access(type, x, y, size);
 
     // check raw resources availability
-    resource_type raw_resource = 0;
-    resource_type finished_good = 0;
+    int raw_resource = 0;
+    int finished_good = 0;
     warning_type warning_resource_needed = 0;
     warning_type warning_resource_building = 0;
     switch (type) {

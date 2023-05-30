@@ -36,7 +36,7 @@ static void draw_foreground(void)
     outer_panel_draw(164, 32, 20, 23);
 
     // Coin image
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_DENARII, 180, 48);
+    image_draw(COIN_IMAGE_ID, 180, 48);
 
     // Set salary level
     lang_text_draw_centered(52, 15, 164, 48, 320, FONT_LARGE_BLACK);

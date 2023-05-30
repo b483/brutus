@@ -6,7 +6,7 @@
 #include "city/resource.h"
 #include "core/calc.h"
 #include "figure/figure.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "graphics/image.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
@@ -18,9 +18,8 @@ static void draw_farm(building_info_context *c, int help_id, const char *sound_f
     window_building_play_sound(c, sound_file);
 
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + resource, c->x_offset + 10, c->y_offset + 10);
-    lang_text_draw_centered(group_id, 0, c->x_offset, c->y_offset + 10,
-        BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
+    image_draw(resource_images[resource].icon_img_id, c->x_offset + 10, c->y_offset + 10);
+    lang_text_draw_centered(group_id, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
 
     struct building_t *b = &all_buildings[c->building_id];
     int pct_grown = calc_percentage(b->data.industry.progress, 200);
@@ -90,7 +89,7 @@ static void draw_raw_material(
     window_building_play_sound(c, sound_file);
 
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + resource, c->x_offset + 10, c->y_offset + 10);
+    image_draw(resource_images[resource].icon_img_id, c->x_offset + 10, c->y_offset + 10);
     lang_text_draw_centered(group_id, 0, c->x_offset, c->y_offset + 10,
         BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
 
@@ -150,7 +149,7 @@ static void draw_workshop(
     window_building_play_sound(c, sound_file);
 
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + resource, c->x_offset + 10, c->y_offset + 10);
+    image_draw(resource_images[resource].icon_img_id, c->x_offset + 10, c->y_offset + 10);
     lang_text_draw_centered(group_id, 0, c->x_offset, c->y_offset + 10,
         BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
 
@@ -160,7 +159,7 @@ static void draw_workshop(
     width += text_draw_percentage(pct_done, c->x_offset + 32 + width, c->y_offset + 40, FONT_NORMAL_BLACK);
     lang_text_draw(group_id, 3, c->x_offset + 32 + width, c->y_offset + 40, FONT_NORMAL_BLACK);
 
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + input_resource, c->x_offset + 32, c->y_offset + 56);
+    image_draw(resource_images[input_resource].icon_img_id, c->x_offset + 32, c->y_offset + 56);
     width = lang_text_draw(group_id, 12, c->x_offset + 60, c->y_offset + 60, FONT_NORMAL_BLACK);
     if (b->loads_stored < 1) {
         lang_text_draw_amount(8, 10, 0, c->x_offset + 60 + width, c->y_offset + 60, FONT_NORMAL_BLACK);
@@ -252,9 +251,7 @@ void window_building_draw_wharf(building_info_context *c)
     window_building_play_sound(c, "wavs/wharf.wav");
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(102, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_MEAT +
-        resource_image_offset(RESOURCE_MEAT, RESOURCE_IMAGE_ICON),
-        c->x_offset + 10, c->y_offset + 10);
+    image_draw(resource_images[RESOURCE_MEAT].icon_img_id + resource_image_offset(RESOURCE_MEAT, RESOURCE_IMAGE_ICON), c->x_offset + 10, c->y_offset + 10);
 
     struct building_t *b = &all_buildings[c->building_id];
 

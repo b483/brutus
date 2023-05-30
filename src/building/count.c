@@ -15,7 +15,7 @@ struct record {
 
 static struct {
     struct record buildings[BUILDING_TYPE_MAX];
-    struct record industry[RESOURCE_MAX];
+    struct record industry[RESOURCE_TYPES_MAX];
 } data;
 
 static void clear_counters(void)
@@ -31,7 +31,7 @@ static void increase_count(int type, int active)
     }
 }
 
-static void increase_industry_count(resource_type resource, int active)
+static void increase_industry_count(int resource, int active)
 {
     ++data.industry[resource].total;
     if (active) {
@@ -219,12 +219,12 @@ int building_count_total(int type)
     return data.buildings[type].total;
 }
 
-int building_count_industry_active(resource_type resource)
+int building_count_industry_active(int resource)
 {
     return data.industry[resource].active;
 }
 
-int building_count_industry_total(resource_type resource)
+int building_count_industry_total(int resource)
 {
     return data.industry[resource].total;
 }
@@ -233,10 +233,10 @@ void building_count_save_state(buffer *industry, buffer *culture1, buffer *cultu
                                 buffer *culture3, buffer *military, buffer *support)
 {
     // industry
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         buffer_write_i32(industry, data.industry[i].total);
     }
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         buffer_write_i32(industry, data.industry[i].active);
     }
 
@@ -316,10 +316,10 @@ void building_count_load_state(buffer *industry, buffer *culture1, buffer *cultu
                                 buffer *culture3, buffer *military, buffer *support)
 {
     // industry
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         data.industry[i].total = buffer_read_i32(industry);
     }
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         data.industry[i].active = buffer_read_i32(industry);
     }
 

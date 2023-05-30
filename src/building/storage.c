@@ -9,7 +9,7 @@
 struct data_storage {
     int in_use;
     int building_id;
-    building_storage storage;
+    struct building_storage_t storage;
 };
 
 static struct {
@@ -71,7 +71,7 @@ void building_storage_delete(int storage_id)
     data.storages[storage_id].in_use = 0;
 }
 
-const building_storage *building_storage_get(int storage_id)
+struct building_storage_t *building_storage_get(int storage_id)
 {
     return &data.storages[storage_id].storage;
 }
@@ -81,7 +81,7 @@ void building_storage_toggle_empty_all(int storage_id)
     data.storages[storage_id].storage.empty_all = 1 - data.storages[storage_id].storage.empty_all;
 }
 
-void building_storage_cycle_resource_state(int storage_id, resource_type resource_id)
+void building_storage_cycle_resource_state(int storage_id, int resource_id)
 {
     int state = data.storages[storage_id].storage.resource_state[resource_id];
     if (state == BUILDING_STORAGE_STATE_ACCEPTING) {
@@ -96,7 +96,7 @@ void building_storage_cycle_resource_state(int storage_id, resource_type resourc
 
 void building_storage_accept_none(int storage_id)
 {
-    for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
         data.storages[storage_id].storage.resource_state[r] = BUILDING_STORAGE_STATE_NOT_ACCEPTING;
     }
 }
@@ -107,7 +107,7 @@ void building_storage_save_state(buffer *buf)
         buffer_write_i32(buf, data.storages[i].building_id);
         buffer_write_u8(buf, (uint8_t) data.storages[i].in_use);
         buffer_write_u8(buf, (uint8_t) data.storages[i].storage.empty_all);
-        for (int r = 0; r < RESOURCE_MAX; r++) {
+        for (int r = 0; r < RESOURCE_TYPES_MAX; r++) {
             buffer_write_u8(buf, data.storages[i].storage.resource_state[r]);
         }
     }
@@ -119,7 +119,7 @@ void building_storage_load_state(buffer *buf)
         data.storages[i].building_id = buffer_read_i32(buf);
         data.storages[i].in_use = buffer_read_u8(buf);
         data.storages[i].storage.empty_all = buffer_read_u8(buf);
-        for (int r = 0; r < RESOURCE_MAX; r++) {
+        for (int r = 0; r < RESOURCE_TYPES_MAX; r++) {
             data.storages[i].storage.resource_state[r] = buffer_read_u8(buf);
         }
     }

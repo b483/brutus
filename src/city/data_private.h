@@ -283,18 +283,18 @@ extern struct city_data_t {
         int32_t second_festival_effect_months;
     } festival;
     struct {
-        int16_t space_in_warehouses[RESOURCE_MAX];
-        int16_t stored_in_warehouses[RESOURCE_MAX];
+        int16_t space_in_warehouses[RESOURCE_TYPES_MAX];
+        int16_t stored_in_warehouses[RESOURCE_TYPES_MAX];
         int32_t space_in_workshops[6];
         int32_t stored_in_workshops[6];
-        int16_t trade_status[RESOURCE_MAX];
-        int16_t export_over[RESOURCE_MAX];
-        int32_t stockpiled[RESOURCE_MAX];
-        int16_t mothballed[RESOURCE_MAX];
+        int16_t trade_status[RESOURCE_TYPES_MAX];
+        int16_t export_over[RESOURCE_TYPES_MAX];
+        int32_t stockpiled[RESOURCE_TYPES_MAX];
+        int16_t mothballed[RESOURCE_TYPES_MAX];
         int32_t wine_types_available;
         int32_t food_types_available;
         int32_t food_types_eaten;
-        int32_t granary_food_stored[RESOURCE_MAX_FOOD];
+        int32_t granary_food_stored[FOOD_TYPES_MAX];
         int32_t granary_total_stored;
         int32_t food_supply_months;
         int32_t food_needed_per_month;

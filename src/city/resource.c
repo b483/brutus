@@ -8,17 +8,94 @@
 #include "map/road_access.h"
 #include "scenario/data.h"
 
+struct resource_img_ids_t resource_images[RESOURCE_TYPES_MAX] = {
+{0, 0, 0, -1}, // RESOURCE_NONE
+{1187, 3338, 8, 0}, // RESOURCE_WHEAT
+{1188, 3342, 16, 5}, // RESOURCE_VEGETABLES
+{1189, 3346, 24, 10}, // RESOURCE_FRUIT
+{1192, 3358, 48, 25}, // RESOURCE_MEAT
+{1190, 3350, 32, 15}, // RESOURCE_OLIVES
+{1191, 3354, 40, 20}, // RESOURCE_VINES
+{1197, 3378, 88, -1}, // RESOURCE_CLAY
+{1196, 3366, 80, -1}, // RESOURCE_TIMBER
+{1198, 3382, 96, -1}, // RESOURCE_MARBLE
+{1195, 3370, 72, -1}, // RESOURCE_IRON
+{1194, 3366, 64, -1}, // RESOURCE_OIL
+{1193, 3362, 56, -1}, // RESOURCE_WINE
+{1201, 3394, 120, -1}, // RESOURCE_POTTERY
+{1200, 3390, 112, -1}, // RESOURCE_FURNITURE
+{1199, 3386, 104, -1}, // RESOURCE_WEAPONS
+};
+
+uint8_t resource_strings[RESOURCE_TYPES_MAX][11] = {
+"R_NONE", // RESOURCE_NONE
+"Wheat", // RESOURCE_WHEAT
+"Vegetables", // RESOURCE_VEGETABLES
+"Fruit", // RESOURCE_FRUIT
+"Meat", // RESOURCE_MEAT
+"Olives", // RESOURCE_OLIVES
+"Vines", // RESOURCE_VINES
+"Clay", // RESOURCE_CLAY
+"Timber", // RESOURCE_TIMBER
+"Marble", // RESOURCE_MARBLE
+"Iron", // RESOURCE_IRON
+"Oil", // RESOURCE_OIL
+"Wine", // RESOURCE_WINE
+"Pottery", // RESOURCE_POTTERY
+"Furniture", // RESOURCE_FURNITURE
+"Weapons", // RESOURCE_WEAPONS
+};
+
+int resource_image_offset(int resource, int type)
+{
+    if (resource == RESOURCE_MEAT && scenario.allowed_buildings[BUILDING_WHARF]) {
+        switch (type) {
+            case RESOURCE_IMAGE_STORAGE: return 40;
+            case RESOURCE_IMAGE_CART: return 648;
+            case RESOURCE_IMAGE_FOOD_CART: return 8;
+            case RESOURCE_IMAGE_ICON: return 11;
+            default: return 0;
+        }
+    } else {
+        return 0;
+    }
+}
+
+int resource_is_food(int resource)
+{
+    return resource == RESOURCE_WHEAT || resource == RESOURCE_VEGETABLES ||
+        resource == RESOURCE_FRUIT || resource == RESOURCE_MEAT;
+}
+
+int resource_to_workshop_type(int resource)
+{
+    switch (resource) {
+        case RESOURCE_OLIVES:
+            return WORKSHOP_OLIVES_TO_OIL;
+        case RESOURCE_VINES:
+            return WORKSHOP_VINES_TO_WINE;
+        case RESOURCE_CLAY:
+            return WORKSHOP_CLAY_TO_POTTERY;
+        case RESOURCE_TIMBER:
+            return WORKSHOP_TIMBER_TO_FURNITURE;
+        case RESOURCE_IRON:
+            return WORKSHOP_IRON_TO_WEAPONS;
+        default:
+            return WORKSHOP_NONE;
+    }
+}
+
 static struct {
-    resource_list resource_list;
-    resource_list food_list;
+    struct resource_list_t resource_list;
+    struct resource_list_t food_list;
 } available;
 
-const resource_list *city_resource_get_available(void)
+struct resource_list_t *city_resource_get_available(void)
 {
     return &available.resource_list;
 }
 
-const resource_list *city_resource_get_available_foods(void)
+struct resource_list_t *city_resource_get_available_foods(void)
 {
     return &available.food_list;
 }
@@ -68,7 +145,7 @@ void city_resource_set_last_used_warehouse(int warehouse_id)
     city_data.resource.last_used_warehouse = warehouse_id;
 }
 
-void city_resource_cycle_trade_status(resource_type resource)
+void city_resource_cycle_trade_status(int resource)
 {
     ++city_data.resource.trade_status[resource];
     if (city_data.resource.trade_status[resource] > TRADE_STATUS_EXPORT) {
@@ -88,7 +165,7 @@ void city_resource_cycle_trade_status(resource_type resource)
     }
 }
 
-void city_resource_toggle_stockpiled(resource_type resource)
+void city_resource_toggle_stockpiled(int resource)
 {
     if (city_data.resource.stockpiled[resource]) {
         city_data.resource.stockpiled[resource] = 0;
@@ -110,18 +187,18 @@ void city_resource_add_produced_to_granary(int amount)
     city_data.resource.food_produced_this_month += amount;
 }
 
-void city_resource_remove_from_granary(resource_type food, int amount)
+void city_resource_remove_from_granary(int food, int amount)
 {
     city_data.resource.granary_food_stored[food] -= amount;
 }
 
-void city_resource_add_to_warehouse(resource_type resource, int amount)
+void city_resource_add_to_warehouse(int resource, int amount)
 {
     city_data.resource.space_in_warehouses[resource] -= amount;
     city_data.resource.stored_in_warehouses[resource] += amount;
 }
 
-void city_resource_remove_from_warehouse(resource_type resource, int amount)
+void city_resource_remove_from_warehouse(int resource, int amount)
 {
     city_data.resource.space_in_warehouses[resource] += amount;
     city_data.resource.stored_in_warehouses[resource] -= amount;
@@ -129,7 +206,7 @@ void city_resource_remove_from_warehouse(resource_type resource, int amount)
 
 void city_resource_calculate_warehouse_stocks(void)
 {
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         city_data.resource.space_in_warehouses[i] = 0;
         city_data.resource.stored_in_warehouses[i] = 0;
     }
@@ -166,19 +243,19 @@ void city_resource_calculate_warehouse_stocks(void)
 
 void city_resource_determine_available(void)
 {
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         available.resource_list.items[i] = 0;
         available.food_list.items[i] = 0;
     }
     available.resource_list.size = 0;
     available.food_list.size = 0;
 
-    for (int i = RESOURCE_MIN; i < RESOURCE_MAX; i++) {
+    for (int i = RESOURCE_WHEAT; i < RESOURCE_TYPES_MAX; i++) {
         if (empire_can_produce_resource(i)) {
             available.resource_list.items[available.resource_list.size++] = i;
         }
     }
-    for (int i = RESOURCE_MIN_FOOD; i < RESOURCE_MAX_FOOD; i++) {
+    for (int i = RESOURCE_WHEAT; i < FOOD_TYPES_MAX; i++) {
         if (i == RESOURCE_OLIVES || i == RESOURCE_VINES) {
             continue;
         }
@@ -190,7 +267,7 @@ void city_resource_determine_available(void)
 
 static void calculate_available_food(void)
 {
-    for (int i = 0; i < RESOURCE_MAX_FOOD; i++) {
+    for (int i = 0; i < FOOD_TYPES_MAX; i++) {
         city_data.resource.granary_food_stored[i] = 0;
     }
     city_data.resource.granary_total_stored = 0;
@@ -209,12 +286,12 @@ static void calculate_available_food(void)
         if (map_has_road_access_granary(b->x, b->y, 0)) {
             b->has_road_access = 1;
             int pct_workers = calc_percentage(
-                b->num_workers, building_properties[b->type].laborers);
+                b->num_workers, building_properties[b->type].n_laborers);
             if (pct_workers < 100) {
                 city_data.resource.granaries.understaffed++;
             }
             int amount_stored = 0;
-            for (int r = RESOURCE_MIN_FOOD; r < RESOURCE_MAX_FOOD; r++) {
+            for (int r = RESOURCE_WHEAT; r < FOOD_TYPES_MAX; r++) {
                 amount_stored += b->data.granary.resource_stored[r];
             }
             if (pct_workers < 50) {
@@ -224,13 +301,13 @@ static void calculate_available_food(void)
                 }
             } else {
                 city_data.resource.granaries.operating++;
-                for (int r = 0; r < RESOURCE_MAX_FOOD; r++) {
+                for (int r = 0; r < FOOD_TYPES_MAX; r++) {
                     city_data.resource.granary_food_stored[r] += b->data.granary.resource_stored[r];
                 }
             }
         }
     }
-    for (int i = RESOURCE_MIN_FOOD; i < RESOURCE_MAX_FOOD; i++) {
+    for (int i = RESOURCE_WHEAT; i < FOOD_TYPES_MAX; i++) {
         if (city_data.resource.granary_food_stored[i]) {
             city_data.resource.granary_total_stored += city_data.resource.granary_food_stored[i];
             city_data.resource.food_types_available++;
@@ -308,7 +385,7 @@ void city_resource_consume_food(void)
                 b->data.house.inventory[INVENTORY_WHEAT] = amount_per_type;
                 b->data.house.num_foods = 1;
             } else if (house_properties[b->subtype.house_level].food_types > 0) {
-                for (int t = INVENTORY_MIN_FOOD; t < INVENTORY_MAX_FOOD && b->data.house.num_foods < house_properties[b->subtype.house_level].food_types; t++) {
+                for (int t = INVENTORY_WHEAT; t <= INVENTORY_MEAT && b->data.house.num_foods < house_properties[b->subtype.house_level].food_types; t++) {
                     if (b->data.house.inventory[t] >= amount_per_type) {
                         b->data.house.inventory[t] -= amount_per_type;
                         b->data.house.num_foods++;

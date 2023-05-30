@@ -13,7 +13,7 @@ static int generate_trader(struct empire_object_t *city)
 {
     int max_traders = 0;
     int num_resources = 0;
-    for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
         if (city->resource_buy_limit[r]) {
             ++num_resources;
             switch (city->resource_buy_limit[r]) {
@@ -167,8 +167,8 @@ void city_trade_update(void)
 int city_trade_next_caravan_import_resource(void)
 {
     city_data.trade.caravan_import_resource++;
-    if (city_data.trade.caravan_import_resource >= RESOURCE_MAX) {
-        city_data.trade.caravan_import_resource = RESOURCE_MIN;
+    if (city_data.trade.caravan_import_resource >= RESOURCE_TYPES_MAX) {
+        city_data.trade.caravan_import_resource = RESOURCE_WHEAT;
     }
     return city_data.trade.caravan_import_resource;
 }
@@ -176,8 +176,8 @@ int city_trade_next_caravan_import_resource(void)
 int city_trade_next_caravan_backup_import_resource(void)
 {
     city_data.trade.caravan_backup_import_resource++;
-    if (city_data.trade.caravan_backup_import_resource >= RESOURCE_MAX) {
-        city_data.trade.caravan_backup_import_resource = RESOURCE_MIN;
+    if (city_data.trade.caravan_backup_import_resource >= RESOURCE_TYPES_MAX) {
+        city_data.trade.caravan_backup_import_resource = RESOURCE_WHEAT;
     }
     return city_data.trade.caravan_backup_import_resource;
 }
@@ -185,8 +185,8 @@ int city_trade_next_caravan_backup_import_resource(void)
 int city_trade_next_docker_import_resource(void)
 {
     city_data.trade.docker_import_resource++;
-    if (city_data.trade.docker_import_resource >= RESOURCE_MAX) {
-        city_data.trade.docker_import_resource = RESOURCE_MIN;
+    if (city_data.trade.docker_import_resource >= RESOURCE_TYPES_MAX) {
+        city_data.trade.docker_import_resource = RESOURCE_WHEAT;
     }
     return city_data.trade.docker_import_resource;
 }
@@ -194,8 +194,8 @@ int city_trade_next_docker_import_resource(void)
 int city_trade_next_docker_export_resource(void)
 {
     city_data.trade.docker_export_resource++;
-    if (city_data.trade.docker_export_resource >= RESOURCE_MAX) {
-        city_data.trade.docker_export_resource = RESOURCE_MIN;
+    if (city_data.trade.docker_export_resource >= RESOURCE_TYPES_MAX) {
+        city_data.trade.docker_export_resource = RESOURCE_WHEAT;
     }
     return city_data.trade.docker_export_resource;
 }

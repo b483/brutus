@@ -83,8 +83,8 @@ int building_granary_remove_resource(struct building_t *granary, int resource, i
 
 int building_granary_remove_for_getting_deliveryman(struct building_t *src, struct building_t *dst, int *resource)
 {
-    const building_storage *s_src = building_storage_get(src->storage_id);
-    const building_storage *s_dst = building_storage_get(dst->storage_id);
+    struct building_storage_t *s_src = building_storage_get(src->storage_id);
+    struct building_storage_t *s_dst = building_storage_get(dst->storage_id);
 
     int max_amount = 0;
     int max_resource = 0;
@@ -130,13 +130,13 @@ int building_granary_remove_for_getting_deliveryman(struct building_t *src, stru
 
 int building_granary_determine_worker_task(struct building_t *granary)
 {
-    if (calc_percentage(granary->num_workers, building_properties[granary->type].laborers) < 50) {
+    if (calc_percentage(granary->num_workers, building_properties[granary->type].n_laborers) < 50) {
         return GRANARY_TASK_NONE;
     }
-    const building_storage *s = building_storage_get(granary->storage_id);
+    struct building_storage_t *s = building_storage_get(granary->storage_id);
     if (s->empty_all) {
         // bring food to another granary
-        for (int i = RESOURCE_MIN_FOOD; i < RESOURCE_MAX_FOOD; i++) {
+        for (int i = RESOURCE_WHEAT; i < FOOD_TYPES_MAX; i++) {
             if (granary->data.granary.resource_stored[i]) {
                 return i;
             }
@@ -184,7 +184,7 @@ void building_granaries_calculate_stocks(void)
         if (!b->has_road_access || b->distance_from_entry <= 0) {
             continue;
         }
-        const building_storage *s = building_storage_get(b->storage_id);
+        struct building_storage_t *s = building_storage_get(b->storage_id);
         int total_non_getting = 0;
         if (s->resource_state[RESOURCE_WHEAT] != BUILDING_STORAGE_STATE_GETTING) {
             total_non_getting += b->data.granary.resource_stored[RESOURCE_WHEAT];
@@ -233,13 +233,13 @@ int building_granary_for_storing(int x, int y, int resource, int distance_from_e
         if (!b->has_road_access || b->distance_from_entry <= 0 || b->road_network_id != road_network_id) {
             continue;
         }
-        if (calc_percentage(b->num_workers, building_properties[b->type].laborers) < 100) {
+        if (calc_percentage(b->num_workers, building_properties[b->type].n_laborers) < 100) {
             if (understaffed) {
                 *understaffed += 1;
             }
             continue;
         }
-        const building_storage *s = building_storage_get(b->storage_id);
+        struct building_storage_t *s = building_storage_get(b->storage_id);
         if (s->resource_state[resource] == BUILDING_STORAGE_STATE_NOT_ACCEPTING || s->empty_all) {
             continue;
         }
@@ -281,10 +281,10 @@ int building_getting_granary_for_storing(int x, int y, int resource, int distanc
         if (!b->has_road_access || b->distance_from_entry <= 0 || b->road_network_id != road_network_id) {
             continue;
         }
-        if (calc_percentage(b->num_workers, building_properties[b->type].laborers) < 100) {
+        if (calc_percentage(b->num_workers, building_properties[b->type].n_laborers) < 100) {
             continue;
         }
-        const building_storage *s = building_storage_get(b->storage_id);
+        struct building_storage_t *s = building_storage_get(b->storage_id);
         if (s->resource_state[resource] != BUILDING_STORAGE_STATE_GETTING || s->empty_all) {
             continue;
         }
@@ -305,7 +305,7 @@ int building_getting_granary_for_storing(int x, int y, int resource, int distanc
 
 int building_granary_for_getting(struct building_t *src, map_point *dst)
 {
-    const building_storage *s_src = building_storage_get(src->storage_id);
+    struct building_storage_t *s_src = building_storage_get(src->storage_id);
     if (s_src->empty_all) {
         return 0;
     }
@@ -330,7 +330,7 @@ int building_granary_for_getting(struct building_t *src, map_point *dst)
         if (b->road_network_id != src->road_network_id) {
             continue;
         }
-        const building_storage *s = building_storage_get(b->storage_id);
+        struct building_storage_t *s = building_storage_get(b->storage_id);
         int amount_gettable = 0;
         if (s_src->resource_state[RESOURCE_WHEAT] == BUILDING_STORAGE_STATE_GETTING &&
             s->resource_state[RESOURCE_WHEAT] != BUILDING_STORAGE_STATE_GETTING) {
@@ -377,7 +377,7 @@ void building_granary_bless(void)
             continue;
         }
         int total_stored = 0;
-        for (int r = RESOURCE_MIN_FOOD; r < RESOURCE_MAX_FOOD; r++) {
+        for (int r = RESOURCE_WHEAT; r < FOOD_TYPES_MAX; r++) {
             total_stored += get_amount(b, r);
         }
         if (total_stored < min_stored) {
@@ -412,11 +412,11 @@ void building_granary_warehouse_curse(int big)
         }
         int total_stored = 0;
         if (b->type == BUILDING_WAREHOUSE) {
-            for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+            for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
                 total_stored += building_warehouse_get_amount(b, r);
             }
         } else if (b->type == BUILDING_GRANARY) {
-            for (int r = RESOURCE_MIN_FOOD; r < RESOURCE_MAX_FOOD; r++) {
+            for (int r = RESOURCE_WHEAT; r < FOOD_TYPES_MAX; r++) {
                 total_stored += get_amount(b, r);
             }
             total_stored /= UNITS_PER_LOAD;

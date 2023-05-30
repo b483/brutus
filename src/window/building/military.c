@@ -79,7 +79,7 @@ void window_building_draw_barracks(building_info_context *c)
     window_building_play_sound(c, "wavs/barracks.wav");
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(136, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_WEAPONS, c->x_offset + 64, c->y_offset + 38);
+    image_draw(resource_images[RESOURCE_WEAPONS].icon_img_id, c->x_offset + 64, c->y_offset + 38);
 
     struct building_t *b = &all_buildings[c->building_id];
     if (b->loads_stored < 1) {

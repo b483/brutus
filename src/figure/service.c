@@ -2,7 +2,7 @@
 
 #include "building/building.h"
 #include "figuretype/crime.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "map/building.h"
 #include "map/grid.h"
 
@@ -232,13 +232,13 @@ static void distribute_market_resources(struct building_t *b, struct building_t 
     }
     int max_food_stocks = 4 * b->house_highest_population;
     int food_types_stored_max = 0;
-    for (int i = INVENTORY_MIN_FOOD; i < INVENTORY_MAX_FOOD; i++) {
+    for (int i = INVENTORY_WHEAT; i <= INVENTORY_MEAT; i++) {
         if (b->data.house.inventory[i] >= max_food_stocks) {
             food_types_stored_max++;
         }
     }
     if (house_properties[level].food_types > food_types_stored_max) {
-        for (int i = INVENTORY_MIN_FOOD; i < INVENTORY_MAX_FOOD; i++) {
+        for (int i = INVENTORY_WHEAT; i <= INVENTORY_MEAT; i++) {
             if (b->data.house.inventory[i] >= max_food_stocks) {
                 continue;
             }

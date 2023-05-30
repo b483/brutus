@@ -12,7 +12,7 @@
 #include "core/config.h"
 #include "core/time.h"
 #include "figure/formation_legion.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "graphics/image.h"
 #include "graphics/window.h"
 #include "map/building.h"

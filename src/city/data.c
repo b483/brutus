@@ -17,8 +17,8 @@ void city_data_init(void)
     city_data.labor.wages_rome = 30;
     city_data.labor.wages = 30;
     city_data.finance.tax_percentage = 7;
-    city_data.trade.caravan_import_resource = RESOURCE_MIN;
-    city_data.trade.caravan_backup_import_resource = RESOURCE_MIN;
+    city_data.trade.caravan_import_resource = RESOURCE_WHEAT;
+    city_data.trade.caravan_backup_import_resource = RESOURCE_WHEAT;
     city_data.population.monthly.next_index = 0;
     city_data.population.monthly.count = 0;
     city_data.festival.months_since_festival = 1;
@@ -104,22 +104,22 @@ static void save_main_data(buffer *main)
     buffer_write_u8(main, city_data.building.senate_y);
     buffer_write_i16(main, city_data.building.senate_grid_offset);
     buffer_write_i32(main, city_data.building.senate_building_id);
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         buffer_write_i16(main, city_data.resource.space_in_warehouses[i]);
     }
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         buffer_write_i16(main, city_data.resource.stored_in_warehouses[i]);
     }
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         buffer_write_i16(main, city_data.resource.trade_status[i]);
     }
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         buffer_write_i16(main, city_data.resource.export_over[i]);
     }
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         buffer_write_i16(main, city_data.resource.mothballed[i]);
     }
-    for (int i = 0; i < RESOURCE_MAX_FOOD; i++) {
+    for (int i = 0; i < FOOD_TYPES_MAX; i++) {
         buffer_write_i32(main, city_data.resource.granary_food_stored[i]);
     }
     for (int i = 0; i < 6; i++) {
@@ -131,7 +131,7 @@ static void save_main_data(buffer *main)
     buffer_write_i32(main, city_data.resource.granary_total_stored);
     buffer_write_i32(main, city_data.resource.food_types_available);
     buffer_write_i32(main, city_data.resource.food_types_eaten);
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         buffer_write_i32(main, city_data.resource.stockpiled[i]);
     }
     buffer_write_i32(main, city_data.resource.food_supply_months);
@@ -471,22 +471,22 @@ static void load_main_data(buffer *main)
     city_data.building.senate_y = buffer_read_u8(main);
     city_data.building.senate_grid_offset = buffer_read_i16(main);
     city_data.building.senate_building_id = buffer_read_i32(main);
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         city_data.resource.space_in_warehouses[i] = buffer_read_i16(main);
     }
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         city_data.resource.stored_in_warehouses[i] = buffer_read_i16(main);
     }
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         city_data.resource.trade_status[i] = buffer_read_i16(main);
     }
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         city_data.resource.export_over[i] = buffer_read_i16(main);
     }
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         city_data.resource.mothballed[i] = buffer_read_i16(main);
     }
-    for (int i = 0; i < RESOURCE_MAX_FOOD; i++) {
+    for (int i = 0; i < FOOD_TYPES_MAX; i++) {
         city_data.resource.granary_food_stored[i] = buffer_read_i32(main);
     }
     for (int i = 0; i < 6; i++) {
@@ -498,7 +498,7 @@ static void load_main_data(buffer *main)
     city_data.resource.granary_total_stored = buffer_read_i32(main);
     city_data.resource.food_types_available = buffer_read_i32(main);
     city_data.resource.food_types_eaten = buffer_read_i32(main);
-    for (int i = 0; i < RESOURCE_MAX; i++) {
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         city_data.resource.stockpiled[i] = buffer_read_i32(main);
     }
     city_data.resource.food_supply_months = buffer_read_i32(main);

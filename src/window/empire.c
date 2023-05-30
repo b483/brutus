@@ -116,7 +116,7 @@ static void draw_paneling(void)
     graphics_reset_clip_rectangle();
 }
 
-static void draw_trade_resource(resource_type resource, int trade_max, int x_offset, int y_offset)
+static void draw_trade_resource(int resource, int trade_max, int x_offset, int y_offset)
 {
     graphics_draw_inset_rect(x_offset, y_offset, 26, 26);
 
@@ -149,7 +149,7 @@ static void draw_trade_city_info(void)
         // city sells
         lang_text_draw(47, 10, x_offset, y_offset + 40, FONT_NORMAL_GREEN);
         int index = 0;
-        for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+        for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
             if (!data.selected_object->resource_sell_limit[r]) {
                 continue;
             }
@@ -170,7 +170,7 @@ static void draw_trade_city_info(void)
         // city buys
         lang_text_draw(47, 9, x_offset, y_offset + 71, FONT_NORMAL_GREEN);
         index = 0;
-        for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+        for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
             if (!data.selected_object->resource_buy_limit[r]) {
                 continue;
             }
@@ -190,7 +190,7 @@ static void draw_trade_city_info(void)
         }
     } else { // trade is closed
         int index = lang_text_draw(47, 5, x_offset + 35, y_offset + 42, FONT_NORMAL_GREEN);
-        for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+        for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
             if (!data.selected_object->resource_sell_limit[r]) {
                 continue;
             }
@@ -199,7 +199,7 @@ static void draw_trade_city_info(void)
             index += 32;
         }
         index += lang_text_draw(47, 4, x_offset + index + 85, y_offset + 42, FONT_NORMAL_GREEN);
-        for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+        for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
             if (!data.selected_object->resource_buy_limit[r]) {
                 continue;
             }
@@ -486,7 +486,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
                 int index_buy = 0;
 
                 // we only want to handle resource buttons that the selected city trades
-                for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+                for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
                     if (data.selected_object->resource_sell_limit[r]) {
                         generic_buttons_handle_mouse(m, x_offset + 75 + 104 * index_sell, y_offset + 31,
                             generic_button_trade_resource + r - 1, 1, &button_id);
@@ -564,7 +564,7 @@ static int get_tooltip_resource(tooltip_context *c)
     int y_offset = data.y_max - 113;
 
     int item_offset = lang_text_get_width(47, 5, FONT_NORMAL_GREEN);
-    for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
         if (data.selected_object->resource_sell_limit[r]) {
             if (is_mouse_hit(c, x_offset + 45 + item_offset, y_offset + 33, 26)) {
                 return r;
@@ -573,7 +573,7 @@ static int get_tooltip_resource(tooltip_context *c)
         }
     }
     item_offset += lang_text_get_width(47, 4, FONT_NORMAL_GREEN);
-    for (int r = RESOURCE_MIN; r <= RESOURCE_MAX; r++) {
+    for (int r = RESOURCE_WHEAT; r <= RESOURCE_TYPES_MAX; r++) {
         if (data.selected_object->resource_buy_limit[r]) {
             if (is_mouse_hit(c, x_offset + 95 + item_offset, y_offset + 33, 26)) {
                 return r;

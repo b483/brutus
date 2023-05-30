@@ -4,7 +4,7 @@
 #include "city/data_private.h"
 #include "city/resource.h"
 #include "core/calc.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "scenario/data.h"
 
 struct resource_data {
@@ -17,7 +17,7 @@ int building_market_get_max_food_stock(struct building_t *market)
 {
     int max_stock = 0;
     if (market->id > 0 && market->type == BUILDING_MARKET) {
-        for (int i = INVENTORY_MIN_FOOD; i < INVENTORY_MAX_FOOD; i++) {
+        for (int i = INVENTORY_WHEAT; i <= INVENTORY_MEAT; i++) {
             int stock = market->data.market.inventory[i];
             if (stock > max_stock) {
                 max_stock = stock;
@@ -31,7 +31,7 @@ int building_market_get_max_goods_stock(struct building_t *market)
 {
     int max_stock = 0;
     if (market->id > 0 && market->type == BUILDING_MARKET) {
-        for (int i = INVENTORY_MIN_GOOD; i < INVENTORY_MAX_GOOD; i++) {
+        for (int i = INVENTORY_OIL; i <= INVENTORY_FURNITURE; i++) {
             int stock = market->data.market.inventory[i];
             if (stock > max_stock) {
                 max_stock = stock;
@@ -41,7 +41,7 @@ int building_market_get_max_goods_stock(struct building_t *market)
     return max_stock;
 }
 
-static void update_food_resource(struct resource_data *data, resource_type resource, const struct building_t *b, int distance)
+static void update_food_resource(struct resource_data *data, int resource, const struct building_t *b, int distance)
 {
     if (b->data.granary.resource_stored[resource]) {
         data->num_buildings++;
@@ -52,7 +52,7 @@ static void update_food_resource(struct resource_data *data, resource_type resou
     }
 }
 
-static void update_good_resource(struct resource_data *data, resource_type resource, struct building_t *b, int distance)
+static void update_good_resource(struct resource_data *data, int resource, struct building_t *b, int distance)
 {
     if (!city_data.resource.stockpiled[resource] && building_warehouse_get_amount(b, resource) > 0) {
         data->num_buildings++;

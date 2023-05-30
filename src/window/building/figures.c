@@ -224,21 +224,6 @@ static int big_people_image(int type)
     return image_group(GROUP_BIG_PEOPLE) + FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[type] - 1;
 }
 
-static int inventory_to_resource_id(int value)
-{
-    switch (value) {
-        case INVENTORY_WHEAT: return RESOURCE_WHEAT;
-        case INVENTORY_VEGETABLES: return RESOURCE_VEGETABLES;
-        case INVENTORY_FRUIT: return RESOURCE_FRUIT;
-        case INVENTORY_MEAT: return RESOURCE_MEAT;
-        case INVENTORY_WINE: return RESOURCE_WINE;
-        case INVENTORY_OIL: return RESOURCE_OIL;
-        case INVENTORY_FURNITURE: return RESOURCE_FURNITURE;
-        case INVENTORY_POTTERY: return RESOURCE_POTTERY;
-        default: return RESOURCE_NONE;
-    }
-}
-
 static void draw_trader(building_info_context *c, struct figure_t *f)
 {
     while (f->type == FIGURE_TRADE_CARAVAN_DONKEY) {
@@ -285,22 +270,20 @@ static void draw_trader(building_info_context *c, struct figure_t *f)
         // bought
         int y_base = c->y_offset + 192;
         width = lang_text_draw(129, 4, c->x_offset + 40, y_base, FONT_NORMAL_BROWN);
-        for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+        for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
             if (trader_bought_resources(trader_id, r)) {
                 width += text_draw_number(trader_bought_resources(trader_id, r), ' ', "", c->x_offset + 40 + width, y_base, FONT_NORMAL_BROWN);
-                int image_id = image_group(GROUP_RESOURCE_ICONS) + r + resource_image_offset(r, RESOURCE_IMAGE_ICON);
-                image_draw(image_id, c->x_offset + 40 + width, y_base - 3);
+                image_draw(resource_images[r].icon_img_id + resource_image_offset(r, RESOURCE_IMAGE_ICON), c->x_offset + 40 + width, y_base - 3);
                 width += 25;
             }
         }
         // sold
         y_base = c->y_offset + 213;
         width = lang_text_draw(129, 5, c->x_offset + 40, y_base, FONT_NORMAL_BROWN);
-        for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+        for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
             if (trader_sold_resources(trader_id, r)) {
                 width += text_draw_number(trader_sold_resources(trader_id, r), ' ', "", c->x_offset + 40 + width, y_base, FONT_NORMAL_BROWN);
-                int image_id = image_group(GROUP_RESOURCE_ICONS) + r + resource_image_offset(r, RESOURCE_IMAGE_ICON);
-                image_draw(image_id, c->x_offset + 40 + width, y_base - 3);
+                image_draw(resource_images[r].icon_img_id + resource_image_offset(r, RESOURCE_IMAGE_ICON), c->x_offset + 40 + width, y_base - 3);
                 width += 25;
             }
         }
@@ -308,20 +291,18 @@ static void draw_trader(building_info_context *c, struct figure_t *f)
         // buying
         int y_base = c->y_offset + 192;
         width = lang_text_draw(129, 2, c->x_offset + 40, y_base, FONT_NORMAL_BROWN);
-        for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+        for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
             if (empire_objects[f->empire_city_id].resource_buy_limit[r]) {
-                int image_id = image_group(GROUP_RESOURCE_ICONS) + r + resource_image_offset(r, RESOURCE_IMAGE_ICON);
-                image_draw(image_id, c->x_offset + 40 + width, y_base - 3);
+                image_draw(resource_images[r].icon_img_id + resource_image_offset(r, RESOURCE_IMAGE_ICON), c->x_offset + 40 + width, y_base - 3);
                 width += 25;
             }
         }
         // selling
         y_base = c->y_offset + 213;
         width = lang_text_draw(129, 3, c->x_offset + 40, y_base, FONT_NORMAL_BROWN);
-        for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+        for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
             if (empire_objects[f->empire_city_id].resource_sell_limit[r]) {
-                int image_id = image_group(GROUP_RESOURCE_ICONS) + r + resource_image_offset(r, RESOURCE_IMAGE_ICON);
-                image_draw(image_id, c->x_offset + 40 + width, y_base - 3);
+                image_draw(resource_images[r].icon_img_id + resource_image_offset(r, RESOURCE_IMAGE_ICON), c->x_offset + 40 + width, y_base - 3);
                 width += 25;
             }
         }
@@ -432,8 +413,7 @@ static void draw_cartpusher(building_info_context *c, struct figure_t *f)
 
     if (f->action_state != FIGURE_ACTION_DOCKER_IDLING && f->resource_id) {
         int resource = f->resource_id;
-        image_draw(image_group(GROUP_RESOURCE_ICONS) +
-            resource + resource_image_offset(resource, RESOURCE_IMAGE_ICON),
+        image_draw(resource_images[resource].icon_img_id + resource_image_offset(resource, RESOURCE_IMAGE_ICON),
             c->x_offset + 92 + width, c->y_offset + 135);
     }
 
@@ -486,13 +466,11 @@ static void draw_market_buyer(building_info_context *c, struct figure_t *f)
 
     if (f->action_state == FIGURE_ACTION_MARKET_BUYER_GOING_TO_STORAGE) {
         width += lang_text_draw(129, 17, c->x_offset + 90 + width, c->y_offset + 139, FONT_NORMAL_BROWN);
-        int resource = inventory_to_resource_id(f->collecting_item_id);
-        image_draw(image_group(GROUP_RESOURCE_ICONS) + resource + resource_image_offset(resource, RESOURCE_IMAGE_ICON),
+        image_draw(resource_images[f->collecting_item_id + 1].icon_img_id + resource_image_offset(f->collecting_item_id + 1, RESOURCE_IMAGE_ICON),
             c->x_offset + 90 + width, c->y_offset + 135);
     } else if (f->action_state == FIGURE_ACTION_MARKET_BUYER_RETURNING) {
         width += lang_text_draw(129, 18, c->x_offset + 90 + width, c->y_offset + 139, FONT_NORMAL_BROWN);
-        int resource = inventory_to_resource_id(f->collecting_item_id);
-        image_draw(image_group(GROUP_RESOURCE_ICONS) + resource + resource_image_offset(resource, RESOURCE_IMAGE_ICON),
+        image_draw(resource_images[f->collecting_item_id + 1].icon_img_id + resource_image_offset(f->collecting_item_id + 1, RESOURCE_IMAGE_ICON),
             c->x_offset + 90 + width, c->y_offset + 135);
     }
     if (c->figure.phrase_id >= 0) {

@@ -35,7 +35,7 @@ static void disable_trade_cities_initial_resources(void)
         if (empire_objects[i].in_use
         && (empire_objects[i].city_type == EMPIRE_CITY_TRADE || empire_objects[i].city_type == EMPIRE_CITY_FUTURE_TRADE)) {
         }
-        for (int r = 0; r < RESOURCE_MAX; r++) {
+        for (int r = 0; r < RESOURCE_TYPES_MAX; r++) {
             empire_objects[i].resource_buy_limit[r] = 0;
             empire_objects[i].resource_sell_limit[r] = 0;
         }

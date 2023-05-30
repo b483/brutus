@@ -1,7 +1,7 @@
 #include "government.h"
 
 #include "building/building.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "graphics/image.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
@@ -13,7 +13,7 @@ void window_building_draw_forum(building_info_context *c)
     window_building_play_sound(c, "wavs/forum.wav");
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(106, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_DENARII, c->x_offset + 16, c->y_offset + 36);
+    image_draw(COIN_IMAGE_ID, c->x_offset + 16, c->y_offset + 36);
 
     struct building_t *b = &all_buildings[c->building_id];
     int width = lang_text_draw(106, 2, c->x_offset + 44, c->y_offset + 43, FONT_NORMAL_BLACK);
@@ -47,7 +47,7 @@ void window_building_draw_senate(building_info_context *c)
     window_building_play_sound(c, "wavs/senate.wav");
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(105, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_DENARII, c->x_offset + 16, c->y_offset + 36);
+    image_draw(COIN_IMAGE_ID, c->x_offset + 16, c->y_offset + 36);
 
     struct building_t *b = &all_buildings[c->building_id];
     int width = lang_text_draw(105, 2, c->x_offset + 44, c->y_offset + 43, FONT_NORMAL_BLACK);

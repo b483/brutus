@@ -78,7 +78,7 @@ static void draw_requests(void)
         && !city_data.distant_battle.roman_months_to_travel_forth) {
         // can send to distant battle
         button_border_draw(38, 96, 550, 40, 0);
-        image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_WEAPONS, 50, 106);
+        image_draw(resource_images[RESOURCE_WEAPONS].icon_img_id, 50, 106);
         int width = lang_text_draw(52, 72, 80, 102, FONT_NORMAL_WHITE);
         lang_text_draw(21, empire_objects[city_data.distant_battle.city].city_name_id,
             80 + width, 102, FONT_NORMAL_WHITE);
@@ -117,8 +117,7 @@ static void draw_requests(void)
         if (scenario.requests[i].resource && scenario.requests[i].visible && i >= scroll_adjusted_index) {
             button_border_draw(38, 96 + 42 * request_index, 550, 40, 0);
             text_draw_number(scenario.requests[i].amount, '@', " ", 40, 102 + 42 * request_index, FONT_NORMAL_WHITE);
-            int resource_offset = scenario.requests[i].resource + resource_image_offset(scenario.requests[i].resource, RESOURCE_IMAGE_ICON);
-            image_draw(image_group(GROUP_RESOURCE_ICONS) + resource_offset, 110, 100 + 42 * request_index);
+            image_draw(resource_images[scenario.requests[i].resource].icon_img_id + resource_image_offset(scenario.requests[i].resource, RESOURCE_IMAGE_ICON), 110, 100 + 42 * request_index);
             lang_text_draw(23, scenario.requests[i].resource, 150, 102 + 42 * request_index, FONT_NORMAL_WHITE);
 
             int width = lang_text_draw_amount(8, 4, scenario.requests[i].months_to_comply, 310, 102 + 42 * request_index, FONT_NORMAL_WHITE);

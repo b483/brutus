@@ -6,7 +6,7 @@
 #include "city/finance.h"
 #include "city/gods.h"
 #include "core/image_group.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
@@ -67,7 +67,7 @@ static void draw_buttons(void)
     width = lang_text_draw(58, 33, 116, 251, FONT_NORMAL_BLACK);
     width += lang_text_draw_amount(8, 0, city_data.population.population / 5 + 40, 116 + width, 251, FONT_NORMAL_BLACK);
     width += lang_text_draw_amount(8, 10, city_data.population.population / 500 + 1, 126 + width, 251, FONT_NORMAL_BLACK);
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_WINE, 126 + width, 246);
+    image_draw(resource_images[RESOURCE_WINE].icon_img_id, 126 + width, 246);
 
     // greying out of buttons
     if (!city_finance_can_afford(city_data.festival.cost)) {

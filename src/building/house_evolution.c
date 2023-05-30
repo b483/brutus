@@ -4,7 +4,7 @@
 #include "city/houses.h"
 #include "city/resource.h"
 #include "core/calc.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "game/time.h"
 #include "game/undo.h"
 #include "map/building.h"
@@ -124,7 +124,7 @@ static int has_required_goods_and_services(struct building_t *house, int for_upg
     }
     // food types
     int foodtypes_available = 0;
-    for (int i = INVENTORY_MIN_FOOD; i < INVENTORY_MAX_FOOD; i++) {
+    for (int i = INVENTORY_WHEAT; i <= INVENTORY_MEAT; i++) {
         if (house->data.house.inventory[i]) {
             foodtypes_available++;
         }
@@ -550,7 +550,7 @@ void building_house_determine_evolve_text(struct building_t *house, int worst_de
     }
     // food types
     int foodtypes_available = 0;
-    for (int i = INVENTORY_MIN_FOOD; i < INVENTORY_MAX_FOOD; i++) {
+    for (int i = INVENTORY_WHEAT; i <= INVENTORY_MEAT; i++) {
         if (house->data.house.inventory[i]) {
             foodtypes_available++;
         }

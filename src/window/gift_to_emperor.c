@@ -27,7 +27,7 @@ static void draw_foreground(void)
     outer_panel_draw(84, 108, 30, 12);
 
     // Coin image
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + RESOURCE_DENARII, 100, 124);
+    image_draw(COIN_IMAGE_ID, 100, 124);
 
     // Send the Emperor a gift
     lang_text_draw_centered(52, 69, 84, 124, 480, FONT_LARGE_BLACK);

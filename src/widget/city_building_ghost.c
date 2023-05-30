@@ -605,7 +605,7 @@ void city_building_ghost_draw(const map_tile *tile)
             draw_building(image_id, x, y);
             image_draw_masked(image_group(GROUP_BUILDING_WAREHOUSE) + 17, x - 4, y - 42, COLOR_MASK_GREEN);
             for (int i = 1; i < 9; i++) {
-                draw_building(image_group(GROUP_BUILDING_WAREHOUSE_STORAGE_EMPTY), x + X_VIEW_OFFSETS[i], y + Y_VIEW_OFFSETS[i]);
+                draw_building(EMPTY_WAREHOUSE_IMG_ID, x + X_VIEW_OFFSETS[i], y + Y_VIEW_OFFSETS[i]);
             }
             return;
         default:

@@ -2,7 +2,7 @@
 
 #include "city/data_private.h"
 #include "city/resource.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "graphics/generic_button.h"
 #include "graphics/image.h"
 #include "graphics/lang_text.h"
@@ -58,13 +58,12 @@ static int draw_background(void)
 static void draw_foreground(void)
 {
     inner_panel_draw(32, 52, 36, 21);
-    const resource_list *list = city_resource_get_available();
+    struct resource_list_t *list = city_resource_get_available();
     for (int i = 0; i < list->size; i++) {
         int y_offset = 22 * i;
         int resource = list->items[i];
-        int image_offset = resource + resource_image_offset(resource, RESOURCE_IMAGE_ICON);
-        image_draw(image_group(GROUP_RESOURCE_ICONS) + image_offset, 48, y_offset + 54);
-        image_draw(image_group(GROUP_RESOURCE_ICONS) + image_offset, 568, y_offset + 54);
+        image_draw(resource_images[resource].icon_img_id + resource_image_offset(resource, RESOURCE_IMAGE_ICON), 48, y_offset + 54);
+        image_draw(resource_images[resource].icon_img_id + resource_image_offset(resource, RESOURCE_IMAGE_ICON), 568, y_offset + 54);
 
         if (focus_button_id - 3 == i) {
             button_border_draw(80, y_offset + 54, 480, 24, 1);

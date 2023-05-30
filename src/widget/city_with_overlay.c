@@ -6,7 +6,7 @@
 #include "city/view.h"
 #include "core/config.h"
 #include "core/log.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "game/state.h"
 #include "graphics/image.h"
 #include "map/bridge.h"

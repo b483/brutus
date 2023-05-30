@@ -133,9 +133,7 @@ static void init(int text_id, void (*background_callback)(void))
 
 static int resource_image(int resource)
 {
-    int image_id = image_group(GROUP_RESOURCE_ICONS) + resource;
-    image_id += resource_image_offset(resource, RESOURCE_IMAGE_ICON);
-    return image_id;
+    return resource_images[resource].icon_img_id + resource_image_offset(resource, RESOURCE_IMAGE_ICON);
 }
 
 static int is_problem_message(const lang_message *msg)
@@ -382,7 +380,7 @@ static void draw_background_video(void)
         }
         text_draw_number(scenario.requests[player_message.param1].amount, '@', " ", data.x + 8, y_text, FONT_NORMAL_WHITE);
         image_draw(
-            image_group(GROUP_RESOURCE_ICONS) + scenario.requests[player_message.param1].resource
+            resource_images[scenario.requests[player_message.param1].resource].icon_img_id
             + resource_image_offset(scenario.requests[player_message.param1].resource, RESOURCE_IMAGE_ICON),
             data.x + 70, y_text - 5);
         lang_text_draw(23, scenario.requests[player_message.param1].resource, data.x + 100, y_text, FONT_NORMAL_WHITE);

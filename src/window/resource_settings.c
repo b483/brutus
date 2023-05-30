@@ -41,11 +41,11 @@ static image_button help_button_resource_settings[] = {
 };
 
 static struct {
-    resource_type resource;
+    int resource;
     int focus_button_id;
 } data;
 
-static void init(resource_type resource)
+static void init(int resource)
 {
     data.resource = resource;
 }
@@ -57,7 +57,7 @@ static void draw_foreground(void)
     outer_panel_draw(48, 100, 34, 15);
 
     // Resource image
-    image_draw(image_group(GROUP_RESOURCE_ICONS) + data.resource + resource_image_offset(data.resource, RESOURCE_IMAGE_ICON), 64, 116);
+    image_draw(resource_images[data.resource].icon_img_id + resource_image_offset(data.resource, RESOURCE_IMAGE_ICON), 64, 116);
 
     // Resource name
     lang_text_draw_centered(23, data.resource, 48, 116, 544, FONT_LARGE_BLACK);
@@ -221,7 +221,7 @@ static void button_toggle_stockpile(__attribute__((unused)) int param1, __attrib
     city_resource_toggle_stockpiled(data.resource);
 }
 
-void window_resource_settings_show(resource_type resource)
+void window_resource_settings_show(int resource)
 {
     window_type window = {
         WINDOW_RESOURCE_SETTINGS,

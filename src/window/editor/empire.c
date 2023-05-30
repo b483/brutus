@@ -218,7 +218,7 @@ static void draw_map(void)
     graphics_reset_clip_rectangle();
 }
 
-static void draw_resource_trade_city(resource_type resource, int trade_max, int x_offset, int y_offset)
+static void draw_resource_trade_city(int resource, int trade_max, int x_offset, int y_offset)
 {
     int image_id = resource + image_group(GROUP_EDITOR_EMPIRE_RESOURCES);
     int resource_offset = resource_image_offset(resource, RESOURCE_IMAGE_ICON);
@@ -250,7 +250,7 @@ static void draw_trade_city_info(int x_offset, int y_offset, int width)
     // draw "Sells" and the resources to sell
     width += lang_text_draw(47, 5, x_offset + 100 + width, y_offset, FONT_NORMAL_GREEN);
     int resource_x_offset = x_offset + 110 + width;
-    for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
         button_toggle_sell_resource_limit[r - 1].x = resource_x_offset;
         button_toggle_sell_resource_limit[r - 1].y = y_offset - 9;
         button_toggle_sell_resource_limit[r - 1].parameter1 = r;
@@ -266,7 +266,7 @@ static void draw_trade_city_info(int x_offset, int y_offset, int width)
     // draw "Buys" and the resources to buy
     resource_x_offset += lang_text_draw(47, 4, resource_x_offset, y_offset, FONT_NORMAL_GREEN);
     resource_x_offset += 10;
-    for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
         button_toggle_buy_resource_limit[r - 1].x = resource_x_offset;
         button_toggle_buy_resource_limit[r - 1].y = y_offset - 9;
         button_toggle_buy_resource_limit[r - 1].parameter1 = r;
@@ -322,7 +322,7 @@ static void draw_city_info(void)
             width += lang_text_draw(47, 1, x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN);
             // draw icons for available resources based on the "Buildings allowed" menu
             int resource_x_offset = x_offset + 30 + width;
-            for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+            for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
                 if (data.selected_object->resource_sell_limit[r]) {
                     graphics_draw_inset_rect(resource_x_offset, y_offset - 9, 26, 26);
                     int image_id = r + image_group(GROUP_EDITOR_EMPIRE_RESOURCES);

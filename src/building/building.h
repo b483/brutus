@@ -195,7 +195,7 @@ struct building_t {
     short loads_stored;
     unsigned char has_well_access;
     short num_workers;
-    unsigned char labor_category;
+    int8_t labor_category;
     unsigned char output_resource_id;
     unsigned char has_road_access;
     unsigned char house_criminal_active;
@@ -295,7 +295,9 @@ struct building_properties_t {
     uint8_t desirability_step;
     int8_t desirability_step_size;
     uint8_t desirability_range;
-    uint8_t laborers;
+    uint8_t n_laborers;
+    int8_t labor_category;
+    uint8_t sound_channel;
 };
 
 extern struct building_properties_t building_properties[BUILDING_TYPE_MAX];

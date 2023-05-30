@@ -159,10 +159,10 @@ void building_warehouse_space_set_image(struct building_t *space, int resource)
 {
     int image_id;
     if (space->loads_stored <= 0) {
-        image_id = image_group(GROUP_BUILDING_WAREHOUSE_STORAGE_EMPTY);
+        image_id = EMPTY_WAREHOUSE_IMG_ID;
     } else {
-        image_id = image_group(GROUP_BUILDING_WAREHOUSE_STORAGE_FILLED) +
-            4 * (resource - 1) + resource_image_offset(resource, RESOURCE_IMAGE_STORAGE) +
+        image_id = resource_images[resource].warehouse_space_img_id +
+            resource_image_offset(resource, RESOURCE_IMAGE_STORAGE) +
             space->loads_stored - 1;
     }
     map_image_set(space->grid_offset, image_id);
@@ -264,11 +264,11 @@ int building_warehouse_for_storing(int src_building_id, int x, int y, int resour
         if (src_building_id == building_dst->id) {
             continue;
         }
-        const building_storage *s = building_storage_get(building_dst->storage_id);
+        struct building_storage_t *s = building_storage_get(building_dst->storage_id);
         if (s->resource_state[resource] == BUILDING_STORAGE_STATE_NOT_ACCEPTING || s->empty_all) {
             continue;
         }
-        if (calc_percentage(building_dst->num_workers, building_properties[building_dst->type].laborers) < 100) {
+        if (calc_percentage(building_dst->num_workers, building_properties[building_dst->type].n_laborers) < 100) {
             if (understaffed) {
                 *understaffed += 1;
             }
@@ -310,7 +310,7 @@ int building_warehouse_for_getting(struct building_t *src, int resource, map_poi
         }
         int loads_stored = 0;
         struct building_t *space = b;
-        const building_storage *s = building_storage_get(b->storage_id);
+        struct building_storage_t *s = building_storage_get(b->storage_id);
         for (int t = 0; t < 8; t++) {
             space = building_next(space);
             if (space->id > 0 && space->loads_stored > 0) {
@@ -337,12 +337,12 @@ int building_warehouse_for_getting(struct building_t *src, int resource, map_poi
     }
 }
 
-static int determine_granary_accept_foods(int resources[RESOURCE_MAX_FOOD])
+static int determine_granary_accept_foods(int resources[FOOD_TYPES_MAX])
 {
     if (scenario.rome_supplies_wheat) {
         return 0;
     }
-    for (int i = 0; i < RESOURCE_MAX_FOOD; i++) {
+    for (int i = 0; i < FOOD_TYPES_MAX; i++) {
         resources[i] = 0;
     }
     int can_accept = 0;
@@ -351,10 +351,10 @@ static int determine_granary_accept_foods(int resources[RESOURCE_MAX_FOOD])
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY || !b->has_road_access) {
             continue;
         }
-        if (calc_percentage(b->num_workers, building_properties[b->type].laborers) >= 100 && b->data.granary.resource_stored[RESOURCE_NONE] >= 1200) {
-            const building_storage *s = building_storage_get(b->storage_id);
+        if (calc_percentage(b->num_workers, building_properties[b->type].n_laborers) >= 100 && b->data.granary.resource_stored[RESOURCE_NONE] >= 1200) {
+            struct building_storage_t *s = building_storage_get(b->storage_id);
             if (!s->empty_all) {
-                for (int r = 0; r < RESOURCE_MAX_FOOD; r++) {
+                for (int r = 0; r < FOOD_TYPES_MAX; r++) {
                     if (s->resource_state[r] != BUILDING_STORAGE_STATE_NOT_ACCEPTING) {
                         resources[r]++;
                         can_accept = 1;
@@ -366,12 +366,12 @@ static int determine_granary_accept_foods(int resources[RESOURCE_MAX_FOOD])
     return can_accept;
 }
 
-static int determine_granary_get_foods(int resources[RESOURCE_MAX_FOOD])
+static int determine_granary_get_foods(int resources[FOOD_TYPES_MAX])
 {
     if (scenario.rome_supplies_wheat) {
         return 0;
     }
-    for (int i = 0; i < RESOURCE_MAX_FOOD; i++) {
+    for (int i = 0; i < FOOD_TYPES_MAX; i++) {
         resources[i] = 0;
     }
     int can_get = 0;
@@ -380,10 +380,10 @@ static int determine_granary_get_foods(int resources[RESOURCE_MAX_FOOD])
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY || !b->has_road_access) {
             continue;
         }
-        if (calc_percentage(b->num_workers, building_properties[b->type].laborers) >= 100 && b->data.granary.resource_stored[RESOURCE_NONE] > 100) {
-            const building_storage *s = building_storage_get(b->storage_id);
+        if (calc_percentage(b->num_workers, building_properties[b->type].n_laborers) >= 100 && b->data.granary.resource_stored[RESOURCE_NONE] > 100) {
+            struct building_storage_t *s = building_storage_get(b->storage_id);
             if (!s->empty_all) {
-                for (int r = 0; r < RESOURCE_MAX_FOOD; r++) {
+                for (int r = 0; r < FOOD_TYPES_MAX; r++) {
                     if (s->resource_state[r] == BUILDING_STORAGE_STATE_GETTING) {
                         resources[r]++;
                         can_get = 1;
@@ -418,13 +418,13 @@ static int contains_non_stockpiled_food(struct building_t *space, const int *res
 
 int building_warehouse_determine_worker_task(struct building_t *warehouse, int *resource)
 {
-    if (calc_percentage(warehouse->num_workers, building_properties[warehouse->type].laborers) < 50) {
+    if (calc_percentage(warehouse->num_workers, building_properties[warehouse->type].n_laborers) < 50) {
         return WAREHOUSE_TASK_NONE;
     }
-    const building_storage *s = building_storage_get(warehouse->storage_id);
+    struct building_storage_t *s = building_storage_get(warehouse->storage_id);
     struct building_t *space;
     // get resources
-    for (int r = RESOURCE_MIN; r < RESOURCE_MAX; r++) {
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
         if (s->resource_state[r] != BUILDING_STORAGE_STATE_GETTING || city_data.resource.stockpiled[r]) {
             continue;
         }
@@ -487,7 +487,7 @@ int building_warehouse_determine_worker_task(struct building_t *warehouse, int *
         }
     }
     // deliver food to getting granary
-    int granary_resources[RESOURCE_MAX_FOOD];
+    int granary_resources[FOOD_TYPES_MAX];
     if (determine_granary_get_foods(granary_resources)) {
         space = warehouse;
         for (int i = 0; i < 8; i++) {

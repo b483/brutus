@@ -1,6 +1,6 @@
 #include "building_state.h"
 
-#include "game/resource.h"
+#include "city/resource.h"
 
 static int is_industry_type(const struct building_t *b)
 {
@@ -50,7 +50,7 @@ static void write_type_data(buffer *buf, const struct building_t *b)
         buffer_write_i16(buf, b->data.market.wine_demand);
         buffer_write_u8(buf, b->data.market.fetch_inventory_id);
     } else if (b->type == BUILDING_GRANARY) {
-        for (int i = 0; i < RESOURCE_MAX; i++) {
+        for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
             buffer_write_i16(buf, b->data.granary.resource_stored[i]);
         }
     } else if (b->type == BUILDING_DOCK) {
@@ -111,7 +111,7 @@ void building_state_save_to_buffer(buffer *buf, const struct building_t *b)
     buffer_write_i16(buf, b->loads_stored);
     buffer_write_u8(buf, b->has_well_access);
     buffer_write_i16(buf, b->num_workers);
-    buffer_write_u8(buf, b->labor_category);
+    buffer_write_i8(buf, b->labor_category);
     buffer_write_u8(buf, b->output_resource_id);
     buffer_write_u8(buf, b->has_road_access);
     buffer_write_u8(buf, b->house_criminal_active);
@@ -175,7 +175,7 @@ static void read_type_data(buffer *buf, struct building_t *b)
         b->data.market.wine_demand = buffer_read_i16(buf);
         b->data.market.fetch_inventory_id = buffer_read_u8(buf);
     } else if (b->type == BUILDING_GRANARY) {
-        for (int i = 0; i < RESOURCE_MAX; i++) {
+        for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
             b->data.granary.resource_stored[i] = buffer_read_i16(buf);
         }
     } else if (b->type == BUILDING_DOCK) {
@@ -236,7 +236,7 @@ void building_state_load_from_buffer(buffer *buf, struct building_t *b)
     b->loads_stored = buffer_read_i16(buf);
     b->has_well_access = buffer_read_u8(buf);
     b->num_workers = buffer_read_i16(buf);
-    b->labor_category = buffer_read_u8(buf);
+    b->labor_category = buffer_read_i8(buf);
     b->output_resource_id = buffer_read_u8(buf);
     b->has_road_access = buffer_read_u8(buf);
     b->house_criminal_active = buffer_read_u8(buf);

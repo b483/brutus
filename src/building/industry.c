@@ -4,7 +4,7 @@
 #include "city/resource.h"
 #include "core/calc.h"
 #include "core/image.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "map/building_tiles.h"
 #include "map/road_access.h"
 #include "scenario/data.h"
@@ -15,12 +15,12 @@
 
 int building_is_farm(int type)
 {
-    return type >= BUILDING_WHEAT_FARM && type <= BUILDING_PIG_FARM;
+    return type >= BUILDING_WHEAT_FARM && type <= BUILDING_VINES_FARM;
 }
 
 int building_is_workshop(int type)
 {
-    return type >= BUILDING_WINE_WORKSHOP && type <= BUILDING_POTTERY_WORKSHOP;
+    return type >= BUILDING_OIL_WORKSHOP && type <= BUILDING_WEAPONS_WORKSHOP;
 }
 
 static int max_progress(const struct building_t *b)
@@ -31,7 +31,7 @@ static int max_progress(const struct building_t *b)
 static void update_farm_image(const struct building_t *b)
 {
     map_building_tiles_add_farm(b->id, b->x, b->y,
-        image_group(GROUP_BUILDING_FARM_CROPS) + 5 * (b->output_resource_id - 1),
+        image_group(GROUP_BUILDING_FARM_CROPS) + resource_images[b->output_resource_id].farm_field_img_id,
         b->data.industry.progress);
 }
 

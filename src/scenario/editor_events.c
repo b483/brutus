@@ -810,7 +810,7 @@ void scenario_price_change_process(void)
     }
 }
 
-static void increase_resource_buy_limit(struct empire_object_t *trade_city, resource_type resource)
+static void increase_resource_buy_limit(struct empire_object_t *trade_city, int resource)
 {
     switch (trade_city->resource_buy_limit[resource]) {
         case 0:
@@ -830,7 +830,7 @@ static void increase_resource_buy_limit(struct empire_object_t *trade_city, reso
     }
 }
 
-static void decrease_resource_buy_limit(struct empire_object_t *trade_city, resource_type resource)
+static void decrease_resource_buy_limit(struct empire_object_t *trade_city, int resource)
 {
     switch (trade_city->resource_buy_limit[resource]) {
         case 40:
@@ -850,7 +850,7 @@ static void decrease_resource_buy_limit(struct empire_object_t *trade_city, reso
     }
 }
 
-static void increase_resource_sell_limit(struct empire_object_t *trade_city, resource_type resource)
+static void increase_resource_sell_limit(struct empire_object_t *trade_city, int resource)
 {
     switch (trade_city->resource_sell_limit[resource]) {
         case 0:
@@ -870,7 +870,7 @@ static void increase_resource_sell_limit(struct empire_object_t *trade_city, res
     }
 }
 
-static void decrease_resource_sell_limit(struct empire_object_t *trade_city, resource_type resource)
+static void decrease_resource_sell_limit(struct empire_object_t *trade_city, int resource)
 {
     switch (trade_city->resource_sell_limit[resource]) {
         case 40:

@@ -25,7 +25,7 @@ int building_animation_offset(struct building_t *b, int image_id, int grid_offse
     if (b->type == BUILDING_MARKET && b->num_workers <= 0) {
         return 0;
     }
-    if (b->type == BUILDING_WAREHOUSE && b->num_workers < building_properties[b->type].laborers) {
+    if (b->type == BUILDING_WAREHOUSE && b->num_workers < building_properties[b->type].n_laborers) {
         return 0;
     }
     if (b->type == BUILDING_DOCK && b->data.dock.num_ships <= 0) {
@@ -48,7 +48,7 @@ int building_animation_offset(struct building_t *b, int image_id, int grid_offse
         b->type != BUILDING_HIPPODROME && b->num_workers <= 0) {
         return 0;
     }
-    if (b->type == BUILDING_GRANARY && b->num_workers < building_properties[b->type].laborers) {
+    if (b->type == BUILDING_GRANARY && b->num_workers < building_properties[b->type].n_laborers) {
         return 0;
     }
 

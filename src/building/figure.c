@@ -15,7 +15,7 @@
 #include "figure/figure.h"
 #include "figure/formation_legion.h"
 #include "figure/movement.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "map/building_tiles.h"
 #include "map/desirability.h"
 #include "map/image.h"
@@ -82,7 +82,7 @@ static int has_figure_of_type(struct building_t *b, int type)
 
 static int default_spawn_delay(struct building_t *b)
 {
-    int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+    int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
     if (pct_workers >= 100) {
         return 3;
     } else if (pct_workers >= 75) {
@@ -216,7 +216,7 @@ static void spawn_figure_engineers_post(struct building_t *b)
     map_point road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 100);
-        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
         int spawn_delay;
         if (pct_workers >= 100) {
             spawn_delay = 0;
@@ -253,7 +253,7 @@ static void spawn_figure_prefecture(struct building_t *b)
     map_point road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 100);
-        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
         int spawn_delay;
         if (pct_workers >= 100) {
             spawn_delay = 0;
@@ -334,7 +334,7 @@ static void spawn_figure_lion_house(struct building_t *b)
     map_point road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
-        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
         int spawn_delay;
         if (pct_workers >= 100) {
             spawn_delay = 5;
@@ -368,7 +368,7 @@ static void spawn_figure_chariot_maker(struct building_t *b)
     map_point road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
-        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
         int spawn_delay;
         if (pct_workers >= 100) {
             spawn_delay = 7;
@@ -408,7 +408,7 @@ static void spawn_figure_amphitheater(struct building_t *b)
             (b->data.entertainment.days1 <= 0 && b->data.entertainment.days2 <= 0)) {
             generate_labor_seeker(b, road.x, road.y);
         }
-        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
         int spawn_delay;
         if (pct_workers >= 100) {
             spawn_delay = 3;
@@ -499,7 +499,7 @@ static void spawn_figure_hippodrome(struct building_t *b)
         if (b->houses_covered <= 50 || b->data.entertainment.days1 <= 0) {
             generate_labor_seeker(b, road.x, road.y);
         }
-        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
         int spawn_delay;
         if (pct_workers >= 100) {
             spawn_delay = 7;
@@ -563,7 +563,7 @@ static void spawn_figure_colosseum(struct building_t *b)
             (b->data.entertainment.days1 <= 0 && b->data.entertainment.days2 <= 0)) {
             generate_labor_seeker(b, road.x, road.y);
         }
-        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
         int spawn_delay;
         if (pct_workers >= 100) {
             spawn_delay = 6;
@@ -631,7 +631,7 @@ static void spawn_figure_market(struct building_t *b)
     map_point road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
-        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
         int spawn_delay;
         if (pct_workers >= 100) {
             spawn_delay = 2;
@@ -905,9 +905,9 @@ static void spawn_figure_temple(struct building_t *b)
     map_point road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
-        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
         int spawn_delay;
-        if (building_properties[b->type].laborers <= 0) {
+        if (building_properties[b->type].n_laborers <= 0) {
             spawn_delay = 7;
         } else if (pct_workers >= 100) {
             spawn_delay = 3;
@@ -954,7 +954,7 @@ static void spawn_figure_senate_forum(struct building_t *b)
     map_point road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
-        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
         int spawn_delay;
         if (pct_workers >= 100) {
             spawn_delay = 0;
@@ -1063,7 +1063,7 @@ static void spawn_figure_shipyard(struct building_t *b)
         if (has_figure_of_type(b, FIGURE_FISHING_BOAT)) {
             return;
         }
-        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
         if (pct_workers >= 100) {
             b->data.industry.progress += 10;
         } else if (pct_workers >= 75) {
@@ -1094,7 +1094,7 @@ static void spawn_figure_dock(struct building_t *b)
     map_point road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
-        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
         int max_dockers;
         if (pct_workers >= 75) {
             max_dockers = 3;
@@ -1188,7 +1188,7 @@ static void spawn_figure_barracks(struct building_t *b)
     map_point road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 100);
-        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+        int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
         int spawn_delay;
         if (pct_workers >= 100) {
             spawn_delay = 8;
@@ -1249,7 +1249,7 @@ void building_figure_generate(void)
         // range of building types
         if (b->type >= BUILDING_HOUSE_SMALL_VILLA && b->type <= BUILDING_HOUSE_LUXURY_PALACE) {
             patrician_generated = spawn_patrician(b, patrician_generated);
-        } else if (b->type >= BUILDING_WHEAT_FARM && b->type <= BUILDING_POTTERY_WORKSHOP) {
+        } else if (b->type >= BUILDING_WHEAT_FARM && b->type <= BUILDING_WEAPONS_WORKSHOP) {
             spawn_figure_industry(b);
         } else if (b->type == BUILDING_SENATE || b->type == BUILDING_FORUM) {
             spawn_figure_senate_forum(b);

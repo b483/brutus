@@ -2,6 +2,7 @@
 
 #include "building/building.h"
 #include "building/list.h"
+#include "city/resource.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"
@@ -124,7 +125,7 @@ static void update_image(struct figure_t *f)
 void figure_entertainer_action(struct figure_t *f)
 {
     struct building_t *b = &all_buildings[f->building_id];
-    f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART);
+    f->cart_image_id = EMPTY_CART_IMG_ID;
     f->use_cross_country = 0;
     figure_image_increase_offset(f, 12);
     f->wait_ticks_missile++;

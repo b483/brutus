@@ -1,6 +1,6 @@
 #include "edit_request.h"
 
-#include "game/resource.h"
+#include "city/resource.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/lang_text.h"

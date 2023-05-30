@@ -246,7 +246,7 @@ void figure_fishing_boat_action(struct figure_t *f)
             break;
         case FIGURE_ACTION_FISHING_BOAT_AT_WHARF:
         {
-            int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].laborers);
+            int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
             int max_wait_ticks = 5 * (102 - pct_workers);
             if (b->data.industry.has_fish > 0) {
                 pct_workers = 0;

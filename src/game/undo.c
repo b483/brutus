@@ -5,7 +5,7 @@
 #include "building/warehouse.h"
 #include "city/finance.h"
 #include "core/image.h"
-#include "game/resource.h"
+#include "city/resource.h"
 #include "graphics/window.h"
 #include "map/aqueduct.h"
 #include "map/building.h"

@@ -2,33 +2,18 @@
 #define BUILDING_STORAGE_H
 
 #include "core/buffer.h"
-#include "game/resource.h"
-
-/**
- * @file
- * Building storage functions
- */
+#include "city/resource.h"
 
 enum {
-    BUILDING_STORAGE_DATA
-};
-
-/**
- * Storage state
- */
-typedef enum {
     BUILDING_STORAGE_STATE_ACCEPTING = 0,
     BUILDING_STORAGE_STATE_NOT_ACCEPTING = 1,
     BUILDING_STORAGE_STATE_GETTING = 2
-} building_storage_state;
+};
 
-/**
- * Building storage struct
- */
-typedef struct {
+struct building_storage_t {
     int empty_all;
-    building_storage_state resource_state[RESOURCE_MAX];
-} building_storage;
+    int resource_state[RESOURCE_TYPES_MAX];
+};
 
 /**
  * Clear and reset all building storages
@@ -59,14 +44,14 @@ void building_storage_delete(int storage_id);
  * @param storage_id Storage id
  * @return Read-only storage
  */
-const building_storage *building_storage_get(int storage_id);
+struct building_storage_t *building_storage_get(int storage_id);
 
 /**
  * Cycles the resource state for the storage
  * @param storage_id Storage id
  * @param resource_id Resource id
  */
-void building_storage_cycle_resource_state(int storage_id, resource_type resource_id);
+void building_storage_cycle_resource_state(int storage_id, int resource_id);
 
 /**
  * Sets all goods to 'not accepting'

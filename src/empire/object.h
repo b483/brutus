@@ -2,7 +2,7 @@
 #define EMPIRE_OBJECT_H
 
 #include "core/buffer.h"
-#include "game/resource.h"
+#include "city/resource.h"
 
 #define MAX_OBJECTS 200
 
@@ -49,10 +49,10 @@ struct empire_object_t {
     int16_t trader_entry_delay;
     uint8_t is_sea_trade;
     int16_t trader_figure_ids[3];
-    uint8_t resource_buy_limit[RESOURCE_MAX];
-    uint8_t resource_sell_limit[RESOURCE_MAX];
-    uint8_t resource_bought[RESOURCE_MAX];
-    uint8_t resource_sold[RESOURCE_MAX];
+    uint8_t resource_buy_limit[RESOURCE_TYPES_MAX];
+    uint8_t resource_sell_limit[RESOURCE_TYPES_MAX];
+    uint8_t resource_bought[RESOURCE_TYPES_MAX];
+    uint8_t resource_sold[RESOURCE_TYPES_MAX];
     uint8_t invasion_path_id;
     uint8_t invasion_years;
     uint8_t distant_battle_travel_months;
@@ -81,8 +81,8 @@ int empire_object_update_animation(struct empire_object_t *obj, int image_id);
 // sets all resources to sell for our city based on allowed buildings in the editor
 void empire_object_our_city_set_resources_sell(void);
 
-int resource_import_trade_route_open(resource_type resource);
-int resource_export_trade_route_open(resource_type resource);
+int resource_import_trade_route_open(int resource);
+int resource_export_trade_route_open(int resource);
 int can_export_resource_to_trade_city(int city_id, int resource);
 int can_import_resource_from_trade_city(int city_id, int resource);
 
