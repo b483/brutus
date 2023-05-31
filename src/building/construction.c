@@ -8,7 +8,7 @@
 #include "building/storage.h"
 #include "building/warehouse.h"
 #include "city/buildings.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/finance.h"
 #include "city/resource.h"
 #include "city/view.h"

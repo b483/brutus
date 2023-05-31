@@ -2,7 +2,7 @@
 
 #include "building/building.h"
 #include "building/destruction.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/message.h"
 #include "core/calc.h"
 #include "core/random.h"

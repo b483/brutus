@@ -2,7 +2,7 @@
 
 #include "building/count.h"
 #include "city/buildings.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/military.h"
 #include "city/resource.h"
 #include "core/calc.h"

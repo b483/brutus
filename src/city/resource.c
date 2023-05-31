@@ -2,7 +2,7 @@
 
 #include "building/building.h"
 #include "building/industry.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "core/calc.h"
 #include "empire/object.h"
 #include "map/road_access.h"

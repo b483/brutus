@@ -1,6 +1,6 @@
 #include "city.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 #include "core/time.h"
 #include "game/settings.h"
 #include "sound/channel.h"

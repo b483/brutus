@@ -4,7 +4,7 @@
 #include "building/destruction.h"
 #include "building/storage.h"
 #include "city/buildings.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/population.h"
 #include "city/warning.h"
 #include "core/calc.h"

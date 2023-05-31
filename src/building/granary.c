@@ -3,7 +3,7 @@
 #include "building/destruction.h"
 #include "building/storage.h"
 #include "building/warehouse.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/message.h"
 #include "city/resource.h"
 #include "core/calc.h"

@@ -1,7 +1,7 @@
 #include "military.h"
 
 #include "city/buildings.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/message.h"
 #include "city/ratings.h"
 #include "core/calc.h"

@@ -1,6 +1,6 @@
 #include "set_salary.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/ratings.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"

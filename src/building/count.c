@@ -2,7 +2,7 @@
 
 #include "building/building.h"
 #include "city/buildings.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/health.h"
 #include "figure/figure.h"
 

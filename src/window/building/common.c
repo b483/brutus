@@ -1,7 +1,7 @@
 #include "common.h"
 
 #include "building/building.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/labor.h"
 #include "city/population.h"
 #include "city/view.h"

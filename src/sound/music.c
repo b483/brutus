@@ -1,6 +1,6 @@
 #include "music.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/population.h"
 #include "core/dir.h"
 #include "figure/figure.h"

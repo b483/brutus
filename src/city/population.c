@@ -2,7 +2,7 @@
 
 #include "building/building.h"
 #include "building/house_population.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "core/calc.h"
 #include "core/config.h"
 #include "core/random.h"

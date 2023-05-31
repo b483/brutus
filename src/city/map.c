@@ -1,6 +1,6 @@
 #include "map.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 #include "map/grid.h"
 
 static int set_tile(struct map_tile_t *tile, int x, int y)

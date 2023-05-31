@@ -11,7 +11,7 @@
 #include "building/maintenance.h"
 #include "building/warehouse.h"
 #include "city/culture.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/emperor.h"
 #include "city/finance.h"
 #include "city/gods.h"

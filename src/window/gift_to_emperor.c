@@ -1,6 +1,6 @@
 #include "gift_to_emperor.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"

@@ -1,7 +1,7 @@
 #include "animal.h"
 
 #include "building/building.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/entertainment.h"
 #include "city/view.h"
 #include "core/calc.h"

@@ -2,7 +2,7 @@
 
 #include "building/count.h"
 #include "city/constants.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/message.h"
 #include "empire/object.h"
 #include "figure/figure.h"

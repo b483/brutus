@@ -5,7 +5,7 @@
 #include "building/warehouse.h"
 #include "building/storage.h"
 #include "city/buildings.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/finance.h"
 #include "city/map.h"
 #include "city/message.h"

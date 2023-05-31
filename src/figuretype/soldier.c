@@ -1,6 +1,6 @@
 #include "soldier.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/map.h"
 #include "core/calc.h"
 #include "core/image.h"

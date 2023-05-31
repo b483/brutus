@@ -2,7 +2,7 @@
 
 #include "building/building.h"
 #include "building/list.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/labor.h"
 #include "city/message.h"
 #include "city/migration.h"

@@ -1,6 +1,6 @@
 #include "military.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/military.h"
 #include "city/view.h"
 #include "figure/formation_legion.h"

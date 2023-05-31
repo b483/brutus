@@ -4,7 +4,7 @@
 #include "building/granary.h"
 #include "building/industry.h"
 #include "building/warehouse.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/resource.h"
 #include "core/image.h"
 #include "figure/combat.h"

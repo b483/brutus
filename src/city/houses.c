@@ -1,6 +1,6 @@
 #include "houses.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 
 void city_houses_reset_demands(void)
 {

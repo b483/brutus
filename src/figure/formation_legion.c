@@ -1,7 +1,7 @@
 #include "formation_legion.h"
 
 #include "building/barracks.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/military.h"
 #include "city/warning.h"
 #include "core/calc.h"

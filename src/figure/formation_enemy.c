@@ -2,7 +2,7 @@
 
 #include "building/building.h"
 #include "city/buildings.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/gods.h"
 #include "city/message.h"
 #include "core/calc.h"

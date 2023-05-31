@@ -1,11 +1,13 @@
 #include "data.h"
 
 #include "city/constants.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/gods.h"
 #include "scenario/data.h"
 
 #include <string.h>
+
+struct city_data_t city_data;
 
 void city_data_init(void)
 {

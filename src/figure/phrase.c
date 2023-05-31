@@ -4,7 +4,7 @@
 #include "building/market.h"
 #include "city/constants.h"
 #include "city/culture.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/gods.h"
 #include "city/population.h"
 #include "city/resource.h"

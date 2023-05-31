@@ -1,6 +1,6 @@
 #include "buildings.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 
 void city_buildings_add_senate(struct building_t *senate)
 {

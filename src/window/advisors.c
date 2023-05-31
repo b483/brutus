@@ -2,7 +2,7 @@
 
 #include "city/constants.h"
 #include "city/culture.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/finance.h"
 #include "city/houses.h"
 #include "city/labor.h"

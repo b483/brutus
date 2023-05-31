@@ -2,7 +2,7 @@
 
 #include "building/building.h"
 #include "city/culture.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "core/calc.h"
 #include "game/time.h"
 #include "scenario/data.h"

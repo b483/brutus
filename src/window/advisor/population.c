@@ -1,6 +1,6 @@
 #include "population.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/migration.h"
 #include "city/population.h"
 #include "city/resource.h"

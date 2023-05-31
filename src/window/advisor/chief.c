@@ -1,6 +1,6 @@
 #include "chief.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/finance.h"
 #include "city/health.h"
 #include "city/houses.h"

@@ -3,7 +3,7 @@
 #include "building/barracks.h"
 #include "building/house_evolution.h"
 #include "building/warehouse.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/map.h"
 #include "city/resource.h"
 #include "city/view.h"

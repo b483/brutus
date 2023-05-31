@@ -2,7 +2,7 @@
 
 #include "building/clone.h"
 #include "building/construction.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/message.h"
 #include "city/victory.h"
 #include "city/view.h"

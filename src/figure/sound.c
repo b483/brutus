@@ -1,6 +1,6 @@
 #include "sound.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 #include "sound/effect.h"
 
 void figure_play_die_sound(const struct figure_t *f)

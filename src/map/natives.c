@@ -3,7 +3,7 @@
 #include "building/building.h"
 #include "building/list.h"
 #include "city/buildings.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/military.h"
 #include "core/calc.h"
 #include "core/image.h"

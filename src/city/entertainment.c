@@ -1,7 +1,7 @@
 #include "entertainment.h"
 
 #include "building/building.h"
-#include "city/data_private.h"
+#include "city/data.h"
 
 void city_entertainment_calculate_shows(void)
 {

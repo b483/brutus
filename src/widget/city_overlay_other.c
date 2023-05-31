@@ -1,7 +1,7 @@
 #include "city_overlay_other.h"
 
 #include "city/constants.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/finance.h"
 #include "core/calc.h"
 #include "core/config.h"

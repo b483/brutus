@@ -1,7 +1,7 @@
 #include "dock.h"
 
 #include "city/buildings.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "map/figure.h"
 #include "map/grid.h"
 #include "map/routing.h"

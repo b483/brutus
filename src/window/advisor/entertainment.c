@@ -3,7 +3,7 @@
 #include "building/building.h"
 #include "building/count.h"
 #include "city/culture.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/entertainment.h"
 #include "city/gods.h"
 #include "city/houses.h"

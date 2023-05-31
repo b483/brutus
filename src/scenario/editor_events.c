@@ -3,7 +3,7 @@
 #include "building/count.h"
 #include "building/destruction.h"
 #include "building/warehouse.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/health.h"
 #include "city/message.h"
 #include "city/military.h"

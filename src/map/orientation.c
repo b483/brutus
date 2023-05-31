@@ -1,6 +1,6 @@
 #include "orientation.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/view.h"
 #include "core/image.h"
 #include "figuretype/animal.h"

@@ -4,7 +4,7 @@
 #include "building/destruction.h"
 #include "building/list.h"
 #include "city/buildings.h"
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/map.h"
 #include "city/message.h"
 #include "city/population.h"

@@ -1,6 +1,6 @@
 #include "trade.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/resource.h"
 #include "city/resource.h"
 #include "graphics/generic_button.h"

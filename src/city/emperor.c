@@ -1,6 +1,6 @@
 #include "emperor.h"
 
-#include "city/data_private.h"
+#include "city/data.h"
 #include "city/finance.h"
 #include "city/message.h"
 #include "city/ratings.h"
