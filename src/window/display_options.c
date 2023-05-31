@@ -12,7 +12,7 @@
 static void button_fullscreen(int param1, int param2);
 static void button_reset_window(int param1, int param2);
 
-static generic_button display_top_menu_buttons[] = {
+static struct generic_button_t display_top_menu_buttons[] = {
     {128, 136, 224, 20, button_fullscreen, button_none, 1, 0},
     {128, 160, 224, 20, button_reset_window, button_none, 0, 0},
 };
@@ -51,9 +51,9 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, display_top_menu_buttons, sizeof(display_top_menu_buttons)/(sizeof(generic_button)), &data.focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, display_top_menu_buttons, sizeof(display_top_menu_buttons)/(sizeof(struct generic_button_t)), &data.focus_button_id)) {
         return;
     }
     if (m->right.went_up || h->escape_pressed) {
@@ -74,12 +74,11 @@ static void button_reset_window(__attribute__((unused)) int param1, __attribute_
 
 void window_display_options_show(void (*close_callback)(void))
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_DISPLAY_OPTIONS,
         window_draw_underlying_window,
         draw_foreground,
         handle_input,
-        0
     };
     init(close_callback);
     window_show(&window);

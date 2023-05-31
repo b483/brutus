@@ -172,7 +172,7 @@ void deploy_legion_unit_to_formation_location(struct figure_t *legion_unit, stru
     }
 }
 
-void move_legion_formation_to(struct formation_t *m, map_tile *tile)
+void move_legion_formation_to(struct formation_t *m, struct map_tile_t *tile)
 {
     sound_speech_play_file("wavs/cohort5.wav");
 
@@ -246,7 +246,7 @@ void update_legion_formations(void)
                         m->max_morale = 60;
                     }
                     if (scenario.allowed_buildings[BUILDING_MILITARY_ACADEMY] && f->action_state == FIGURE_ACTION_SOLDIER_AT_REST) {
-                        map_point mil_acad_road = { 0 };
+                        struct map_point_t mil_acad_road = { 0 };
                         set_destination__closest_building_of_type(f->building_id, BUILDING_MILITARY_ACADEMY, &mil_acad_road);
                         if (mil_acad_road.x) {
                             f->destination_x = mil_acad_road.x;
@@ -328,14 +328,14 @@ void update_legion_formations(void)
     }
 }
 
-void legion_formations_save_state(buffer *buf)
+void legion_formations_save_state(struct buffer_t *buf)
 {
     for (int i = 0; i < MAX_LEGIONS; i++) {
         formation_save_state(buf, &legion_formations[i]);
     }
 }
 
-void legion_formations_load_state(buffer *buf)
+void legion_formations_load_state(struct buffer_t *buf)
 {
     selected_legion_formation = -1;
     for (int i = 0; i < MAX_LEGIONS; i++) {

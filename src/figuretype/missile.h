@@ -6,7 +6,7 @@
 
 void figure_create_explosion_cloud(int x, int y, int size);
 
-void figure_create_missile(struct figure_t *shooter, map_point *target_tile, int type);
+void figure_create_missile(struct figure_t *shooter, struct map_point_t *target_tile, int type);
 
 void figure_explosion_cloud_action(struct figure_t *f);
 

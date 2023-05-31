@@ -16,7 +16,7 @@
 static void button_era(int param1, int param2);
 static void button_year(int param1, int param2);
 
-static generic_button buttons[] = {
+static struct generic_button_t buttons[] = {
     {158, 100, 100, 30, button_era, button_none, 0, 0},
     {278, 100, 120, 30, button_year, button_none, 0, 0},
 };
@@ -46,7 +46,7 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons, 2, &focus_button_id)) {
         return;
@@ -83,12 +83,11 @@ static void button_year(__attribute__((unused)) int param1, __attribute__((unuse
 
 void window_editor_start_year_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_START_YEAR,
         draw_background,
         draw_foreground,
         handle_input,
-        0
     };
     window_show(&window);
 }

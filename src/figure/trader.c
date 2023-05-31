@@ -73,7 +73,7 @@ int trader_has_traded_max(int trader_id)
     return data.traders[trader_id].bought_amount >= 12 || data.traders[trader_id].sold_amount >= 12;
 }
 
-void traders_save_state(buffer *buf)
+void traders_save_state(struct buffer_t *buf)
 {
     for (int i = 0; i < MAX_TRADERS; i++) {
         struct trader *t = &data.traders[i];
@@ -91,7 +91,7 @@ void traders_save_state(buffer *buf)
     buffer_write_i32(buf, data.next_index);
 }
 
-void traders_load_state(buffer *buf)
+void traders_load_state(struct buffer_t *buf)
 {
     for (int i = 0; i < MAX_TRADERS; i++) {
         struct trader *t = &data.traders[i];

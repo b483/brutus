@@ -28,7 +28,7 @@ void city_houses_reset_demands(void)
     city_data.houses.requiring.religion = 0;
 }
 
-house_demands *city_houses_demands(void)
+struct house_demands_t *city_houses_demands(void)
 {
     return &city_data.houses;
 }

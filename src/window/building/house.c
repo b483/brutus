@@ -12,7 +12,7 @@
 #include "map/road_access.h"
 #include "window/building/figures.h"
 
-static void draw_vacant_lot(building_info_context *c)
+static void draw_vacant_lot(struct building_info_context_t *c)
 {
     window_building_prepare_figure_list(c);
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
@@ -27,7 +27,7 @@ static void draw_vacant_lot(building_info_context *c)
     window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 113, 128, text_id);
 }
 
-static void draw_population_info(building_info_context *c, int y_offset)
+static void draw_population_info(struct building_info_context_t *c, int y_offset)
 {
     struct building_t *b = &all_buildings[c->building_id];
     image_draw(image_group(GROUP_CONTEXT_ICONS) + 13, c->x_offset + 34, y_offset + 4);
@@ -45,7 +45,7 @@ static void draw_population_info(building_info_context *c, int y_offset)
     }
 }
 
-static void draw_tax_info(building_info_context *c, int y_offset)
+static void draw_tax_info(struct building_info_context_t *c, int y_offset)
 {
     struct building_t *b = &all_buildings[c->building_id];
     if (b->house_tax_coverage) {
@@ -57,7 +57,7 @@ static void draw_tax_info(building_info_context *c, int y_offset)
     }
 }
 
-static void draw_happiness_info(building_info_context *c, int y_offset)
+static void draw_happiness_info(struct building_info_context_t *c, int y_offset)
 {
     int happiness = all_buildings[c->building_id].sentiment.house_happiness;
     int text_id;
@@ -79,7 +79,7 @@ static void draw_happiness_info(building_info_context *c, int y_offset)
     lang_text_draw(127, text_id, c->x_offset + 36, y_offset, FONT_NORMAL_BROWN);
 }
 
-void window_building_draw_house(building_info_context *c)
+void window_building_draw_house(struct building_info_context_t *c)
 {
     c->help_id = 56;
     struct building_t *b = &all_buildings[c->building_id];

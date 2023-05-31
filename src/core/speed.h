@@ -18,30 +18,30 @@
   /**
   * Speed direction constants
   */
-typedef enum {
-    SPEED_DIRECTION_NEGATIVE = -1,
-    SPEED_DIRECTION_STOPPED = 0,
-    SPEED_DIRECTION_POSITIVE = 1
-} speed_direction;
+enum {
+  SPEED_DIRECTION_NEGATIVE = -1,
+  SPEED_DIRECTION_STOPPED = 0,
+  SPEED_DIRECTION_POSITIVE = 1
+};
 
-typedef struct {
-    double speed_difference;
-    double desired_speed;
-    double current_speed;
-    double adjusted_current_speed;
-    double cumulative_delta;
-    double fine_position;
-    int adjust_for_time;
-    time_millis start_time;
-    time_millis total_time;
-    time_millis last_speed_check;
-} speed_type;
+struct speed_type_t {
+  double speed_difference;
+  double desired_speed;
+  double current_speed;
+  double adjusted_current_speed;
+  double cumulative_delta;
+  double fine_position;
+  int adjust_for_time;
+  uint32_t start_time;
+  uint32_t total_time;
+  uint32_t last_speed_check;
+};
 
 /**
  * Clears speed structure
  * @param speed Speed structure to clear
  */
-void speed_clear(speed_type *speed);
+void speed_clear(struct speed_type_t *speed);
 
 /**
  * Sets the new target speed
@@ -53,13 +53,13 @@ void speed_clear(speed_type *speed);
  *                        If set to "0", speed_get_delta will return the brute value
  *                        without taking into account the elapsed time
  */
-void speed_set_target(speed_type *speed, double new_speed, time_millis total_time, int adjust_for_time);
+void speed_set_target(struct speed_type_t *speed, double new_speed, uint32_t total_time, int adjust_for_time);
 
 /**
  * Immediately invert the speed (positive speed becomes negative and vice-versa)
  * @param speed Speed structure to act on
  */
-void speed_invert(speed_type *speed);
+void speed_invert(struct speed_type_t *speed);
 
 /**
  * Gets the delta, in pixels, to move since the last time speed_get_delta was called
@@ -69,13 +69,13 @@ void speed_invert(speed_type *speed);
  * @param speed Speed structure to act on
  * @return The delta movement
  */
-int speed_get_delta(speed_type *speed);
+int speed_get_delta(struct speed_type_t *speed);
 
 /**
  * Gets the current speed direction
  * @param speed Speed structure to act on
  * @return An enum with the current direction
  */
-speed_direction speed_get_current_direction(const speed_type *speed);
+int speed_get_current_direction(const struct speed_type_t *speed);
 
 #endif // CORE_SPEED_H

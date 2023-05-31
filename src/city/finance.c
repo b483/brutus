@@ -43,7 +43,7 @@ void city_finance_process_construction(int cost)
 
 void city_finance_calculate_totals(void)
 {
-    finance_overview *this_year = &city_data.finance.this_year;
+    struct finance_overview_t *this_year = &city_data.finance.this_year;
     this_year->income.total =
         this_year->income.donated +
         this_year->income.taxes +
@@ -57,7 +57,7 @@ void city_finance_calculate_totals(void)
         this_year->expenses.wages +
         this_year->expenses.imports;
 
-    finance_overview *last_year = &city_data.finance.last_year;
+    struct finance_overview_t *last_year = &city_data.finance.last_year;
     last_year->net_in_out = last_year->income.total - last_year->expenses.total;
     this_year->net_in_out = this_year->income.total - this_year->expenses.total;
     this_year->balance = last_year->balance + this_year->net_in_out;
@@ -227,8 +227,8 @@ static void reset_taxes(void)
 
 static void copy_amounts_to_last_year(void)
 {
-    finance_overview *last_year = &city_data.finance.last_year;
-    finance_overview *this_year = &city_data.finance.this_year;
+    struct finance_overview_t *last_year = &city_data.finance.last_year;
+    struct finance_overview_t *this_year = &city_data.finance.this_year;
 
     // wages
     last_year->expenses.wages = city_data.finance.wages_so_far;
@@ -267,7 +267,7 @@ static void copy_amounts_to_last_year(void)
 
 static void pay_tribute(void)
 {
-    finance_overview *last_year = &city_data.finance.last_year;
+    struct finance_overview_t *last_year = &city_data.finance.last_year;
     int income =
         last_year->income.donated +
         last_year->income.taxes +

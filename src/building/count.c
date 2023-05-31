@@ -229,8 +229,8 @@ int building_count_industry_total(int resource)
     return data.industry[resource].total;
 }
 
-void building_count_save_state(buffer *industry, buffer *culture1, buffer *culture2,
-                                buffer *culture3, buffer *military, buffer *support)
+void building_count_save_state(struct buffer_t *industry, struct buffer_t *culture1, struct buffer_t *culture2,
+                                struct buffer_t *culture3, struct buffer_t *military, struct buffer_t *support)
 {
     // industry
     for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
@@ -312,8 +312,8 @@ void building_count_save_state(buffer *industry, buffer *culture1, buffer *cultu
     buffer_write_i32(support, data.buildings[BUILDING_FOUNTAIN].active);
 }
 
-void building_count_load_state(buffer *industry, buffer *culture1, buffer *culture2,
-                                buffer *culture3, buffer *military, buffer *support)
+void building_count_load_state(struct buffer_t *industry, struct buffer_t *culture1, struct buffer_t *culture2,
+                                struct buffer_t *culture3, struct buffer_t *military, struct buffer_t *support)
 {
     // industry
     for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {

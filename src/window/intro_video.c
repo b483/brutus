@@ -36,7 +36,7 @@ static void draw_foreground(void)
     video_draw_fullscreen();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (!started || m->left.went_up || m->right.went_up || video_is_finished() || h->enter_pressed) {
         video_stop();
@@ -52,12 +52,11 @@ void window_intro_video_show(void)
 {
     current_video = 0;
     started = 0;
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_INTRO_VIDEO,
         draw_background,
         draw_foreground,
         handle_input,
-        0
     };
     window_show(&window);
 }

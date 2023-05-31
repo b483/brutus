@@ -19,7 +19,7 @@ void figure_editor_flag_action(struct figure_t *f)
     f->image_id = image_group(GROUP_FIGURE_MAP_FLAG_FLAGS) + f->image_offset / 2;
     map_figure_delete(f);
 
-    map_point point = { 0, 0 };
+    struct map_point_t point = { 0, 0 };
     int image_base = image_group(GROUP_FIGURE_MAP_FLAG_ICONS);
     if (f->resource_id == MAP_FLAG_ENTRY) {
         point.x = scenario.entry_point.x;

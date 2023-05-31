@@ -4,18 +4,18 @@
 #include "city/view.h"
 #include "input/mouse.h"
 
-typedef enum {
+enum {
     SCROLL_TYPE_CITY = 0,
     SCROLL_TYPE_EMPIRE = 1,
     SCROLL_TYPE_MAX = 2
-} scroll_type;
+};
 
 int scroll_in_progress(void);
 
 void scroll_set_custom_margins(int x, int y, int width, int height);
 void scroll_restore_margins(void);
 
-int scroll_get_delta(const mouse *m, pixel_offset *delta, scroll_type type);
+int scroll_get_delta(const struct mouse_t *m, struct pixel_view_coordinates_t *delta, int type);
 
 void scroll_drag_start(void);
 int scroll_drag_end(void);

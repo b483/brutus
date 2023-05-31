@@ -9,21 +9,21 @@ enum {
     GRID_SIZE = 162
 };
 
-typedef struct {
+struct grid_u8_t {
     uint8_t items[GRID_SIZE * GRID_SIZE];
-} grid_u8;
+};
 
-typedef struct {
+struct grid_i8_t {
     int8_t items[GRID_SIZE * GRID_SIZE];
-} grid_i8;
+};
 
-typedef struct {
+struct grid_u16_t {
     uint16_t items[GRID_SIZE * GRID_SIZE];
-} grid_u16;
+};
 
-typedef struct {
+struct grid_i16_t {
     int16_t items[GRID_SIZE * GRID_SIZE];
-} grid_i16;
+} ;
 
 extern struct map_data_t {
     int width;
@@ -88,16 +88,16 @@ void map_grid_copy_u8(const uint8_t *src, uint8_t *dst);
 void map_grid_copy_u16(const uint16_t *src, uint16_t *dst);
 
 
-void map_grid_save_state_u8(const uint8_t *grid, buffer *buf);
+void map_grid_save_state_u8(const uint8_t *grid, struct buffer_t *buf);
 
-void map_grid_save_state_i8(const int8_t *grid, buffer *buf);
+void map_grid_save_state_i8(const int8_t *grid, struct buffer_t *buf);
 
-void map_grid_save_state_u16(const uint16_t *grid, buffer *buf);
+void map_grid_save_state_u16(const uint16_t *grid, struct buffer_t *buf);
 
-void map_grid_load_state_u8(uint8_t *grid, buffer *buf);
+void map_grid_load_state_u8(uint8_t *grid, struct buffer_t *buf);
 
-void map_grid_load_state_i8(int8_t *grid, buffer *buf);
+void map_grid_load_state_i8(int8_t *grid, struct buffer_t *buf);
 
-void map_grid_load_state_u16(uint16_t *grid, buffer *buf);
+void map_grid_load_state_u16(uint16_t *grid, struct buffer_t *buf);
 
 #endif // MAP_GRID_H

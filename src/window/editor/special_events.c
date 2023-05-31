@@ -24,7 +24,7 @@ static void button_raise_wages_toggle(int param1, int param2);
 static void button_lower_wages_toggle(int param1, int param2);
 static void button_contamination_toggle(int param1, int param2);
 
-static generic_button buttons_special_events[] = {
+static struct generic_button_t buttons_special_events[] = {
     {200, 74, 75, 24, button_gladiator_toggle, button_none, 0, 0},
     {280, 74, 45, 24, button_gladiator_month,button_none, 0, 0},
     {330, 74, 150, 24, button_gladiator_year, button_none, 0, 0},
@@ -100,9 +100,9 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_special_events, sizeof(buttons_special_events) / sizeof(generic_button), &focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_special_events, sizeof(buttons_special_events) / sizeof(struct generic_button_t), &focus_button_id)) {
         return;
     }
     if (m->right.went_up || h->escape_pressed) {
@@ -181,12 +181,11 @@ static void button_contamination_toggle(__attribute__((unused)) int param1, __at
 
 void window_editor_special_events_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_SPECIAL_EVENTS,
         window_editor_map_draw_all,
         draw_foreground,
         handle_input,
-        0
     };
     window_show(&window);
 }

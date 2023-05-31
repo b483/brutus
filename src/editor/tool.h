@@ -3,7 +3,7 @@
 
 #include "map/point.h"
 
-typedef enum {
+enum {
     TOOL_GRASS = 0,
     TOOL_SMALL_SHRUB = 1,
     TOOL_MEDIUM_SHRUB = 2,
@@ -31,12 +31,12 @@ typedef enum {
     TOOL_HOUSE_VACANT_LOT = 24,
     TOOL_FISHING_POINT = 25,
     TOOL_HERD_POINT = 26
-} tool_type;
+};
 
-tool_type editor_tool_type(void);
+int editor_tool_type(void);
 int editor_tool_is_active(void);
 void editor_tool_deactivate(void);
-void editor_tool_set_with_id(tool_type tool, int id);
+void editor_tool_set_with_id(int tool, int id);
 
 int editor_tool_brush_size(void);
 void editor_tool_set_brush_size(int size);
@@ -46,12 +46,12 @@ int editor_tool_is_updatable(void);
 
 int editor_tool_is_in_use(void);
 
-void editor_tool_start_use(const map_tile *tile);
+void editor_tool_start_use(const struct map_tile_t *tile);
 
 void draw_brush(int x, int y);
 
-void editor_tool_update_use(const map_tile *tile);
+void editor_tool_update_use(const struct map_tile_t *tile);
 
-void editor_tool_end_use(const map_tile *tile);
+void editor_tool_end_use(const struct map_tile_t *tile);
 
 #endif // EDITOR_TOOL_H

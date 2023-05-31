@@ -11,7 +11,7 @@
 
 struct warning {
     int in_use;
-    time_millis time;
+    uint32_t time;
     uint8_t text[MAX_TEXT];
 };
 
@@ -27,7 +27,7 @@ static struct warning *new_warning(void)
     return 0;
 }
 
-void city_warning_show(warning_type type)
+void city_warning_show(int type)
 {
     const uint8_t *text;
     if (type == WARNING_ORIENTATION) {

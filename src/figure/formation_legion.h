@@ -18,7 +18,7 @@ void update_legion_morale_monthly(void);
 
 void deploy_legion_unit_to_formation_location(struct figure_t *legion_unit, struct formation_t *legion_formation);
 
-void move_legion_formation_to(struct formation_t *m, map_tile *tile);
+void move_legion_formation_to(struct formation_t *m, struct map_tile_t *tile);
 
 void return_legion_formation_home(struct formation_t *m);
 
@@ -26,8 +26,8 @@ int formation_legion_at_grid_offset(int grid_offset);
 
 void update_legion_formations(void);
 
-void legion_formations_save_state(buffer *buf);
+void legion_formations_save_state(struct buffer_t *buf);
 
-void legion_formations_load_state(buffer *buf);
+void legion_formations_load_state(struct buffer_t *buf);
 
 #endif // FIGURE_FORMATION_LEGION_H

@@ -51,7 +51,7 @@ void empire_load(int empire_id)
     if (!io_read_file_part_into_buffer(filename, raw_data, 4, 32 * empire_id)) {
         memset(raw_data, 0, 4);
     }
-    buffer buf;
+    struct buffer_t buf;
     buffer_init(&buf, raw_data, 4);
     data.initial_scroll_x = buffer_read_i16(&buf);
     data.initial_scroll_y = buffer_read_i16(&buf);
@@ -134,13 +134,13 @@ struct empire_object_t *empire_select_object(int x, int y)
     return (closest_object_id == -1) ? 0 : &empire_objects[closest_object_id];
 }
 
-void empire_save_state(buffer *buf)
+void empire_save_state(struct buffer_t *buf)
 {
     buffer_write_i32(buf, data.scroll_x);
     buffer_write_i32(buf, data.scroll_y);
 }
 
-void empire_load_state(buffer *buf)
+void empire_load_state(struct buffer_t *buf)
 {
     data.scroll_x = buffer_read_i32(buf);
     data.scroll_y = buffer_read_i32(buf);

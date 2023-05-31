@@ -15,7 +15,7 @@
 static void arrow_button_wages(int value, int param2);
 static void button_priority(int category, int param2);
 
-static generic_button category_buttons[] = {
+static struct generic_button_t category_buttons[] = {
     {40, 77, 560, 22, button_priority, button_none, 0, 0},
     {40, 102, 560, 22, button_priority, button_none, 1, 0},
     {40, 127, 560, 22, button_priority, button_none, 2, 0},
@@ -27,7 +27,7 @@ static generic_button category_buttons[] = {
     {40, 277, 560, 22, button_priority, button_none, 8, 0},
 };
 
-static arrow_button wage_arrow_buttons[] = {
+static struct arrow_button_t wage_arrow_buttons[] = {
     {158, 354, 17, 24, arrow_button_wages, -1, 0, 0, 0},
     {182, 354, 15, 24, arrow_button_wages, 1, 0, 0, 0}
 };
@@ -82,7 +82,7 @@ static void draw_foreground(void)
     // Industry stats
     for (int i = 0; i < 9; i++) {
         button_border_draw(40, 77 + 25 * i, 560, 22, i == focus_button_id - 1);
-        const labor_category_data *cat = city_labor_category(i);
+        struct labor_category_data_t *cat = city_labor_category(i);
         if (cat->priority) {
             image_draw(image_group(GROUP_LABOR_PRIORITY_LOCK), 70, 80 + 25 * i);
             text_draw_number(cat->priority, 0, 0, 90, 82 + 25 * i, FONT_NORMAL_WHITE);
@@ -99,9 +99,9 @@ static void draw_foreground(void)
     arrow_buttons_draw(0, 0, wage_arrow_buttons, 2);
 }
 
-static int handle_mouse(const mouse *m)
+static int handle_mouse(const struct mouse_t *m)
 {
-    if (generic_buttons_handle_mouse(m, 0, 0, category_buttons, sizeof(category_buttons) / sizeof(generic_button), &focus_button_id)) {
+    if (generic_buttons_handle_mouse(m, 0, 0, category_buttons, sizeof(category_buttons) / sizeof(struct generic_button_t), &focus_button_id)) {
         return 1;
     }
     if (arrow_buttons_handle_mouse(m, 0, 0, wage_arrow_buttons, 2, &arrow_button_focus)) {
@@ -123,24 +123,12 @@ static void button_priority(int category, __attribute__((unused)) int param2)
     window_labor_priority_show(category);
 }
 
-static int get_tooltip_text(void)
+struct advisor_window_type_t *window_advisor_labor(void)
 {
-    if (focus_button_id) {
-        return 90;
-    }
-    if (arrow_button_focus) {
-        return 91;
-    }
-    return 0;
-}
-
-const advisor_window_type *window_advisor_labor(void)
-{
-    static const advisor_window_type window = {
+    static struct advisor_window_type_t window = {
         draw_background,
         draw_foreground,
         handle_mouse,
-        get_tooltip_text
     };
     return &window;
 }

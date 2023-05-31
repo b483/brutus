@@ -13,13 +13,13 @@
 #define MIX_RB(src, dst, alpha) ((((src & 0xff00ff) * alpha + (dst & 0xff00ff) * (256 - alpha)) >> 8) & 0xff00ff)
 #define MIX_G(src, dst, alpha) ((((src & 0x00ff00) * alpha + (dst & 0x00ff00) * (256 - alpha)) >> 8) & 0x00ff00)
 
-typedef enum {
+enum {
     DRAW_TYPE_SET,
     DRAW_TYPE_AND,
     DRAW_TYPE_NONE,
     DRAW_TYPE_BLEND,
     DRAW_TYPE_BLEND_ALPHA
-} draw_type;
+};
 
 static const int FOOTPRINT_X_START_PER_HEIGHT[] = {
     28, 26, 24, 22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0,
@@ -32,9 +32,9 @@ static const int FOOTPRINT_OFFSET_PER_HEIGHT[] = {
 };
 
 static void draw_uncompressed(
-    const image *img, const color_t *data, int x_offset, int y_offset, color_t color, draw_type type)
+    const struct image_t *img, const color_t *data, int x_offset, int y_offset, color_t color, int type)
 {
-    const clip_info *clip = graphics_get_clip_info(x_offset, y_offset, img->width, img->height);
+    const struct clip_info_t *clip = graphics_get_clip_info(x_offset, y_offset, img->width, img->height);
     if (!clip->is_visible) {
         return;
     }
@@ -96,9 +96,9 @@ static void draw_uncompressed(
     }
 }
 
-static void draw_compressed(const image *img, const color_t *data, int x_offset, int y_offset, int height)
+static void draw_compressed(const struct image_t *img, const color_t *data, int x_offset, int y_offset, int height)
 {
-    const clip_info *clip = graphics_get_clip_info(x_offset, y_offset, img->width, height);
+    const struct clip_info_t *clip = graphics_get_clip_info(x_offset, y_offset, img->width, height);
     if (!clip->is_visible) {
         return;
     }
@@ -141,9 +141,9 @@ static void draw_compressed(const image *img, const color_t *data, int x_offset,
 }
 
 static void draw_compressed_set(
-    const image *img, const color_t *data, int x_offset, int y_offset, int height, color_t color)
+    const struct image_t *img, const color_t *data, int x_offset, int y_offset, int height, color_t color)
 {
-    const clip_info *clip = graphics_get_clip_info(x_offset, y_offset, img->width, height);
+    const struct clip_info_t *clip = graphics_get_clip_info(x_offset, y_offset, img->width, height);
     if (!clip->is_visible) {
         return;
     }
@@ -187,9 +187,9 @@ static void draw_compressed_set(
 }
 
 static void draw_compressed_and(
-    const image *img, const color_t *data, int x_offset, int y_offset, int height, color_t color)
+    const struct image_t *img, const color_t *data, int x_offset, int y_offset, int height, color_t color)
 {
-    const clip_info *clip = graphics_get_clip_info(x_offset, y_offset, img->width, height);
+    const struct clip_info_t *clip = graphics_get_clip_info(x_offset, y_offset, img->width, height);
     if (!clip->is_visible) {
         return;
     }
@@ -237,9 +237,9 @@ static void draw_compressed_and(
 }
 
 static void draw_compressed_blend(
-    const image *img, const color_t *data, int x_offset, int y_offset, int height, color_t color)
+    const struct image_t *img, const color_t *data, int x_offset, int y_offset, int height, color_t color)
 {
-    const clip_info *clip = graphics_get_clip_info(x_offset, y_offset, img->width, height);
+    const struct clip_info_t *clip = graphics_get_clip_info(x_offset, y_offset, img->width, height);
     if (!clip->is_visible) {
         return;
     }
@@ -283,9 +283,9 @@ static void draw_compressed_blend(
 }
 
 static void draw_compressed_blend_alpha(
-    const image *img, const color_t *data, int x_offset, int y_offset, int height, color_t color)
+    const struct image_t *img, const color_t *data, int x_offset, int y_offset, int height, color_t color)
 {
-    const clip_info *clip = graphics_get_clip_info(x_offset, y_offset, img->width, height);
+    const struct clip_info_t *clip = graphics_get_clip_info(x_offset, y_offset, img->width, height);
     if (!clip->is_visible) {
         return;
     }
@@ -384,7 +384,7 @@ static void draw_footprint_tile(const color_t *data, int x_offset, int y_offset,
     if (!color_mask) {
         color_mask = COLOR_MASK_NONE;
     }
-    const clip_info *clip = graphics_get_clip_info(x_offset, y_offset, FOOTPRINT_WIDTH, FOOTPRINT_HEIGHT);
+    const struct clip_info_t *clip = graphics_get_clip_info(x_offset, y_offset, FOOTPRINT_WIDTH, FOOTPRINT_HEIGHT);
     if (!clip->is_visible) {
         return;
     }
@@ -557,7 +557,7 @@ static void draw_footprint_size5(int image_id, int x, int y, color_t color_mask)
 
 void image_draw(int image_id, int x, int y)
 {
-    const image *img = image_get(image_id);
+    const struct image_t *img = image_get(image_id);
     const color_t *data = image_data(image_id);
     if (!data) {
         return;
@@ -575,7 +575,7 @@ void image_draw_enemy(struct figure_t *f, int x, int y)
     if (f->image_id <= 0 || f->image_id >= 801) {
         return;
     }
-    const image *img = image_get_enemy(f);
+    const struct image_t *img = image_get_enemy(f);
     const color_t *data = image_data_enemy(f);
     if (data) {
         draw_compressed(img, data, x, y, img->height);
@@ -584,7 +584,7 @@ void image_draw_enemy(struct figure_t *f, int x, int y)
 
 void image_draw_masked(int image_id, int x, int y, color_t color_mask)
 {
-    const image *img = image_get(image_id);
+    const struct image_t *img = image_get(image_id);
     const color_t *data = image_data(image_id);
     if (!data) {
         return;
@@ -609,7 +609,7 @@ void image_draw_masked(int image_id, int x, int y, color_t color_mask)
 
 void image_draw_blend(int image_id, int x, int y, color_t color)
 {
-    const image *img = image_get(image_id);
+    const struct image_t *img = image_get(image_id);
     const color_t *data = image_data(image_id);
     if (!data) {
         return;
@@ -628,7 +628,7 @@ void image_draw_blend(int image_id, int x, int y, color_t color)
 
 void image_draw_blend_alpha(int image_id, int x, int y, color_t color)
 {
-    const image *img = image_get(image_id);
+    const struct image_t *img = image_get(image_id);
     const color_t *data = image_data(image_id);
     if (!data) {
         return;
@@ -645,7 +645,7 @@ void image_draw_blend_alpha(int image_id, int x, int y, color_t color)
     }
 }
 
-static void draw_multibyte_letter(font_t font, const image *img, const color_t *data, int x, int y, color_t color)
+static void draw_multibyte_letter(int font, const struct image_t *img, const color_t *data, int x, int y, color_t color)
 {
     switch (font) {
         case FONT_NORMAL_WHITE:
@@ -671,9 +671,9 @@ static void draw_multibyte_letter(font_t font, const image *img, const color_t *
     }
 }
 
-void image_draw_letter(font_t font, int letter_id, int x, int y, color_t color)
+void image_draw_letter(int font, int letter_id, int x, int y, color_t color)
 {
-    const image *img = image_letter(letter_id);
+    const struct image_t *img = image_letter(letter_id);
     const color_t *data = image_data_letter(letter_id);
     if (!data) {
         return;
@@ -697,7 +697,7 @@ void image_draw_letter(font_t font, int letter_id, int x, int y, color_t color)
 
 static void image_draw_scaled(int image_id, int x_offset, int y_offset, double scale_factor)
 {
-    const image *img = image_get(image_id);
+    const struct image_t *img = image_get(image_id);
     const color_t *data = image_data(image_id);
 
     if (!data || img->draw.type == IMAGE_TYPE_ISOMETRIC || img->draw.is_fully_compressed || !scale_factor) {
@@ -707,7 +707,7 @@ static void image_draw_scaled(int image_id, int x_offset, int y_offset, double s
     int width = (int) (img->width * scale_factor);
     int height = (int) (img->height * scale_factor);
 
-    const clip_info *clip = graphics_get_clip_info(x_offset, y_offset, width, height);
+    const struct clip_info_t *clip = graphics_get_clip_info(x_offset, y_offset, width, height);
     if (!clip->is_visible) {
         return;
     }
@@ -728,7 +728,7 @@ void image_draw_fullscreen_background(int image_id)
 {
     int s_width = screen_width();
     int s_height = screen_height();
-    const image *img = image_get(image_id);
+    const struct image_t *img = image_get(image_id);
     double scale_w = screen_width() / (double) img->width;
     double scale_h = screen_height() / (double) img->height;
     double scale = scale_w > scale_h ? scale_w : scale_h;
@@ -742,7 +742,7 @@ void image_draw_fullscreen_background(int image_id)
 
 void image_draw_isometric_footprint(int image_id, int x, int y, color_t color_mask)
 {
-    const image *img = image_get(image_id);
+    const struct image_t *img = image_get(image_id);
     if (img->draw.type != IMAGE_TYPE_ISOMETRIC) {
         return;
     }
@@ -767,7 +767,7 @@ void image_draw_isometric_footprint(int image_id, int x, int y, color_t color_ma
 
 void image_draw_isometric_footprint_from_draw_tile(int image_id, int x, int y, color_t color_mask)
 {
-    const image *img = image_get(image_id);
+    const struct image_t *img = image_get(image_id);
     if (img->draw.type != IMAGE_TYPE_ISOMETRIC) {
         return;
     }
@@ -792,7 +792,7 @@ void image_draw_isometric_footprint_from_draw_tile(int image_id, int x, int y, c
 
 void image_draw_isometric_top(int image_id, int x, int y, color_t color_mask)
 {
-    const image *img = image_get(image_id);
+    const struct image_t *img = image_get(image_id);
     if (img->draw.type != IMAGE_TYPE_ISOMETRIC) {
         return;
     }
@@ -837,7 +837,7 @@ void image_draw_isometric_top(int image_id, int x, int y, color_t color_mask)
 
 void image_draw_isometric_top_from_draw_tile(int image_id, int x, int y, color_t color_mask)
 {
-    const image *img = image_get(image_id);
+    const struct image_t *img = image_get(image_id);
     if (img->draw.type != IMAGE_TYPE_ISOMETRIC) {
         return;
     }

@@ -14,8 +14,8 @@
 
 static struct {
     int position;
-    speed_type slide_speed;
-    slide_direction direction;
+    struct speed_type_t slide_speed;
+    int direction;
     back_sidebar_draw_function back_sidebar_draw;
     front_sidebar_draw_function front_sidebar_draw;
     slide_finished_function finished_callback;
@@ -53,7 +53,7 @@ static void draw_sliding_foreground(void)
     }
 }
 
-void sidebar_slide(slide_direction direction, back_sidebar_draw_function back_sidebar_callback,
+void sidebar_slide(int direction, back_sidebar_draw_function back_sidebar_callback,
     front_sidebar_draw_function front_sidebar_callback, slide_finished_function finished_callback)
 {
     data.direction = direction;
@@ -66,12 +66,11 @@ void sidebar_slide(slide_direction direction, back_sidebar_draw_function back_si
     data.finished_callback = finished_callback;
     sound_effect_play(SOUND_EFFECT_SIDEBAR);
 
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_SLIDING_SIDEBAR,
         widget_city_draw,
         draw_sliding_foreground,
         0,
-        0
     };
     window_show(&window);
 }

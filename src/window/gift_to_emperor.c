@@ -12,7 +12,7 @@
 
 static void button_send_gift(int gift_id, int param2);
 
-static generic_button buttons_gift_to_emperor[] = {
+static struct generic_button_t buttons_gift_to_emperor[] = {
     {210, 180, 325, 15, button_send_gift, button_none, 0, 0},
     {210, 200, 325, 15, button_send_gift, button_none, 1, 0},
     {210, 220, 325, 15, button_send_gift, button_none, 2, 0},
@@ -37,7 +37,7 @@ static void draw_foreground(void)
     // Modest gift
     if (city_data.emperor.gifts[GIFT_MODEST].cost <= city_data.emperor.personal_savings) {
         lang_text_draw(52, 63, 120, 180, FONT_NORMAL_WHITE);
-        font_t font = focus_button_id == 1 ? FONT_NORMAL_RED : FONT_NORMAL_WHITE;
+        int font = focus_button_id == 1 ? FONT_NORMAL_RED : FONT_NORMAL_WHITE;
         lang_text_draw(52, 51 + city_data.emperor.gifts[GIFT_MODEST].id, 210, 180, font);
         text_draw_money(city_data.emperor.gifts[GIFT_MODEST].cost, 460, 180, font);
     } else {
@@ -46,14 +46,14 @@ static void draw_foreground(void)
     // Generous gift
     if (city_data.emperor.gifts[GIFT_GENEROUS].cost <= city_data.emperor.personal_savings) {
         lang_text_draw(52, 64, 120, 200, FONT_NORMAL_WHITE);
-        font_t font = focus_button_id == 2 ? FONT_NORMAL_RED : FONT_NORMAL_WHITE;
+        int font = focus_button_id == 2 ? FONT_NORMAL_RED : FONT_NORMAL_WHITE;
         lang_text_draw(52, 55 + city_data.emperor.gifts[GIFT_GENEROUS].id, 210, 200, font);
         text_draw_money(city_data.emperor.gifts[GIFT_GENEROUS].cost, 460, 200, font);
     }
     // Lavish gift
     if (city_data.emperor.gifts[GIFT_LAVISH].cost <= city_data.emperor.personal_savings) {
         lang_text_draw(52, 65, 120, 220, FONT_NORMAL_WHITE);
-        font_t font = focus_button_id == 3 ? FONT_NORMAL_RED : FONT_NORMAL_WHITE;
+        int font = focus_button_id == 3 ? FONT_NORMAL_RED : FONT_NORMAL_WHITE;
         lang_text_draw(52, 59 + city_data.emperor.gifts[GIFT_LAVISH].id, 210, 220, font);
         text_draw_money(city_data.emperor.gifts[GIFT_LAVISH].cost, 460, 220, font);
     }
@@ -65,15 +65,15 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (m->right.went_up || h->escape_pressed) {
         window_advisors_show(ADVISOR_IMPERIAL);
         return;
     }
 
-    const mouse *m_dialog = mouse_in_dialog(m);
-    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_gift_to_emperor, sizeof(buttons_gift_to_emperor) / sizeof(generic_button), &focus_button_id)) {
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
+    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_gift_to_emperor, sizeof(buttons_gift_to_emperor) / sizeof(struct generic_button_t), &focus_button_id)) {
         return;
     }
     // exit window on click outside of outer panel boundaries
@@ -94,12 +94,11 @@ static void button_send_gift(int gift_id, __attribute__((unused)) int param2)
 
 void window_gift_to_emperor_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_GIFT_TO_EMPEROR,
         window_advisors_draw_dialog_background,
         draw_foreground,
         handle_input,
-        0
     };
 
     // calculate gift costs

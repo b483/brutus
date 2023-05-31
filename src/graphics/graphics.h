@@ -3,7 +3,7 @@
 
 #include "graphics/color.h"
 
-typedef enum {
+enum {
     CLIP_NONE,
     CLIP_LEFT,
     CLIP_RIGHT,
@@ -11,11 +11,11 @@ typedef enum {
     CLIP_BOTTOM,
     CLIP_BOTH,
     CLIP_INVISIBLE
-} clip_code;
+};
 
-typedef struct {
-    clip_code clip_x;
-    clip_code clip_y;
+struct clip_info_t {
+    int clip_x;
+    int clip_y;
     int clipped_pixels_left;
     int clipped_pixels_right;
     int clipped_pixels_top;
@@ -23,7 +23,7 @@ typedef struct {
     int visible_pixels_x;
     int visible_pixels_y;
     int is_visible;
-} clip_info;
+};
 
 void graphics_init_canvas(int width, int height);
 void *graphics_canvas(void);
@@ -33,7 +33,7 @@ void graphics_reset_dialog(void);
 
 void graphics_set_clip_rectangle(int x, int y, int width, int height);
 void graphics_reset_clip_rectangle(void);
-const clip_info *graphics_get_clip_info(int x, int y, int width, int height);
+const struct clip_info_t *graphics_get_clip_info(int x, int y, int width, int height);
 
 void graphics_save_to_buffer(int x, int y, int width, int height, color_t *buffer);
 void graphics_draw_from_buffer(int x, int y, int width, int height, const color_t *buffer);

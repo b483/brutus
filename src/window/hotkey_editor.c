@@ -14,22 +14,22 @@
 
 static void button_close(int save, int param2);
 
-static generic_button bottom_buttons[] = {
+static struct generic_button_t bottom_buttons[] = {
     {192, 228, 120, 24, button_close, button_none, 0, 0},
     {328, 228, 120, 24, button_close, button_none, 1, 0},
 };
 
 static struct {
-    hotkey_action action;
+    int action;
     int index;
-    key_type key;
-    key_modifier_type modifiers;
-    void (*callback)(hotkey_action, int, key_type, key_modifier_type);
+    int key;
+    int modifiers;
+    void (*callback)(int, int, int, int);
     int focus_button;
 } data;
 
-static void init(hotkey_action action, int index,
-    void (*callback)(hotkey_action, int, key_type, key_modifier_type))
+static void init(int action, int index,
+    void (*callback)(int, int, int, int))
 {
     data.action = action;
     data.index = index;
@@ -55,7 +55,7 @@ static void draw_background(void)
     text_draw_centered(hotkey_editor_bottom_button_strings[0], 136, 144, 376, FONT_LARGE_BLACK, 0);
 
     for (int i = 0; i < NUM_BOTTOM_BUTTONS; i++) {
-        generic_button *btn = &bottom_buttons[i];
+        struct generic_button_t *btn = &bottom_buttons[i];
         text_draw_centered(hotkey_editor_bottom_button_strings[i + 1], btn->x, btn->y + 6, btn->width, FONT_NORMAL_BLACK, 0);
     }
 
@@ -72,15 +72,15 @@ static void draw_foreground(void)
         192, 193, 256, FONT_NORMAL_WHITE, 0);
 
     for (int i = 0; i < NUM_BOTTOM_BUTTONS; i++) {
-        generic_button *btn = &bottom_buttons[i];
+        struct generic_button_t *btn = &bottom_buttons[i];
         button_border_draw(btn->x, btn->y, btn->width, btn->height, data.focus_button == i + 1);
     }
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, __attribute__((unused)) const hotkeys *h)
+static void handle_input(const struct mouse_t *m, __attribute__((unused)) const struct hotkeys_t *h)
 {
-    const mouse *m_dialog = mouse_in_dialog(m);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
 
     int handled = 0;
     handled |= generic_buttons_handle_mouse(m_dialog, 0, 0, bottom_buttons, NUM_BOTTOM_BUTTONS, &data.focus_button);
@@ -99,7 +99,7 @@ static void button_close(int ok, __attribute__((unused)) int param2)
     }
 }
 
-void window_hotkey_editor_key_pressed(key_type key, key_modifier_type modifiers)
+void window_hotkey_editor_key_pressed(int key, int modifiers)
 {
     if (key == KEY_TYPE_ENTER && modifiers == KEY_MOD_NONE) {
         button_close(1, 0);
@@ -113,7 +113,7 @@ void window_hotkey_editor_key_pressed(key_type key, key_modifier_type modifiers)
     }
 }
 
-void window_hotkey_editor_key_released(key_type key, key_modifier_type modifiers)
+void window_hotkey_editor_key_released(int key, int modifiers)
 {
     // update modifiers as long as we don't have a proper keypress
     if (data.key == KEY_TYPE_NONE && key == KEY_TYPE_NONE) {
@@ -121,15 +121,14 @@ void window_hotkey_editor_key_released(key_type key, key_modifier_type modifiers
     }
 }
 
-void window_hotkey_editor_show(hotkey_action action, int index,
-    void (*callback)(hotkey_action, int, key_type, key_modifier_type))
+void window_hotkey_editor_show(int action, int index,
+    void (*callback)(int, int, int, int))
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_HOTKEY_EDITOR,
         draw_background,
         draw_foreground,
         handle_input,
-        0
     };
     init(action, index, callback);
     window_show(&window);

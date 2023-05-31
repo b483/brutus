@@ -77,13 +77,13 @@ int32_t random_from_pool(int index)
     return data.pool[(data.pool_index + index) % MAX_RANDOM];
 }
 
-void random_load_state(buffer *buf)
+void random_load_state(struct buffer_t *buf)
 {
     data.iv1 = buffer_read_u32(buf);
     data.iv2 = buffer_read_u32(buf);
 }
 
-void random_save_state(buffer *buf)
+void random_save_state(struct buffer_t *buf)
 {
     buffer_write_u32(buf, data.iv1);
     buffer_write_u32(buf, data.iv2);

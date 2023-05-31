@@ -9,10 +9,10 @@ static const int REPEATS[] = {
     1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0
 };
 
-static const time_millis REPEAT_MILLIS = 30;
+static const uint32_t REPEAT_MILLIS = 30;
 static const unsigned int BUTTON_PRESSED_FRAMES = 3;
 
-void arrow_buttons_draw(int x, int y, arrow_button *buttons, int num_buttons)
+void arrow_buttons_draw(int x, int y, struct arrow_button_t *buttons, int num_buttons)
 {
     for (int i = 0; i < num_buttons; i++) {
         int image_id = buttons[i].image_id;
@@ -23,7 +23,7 @@ void arrow_buttons_draw(int x, int y, arrow_button *buttons, int num_buttons)
     }
 }
 
-static int get_button(const mouse *m, int x, int y, arrow_button *buttons, int num_buttons)
+static int get_button(const struct mouse_t *m, int x, int y, struct arrow_button_t *buttons, int num_buttons)
 {
     for (int i = 0; i < num_buttons; i++) {
         if (x + buttons[i].x_offset <= m->x &&
@@ -37,18 +37,18 @@ static int get_button(const mouse *m, int x, int y, arrow_button *buttons, int n
 }
 
 int arrow_buttons_handle_mouse(
-    const mouse *m, int x, int y, arrow_button *buttons, int num_buttons, int *focus_button_id)
+    const struct mouse_t *m, int x, int y, struct arrow_button_t *buttons, int num_buttons, int *focus_button_id)
 {
-    static time_millis last_time = 0;
+    static uint32_t last_time = 0;
 
-    time_millis curr_time = time_get_millis();
+    uint32_t curr_time = time_get_millis();
     int should_repeat = 0;
     if (curr_time - last_time >= REPEAT_MILLIS) {
         should_repeat = 1;
         last_time = curr_time;
     }
     for (int i = 0; i < num_buttons; i++) {
-        arrow_button *btn = &buttons[i];
+        struct arrow_button_t *btn = &buttons[i];
         if (btn->pressed) {
             btn->pressed--;
             if (!btn->pressed) {
@@ -65,7 +65,7 @@ int arrow_buttons_handle_mouse(
     if (!button_id) {
         return 0;
     }
-    arrow_button *btn = &buttons[button_id -1];
+    struct arrow_button_t *btn = &buttons[button_id -1];
     if (m->left.went_down) {
         btn->pressed = BUTTON_PRESSED_FRAMES;
         btn->repeats = 0;

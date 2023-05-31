@@ -52,7 +52,7 @@ int building_animation_offset(struct building_t *b, int image_id, int grid_offse
         return 0;
     }
 
-    const image *img = image_get(image_id);
+    struct image_t *img = image_get(image_id);
     if (!game_animation_should_advance(img->animation_speed_id)) {
         return map_sprite_animation_at(grid_offset) & 0x7f;
     }

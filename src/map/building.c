@@ -3,9 +3,9 @@
 #include "building/building.h"
 #include "map/grid.h"
 
-static grid_u16 buildings_grid;
-static grid_u8 damage_grid;
-static grid_u8 rubble_type_grid;
+static struct grid_u16_t buildings_grid;
+static struct grid_u8_t damage_grid;
+static struct grid_u8_t rubble_type_grid;
 
 int map_building_at(int grid_offset)
 {
@@ -44,13 +44,13 @@ void map_building_clear(void)
     map_grid_clear_u8(rubble_type_grid.items);
 }
 
-void map_building_save_state(buffer *buildings, buffer *damage)
+void map_building_save_state(struct buffer_t *buildings, struct buffer_t *damage)
 {
     map_grid_save_state_u16(buildings_grid.items, buildings);
     map_grid_save_state_u8(damage_grid.items, damage);
 }
 
-void map_building_load_state(buffer *buildings, buffer *damage)
+void map_building_load_state(struct buffer_t *buildings, struct buffer_t *damage)
 {
     map_grid_load_state_u16(buildings_grid.items, buildings);
     map_grid_load_state_u8(damage_grid.items, damage);

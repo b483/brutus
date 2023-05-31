@@ -70,7 +70,7 @@ void game_time_advance_year(void)
     ++data.year;
 }
 
-void game_time_save_state(buffer *buf)
+void game_time_save_state(struct buffer_t *buf)
 {
     buffer_write_i32(buf, data.tick);
     buffer_write_i32(buf, data.day);
@@ -79,7 +79,7 @@ void game_time_save_state(buffer *buf)
     buffer_write_i32(buf, data.total_days);
 }
 
-void game_time_load_state(buffer *buf)
+void game_time_load_state(struct buffer_t *buf)
 {
     data.tick = buffer_read_i32(buf);
     data.day = buffer_read_i32(buf);

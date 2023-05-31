@@ -10,7 +10,7 @@
 
 static void button_ok(int param1, int param2);
 
-static image_button buttons[] = {
+static struct image_button_t buttons[] = {
     {223, 140, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 0, button_ok, button_none, 1, 0, 1, 0, 0, 0},
 };
 
@@ -56,7 +56,7 @@ static void close(void)
     window_go_back();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (image_buttons_handle_mouse(mouse_in_dialog(m), 80, 80, buttons, 1, 0)) {
         return;
@@ -74,12 +74,11 @@ static void button_ok(__attribute__((unused)) int param1, __attribute__((unused)
 void window_plain_message_dialog_show(uint8_t *title, uint8_t *message)
 {
     if (init(title, message, 0)) {
-        window_type window = {
+        struct window_type_t window = {
             WINDOW_PLAIN_MESSAGE_DIALOG,
             draw_background,
             draw_foreground,
             handle_input,
-            0
         };
         window_show(&window);
     }

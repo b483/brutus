@@ -25,7 +25,7 @@ void create_herds(void);
 
 void update_herd_formations(void);
 
-void herd_formations_save_state(buffer *buf);
-void herd_formations_load_state(buffer *buf);
+void herd_formations_save_state(struct buffer_t *buf);
+void herd_formations_load_state(struct buffer_t *buf);
 
 #endif // FIGURE_FORMATION_HERD_H

@@ -1,6 +1,6 @@
 #include "figure.h"
 
-grid_u16 map_figures;
+struct grid_u16_t map_figures;
 
 int map_has_figure_at(int grid_offset)
 {
@@ -63,12 +63,12 @@ void map_figure_delete(struct figure_t *f)
     f->next_figure_id_on_same_tile = 0;
 }
 
-void map_figure_save_state(buffer *buf)
+void map_figure_save_state(struct buffer_t *buf)
 {
     map_grid_save_state_u16(map_figures.items, buf);
 }
 
-void map_figure_load_state(buffer *buf)
+void map_figure_load_state(struct buffer_t *buf)
 {
     map_grid_load_state_u16(map_figures.items, buf);
 }

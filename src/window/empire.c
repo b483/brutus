@@ -35,16 +35,16 @@ static void button_advisor(int advisor, int param2);
 static void button_open_trade(int param1, int param2);
 static void button_show_resource_window(int resource, int param2);
 
-static image_button image_button_help[] = {
+static struct image_button_t image_button_help[] = {
     {0, 0, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1, 0, 0, 0}
 };
-static image_button image_button_return_to_city[] = {
+static struct image_button_t image_button_return_to_city[] = {
     {0, 0, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_return_to_city, button_none, 0, 0, 1, 0, 0, 0}
 };
-static image_button image_button_advisor[] = {
+static struct image_button_t image_button_advisor[] = {
     {-4, 0, 24, 24, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 12, button_advisor, button_none, ADVISOR_TRADE, 0, 1, 0, 0, 0}
 };
-static generic_button generic_button_trade_resource[] = {
+static struct generic_button_t generic_button_trade_resource[] = {
     {0, 0, 101, 27, button_show_resource_window, button_none, RESOURCE_WHEAT, 0},
     {0, 0, 101, 27, button_show_resource_window, button_none, RESOURCE_VEGETABLES , 0},
     {0, 0, 101, 27, button_show_resource_window, button_none, RESOURCE_FRUIT , 0},
@@ -61,7 +61,7 @@ static generic_button generic_button_trade_resource[] = {
     {0, 0, 101, 27, button_show_resource_window, button_none, RESOURCE_FURNITURE, 0},
     {0, 0, 101, 27, button_show_resource_window, button_none, RESOURCE_POTTERY, 0}
 };
-static generic_button generic_button_open_trade[] = {
+static struct generic_button_t generic_button_open_trade[] = {
     {30, 56, 440, 26, button_open_trade, button_none, 0, 0}
 };
 
@@ -386,7 +386,7 @@ static void draw_empire_objects(void)
                 image_id = image_group(GROUP_EMPIRE_CITY_DISTANT_ROMAN);
             }
             image_draw(image_id, data.x_draw_offset + x, data.y_draw_offset + y);
-            const image *img = image_get(image_id);
+            const struct image_t *img = image_get(image_id);
             if (img->animation_speed_id) {
                 image_draw(image_id + empire_object_update_animation(&empire_objects[i], image_id),
                     data.x_draw_offset + x + img->sprite_offset_x,
@@ -440,9 +440,9 @@ static int is_outside_map(int x, int y)
             y < data.y_min + 16 || y >= data.y_max - 120);
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    pixel_offset position;
+    struct pixel_view_coordinates_t position;
     if (scroll_get_delta(m, &position, SCROLL_TYPE_EMPIRE)) {
         empire_scroll_map(position.x, position.y);
     }
@@ -546,88 +546,6 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static int is_mouse_hit(tooltip_context *c, int x, int y, int size)
-{
-    int mx = c->mouse_x;
-    int my = c->mouse_y;
-    return x <= mx && mx < x + size && y <= my && my < y + size;
-}
-
-static int get_tooltip_resource(tooltip_context *c)
-{
-    // we only want to check tooltips on our own closed cities.
-    // open city resource tooltips are handled by their respective buttons directly
-    if (data.selected_object->city_type != EMPIRE_CITY_TRADE || data.selected_object->trade_route_open) {
-        return 0;
-    }
-    int x_offset = (data.x_min + data.x_max - 500) / 2;
-    int y_offset = data.y_max - 113;
-
-    int item_offset = lang_text_get_width(47, 5, FONT_NORMAL_GREEN);
-    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
-        if (data.selected_object->resource_sell_limit[r]) {
-            if (is_mouse_hit(c, x_offset + 45 + item_offset, y_offset + 33, 26)) {
-                return r;
-            }
-            item_offset += 32;
-        }
-    }
-    item_offset += lang_text_get_width(47, 4, FONT_NORMAL_GREEN);
-    for (int r = RESOURCE_WHEAT; r <= RESOURCE_TYPES_MAX; r++) {
-        if (data.selected_object->resource_buy_limit[r]) {
-            if (is_mouse_hit(c, x_offset + 95 + item_offset, y_offset + 33, 26)) {
-                return r;
-            }
-            item_offset += 32;
-        }
-    }
-
-    return 0;
-}
-
-static void get_tooltip_trade_route_type(tooltip_context *c)
-{
-    if (!data.selected_object || data.selected_object->city_type != EMPIRE_OBJECT_CITY) {
-        return;
-    }
-
-    if (data.selected_object->city_type != EMPIRE_CITY_TRADE || data.selected_object->trade_route_open) {
-        return;
-    }
-
-    int x_offset = (data.x_min + data.x_max + 300) / 2;
-    int y_offset = data.y_max - 41;
-    int y_offset_max = y_offset + 22 - 2 * data.selected_object->is_sea_trade;
-    if (c->mouse_x >= x_offset && c->mouse_x < x_offset + 32 &&
-        c->mouse_y >= y_offset && c->mouse_y < y_offset_max) {
-        c->type = TOOLTIP_BUTTON;
-        c->text_group = 44;
-        c->text_id = 28 + data.selected_object->is_sea_trade;
-    }
-}
-
-static void get_tooltip(tooltip_context *c)
-{
-    if (data.focus_button_id) {
-        c->type = TOOLTIP_BUTTON;
-        switch (data.focus_button_id) {
-            case 1: c->text_id = 1; break;
-            case 2: c->text_id = 2; break;
-            case 3: c->text_id = 69; break;
-        }
-    }
-    if (!data.selected_object) {
-        return;
-    }
-    int resource = data.focus_resource ? data.focus_resource : get_tooltip_resource(c);
-    if (resource) {
-        c->type = TOOLTIP_BUTTON;
-        c->text_id = 131 + resource;
-    } else {
-        get_tooltip_trade_route_type(c);
-    }
-}
-
 static void button_help(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_message_dialog_show(MESSAGE_DIALOG_EMPIRE_MAP, 0);
@@ -662,12 +580,11 @@ static void button_open_trade(__attribute__((unused)) int param1, __attribute__(
 
 void window_empire_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EMPIRE,
         draw_background,
         draw_foreground,
         handle_input,
-        get_tooltip
     };
     init();
     window_show(&window);

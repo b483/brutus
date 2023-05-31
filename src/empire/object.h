@@ -61,12 +61,12 @@ struct empire_object_t {
 extern struct empire_object_t empire_objects[MAX_OBJECTS];
 
 // loads empire for new maps and on empire state change
-void empire_object_load_initial(buffer *buf);
+void empire_object_load_initial(struct buffer_t *buf);
 
 // loads empire map for custom maps
-void empire_object_load_state(buffer *buf);
+void empire_object_load_state(struct buffer_t *buf);
 // saves empire map for custom maps
-void empire_object_save_state(buffer *buf);
+void empire_object_save_state(struct buffer_t *buf);
 
 int empire_object_init_distant_battle_travel_months(int object_type);
 

@@ -32,7 +32,7 @@ void window_building_set_possible_position(int *x_offset, int *y_offset, int wid
     }
 }
 
-int window_building_get_vertical_offset(building_info_context *c, int new_window_height)
+int window_building_get_vertical_offset(struct building_info_context_t *c, int new_window_height)
 {
     new_window_height = new_window_height * BLOCK_SIZE;
     int old_window_height = c->height_blocks * BLOCK_SIZE;
@@ -78,7 +78,7 @@ static int draw_employment_info(struct building_t *b, int consider_house_coverin
     return text_id;
 }
 
-static void draw_employment_details(building_info_context *c, struct building_t *b, int y_offset, int text_id)
+static void draw_employment_details(struct building_info_context_t *c, struct building_t *b, int y_offset, int text_id)
 {
     y_offset += c->y_offset;
     image_draw(image_group(GROUP_CONTEXT_ICONS) + 14, c->x_offset + 40, y_offset + 6);
@@ -98,33 +98,33 @@ static void draw_employment_details(building_info_context *c, struct building_t 
     }
 }
 
-void window_building_draw_employment(building_info_context *c, int y_offset)
+void window_building_draw_employment(struct building_info_context_t *c, int y_offset)
 {
     struct building_t *b = &all_buildings[c->building_id];
     int text_id = draw_employment_info(b, 1);
     draw_employment_details(c, b, y_offset, text_id);
 }
 
-void window_building_draw_employment_without_house_cover(building_info_context *c, int y_offset)
+void window_building_draw_employment_without_house_cover(struct building_info_context_t *c, int y_offset)
 {
     struct building_t *b = &all_buildings[c->building_id];
     int text_id = draw_employment_info(b, 0);
     draw_employment_details(c, b, y_offset, text_id);
 }
 
-void window_building_draw_description(building_info_context *c, int text_group, int text_id)
+void window_building_draw_description(struct building_info_context_t *c, int text_group, int text_id)
 {
     lang_text_draw_multiline(text_group, text_id, c->x_offset + 32, c->y_offset + 56,
         BLOCK_SIZE * (c->width_blocks - 4), FONT_NORMAL_BLACK);
 }
 
-void window_building_draw_description_at(building_info_context *c, int y_offset, int text_group, int text_id)
+void window_building_draw_description_at(struct building_info_context_t *c, int y_offset, int text_group, int text_id)
 {
     lang_text_draw_multiline(text_group, text_id, c->x_offset + 32, c->y_offset + y_offset,
         BLOCK_SIZE * (c->width_blocks - 4), FONT_NORMAL_BLACK);
 }
 
-void window_building_play_sound(building_info_context *c, const char *sound_file)
+void window_building_play_sound(struct building_info_context_t *c, const char *sound_file)
 {
     if (c->can_play_sound) {
         sound_speech_play_file(sound_file);

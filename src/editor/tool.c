@@ -30,15 +30,15 @@
 
 static struct {
     int active;
-    tool_type type;
+    int type;
     int id;
     int brush_size;
     int build_in_progress;
     int start_elevation;
-    map_tile start_tile;
+    struct map_tile_t start_tile;
 } data = { 0, TOOL_GRASS, 0, 2, 0, 0, {0} };
 
-tool_type editor_tool_type(void)
+int editor_tool_type(void)
 {
     return data.type;
 }
@@ -58,7 +58,7 @@ void editor_tool_deactivate(void)
     }
 }
 
-void editor_tool_set_with_id(tool_type type, int id)
+void editor_tool_set_with_id(int type, int id)
 {
     data.active = 1;
     data.type = type;
@@ -85,7 +85,7 @@ int editor_tool_is_in_use(void)
     return data.build_in_progress;
 }
 
-void editor_tool_start_use(const map_tile *tile)
+void editor_tool_start_use(const struct map_tile_t *tile)
 {
     if (!data.active) {
         return;
@@ -252,7 +252,7 @@ static void add_terrain_at(int x, int y)
     }
 }
 
-void editor_tool_update_use(const map_tile *tile)
+void editor_tool_update_use(const struct map_tile_t *tile)
 {
     if (!data.build_in_progress) {
         return;
@@ -319,7 +319,7 @@ void editor_tool_update_use(const map_tile *tile)
     widget_minimap_invalidate();
 }
 
-static void place_building(const map_tile *tile)
+static void place_building(const struct map_tile_t *tile)
 {
     int image_id;
     int size;
@@ -370,7 +370,7 @@ static void update_terrain_after_elevation_changes(void)
     scenario.is_saved = 0;
 }
 
-static void place_access_ramp(const map_tile *tile)
+static void place_access_ramp(const struct map_tile_t *tile)
 {
     int orientation = 0;
     if (editor_tool_can_place_access_ramp(tile, &orientation)) {
@@ -391,7 +391,7 @@ static void place_access_ramp(const map_tile *tile)
     }
 }
 
-void editor_tool_end_use(const map_tile *tile)
+void editor_tool_end_use(const struct map_tile_t *tile)
 {
     if (!data.build_in_progress) {
         return;

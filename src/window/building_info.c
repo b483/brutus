@@ -47,16 +47,16 @@ static void button_help(int param1, int param2);
 static void button_close(int param1, int param2);
 static void button_advisor(int advisor, int param2);
 
-static image_button image_buttons_help_close[] = {
+static struct image_button_t image_buttons_help_close[] = {
     {14, 0, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1, 0, 0, 0},
     {424, 3, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1, 0, 0, 0}
 };
 
-static image_button image_buttons_advisor[] = {
+static struct image_button_t image_buttons_advisor[] = {
     {350, -38, 28, 28, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 9, button_advisor, button_none, ADVISOR_RATINGS, 0, 1, 0, 0, 0}
 };
 
-static building_info_context context;
+static struct building_info_context_t context;
 static int focus_image_button_id;
 
 static int get_height_id(void)
@@ -546,7 +546,7 @@ static void draw_foreground(void)
     }
 }
 
-static int handle_specific_building_info_mouse(const mouse *m)
+static int handle_specific_building_info_mouse(const struct mouse_t *m)
 {
     // building-specific buttons
     if (context.type == BUILDING_INFO_NONE) {
@@ -575,7 +575,7 @@ static int handle_specific_building_info_mouse(const mouse *m)
     return 0;
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     int handled = 0;
     // general buttons
@@ -598,28 +598,6 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
     if (!handled && (m->right.went_up || h->escape_pressed)) {
         window_city_show();
-    }
-}
-
-static void get_tooltip(tooltip_context *c)
-{
-    int text_id = 0, group_id = 0;
-    if (focus_image_button_id) {
-        text_id = focus_image_button_id;
-    } else if (context.type == BUILDING_INFO_BUILDING && context.storage_show_special_orders) {
-        int btype = all_buildings[context.building_id].type;
-        if (btype == BUILDING_GRANARY) {
-            window_building_get_tooltip_granary_orders(&group_id, &text_id);
-        } else if (btype == BUILDING_WAREHOUSE) {
-            window_building_get_tooltip_warehouse_orders(&group_id, &text_id);
-        }
-    }
-    if (text_id || group_id) {
-        c->type = TOOLTIP_BUTTON;
-        c->text_id = text_id;
-        if (group_id) {
-            c->text_group = group_id;
-        }
     }
 }
 
@@ -650,12 +628,11 @@ static void button_advisor(int advisor, __attribute__((unused)) int param2)
 
 void window_building_info_show(int grid_offset)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_BUILDING_INFO,
         draw_background,
         draw_foreground,
         handle_input,
-        get_tooltip
     };
     init(grid_offset);
     window_show(&window);

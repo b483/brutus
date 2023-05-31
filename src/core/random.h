@@ -54,12 +54,12 @@ int32_t random_from_pool(int index);
  * Save data to buffer
  * @param buf Buffer to save to
  */
-void random_save_state(buffer *buf);
+void random_save_state(struct buffer_t *buf);
 
 /**
  * Load data from buffer
  * @param buf Buffer to read from
  */
-void random_load_state(buffer *buf);
+void random_load_state(struct buffer_t *buf);
 
 #endif // CORE_RANDOM_H

@@ -143,7 +143,7 @@ int figure_route_get_direction(int path_id, int index)
     return data.direction_paths[path_id][index];
 }
 
-void figure_route_save_state(buffer *figures, buffer *paths)
+void figure_route_save_state(struct buffer_t *figures, struct buffer_t *paths)
 {
     for (int i = 0; i < MAX_ROUTES; i++) {
         buffer_write_i16(figures, data.figure_ids[i]);
@@ -151,7 +151,7 @@ void figure_route_save_state(buffer *figures, buffer *paths)
     }
 }
 
-void figure_route_load_state(buffer *figures, buffer *paths)
+void figure_route_load_state(struct buffer_t *figures, struct buffer_t *paths)
 {
     for (int i = 0; i < MAX_ROUTES; i++) {
         data.figure_ids[i] = buffer_read_i16(figures);

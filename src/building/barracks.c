@@ -13,7 +13,7 @@
 
 static int tower_sentry_request = 0;
 
-int building_get_barracks_for_weapon(int resource, int road_network_id, map_point *dst)
+int building_get_barracks_for_weapon(int resource, int road_network_id, struct map_point_t *dst)
 {
     if (resource != RESOURCE_WEAPONS) {
         return 0;
@@ -83,7 +83,7 @@ void building_barracks_create_soldier(struct building_t *barracks, int x, int y)
         }
         f->building_id = m->building_id;
         add_figure_to_formation(f, m);
-        map_point mil_acad_road = { 0 };
+        struct map_point_t mil_acad_road = { 0 };
         set_destination__closest_building_of_type(m->building_id, BUILDING_MILITARY_ACADEMY, &mil_acad_road);
         if (mil_acad_road.x) {
             f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_MILITARY_ACADEMY;
@@ -118,14 +118,14 @@ int building_barracks_create_tower_sentry(struct building_t *barracks, int x, in
     if (!tower) {
         return 0;
     }
-    map_point tower_road;
+    struct map_point_t tower_road;
     if (!map_has_road_access(tower->x, tower->y, tower->size, &tower_road)) {
         return 0;
     }
     struct figure_t *f = figure_create(FIGURE_TOWER_SENTRY, x, y, DIR_0_TOP);
     tower->figure_id = f->id;
     f->building_id = tower->id;
-    map_point mil_acad_road = { 0 };
+    struct map_point_t mil_acad_road = { 0 };
     set_destination__closest_building_of_type(tower->id, BUILDING_MILITARY_ACADEMY, &mil_acad_road);
     if (mil_acad_road.x) {
         f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_MILITARY_ACADEMY;
@@ -155,12 +155,12 @@ int building_barracks_has_tower_sentry_request(void)
     return tower_sentry_request;
 }
 
-void building_barracks_save_state(buffer *buf)
+void building_barracks_save_state(struct buffer_t *buf)
 {
     buffer_write_i32(buf, tower_sentry_request);
 }
 
-void building_barracks_load_state(buffer *buf)
+void building_barracks_load_state(struct buffer_t *buf)
 {
     tower_sentry_request = buffer_read_i32(buf);
 }

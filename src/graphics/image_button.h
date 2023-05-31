@@ -12,7 +12,7 @@ enum {
     IB_BUILD = 2
 };
 
-typedef struct {
+struct image_button_t {
     short x_offset;
     short y_offset;
     short width;
@@ -28,12 +28,12 @@ typedef struct {
     // state
     char pressed;
     char focused;
-    time_millis pressed_since;
-} image_button;
+    uint32_t pressed_since;
+};
 
-void image_buttons_draw(int x, int y, image_button *buttons, int num_buttons);
+void image_buttons_draw(int x, int y, struct image_button_t *buttons, int num_buttons);
 
 int image_buttons_handle_mouse(
-    const mouse *m, int x, int y, image_button *buttons, int num_buttons, int *focus_button_id);
+    const struct mouse_t *m, int x, int y, struct image_button_t *buttons, int num_buttons, int *focus_button_id);
 
 #endif // GRAPHICS_IMAGE_BUTTON_H

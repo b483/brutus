@@ -2,7 +2,7 @@
 
 #include "map/grid.h"
 
-static grid_u8 elevation;
+static struct grid_u8_t elevation;
 
 int map_elevation_at(int grid_offset)
 {
@@ -46,12 +46,12 @@ void map_elevation_remove_cliffs(void)
     }
 }
 
-void map_elevation_save_state(buffer *buf)
+void map_elevation_save_state(struct buffer_t *buf)
 {
     map_grid_save_state_u8(elevation.items, buf);
 }
 
-void map_elevation_load_state(buffer *buf)
+void map_elevation_load_state(struct buffer_t *buf)
 {
     map_grid_load_state_u8(elevation.items, buf);
 }

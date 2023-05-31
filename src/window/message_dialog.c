@@ -32,37 +32,37 @@ static void button_help(int param1, int param2);
 static void button_advisor(int advisor, int param2);
 static void button_go_to_problem(int param1, int param2);
 
-static image_button image_button_back = {
+static struct image_button_t image_button_back = {
     0, 0, 31, 20, IB_NORMAL, GROUP_ARROW_MESSAGE_PROBLEMS, 8, button_back, button_none, 0, 0, 1, 0, 0, 0
 };
-static image_button image_button_close = {
+static struct image_button_t image_button_close = {
     0, 0, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1, 0, 0, 0
 };
-static image_button image_button_go_to_problem = {
+static struct image_button_t image_button_go_to_problem = {
     0, 0, 27, 27, IB_NORMAL, GROUP_SIDEBAR_BUTTONS, 52, button_go_to_problem, button_none, 1, 0, 1, 0, 0, 0
 };
-static image_button image_button_help = {
+static struct image_button_t image_button_help = {
     0, 0, 18, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 1, 0, 1, 0, 0, 0
 };
-static image_button image_button_labor = {
+static struct image_button_t image_button_labor = {
     0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 0, button_advisor, button_none, ADVISOR_LABOR, 0, 1, 0, 0, 0
 };
-static image_button image_button_trade = {
+static struct image_button_t image_button_trade = {
     0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 12, button_advisor, button_none, ADVISOR_TRADE, 0, 1, 0, 0, 0
 };
-static image_button image_button_population = {
+static struct image_button_t image_button_population = {
     0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 15, button_advisor, button_none, ADVISOR_POPULATION, 0, 1, 0, 0, 0
 };
-static image_button image_button_imperial = {
+static struct image_button_t image_button_imperial = {
     0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 6, button_advisor, button_none, ADVISOR_IMPERIAL, 0, 1, 0, 0, 0
 };
-static image_button image_button_military = {
+static struct image_button_t image_button_military = {
     0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 3, button_advisor, button_none, ADVISOR_MILITARY, 0, 1, 0, 0, 0
 };
-static image_button image_button_health = {
+static struct image_button_t image_button_health = {
     0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 18, button_advisor, button_none, ADVISOR_HEALTH, 0, 1, 0, 0, 0
 };
-static image_button image_button_religion = {
+static struct image_button_t image_button_religion = {
     0, 0, 27, 27, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 27, button_advisor, button_none, ADVISOR_RELIGION, 0, 1, 0, 0, 0
 };
 
@@ -118,7 +118,7 @@ static void init(int text_id, void (*background_callback)(void))
     rich_text_reset(0);
     data.text_id = text_id;
     data.background_callback = background_callback;
-    const lang_message *msg = lang_get_message(text_id);
+    const struct lang_message_t *msg = lang_get_message(text_id);
     if (player_message.use_popup != 1) {
         data.show_video = 0;
     } else if (msg->video.text && video_start((char *) msg->video.text)) {
@@ -136,13 +136,13 @@ static int resource_image(int resource)
     return resource_images[resource].icon_img_id + resource_image_offset(resource, RESOURCE_IMAGE_ICON);
 }
 
-static int is_problem_message(const lang_message *msg)
+static int is_problem_message(const struct lang_message_t *msg)
 {
     return msg->type == TYPE_MESSAGE &&
         (msg->message_type == MESSAGE_TYPE_DISASTER || msg->message_type == MESSAGE_TYPE_INVASION);
 }
 
-static void draw_city_message_text(const lang_message *msg)
+static void draw_city_message_text(const struct lang_message_t *msg)
 {
     int width = lang_text_draw(25, player_message.month, data.x_text + 10, data.y_text + 6, FONT_NORMAL_WHITE);
     width += lang_text_draw_year(player_message.year,
@@ -219,7 +219,7 @@ static void draw_city_message_text(const lang_message *msg)
     }
 }
 
-static int get_message_image_id(const lang_message *msg)
+static int get_message_image_id(const struct lang_message_t *msg)
 {
     if (!msg->image.id) {
         return 0;
@@ -231,13 +231,13 @@ static int get_message_image_id(const lang_message *msg)
     }
 }
 
-static void draw_title(const lang_message *msg)
+static void draw_title(const struct lang_message_t *msg)
 {
     if (!msg->title.text) {
         return;
     }
     int image_id = get_message_image_id(msg);
-    const image *img = image_id ? image_get(image_id) : 0;
+    const struct image_t *img = image_id ? image_get(image_id) : 0;
     // title
     // Center title in the dialog but ensure it does not overlap with the
     // image: if the title is too long, it will start 8px from the image.
@@ -258,7 +258,7 @@ static void draw_title(const lang_message *msg)
     }
 }
 
-static void draw_subtitle(const lang_message *msg)
+static void draw_subtitle(const struct lang_message_t *msg)
 {
     if (msg->subtitle.x && msg->subtitle.text) {
         int width = BLOCK_SIZE * (msg->width_blocks - 1) - msg->subtitle.x;
@@ -270,7 +270,7 @@ static void draw_subtitle(const lang_message *msg)
     }
 }
 
-static void draw_content(const lang_message *msg)
+static void draw_content(const struct lang_message_t *msg)
 {
     if (!msg->content.text) {
         return;
@@ -299,7 +299,7 @@ static void draw_content(const lang_message *msg)
 
 static void draw_background_normal(void)
 {
-    const lang_message *msg = lang_get_message(data.text_id);
+    const struct lang_message_t *msg = lang_get_message(data.text_id);
     data.x = msg->x;
     data.y = msg->y;
     data.x_text = data.x + 16;
@@ -318,7 +318,7 @@ static void draw_background_normal(void)
 
 static void draw_background_video(void)
 {
-    const lang_message *msg = lang_get_message(data.text_id);
+    const struct lang_message_t *msg = lang_get_message(data.text_id);
     data.x = 32;
     data.y = 28;
 
@@ -409,7 +409,7 @@ static void draw_background(void)
     graphics_reset_dialog();
 }
 
-static image_button *get_advisor_button(void)
+static struct image_button_t *get_advisor_button(void)
 {
     switch (player_message.message_advisor) {
         case MESSAGE_ADVISOR_LABOR:
@@ -433,7 +433,7 @@ static image_button *get_advisor_button(void)
 
 static void draw_foreground_normal(void)
 {
-    const lang_message *msg = lang_get_message(data.text_id);
+    const struct lang_message_t *msg = lang_get_message(data.text_id);
 
     if (msg->type == TYPE_MANUAL && data.num_history > 0) {
         image_buttons_draw(
@@ -457,7 +457,7 @@ static void draw_foreground_video(void)
     video_draw(data.x + 8, data.y + 8);
     image_buttons_draw(data.x + 16, data.y + 408, get_advisor_button(), 1);
     image_buttons_draw(data.x + 372, data.y + 410, &image_button_close, 1);
-    const lang_message *msg = lang_get_message(data.text_id);
+    const struct lang_message_t *msg = lang_get_message(data.text_id);
     if (is_problem_message(msg)) {
         image_buttons_draw(data.x + 48, data.y + 407, &image_button_go_to_problem, 1);
     }
@@ -474,7 +474,7 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static int handle_input_video(const mouse *m_dialog, const lang_message *msg)
+static int handle_input_video(const struct mouse_t *m_dialog, const struct lang_message_t *msg)
 {
     if (image_buttons_handle_mouse(m_dialog, data.x + 16, data.y + 408, get_advisor_button(), 1, 0)) {
         return 1;
@@ -491,7 +491,7 @@ static int handle_input_video(const mouse *m_dialog, const lang_message *msg)
     return 0;
 }
 
-static int handle_input_normal(const mouse *m_dialog, const lang_message *msg)
+static int handle_input_normal(const struct mouse_t *m_dialog, const struct lang_message_t *msg)
 {
     if (msg->type == TYPE_MANUAL && image_buttons_handle_mouse(
         m_dialog, data.x + 16, data.y + BLOCK_SIZE * msg->height_blocks - 36, &image_button_back, 1, 0)) {
@@ -532,11 +532,11 @@ static int handle_input_normal(const mouse *m_dialog, const lang_message *msg)
     return 0;
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     data.focus_button_id = 0;
-    const mouse *m_dialog = mouse_in_dialog(m);
-    const lang_message *msg = lang_get_message(data.text_id);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
+    const struct lang_message_t *msg = lang_get_message(data.text_id);
     int handled;
     if (data.show_video) {
         handled = handle_input_video(m_dialog, msg);
@@ -596,23 +596,13 @@ static void button_go_to_problem(__attribute__((unused)) int param1, __attribute
     window_city_show();
 }
 
-static void get_tooltip(tooltip_context *c)
-{
-    if (data.focus_button_id) {
-        c->type = TOOLTIP_BUTTON;
-        c->text_group = 12;
-        c->text_id = 1;
-    }
-}
-
 void window_message_dialog_show(int text_id, void (*background_callback)(void))
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_MESSAGE_DIALOG,
         draw_background,
         draw_foreground,
         handle_input,
-        get_tooltip
     };
     init(text_id, background_callback);
     window_show(&window);

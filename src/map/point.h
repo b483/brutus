@@ -1,16 +1,16 @@
 #ifndef MAP_POINT_H
 #define MAP_POINT_H
 
-typedef struct {
+struct map_point_t {
     int x;
     int y;
-} map_point;
+};
 
-typedef struct {
+struct map_tile_t {
     int x;
     int y;
     int grid_offset;
-} map_tile;
+};
 
 /**
  * Stores the X and Y to the passed point.
@@ -22,6 +22,6 @@ typedef struct {
  * @param y Y value to store
  * @param point Point structure to store X and Y in
  */
-void map_point_store_result(int x, int y, map_point *point);
+void map_point_store_result(int x, int y, struct map_point_t *point);
 
 #endif // MAP_POINT_H

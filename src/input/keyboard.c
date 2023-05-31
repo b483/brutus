@@ -25,7 +25,7 @@ static struct {
     int viewport_cursor_position;
 
     int box_width;
-    font_t font;
+    int font;
 } data;
 
 static int get_char_bytes(const uint8_t *str)
@@ -103,7 +103,7 @@ static void update_viewport(int has_changed)
     data.viewport_cursor_position = data.cursor_position;
 }
 
-void keyboard_start_capture(uint8_t *text, int max_length, int allow_punctuation, int box_width, font_t font)
+void keyboard_start_capture(uint8_t *text, int max_length, int allow_punctuation, int box_width, int font)
 {
     data.capture = 1;
     data.text = text;

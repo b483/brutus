@@ -18,7 +18,7 @@
 
 static void button_graph(int param1, int param2);
 
-static generic_button graph_buttons[] = {
+static struct generic_button_t graph_buttons[] = {
     {509,  61, 104, 55, button_graph, button_none, 0, 0},
     {509, 161, 104, 55, button_graph, button_none, 1, 0},
 };
@@ -400,7 +400,7 @@ static void draw_foreground(void)
     }
 }
 
-static int handle_mouse(const mouse *m)
+static int handle_mouse(const struct mouse_t *m)
 {
     return generic_buttons_handle_mouse(m, 0, 0, graph_buttons, 2, &focus_button_id);
 }
@@ -433,22 +433,12 @@ static void button_graph(int param1, __attribute__((unused)) int param2)
     window_invalidate();
 }
 
-static int get_tooltip_text(void)
+struct advisor_window_type_t *window_advisor_population(void)
 {
-    if (focus_button_id) {
-        return 111;
-    } else {
-        return 0;
-    }
-}
-
-const advisor_window_type *window_advisor_population(void)
-{
-    static const advisor_window_type window = {
+    static struct advisor_window_type_t window = {
         draw_background,
         draw_foreground,
         handle_mouse,
-        get_tooltip_text
     };
     return &window;
 }

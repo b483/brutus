@@ -13,7 +13,7 @@
 static void button_advisor(int advisor, int param2);
 static void button_close(int param1, int param2);
 
-static image_button image_buttons[] = {
+static struct image_button_t image_buttons[] = {
     {92, 248, 28, 28, IB_NORMAL, GROUP_MESSAGE_ADVISOR_BUTTONS, 12, button_advisor, button_none, ADVISOR_TRADE, 0, 1, 0, 0, 0},
     {522, 252, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1, 0, 0, 0},
 };
@@ -44,7 +44,7 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (image_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, image_buttons, 2, 0)) {
         return;
@@ -66,12 +66,11 @@ static void button_close(__attribute__((unused)) int param1, __attribute__((unus
 
 void window_trade_opened_show(struct empire_object_t *trade_city)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_TRADE_OPENED,
         draw_background,
         draw_foreground,
         handle_input,
-        0
     };
     selected_trade_city = trade_city;
     window_show(&window);

@@ -28,11 +28,11 @@ enum {
     EDGE_NO_NATIVE_LAND = 0x7f,
 };
 
-static grid_u8 edge_grid;
-static grid_u8 bitfields_grid;
+static struct grid_u8_t edge_grid;
+static struct grid_u8_t bitfields_grid;
 
-static grid_u8 edge_backup;
-static grid_u8 bitfields_backup;
+static struct grid_u8_t edge_backup;
+static struct grid_u8_t bitfields_backup;
 
 static int edge_for(int x, int y)
 {
@@ -213,13 +213,13 @@ void map_property_restore(void)
     map_grid_copy_u8(edge_backup.items, edge_grid.items);
 }
 
-void map_property_save_state(buffer *bitfields, buffer *edge)
+void map_property_save_state(struct buffer_t *bitfields, struct buffer_t *edge)
 {
     map_grid_save_state_u8(bitfields_grid.items, bitfields);
     map_grid_save_state_u8(edge_grid.items, edge);
 }
 
-void map_property_load_state(buffer *bitfields, buffer *edge)
+void map_property_load_state(struct buffer_t *bitfields, struct buffer_t *edge)
 {
     map_grid_load_state_u8(bitfields_grid.items, bitfields);
     map_grid_load_state_u8(edge_grid.items, edge);

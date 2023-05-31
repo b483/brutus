@@ -12,8 +12,8 @@ static struct {
     int sidebar_collapsed;
     int orientation;
     struct {
-        view_tile tile;
-        pixel_offset pixel;
+        struct pixel_view_coordinates_t tile;
+        struct pixel_view_coordinates_t pixel;
     } camera;
     struct {
         int x;
@@ -229,7 +229,7 @@ void city_view_get_selected_tile_pixels(int *x_pixels, int *y_pixels)
     *y_pixels = data.selected_tile.y_pixels;
 }
 
-int city_view_pixels_to_view_tile(int x_pixels, int y_pixels, view_tile *tile)
+int city_view_pixels_to_view_tile(int x_pixels, int y_pixels, struct pixel_view_coordinates_t *tile)
 {
     if (x_pixels < data.viewport.x ||
             x_pixels >= data.viewport.x + data.viewport.width_pixels ||
@@ -267,7 +267,7 @@ int city_view_pixels_to_view_tile(int x_pixels, int y_pixels, view_tile *tile)
     return 1;
 }
 
-void city_view_set_selected_view_tile(const view_tile *tile)
+void city_view_set_selected_view_tile(const struct pixel_view_coordinates_t *tile)
 {
     int x_view_offset = tile->x - data.camera.tile.x;
     int y_view_offset = tile->y - data.camera.tile.y;
@@ -279,7 +279,7 @@ void city_view_set_selected_view_tile(const view_tile *tile)
         - HALF_TILE_HEIGHT_PIXELS - data.camera.pixel.y;
 }
 
-int city_view_tile_to_grid_offset(const view_tile *tile)
+int city_view_tile_to_grid_offset(const struct pixel_view_coordinates_t *tile)
 {
     int grid_offset = view_to_grid_offset_lookup[tile->x][tile->y];
     return grid_offset < 0 ? 0 : grid_offset;
@@ -407,7 +407,7 @@ void city_view_toggle_sidebar(void)
     check_camera_boundaries();
 }
 
-void city_view_save_state(buffer *orientation, buffer *camera)
+void city_view_save_state(struct buffer_t *orientation, struct buffer_t *camera)
 {
     buffer_write_i32(orientation, data.orientation);
 
@@ -415,7 +415,7 @@ void city_view_save_state(buffer *orientation, buffer *camera)
     buffer_write_i32(camera, data.camera.tile.y);
 }
 
-void city_view_load_state(buffer *orientation, buffer *camera)
+void city_view_load_state(struct buffer_t *orientation, struct buffer_t *camera)
 {
     data.orientation = buffer_read_i32(orientation);
     city_view_load_scenario_state(camera);
@@ -428,13 +428,13 @@ void city_view_load_state(buffer *orientation, buffer *camera)
     }
 }
 
-void city_view_save_scenario_state(buffer *camera)
+void city_view_save_scenario_state(struct buffer_t *camera)
 {
     buffer_write_i32(camera, data.camera.tile.x);
     buffer_write_i32(camera, data.camera.tile.y);
 }
 
-void city_view_load_scenario_state(buffer *camera)
+void city_view_load_scenario_state(struct buffer_t *camera)
 {
     data.camera.tile.x = buffer_read_i32(camera);
     data.camera.tile.y = buffer_read_i32(camera);

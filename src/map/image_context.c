@@ -324,9 +324,9 @@ static int context_matches_tiles(const struct terrain_image_context *context, co
     return 1;
 }
 
-static const terrain_image *get_image(int group, int tiles[MAX_TILES])
+static const struct terrain_image_t *get_image(int group, int tiles[MAX_TILES])
 {
-    static terrain_image result;
+    static struct terrain_image_t result;
 
     result.is_valid = 0;
     struct terrain_image_context *context = context_pointers[group].context;
@@ -347,7 +347,7 @@ static const terrain_image *get_image(int group, int tiles[MAX_TILES])
     return &result;
 }
 
-const terrain_image *map_image_context_get_elevation(int grid_offset, int elevation)
+const struct terrain_image_t *map_image_context_get_elevation(int grid_offset, int elevation)
 {
     int tiles[MAX_TILES];
     for (int i = 0; i < MAX_TILES; i++) {
@@ -356,7 +356,7 @@ const terrain_image *map_image_context_get_elevation(int grid_offset, int elevat
     return get_image(CONTEXT_ELEVATION, tiles);
 }
 
-const terrain_image *map_image_context_get_earthquake(int grid_offset)
+const struct terrain_image_t *map_image_context_get_earthquake(int grid_offset)
 {
     int tiles[MAX_TILES];
     for (int i = 0; i < MAX_TILES; i++) {
@@ -374,21 +374,21 @@ static void fill_matches(int grid_offset, int terrain, int match_value, int no_m
     }
 }
 
-const terrain_image *map_image_context_get_shore(int grid_offset)
+const struct terrain_image_t *map_image_context_get_shore(int grid_offset)
 {
     int tiles[MAX_TILES];
     fill_matches(grid_offset, TERRAIN_WATER, 0, 1, tiles);
     return get_image(CONTEXT_WATER, tiles);
 }
 
-const terrain_image *map_image_context_get_wall(int grid_offset)
+const struct terrain_image_t *map_image_context_get_wall(int grid_offset)
 {
     int tiles[MAX_TILES];
     fill_matches(grid_offset, TERRAIN_WALL, 0, 1, tiles);
     return get_image(CONTEXT_WALL, tiles);
 }
 
-const terrain_image *map_image_context_get_wall_gatehouse(int grid_offset)
+const struct terrain_image_t *map_image_context_get_wall_gatehouse(int grid_offset)
 {
     int tiles[MAX_TILES] = {0,0,0,0,0,0,0,0};
     for (int i = 0; i < MAX_TILES; i += 2) {
@@ -422,14 +422,14 @@ static void set_tiles_road(int grid_offset, int tiles[MAX_TILES])
     }
 }
 
-const terrain_image *map_image_context_get_dirt_road(int grid_offset)
+const struct terrain_image_t *map_image_context_get_dirt_road(int grid_offset)
 {
     int tiles[MAX_TILES];
     set_tiles_road(grid_offset, tiles);
     return get_image(CONTEXT_DIRT_ROAD, tiles);
 }
 
-const terrain_image *map_image_context_get_paved_road(int grid_offset)
+const struct terrain_image_t *map_image_context_get_paved_road(int grid_offset)
 {
     int tiles[MAX_TILES];
     set_tiles_road(grid_offset, tiles);
@@ -470,7 +470,7 @@ static void set_terrain_reservoir(
     }
 }
 
-const terrain_image *map_image_context_get_aqueduct(int grid_offset, int include_construction)
+const struct terrain_image_t *map_image_context_get_aqueduct(int grid_offset, int include_construction)
 {
     int tiles[MAX_TILES] = {0,0,0,0,0,0,0,0};
     int has_road = map_terrain_is(grid_offset, TERRAIN_ROAD) ? 1 : 0;

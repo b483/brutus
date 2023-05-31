@@ -31,13 +31,13 @@ static void button_hotkey(int row, int is_alternative);
 static void button_reset_defaults(int param1, int param2);
 static void button_close(int save, int param2);
 
-static scrollbar_type scrollbar = { 580, 72, 352, on_scroll, 0, 0, 0, 0, 0, 0 };
+static struct scrollbar_type_t scrollbar = { 580, 72, 352, on_scroll, 0, 0, 0, 0, 0, 0 };
 
-typedef struct {
+struct hotkey_widget_t {
     int action;
-} hotkey_widget;
+};
 
-static hotkey_widget hotkey_widgets[] = {
+static struct hotkey_widget_t hotkey_widgets[] = {
     {HOTKEY_HEADER},
     {HOTKEY_ARROW_UP},
     {HOTKEY_ARROW_DOWN},
@@ -174,7 +174,7 @@ static hotkey_widget hotkey_widgets[] = {
 #define HOTKEY_BTN_WIDTH 150
 #define HOTKEY_BTN_HEIGHT 22
 
-static generic_button hotkey_buttons[] = {
+static struct generic_button_t hotkey_buttons[] = {
     {HOTKEY_X_OFFSET_1, 80 + 24 * 0, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 0, 0},
     {HOTKEY_X_OFFSET_2, 80 + 24 * 0, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 0, 1},
     {HOTKEY_X_OFFSET_1, 80 + 24 * 1, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 1, 0},
@@ -205,7 +205,7 @@ static generic_button hotkey_buttons[] = {
     {HOTKEY_X_OFFSET_2, 80 + 24 * 13, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 13, 1},
 };
 
-static generic_button bottom_buttons[] = {
+static struct generic_button_t bottom_buttons[] = {
     {230, 430, 180, 30, button_reset_defaults, button_none, 0, 0},
     {415, 430, 100, 30, button_close, button_none, 0, 0},
     {520, 430, 100, 30, button_close, button_none, 1, 0},
@@ -214,7 +214,7 @@ static generic_button bottom_buttons[] = {
 static struct {
     int focus_button;
     int bottom_focus_button;
-    hotkey_mapping mappings[HOTKEY_MAX_ITEMS][2];
+    struct hotkey_mapping_t mappings[HOTKEY_MAX_ITEMS][2];
 } data;
 
 static uint8_t hotkey_strings[][28] = {
@@ -283,12 +283,12 @@ static uint8_t hotkey_widget_strings[][29] = {
 
 static void init(void)
 {
-    scrollbar_init(&scrollbar, 0, sizeof(hotkey_widgets) / sizeof(hotkey_widget) - NUM_VISIBLE_OPTIONS);
+    scrollbar_init(&scrollbar, 0, sizeof(hotkey_widgets) / sizeof(struct hotkey_widget_t) - NUM_VISIBLE_OPTIONS);
 
     for (int i = 0; i < HOTKEY_MAX_ITEMS; i++) {
-        hotkey_mapping empty = { KEY_TYPE_NONE, KEY_MOD_NONE, i };
+        struct hotkey_mapping_t empty = { KEY_TYPE_NONE, KEY_MOD_NONE, i };
 
-        const hotkey_mapping *mapping = hotkey_for_action(i, 0);
+        const struct hotkey_mapping_t *mapping = hotkey_for_action(i, 0);
         data.mappings[i][0] = mapping ? *mapping : empty;
 
         mapping = hotkey_for_action(i, 1);
@@ -315,7 +315,7 @@ static void draw_background(void)
     int y_base = 80;
     for (int i = 0; i < NUM_VISIBLE_OPTIONS; i++) {
         int current_pos = i + scrollbar.scroll_position;
-        hotkey_widget *widget = &hotkey_widgets[current_pos];
+        struct hotkey_widget_t *widget = &hotkey_widgets[current_pos];
         int text_offset = y_base + 6 + 24 * i;
         if (current_pos == 0 || current_pos == 5 || current_pos == 12 || current_pos == 25
         || current_pos == 31 || current_pos == 40 || current_pos == 42 || current_pos == 46) { // headers
@@ -327,7 +327,7 @@ static void draw_background(void)
                 int building_index = align_bulding_type_index_to_strings(current_pos - 50);
                 text_draw(all_buildings_strings[building_index], 32, text_offset, FONT_NORMAL_GREEN, 0); // reuse building strings
             }
-            const hotkey_mapping *mapping1 = &data.mappings[widget->action][0];
+            const struct hotkey_mapping_t *mapping1 = &data.mappings[widget->action][0];
             if (mapping1->key) {
                 const uint8_t *keyname = key_combination_display_name(mapping1->key, mapping1->modifiers);
                 graphics_set_clip_rectangle(HOTKEY_X_OFFSET_1, text_offset, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT);
@@ -335,7 +335,7 @@ static void draw_background(void)
                 graphics_reset_clip_rectangle();
             }
 
-            const hotkey_mapping *mapping2 = &data.mappings[widget->action][1];
+            const struct hotkey_mapping_t *mapping2 = &data.mappings[widget->action][1];
             if (mapping2->key) {
                 graphics_set_clip_rectangle(HOTKEY_X_OFFSET_2, text_offset, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT);
                 const uint8_t *keyname = key_combination_display_name(mapping2->key, mapping2->modifiers);
@@ -359,9 +359,9 @@ static void draw_foreground(void)
     scrollbar_draw(&scrollbar);
 
     for (int i = 0; i < NUM_VISIBLE_OPTIONS; i++) {
-        hotkey_widget *widget = &hotkey_widgets[i + scrollbar.scroll_position];
+        struct hotkey_widget_t *widget = &hotkey_widgets[i + scrollbar.scroll_position];
         if (widget->action != HOTKEY_HEADER) {
-            generic_button *btn = &hotkey_buttons[2 * i];
+            struct generic_button_t *btn = &hotkey_buttons[2 * i];
             button_border_draw(btn->x, btn->y, btn->width, btn->height, data.focus_button == 1 + 2 * i);
             btn++;
             button_border_draw(btn->x, btn->y, btn->width, btn->height, data.focus_button == 2 + 2 * i);
@@ -376,9 +376,9 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    const mouse *m_dialog = mouse_in_dialog(m);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (scrollbar_handle_mouse(&scrollbar, m_dialog)) {
         return;
     }
@@ -393,7 +393,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static void set_hotkey(hotkey_action action, int index, key_type key, key_modifier_type modifiers)
+static void set_hotkey(int action, int index, int key, int modifiers)
 {
     // clear conflicting mappings
     for (int i = 0; i < HOTKEY_MAX_ITEMS; i++) {
@@ -411,7 +411,7 @@ static void set_hotkey(hotkey_action action, int index, key_type key, key_modifi
 
 static void button_hotkey(int row, int is_alternative)
 {
-    hotkey_widget *widget = &hotkey_widgets[row + scrollbar.scroll_position];
+    struct hotkey_widget_t *widget = &hotkey_widgets[row + scrollbar.scroll_position];
     if (widget->action == HOTKEY_HEADER) {
         return;
     }
@@ -453,12 +453,11 @@ static void button_close(int save, __attribute__((unused)) int param2)
 
 void window_hotkey_config_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_HOTKEY_CONFIG,
         draw_background,
         draw_foreground,
         handle_input,
-        0
     };
     init();
     window_show(&window);

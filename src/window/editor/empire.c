@@ -26,14 +26,14 @@ static void set_resource_buy_limit(int resource, int param2);
 static void set_trade_route_cost(int param1, int param2);
 static void set_expansion_year_offset(int param1, int param2);
 
-static arrow_button arrow_buttons_empire[] = {
+static struct arrow_button_t arrow_buttons_empire[] = {
     {28, -52, 17, 24, button_change_empire, -1, 0, 0, 0},
     {52, -52, 15, 24, button_change_empire, 1, 0, 0, 0}
 };
-static arrow_button arrow_buttons_set_city_type[] = {
+static struct arrow_button_t arrow_buttons_set_city_type[] = {
     {0, 0, 21, 24, set_city_type, 0, 0, 0, 0}
 };
-static generic_button button_toggle_sell_resource_limit[] = {
+static struct generic_button_t button_toggle_sell_resource_limit[] = {
     {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
     {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
     {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
@@ -50,7 +50,7 @@ static generic_button button_toggle_sell_resource_limit[] = {
     {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
     {0, 0, 26, 26, set_resource_sell_limit, button_none, 0, 0},
 };
-static generic_button button_toggle_buy_resource_limit[] = {
+static struct generic_button_t button_toggle_buy_resource_limit[] = {
     {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
     {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
     {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
@@ -67,10 +67,10 @@ static generic_button button_toggle_buy_resource_limit[] = {
     {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
     {0, 0, 26, 26, set_resource_buy_limit, button_none, 0, 0},
 };
-static generic_button button_set_trade_route_cost[] = {
+static struct generic_button_t button_set_trade_route_cost[] = {
     {0, 0, 65, 26, set_trade_route_cost, button_none, 0, 0},
 };
-static generic_button button_set_expansion_year[] = {
+static struct generic_button_t button_set_expansion_year[] = {
     {0, 0, 38, 26, set_expansion_year_offset, button_none, 0, 0},
 };
 
@@ -190,7 +190,7 @@ static void draw_empire_objects(void)
                     empire_objects[i].type == EMPIRE_OBJECT_ROMAN_ARMY ? COLOR_WHITE : COLOR_FONT_RED);
             }
             image_draw(empire_objects[i].image_id, data.x_draw_offset + empire_objects[i].x, data.y_draw_offset + empire_objects[i].y);
-            const image *img = image_get(empire_objects[i].image_id);
+            const struct image_t *img = image_get(empire_objects[i].image_id);
             if (img->animation_speed_id) {
                 image_draw(empire_objects[i].image_id + empire_object_update_animation(&empire_objects[i], empire_objects[i].image_id),
                     data.x_draw_offset + empire_objects[i].x + img->sprite_offset_x,
@@ -365,9 +365,9 @@ static int is_outside_map(int x, int y)
             y < data.y_min + 16 || y >= data.y_max - 120);
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    pixel_offset position;
+    struct pixel_view_coordinates_t position;
     if (scroll_get_delta(m, &position, SCROLL_TYPE_EMPIRE)) {
         empire_scroll_map(position.x, position.y);
     }
@@ -405,10 +405,10 @@ static void handle_input(const mouse *m, const hotkeys *h)
     if (data.selected_object && data.selected_object->type == EMPIRE_OBJECT_CITY) {
         if (data.selected_object->trade_route_id) {
             arrow_buttons_handle_mouse(m, 0, 0, arrow_buttons_set_city_type, 1, 0);
-            if (generic_buttons_handle_mouse(m, 0, 0, button_toggle_sell_resource_limit, sizeof(button_toggle_sell_resource_limit) / sizeof(generic_button), 0)) {
+            if (generic_buttons_handle_mouse(m, 0, 0, button_toggle_sell_resource_limit, sizeof(button_toggle_sell_resource_limit) / sizeof(struct generic_button_t), 0)) {
                 return;
             }
-            if (generic_buttons_handle_mouse(m, 0, 0, button_toggle_buy_resource_limit, sizeof(button_toggle_buy_resource_limit) / sizeof(generic_button), 0)) {
+            if (generic_buttons_handle_mouse(m, 0, 0, button_toggle_buy_resource_limit, sizeof(button_toggle_buy_resource_limit) / sizeof(struct generic_button_t), 0)) {
                 return;
             }
             if (generic_buttons_handle_mouse(m, 0, 0, button_set_trade_route_cost, 1, &data.focus_trade_route_cost_button_id)) {
@@ -532,12 +532,11 @@ static void set_expansion_year_offset(__attribute__((unused)) int param1, __attr
 
 void window_editor_empire_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_EMPIRE,
         draw_background,
         draw_foreground,
         handle_input,
-        0
     };
     init();
     window_show(&window);

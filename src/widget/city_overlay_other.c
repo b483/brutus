@@ -113,157 +113,42 @@ static int get_column_height_none(__attribute__((unused)) const struct building_
     return NO_COLUMN;
 }
 
-static void add_god(tooltip_context *c, int god_id)
+const struct city_overlay_t *city_overlay_for_religion(void)
 {
-    int index = c->num_extra_texts;
-    c->extra_text_groups[index] = 59;
-    c->extra_text_ids[index] = 11 + god_id;
-    c->num_extra_texts++;
-}
-
-static int get_tooltip_religion(tooltip_context *c, const struct building_t *b)
-{
-    if (b->data.house.num_gods < 5) {
-        if (b->data.house.temple_ceres) {
-            add_god(c, GOD_CERES);
-        }
-        if (b->data.house.temple_neptune) {
-            add_god(c, GOD_NEPTUNE);
-        }
-        if (b->data.house.temple_mercury) {
-            add_god(c, GOD_MERCURY);
-        }
-        if (b->data.house.temple_mars) {
-            add_god(c, GOD_MARS);
-        }
-        if (b->data.house.temple_venus) {
-            add_god(c, GOD_VENUS);
-        }
-    }
-    if (b->data.house.num_gods <= 0) {
-        return 12;
-    } else if (b->data.house.num_gods == 1) {
-        return 13;
-    } else if (b->data.house.num_gods == 2) {
-        return 14;
-    } else if (b->data.house.num_gods == 3) {
-        return 15;
-    } else if (b->data.house.num_gods == 4) {
-        return 16;
-    } else if (b->data.house.num_gods == 5) {
-        return 17;
-    } else {
-        return 18; // >5 gods, shouldn't happen...
-    }
-}
-
-static int get_tooltip_food_stocks(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
-{
-    if (b->house_population <= 0) {
-        return 0;
-    }
-    if (!house_properties[b->subtype.house_level].food_types) {
-        return 104;
-    } else {
-        int stocks_present = 0;
-        for (int i = INVENTORY_WHEAT; i <= INVENTORY_MEAT; i++) {
-            stocks_present += b->data.house.inventory[i];
-        }
-        int stocks_per_pop = calc_percentage(stocks_present, b->house_population);
-        if (stocks_per_pop <= 0) {
-            return 4;
-        } else if (stocks_per_pop < 100) {
-            return 5;
-        } else if (stocks_per_pop <= 200) {
-            return 6;
-        } else {
-            return 7;
-        }
-    }
-}
-
-static int get_tooltip_tax_income(tooltip_context *c, const struct building_t *b)
-{
-    int denarii = calc_adjust_with_percentage(b->tax_income_or_storage / 2, city_data.finance.tax_percentage);
-    if (denarii > 0) {
-        c->has_numeric_prefix = 1;
-        c->numeric_prefix = denarii;
-        return 45;
-    } else if (b->house_tax_coverage > 0) {
-        return 44;
-    } else {
-        return 43;
-    }
-}
-
-static int get_tooltip_water(__attribute__((unused)) tooltip_context *c, int grid_offset)
-{
-    if (map_terrain_is(grid_offset, TERRAIN_RESERVOIR_RANGE)) {
-        if (map_terrain_is(grid_offset, TERRAIN_FOUNTAIN_RANGE)) {
-            return 2;
-        } else {
-            return 1;
-        }
-    } else if (map_terrain_is(grid_offset, TERRAIN_FOUNTAIN_RANGE)) {
-        return 3;
-    }
-    return 0;
-}
-
-static int get_tooltip_desirability(__attribute__((unused)) tooltip_context *c, int grid_offset)
-{
-    int desirability = map_desirability_get(grid_offset);
-    if (desirability < 0) {
-        return 91;
-    } else if (desirability == 0) {
-        return 92;
-    } else {
-        return 93;
-    }
-}
-
-const city_overlay *city_overlay_for_religion(void)
-{
-    static city_overlay overlay = {
+    static struct city_overlay_t overlay = {
         OVERLAY_RELIGION,
         COLUMN_TYPE_ACCESS,
         show_building_religion,
         show_figure_religion,
         get_column_height_religion,
         0,
-        get_tooltip_religion,
-        0,
         0
     };
     return &overlay;
 }
 
-const city_overlay *city_overlay_for_food_stocks(void)
+const struct city_overlay_t *city_overlay_for_food_stocks(void)
 {
-    static city_overlay overlay = {
+    static struct city_overlay_t overlay = {
         OVERLAY_FOOD_STOCKS,
         COLUMN_TYPE_RISK,
         show_building_food_stocks,
         show_figure_food_stocks,
         get_column_height_food_stocks,
         0,
-        get_tooltip_food_stocks,
-        0,
         0
     };
     return &overlay;
 }
 
-const city_overlay *city_overlay_for_tax_income(void)
+const struct city_overlay_t *city_overlay_for_tax_income(void)
 {
-    static city_overlay overlay = {
+    static struct city_overlay_t overlay = {
         OVERLAY_TAX_INCOME,
         COLUMN_TYPE_ACCESS,
         show_building_tax_income,
         show_figure_tax_income,
         get_column_height_tax_income,
-        0,
-        get_tooltip_tax_income,
         0,
         0
     };
@@ -363,16 +248,14 @@ static void draw_top_water(int x, int y, int grid_offset)
     }
 }
 
-const city_overlay *city_overlay_for_water(void)
+const struct city_overlay_t *city_overlay_for_water(void)
 {
-    static city_overlay overlay = {
+    static struct city_overlay_t overlay = {
         OVERLAY_WATER,
         COLUMN_TYPE_ACCESS,
         show_building_water,
         show_figure_none,
         get_column_height_none,
-        get_tooltip_water,
-        0,
         draw_footprint_water,
         draw_top_water
     };
@@ -459,16 +342,14 @@ static void draw_top_desirability(int x, int y, int grid_offset)
     }
 }
 
-const city_overlay *city_overlay_for_desirability(void)
+const struct city_overlay_t *city_overlay_for_desirability(void)
 {
-    static city_overlay overlay = {
+    static struct city_overlay_t overlay = {
         OVERLAY_DESIRABILITY,
         COLUMN_TYPE_ACCESS,
         show_building_desirability,
         show_figure_none,
         get_column_height_none,
-        get_tooltip_desirability,
-        0,
         draw_footprint_desirability,
         draw_top_desirability
     };

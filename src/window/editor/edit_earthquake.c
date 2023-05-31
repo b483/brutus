@@ -24,7 +24,7 @@ static void button_earthquake_point(int param1, int param2);
 static void button_delete_earthquake(int param1, int param2);
 
 
-static generic_button buttons_edit_earthquake[] = {
+static struct generic_button_t buttons_edit_earthquake[] = {
     {130, 152, 100, 25, button_earthquake_year, button_none, 0, 0},
     {130, 182, 100, 25, button_earthquake_month, button_none, 0, 0},
     {130, 212, 100, 25, button_earthquake_severity, button_none, 0, 0},
@@ -103,9 +103,9 @@ static void scenario_editor_sort_earthquakes(void)
     scenario.is_saved = 0;
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_earthquake, sizeof(buttons_edit_earthquake) / sizeof(generic_button), &data.focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_earthquake, sizeof(buttons_edit_earthquake) / sizeof(struct generic_button_t), &data.focus_button_id)) {
         return;
     }
     if (m->right.went_up || h->escape_pressed) {
@@ -200,12 +200,11 @@ static void button_delete_earthquake(__attribute__((unused)) int param1, __attri
 
 void window_editor_edit_earthquake_show(int id)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_EDIT_EARTHQUAKE,
         window_editor_map_draw_all,
         draw_foreground,
         handle_input,
-        0
     };
     data.id = id;
     for (int i = 0; i <= MAX_EARTHQUAKE_POINTS; i++) {

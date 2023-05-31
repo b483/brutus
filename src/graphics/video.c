@@ -21,7 +21,7 @@ static struct {
         int height;
         int y_scale;
         int micros_per_frame;
-        time_millis start_render_millis;
+        uint32_t start_render_millis;
         int current_frame;
     } video;
     struct {
@@ -154,7 +154,7 @@ static int get_next_frame(void)
     if (!data.s) {
         return 0;
     }
-    time_millis now_millis = time_get_millis();
+    uint32_t now_millis = time_get_millis();
 
     int frame_no = (now_millis - data.video.start_render_millis) * 1000 / data.video.micros_per_frame;
     int draw_frame = data.video.current_frame == 0;
@@ -184,7 +184,7 @@ void video_draw(int x_offset, int y_offset)
     if (!get_next_frame()) {
         return;
     }
-    const clip_info *clip = graphics_get_clip_info(x_offset, y_offset, data.video.width, data.video.height);
+    const struct clip_info_t *clip = graphics_get_clip_info(x_offset, y_offset, data.video.width, data.video.height);
     if (!clip->is_visible) {
         return;
     }
@@ -221,7 +221,7 @@ void video_draw_fullscreen(void)
         int video_height = (int) (scale * data.video.height);
         int x_offset = (s_width - video_width) / 2;
         int y_offset = (s_height - video_height) / 2;
-        const clip_info *clip = graphics_get_clip_info(x_offset, y_offset, video_width, video_height);
+        const struct clip_info_t *clip = graphics_get_clip_info(x_offset, y_offset, video_width, video_height);
         if (!clip->is_visible) {
             return;
         }

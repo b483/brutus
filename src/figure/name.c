@@ -167,7 +167,7 @@ int get_figure_name_id(struct figure_t *f)
     }
 }
 
-void figure_name_save_state(buffer *buf)
+void figure_name_save_state(struct buffer_t *buf)
 {
     buffer_write_i32(buf, data.citizen_male);
     buffer_write_i32(buf, data.patrician);
@@ -190,7 +190,7 @@ void figure_name_save_state(buffer *buf)
     buffer_write_i32(buf, data.ship);
 }
 
-void figure_name_load_state(buffer *buf)
+void figure_name_load_state(struct buffer_t *buf)
 {
     data.citizen_male = buffer_read_i32(buf);
     data.patrician = buffer_read_i32(buf);

@@ -90,7 +90,7 @@ struct earthquake_t {
     uint8_t delay;
     uint8_t max_delay;
     uint8_t point;
-    map_point branch_coordinates[MAX_EARTHQUAKE_BRANCHES];
+    struct map_point_t branch_coordinates[MAX_EARTHQUAKE_BRANCHES];
 };
 
 struct invasion_t {
@@ -173,14 +173,14 @@ struct scenario_t {
     uint8_t invasion_upcoming;
     struct price_change_t price_changes[MAX_PRICE_CHANGES];
     struct demand_change_t demand_changes[MAX_DEMAND_CHANGES];
-    map_point earthquake_points[MAX_EARTHQUAKE_POINTS];
-    map_point invasion_points[MAX_INVASION_POINTS];
-    map_point entry_point;
-    map_point exit_point;
-    map_point river_entry_point;
-    map_point river_exit_point;
-    map_point herd_points[MAX_HERD_POINTS];
-    map_point fishing_points[MAX_FISH_POINTS];
+    struct map_point_t earthquake_points[MAX_EARTHQUAKE_POINTS];
+    struct map_point_t invasion_points[MAX_INVASION_POINTS];
+    struct map_point_t entry_point;
+    struct map_point_t exit_point;
+    struct map_point_t river_entry_point;
+    struct map_point_t river_exit_point;
+    struct map_point_t herd_points[MAX_HERD_POINTS];
+    struct map_point_t fishing_points[MAX_FISH_POINTS];
     struct {
         uint32_t hut;
         uint32_t meeting;

@@ -15,7 +15,7 @@
 
 static int get_education_advice(void)
 {
-    const house_demands *demands = city_houses_demands();
+    const struct house_demands_t *demands = city_houses_demands();
     if (demands->education == 1) {
         return demands->requiring.school ? 1 : 0;
     } else if (demands->education == 2) {
@@ -128,11 +128,10 @@ static int draw_background(void)
     return ADVISOR_HEIGHT;
 }
 
-const advisor_window_type *window_advisor_education(void)
+struct advisor_window_type_t *window_advisor_education(void)
 {
-    static const advisor_window_type window = {
+    static struct advisor_window_type_t window = {
         draw_background,
-        0,
         0,
         0
     };

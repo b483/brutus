@@ -4,7 +4,7 @@
 
 #define FRAME_TIME 16.67
 
-void speed_clear(speed_type *speed)
+void speed_clear(struct speed_type_t *speed)
 {
     speed->cumulative_delta = 0.0;
     speed->fine_position = 0.0;
@@ -16,17 +16,17 @@ void speed_clear(speed_type *speed)
     speed->last_speed_check = time_get_millis();
 }
 
-static double adjust_speed_for_elapsed_time(double delta, int adjust_for_time, time_millis last_time)
+static double adjust_speed_for_elapsed_time(double delta, int adjust_for_time, uint32_t last_time)
 {
     return adjust_for_time ? (delta / FRAME_TIME) * (time_get_millis() - last_time) : delta;
 }
 
-static double adjust_speed_for_frame_time(double delta, int adjust_for_time, time_millis last_time)
+static double adjust_speed_for_frame_time(double delta, int adjust_for_time, uint32_t last_time)
 {
     return adjust_for_time ? ((delta / (double) (time_get_millis() - last_time)) * FRAME_TIME) : delta;
 }
 
-void speed_set_target(speed_type *speed, double new_speed, time_millis total_time, int adjust_for_time)
+void speed_set_target(struct speed_type_t *speed, double new_speed, uint32_t total_time, int adjust_for_time)
 {
     speed->adjust_for_time = adjust_for_time;
     if (new_speed == speed->desired_speed) {
@@ -52,12 +52,12 @@ void speed_set_target(speed_type *speed, double new_speed, time_millis total_tim
     speed->total_time = total_time;
 }
 
-void speed_invert(speed_type *speed)
+void speed_invert(struct speed_type_t *speed)
 {
     speed_set_target(speed, -speed->current_speed, SPEED_CHANGE_IMMEDIATE, speed->adjust_for_time);
 }
 
-speed_direction speed_get_current_direction(const speed_type *speed)
+int speed_get_current_direction(const struct speed_type_t *speed)
 {
     if (!speed->current_speed) {
         return SPEED_DIRECTION_STOPPED;
@@ -65,7 +65,7 @@ speed_direction speed_get_current_direction(const speed_type *speed)
     return (speed->current_speed > 0) ? SPEED_DIRECTION_POSITIVE : SPEED_DIRECTION_NEGATIVE;
 }
 
-static int handle_fine_position(speed_type *speed, double delta)
+static int handle_fine_position(struct speed_type_t *speed, double delta)
 {
     int delta_rounded = (int) delta;
     speed->fine_position += delta - delta_rounded;
@@ -74,13 +74,13 @@ static int handle_fine_position(speed_type *speed, double delta)
     return delta_rounded + extra_position;
 }
 
-int speed_get_delta(speed_type *speed)
+int speed_get_delta(struct speed_type_t *speed)
 {
     if (speed->adjust_for_time && speed->last_speed_check == time_get_millis()) {
         return 0;
     }
     double delta;
-    time_millis elapsed = time_get_millis() - speed->start_time;
+    uint32_t elapsed = time_get_millis() - speed->start_time;
     double desired = 0.0;
     desired = adjust_speed_for_elapsed_time(speed->desired_speed, speed->adjust_for_time, speed->last_speed_check);
     if (speed->total_time == SPEED_CHANGE_IMMEDIATE) {

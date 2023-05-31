@@ -17,7 +17,7 @@ static void button_cancel(int param1, int param2);
 static void input_number(int number);
 static void input_accept(void);
 
-static generic_button buttons[] = {
+static struct generic_button_t buttons[] = {
     {21, 51, 25, 25, button_number, button_none, 1, 0},
     {51, 51, 25, 25, button_number, button_none, 2, 0},
     {81, 51, 25, 25, button_number, button_none, 3, 0},
@@ -102,7 +102,7 @@ static void draw_foreground(void)
             data.focus_button_id == 12 ? COLOR_FONT_BLUE : COLOR_BLACK);
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (generic_buttons_handle_mouse(m, data.x, data.y, buttons, 12, &data.focus_button_id)) {
         return;
@@ -150,12 +150,11 @@ static void input_accept(void)
 
 void window_numeric_input_show(int x, int y, int max_digits, int max_value, void (*callback)(int))
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_NUMERIC_INPUT,
         window_draw_underlying_window,
         draw_foreground,
         handle_input,
-        0
     };
     init(x, y, max_digits, max_value, callback);
     window_show(&window);

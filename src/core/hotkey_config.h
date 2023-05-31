@@ -3,7 +3,7 @@
 
 #include "input/keys.h"
 
-typedef enum {
+enum {
     HOTKEY_ARROW_UP,
     HOTKEY_ARROW_DOWN,
     HOTKEY_ARROW_LEFT,
@@ -126,13 +126,13 @@ typedef enum {
     HOTKEY_CHEAT_INVASION,
     HOTKEY_CHEAT_VICTORY,
     HOTKEY_MAX_ITEMS
-} hotkey_action;
+};
 
-typedef struct {
-    key_type key;
-    key_modifier_type modifiers;
-    hotkey_action action;
-} hotkey_mapping;
+struct hotkey_mapping_t {
+    int key;
+    int modifiers;
+    int action;
+};
 
 /**
  * Get mapping for action at the specified index
@@ -140,7 +140,7 @@ typedef struct {
  * @param index Index
  * @return Mapping or NULL if not set
  */
-const hotkey_mapping *hotkey_for_action(hotkey_action action, int index);
+const struct hotkey_mapping_t *hotkey_for_action(int action, int index);
 
 /**
  * Get default mapping for action
@@ -148,7 +148,7 @@ const hotkey_mapping *hotkey_for_action(hotkey_action action, int index);
  * @param index Index, can be 0 or 1
  * @return Mapping, may be an empty mapping. Only returns NULL on invalid input
  */
-const hotkey_mapping *hotkey_default_for_action(hotkey_action action, int index);
+const struct hotkey_mapping_t *hotkey_default_for_action(int action, int index);
 
 /**
  * Clear all hotkey mappings
@@ -159,7 +159,7 @@ void hotkey_config_clear(void);
  * Add a mapping
  * @param mapping Mapping to add
  */
-void hotkey_config_add_mapping(const hotkey_mapping *mapping);
+void hotkey_config_add_mapping(const struct hotkey_mapping_t *mapping);
 
 /**
  * Load hotkey config from file and install hotkeys

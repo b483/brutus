@@ -29,7 +29,7 @@ static void button_time_limit_years(int param1, int param2);
 static void button_survival_toggle(int param1, int param2);
 static void button_survival_years(int param1, int param2);
 
-static generic_button buttons_win_criteria[] = {
+static struct generic_button_t buttons_win_criteria[] = {
     {260, 62, 80, 30, button_population_toggle, button_none, 0, 0},
     {360, 62, 150, 30, button_population_value, button_none, 0, 0},
     {260, 102, 80, 30, button_rating_toggle, button_none, RATING_CULTURE, 0},
@@ -110,9 +110,9 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_win_criteria, sizeof(buttons_win_criteria) / sizeof(generic_button), &focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_win_criteria, sizeof(buttons_win_criteria) / sizeof(struct generic_button_t), &focus_button_id)) {
         return;
     }
     if (m->right.went_up || h->escape_pressed) {
@@ -245,12 +245,11 @@ static void button_survival_years(__attribute__((unused)) int param1, __attribut
 
 void window_editor_win_criteria_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_WIN_CRITERIA,
         window_editor_map_draw_all,
         draw_foreground,
         handle_input,
-        0
     };
     window_show(&window);
 }

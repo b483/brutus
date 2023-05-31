@@ -11,7 +11,7 @@
 
 static const int ADJACENT_OFFSETS[] = {-GRID_SIZE, 1, GRID_SIZE, -1};
 
-static grid_u8 network;
+static struct grid_u8_t network;
 
 static struct {
     int items[MAX_QUEUE];

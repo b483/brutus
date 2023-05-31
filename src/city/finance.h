@@ -21,7 +21,7 @@ void city_finance_handle_month_change(void);
 
 void city_finance_handle_year_change(void);
 
-typedef struct {
+struct finance_overview_t {
     struct {
         int taxes;
         int exports;
@@ -40,7 +40,7 @@ typedef struct {
     } expenses;
     int net_in_out;
     int balance;
-} finance_overview;
+};
 
 void distribute_treasury(void);
 

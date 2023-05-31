@@ -32,7 +32,7 @@ static void draw_foreground(void)
     widget_map_editor_draw();
 }
 
-static void handle_hotkeys(const hotkeys *h)
+static void handle_hotkeys(const struct hotkeys_t *h)
 {
     if (h->load_file) {
         window_file_dialog_show(FILE_TYPE_SCENARIO, FILE_DIALOG_LOAD);
@@ -45,7 +45,7 @@ static void handle_hotkeys(const hotkeys *h)
     }
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     handle_hotkeys(h);
     if (widget_top_menu_editor_handle_input(m, h)) {
@@ -75,12 +75,11 @@ void window_editor_map_draw(void)
 
 void window_editor_map_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_MAP,
         draw_background,
         draw_foreground,
         handle_input,
-        0
     };
     window_show(&window);
 }

@@ -12,16 +12,16 @@ enum {
 
 #define DOUBLE_CLICK_TIME 300
 
-static mouse data;
-static mouse dialog;
-static time_millis last_click;
+static struct mouse_t data;
+static struct mouse_t dialog;
+static uint32_t last_click;
 
-const mouse *mouse_get(void)
+const struct mouse_t *mouse_get(void)
 {
     return &data;
 }
 
-static void clear_mouse_button(mouse_button *button)
+static void clear_mouse_button(struct mouse_button_t *button)
 {
     button->is_down = 0;
     button->went_down = 0;
@@ -45,7 +45,7 @@ void mouse_set_left_down(int down)
     data.left.system_change |= down ? SYSTEM_DOWN : SYSTEM_UP;
     data.is_inside_window = 1;
     if (!down) {
-        time_millis now = time_get_millis();
+        uint32_t now = time_get_millis();
         int is_double_click = (last_click < now) && ((now - last_click) <= DOUBLE_CLICK_TIME);
         data.left.system_change |= is_double_click ? SYSTEM_DOUBLE_CLICK : SYSTEM_NONE;
         last_click = now;
@@ -64,7 +64,7 @@ void mouse_set_inside_window(int inside)
     data.is_inside_window = inside;
 }
 
-static void update_button_state(mouse_button *button)
+static void update_button_state(struct mouse_button_t *button)
 {
     button->went_down = (button->system_change & SYSTEM_DOWN) == SYSTEM_DOWN;
     button->went_up = (button->system_change & SYSTEM_UP) == SYSTEM_UP;
@@ -79,7 +79,7 @@ void mouse_determine_button_state(void)
     update_button_state(&data.right);
 }
 
-void mouse_set_scroll(scroll_state state)
+void mouse_set_scroll(int state)
 {
     data.scrolled = state;
     data.is_inside_window = 1;
@@ -103,7 +103,7 @@ void mouse_reset_button_state(void)
     clear_mouse_button(&data.right);
 }
 
-const mouse *mouse_in_dialog(const mouse *m)
+const struct mouse_t *mouse_in_dialog(const struct mouse_t *m)
 {
     dialog.left = m->left;
     dialog.right = m->right;

@@ -3,8 +3,8 @@
 #include "map/ring.h"
 #include "map/routing.h"
 
-grid_u16 terrain_grid;
-static grid_u16 terrain_grid_backup;
+struct grid_u16_t terrain_grid;
+static struct grid_u16_t terrain_grid_backup;
 
 int map_terrain_is(int grid_offset, int terrain)
 {
@@ -242,12 +242,12 @@ void map_terrain_clear(void)
     map_grid_clear_u16(terrain_grid.items);
 }
 
-void map_terrain_save_state(buffer *buf)
+void map_terrain_save_state(struct buffer_t *buf)
 {
     map_grid_save_state_u16(terrain_grid.items, buf);
 }
 
-void map_terrain_load_state(buffer *buf)
+void map_terrain_load_state(struct buffer_t *buf)
 {
     map_grid_load_state_u16(terrain_grid.items, buf);
 }

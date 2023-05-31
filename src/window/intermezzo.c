@@ -14,12 +14,12 @@ static const char SOUND_FILE_LOSE[] = "wavs/lose_game.wav";
 static const char SOUND_FILE_WIN[] = "wavs/actors_great1.wav";
 
 static struct {
-    intermezzo_type type;
+    int type;
     void (*callback)(void);
-    time_millis start_time;
+    uint32_t start_time;
 } data;
 
-static void init(intermezzo_type type, void (*callback)(void))
+static void init(int type, void (*callback)(void))
 {
     data.type = type;
     data.callback = callback;
@@ -50,22 +50,21 @@ static void draw_background(void)
     }
 }
 
-static void handle_input(const mouse *m, __attribute__((unused)) const hotkeys *h)
+static void handle_input(const struct mouse_t *m, __attribute__((unused)) const struct hotkeys_t *h)
 {
-    time_millis current_time = time_get_millis();
+    uint32_t current_time = time_get_millis();
     if (m->right.went_up || current_time - data.start_time > (data.type ? DISPLAY_TIME_MILLIS : 300)) {
         data.callback();
     }
 }
 
-void window_intermezzo_show(intermezzo_type type, void (*callback)(void))
+void window_intermezzo_show(int type, void (*callback)(void))
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_INTERMEZZO,
         draw_background,
         0,
         handle_input,
-        0
     };
     init(type, callback);
     window_show(&window);

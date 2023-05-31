@@ -17,7 +17,7 @@ void map_water_add_building(int building_id, int x, int y, int size, int image_i
     if (!map_grid_is_inside(x, y, size)) {
         return;
     }
-    map_point leftmost;
+    struct map_point_t leftmost;
     switch (city_view_orientation()) {
         case DIR_0_TOP:
             leftmost.x = 0;
@@ -205,7 +205,7 @@ int map_water_determine_orientation_size3(int x, int y, int adjust_xy,
     return 999;
 }
 
-int map_water_get_wharf_for_new_fishing_boat(struct figure_t *boat, map_point *tile)
+int map_water_get_wharf_for_new_fishing_boat(struct figure_t *boat, struct map_point_t *tile)
 {
     struct building_t *wharf = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
@@ -232,7 +232,7 @@ int map_water_get_wharf_for_new_fishing_boat(struct figure_t *boat, map_point *t
     return wharf->id;
 }
 
-int map_water_find_alternative_fishing_boat_tile(struct figure_t *boat, map_point *tile)
+int map_water_find_alternative_fishing_boat_tile(struct figure_t *boat, struct map_point_t *tile)
 {
     if (map_figure_at(boat->grid_offset) == boat->id) {
         return 0;
@@ -254,7 +254,7 @@ int map_water_find_alternative_fishing_boat_tile(struct figure_t *boat, map_poin
     return 0;
 }
 
-int map_water_find_shipwreck_tile(struct figure_t *wreck, map_point *tile)
+int map_water_find_shipwreck_tile(struct figure_t *wreck, struct map_point_t *tile)
 {
     if (map_terrain_is(wreck->grid_offset, TERRAIN_WATER) && map_figure_at(wreck->grid_offset) == wreck->id) {
         return 0;
@@ -293,7 +293,7 @@ static int num_surrounding_water_tiles(int grid_offset)
     return amount;
 }
 
-int map_water_can_spawn_fishing_boat(int x, int y, int size, map_point *tile)
+int map_water_can_spawn_fishing_boat(int x, int y, int size, struct map_point_t *tile)
 {
     int base_offset = map_grid_offset(x, y);
     for (const int *tile_delta = map_grid_adjacent_offsets(size); *tile_delta; tile_delta++) {

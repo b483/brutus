@@ -24,7 +24,7 @@ static struct {
     int y;
 } translation;
 
-static clip_info clip;
+static struct clip_info_t clip;
 
 void graphics_init_canvas(int width, int height)
 {
@@ -153,7 +153,7 @@ static void set_clip_y(int y_offset, int height)
     clip.visible_pixels_y = height - clip.clipped_pixels_top - clip.clipped_pixels_bottom;
 }
 
-const clip_info *graphics_get_clip_info(int x, int y, int width, int height)
+const struct clip_info_t *graphics_get_clip_info(int x, int y, int width, int height)
 {
     set_clip_x(x, width);
     set_clip_y(y, height);
@@ -167,7 +167,7 @@ const clip_info *graphics_get_clip_info(int x, int y, int width, int height)
 
 void graphics_save_to_buffer(int x, int y, int width, int height, color_t *buffer)
 {
-    const clip_info *current_clip = graphics_get_clip_info(x, y, width, height);
+    const struct clip_info_t *current_clip = graphics_get_clip_info(x, y, width, height);
     if (!current_clip->is_visible) {
         return;
     }
@@ -182,7 +182,7 @@ void graphics_save_to_buffer(int x, int y, int width, int height, color_t *buffe
 
 void graphics_draw_from_buffer(int x, int y, int width, int height, const color_t *buffer)
 {
-    const clip_info *current_clip = graphics_get_clip_info(x, y, width, height);
+    const struct clip_info_t *current_clip = graphics_get_clip_info(x, y, width, height);
     if (!current_clip->is_visible) {
         return;
     }
@@ -264,7 +264,7 @@ void graphics_fill_rect(int x, int y, int width, int height, color_t color)
 
 void graphics_shade_rect(int x, int y, int width, int height, int darkness)
 {
-    const clip_info *cur_clip = graphics_get_clip_info(x, y, width, height);
+    const struct clip_info_t *cur_clip = graphics_get_clip_info(x, y, width, height);
     if (!cur_clip->is_visible) {
         return;
     }

@@ -5,7 +5,7 @@
 #include "graphics/panel.h"
 #include "map/water_supply.h"
 
-void window_building_draw_engineers_post(building_info_context *c)
+void window_building_draw_engineers_post(struct building_info_context_t *c)
 {
     c->help_id = 81;
     window_building_play_sound(c, "wavs/eng_post.wav");
@@ -41,7 +41,7 @@ void window_building_draw_engineers_post(building_info_context *c)
     window_building_draw_employment(c, 142);
 }
 
-void window_building_draw_prefect(building_info_context *c)
+void window_building_draw_prefect(struct building_info_context_t *c)
 {
     c->help_id = 86;
     window_building_play_sound(c, "wavs/prefecture.wav");
@@ -76,7 +76,7 @@ void window_building_draw_prefect(building_info_context *c)
     window_building_draw_employment(c, 142);
 }
 
-void window_building_draw_burning_ruin(building_info_context *c)
+void window_building_draw_burning_ruin(struct building_info_context_t *c)
 {
     c->help_id = 0;
     window_building_play_sound(c, "wavs/ruin.wav");
@@ -89,7 +89,7 @@ void window_building_draw_burning_ruin(building_info_context *c)
         BLOCK_SIZE * (c->width_blocks - 4), FONT_NORMAL_BLACK);
 }
 
-void window_building_draw_rubble(building_info_context *c)
+void window_building_draw_rubble(struct building_info_context_t *c)
 {
     c->help_id = 0;
     window_building_play_sound(c, "wavs/ruin.wav");
@@ -102,7 +102,7 @@ void window_building_draw_rubble(building_info_context *c)
         BLOCK_SIZE * (c->width_blocks - 4), FONT_NORMAL_BLACK);
 }
 
-void window_building_draw_reservoir(building_info_context *c)
+void window_building_draw_reservoir(struct building_info_context_t *c)
 {
     c->help_id = 59;
     window_building_play_sound(c, "wavs/resevoir.wav");
@@ -112,7 +112,7 @@ void window_building_draw_reservoir(building_info_context *c)
     window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 173, 107, text_id);
 }
 
-void window_building_draw_aqueduct(building_info_context *c)
+void window_building_draw_aqueduct(struct building_info_context_t *c)
 {
     c->help_id = 60;
     window_building_play_sound(c, "wavs/aquaduct.wav");
@@ -121,7 +121,7 @@ void window_building_draw_aqueduct(building_info_context *c)
     window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 144, 141, c->aqueduct_has_water ? 1 : 2);
 }
 
-void window_building_draw_fountain(building_info_context *c)
+void window_building_draw_fountain(struct building_info_context_t *c)
 {
     c->help_id = 61;
     window_building_play_sound(c, "wavs/fountain.wav");
@@ -145,7 +145,7 @@ void window_building_draw_fountain(building_info_context *c)
     window_building_draw_employment_without_house_cover(c, 172);
 }
 
-void window_building_draw_well(building_info_context *c)
+void window_building_draw_well(struct building_info_context_t *c)
 {
     c->help_id = 62;
     window_building_play_sound(c, "wavs/well.wav");
@@ -165,7 +165,7 @@ void window_building_draw_well(building_info_context *c)
     }
 }
 
-void window_building_draw_mission_post(building_info_context *c)
+void window_building_draw_mission_post(struct building_info_context_t *c)
 {
     c->help_id = 8;
     window_building_play_sound(c, "wavs/mission.wav");
@@ -176,7 +176,7 @@ void window_building_draw_mission_post(building_info_context *c)
     window_building_draw_employment_without_house_cover(c, 142);
 }
 
-static void draw_native(building_info_context *c, int group_id)
+static void draw_native(struct building_info_context_t *c, int group_id)
 {
     c->help_id = 0;
     window_building_play_sound(c, "wavs/empty_land.wav");
@@ -186,17 +186,17 @@ static void draw_native(building_info_context *c, int group_id)
     window_building_draw_description_at(c, 106, group_id, 1);
 }
 
-void window_building_draw_native_hut(building_info_context *c)
+void window_building_draw_native_hut(struct building_info_context_t *c)
 {
     draw_native(c, 131);
 }
 
-void window_building_draw_native_meeting(building_info_context *c)
+void window_building_draw_native_meeting(struct building_info_context_t *c)
 {
     draw_native(c, 132);
 }
 
-void window_building_draw_native_crops(building_info_context *c)
+void window_building_draw_native_crops(struct building_info_context_t *c)
 {
     draw_native(c, 133);
 }

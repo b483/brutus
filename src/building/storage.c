@@ -101,7 +101,7 @@ void building_storage_accept_none(int storage_id)
     }
 }
 
-void building_storage_save_state(buffer *buf)
+void building_storage_save_state(struct buffer_t *buf)
 {
     for (int i = 0; i < MAX_STORAGES; i++) {
         buffer_write_i32(buf, data.storages[i].building_id);
@@ -113,7 +113,7 @@ void building_storage_save_state(buffer *buf)
     }
 }
 
-void building_storage_load_state(buffer *buf)
+void building_storage_load_state(struct buffer_t *buf)
 {
     for (int i = 0; i < MAX_STORAGES; i++) {
         data.storages[i].building_id = buffer_read_i32(buf);

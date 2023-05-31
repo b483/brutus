@@ -30,9 +30,9 @@ static void errlog(const char *msg)
     log_error(msg, 0, 0);
 }
 
-static encoding_type update_encoding(void)
+static int update_encoding(void)
 {
-    encoding_type encoding = encoding_determine();
+    int encoding = encoding_determine();
     log_info("Detected encoding:", 0, encoding);
     font_set_encoding();
     return encoding;

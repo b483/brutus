@@ -435,7 +435,7 @@ void building_clear_related_data(struct building_t *b)
         if (m->in_use) {
             for (int i = 0; i < m->num_figures; i++) {
                 struct figure_t *f = &figures[m->figures[i]];
-                map_point nearest_barracks_road_tile = { 0 };
+                struct map_point_t nearest_barracks_road_tile = { 0 };
                 set_destination__closest_building_of_type(b->id, BUILDING_BARRACKS, &nearest_barracks_road_tile);
                 figure_route_remove(f);
                 if (nearest_barracks_road_tile.x) {
@@ -539,7 +539,7 @@ void building_update_highest_id(void)
     }
 }
 
-void set_destination__closest_building_of_type(int closest_to__building_id, int closest_building_of_type__type, map_point *closest_building_of_type__road_tile)
+void set_destination__closest_building_of_type(int closest_to__building_id, int closest_building_of_type__type, struct map_point_t *closest_building_of_type__road_tile)
 {
     int min_distance = 10000;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
@@ -577,8 +577,8 @@ void building_clear_all(void)
     extra.unfixable_houses = 0;
 }
 
-void building_save_state(buffer *buf, buffer *highest_id, buffer *highest_id_ever,
-                         buffer *sequence, buffer *corrupt_houses)
+void building_save_state(struct buffer_t *buf, struct buffer_t *highest_id, struct buffer_t *highest_id_ever,
+                         struct buffer_t *sequence, struct buffer_t *corrupt_houses)
 {
     for (int i = 0; i < MAX_BUILDINGS; i++) {
         building_state_save_to_buffer(buf, &all_buildings[i]);
@@ -591,8 +591,8 @@ void building_save_state(buffer *buf, buffer *highest_id, buffer *highest_id_eve
     buffer_write_i32(corrupt_houses, extra.unfixable_houses);
 }
 
-void building_load_state(buffer *buf, buffer *highest_id, buffer *highest_id_ever,
-                         buffer *sequence, buffer *corrupt_houses)
+void building_load_state(struct buffer_t *buf, struct buffer_t *highest_id, struct buffer_t *highest_id_ever,
+                         struct buffer_t *sequence, struct buffer_t *corrupt_houses)
 {
     for (int i = 0; i < MAX_BUILDINGS; i++) {
         building_state_load_from_buffer(buf, &all_buildings[i]);

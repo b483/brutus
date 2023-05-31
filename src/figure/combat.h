@@ -16,7 +16,7 @@ int is_valid_target_for_enemy_unit(struct figure_t *target);
 
 struct figure_t *melee_unit__set_closest_target(struct figure_t *f);
 
-int set_missile_target(struct figure_t *shooter, map_point *tile);
+int set_missile_target(struct figure_t *shooter, struct map_point_t *tile);
 
 void melee_attack_figure_at_offset(struct figure_t *f, int grid_offset);
 

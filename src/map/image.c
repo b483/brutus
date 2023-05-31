@@ -2,8 +2,8 @@
 
 #include "map/grid.h"
 
-static grid_u16 images;
-static grid_u16 images_backup;
+static struct grid_u16_t images;
+static struct grid_u16_t images_backup;
 
 int map_image_at(int grid_offset)
 {
@@ -50,12 +50,12 @@ void map_image_init_edges(void)
     images.items[map_grid_offset(width, height)] = 5;
 }
 
-void map_image_save_state(buffer *buf)
+void map_image_save_state(struct buffer_t *buf)
 {
     map_grid_save_state_u16(images.items, buf);
 }
 
-void map_image_load_state(buffer *buf)
+void map_image_load_state(struct buffer_t *buf)
 {
     map_grid_load_state_u16(images.items, buf);
 }

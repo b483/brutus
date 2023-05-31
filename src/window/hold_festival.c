@@ -21,7 +21,7 @@ static void button_select_god(int god, int param2);
 static void button_throw_festival(int size, int cost);
 static void button_help_resource_settings(int param1, int param2);
 
-static generic_button buttons_select_god[] = {
+static struct generic_button_t buttons_select_god[] = {
     {101, 76, 81, 91, button_select_god, button_none, 0, 0},
     {192, 76, 81, 91, button_select_god, button_none, 1, 0},
     {283, 76, 81, 91, button_select_god, button_none, 2, 0},
@@ -29,13 +29,13 @@ static generic_button buttons_select_god[] = {
     {465, 76, 81, 91, button_select_god, button_none, 4, 0},
 };
 
-static generic_button buttons_festival_size[] = {
+static struct generic_button_t buttons_festival_size[] = {
     {100, 183, 448, 26, button_throw_festival, button_none, 1, 0},
     {100, 213, 448, 26, button_throw_festival, button_none, 2, 0},
     {100, 243, 448, 26, button_throw_festival, button_none, 3, 0},
 };
 
-static image_button button_help_hold_festival[] = {
+static struct image_button_t button_help_hold_festival[] = {
     {68, 257, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help_resource_settings, button_none, 0, 0, 1, 0, 0, 0},
 };
 
@@ -99,18 +99,18 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (m->right.went_up || h->escape_pressed) {
         window_advisors_show(ADVISOR_ENTERTAINMENT);
         return;
     }
 
-    const mouse *m_dialog = mouse_in_dialog(m);
-    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_select_god, sizeof(buttons_select_god) / sizeof(generic_button), &focus_id_gods_button)) {
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
+    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_select_god, sizeof(buttons_select_god) / sizeof(struct generic_button_t), &focus_id_gods_button)) {
         return;
     }
-    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_festival_size, sizeof(buttons_festival_size) / sizeof(generic_button), &focus_id_festival_size_button)) {
+    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_festival_size, sizeof(buttons_festival_size) / sizeof(struct generic_button_t), &focus_id_festival_size_button)) {
         return;
     }
     if (image_buttons_handle_mouse(m_dialog, 0, 0, button_help_hold_festival, 1, &focus_help_button_id)) {
@@ -154,33 +154,13 @@ static void button_help_resource_settings(__attribute__((unused)) int param1, __
     window_message_dialog_show(MESSAGE_DIALOG_ADVISOR_ENTERTAINMENT, 0);
 }
 
-static void get_tooltip(tooltip_context *c)
-{
-    if (!focus_help_button_id && !focus_id_gods_button) {
-        return;
-    }
-    c->type = TOOLTIP_BUTTON;
-    switch (focus_id_gods_button) {
-        case 1: c->text_id = 115; return;
-        case 2: c->text_id = 116; return;
-        case 3: c->text_id = 117; return;
-        case 4: c->text_id = 118; return;
-        case 5: c->text_id = 119; return;
-    }
-    if (focus_help_button_id) {
-        c->text_id = 1;
-        return;
-    }
-}
-
 void window_hold_festival_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_HOLD_FESTIVAL,
         window_advisors_draw_dialog_background,
         draw_foreground,
         handle_input,
-        get_tooltip
     };
     init();
     window_show(&window);

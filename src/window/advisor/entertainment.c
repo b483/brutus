@@ -23,7 +23,7 @@
 
 static void button_hold_festival(int param1, int param2);
 
-static generic_button hold_festival_button[] = {
+static struct generic_button_t hold_festival_button[] = {
     {102, 280, 300, 20, button_hold_festival, button_none, 0, 0},
 };
 
@@ -31,7 +31,7 @@ static int focus_button_id;
 
 static int get_entertainment_advice(void)
 {
-    const house_demands *demands = city_houses_demands();
+    struct house_demands_t *demands = city_houses_demands();
     if (demands->missing.entertainment > demands->missing.more_entertainment) {
         return 3;
     } else if (!demands->missing.more_entertainment) {
@@ -170,7 +170,7 @@ static void draw_foreground(void)
     }
 }
 
-static int handle_mouse(const mouse *m)
+static int handle_mouse(const struct mouse_t *m)
 {
     return generic_buttons_handle_mouse(m, 0, 0, hold_festival_button, 1, &focus_button_id);
 }
@@ -182,22 +182,12 @@ static void button_hold_festival(__attribute__((unused)) int param1, __attribute
     }
 }
 
-static int get_tooltip_text(void)
+struct advisor_window_type_t *window_advisor_entertainment(void)
 {
-    if (focus_button_id) {
-        return 112;
-    } else {
-        return 0;
-    }
-}
-
-const advisor_window_type *window_advisor_entertainment(void)
-{
-    static const advisor_window_type window = {
+    static struct advisor_window_type_t window = {
         draw_background,
         draw_foreground,
         handle_mouse,
-        get_tooltip_text
     };
     focus_button_id = 0;
     return &window;

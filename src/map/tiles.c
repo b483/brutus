@@ -491,7 +491,7 @@ static void set_wall_image(__attribute__((unused)) int x, __attribute__((unused)
         map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
         return;
     }
-    const terrain_image *img = map_image_context_get_wall(grid_offset);
+    const struct terrain_image_t *img = map_image_context_get_wall(grid_offset);
     map_image_set(grid_offset, image_group(GROUP_BUILDING_WALL) +
                   img->group_offset + img->item_offset);
     map_property_set_multi_tile_size(grid_offset, 1);
@@ -547,7 +547,7 @@ int map_tiles_is_paved_road(int grid_offset)
     return 0;
 }
 
-static void set_aqueduct_image(int grid_offset, int is_road, const terrain_image *img)
+static void set_aqueduct_image(int grid_offset, int is_road, const struct terrain_image_t *img)
 {
     int group_offset = img->group_offset;
     if (is_road) {
@@ -596,11 +596,11 @@ static void set_road_image(__attribute__((unused)) int x, __attribute__((unused)
         return;
     }
     if (map_tiles_is_paved_road(grid_offset)) {
-        const terrain_image *img = map_image_context_get_paved_road(grid_offset);
+        const struct terrain_image_t *img = map_image_context_get_paved_road(grid_offset);
         map_image_set(grid_offset, image_group(GROUP_TERRAIN_ROAD) +
                       img->group_offset + img->item_offset);
     } else {
-        const terrain_image *img = map_image_context_get_dirt_road(grid_offset);
+        const struct terrain_image_t *img = map_image_context_get_dirt_road(grid_offset);
         map_image_set(grid_offset, image_group(GROUP_TERRAIN_ROAD) +
                       img->group_offset + img->item_offset + 49);
     }
@@ -759,7 +759,7 @@ void map_tiles_update_region_meadow(int x_min, int y_min, int x_max, int y_max)
 static void set_water_image(int x, int y, int grid_offset)
 {
     if ((terrain_grid.items[grid_offset] & (TERRAIN_WATER | TERRAIN_BUILDING)) == TERRAIN_WATER) {
-        const terrain_image *img = map_image_context_get_shore(grid_offset);
+        const struct terrain_image_t *img = map_image_context_get_shore(grid_offset);
         int image_id = image_group(GROUP_TERRAIN_WATER) + img->group_offset + img->item_offset;
         if (map_terrain_exists_tile_in_radius_with_type(x, y, 1, 2, TERRAIN_BUILDING)) {
             // fortified shore
@@ -812,7 +812,7 @@ void map_tiles_set_water(int x, int y)
 
 static void set_aqueduct(int grid_offset)
 {
-    const terrain_image *img = map_image_context_get_aqueduct(grid_offset, aqueduct_include_construction);
+    const struct terrain_image_t *img = map_image_context_get_aqueduct(grid_offset, aqueduct_include_construction);
     int is_road = map_terrain_is(grid_offset, TERRAIN_ROAD);
     if (is_road) {
         map_property_clear_plaza_or_earthquake(grid_offset);
@@ -847,7 +847,7 @@ void map_tiles_update_region_aqueducts(int x_min, int y_min, int x_max, int y_ma
 static void set_earthquake_image(__attribute__((unused)) int x, __attribute__((unused)) int y, int grid_offset)
 {
     if (map_terrain_is(grid_offset, TERRAIN_ROCK) && map_property_is_plaza_or_earthquake(grid_offset)) {
-        const terrain_image *img = map_image_context_get_earthquake(grid_offset);
+        const struct terrain_image_t *img = map_image_context_get_earthquake(grid_offset);
         if (img->is_valid) {
             map_image_set(grid_offset,
                 image_group(GROUP_TERRAIN_EARTHQUAKE) + img->group_offset + img->item_offset);
@@ -997,7 +997,7 @@ static void set_elevation_image(int x, int y, int grid_offset)
     && !map_terrain_is(grid_offset, TERRAIN_ACCESS_RAMP)
     && !map_terrain_is(grid_offset, TERRAIN_WATER)
     && !map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
-        const terrain_image *img = map_image_context_get_elevation(grid_offset, map_elevation_at(grid_offset));
+        const struct terrain_image_t *img = map_image_context_get_elevation(grid_offset, map_elevation_at(grid_offset));
         if (img->group_offset == 44) {
             terrain_grid.items[grid_offset] &= ~TERRAIN_ELEVATION;
             map_property_set_multi_tile_xy(grid_offset, 0, 0, 1);
@@ -1075,7 +1075,7 @@ void map_tiles_add_entry_exit_flags(void)
     }
 }
 
-static void remove_entry_exit_flag(const map_tile *tile)
+static void remove_entry_exit_flag(const struct map_tile_t *tile)
 {
     // re-calculate grid_offset because the stored offset might be invalid
     terrain_grid.items[map_grid_offset(tile->x, tile->y)] &= ~TERRAIN_ROCK;

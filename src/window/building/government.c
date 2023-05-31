@@ -7,7 +7,7 @@
 #include "graphics/panel.h"
 #include "window/building/figures.h"
 
-void window_building_draw_forum(building_info_context *c)
+void window_building_draw_forum(struct building_info_context_t *c)
 {
     c->help_id = 76;
     window_building_play_sound(c, "wavs/forum.wav");
@@ -40,7 +40,7 @@ void window_building_draw_forum(building_info_context *c)
     window_building_draw_employment(c, 142);
 }
 
-void window_building_draw_senate(building_info_context *c)
+void window_building_draw_senate(struct building_info_context_t *c)
 {
     c->can_go_to_advisor = 1;
     c->help_id = 77;
@@ -76,7 +76,7 @@ void window_building_draw_senate(building_info_context *c)
     lang_text_draw(105, 3, c->x_offset + 60, c->y_offset + 220, FONT_NORMAL_BLACK);
 }
 
-void window_building_draw_governor_home(building_info_context *c)
+void window_building_draw_governor_home(struct building_info_context_t *c)
 {
     c->help_id = 78;
     window_building_play_sound(c, "wavs/gov_palace.wav");
@@ -85,7 +85,7 @@ void window_building_draw_governor_home(building_info_context *c)
     window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 143, 103, 1);
 }
 
-void window_building_draw_garden(building_info_context *c)
+void window_building_draw_garden(struct building_info_context_t *c)
 {
     c->help_id = 80;
     window_building_play_sound(c, "wavs/park.wav");
@@ -94,7 +94,7 @@ void window_building_draw_garden(building_info_context *c)
     window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 158, 79, 1);
 }
 
-void window_building_draw_plaza(building_info_context *c)
+void window_building_draw_plaza(struct building_info_context_t *c)
 {
     c->help_id = 80;
     window_building_play_sound(c, "wavs/plaza.wav");
@@ -105,7 +105,7 @@ void window_building_draw_plaza(building_info_context *c)
     window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 113, 137, 1);
 }
 
-void window_building_draw_statue(building_info_context *c)
+void window_building_draw_statue(struct building_info_context_t *c)
 {
     c->help_id = 79;
     window_building_play_sound(c, "wavs/statue.wav");
@@ -114,7 +114,7 @@ void window_building_draw_statue(building_info_context *c)
     window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 158, 80, 1);
 }
 
-void window_building_draw_triumphal_arch(building_info_context *c)
+void window_building_draw_triumphal_arch(struct building_info_context_t *c)
 {
     c->help_id = 79;
     window_building_play_sound(c, "wavs/statue.wav");

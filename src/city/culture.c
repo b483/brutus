@@ -48,7 +48,7 @@ int city_culture_coverage_average_entertainment(void)
     return (coverage.hippodrome + coverage.colosseum + coverage.amphitheater + coverage.theater) / 4;
 }
 
-int city_culture_coverage_religion(god_type god)
+int city_culture_coverage_religion(int god)
 {
     return coverage.religion[god];
 }
@@ -232,7 +232,7 @@ void city_festival_update(void)
     }
 }
 
-void city_culture_save_state(buffer *buf)
+void city_culture_save_state(struct buffer_t *buf)
 {
     buffer_write_i32(buf, coverage.theater);
     buffer_write_i32(buf, coverage.amphitheater);
@@ -248,7 +248,7 @@ void city_culture_save_state(buffer *buf)
     buffer_write_i32(buf, coverage.hospital);
 }
 
-void city_culture_load_state(buffer *buf)
+void city_culture_load_state(struct buffer_t *buf)
 {
     coverage.theater = buffer_read_i32(buf);
     coverage.amphitheater = buffer_read_i32(buf);

@@ -9,16 +9,16 @@
 
 #define MAX_TICKS_PER_FRAME 20
 
-static const time_millis MILLIS_PER_TICK_PER_SPEED[] = {
+static const uint32_t MILLIS_PER_TICK_PER_SPEED[] = {
     702, 502, 352, 242, 162, 112, 82, 57, 37, 22, 16
 };
-static const time_millis MILLIS_PER_HYPER_SPEED[] = {
+static const uint32_t MILLIS_PER_HYPER_SPEED[] = {
     702, 16, 8, 5, 3, 2
 };
 
 static struct {
     int last_check_was_valid;
-    time_millis last_update;
+    uint32_t last_update;
 } data;
 
 int game_speed_get_elapsed_ticks(void)
@@ -60,8 +60,8 @@ int game_speed_get_elapsed_ticks(void)
         return 0;
     }
 
-    time_millis now = time_get_millis();
-    time_millis diff = now - data.last_update;
+    uint32_t now = time_get_millis();
+    uint32_t diff = now - data.last_update;
     data.last_check_was_valid = 1;
     if (!last_check_was_valid) {
         // returning to map from another window or pause: always force a tick

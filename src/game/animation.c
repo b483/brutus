@@ -5,7 +5,7 @@
 #define MAX_ANIM_TIMERS 51
 
 static struct {
-    time_millis last_update;
+    uint32_t last_update;
     int should_update;
 } timers[MAX_ANIM_TIMERS];
 
@@ -19,7 +19,7 @@ void game_animation_init(void)
 
 void game_animation_update(void)
 {
-    time_millis now_millis = time_get_millis();
+    uint32_t now_millis = time_get_millis();
     for (int i = 0; i < MAX_ANIM_TIMERS; i++) {
         timers[i].should_update = 0;
     }

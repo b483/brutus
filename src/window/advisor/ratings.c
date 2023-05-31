@@ -14,7 +14,7 @@
 
 static void button_rating(int rating, int param2);
 
-static generic_button rating_buttons[] = {
+static struct generic_button_t rating_buttons[] = {
     { 80, 286, 110, 66, button_rating, button_none, SELECTED_RATING_CULTURE, 0},
     {200, 286, 110, 66, button_rating, button_none, SELECTED_RATING_PROSPERITY, 0},
     {320, 286, 110, 66, button_rating, button_none, SELECTED_RATING_PEACE, 0},
@@ -145,7 +145,7 @@ static void draw_foreground(void)
     button_border_draw(440, 286, 110, 66, focus_button_id == SELECTED_RATING_FAVOR);
 }
 
-static int handle_mouse(const mouse *m)
+static int handle_mouse(const struct mouse_t *m)
 {
     return generic_buttons_handle_mouse(m, 0, 0, rating_buttons, 4, &focus_button_id);
 }
@@ -156,24 +156,12 @@ static void button_rating(int rating, __attribute__((unused)) int param2)
     window_invalidate();
 }
 
-static int get_tooltip_text(void)
+struct advisor_window_type_t *window_advisor_ratings(void)
 {
-    switch (focus_button_id) {
-        case SELECTED_RATING_CULTURE: return 102;
-        case SELECTED_RATING_PROSPERITY: return 103;
-        case SELECTED_RATING_PEACE: return 104;
-        case SELECTED_RATING_FAVOR: return 105;
-        default: return 0;
-    }
-}
-
-const advisor_window_type *window_advisor_ratings(void)
-{
-    static const advisor_window_type window = {
+    static struct advisor_window_type_t window = {
         draw_background,
         draw_foreground,
         handle_mouse,
-        get_tooltip_text
     };
     return &window;
 }

@@ -16,7 +16,7 @@ static void button_set_amount(int amount_id, int param2);
 static void button_donate(int param1, int param2);
 static void arrow_button_amount(int is_down, int param2);
 
-static generic_button buttons_donate_to_city[] = {
+static struct generic_button_t buttons_donate_to_city[] = {
     {144, 230, 64, 20, button_set_amount, button_none, 0, 0},
     {144, 257, 64, 20, button_set_amount, button_none, 1, 0},
     {224, 230, 64, 20, button_set_amount, button_none, 2, 0},
@@ -25,7 +25,7 @@ static generic_button buttons_donate_to_city[] = {
     {384, 257, 120, 20, button_donate, button_none, 0, 0},
 };
 
-static arrow_button arrow_buttons_donate_to_city[] = {
+static struct arrow_button_t arrow_buttons_donate_to_city[] = {
     {455, 230, 17, 24, arrow_button_amount, -10, 0, 0, 0},
     {479, 230, 15, 24, arrow_button_amount, 10, 0, 0, 0},
 };
@@ -69,7 +69,7 @@ static void draw_foreground(void)
     lang_text_draw(52, 17, 304, 235, FONT_NORMAL_WHITE);
     text_draw_number(city_data.emperor.donate_amount, '@', " ", 394, 235, FONT_NORMAL_GREEN);
 
-    arrow_buttons_draw(0, 0, arrow_buttons_donate_to_city, sizeof(arrow_buttons_donate_to_city) / sizeof(arrow_button));
+    arrow_buttons_draw(0, 0, arrow_buttons_donate_to_city, sizeof(arrow_buttons_donate_to_city) / sizeof(struct arrow_button_t));
 
     // Give money
     button_border_draw(384, 257, 120, 20, data.focus_button_id == 6);
@@ -78,18 +78,18 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (m->right.went_up || h->escape_pressed) {
         window_advisors_show(ADVISOR_IMPERIAL);
         return;
     }
     data.focus_arrow_button_id = 0;
-    const mouse *m_dialog = mouse_in_dialog(m);
-    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_donate_to_city, sizeof(buttons_donate_to_city) / sizeof(generic_button), &data.focus_button_id)) {
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
+    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_donate_to_city, sizeof(buttons_donate_to_city) / sizeof(struct generic_button_t), &data.focus_button_id)) {
         return;
     }
-    if (arrow_buttons_handle_mouse(m_dialog, 0, 0, arrow_buttons_donate_to_city, sizeof(arrow_buttons_donate_to_city) / sizeof(arrow_button), &data.focus_arrow_button_id)) {
+    if (arrow_buttons_handle_mouse(m_dialog, 0, 0, arrow_buttons_donate_to_city, sizeof(arrow_buttons_donate_to_city) / sizeof(struct arrow_button_t), &data.focus_arrow_button_id)) {
         return;
     }
     // exit window on click outside of outer panel boundaries
@@ -128,29 +128,13 @@ static void arrow_button_amount(int value, __attribute__((unused)) int param2)
     window_invalidate();
 }
 
-static void get_tooltip(tooltip_context *c)
-{
-    if (!data.focus_button_id && !data.focus_arrow_button_id) {
-        return;
-    }
-    c->type = TOOLTIP_BUTTON;
-    if (data.focus_button_id == 6) {
-        c->text_id = 99;
-    } else if (data.focus_button_id) {
-        c->text_id = 100;
-    } else if (data.focus_arrow_button_id) {
-        c->text_id = 101;
-    }
-}
-
 void window_donate_to_city_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_DONATE_TO_CITY,
         window_advisors_draw_dialog_background,
         draw_foreground,
         handle_input,
-        get_tooltip
     };
     city_data.emperor.donate_amount = 0;
     window_show(&window);

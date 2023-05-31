@@ -615,7 +615,7 @@ static int target_ranged_targeter_list_full(struct figure_t *target)
     return 1;
 }
 
-static void update_ranged_targeting(struct figure_t *shooter, struct figure_t *target, map_point *tile)
+static void update_ranged_targeting(struct figure_t *shooter, struct figure_t *target, struct map_point_t *tile)
 {
     if (shooter->target_figure_id && shooter->target_figure_id != target->id) {
         // if switching targets, remove targeter from previous target's ranged targeters list
@@ -635,7 +635,7 @@ static void update_ranged_targeting(struct figure_t *shooter, struct figure_t *t
     map_point_store_result(target->x, target->y, tile);
 }
 
-int set_missile_target(struct figure_t *shooter, map_point *tile)
+int set_missile_target(struct figure_t *shooter, struct map_point_t *tile)
 {
     int closest_target_distance = figure_properties[shooter->type].max_range;
     struct figure_t *closest_eligible_target = 0;

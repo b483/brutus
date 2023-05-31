@@ -189,7 +189,7 @@ static int trader_get_sell_resource(int warehouse_id, int city_id)
 }
 
 static int get_closest_warehouse(
-    const struct figure_t *f, int x, int y, int city_id, int distance_from_entry, map_point *warehouse)
+    const struct figure_t *f, int x, int y, int city_id, int distance_from_entry, struct map_point_t *warehouse)
 {
     int exportable[RESOURCE_TYPES_MAX];
     int importable[RESOURCE_TYPES_MAX];
@@ -281,7 +281,7 @@ static int get_closest_warehouse(
 
 static void go_to_next_warehouse(struct figure_t *f, int x_src, int y_src, int distance_to_entry)
 {
-    map_point dst;
+    struct map_point_t dst;
     int warehouse_id = get_closest_warehouse(f, x_src, y_src, f->empire_city_id, distance_to_entry, &dst);
     if (warehouse_id) {
         f->destination_building_id = warehouse_id;
@@ -451,7 +451,7 @@ void figure_native_trader_action(struct figure_t *f)
             f->wait_ticks++;
             if (f->wait_ticks > 10) {
                 f->wait_ticks = 0;
-                map_point tile;
+                struct map_point_t tile;
                 int building_id = get_closest_warehouse(f, f->x, f->y, 0, -1, &tile);
                 if (building_id) {
                     f->action_state = FIGURE_ACTION_NATIVE_TRADER_GOING_TO_WAREHOUSE;
@@ -474,7 +474,7 @@ void figure_native_trader_action(struct figure_t *f)
                     trader_record_bought_resource(f->trader_id, resource);
                     f->trader_amount_bought += 3;
                 } else {
-                    map_point tile;
+                    struct map_point_t tile;
                     int building_id = get_closest_warehouse(f, f->x, f->y, 0, -1, &tile);
                     if (building_id) {
                         f->action_state = FIGURE_ACTION_NATIVE_TRADER_GOING_TO_WAREHOUSE;
@@ -572,7 +572,7 @@ void figure_trade_ship_action(struct figure_t *f)
             f->wait_ticks++;
             if (f->wait_ticks > 20) {
                 f->wait_ticks = 0;
-                map_point tile;
+                struct map_point_t tile;
                 int dock_id = building_dock_get_free_destination(f->id, &tile);
                 if (dock_id) {
                     f->destination_building_id = dock_id;
@@ -653,7 +653,7 @@ void figure_trade_ship_action(struct figure_t *f)
         case FIGURE_ACTION_TRADE_SHIP_ANCHORED:
             f->wait_ticks++;
             if (f->wait_ticks > 40) {
-                map_point tile;
+                struct map_point_t tile;
                 int dock_id = building_dock_get_free_destination(f->id, &tile);
                 if (dock_id) {
                     f->destination_building_id = dock_id;

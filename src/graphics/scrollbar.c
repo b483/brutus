@@ -13,18 +13,18 @@
 
 static void text_scroll(int is_down, int num_lines);
 
-static image_button image_button_scroll_up = {
+static struct image_button_t image_button_scroll_up = {
     0, 0, SCROLL_BUTTON_WIDTH, SCROLL_BUTTON_HEIGHT, IB_SCROLL,
     GROUP_OK_CANCEL_SCROLL_BUTTONS, 8, text_scroll, button_none, 0, 1, 1, 0, 0, 0
 };
-static image_button image_button_scroll_down = {
+static struct image_button_t image_button_scroll_down = {
     0, 0, SCROLL_BUTTON_WIDTH, SCROLL_BUTTON_HEIGHT, IB_SCROLL,
     GROUP_OK_CANCEL_SCROLL_BUTTONS, 12, text_scroll, button_none, 1, 1, 1, 0, 0, 0
 };
 
-static scrollbar_type *current;
+static struct scrollbar_type_t *current;
 
-void scrollbar_init(scrollbar_type *scrollbar, int scroll_position, int max_scroll_position)
+void scrollbar_init(struct scrollbar_type_t *scrollbar, int scroll_position, int max_scroll_position)
 {
     if (max_scroll_position < 0) {
         max_scroll_position = 0;
@@ -34,13 +34,13 @@ void scrollbar_init(scrollbar_type *scrollbar, int scroll_position, int max_scro
     scrollbar->is_dragging_scroll = 0;
 }
 
-void scrollbar_reset(scrollbar_type *scrollbar, int scroll_position)
+void scrollbar_reset(struct scrollbar_type_t *scrollbar, int scroll_position)
 {
     scrollbar->scroll_position = scroll_position;
     scrollbar->is_dragging_scroll = 0;
 }
 
-void scrollbar_update_max(scrollbar_type *scrollbar, int max_scroll_position)
+void scrollbar_update_max(struct scrollbar_type_t *scrollbar, int max_scroll_position)
 {
     if (max_scroll_position < 0) {
         max_scroll_position = 0;
@@ -51,7 +51,7 @@ void scrollbar_update_max(scrollbar_type *scrollbar, int max_scroll_position)
     }
 }
 
-void scrollbar_draw(scrollbar_type *scrollbar)
+void scrollbar_draw(struct scrollbar_type_t *scrollbar)
 {
     if (scrollbar->max_scroll_position > 0 || scrollbar->always_visible) {
         image_buttons_draw(scrollbar->x, scrollbar->y, &image_button_scroll_up, 1);
@@ -77,7 +77,7 @@ void scrollbar_draw(scrollbar_type *scrollbar)
     }
 }
 
-static int handle_scrollbar_dot(scrollbar_type *scrollbar, const mouse *m)
+static int handle_scrollbar_dot(struct scrollbar_type_t *scrollbar, const struct mouse_t *m)
 {
     if (scrollbar->max_scroll_position <= 0 || !m->left.is_down) {
         return 0;
@@ -111,7 +111,7 @@ static int handle_scrollbar_dot(scrollbar_type *scrollbar, const mouse *m)
     return 1;
 }
 
-int scrollbar_handle_mouse(scrollbar_type *scrollbar, const mouse *m)
+int scrollbar_handle_mouse(struct scrollbar_type_t *scrollbar, const struct mouse_t *m)
 {
     if (scrollbar->max_scroll_position <= 0) {
         return 0;
@@ -137,7 +137,7 @@ int scrollbar_handle_mouse(scrollbar_type *scrollbar, const mouse *m)
 
 static void text_scroll(int is_down, int num_lines)
 {
-    scrollbar_type *scrollbar = current;
+    struct scrollbar_type_t *scrollbar = current;
     if (is_down) {
         scrollbar->scroll_position += num_lines;
         if (scrollbar->scroll_position > scrollbar->max_scroll_position) {

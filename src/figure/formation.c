@@ -120,7 +120,7 @@ void formation_update_all(void)
 
 }
 
-void formation_save_state(buffer *buf, struct formation_t *m)
+void formation_save_state(struct buffer_t *buf, struct formation_t *m)
 {
     buffer_write_u8(buf, m->in_use);
     buffer_write_u8(buf, m->layout);
@@ -155,7 +155,7 @@ void formation_save_state(buffer *buf, struct formation_t *m)
     buffer_write_u8(buf, m->attack_priority);
 }
 
-void formation_load_state(buffer *buf, struct formation_t *m)
+void formation_load_state(struct buffer_t *buf, struct formation_t *m)
 {
     m->in_use = buffer_read_u8(buf);
     m->layout = buffer_read_u8(buf);

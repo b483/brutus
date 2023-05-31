@@ -65,7 +65,7 @@ void figure_ballista_action(struct figure_t *f)
 
     switch (f->action_state) {
         case FIGURE_ACTION_BALLISTA_READY:
-            map_point tile = { -1, -1 };
+            struct map_point_t tile = { -1, -1 };
             if (f->is_shooting) {
                 f->attack_image_offset++;
                 if (f->attack_image_offset > 100) {
@@ -135,7 +135,7 @@ static int tower_sentry_init_patrol(struct building_t *b, int *x_tile, int *y_ti
 
 static int tower_sentry_shooting(struct figure_t *f)
 {
-    map_point tile = { -1, -1 };
+    struct map_point_t tile = { -1, -1 };
     if (f->is_shooting) {
         f->attack_image_offset++;
         if (f->attack_image_offset > 100) {
@@ -170,10 +170,10 @@ void figure_tower_sentry_action(struct figure_t *f)
         case FIGURE_ACTION_TOWER_SENTRY_AT_REST:
             f->is_targetable = 0;
             if (!f->is_military_trained) {
-                map_point mil_acad_road = { 0 };
+                struct map_point_t mil_acad_road = { 0 };
                 set_destination__closest_building_of_type(f->building_id, BUILDING_MILITARY_ACADEMY, &mil_acad_road);
                 if (mil_acad_road.x) {
-                    map_point tower_road;
+                    struct map_point_t tower_road;
                     if (map_has_road_access(b->x, b->y, b->size, &tower_road)) {
                         f->terrain_usage = TERRAIN_USAGE_ROADS;
                         f->destination_x = tower_road.x;
@@ -275,7 +275,7 @@ void figure_tower_sentry_action(struct figure_t *f)
             } else {
                 f->terrain_usage = TERRAIN_USAGE_ROADS;
                 f->height_adjusted_ticks = 0;
-                map_point road;
+                struct map_point_t road;
                 if (map_has_road_access(b->x, b->y, b->size, &road)) {
                     f->destination_x = road.x;
                     f->destination_y = road.y;

@@ -35,13 +35,13 @@ static void button_start_scenario(int param1, int param2);
 static void button_toggle_minimap(int param1, int param2);
 static void on_scroll(void);
 
-static image_button start_button =
+static struct image_button_t start_button =
 { 600, 440, 27, 27, IB_NORMAL, GROUP_SIDEBAR_BUTTONS, 56, button_start_scenario, button_none, 1, 0, 1, 0, 0, 0 };
 
-static generic_button toggle_minimap_button =
+static struct generic_button_t toggle_minimap_button =
 { 570, 87, 39, 28, button_toggle_minimap, button_none, 0, 0 };
 
-static generic_button file_buttons[] = {
+static struct generic_button_t file_buttons[] = {
     {18, 220, 252, 16, button_select_item, button_none, 0, 0},
     {18, 236, 252, 16, button_select_item, button_none, 1, 0},
     {18, 252, 252, 16, button_select_item, button_none, 2, 0},
@@ -59,7 +59,7 @@ static generic_button file_buttons[] = {
     {18, 444, 252, 16, button_select_item, button_none, 14, 0},
 };
 
-static scrollbar_type scrollbar = { 276, 210, 256, on_scroll, 8, 1, 0, 0, 0, 0 };
+static struct scrollbar_type_t scrollbar = { 276, 210, 256, on_scroll, 8, 1, 0, 0, 0, 0 };
 
 static struct {
     int focus_button_id;
@@ -91,7 +91,7 @@ static void draw_scenario_list(void)
         if (i >= data.scenarios->num_files) {
             break;
         }
-        font_t font = FONT_NORMAL_GREEN;
+        int font = FONT_NORMAL_GREEN;
         if (data.focus_button_id == i + 1) {
             font = FONT_NORMAL_WHITE;
         }
@@ -238,9 +238,9 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    const mouse *m_dialog = mouse_in_dialog(m);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (scrollbar_handle_mouse(&scrollbar, m_dialog)) {
         return;
     }
@@ -296,12 +296,11 @@ static void on_scroll(void)
 
 void window_cck_selection_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_CCK_SELECTION,
         draw_background,
         draw_foreground,
         handle_input,
-        0
     };
     init();
     window_show(&window);

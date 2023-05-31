@@ -23,15 +23,15 @@
 #endif
 #define HAS_AUDIOSTREAM() (platform_sdl_version_at_least(2, 0, 7))
 
-typedef struct {
+struct sound_channel_t {
     const char *filename;
     Mix_Chunk *chunk;
-} sound_channel;
+};
 
 static struct {
     int initialized;
     Mix_Music *music;
-    sound_channel channels[MAX_CHANNELS];
+    struct sound_channel_t channels[MAX_CHANNELS];
 } data;
 
 static struct {
@@ -115,7 +115,7 @@ static Mix_Chunk *load_chunk(const char *filename)
     }
 }
 
-static int load_channel(sound_channel *channel)
+static int load_channel(struct sound_channel_t *channel)
 {
     if (!channel->chunk && channel->filename) {
         channel->chunk = load_chunk(channel->filename);
@@ -195,7 +195,7 @@ void sound_device_play_file_on_channel(const char *filename, int channel, int vo
 void sound_device_play_channel(int channel, int volume_pct)
 {
     if (data.initialized) {
-        sound_channel *ch = &data.channels[channel];
+        struct sound_channel_t *ch = &data.channels[channel];
         if (load_channel(ch)) {
             sound_device_set_channel_volume(channel, volume_pct);
             Mix_PlayChannel(channel, ch->chunk, 0);
@@ -211,7 +211,7 @@ void sound_device_play_channel_panned(int channel, int sound_variety_index, int 
             random_factor = rand() % sound_variety_index;
             channel = channel + random_factor;
         }
-        sound_channel *ch = &data.channels[channel];
+        struct sound_channel_t *ch = &data.channels[channel];
         if (load_channel(ch)) {
             Mix_SetPanning(channel, left_pct * 255 / 100, right_pct * 255 / 100);
             sound_device_set_channel_volume(channel, volume_pct);
@@ -234,7 +234,7 @@ void sound_device_stop_music(void)
 void sound_device_stop_channel(int channel)
 {
     if (data.initialized) {
-        sound_channel *ch = &data.channels[channel];
+        struct sound_channel_t *ch = &data.channels[channel];
         if (ch->chunk) {
             Mix_HaltChannel(channel);
             Mix_FreeChunk(ch->chunk);

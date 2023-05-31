@@ -24,13 +24,13 @@ static void button_message(int param1, int param2);
 static void button_delete(int param1, int param2);
 static void on_scroll(void);
 
-static image_button image_button_help = {
+static struct image_button_t image_button_help = {
     0, 0, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1, 0, 0, 0
 };
-static image_button image_button_close = {
+static struct image_button_t image_button_close = {
     0, 0, 24, 24, IB_NORMAL, GROUP_CONTEXT_ICONS, 4, button_close, button_none, 0, 0, 1, 0, 0, 0
 };
-static generic_button generic_buttons_messages[] = {
+static struct generic_button_t generic_buttons_messages[] = {
     {0, 0, 412, 18, button_message, button_delete, 0, 0},
     {0, 20, 412, 18, button_message, button_delete, 1, 0},
     {0, 40, 412, 18, button_message, button_delete, 2, 0},
@@ -43,7 +43,7 @@ static generic_button generic_buttons_messages[] = {
     {0, 180, 412, 18, button_message, button_delete, 9, 0},
 };
 
-static scrollbar_type scrollbar = { 432, 112, 208, on_scroll, 0, 0, 0, 0, 0, 0 };
+static struct scrollbar_type_t scrollbar = { 432, 112, 208, on_scroll, 0, 0, 0, 0, 0, 0 };
 
 static struct {
     int width_blocks;
@@ -97,8 +97,8 @@ static void draw_messages(int total_messages)
     int max = total_messages < MAX_MESSAGES ? total_messages : MAX_MESSAGES;
     int index = scrollbar.scroll_position;
     for (int i = 0; i < max; i++, index++) {
-        const city_message *msg = city_message_get(index);
-        const lang_message *lang_msg = lang_get_message(city_message_get_text_id(msg->message_type));
+        const struct city_message_t *msg = city_message_get(index);
+        const struct lang_message_t *lang_msg = lang_get_message(city_message_get_text_id(msg->message_type));
         int image_offset = 0;
         if (lang_msg->message_type == MESSAGE_TYPE_DISASTER) {
             image_offset = 2;
@@ -110,7 +110,7 @@ static void draw_messages(int total_messages)
             image_draw(image_group(GROUP_ARROW_MESSAGE_PROBLEMS) + 14 + image_offset,
                 data.x_text + 12, data.y_text + 6 + 20 * i);
         }
-        font_t font = FONT_NORMAL_WHITE;
+        int font = FONT_NORMAL_WHITE;
         if (data.focus_button_id == i + 1) {
             font = FONT_NORMAL_RED;
         }
@@ -139,12 +139,12 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (h->show_messages) {
         window_city_show();
     }
-    const mouse *m_dialog = mouse_in_dialog(m);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
     int old_button_id = data.focus_button_id;
     data.focus_button_id = 0;
 
@@ -195,7 +195,7 @@ static void button_message(int param1, __attribute__((unused)) int param2)
 {
     int id = city_message_set_current(scrollbar.scroll_position + param1);
     if (id < city_message_count()) {
-        const city_message *msg = city_message_get(id);
+        struct city_message_t *msg = city_message_get(id);
         city_message_mark_read(id);
         window_message_dialog_show_city_message(
             city_message_get_text_id(msg->message_type),
@@ -215,26 +215,13 @@ static void button_delete(int id_to_delete, __attribute__((unused)) int param2)
     }
 }
 
-static void get_tooltip(tooltip_context *c)
-{
-    if (data.focus_button_id == 11) {
-        c->text_id = 1;
-    } else if (data.focus_button_id == 12) {
-        c->text_id = 2;
-    } else {
-        return;
-    }
-    c->type = TOOLTIP_BUTTON;
-}
-
 void window_message_list_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_MESSAGE_LIST,
         draw_background,
         draw_foreground,
         handle_input,
-        get_tooltip
     };
     init();
     window_show(&window);

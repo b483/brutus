@@ -1,7 +1,7 @@
 #ifndef GAME_ORIENTATION_H
 #define GAME_ORIENTATION_H
 
-typedef enum {
+enum {
     DIR_0_TOP = 0,
     DIR_1_TOP_RIGHT = 1,
     DIR_2_RIGHT = 2,
@@ -15,7 +15,7 @@ typedef enum {
     DIR_FIGURE_REROUTE = 9,
     DIR_FIGURE_LOST = 10,
     DIR_FIGURE_ATTACK = 11,
-} direction_type;
+};
 
 void game_orientation_rotate_left(void);
 

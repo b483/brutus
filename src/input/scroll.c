@@ -24,42 +24,42 @@ static const int SCROLL_STEP[SCROLL_TYPE_MAX][11] = {
     {20, 15, 10,  7,  5,  4,  3, 3, 2, 2, 1}
 };
 
-typedef enum {
+enum {
     KEY_STATE_UNPRESSED = 0,
     KEY_STATE_PRESSED = 1,
     KEY_STATE_HELD = 2,
     KEY_STATE_AXIS = 3
-} key_state;
+};
 
-typedef struct {
-    key_state state;
+struct key_t {
+    int state;
     int value;
-    time_millis last_change;
-} key;
+    uint32_t last_change;
+};
 
 static struct {
     int is_scrolling;
     int constant_input;
     struct {
-        key up;
-        key down;
-        key left;
-        key right;
+        struct key_t up;
+        struct key_t down;
+        struct key_t left;
+        struct key_t right;
     } arrow_key;
     struct {
         int active;
         int has_started;
-        pixel_offset delta;
+        struct pixel_view_coordinates_t delta;
     } drag;
     struct {
-        speed_type x;
-        speed_type y;
+        struct speed_type_t x;
+        struct speed_type_t y;
         float modifier_x;
         float modifier_y;
     } speed;
-    speed_direction x_align_direction;
-    speed_direction y_align_direction;
-    time_millis last_time;
+    int x_align_direction;
+    int y_align_direction;
+    uint32_t last_time;
     struct {
         int active;
         int x;
@@ -77,7 +77,7 @@ static void clear_scroll_speed(void)
     data.y_align_direction = SPEED_DIRECTION_STOPPED;
 }
 
-static int get_arrow_key_value(key *arrow)
+static int get_arrow_key_value(struct key_t *arrow)
 {
     if (arrow->state == KEY_STATE_AXIS) {
         return arrow->value;
@@ -85,7 +85,7 @@ static int get_arrow_key_value(key *arrow)
     return arrow->state != KEY_STATE_UNPRESSED;
 }
 
-static float get_normalized_arrow_key_value(key *arrow)
+static float get_normalized_arrow_key_value(struct key_t *arrow)
 {
     int value = get_arrow_key_value(arrow);
     if (value == SCROLL_KEY_PRESSED) {
@@ -95,12 +95,12 @@ static float get_normalized_arrow_key_value(key *arrow)
     }
 }
 
-static int is_arrow_active(const key *arrow)
+static int is_arrow_active(const struct key_t *arrow)
 {
     return arrow->value != 0;
 }
 
-static key_state get_key_state_for_value(int value)
+static int get_key_state_for_value(int value)
 {
     if (!value) {
         return KEY_STATE_UNPRESSED;
@@ -111,9 +111,9 @@ static key_state get_key_state_for_value(int value)
     return KEY_STATE_AXIS;
 }
 
-static void set_arrow_key(key *arrow, int value)
+static void set_arrow_key(struct key_t *arrow, int value)
 {
-    key_state state = get_key_state_for_value(value);
+    int state = get_key_state_for_value(value);
     if (state != KEY_STATE_AXIS && state != KEY_STATE_UNPRESSED &&
         arrow->state != KEY_STATE_AXIS && arrow->state != KEY_STATE_UNPRESSED) {
         return;
@@ -237,7 +237,7 @@ int scroll_drag_end(void)
     return has_scrolled;
 }
 
-static int set_arrow_input(key *arrow, const key *opposite_arrow, float *modifier)
+static int set_arrow_input(struct key_t *arrow, const struct key_t *opposite_arrow, float *modifier)
 {
     if (get_arrow_key_value(arrow) && (!opposite_arrow || !is_arrow_active(opposite_arrow))) {
         if (arrow->state == KEY_STATE_AXIS) {
@@ -249,7 +249,7 @@ static int set_arrow_input(key *arrow, const key *opposite_arrow, float *modifie
     return 0;
 }
 
-static int get_direction(const mouse *m)
+static int get_direction(const struct mouse_t *m)
 {
     int is_inside_window = m->is_inside_window;
     int width = screen_width();
@@ -319,14 +319,14 @@ static int get_direction(const mouse *m)
     return direction_from_sides(top, left, bottom, right);
 }
 
-static int set_scroll_speed_from_input(const mouse *m, scroll_type type)
+static int set_scroll_speed_from_input(const struct mouse_t *m, int type)
 {
     if (set_scroll_speed_from_drag()) {
         return 1;
     }
     int direction = get_direction(m);
     if (direction == DIR_8_NONE) {
-        time_millis time = SPEED_CHANGE_IMMEDIATE;
+        uint32_t time = SPEED_CHANGE_IMMEDIATE;
         speed_set_target(&data.speed.x, 0, time, 1);
         speed_set_target(&data.speed.y, 0, time, 1);
         return 0;
@@ -357,7 +357,7 @@ static int set_scroll_speed_from_input(const mouse *m, scroll_type type)
     return 1;
 }
 
-int scroll_get_delta(const mouse *m, pixel_offset *delta, scroll_type type)
+int scroll_get_delta(const struct mouse_t *m, struct pixel_view_coordinates_t *delta, int type)
 {
     data.is_scrolling = set_scroll_speed_from_input(m, type);
     delta->x = speed_get_delta(&data.speed.x);

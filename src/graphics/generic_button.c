@@ -1,6 +1,6 @@
 #include "generic_button.h"
 
-static int get_button(const mouse *m, int x, int y, generic_button *buttons, int num_buttons)
+static int get_button(const struct mouse_t *m, int x, int y, struct generic_button_t *buttons, int num_buttons)
 {
     for (int i = 0; i < num_buttons; i++) {
         if (x + buttons[i].x <= m->x &&
@@ -14,7 +14,7 @@ static int get_button(const mouse *m, int x, int y, generic_button *buttons, int
 }
 
 int generic_buttons_handle_mouse(
-    const mouse *m, int x, int y, generic_button *buttons, int num_buttons, int *focus_button_id)
+    const struct mouse_t *m, int x, int y, struct generic_button_t *buttons, int num_buttons, int *focus_button_id)
 {
     int button_id = get_button(m, x, y, buttons, num_buttons);
     if (focus_button_id) {
@@ -23,7 +23,7 @@ int generic_buttons_handle_mouse(
     if (!button_id) {
         return 0;
     }
-    generic_button *button = &buttons[button_id - 1];
+    struct generic_button_t *button = &buttons[button_id - 1];
     if (m->left.went_up) {
         button->left_click_handler(button->parameter1, button->parameter2);
         return button->left_click_handler != button_none;

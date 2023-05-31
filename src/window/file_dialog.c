@@ -29,17 +29,17 @@
 #define NUM_FILES_IN_VIEW 12
 #define MAX_FILE_WINDOW_TEXT_WIDTH (18 * BLOCK_SIZE)
 
-static const time_millis NOT_EXIST_MESSAGE_TIMEOUT = 500;
+static const uint32_t NOT_EXIST_MESSAGE_TIMEOUT = 500;
 
 static void button_ok_cancel(int is_ok, int param2);
 static void button_select_file(int index, int param2);
 static void on_scroll(void);
 
-static image_button image_buttons[] = {
+static struct image_button_t image_buttons[] = {
     {344, 335, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 0, button_ok_cancel, button_none, 1, 0, 1, 0, 0, 0},
     {392, 335, 39, 26, IB_NORMAL, GROUP_OK_CANCEL_SCROLL_BUTTONS, 4, button_ok_cancel, button_none, 0, 0, 1, 0, 0, 0},
 };
-static generic_button file_buttons[] = {
+static struct generic_button_t file_buttons[] = {
     {160, 128, 288, 16, button_select_file, button_none, 0, 0},
     {160, 144, 288, 16, button_select_file, button_none, 1, 0},
     {160, 160, 288, 16, button_select_file, button_none, 2, 0},
@@ -54,31 +54,31 @@ static generic_button file_buttons[] = {
     {160, 304, 288, 16, button_select_file, button_none, 11, 0},
 };
 
-static scrollbar_type scrollbar = { 464, 120, 206, on_scroll, 0, 0, 0, 0, 0, 0 };
+static struct scrollbar_type_t scrollbar = { 464, 120, 206, on_scroll, 0, 0, 0, 0, 0, 0 };
 
-typedef struct {
+struct file_type_data_t {
     char extension[4];
     char last_loaded_file[FILE_NAME_MAX];
-} file_type_data;
+};
 
 static struct {
-    time_millis message_not_exist_start_time;
-    file_type type;
-    file_dialog_type dialog_type;
+    uint32_t message_not_exist_start_time;
+    int type;
+    int dialog_type;
     int focus_button_id;
     int double_click;
     const struct dir_listing *file_list;
 
-    file_type_data *file_data;
+    struct file_type_data_t *file_data;
     uint8_t typed_name[FILE_NAME_MAX];
     uint8_t previously_seen_typed_name[FILE_NAME_MAX];
     char selected_file[FILE_NAME_MAX];
 } data;
 
-static input_box file_name_input = { 144, 80, 20, 2, FONT_NORMAL_WHITE, 0, data.typed_name, FILE_NAME_MAX };
+static struct input_box_t file_name_input = { 144, 80, 20, 2, FONT_NORMAL_WHITE, 0, data.typed_name, FILE_NAME_MAX };
 
-static file_type_data saved_game_data = { "sav", {0} };
-static file_type_data scenario_data = { "map", {0} };
+static struct file_type_data_t saved_game_data = { "sav", {0} };
+static struct file_type_data_t scenario_data = { "map", {0} };
 
 uint8_t too_many_files_string[] = "Too many files. Showing 128.";
 
@@ -119,7 +119,7 @@ static void scroll_to_typed_text(void)
     }
 }
 
-static void init(file_type type, file_dialog_type dialog_type)
+static void init(int type, int dialog_type)
 {
     data.type = type;
     data.file_data = type == FILE_TYPE_SCENARIO ? &scenario_data : &saved_game_data;
@@ -174,7 +174,7 @@ static void draw_foreground(void)
         if (i >= data.file_list->num_files) {
             break;
         }
-        font_t font = FONT_NORMAL_GREEN;
+        int font = FONT_NORMAL_GREEN;
         if (data.focus_button_id == i + 1) {
             font = FONT_NORMAL_WHITE;
         }
@@ -207,7 +207,7 @@ static int should_scroll_to_typed_text(void)
     return scroll;
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     data.double_click = m->left.double_click;
 
@@ -216,7 +216,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
 
-    const mouse *m_dialog = mouse_in_dialog(m);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (generic_buttons_handle_mouse(m_dialog, 0, 0, file_buttons, NUM_FILES_IN_VIEW, &data.focus_button_id) ||
         image_buttons_handle_mouse(m_dialog, 0, 0, image_buttons, 2, 0) ||
         scrollbar_handle_mouse(&scrollbar, m_dialog)) {
@@ -335,14 +335,13 @@ static void button_select_file(int index, __attribute__((unused)) int param2)
     }
 }
 
-void window_file_dialog_show(file_type type, file_dialog_type dialog_type)
+void window_file_dialog_show(int type, int dialog_type)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_FILE_DIALOG,
         0,
         draw_foreground,
         handle_input,
-        0
     };
     init(type, dialog_type);
     window_show(&window);

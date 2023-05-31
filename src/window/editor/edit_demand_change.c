@@ -28,7 +28,7 @@ static void button_route(int param1, int param2);
 static void button_toggle_rise(int param1, int param2);
 static void button_delete(int param1, int param2);
 
-static generic_button buttons_edit_demand_change[] = {
+static struct generic_button_t buttons_edit_demand_change[] = {
     {130, 152, 100, 25, button_year, button_none, 0, 0},
     {130, 182, 100, 25, button_month, button_none, 0, 0},
     {130, 212, 100, 25, button_resource, button_none, 0, 0},
@@ -139,9 +139,9 @@ static void scenario_editor_sort_demand_changes(void)
     scenario.is_saved = 0;
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_demand_change, sizeof(buttons_edit_demand_change) / sizeof(generic_button), &data.focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_demand_change, sizeof(buttons_edit_demand_change) / sizeof(struct generic_button_t), &data.focus_button_id)) {
         return;
     }
     if (m->right.went_up || h->escape_pressed) {
@@ -225,12 +225,11 @@ static void button_delete(__attribute__((unused)) int param1, __attribute__((unu
 
 void window_editor_edit_demand_change_show(int id)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_EDIT_DEMAND_CHANGE,
         draw_background,
         draw_foreground,
         handle_input,
-        0
     };
     data.id = id;
     create_route_names();

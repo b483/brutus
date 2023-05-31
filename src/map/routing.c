@@ -16,7 +16,7 @@
 
 static const int ROUTE_OFFSETS[] = { -162, 1, 162, -1, -161, 163, 161, -163 };
 
-static grid_i16 routing_distance;
+static struct grid_i16_t routing_distance;
 
 static struct {
     int total_routes_calculated;
@@ -29,7 +29,7 @@ static struct {
     int items[MAX_QUEUE];
 } queue;
 
-static grid_u8 water_drag;
+static struct grid_u8_t water_drag;
 
 static struct {
     int through_building_id;
@@ -317,7 +317,7 @@ static int map_can_place_initial_road_or_aqueduct(int grid_offset, int is_aquedu
     }
 }
 
-int map_routing_calculate_distances_for_building(routed_building_type type, int x, int y)
+int map_routing_calculate_distances_for_building(int type, int x, int y)
 {
     if (type == ROUTED_BUILDING_WALL) {
         route_queue(map_grid_offset(x, y), -1, callback_calc_distance_build_wall);
@@ -477,13 +477,13 @@ int map_routing_distance(int grid_offset)
     return routing_distance.items[grid_offset];
 }
 
-void map_routing_save_state(buffer *buf)
+void map_routing_save_state(struct buffer_t *buf)
 {
     buffer_write_i32(buf, stats.enemy_routes_calculated);
     buffer_write_i32(buf, stats.total_routes_calculated);
 }
 
-void map_routing_load_state(buffer *buf)
+void map_routing_load_state(struct buffer_t *buf)
 {
     stats.enemy_routes_calculated = buffer_read_i32(buf);
     stats.total_routes_calculated = buffer_read_i32(buf);

@@ -11,8 +11,8 @@ void map_elevation_clear(void);
 
 void map_elevation_remove_cliffs(void);
 
-void map_elevation_save_state(buffer *buf);
+void map_elevation_save_state(struct buffer_t *buf);
 
-void map_elevation_load_state(buffer *buf);
+void map_elevation_load_state(struct buffer_t *buf);
 
 #endif // MAP_ELEVATION_H

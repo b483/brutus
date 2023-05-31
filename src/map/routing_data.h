@@ -28,9 +28,9 @@ enum {
     WALL_N1_BLOCKED = -1,
 };
 
-extern grid_i8 terrain_land_citizen;
-extern grid_i8 terrain_land_noncitizen;
-extern grid_i8 terrain_water;
-extern grid_i8 terrain_walls;
+extern struct grid_i8_t terrain_land_citizen;
+extern struct grid_i8_t terrain_land_noncitizen;
+extern struct grid_i8_t terrain_water;
+extern struct grid_i8_t terrain_walls;
 
 #endif // MAP_ROUTING_DATA_H

@@ -45,7 +45,7 @@ static int parse_decimal_as_percentage(const char *str)
     return percentage;
 }
 
-int platform_parse_arguments(int argc, char **argv, brutus_args *output_args)
+int platform_parse_arguments(int argc, char **argv, struct brutus_args_t *output_args)
 {
     int ok = 1;
 

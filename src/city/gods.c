@@ -21,7 +21,7 @@
 
 #define TIE 10
 
-static void perform_blessing(god_type god)
+static void perform_blessing(int god)
 {
     switch (god) {
         case GOD_CERES:
@@ -55,7 +55,7 @@ static void cause_invasion_mars(int enemy_amount)
     }
 }
 
-static void perform_small_curse(god_type god)
+static void perform_small_curse(int god)
 {
     switch (god) {
         case GOD_CERES:
@@ -85,7 +85,7 @@ static void perform_small_curse(god_type god)
     }
 }
 
-static int perform_large_curse(god_type god)
+static int perform_large_curse(int god)
 {
     switch (god) {
         case GOD_CERES:
@@ -126,7 +126,7 @@ static int perform_large_curse(god_type god)
                 for (int i = 0; i < best_legion->max_figures; i++) {
                     if (best_legion->figures[i]) {
                         struct figure_t *f = &figures[best_legion->figures[i]];
-                        map_point nearest_barracks_road_tile = { 0 };
+                        struct map_point_t nearest_barracks_road_tile = { 0 };
                         set_destination__closest_building_of_type(best_legion->building_id, BUILDING_BARRACKS, &nearest_barracks_road_tile);
                         figure_route_remove(f);
                         if (nearest_barracks_road_tile.x) {
@@ -167,7 +167,7 @@ static int perform_large_curse(god_type god)
 static void update_god_moods(void)
 {
     for (int i = 0; i < MAX_GODS; i++) {
-        god_status *god = &city_data.religion.gods[i];
+        struct god_status_t *god = &city_data.religion.gods[i];
         if (god->happiness < god->target_happiness) {
             god->happiness++;
         } else if (god->happiness > god->target_happiness) {
@@ -183,7 +183,7 @@ static void update_god_moods(void)
 
     int god_id = random_byte() & 7;
     if (god_id < MAX_GODS) {
-        god_status *god = &city_data.religion.gods[god_id];
+        struct god_status_t *god = &city_data.religion.gods[god_id];
         if (god->happiness >= 50) {
             god->wrath_bolts = 0;
         } else if (god->happiness < 40) {
@@ -213,7 +213,7 @@ static void update_god_moods(void)
         }
     }
     if (god_id < MAX_GODS) {
-        god_status *god = &city_data.religion.gods[god_id];
+        struct god_status_t *god = &city_data.religion.gods[god_id];
         if (god->happiness >= 100 && !god->blessing_done) {
             god->blessing_done = 1;
             perform_blessing(god_id);

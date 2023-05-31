@@ -30,9 +30,9 @@ void map_set_rubble_building_type(int grid_offset, int type);
  */
 void map_building_clear(void);
 
-void map_building_save_state(buffer *buildings, buffer *damage);
+void map_building_save_state(struct buffer_t *buildings, struct buffer_t *damage);
 
-void map_building_load_state(buffer *buildings, buffer *damage);
+void map_building_load_state(struct buffer_t *buildings, struct buffer_t *damage);
 
 int map_building_is_reservoir(int x, int y);
 

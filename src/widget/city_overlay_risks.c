@@ -129,115 +129,56 @@ static int get_column_height_none(__attribute__((unused)) const struct building_
     return NO_COLUMN;
 }
 
-static int get_tooltip_fire(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
+const struct city_overlay_t *city_overlay_for_fire(void)
 {
-    if (b->fire_risk <= 0) {
-        return 46;
-    } else if (b->fire_risk <= 20) {
-        return 47;
-    } else if (b->fire_risk <= 40) {
-        return 48;
-    } else if (b->fire_risk <= 60) {
-        return 49;
-    } else if (b->fire_risk <= 80) {
-        return 50;
-    } else {
-        return 51;
-    }
-}
-
-static int get_tooltip_damage(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
-{
-    if (b->damage_risk <= 0) {
-        return 52;
-    } else if (b->damage_risk <= 40) {
-        return 53;
-    } else if (b->damage_risk <= 80) {
-        return 54;
-    } else if (b->damage_risk <= 120) {
-        return 55;
-    } else if (b->damage_risk <= 160) {
-        return 56;
-    } else {
-        return 57;
-    }
-}
-
-static int get_tooltip_crime(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
-{
-    if (b->sentiment.house_happiness <= 0) {
-        return 63;
-    } else if (b->sentiment.house_happiness <= 10) {
-        return 62;
-    } else if (b->sentiment.house_happiness <= 20) {
-        return 61;
-    } else if (b->sentiment.house_happiness <= 30) {
-        return 60;
-    } else if (b->sentiment.house_happiness < 50) {
-        return 59;
-    } else {
-        return 58;
-    }
-}
-
-const city_overlay *city_overlay_for_fire(void)
-{
-    static city_overlay overlay = {
+    static struct city_overlay_t overlay = {
         OVERLAY_FIRE,
         COLUMN_TYPE_RISK,
         show_building_fire_crime,
         show_figure_fire,
         get_column_height_fire,
         0,
-        get_tooltip_fire,
-        0,
         0
     };
     return &overlay;
 }
 
-const city_overlay *city_overlay_for_damage(void)
+const struct city_overlay_t *city_overlay_for_damage(void)
 {
-    static city_overlay overlay = {
+    static struct city_overlay_t overlay = {
         OVERLAY_DAMAGE,
         COLUMN_TYPE_RISK,
         show_building_damage,
         show_figure_damage,
         get_column_height_damage,
         0,
-        get_tooltip_damage,
-        0,
         0
     };
     return &overlay;
 }
 
-const city_overlay *city_overlay_for_crime(void)
+const struct city_overlay_t *city_overlay_for_crime(void)
 {
-    static city_overlay overlay = {
+    static struct city_overlay_t overlay = {
         OVERLAY_CRIME,
         COLUMN_TYPE_RISK,
         show_building_fire_crime,
         show_figure_crime,
         get_column_height_crime,
         0,
-        get_tooltip_crime,
-        0,
         0
     };
     return &overlay;
 }
 
-const city_overlay *city_overlay_for_problems(void)
+const struct city_overlay_t *city_overlay_for_problems(void)
 {
-    static city_overlay overlay = {
+    static struct city_overlay_t overlay = {
         OVERLAY_PROBLEMS,
         COLUMN_TYPE_RISK,
         show_building_problems,
         show_figure_problems,
         get_column_height_none,
-        0,
-        0,
         0,
         0
     };
@@ -295,16 +236,14 @@ static void draw_top_native(int x, int y, int grid_offset)
     }
 }
 
-const city_overlay *city_overlay_for_native(void)
+const struct city_overlay_t *city_overlay_for_native(void)
 {
-    static city_overlay overlay = {
+    static struct city_overlay_t overlay = {
         OVERLAY_NATIVE,
         COLUMN_TYPE_RISK,
         show_building_native,
         show_figure_native,
         get_column_height_none,
-        0,
-        0,
         draw_footprint_native,
         draw_top_native
     };

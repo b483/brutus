@@ -3,7 +3,7 @@
 #include "map/grid.h"
 
 static struct {
-    ring_tile tiles[1080];
+    struct ring_tile_t tiles[1080];
     int index[6][7];
 } data;
 
@@ -67,7 +67,7 @@ int map_ring_is_inside_map(int x, int y)
         y >= -1 && y <= map_data.height;
 }
 
-const ring_tile *map_ring_tile(int index)
+const struct ring_tile_t *map_ring_tile(int index)
 {
     return &data.tiles[index];
 }

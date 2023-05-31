@@ -22,7 +22,7 @@
 static void button_menu_item(int index, int param2);
 static void button_submenu_item(int index, int param2);
 
-static generic_button menu_buttons[] = {
+static struct generic_button_t menu_buttons[] = {
     {0, 0, 160, 24, button_menu_item, button_none, 0, 0},
     {0, 24, 160, 24, button_menu_item, button_none, 1, 0},
     {0, 48, 160, 24, button_menu_item, button_none, 2, 0},
@@ -34,7 +34,7 @@ static generic_button menu_buttons[] = {
     {0, 192, 160, 24, button_menu_item, button_none, 8, 0},
     {0, 216, 160, 24, button_menu_item, button_none, 9, 0},
 };
-static generic_button submenu_buttons[] = {
+static struct generic_button_t submenu_buttons[] = {
     {0, 0, 160, 24, button_submenu_item, button_none, 0, 0},
     {0, 24, 160, 24, button_submenu_item, button_none, 1, 0},
     {0, 48, 160, 24, button_submenu_item, button_none, 2, 0},
@@ -63,7 +63,7 @@ static struct {
     int selected_menu;
     int selected_submenu;
     int num_submenu_items;
-    time_millis submenu_focus_time;
+    uint32_t submenu_focus_time;
 
     int menu_focus_button_id;
     int submenu_focus_button_id;
@@ -145,7 +145,7 @@ static void handle_submenu_focus(void)
     }
 }
 
-static int click_outside_menu(const mouse *m, int x_offset)
+static int click_outside_menu(const struct mouse_t *m, int x_offset)
 {
     return m->left.went_up &&
           (m->x < x_offset - MENU_CLICK_MARGIN - (data.selected_submenu ? SUBMENU_X_OFFSET : MENU_X_OFFSET) ||
@@ -154,7 +154,7 @@ static int click_outside_menu(const mouse *m, int x_offset)
            m->y > MENU_Y_OFFSET + MENU_CLICK_MARGIN + MENU_ITEM_HEIGHT * MAX_BUTTONS);
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     int x_offset = get_sidebar_x_offset();
     int handled = 0;
@@ -210,12 +210,11 @@ static void button_submenu_item(int index, __attribute__((unused)) int param2)
 
 void window_overlay_menu_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_OVERLAY_MENU,
         draw_background,
         draw_foreground,
         handle_input,
-        0
     };
     init();
     window_show(&window);

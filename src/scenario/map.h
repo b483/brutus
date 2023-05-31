@@ -11,6 +11,6 @@ int scenario_map_has_river_entry(void);
 
 int scenario_map_has_river_exit(void);
 
-int scenario_map_closest_fishing_point(int x, int y, map_point *fish);
+int scenario_map_closest_fishing_point(int x, int y, struct map_point_t *fish);
 
 #endif // SCENARIO_MAP_H

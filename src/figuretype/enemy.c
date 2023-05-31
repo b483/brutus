@@ -75,7 +75,7 @@ static void melee_enemy_action(struct figure_t *f)
     }
 }
 
-static void shoot_enemy_missile(struct figure_t *f, map_point *tile)
+static void shoot_enemy_missile(struct figure_t *f, struct map_point_t *tile)
 {
     f->is_shooting = 1;
     f->attack_image_offset = 1;
@@ -92,7 +92,7 @@ static void shoot_enemy_missile(struct figure_t *f, map_point *tile)
 static void ranged_enemy_action(struct figure_t *f)
 {
     struct formation_t *m = &enemy_formations[f->formation_id];
-    map_point tile = { -1, -1 };
+    struct map_point_t tile = { -1, -1 };
     if (f->is_shooting) {
         f->attack_image_offset++;
         if (f->attack_image_offset > 100) {

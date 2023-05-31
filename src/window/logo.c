@@ -28,7 +28,7 @@ static void draw_background(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (m->left.went_up || m->right.went_up) {
         window_main_menu_show(0);
@@ -41,12 +41,11 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 void window_logo_show(int show_patch_message)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_LOGO,
         draw_background,
         0,
         handle_input,
-        0
     };
     sound_music_play_intro();
     window_show(&window);

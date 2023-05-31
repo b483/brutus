@@ -14,7 +14,7 @@ void empire_adjust_scroll(int *x_offset, int *y_offset);
 
 struct empire_object_t *empire_select_object(int x, int y);
 
-void empire_save_state(buffer *buf);
-void empire_load_state(buffer *buf);
+void empire_save_state(struct buffer_t *buf);
+void empire_load_state(struct buffer_t *buf);
 
 #endif // EMPIRE_EMPIRE_H

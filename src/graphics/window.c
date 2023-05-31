@@ -9,9 +9,9 @@
 #define MAX_QUEUE 3
 
 static struct {
-    window_type window_queue[MAX_QUEUE];
+    struct window_type_t window_queue[MAX_QUEUE];
     int queue_index;
-    window_type *current_window;
+    struct window_type_t *current_window;
     int refresh_immediate;
     int refresh_on_draw;
     int underlying_windows_redrawing;
@@ -19,7 +19,7 @@ static struct {
 
 static void noop(void)
 {}
-static void noop_input(__attribute__((unused)) const mouse *m, __attribute__((unused)) const hotkeys *h)
+static void noop_input(__attribute__((unused)) const struct mouse_t *m, __attribute__((unused)) const struct hotkeys_t *h)
 {}
 
 static void increase_queue_index(void)
@@ -60,17 +60,17 @@ void window_request_refresh(void)
     data.refresh_on_draw = 1;
 }
 
-int window_is(window_id id)
+int window_is(int id)
 {
     return data.current_window->id == id;
 }
 
-window_id window_get_id(void)
+int window_get_id(void)
 {
     return data.current_window->id;
 }
 
-void window_show(const window_type *window)
+void window_show(const struct window_type_t *window)
 {
     reset_input();
     increase_queue_index();
@@ -112,19 +112,17 @@ static void update_input_after(void)
 void window_draw(int force)
 {
     update_input_before();
-    window_type *w = data.current_window;
+    struct window_type_t *w = data.current_window;
     if (force || data.refresh_on_draw) {
-        tooltip_invalidate();
         w->draw_background();
         data.refresh_on_draw = 0;
         data.refresh_immediate = 0;
     }
     w->draw_foreground();
 
-    const mouse *m = mouse_get();
-    const hotkeys *h = hotkey_state();
+    const struct mouse_t *m = mouse_get();
+    const struct hotkeys_t *h = hotkey_state();
     w->handle_input(m, h);
-    tooltip_handle(m, w->get_tooltip);
     warning_draw();
     update_input_after();
 }
@@ -134,7 +132,7 @@ void window_draw_underlying_window(void)
     if (data.underlying_windows_redrawing < MAX_QUEUE) {
         ++data.underlying_windows_redrawing;
         decrease_queue_index();
-        window_type *window_behind = &data.window_queue[data.queue_index];
+        struct window_type_t *window_behind = &data.window_queue[data.queue_index];
         if (window_behind->draw_background) {
             window_behind->draw_background();
         }

@@ -14,36 +14,36 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct {
+struct hotkey_definition_t {
     int *action;
     int value;
-    key_type key;
-    key_modifier_type modifiers;
+    int key;
+    int modifiers;
     int repeatable;
-} hotkey_definition;
+};
 
-typedef struct {
+struct arrow_definition_t {
     void (*action)(int is_down);
-    key_type key;
-} arrow_definition;
+    int key;
+};
 
-typedef struct {
+struct global_hotkeys_t {
     int toggle_fullscreen;
     int reset_window;
     int save_screenshot;
     int save_city_screenshot;
-} global_hotkeys;
+};
 
 static struct {
-    global_hotkeys global_hotkey_state;
-    hotkeys hotkey_state;
-    hotkey_definition *definitions;
+    struct global_hotkeys_t global_hotkey_state;
+    struct hotkeys_t hotkey_state;
+    struct hotkey_definition_t *definitions;
     int num_definitions;
-    arrow_definition *arrows;
+    struct arrow_definition_t *arrows;
     int num_arrows;
 } data;
 
-static void set_definition_for_action(hotkey_action action, hotkey_definition *def)
+static void set_definition_for_action(int action, struct hotkey_definition_t *def)
 {
     def->value = 1;
     def->repeatable = 0;
@@ -464,9 +464,9 @@ static void set_definition_for_action(hotkey_action action, hotkey_definition *d
     }
 }
 
-static void add_definition(const hotkey_mapping *mapping)
+static void add_definition(const struct hotkey_mapping_t *mapping)
 {
-    hotkey_definition *def = &data.definitions[data.num_definitions];
+    struct hotkey_definition_t *def = &data.definitions[data.num_definitions];
     def->key = mapping->key;
     def->modifiers = mapping->modifiers;
     set_definition_for_action(mapping->action, def);
@@ -475,9 +475,9 @@ static void add_definition(const hotkey_mapping *mapping)
     }
 }
 
-static void add_arrow(const hotkey_mapping *mapping)
+static void add_arrow(const struct hotkey_mapping_t *mapping)
 {
-    arrow_definition *arrow = &data.arrows[data.num_arrows];
+    struct arrow_definition_t *arrow = &data.arrows[data.num_arrows];
     arrow->key = mapping->key;
     switch (mapping->action) {
         case HOTKEY_ARROW_UP:
@@ -507,8 +507,8 @@ static int allocate_mapping_memory(int total_definitions, int total_arrows)
     free(data.arrows);
     data.num_definitions = 0;
     data.num_arrows = 0;
-    data.definitions = malloc(sizeof(hotkey_definition) * total_definitions);
-    data.arrows = malloc(sizeof(arrow_definition) * total_arrows);
+    data.definitions = malloc(sizeof(struct hotkey_definition_t) * total_definitions);
+    data.arrows = malloc(sizeof(struct arrow_definition_t) * total_arrows);
     if (!data.definitions || !data.arrows) {
         free(data.definitions);
         free(data.arrows);
@@ -517,12 +517,12 @@ static int allocate_mapping_memory(int total_definitions, int total_arrows)
     return 1;
 }
 
-void hotkey_install_mapping(hotkey_mapping *mappings, int num_mappings)
+void hotkey_install_mapping(struct hotkey_mapping_t *mappings, int num_mappings)
 {
     int total_definitions = 2; // Enter and ESC are fixed hotkeys
     int total_arrows = 0;
     for (int i = 0; i < num_mappings; i++) {
-        hotkey_action action = mappings[i].action;
+        int action = mappings[i].action;
         if (action == HOTKEY_ARROW_UP || action == HOTKEY_ARROW_DOWN ||
             action == HOTKEY_ARROW_LEFT || action == HOTKEY_ARROW_RIGHT) {
             total_arrows++;
@@ -553,7 +553,7 @@ void hotkey_install_mapping(hotkey_mapping *mappings, int num_mappings)
     data.num_definitions = 2;
 
     for (int i = 0; i < num_mappings; i++) {
-        hotkey_action action = mappings[i].action;
+        int action = mappings[i].action;
         if (action == HOTKEY_ARROW_UP || action == HOTKEY_ARROW_DOWN ||
             action == HOTKEY_ARROW_LEFT || action == HOTKEY_ARROW_RIGHT) {
             add_arrow(&mappings[i]);
@@ -563,7 +563,7 @@ void hotkey_install_mapping(hotkey_mapping *mappings, int num_mappings)
     }
 }
 
-const hotkeys *hotkey_state(void)
+const struct hotkeys_t *hotkey_state(void)
 {
     return &data.hotkey_state;
 }
@@ -574,7 +574,7 @@ void hotkey_reset_state(void)
     memset(&data.global_hotkey_state, 0, sizeof(data.global_hotkey_state));
 }
 
-void hotkey_key_pressed(key_type key, key_modifier_type modifiers, int repeat)
+void hotkey_key_pressed(int key, int modifiers, int repeat)
 {
     if (window_is(WINDOW_HOTKEY_EDITOR)) {
         window_hotkey_editor_key_pressed(key, modifiers);
@@ -585,7 +585,7 @@ void hotkey_key_pressed(key_type key, key_modifier_type modifiers, int repeat)
     }
     int found_action = 0;
     for (int i = 0; i < data.num_definitions; i++) {
-        hotkey_definition *def = &data.definitions[i];
+        struct hotkey_definition_t *def = &data.definitions[i];
         if (def->key == key && def->modifiers == modifiers && (!repeat || def->repeatable)) {
             *(def->action) = def->value;
             found_action = 1;
@@ -595,14 +595,14 @@ void hotkey_key_pressed(key_type key, key_modifier_type modifiers, int repeat)
         return;
     }
     for (int i = 0; i < data.num_arrows; i++) {
-        arrow_definition *arrow = &data.arrows[i];
+        struct arrow_definition_t *arrow = &data.arrows[i];
         if (arrow->key == key) {
             arrow->action(1);
         }
     }
 }
 
-void hotkey_key_released(key_type key, key_modifier_type modifiers)
+void hotkey_key_released(int key, int modifiers)
 {
     if (window_is(WINDOW_HOTKEY_EDITOR)) {
         window_hotkey_editor_key_released(key, modifiers);
@@ -612,7 +612,7 @@ void hotkey_key_released(key_type key, key_modifier_type modifiers)
         return;
     }
     for (int i = 0; i < data.num_arrows; i++) {
-        arrow_definition *arrow = &data.arrows[i];
+        struct arrow_definition_t *arrow = &data.arrows[i];
         if (arrow->key == key) {
             arrow->action(0);
         }

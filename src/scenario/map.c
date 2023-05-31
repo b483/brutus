@@ -32,7 +32,7 @@ int scenario_map_has_river_exit(void)
     return scenario.river_exit_point.x != -1 && scenario.river_exit_point.y != -1;
 }
 
-int scenario_map_closest_fishing_point(int x, int y, map_point *fish)
+int scenario_map_closest_fishing_point(int x, int y, struct map_point_t *fish)
 {
     int num_fishing_spots = 0;
     for (int i = 0; i < MAX_FISH_POINTS; i++) {

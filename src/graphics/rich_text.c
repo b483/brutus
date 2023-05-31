@@ -14,7 +14,7 @@
 
 static void on_scroll(void);
 
-static scrollbar_type scrollbar = { 0, 0, 0, on_scroll, 0, 0, 0, 0, 0, 0 };
+static struct scrollbar_type_t scrollbar = { 0, 0, 0, on_scroll, 0, 0, 0, 0, 0, 0 };
 
 static struct {
     int message_id;
@@ -27,8 +27,8 @@ static struct {
 static uint8_t tmp_line[200];
 
 static struct {
-    const font_definition *normal_font;
-    const font_definition *link_font;
+    const struct font_definition_t *normal_font;
+    const struct font_definition_t *link_font;
     int line_height;
     int paragraph_indent;
 
@@ -67,7 +67,7 @@ int rich_text_init(
     return data.text_width_blocks;
 }
 
-void rich_text_set_fonts(font_t normal_font, font_t link_font, int line_spacing)
+void rich_text_set_fonts(int normal_font, int link_font, int line_spacing)
 {
     data.normal_font = font_definition_for(normal_font);
     data.link_font = font_definition_for(link_font);
@@ -99,7 +99,7 @@ void rich_text_clear_links(void)
     data.num_links = 0;
 }
 
-int rich_text_get_clicked_link(const mouse *m)
+int rich_text_get_clicked_link(const struct mouse_t *m)
 {
     if (m->left.went_up) {
         for (int i = 0; i < data.num_links; i++) {
@@ -178,7 +178,7 @@ static void draw_line(const uint8_t *str, int x, int y, color_t color, int measu
             start_link = 1;
         }
         if (*str >= ' ') {
-            const font_definition *def = data.normal_font;
+            const struct font_definition_t *def = data.normal_font;
             if (num_link_chars > 0) {
                 def = data.link_font;
             }
@@ -193,7 +193,7 @@ static void draw_line(const uint8_t *str, int x, int y, color_t color, int measu
                     x += def->space_width;
                     start_link = 0;
                 }
-                const image *img = image_letter(letter_id);
+                const struct image_t *img = image_letter(letter_id);
                 if (!measure_only) {
                     int height = def->image_y_offset(*str, img->height, def->line_height);
                     image_draw_letter(def->font, letter_id, x, y - height, color);
@@ -301,7 +301,7 @@ static int draw_text(const uint8_t *text, int x_offset, int y_offset,
                 if (lines_before_image) {
                     lines_before_image--;
                 } else {
-                    const image *img = image_get(image_id);
+                    const struct image_t *img = image_get(image_id);
                     image_height_lines = img->height / data.line_height + 2;
                     int image_offset_x = x_offset + (box_width - img->width) / 2 - 4;
                     if (line < height_lines + scrollbar.scroll_position) {
@@ -341,7 +341,7 @@ void rich_text_draw_scrollbar(void)
     scrollbar_draw(&scrollbar);
 }
 
-int rich_text_handle_mouse(const mouse *m)
+int rich_text_handle_mouse(const struct mouse_t *m)
 {
     return scrollbar_handle_mouse(&scrollbar, m);
 }

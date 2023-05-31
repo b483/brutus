@@ -28,44 +28,44 @@
 #define BLOCK_FULL 1
 #define BLOCK_SOLID 3
 
-typedef struct {
+struct bitstream_t {
     const uint8_t *data;
     int length;
     int index;
     int bit_index;
-} bitstream;
+};
 
-typedef struct huffnode8_t {
+struct huffnode8_t {
     struct huffnode8_t *b[2];
     int is_leaf;
     uint8_t value;
-} huffnode8;
+};
 
-typedef struct hufftree8_t {
-    huffnode8 nodes[512];
+struct hufftree8_t {
+    struct huffnode8_t nodes[512];
     int size;
-} hufftree8;
+};
 
-typedef struct huffnode16_t {
+struct huffnode16_t {
     struct huffnode16_t *b[2];
     int is_leaf;
     uint16_t value;
-} huffnode16;
+};
 
-typedef struct hufftree16_t {
-    huffnode16 *root;
-    hufftree8 *low;
-    hufftree8 *high;
+struct hufftree16_t {
+    struct huffnode16_t *root;
+    struct hufftree8_t *low;
+    struct hufftree8_t *high;
     uint16_t escape_codes[3];
-    huffnode16 *escape_nodes[3];
-} hufftree16;
+    struct huffnode16_t *escape_nodes[3];
+};
 
-typedef struct {
+struct frame_data_t {
     uint32_t palette[MAX_PALETTE];
     uint8_t *video;
     uint8_t *audio[MAX_TRACKS];
     int audio_len[MAX_TRACKS];
-} frame_data_t;
+};
 
 struct smacker_t {
     FILE *fp;
@@ -84,12 +84,12 @@ struct smacker_t {
     int32_t *frame_sizes;
     uint8_t *frame_types;
 
-    hufftree16 *mmap_tree;
-    hufftree16 *mclr_tree;
-    hufftree16 *full_tree;
-    hufftree16 *type_tree;
+    struct hufftree16_t *mmap_tree;
+    struct hufftree16_t *mclr_tree;
+    struct hufftree16_t *full_tree;
+    struct hufftree16_t *type_tree;
 
-    frame_data_t frame_data;
+    struct frame_data_t frame_data;
     int32_t current_frame;
 };
 
@@ -143,7 +143,7 @@ static int32_t read_i32(uint8_t *data)
 
 // Bitstream functions
 
-static bitstream *bitstream_init(bitstream *bs, const uint8_t *data, int len)
+static struct bitstream_t *bitstream_init(struct bitstream_t *bs, const uint8_t *data, int len)
 {
     bs->data = data;
     bs->length = len;
@@ -152,7 +152,7 @@ static bitstream *bitstream_init(bitstream *bs, const uint8_t *data, int len)
     return bs;
 }
 
-static inline int read_bit(bitstream *bs)
+static inline int read_bit(struct bitstream_t *bs)
 {
     if (bs->index >= bs->length) {
         return 0;
@@ -165,7 +165,7 @@ static inline int read_bit(bitstream *bs)
     return result ? 1 : 0;
 }
 
-static inline uint8_t read_byte(bitstream *bs)
+static inline uint8_t read_byte(struct bitstream_t *bs)
 {
     if (bs->bit_index == 0) {
         // special case: on exact byte boundary
@@ -186,9 +186,9 @@ static inline uint8_t read_byte(bitstream *bs)
 
 // 8-bit huffman tree functions
 
-static huffnode8 *build_tree8_nodes(bitstream *bs, hufftree8 *tree)
+static struct huffnode8_t *build_tree8_nodes(struct bitstream_t *bs, struct hufftree8_t *tree)
 {
-    huffnode8 *node = &tree->nodes[tree->size++];
+    struct huffnode8_t *node = &tree->nodes[tree->size++];
     if (read_bit(bs)) {
         node->is_leaf = 0;
         node->b[0] = build_tree8_nodes(bs, tree);
@@ -200,10 +200,10 @@ static huffnode8 *build_tree8_nodes(bitstream *bs, hufftree8 *tree)
     return node;
 }
 
-static hufftree8 *create_tree8(bitstream *bs)
+static struct hufftree8_t *create_tree8(struct bitstream_t *bs)
 {
     if (read_bit(bs)) {
-        hufftree8 *tree = (hufftree8 *) clear_malloc(sizeof(hufftree8));
+        struct hufftree8_t *tree = (struct hufftree8_t *) clear_malloc(sizeof(struct hufftree8_t));
         if (!tree) {
             log_error("SMK: no memory for 8-bit tree", 0, 0);
             return NULL;
@@ -221,14 +221,14 @@ static hufftree8 *create_tree8(bitstream *bs)
     }
 }
 
-static void free_tree8(hufftree8 *tree)
+static void free_tree8(struct hufftree8_t *tree)
 {
     free(tree);
 }
 
-static uint8_t lookup_tree8(bitstream *bs, hufftree8 *tree)
+static uint8_t lookup_tree8(struct bitstream_t *bs, struct hufftree8_t *tree)
 {
-    huffnode8 *node = &tree->nodes[0];
+    struct huffnode8_t *node = &tree->nodes[0];
     while (!node->is_leaf) {
         node = node->b[read_bit(bs)];
     }
@@ -237,7 +237,7 @@ static uint8_t lookup_tree8(bitstream *bs, hufftree8 *tree)
 
 // 16-bit huffman tree functions
 
-static void free_node16(huffnode16 *node)
+static void free_node16(struct huffnode16_t *node)
 {
     if (!node) {
         return;
@@ -249,7 +249,7 @@ static void free_node16(huffnode16 *node)
     free(node);
 }
 
-static void free_tree16(hufftree16 *tree)
+static void free_tree16(struct hufftree16_t *tree)
 {
     if (!tree) {
         return;
@@ -268,9 +268,9 @@ static void free_tree16(hufftree16 *tree)
     free(tree);
 }
 
-static huffnode16 *build_tree16_nodes(bitstream *bs, hufftree16 *tree)
+static struct huffnode16_t *build_tree16_nodes(struct bitstream_t *bs, struct hufftree16_t *tree)
 {
-    huffnode16 *node = (huffnode16 *) clear_malloc(sizeof(huffnode16));
+    struct huffnode16_t *node = (struct huffnode16_t *) clear_malloc(sizeof(struct huffnode16_t));
     if (!node) {
         log_error("SMK: no memory for 16-bit tree node", 0, 0);
         return NULL;
@@ -304,9 +304,9 @@ static huffnode16 *build_tree16_nodes(bitstream *bs, hufftree16 *tree)
     return node;
 }
 
-static hufftree16 *create_tree16(bitstream *bs, hufftree8 *low, hufftree8 *high)
+static struct hufftree16_t *create_tree16(struct bitstream_t *bs, struct hufftree8_t *low, struct hufftree8_t *high)
 {
-    hufftree16 *tree = (hufftree16 *) clear_malloc(sizeof(hufftree16));
+    struct hufftree16_t *tree = (struct hufftree16_t *) clear_malloc(sizeof(struct hufftree16_t));
     if (!tree) {
         log_error("SMK: no memory for 16-bit tree", 0, 0);
         return NULL;
@@ -331,7 +331,7 @@ static hufftree16 *create_tree16(bitstream *bs, hufftree8 *low, hufftree8 *high)
     for (int i = 0; i < 3; i++) {
         if (!tree->escape_nodes[i]) {
             // Escape node is not in the tree: create a dummy node
-            tree->escape_nodes[i] = (huffnode16 *) clear_malloc(sizeof(huffnode16));
+            tree->escape_nodes[i] = (struct huffnode16_t *) clear_malloc(sizeof(struct huffnode16_t));
             tree->escape_nodes[i]->is_leaf = 0;
             tree->escape_nodes[i]->value = 0;
         }
@@ -339,7 +339,7 @@ static hufftree16 *create_tree16(bitstream *bs, hufftree8 *low, hufftree8 *high)
     return tree;
 }
 
-static void reset_escape16(hufftree16 *tree)
+static void reset_escape16(struct hufftree16_t *tree)
 {
     if (tree) {
         for (int i = 0; i < 3; i++) {
@@ -348,12 +348,12 @@ static void reset_escape16(hufftree16 *tree)
     }
 }
 
-static uint16_t lookup_tree16(bitstream *bs, hufftree16 *tree)
+static uint16_t lookup_tree16(struct bitstream_t *bs, struct hufftree16_t *tree)
 {
     if (!tree) {
         return 0;
     }
-    huffnode16 *node = tree->root;
+    struct huffnode16_t *node = tree->root;
     while (!node->is_leaf) {
         node = node->b[read_bit(bs)];
     }
@@ -367,11 +367,11 @@ static uint16_t lookup_tree16(bitstream *bs, hufftree16 *tree)
     return value;
 }
 
-static hufftree16 *read_header_tree(bitstream *bs)
+static struct hufftree16_t *read_header_tree(struct bitstream_t *bs)
 {
     if (read_bit(bs)) {
-        hufftree8 *low = create_tree8(bs);
-        hufftree8 *high = create_tree8(bs);
+        struct hufftree8_t *low = create_tree8(bs);
+        struct hufftree8_t *high = create_tree8(bs);
         if (!low || !high) {
             free_tree8(low);
             free_tree8(high);
@@ -385,8 +385,8 @@ static hufftree16 *read_header_tree(bitstream *bs)
 
 static void read_header_trees(smacker s, uint8_t *data)
 {
-    bitstream bstream;
-    bitstream *bs = bitstream_init(&bstream, data, s->trees_size);
+    struct bitstream_t bstream;
+    struct bitstream_t *bs = bitstream_init(&bstream, data, s->trees_size);
 
     s->mmap_tree = read_header_tree(bs);
     s->mclr_tree = read_header_tree(bs);
@@ -612,7 +612,7 @@ void smacker_get_audio_info(const smacker s, int track, int *enabled, int *chann
 
 // Smacker decoding functions
 
-static int read_audio_frame_trees(bitstream *bs, hufftree8 **trees, int num_trees)
+static int read_audio_frame_trees(struct bitstream_t *bs, struct hufftree8_t **trees, int num_trees)
 {
     for (int i = 0; i < num_trees; i++) {
         trees[i] = create_tree8(bs);
@@ -637,8 +637,8 @@ static int decode_audio_track(smacker s, int track, uint8_t *data, int length)
 
     int32_t uncompressed_length = read_i32(data);
 
-    bitstream bstream;
-    bitstream *bs = bitstream_init(&bstream, &data[4], length - 4);
+    struct bitstream_t bstream;
+    struct bitstream_t *bs = bitstream_init(&bstream, &data[4], length - 4);
     if (!read_bit(bs)) {
         s->frame_data.audio_len[track] = 0;
         return 0;
@@ -660,7 +660,7 @@ static int decode_audio_track(smacker s, int track, uint8_t *data, int length)
     int channels = is_stereo ? 2 : 1;
     int rate_bytes = is_16bit ? 2 : 1;
     int num_trees = channels * rate_bytes;
-    hufftree8 *trees[4];
+    struct hufftree8_t *trees[4];
     if (!read_audio_frame_trees(bs, trees, num_trees)) {
         log_error("SMK: unable to read audio huffman trees", 0, 0);
         return 0;
@@ -753,8 +753,8 @@ static int decode_video(smacker s, uint8_t *frame_data, int length)
     reset_escape16(s->full_tree);
     reset_escape16(s->type_tree);
 
-    bitstream bstream;
-    bitstream *bs = bitstream_init(&bstream, frame_data, length);
+    struct bitstream_t bstream;
+    struct bitstream_t *bs = bitstream_init(&bstream, frame_data, length);
 
     uint8_t *video = s->frame_data.video;
 
@@ -829,7 +829,7 @@ static void free_frame_data(__attribute__((unused)) const smacker s, uint8_t *fr
     free(frame_data);
 }
 
-static smacker_frame_status decode_frame(smacker s)
+static int decode_frame(smacker s)
 {
     int frame_id = s->current_frame;
     if (frame_id >= s->frames) {
@@ -869,13 +869,13 @@ static smacker_frame_status decode_frame(smacker s)
     return SMACKER_FRAME_OK;
 }
 
-smacker_frame_status smacker_first_frame(smacker s)
+int smacker_first_frame(smacker s)
 {
     s->current_frame = 0;
     return decode_frame(s);
 }
 
-smacker_frame_status smacker_next_frame(smacker s)
+int smacker_next_frame(smacker s)
 {
     s->current_frame++;
     return decode_frame(s);

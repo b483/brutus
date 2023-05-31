@@ -26,7 +26,7 @@
 
 static void button_submenu_or_building(int param1, int param2);
 
-static generic_button build_menu_buttons[MAX_ITEMS_PER_BUILD_MENU] = {
+static struct generic_button_t build_menu_buttons[MAX_ITEMS_PER_BUILD_MENU] = {
     {0, 0, 256, 20, button_submenu_or_building, button_none, 0, 0},
     {0, 24, 256, 20, button_submenu_or_building, button_none, 1, 0},
     {0, 48, 256, 20, button_submenu_or_building, button_none, 2, 0},
@@ -253,7 +253,7 @@ static void draw_foreground(void)
     draw_menu_buttons();
 }
 
-static int click_outside_menu(const mouse *m, int x_offset)
+static int click_outside_menu(const struct mouse_t *m, int x_offset)
 {
     return m->left.went_up &&
         (m->x < x_offset - MENU_X_OFFSET - MENU_CLICK_MARGIN ||
@@ -262,7 +262,7 @@ static int click_outside_menu(const mouse *m, int x_offset)
          m->y > data.y_offset + MENU_Y_OFFSET + MENU_CLICK_MARGIN + MENU_ITEM_HEIGHT * data.num_items_to_draw);
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (generic_buttons_handle_mouse(m, get_sidebar_x_offset() - MENU_X_OFFSET, data.y_offset + MENU_Y_OFFSET, build_menu_buttons, data.num_items_to_draw, &data.focus_button_id)
         || widget_sidebar_city_handle_mouse_build_menu(m)
@@ -379,12 +379,11 @@ void window_build_menu_show(int menu)
         return;
     }
     init(menu);
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_BUILD_MENU,
         window_city_draw_background,
         draw_foreground,
         handle_input,
-        0
     };
     window_show(&window);
 }

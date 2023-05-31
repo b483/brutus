@@ -81,7 +81,7 @@ static const char ENEMY_GRAPHICS_555[ENEMY_FILES_COUNT][NAME_SIZE] = {
    "Phoenician.555",
 };
 
-static const image DUMMY_IMAGE;
+static const struct image_t DUMMY_IMAGE;
 
 static struct {
     int current_climate;
@@ -91,9 +91,9 @@ static struct {
 
     uint16_t group_image_ids[300];
     char bitmaps[100][200];
-    image main[MAIN_ENTRIES];
-    image enemy[ENEMY_FILES_COUNT][ENEMY_ENTRIES];
-    image *font;
+    struct image_t main[MAIN_ENTRIES];
+    struct image_t enemy[ENEMY_FILES_COUNT][ENEMY_ENTRIES];
+    struct image_t *font;
     color_t *main_data;
     color_t *empire_data;
     color_t *enemy_data[ENEMY_FILES_COUNT];
@@ -120,11 +120,11 @@ int image_init(void)
     return 1;
 }
 
-static void prepare_index(image *images, int size)
+static void prepare_index(struct image_t *images, int size)
 {
     int offset = 4;
     for (int i = 1; i < size; i++) {
-        image *img = &images[i];
+        struct image_t *img = &images[i];
         if (img->draw.is_external) {
             if (!img->draw.offset) {
                 img->draw.offset = 1;
@@ -136,7 +136,7 @@ static void prepare_index(image *images, int size)
     }
 }
 
-static void read_index_entry(buffer *buf, image *img)
+static void read_index_entry(struct buffer_t *buf, struct image_t *img)
 {
     img->draw.offset = buffer_read_i32(buf);
     img->draw.data_length = buffer_read_i32(buf);
@@ -163,7 +163,7 @@ static void read_index_entry(buffer *buf, image *img)
     buffer_skip(buf, 5);
 }
 
-static void read_index(buffer *buf, image *images, int size)
+static void read_index(struct buffer_t *buf, struct image_t *images, int size)
 {
     for (int i = 0; i < size; i++) {
         read_index_entry(buf, &images[i]);
@@ -171,7 +171,7 @@ static void read_index(buffer *buf, image *images, int size)
     prepare_index(images, size);
 }
 
-static void read_header(buffer *buf)
+static void read_header(struct buffer_t *buf)
 {
     buffer_skip(buf, 80); // header integers
     for (int i = 0; i < 300; i++) {
@@ -187,7 +187,7 @@ static color_t to_32_bit(uint16_t c)
         ((c & 0x1f) << 3) | ((c & 0x1c) >> 2);
 }
 
-static int convert_uncompressed(buffer *buf, int buf_length, color_t *dst)
+static int convert_uncompressed(struct buffer_t *buf, int buf_length, color_t *dst)
 {
     for (int i = 0; i < buf_length; i += 2) {
         *dst = to_32_bit(buffer_read_u16(buf));
@@ -196,7 +196,7 @@ static int convert_uncompressed(buffer *buf, int buf_length, color_t *dst)
     return buf_length / 2;
 }
 
-static int convert_compressed(buffer *buf, int buf_length, color_t *dst)
+static int convert_compressed(struct buffer_t *buf, int buf_length, color_t *dst)
 {
     int dst_length = 0;
     while (buf_length > 0) {
@@ -220,12 +220,12 @@ static int convert_compressed(buffer *buf, int buf_length, color_t *dst)
     return dst_length;
 }
 
-static void convert_images(image *images, int size, buffer *buf, color_t *dst)
+static void convert_images(struct image_t *images, int size, struct buffer_t *buf, color_t *dst)
 {
     color_t *start_dst = dst;
     dst++; // make sure img->offset > 0
     for (int i = 0; i < size; i++) {
-        image *img = &images[i];
+        struct image_t *img = &images[i];
         if (img->draw.is_external) {
             continue;
         }
@@ -251,7 +251,7 @@ static void load_empire(void)
         log_error("unable to load empire data", EMPIRE_555, 0);
         return;
     }
-    buffer buf;
+    struct buffer_t buf;
     buffer_init(&buf, data.tmp_data, size);
     convert_uncompressed(&buf, size, data.empire_data);
 }
@@ -269,7 +269,7 @@ int image_load_climate(int climate_id, int is_editor, int force_reload)
         return 0;
     }
 
-    buffer buf;
+    struct buffer_t buf;
     buffer_init(&buf, data.tmp_data, HEADER_SIZE);
     read_header(&buf);
     buffer_init(&buf, &data.tmp_data[HEADER_SIZE], ENTRY_SIZE * MAIN_ENTRIES);
@@ -290,7 +290,7 @@ int image_load_climate(int climate_id, int is_editor, int force_reload)
 
 int image_load_enemy(void)
 {
-    buffer buf;
+    struct buffer_t buf;
     for (int i = 0; i < ENEMY_FILES_COUNT; i++) {
         const char *filename_idx = ENEMY_GRAPHICS_SG2[i];
 
@@ -315,7 +315,7 @@ int image_load_enemy(void)
 
 static const color_t *load_external_data(int image_id)
 {
-    image *img = &data.main[image_id];
+    struct image_t *img = &data.main[image_id];
     char filename[FILE_NAME_MAX] = "555/";
     strncpy(&filename[4], data.bitmaps[img->draw.bitmap_id], FILE_NAME_MAX - 6);
     file_change_extension(filename, "555");
@@ -335,7 +335,7 @@ static const color_t *load_external_data(int image_id)
             return NULL;
         }
     }
-    buffer buf;
+    struct buffer_t buf;
     buffer_init(&buf, data.tmp_data, size);
     color_t *dst = (color_t *) &data.tmp_data[4000000];
     // NB: isometric images are never external
@@ -352,7 +352,7 @@ int image_group(int group)
     return data.group_image_ids[group];
 }
 
-image *image_get(int id)
+struct image_t *image_get(int id)
 {
     if (id >= 0 && id < MAIN_ENTRIES) {
         return &data.main[id];
@@ -361,7 +361,7 @@ image *image_get(int id)
     }
 }
 
-const image *image_letter(int letter_id)
+const struct image_t *image_letter(int letter_id)
 {
     if (data.fonts_enabled == FULL_CHARSET_IN_FONT) {
         return &data.font[data.font_base_offset + letter_id];
@@ -374,7 +374,7 @@ const image *image_letter(int letter_id)
     }
 }
 
-image *image_get_enemy(struct figure_t *f)
+struct image_t *image_get_enemy(struct figure_t *f)
 {
     if (f->image_id < ENEMY_ENTRIES) {
         return &data.enemy[f->enemy_image_group][f->image_id];

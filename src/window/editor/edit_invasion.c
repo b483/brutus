@@ -26,7 +26,7 @@ static void button_from(int param1, int param2);
 static void button_attack_type(int param1, int param2);
 static void button_delete(int param1, int param2);
 
-static generic_button buttons_edit_invasion[] = {
+static struct generic_button_t buttons_edit_invasion[] = {
     {145, 152, 60, 25, button_year, button_none, 0, 0},
     {145, 182, 60, 25, button_month, button_none, 0, 0},
     {145, 212, 60, 25, button_amount, button_none, 0, 0},
@@ -127,9 +127,9 @@ static void scenario_editor_sort_invasions(void)
     scenario.is_saved = 0;
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_invasion, sizeof(buttons_edit_invasion) / sizeof(generic_button), &data.focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_invasion, sizeof(buttons_edit_invasion) / sizeof(struct generic_button_t), &data.focus_button_id)) {
         return;
     }
     if (m->right.went_up || h->escape_pressed) {
@@ -234,12 +234,11 @@ static void button_delete(__attribute__((unused)) int param1, __attribute__((unu
 
 void window_editor_edit_invasion_show(int id)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_EDIT_INVASION,
         window_editor_map_draw_all,
         draw_foreground,
         handle_input,
-        0
     };
     data.id = id;
     for (int i = 0; i <= INVASION_TYPE_MAX_COUNT; i++) {

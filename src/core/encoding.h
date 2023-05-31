@@ -6,16 +6,16 @@
 /**
  * Encoding type
  */
-typedef enum {
+enum {
     ENCODING_WESTERN_EUROPE = 1252,
-} encoding_type;
+};
 
 /**
  * Determines the encoding used for the language files (= game),
  * and sets up conversion routines for utf-8 strings
  * @return encoding (best guess)
  */
-encoding_type encoding_determine(void);
+int encoding_determine(void);
 
 /*
  * Returns whether the encoding uses multibyte chars for the internal strings

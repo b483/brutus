@@ -5,7 +5,7 @@
 #include "figure/figure.h"
 #include "map/grid.h"
 
-extern grid_u16 map_figures;
+extern struct grid_u16_t map_figures;
 
 /**
  * Returns the first figure at the given offset
@@ -27,8 +27,8 @@ void map_figure_update(struct figure_t *f);
 
 void map_figure_delete(struct figure_t *f);
 
-void map_figure_save_state(buffer *buf);
+void map_figure_save_state(struct buffer_t *buf);
 
-void map_figure_load_state(buffer *buf);
+void map_figure_load_state(struct buffer_t *buf);
 
 #endif // MAP_FIGURE_H

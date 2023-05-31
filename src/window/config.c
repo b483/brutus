@@ -56,7 +56,7 @@ static void button_close(int save, int param2);
 static const uint8_t *display_text_display_scale(void);
 static const uint8_t *display_text_cursor_scale(void);
 
-static scrollbar_type scrollbar = { 580, ITEM_Y_OFFSET, ITEM_HEIGHT * NUM_VISIBLE_ITEMS, on_scroll, 4, 0, 0, 0, 0, 0 };
+static struct scrollbar_type_t scrollbar = { 580, ITEM_Y_OFFSET, ITEM_HEIGHT * NUM_VISIBLE_ITEMS, on_scroll, 4, 0, 0, 0, 0, 0 };
 
 enum {
     TYPE_NONE,
@@ -73,22 +73,22 @@ enum {
     RANGE_CURSOR_SCALE
 };
 
-typedef struct {
+struct numerical_range_widget_t {
     int width_blocks;
     int min;
     int max;
     int step;
     int *value;
-} numerical_range_widget;
+};
 
-typedef struct {
+struct config_widget_t {
     int type;
     int subtype;
     const uint8_t *(*get_display_text)(void);
     int enabled;
-} config_widget;
+};
 
-static config_widget all_widgets[MAX_WIDGETS] = {
+static struct config_widget_t all_widgets[MAX_WIDGETS] = {
     {TYPE_INPUT_BOX, 0, 0, 0},
     {TYPE_NUMERICAL_DESC, RANGE_DISPLAY_SCALE, 0, 0},
     {TYPE_NUMERICAL_RANGE, RANGE_DISPLAY_SCALE, display_text_display_scale, 0},
@@ -104,12 +104,12 @@ static config_widget all_widgets[MAX_WIDGETS] = {
     {TYPE_CHECKBOX, CONFIG_UI_HIGHLIGHT_LEGIONS, 0, 0},
 };
 
-static numerical_range_widget scale_ranges[] = {
+static struct numerical_range_widget_t scale_ranges[] = {
     {30, 50, 500, 5, 0},
     {30, 100, 200, 50, 0}
 };
 
-static generic_button bottom_buttons[NUM_BOTTOM_BUTTONS] = {
+static struct generic_button_t bottom_buttons[NUM_BOTTOM_BUTTONS] = {
     {20, 480, 180, 30, button_hotkeys, button_none, 0, 0},
     {230, 480, 180, 30, button_reset_defaults, button_none, 0, 0},
     {415, 480, 100, 30, button_close, button_none, 0, 0},
@@ -117,29 +117,29 @@ static generic_button bottom_buttons[NUM_BOTTOM_BUTTONS] = {
 };
 
 static struct {
-    config_widget *widgets[MAX_WIDGETS];
+    struct config_widget_t *widgets[MAX_WIDGETS];
     int num_widgets;
     int focus_button;
     int bottom_focus_button;
     struct {
         int original_value;
         int new_value;
-        int (*change_action)(config_key key);
+        int (*change_action)(int key);
     } config_values[CONFIG_MAX_ENTRIES];
     struct {
         char original_value[CONFIG_STRING_VALUE_MAX];
         char new_value[CONFIG_STRING_VALUE_MAX];
-        int (*change_action)(config_string_key key);
+        int (*change_action)(int key);
     } config_string_values[CONFIG_STRING_MAX_ENTRIES];
     int active_numerical_range;
 } data;
 
-static input_box player_name_input = { 125, 50, 20, 2, FONT_NORMAL_WHITE, 0, (uint8_t *) data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value, MAX_PLAYER_NAME_LENGTH };
+static struct input_box_t player_name_input = { 125, 50, 20, 2, FONT_NORMAL_WHITE, 0, (uint8_t *) data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value, MAX_PLAYER_NAME_LENGTH };
 
-static int config_change_basic(config_key key);
-static int config_change_string_basic(config_string_key key);
-static int config_change_display_scale(config_key key);
-static int config_change_cursor_scale(config_key key);
+static int config_change_basic(int key);
+static int config_change_string_basic(int key);
+static int config_change_display_scale(int key);
+static int config_change_cursor_scale(int key);
 
 static uint8_t config_title_string[] = "Brutus configuration options";
 
@@ -218,7 +218,7 @@ static void init(void)
     scrollbar_init(&scrollbar, 0, data.num_widgets - NUM_VISIBLE_ITEMS);
 }
 
-static void numerical_range_draw(const numerical_range_widget *w, int x, int y, const uint8_t *value_text)
+static void numerical_range_draw(const struct numerical_range_widget_t *w, int x, int y, const uint8_t *value_text)
 {
     text_draw(value_text, x, y + 6, FONT_NORMAL_BLACK, 0);
     inner_panel_draw(x + NUMERICAL_SLIDER_X, y + 4, w->width_blocks, 1);
@@ -274,7 +274,7 @@ static void draw_background(void)
 
     int drawn = 0;
     for (int i = 0; i < NUM_VISIBLE_ITEMS && i < data.num_widgets; i++) {
-        config_widget *w = data.widgets[i + scrollbar.scroll_position];
+        struct config_widget_t *w = data.widgets[i + scrollbar.scroll_position];
         int y = ITEM_Y_OFFSET + ITEM_HEIGHT * i;
         if (w->type == TYPE_HEADER) {
             text_draw(config_widget_strings[drawn + scrollbar.scroll_position], 20, y, FONT_NORMAL_BLACK, 0);
@@ -308,7 +308,7 @@ static void draw_foreground(void)
     graphics_in_dialog();
 
     for (int i = 0; i < NUM_VISIBLE_ITEMS && i < data.num_widgets; i++) {
-        config_widget *w = data.widgets[i + scrollbar.scroll_position];
+        struct config_widget_t *w = data.widgets[i + scrollbar.scroll_position];
         int y = ITEM_Y_OFFSET + ITEM_HEIGHT * i;
         if (w->type == TYPE_CHECKBOX) {
             button_border_draw(20, y, CHECKBOX_CHECK_SIZE, CHECKBOX_CHECK_SIZE, data.focus_button == i + 1);
@@ -330,7 +330,7 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static int is_checkbox(const mouse *m, int x, int y)
+static int is_checkbox(const struct mouse_t *m, int x, int y)
 {
     if (x <= m->x && x + CHECKBOX_WIDTH > m->x &&
         y <= m->y && y + CHECKBOX_HEIGHT > m->y) {
@@ -339,7 +339,7 @@ static int is_checkbox(const mouse *m, int x, int y)
     return 0;
 }
 
-static int checkbox_handle_mouse(const mouse *m, int x, int y, int value_key, int *focus)
+static int checkbox_handle_mouse(const struct mouse_t *m, int x, int y, int value_key, int *focus)
 {
     if (!is_checkbox(m, x, y)) {
         return 0;
@@ -353,7 +353,7 @@ static int checkbox_handle_mouse(const mouse *m, int x, int y, int value_key, in
     }
 }
 
-static int is_numerical_range(const mouse *m, int x, int y, int width)
+static int is_numerical_range(const struct mouse_t *m, int x, int y, int width)
 {
     if (x + NUMERICAL_SLIDER_X <= m->x && x + width + NUMERICAL_SLIDER_X >= m->x &&
         y <= m->y && y + 16 > m->y) {
@@ -362,9 +362,9 @@ static int is_numerical_range(const mouse *m, int x, int y, int width)
     return 0;
 }
 
-static int numerical_range_handle_mouse(const mouse *m, int x, int y, int numerical_range_id)
+static int numerical_range_handle_mouse(const struct mouse_t *m, int x, int y, int numerical_range_id)
 {
-    numerical_range_widget *w = &scale_ranges[numerical_range_id - 1];
+    struct numerical_range_widget_t *w = &scale_ranges[numerical_range_id - 1];
 
     if (data.active_numerical_range) {
         if (data.active_numerical_range != numerical_range_id) {
@@ -394,9 +394,9 @@ static int numerical_range_handle_mouse(const mouse *m, int x, int y, int numeri
     return 1;
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    const mouse *m_dialog = mouse_in_dialog(m);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (data.active_numerical_range) {
         numerical_range_handle_mouse(m_dialog, NUMERICAL_RANGE_X, 0, data.active_numerical_range);
         return;
@@ -417,7 +417,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
     data.focus_button = 0;
 
     for (int i = 0; i < NUM_VISIBLE_ITEMS && i < data.num_widgets; i++) {
-        config_widget *w = data.widgets[i + scrollbar.scroll_position];
+        struct config_widget_t *w = data.widgets[i + scrollbar.scroll_position];
         int y = ITEM_Y_OFFSET + ITEM_HEIGHT * i;
         if (w->type == TYPE_CHECKBOX) {
             int focus = 0;
@@ -477,38 +477,38 @@ static void cancel_values(void)
     }
 }
 
-static int config_changed(config_key key)
+static int config_changed(int key)
 {
     return data.config_values[key].original_value != data.config_values[key].new_value;
 }
 
-static int config_string_changed(config_string_key key)
+static int config_string_changed(int key)
 {
     return strcmp(data.config_string_values[key].original_value, data.config_string_values[key].new_value) != 0;
 }
 
-static int config_change_basic(config_key key)
+static int config_change_basic(int key)
 {
     config_set(key, data.config_values[key].new_value);
     data.config_values[key].original_value = data.config_values[key].new_value;
     return 1;
 }
 
-static int config_change_display_scale(config_key key)
+static int config_change_display_scale(int key)
 {
     data.config_values[key].new_value = system_scale_display(data.config_values[key].new_value);
     config_change_basic(key);
     return 1;
 }
 
-static int config_change_cursor_scale(config_key key)
+static int config_change_cursor_scale(int key)
 {
     config_change_basic(key);
     system_init_cursors(data.config_values[key].new_value);
     return 1;
 }
 
-static int config_change_string_basic(config_string_key key)
+static int config_change_string_basic(int key)
 {
     config_set_string(key, data.config_string_values[key].new_value);
     strncpy(data.config_string_values[key].original_value, data.config_string_values[key].new_value, CONFIG_STRING_VALUE_MAX - 1);
@@ -551,12 +551,11 @@ static void button_close(int save, __attribute__((unused)) int param2)
 
 void window_config_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_CONFIG,
         draw_background,
         draw_foreground,
         handle_input,
-        0
     };
     init();
     window_show(&window);

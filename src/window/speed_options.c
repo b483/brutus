@@ -14,7 +14,7 @@
 static void arrow_button_game(int is_down, int param2);
 static void arrow_button_scroll(int is_down, int param2);
 
-static arrow_button arrow_buttons_speed_options[] = {
+static struct arrow_button_t arrow_buttons_speed_options[] = {
     {112, 100, 17, 24, arrow_button_game, 1, 0, 0, 0},
     {136, 100, 15, 24, arrow_button_game, 0, 0, 0, 0},
     {112, 136, 17, 24, arrow_button_scroll, 1, 0, 0, 0},
@@ -51,14 +51,14 @@ static void draw_foreground(void)
     lang_text_draw(45, 3, 112, 182, FONT_NORMAL_PLAIN);
     text_draw_percentage(setting_scroll_speed(), 328, 182, FONT_NORMAL_PLAIN);
 
-    arrow_buttons_draw(160, 40, arrow_buttons_speed_options, sizeof(arrow_buttons_speed_options) / sizeof(arrow_button));
+    arrow_buttons_draw(160, 40, arrow_buttons_speed_options, sizeof(arrow_buttons_speed_options) / sizeof(struct arrow_button_t));
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    const mouse *m_dialog = mouse_in_dialog(m);
-    if (arrow_buttons_handle_mouse(m_dialog, 160, 40, arrow_buttons_speed_options, sizeof(arrow_buttons_speed_options) / sizeof(arrow_button), 0)) {
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
+    if (arrow_buttons_handle_mouse(m_dialog, 160, 40, arrow_buttons_speed_options, sizeof(arrow_buttons_speed_options) / sizeof(struct arrow_button_t), 0)) {
         return;
     }
     if (m->right.went_up || h->escape_pressed) {
@@ -90,12 +90,11 @@ static void arrow_button_scroll(int is_down, __attribute__((unused)) int param2)
 
 void window_speed_options_show(int from_editor)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_SPEED_OPTIONS,
         window_draw_underlying_window,
         draw_foreground,
         handle_input,
-        0
     };
     init(from_editor);
     window_show(&window);

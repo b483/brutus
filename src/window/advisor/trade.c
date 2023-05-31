@@ -19,7 +19,7 @@ static void button_prices(int param1, int param2);
 static void button_empire(int param1, int param2);
 static void button_resource(int resource_index, int param2);
 
-static generic_button resource_buttons[] = {
+static struct generic_button_t resource_buttons[] = {
     {400, 398, 200, 23, button_prices, button_none, 1, 0},
     {100, 398, 200, 23, button_empire, button_none, 1, 0},
     {80, 56, 480, 20, button_resource, button_none, 0, 0},
@@ -77,7 +77,7 @@ static void draw_foreground(void)
         if (city_data.resource.stockpiled[resource]) {
             lang_text_draw(54, 3, 340, y_offset + 61, FONT_NORMAL_WHITE);
         } else {
-            resource_trade_status trade_status = city_data.resource.trade_status[resource];
+            int trade_status = city_data.resource.trade_status[resource];
             if (trade_status == TRADE_STATUS_IMPORT) {
                 lang_text_draw(54, 5, 340, y_offset + 61, FONT_NORMAL_WHITE);
             } else if (trade_status == TRADE_STATUS_EXPORT) {
@@ -95,7 +95,7 @@ static void draw_foreground(void)
     lang_text_draw_centered(54, 30, 100, 402, 200, FONT_NORMAL_BLACK);
 }
 
-static int handle_mouse(const mouse *m)
+static int handle_mouse(const struct mouse_t *m)
 {
     int num_resources = city_resource_get_available()->size;
     return generic_buttons_handle_mouse(m, 0, 0, resource_buttons, num_resources + 2, &focus_button_id);
@@ -116,26 +116,12 @@ static void button_resource(int resource_index, __attribute__((unused)) int para
     window_resource_settings_show(city_resource_get_available()->items[resource_index]);
 }
 
-static int get_tooltip_text(void)
+struct advisor_window_type_t *window_advisor_trade(void)
 {
-    if (focus_button_id == 1) {
-        return 106;
-    } else if (focus_button_id == 2) {
-        return 41;
-    } else if (focus_button_id) {
-        return 107;
-    } else {
-        return 0;
-    }
-}
-
-const advisor_window_type *window_advisor_trade(void)
-{
-    static const advisor_window_type window = {
+    static struct advisor_window_type_t window = {
         draw_background,
         draw_foreground,
         handle_mouse,
-        get_tooltip_text
     };
     return &window;
 }

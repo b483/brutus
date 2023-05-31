@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-typedef enum {
+enum {
     KEY_TYPE_NONE = 0,
     KEY_TYPE_A,
     KEY_TYPE_B,
@@ -100,20 +100,20 @@ typedef enum {
     // the key next to left shift on ISO (Non-US) keyboards, usually \ or <
     KEY_TYPE_NON_US,
     KEY_TYPE_MAX_ITEMS
-} key_type;
+};
 
-typedef enum {
+enum {
     KEY_MOD_NONE = 0,
     KEY_MOD_SHIFT = 1,
     KEY_MOD_CTRL = 2,
     KEY_MOD_ALT = 4,
     KEY_MOD_GUI = 8,
-} key_modifier_type;
+};
 
-const char *key_combination_name(key_type key, key_modifier_type modifiers);
+const char *key_combination_name(int key, int modifiers);
 
-int key_combination_from_name(const char *name, key_type *key, key_modifier_type *modifiers);
+int key_combination_from_name(const char *name, int *key, int *modifiers);
 
-const uint8_t *key_combination_display_name(key_type key, key_modifier_type modifiers);
+const uint8_t *key_combination_display_name(int key, int modifiers);
 
 #endif // INPUT_KEYS_H

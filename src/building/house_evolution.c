@@ -12,11 +12,11 @@
 #include "map/routing_terrain.h"
 #include "map/tiles.h"
 
-typedef enum {
+enum {
     EVOLVE = 1,
     NONE = 0,
     DEVOLVE = -1
-} evolve_status;
+};
 
 static int check_evolve_desirability(struct building_t *house)
 {
@@ -38,7 +38,7 @@ static int check_evolve_desirability(struct building_t *house)
     return status;
 }
 
-static int has_required_goods_and_services(struct building_t *house, int for_upgrade, house_demands *demands)
+static int has_required_goods_and_services(struct building_t *house, int for_upgrade, struct house_demands_t *demands)
 {
     int level = house->subtype.house_level;
     if (for_upgrade) {
@@ -154,7 +154,7 @@ static int has_required_goods_and_services(struct building_t *house, int for_upg
     return 1;
 }
 
-static int check_requirements(struct building_t *house, house_demands *demands)
+static int check_requirements(struct building_t *house, struct house_demands_t *demands)
 {
     int status = check_evolve_desirability(house);
     if (!has_required_goods_and_services(house, 0, demands)) {
@@ -165,7 +165,7 @@ static int check_requirements(struct building_t *house, house_demands *demands)
     return status;
 }
 
-static int has_devolve_delay(struct building_t *house, evolve_status status)
+static int has_devolve_delay(struct building_t *house, int status)
 {
     if (status == DEVOLVE && house->data.house.devolve_delay < 2) {
         house->data.house.devolve_delay++;
@@ -176,11 +176,11 @@ static int has_devolve_delay(struct building_t *house, evolve_status status)
     }
 }
 
-static int evolve_small_tent(struct building_t *house, house_demands *demands)
+static int evolve_small_tent(struct building_t *house, struct house_demands_t *demands)
 {
     if (house->house_population > 0) {
         building_house_merge(house);
-        evolve_status status = check_requirements(house, demands);
+        int status = check_requirements(house, demands);
         if (status == EVOLVE) {
             building_house_change_to(house, BUILDING_HOUSE_LARGE_TENT);
         }
@@ -188,11 +188,11 @@ static int evolve_small_tent(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_large_tent(struct building_t *house, house_demands *demands)
+static int evolve_large_tent(struct building_t *house, struct house_demands_t *demands)
 {
     if (house->house_population > 0) {
         building_house_merge(house);
-        evolve_status status = check_requirements(house, demands);
+        int status = check_requirements(house, demands);
         if (!has_devolve_delay(house, status)) {
             if (status == EVOLVE) {
                 building_house_change_to(house, BUILDING_HOUSE_SMALL_SHACK);
@@ -204,7 +204,7 @@ static int evolve_large_tent(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_small_shack(struct building_t *house, house_demands *demands)
+static int evolve_small_shack(struct building_t *house, struct house_demands_t *demands)
 {
     building_house_merge(house);
     int status = check_requirements(house, demands);
@@ -218,7 +218,7 @@ static int evolve_small_shack(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_large_shack(struct building_t *house, house_demands *demands)
+static int evolve_large_shack(struct building_t *house, struct house_demands_t *demands)
 {
     building_house_merge(house);
     int status = check_requirements(house, demands);
@@ -232,7 +232,7 @@ static int evolve_large_shack(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_small_hovel(struct building_t *house, house_demands *demands)
+static int evolve_small_hovel(struct building_t *house, struct house_demands_t *demands)
 {
     building_house_merge(house);
     int status = check_requirements(house, demands);
@@ -246,7 +246,7 @@ static int evolve_small_hovel(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_large_hovel(struct building_t *house, house_demands *demands)
+static int evolve_large_hovel(struct building_t *house, struct house_demands_t *demands)
 {
     building_house_merge(house);
     int status = check_requirements(house, demands);
@@ -260,7 +260,7 @@ static int evolve_large_hovel(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_small_casa(struct building_t *house, house_demands *demands)
+static int evolve_small_casa(struct building_t *house, struct house_demands_t *demands)
 {
     building_house_merge(house);
     int status = check_requirements(house, demands);
@@ -274,7 +274,7 @@ static int evolve_small_casa(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_large_casa(struct building_t *house, house_demands *demands)
+static int evolve_large_casa(struct building_t *house, struct house_demands_t *demands)
 {
     building_house_merge(house);
     int status = check_requirements(house, demands);
@@ -288,7 +288,7 @@ static int evolve_large_casa(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_small_insula(struct building_t *house, house_demands *demands)
+static int evolve_small_insula(struct building_t *house, struct house_demands_t *demands)
 {
     building_house_merge(house);
     int status = check_requirements(house, demands);
@@ -302,7 +302,7 @@ static int evolve_small_insula(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_medium_insula(struct building_t *house, house_demands *demands)
+static int evolve_medium_insula(struct building_t *house, struct house_demands_t *demands)
 {
     building_house_merge(house);
     int status = check_requirements(house, demands);
@@ -322,7 +322,7 @@ static int evolve_medium_insula(struct building_t *house, house_demands *demands
     return 0;
 }
 
-static int evolve_large_insula(struct building_t *house, house_demands *demands)
+static int evolve_large_insula(struct building_t *house, struct house_demands_t *demands)
 {
     int status = check_requirements(house, demands);
     if (!has_devolve_delay(house, status)) {
@@ -336,7 +336,7 @@ static int evolve_large_insula(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_grand_insula(struct building_t *house, house_demands *demands)
+static int evolve_grand_insula(struct building_t *house, struct house_demands_t *demands)
 {
     int status = check_requirements(house, demands);
     if (!has_devolve_delay(house, status)) {
@@ -349,7 +349,7 @@ static int evolve_grand_insula(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_small_villa(struct building_t *house, house_demands *demands)
+static int evolve_small_villa(struct building_t *house, struct house_demands_t *demands)
 {
     int status = check_requirements(house, demands);
     if (!has_devolve_delay(house, status)) {
@@ -362,7 +362,7 @@ static int evolve_small_villa(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_medium_villa(struct building_t *house, house_demands *demands)
+static int evolve_medium_villa(struct building_t *house, struct house_demands_t *demands)
 {
     int status = check_requirements(house, demands);
     if (!has_devolve_delay(house, status)) {
@@ -380,7 +380,7 @@ static int evolve_medium_villa(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_large_villa(struct building_t *house, house_demands *demands)
+static int evolve_large_villa(struct building_t *house, struct house_demands_t *demands)
 {
     int status = check_requirements(house, demands);
     if (!has_devolve_delay(house, status)) {
@@ -394,7 +394,7 @@ static int evolve_large_villa(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_grand_villa(struct building_t *house, house_demands *demands)
+static int evolve_grand_villa(struct building_t *house, struct house_demands_t *demands)
 {
     int status = check_requirements(house, demands);
     if (!has_devolve_delay(house, status)) {
@@ -407,7 +407,7 @@ static int evolve_grand_villa(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_small_palace(struct building_t *house, house_demands *demands)
+static int evolve_small_palace(struct building_t *house, struct house_demands_t *demands)
 {
     int status = check_requirements(house, demands);
     if (!has_devolve_delay(house, status)) {
@@ -420,7 +420,7 @@ static int evolve_small_palace(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_medium_palace(struct building_t *house, house_demands *demands)
+static int evolve_medium_palace(struct building_t *house, struct house_demands_t *demands)
 {
     int status = check_requirements(house, demands);
     if (!has_devolve_delay(house, status)) {
@@ -438,7 +438,7 @@ static int evolve_medium_palace(struct building_t *house, house_demands *demands
     return 0;
 }
 
-static int evolve_large_palace(struct building_t *house, house_demands *demands)
+static int evolve_large_palace(struct building_t *house, struct house_demands_t *demands)
 {
     int status = check_requirements(house, demands);
     if (!has_devolve_delay(house, status)) {
@@ -452,7 +452,7 @@ static int evolve_large_palace(struct building_t *house, house_demands *demands)
     return 0;
 }
 
-static int evolve_luxury_palace(struct building_t *house, house_demands *demands)
+static int evolve_luxury_palace(struct building_t *house, struct house_demands_t *demands)
 {
     int status = check_evolve_desirability(house);
     if (!has_required_goods_and_services(house, 0, demands)) {
@@ -483,7 +483,7 @@ static void consume_resources(struct building_t *b)
     consume_resource(b, INVENTORY_WINE, house_properties[b->subtype.house_level].wine);
 }
 
-static int (*evolve_callback[])(struct building_t *, house_demands *) = {
+static int (*evolve_callback[])(struct building_t *, struct house_demands_t *) = {
     evolve_small_tent, evolve_large_tent, evolve_small_shack, evolve_large_shack,
     evolve_small_hovel, evolve_large_hovel, evolve_small_casa, evolve_large_casa,
     evolve_small_insula, evolve_medium_insula, evolve_large_insula, evolve_grand_insula,
@@ -494,7 +494,7 @@ static int (*evolve_callback[])(struct building_t *, house_demands *) = {
 void building_house_process_evolve_and_consume_goods(void)
 {
     city_houses_reset_demands();
-    house_demands *demands = city_houses_demands();
+    struct house_demands_t *demands = city_houses_demands();
     int has_expanded = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
         struct building_t *b = &all_buildings[i];

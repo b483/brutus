@@ -17,7 +17,7 @@ static struct {
     int focus_id_button_remove_priority;
 } data;
 
-static generic_button priority_buttons[] = {
+static struct generic_button_t priority_buttons[] = {
     {176, 170, 27, 27, button_set_priority, button_none, 1, 0},
     {208, 170, 27, 27, button_set_priority, button_none, 2, 0},
     {240, 170, 27, 27, button_set_priority, button_none, 3, 0},
@@ -29,7 +29,7 @@ static generic_button priority_buttons[] = {
     {432, 170, 27, 27, button_set_priority, button_none, 9, 0},
 };
 
-static generic_button remove_priority_button[] = {
+static struct generic_button_t remove_priority_button[] = {
     {220, 206, 200, 25, button_remove_priority, button_none, 0, 0}
 };
 
@@ -63,14 +63,14 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (m->right.went_up || h->escape_pressed) {
         window_go_back();
         return;
     }
 
-    const mouse *m_dialog = mouse_in_dialog(m);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (generic_buttons_handle_mouse(m_dialog, 0, 0,
         priority_buttons, data.max_items, &data.focus_id_button_set_priority)) {
         return;
@@ -98,31 +98,13 @@ static void button_remove_priority(__attribute__((unused)) int param1, __attribu
     window_go_back();
 }
 
-static void get_tooltip(tooltip_context *c)
-{
-    if (!data.focus_id_button_set_priority && !data.focus_id_button_remove_priority) {
-        return;
-    }
-
-    c->type = TOOLTIP_BUTTON;
-    if (data.focus_id_button_set_priority) {
-        c->text_id = 93;
-        return;
-    }
-    if (data.focus_id_button_remove_priority) {
-        c->text_id = 92;
-        return;
-    }
-}
-
 void window_labor_priority_show(int category)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_LABOR_PRIORITY,
         window_draw_underlying_window,
         draw_foreground,
         handle_input,
-        get_tooltip
     };
     init(category);
     window_show(&window);

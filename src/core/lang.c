@@ -34,7 +34,7 @@ static struct {
     } text_entries[MAX_TEXT_ENTRIES];
     uint8_t text_data[MAX_TEXT_DATA];
 
-    lang_message message_entries[MAX_MESSAGE_ENTRIES];
+    struct lang_message_t message_entries[MAX_MESSAGE_ENTRIES];
     uint8_t message_data[MAX_MESSAGE_DATA];
 } data;
 
@@ -43,7 +43,7 @@ static uint8_t extra_messages_strings[][71] = {
     "Your relief force defeated the invading barbarians. Caesar is pleased." // 1
 };
 
-static void parse_text(buffer *buf)
+static void parse_text(struct buffer_t *buf)
 {
     buffer_skip(buf, 28); // header
     for (int i = 0; i < MAX_TEXT_ENTRIES; i++) {
@@ -55,7 +55,7 @@ static void parse_text(buffer *buf)
 
 static int load_text(const char *filename, uint8_t *buf_data)
 {
-    buffer buf;
+    struct buffer_t buf;
     int filesize = io_read_file_into_buffer(filename, buf_data, BUFFER_SIZE);
     if (filesize < MIN_TEXT_SIZE || filesize > MAX_TEXT_SIZE) {
         return 0;
@@ -73,11 +73,11 @@ static uint8_t *get_message_text(int32_t offset)
     return &data.message_data[offset];
 }
 
-static void parse_message(buffer *buf)
+static void parse_message(struct buffer_t *buf)
 {
     buffer_skip(buf, 24); // header
     for (int i = 0; i < MAX_MESSAGE_ENTRIES; i++) {
-        lang_message *m = &data.message_entries[i];
+        struct lang_message_t *m = &data.message_entries[i];
         m->type = buffer_read_i16(buf);
         m->message_type = buffer_read_i16(buf);
         buffer_skip(buf, 2);
@@ -108,7 +108,7 @@ static void parse_message(buffer *buf)
     buffer_read_raw(buf, &data.message_data, MAX_MESSAGE_DATA);
 }
 
-static void set_message_parameters(lang_message *m, uint8_t *title, uint8_t * text, int urgent, int message_type)
+static void set_message_parameters(struct lang_message_t *m, uint8_t *title, uint8_t * text, int urgent, int message_type)
 {
     m->type = TYPE_MESSAGE;
     m->message_type = message_type;
@@ -166,7 +166,7 @@ void load_custom_messages(void)
 
 static int load_message(const char *filename, uint8_t *data_buffer)
 {
-    buffer buf;
+    struct buffer_t buf;
     int filesize = io_read_file_into_buffer(filename, data_buffer, BUFFER_SIZE);
     if (filesize < MIN_MESSAGE_SIZE || filesize > MAX_MESSAGE_SIZE) {
         return 0;
@@ -214,7 +214,7 @@ const uint8_t *lang_get_string(int group, int index)
     return str;
 }
 
-const lang_message *lang_get_message(int id)
+const struct lang_message_t *lang_get_message(int id)
 {
     return &data.message_entries[id];
 }

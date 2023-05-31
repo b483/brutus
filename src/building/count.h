@@ -47,7 +47,7 @@ int building_count_industry_total(int resource);
  * @param support Market and water
  */
 void building_count_save_state(
-    buffer *industry, buffer *culture1, buffer *culture2, buffer *culture3, buffer *military, buffer *support);
+    struct buffer_t *industry, struct buffer_t *culture1, struct buffer_t *culture2, struct buffer_t *culture3, struct buffer_t *military, struct buffer_t *support);
 
 /**
  * Load the building counts
@@ -59,6 +59,6 @@ void building_count_save_state(
  * @param support Market and water
  */
 void building_count_load_state(
-    buffer *industry, buffer *culture1, buffer *culture2, buffer *culture3, buffer *military, buffer *support);
+    struct buffer_t *industry, struct buffer_t *culture1, struct buffer_t *culture2, struct buffer_t *culture3, struct buffer_t *military, struct buffer_t *support);
 
 #endif // BUILDING_COUNT_H

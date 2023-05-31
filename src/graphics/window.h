@@ -1,11 +1,10 @@
 #ifndef GRAPHICS_WINDOW_H
 #define GRAPHICS_WINDOW_H
 
-#include "graphics/tooltip.h"
 #include "input/hotkey.h"
 #include "input/mouse.h"
 
-typedef enum {
+enum {
     WINDOW_LOGO,
     WINDOW_MAIN_MENU,
     WINDOW_CONFIG,
@@ -77,15 +76,14 @@ typedef enum {
     WINDOW_EDITOR_EDIT_PRICE_CHANGE,
     WINDOW_EDITOR_DEMAND_CHANGES,
     WINDOW_EDITOR_EDIT_DEMAND_CHANGE,
-} window_id;
+};
 
-typedef struct {
-    window_id id;
+struct window_type_t {
+    int id;
     void (*draw_background)(void);
     void (*draw_foreground)(void);
-    void (*handle_input)(const mouse *m, const hotkeys *h);
-    void (*get_tooltip)(tooltip_context *c);
-} window_type;
+    void (*handle_input)(const struct mouse_t *m, const struct hotkeys_t *h);
+};
 
 /**
  * Invalidates the window immediately, indicating that the current game state
@@ -107,11 +105,11 @@ void window_draw(int force);
 
 void window_draw_underlying_window(void);
 
-int window_is(window_id id);
+int window_is(int id);
 
-void window_show(const window_type *window);
+void window_show(const struct window_type_t *window);
 
-window_id window_get_id(void);
+int window_get_id(void);
 
 void window_go_back(void);
 

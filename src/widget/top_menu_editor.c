@@ -35,32 +35,32 @@ static void menu_resets_fish(int param);
 static void menu_resets_invasions(int param);
 static void menu_resets_earthquakes(int param);
 
-static menu_item menu_file[] = {
+static struct menu_item_t menu_file[] = {
     {7, 1, menu_file_new_map, 0, 0},
     {7, 2, menu_file_load_map, 0, 0},
     {7, 3, menu_file_save_map, 0, 0},
     {7, 4, menu_file_exit_editor, 0, 0},
 };
 
-static menu_item menu_options[] = {
+static struct menu_item_t menu_options[] = {
     {2, 1, menu_options_display, 0, 0},
     {2, 2, menu_options_sound, 0, 0},
     {2, 3, menu_options_speed, 0, 0},
 };
 
-static menu_item menu_help[] = {
+static struct menu_item_t menu_help[] = {
     {3, 1, menu_help_help, 0, 0},
     {3, 7, menu_help_about, 0, 0},
 };
 
-static menu_item menu_resets[] = {
+static struct menu_item_t menu_resets[] = {
     {10, 1, menu_resets_herds, 0, 0},
     {10, 2, menu_resets_fish, 0, 0},
     {10, 3, menu_resets_invasions, 0, 0},
     {10, 4, menu_resets_earthquakes, 0, 0},
 };
 
-static menu_bar_item top_menu_editor[] = {
+static struct menu_bar_item_t top_menu_editor[] = {
     {7, menu_file, 4, 0, 0, 0, 0},
     {2, menu_options, 3, 0, 0, 0, 0},
     {3, menu_help, 2, 0, 0, 0, 0},
@@ -90,19 +90,18 @@ static void draw_foreground(void)
     menu_draw(&top_menu_editor[data.open_sub_menu - 1], data.focus_sub_menu_id);
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     widget_top_menu_editor_handle_input(m, h);
 }
 
 static void top_menu_window_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_TOP_MENU,
         window_editor_map_draw_all,
         draw_foreground,
         handle_input,
-        0
     };
     top_menu_editor[INDEX_OPTIONS].items[0].hidden = 0;
     window_show(&window);
@@ -116,17 +115,17 @@ void widget_top_menu_editor_draw(void)
     for (int i = 0; i * block_width < s_width; i++) {
         image_draw(image_base + i % 8, i * block_width, 0);
     }
-    menu_bar_draw(top_menu_editor, sizeof(top_menu_editor) / sizeof(menu_bar_item), s_width);
+    menu_bar_draw(top_menu_editor, sizeof(top_menu_editor) / sizeof(struct menu_bar_item_t), s_width);
 }
 
-static int handle_input_submenu(const mouse *m, const hotkeys *h)
+static int handle_input_submenu(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (m->right.went_up || h->escape_pressed) {
         clear_state();
         window_go_back();
         return 1;
     }
-    int menu_id = menu_bar_handle_mouse(m, top_menu_editor, sizeof(top_menu_editor) / sizeof(menu_bar_item), &data.focus_menu_id);
+    int menu_id = menu_bar_handle_mouse(m, top_menu_editor, sizeof(top_menu_editor) / sizeof(struct menu_bar_item_t), &data.focus_menu_id);
     if (menu_id && menu_id != data.open_sub_menu) {
         window_request_refresh();
         data.open_sub_menu = menu_id;
@@ -141,9 +140,9 @@ static int handle_input_submenu(const mouse *m, const hotkeys *h)
     return 0;
 }
 
-static int handle_mouse_menu(const mouse *m)
+static int handle_mouse_menu(const struct mouse_t *m)
 {
-    int menu_id = menu_bar_handle_mouse(m, top_menu_editor, sizeof(top_menu_editor) / sizeof(menu_bar_item), &data.focus_menu_id);
+    int menu_id = menu_bar_handle_mouse(m, top_menu_editor, sizeof(top_menu_editor) / sizeof(struct menu_bar_item_t), &data.focus_menu_id);
     if (menu_id && m->left.went_up) {
         data.open_sub_menu = menu_id;
         top_menu_window_show();
@@ -152,7 +151,7 @@ static int handle_mouse_menu(const mouse *m)
     return 0;
 }
 
-int widget_top_menu_editor_handle_input(const mouse *m, const hotkeys *h)
+int widget_top_menu_editor_handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (data.open_sub_menu) {
         return handle_input_submenu(m, h);

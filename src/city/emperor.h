@@ -7,10 +7,10 @@ enum {
     GIFT_LAVISH = 2
 };
 
-typedef struct {
+struct emperor_gift_t {
     int id;
     int cost;
-} emperor_gift;
+};
 
 void city_emperor_init_scenario(void);
 

@@ -137,14 +137,14 @@ static const char *ini_keys[] = {
 };
 
 static struct {
-    hotkey_mapping default_mappings[HOTKEY_MAX_ITEMS][2];
-    hotkey_mapping mappings[MAX_MAPPINGS];
+    struct hotkey_mapping_t default_mappings[HOTKEY_MAX_ITEMS][2];
+    struct hotkey_mapping_t mappings[MAX_MAPPINGS];
     int num_mappings;
 } data;
 
-static void set_mapping(key_type key, key_modifier_type modifiers, hotkey_action action)
+static void set_mapping(int key, int modifiers, int action)
 {
-    hotkey_mapping *mapping = &data.default_mappings[action][0];
+    struct hotkey_mapping_t *mapping = &data.default_mappings[action][0];
     if (mapping->key) {
         mapping = &data.default_mappings[action][1];
     }
@@ -245,7 +245,7 @@ static void init_defaults(void)
     set_mapping(KEY_TYPE_V, KEY_MOD_ALT, HOTKEY_BUILD_WAREHOUSE);
 }
 
-const hotkey_mapping *hotkey_for_action(hotkey_action action, int index)
+const struct hotkey_mapping_t *hotkey_for_action(int action, int index)
 {
     int num = 0;
     for (int i = 0; i < data.num_mappings; i++) {
@@ -259,7 +259,7 @@ const hotkey_mapping *hotkey_for_action(hotkey_action action, int index)
     return 0;
 }
 
-const hotkey_mapping *hotkey_default_for_action(hotkey_action action, int index)
+const struct hotkey_mapping_t *hotkey_default_for_action(int action, int index)
 {
     if (index < 0 || index >= 2 || (int) action < 0 || action >= HOTKEY_MAX_ITEMS) {
         return 0;
@@ -272,7 +272,7 @@ void hotkey_config_clear(void)
     data.num_mappings = 0;
 }
 
-void hotkey_config_add_mapping(const hotkey_mapping *mapping)
+void hotkey_config_add_mapping(const struct hotkey_mapping_t *mapping)
 {
     if (data.num_mappings < MAX_MAPPINGS) {
         data.mappings[data.num_mappings] = *mapping;
@@ -315,7 +315,7 @@ static void load_file(void)
         char *value = &equals[1];
         for (int i = 0; i < HOTKEY_MAX_ITEMS; i++) {
             if (strcmp(ini_keys[i], line) == 0) {
-                hotkey_mapping mapping;
+                struct hotkey_mapping_t mapping;
                 if (key_combination_from_name(value, &mapping.key, &mapping.modifiers)) {
                     mapping.action = i;
                     hotkey_config_add_mapping(&mapping);

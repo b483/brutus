@@ -53,7 +53,7 @@ void system_init_cursors(int scale_percentage);
 
 /**
  * Set cursor to the specified cursor in @link input/cursor.h @endlink
- * @param cursor_id Cursor to set
+ * @param cursor_id cursor to set
  */
 void system_set_cursor(int cursor_id);
 
@@ -62,14 +62,14 @@ void system_set_cursor(int cursor_id);
  * @param key Key to get the name for
  * @return Key name, may be empty
  */
-const char *system_keyboard_key_name(key_type key);
+const char *system_keyboard_key_name(int key);
 
 /**
  * Gets the key modifier name
  * @param modifier Modifier
  * @return Modifier name, may depend on OS
  */
-const char *system_keyboard_key_modifier_name(key_modifier_type modifier);
+const char *system_keyboard_key_modifier_name(int modifier);
 
 /**
  * Sets the position/size of the keyboard input box

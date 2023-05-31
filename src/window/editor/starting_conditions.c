@@ -25,7 +25,7 @@ static void button_initial_personal_savings(int param1, int param2);
 static void button_wheat(int param1, int param2);
 static void button_flotsam(int param1, int param2);
 
-static generic_button buttons_starting_conditions[] = {
+static struct generic_button_t buttons_starting_conditions[] = {
     {262, 48, 200, 30, button_rank, button_none, 0, 0},
     {262, 88, 200, 30, button_start_year, button_none, 0, 0},
     {262, 128, 200, 30, button_initial_favor, button_none, 0, 0},
@@ -94,7 +94,7 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_starting_conditions, 11, &focus_button_id)) {
         return;
@@ -183,12 +183,11 @@ static void button_flotsam(__attribute__((unused)) int param1, __attribute__((un
 
 void window_editor_starting_conditions_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_STARTING_CONDITIONS,
         window_editor_map_draw_all,
         draw_foreground,
         handle_input,
-        0
     };
     window_show(&window);
 }

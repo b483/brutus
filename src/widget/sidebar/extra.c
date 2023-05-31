@@ -24,15 +24,15 @@
 
 static void button_game_speed(int is_down, int param2);
 
-static arrow_button arrow_buttons_speed[] = {
+static struct arrow_button_t arrow_buttons_speed[] = {
     {11, 30, 17, 24, button_game_speed, 1, 0, 0, 0},
     {35, 30, 15, 24, button_game_speed, 0, 0, 0, 0},
 };
 
-typedef struct {
+struct objective_t {
     int value;
     int target;
-} objective;
+};
 
 static struct {
     int x_offset;
@@ -40,23 +40,23 @@ static struct {
     int width;
     int height;
     int is_collapsed;
-    sidebar_extra_display info_to_display;
+    int info_to_display;
     int game_speed;
     int unemployment_percentage;
     int unemployment_amount;
-    objective culture;
-    objective prosperity;
-    objective peace;
-    objective favor;
-    objective population;
+    struct objective_t culture;
+    struct objective_t prosperity;
+    struct objective_t peace;
+    struct objective_t favor;
+    struct objective_t population;
 } data;
 
-static sidebar_extra_display calculate_displayable_info(sidebar_extra_display info_to_display, int available_height)
+static int calculate_displayable_info(int info_to_display, int available_height)
 {
     if (data.is_collapsed || !config_get(CONFIG_UI_SIDEBAR_INFO) || info_to_display == SIDEBAR_EXTRA_DISPLAY_NONE) {
         return SIDEBAR_EXTRA_DISPLAY_NONE;
     }
-    sidebar_extra_display result = SIDEBAR_EXTRA_DISPLAY_NONE;
+    int result = SIDEBAR_EXTRA_DISPLAY_NONE;
     if (available_height >= EXTRA_INFO_HEIGHT_GAME_SPEED) {
         if (info_to_display & SIDEBAR_EXTRA_DISPLAY_GAME_SPEED) {
             available_height -= EXTRA_INFO_HEIGHT_GAME_SPEED;
@@ -161,10 +161,10 @@ static int update_extra_info(int is_background)
 }
 
 static int draw_extra_info_objective(
-    int x_offset, int y_offset, int text_group, int text_id, objective *obj)
+    int x_offset, int y_offset, int text_group, int text_id, struct objective_t *obj)
 {
     lang_text_draw(text_group, text_id, x_offset + 11, y_offset, FONT_NORMAL_WHITE);
-    font_t font = obj->value >= obj->target ? FONT_NORMAL_GREEN : FONT_NORMAL_RED;
+    int font = obj->value >= obj->target ? FONT_NORMAL_GREEN : FONT_NORMAL_RED;
     int width = text_draw_number(obj->value, '@', "", x_offset + 11, y_offset + EXTRA_INFO_LINE_SPACE, font);
     text_draw_number(obj->target, '(', ")", x_offset + 11 + width, y_offset + EXTRA_INFO_LINE_SPACE, font);
     return EXTRA_INFO_LINE_SPACE * 2;
@@ -217,7 +217,7 @@ static void draw_extra_info_panel(void)
 }
 
 int sidebar_extra_draw_background(int x_offset, int y_offset, int width, int available_height,
-    int is_collapsed, sidebar_extra_display info_to_display)
+    int is_collapsed, int info_to_display)
 {
     data.is_collapsed = is_collapsed;
     data.x_offset = x_offset;
@@ -249,7 +249,7 @@ void sidebar_extra_draw_foreground(void)
     draw_extra_info_buttons();
 }
 
-int sidebar_extra_handle_mouse(const mouse *m)
+int sidebar_extra_handle_mouse(const struct mouse_t *m)
 {
     if (!(data.info_to_display & SIDEBAR_EXTRA_DISPLAY_GAME_SPEED)) {
         return 0;

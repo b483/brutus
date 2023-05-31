@@ -46,7 +46,7 @@ static void button_demand_changes(int param1, int param2);
 static void change_climate(int param1, int param2);
 static void change_image(int value, int param2);
 
-static generic_button buttons_editor_attributes[] = {
+static struct generic_button_t buttons_editor_attributes[] = {
     {213, 60, 195, 30, button_briefing, button_none, 0, 0},
     {213, 100, 195, 30, change_climate, button_none, 0, 0},
     {213, 140, 195, 30, button_starting_conditions, button_none, 0, 0},
@@ -61,7 +61,7 @@ static generic_button buttons_editor_attributes[] = {
     {213, 340, 195, 30, button_demand_changes, button_none, 0, 0},
 };
 
-static arrow_button image_arrows[] = {
+static struct arrow_button_t image_arrows[] = {
     {19, 16, 19, 24, change_image, -1, 0, 0, 0},
     {43, 16, 21, 24, change_image, 1, 0, 0, 0},
 };
@@ -71,7 +71,7 @@ static struct {
     int focus_button_id;
 } data;
 
-static input_box scenario_description_input = {
+static struct input_box_t scenario_description_input = {
     90, 16, 20, 2, FONT_NORMAL_WHITE, 1,
     data.brief_description, MAX_BRIEF_DESCRIPTION
 };
@@ -206,10 +206,10 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    const mouse *m_dialog = mouse_in_dialog(m);
-    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_editor_attributes, sizeof(buttons_editor_attributes) / sizeof(generic_button), &data.focus_button_id) ||
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
+    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_editor_attributes, sizeof(buttons_editor_attributes) / sizeof(struct generic_button_t), &data.focus_button_id) ||
         arrow_buttons_handle_mouse(m_dialog, 0, 0, image_arrows, 2, 0) ||
         widget_sidebar_editor_handle_mouse_attributes(m)) {
         return;
@@ -313,12 +313,11 @@ static void change_image(int value, __attribute__((unused)) int param2)
 
 void window_editor_attributes_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_ATTRIBUTES,
         window_editor_map_draw_all,
         draw_foreground,
         handle_input,
-        0
     };
     string_copy(scenario.brief_description, data.brief_description, MAX_BRIEF_DESCRIPTION);
     input_box_start(&scenario_description_input);

@@ -71,7 +71,7 @@ static int try_export_resource(int building_id, int resource, int city_id)
 }
 
 static int get_closest_warehouse_for_import(int x, int y, int city_id, int distance_from_entry, int road_network_id,
-                                            map_point *warehouse, int *import_resource)
+                                            struct map_point_t *warehouse, int *import_resource)
 {
     int importable[16];
     importable[RESOURCE_NONE] = 0;
@@ -137,7 +137,7 @@ static int get_closest_warehouse_for_import(int x, int y, int city_id, int dista
 }
 
 static int get_closest_warehouse_for_export(int x, int y, int city_id, int distance_from_entry, int road_network_id,
-                                            map_point *warehouse, int *export_resource)
+                                            struct map_point_t *warehouse, int *export_resource)
 {
     int exportable[RESOURCE_TYPES_MAX];
     exportable[RESOURCE_NONE] = 0;
@@ -219,7 +219,7 @@ static int deliver_import_resource(struct figure_t *f, struct building_t *dock)
     }
     int x, y;
     get_trade_center_location(f, &x, &y);
-    map_point tile;
+    struct map_point_t tile;
     int resource;
     int warehouse_id = get_closest_warehouse_for_import(x, y, ship->empire_city_id,
                       dock->distance_from_entry, dock->road_network_id, &tile, &resource);
@@ -248,7 +248,7 @@ static int fetch_export_resource(struct figure_t *f, struct building_t *dock)
     }
     int x, y;
     get_trade_center_location(f, &x, &y);
-    map_point tile;
+    struct map_point_t tile;
     int resource;
     int warehouse_id = get_closest_warehouse_for_export(x, y, ship->empire_city_id,
         dock->distance_from_entry, dock->road_network_id, &tile, &resource);

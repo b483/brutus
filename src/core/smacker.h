@@ -15,11 +15,11 @@ enum {
     SMACKER_Y_SCALE_DOUBLE = 2
 };
 
-typedef enum {
+enum {
     SMACKER_FRAME_ERROR = 0,
     SMACKER_FRAME_OK = 1,
     SMACKER_FRAME_DONE = 2
-} smacker_frame_status;
+};
 
 /**
  * Open SMK file from file pointer.
@@ -68,14 +68,14 @@ void smacker_get_audio_info(const smacker s, int track, int *enabled, int *chann
  * @param s Smacker object
  * @return Status, one of SMACKER_FRAME_* constants
  */
-smacker_frame_status smacker_first_frame(smacker s);
+int smacker_first_frame(smacker s);
 
 /**
  * Go to next frame and unpack
  * @param s Smacker object
  * @return Status, one of SMACKER_FRAME_* constants
  */
-smacker_frame_status smacker_next_frame(smacker s);
+int smacker_next_frame(smacker s);
 
 /**
  * Get palette as array of 256 colors for the current frame

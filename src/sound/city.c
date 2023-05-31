@@ -76,7 +76,7 @@ enum {
     SOUND_CHANNEL_CITY_BURNING_RUIN = 150,
 };
 
-typedef struct {
+struct city_channel_t {
     int in_use;
     int available;
     int total_views;
@@ -84,19 +84,19 @@ typedef struct {
     int direction_views[5];
     int channel;
     int times_played;
-    time_millis last_played_time;
-    time_millis delay_millis;
+    uint32_t last_played_time;
+    uint32_t delay_millis;
     int should_play;
-} city_channel;
+};
 
-static city_channel channels[MAX_CHANNELS];
+static struct city_channel_t channels[MAX_CHANNELS];
 
-static time_millis last_update_time;
+static uint32_t last_update_time;
 
 void sound_city_init(void)
 {
     // last_update_time = time_get_millis();
-    memset(channels, 0, MAX_CHANNELS * sizeof(city_channel));
+    memset(channels, 0, MAX_CHANNELS * sizeof(struct city_channel_t));
     for (int i = 0; i < MAX_CHANNELS; i++) {
         channels[i].last_played_time = last_update_time;
     }
@@ -267,7 +267,7 @@ static void play_channel(int channel, int direction)
 
 void sound_city_play(void)
 {
-    time_millis now = time_get_millis();
+    uint32_t now = time_get_millis();
     for (int i = 1; i < MAX_CHANNELS; i++) {
         channels[i].should_play = 0;
         if (channels[i].available) {
@@ -289,7 +289,7 @@ void sound_city_play(void)
         // Only play 1 sound every 10 seconds
         return;
     }
-    time_millis max_delay = 0;
+    uint32_t max_delay = 0;
     int max_sound_id = 0;
     for (int i = 1; i < MAX_CHANNELS; i++) {
         if (channels[i].should_play) {
@@ -326,10 +326,10 @@ void sound_city_play(void)
     channels[max_sound_id].times_played++;
 }
 
-void sound_city_save_state(buffer *buf)
+void sound_city_save_state(struct buffer_t *buf)
 {
     for (int i = 0; i < MAX_CHANNELS; i++) {
-        const city_channel *ch = &channels[i];
+        const struct city_channel_t *ch = &channels[i];
         buffer_write_i32(buf, ch->available);
         buffer_write_i32(buf, ch->total_views);
         buffer_write_i32(buf, ch->views_threshold);
@@ -345,10 +345,10 @@ void sound_city_save_state(buffer *buf)
     }
 }
 
-void sound_city_load_state(buffer *buf)
+void sound_city_load_state(struct buffer_t *buf)
 {
     for (int i = 0; i < MAX_CHANNELS; i++) {
-        city_channel *ch = &channels[i];
+        struct city_channel_t *ch = &channels[i];
         ch->available = buffer_read_i32(buf);
         ch->total_views = buffer_read_i32(buf);
         ch->views_threshold = buffer_read_i32(buf);

@@ -36,14 +36,14 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (m->right.went_up || h->escape_pressed) {
         window_go_back();
         return;
     }
 
-    const mouse *m_dialog = mouse_in_dialog(m);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
     // exit window on click outside of outer panel boundaries
     if (m_dialog->left.went_up && (m_dialog->x < 16 || m_dialog->y < 144 || m_dialog->x > 624 || m_dialog->y > 300)) {
         window_go_back();
@@ -51,40 +51,13 @@ static void handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-static int get_tooltip_resource(tooltip_context *c)
-{
-    int x_base = screen_dialog_offset_x() + 124;
-    int y = screen_dialog_offset_y() + 203;
-    int x_mouse = c->mouse_x;
-    int y_mouse = c->mouse_y;
-
-    for (int i = RESOURCE_WHEAT; i < RESOURCE_TYPES_MAX; i++) {
-        int x = x_base + 30 * i;
-        if (x <= x_mouse && x + 24 > x_mouse && y <= y_mouse && y + 24 > y_mouse) {
-            return i;
-        }
-    }
-    return 0;
-}
-
-static void get_tooltip(tooltip_context *c)
-{
-    int resource = get_tooltip_resource(c);
-    if (!resource) {
-        return;
-    }
-    c->type = TOOLTIP_BUTTON;
-    c->text_id = 131 + resource;
-}
-
 void window_trade_prices_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_TRADE_PRICES,
         window_draw_underlying_window,
         draw_foreground,
         handle_input,
-        get_tooltip
     };
     window_show(&window);
 }

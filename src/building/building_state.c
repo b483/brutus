@@ -8,7 +8,7 @@ static int is_industry_type(const struct building_t *b)
         || b->type == BUILDING_SHIPYARD || b->type == BUILDING_WHARF;
 }
 
-static void write_type_data(buffer *buf, const struct building_t *b)
+static void write_type_data(struct buffer_t *buf, const struct building_t *b)
 {
     if (building_is_house(b->type)) {
         for (int i = 0; i < INVENTORY_MAX; i++) {
@@ -77,7 +77,7 @@ static void write_type_data(buffer *buf, const struct building_t *b)
     }
 }
 
-void building_state_save_to_buffer(buffer *buf, const struct building_t *b)
+void building_state_save_to_buffer(struct buffer_t *buf, const struct building_t *b)
 {
     buffer_write_u8(buf, b->state);
     buffer_write_u8(buf, b->size);
@@ -133,7 +133,7 @@ void building_state_save_to_buffer(buffer *buf, const struct building_t *b)
     buffer_write_u8(buf, b->show_on_problem_overlay);
 }
 
-static void read_type_data(buffer *buf, struct building_t *b)
+static void read_type_data(struct buffer_t *buf, struct building_t *b)
 {
     if (building_is_house(b->type)) {
         for (int i = 0; i < INVENTORY_MAX; i++) {
@@ -202,7 +202,7 @@ static void read_type_data(buffer *buf, struct building_t *b)
     }
 }
 
-void building_state_load_from_buffer(buffer *buf, struct building_t *b)
+void building_state_load_from_buffer(struct buffer_t *buf, struct building_t *b)
 {
     b->state = buffer_read_u8(buf);
     b->size = buffer_read_u8(buf);

@@ -20,12 +20,12 @@ int building_granary_determine_worker_task(struct building_t *granary);
 void building_granaries_calculate_stocks(void);
 
 int building_granary_for_storing(int x, int y, int resource, int distance_from_entry, int road_network_id,
-                                 int force_on_stockpile, int *understaffed, map_point *dst);
+                                 int force_on_stockpile, int *understaffed, struct map_point_t *dst);
 
 int building_getting_granary_for_storing(int x, int y, int resource, int distance_from_entry, int road_network_id,
-                                         map_point *dst);
+                                         struct map_point_t *dst);
 
-int building_granary_for_getting(struct building_t *src, map_point *dst);
+int building_granary_for_getting(struct building_t *src, struct map_point_t *dst);
 
 void building_granary_bless(void);
 

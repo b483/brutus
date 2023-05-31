@@ -248,7 +248,7 @@ int building_warehouses_remove_resource(int resource, int amount)
 
 int building_warehouse_for_storing(int src_building_id, int x, int y, int resource,
                                    int distance_from_entry, int road_network_id, int *understaffed,
-                                   map_point *dst)
+                                   struct map_point_t *dst)
 {
     int min_dist = 10000;
     int min_building_id = 0;
@@ -296,7 +296,7 @@ int building_warehouse_for_storing(int src_building_id, int x, int y, int resour
     return min_building_id;
 }
 
-int building_warehouse_for_getting(struct building_t *src, int resource, map_point *dst)
+int building_warehouse_for_getting(struct building_t *src, int resource, struct map_point_t *dst)
 {
     int min_dist = 10000;
     struct building_t *min_building = 0;

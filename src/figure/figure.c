@@ -157,7 +157,7 @@ void figure_init_scenario(void)
     }
 }
 
-struct figure_t *figure_create(int type, int x, int y, direction_type dir)
+struct figure_t *figure_create(int type, int x, int y, int dir)
 {
     int id = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {
@@ -601,7 +601,7 @@ void rout_unit(struct figure_t *f)
 
 }
 
-static void figure_save(buffer *buf, const struct figure_t *f)
+static void figure_save(struct buffer_t *buf, const struct figure_t *f)
 {
     buffer_write_u8(buf, f->in_use);
     buffer_write_u8(buf, f->is_targetable);
@@ -699,7 +699,7 @@ static void figure_save(buffer *buf, const struct figure_t *f)
     buffer_write_u8(buf, f->flotsam_visible);
 }
 
-static void figure_load(buffer *buf, struct figure_t *f)
+static void figure_load(struct buffer_t *buf, struct figure_t *f)
 {
     f->in_use = buffer_read_u8(buf);
     f->is_targetable = buffer_read_u8(buf);
@@ -797,14 +797,14 @@ static void figure_load(buffer *buf, struct figure_t *f)
     f->flotsam_visible = buffer_read_u8(buf);
 }
 
-void figure_save_state(buffer *list)
+void figure_save_state(struct buffer_t *list)
 {
     for (int i = 0; i < MAX_FIGURES; i++) {
         figure_save(list, &figures[i]);
     }
 }
 
-void figure_load_state(buffer *list)
+void figure_load_state(struct buffer_t *list)
 {
     for (int i = 0; i < MAX_FIGURES; i++) {
         figure_load(list, &figures[i]);

@@ -17,7 +17,7 @@ enum {
 
 static void select_item(int id, int list_id);
 
-static generic_button buttons_list1[MAX_ITEMS_PER_LIST] = {
+static struct generic_button_t buttons_list1[MAX_ITEMS_PER_LIST] = {
     {5, 8, 190, 18, select_item, button_none, 0, 0},
     {5, 28, 190, 18, select_item, button_none, 1, 0},
     {5, 48, 190, 18, select_item, button_none, 2, 0},
@@ -40,7 +40,7 @@ static generic_button buttons_list1[MAX_ITEMS_PER_LIST] = {
     {5, 388, 190, 18, select_item, button_none, 19, 0},
 };
 
-static generic_button buttons_list2[MAX_ITEMS_PER_LIST] = {
+static struct generic_button_t buttons_list2[MAX_ITEMS_PER_LIST] = {
     {205, 8, 190, 18, select_item, button_none, 0, 1},
     {205, 28, 190, 18, select_item, button_none, 1, 1},
     {205, 48, 190, 18, select_item, button_none, 2, 1},
@@ -128,7 +128,7 @@ static void draw_foreground(void)
     }
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (data.num_items > MAX_ITEMS_PER_LIST) {
         int items_first = items_in_first_list();
@@ -162,12 +162,11 @@ void select_item(int id, int list_id)
 
 void window_select_list_show(int x, int y, int group, int num_items, void (*callback)(int))
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_SELECT_LIST,
         window_draw_underlying_window,
         draw_foreground,
         handle_input,
-        0
     };
     init_group(x, y, group, num_items, callback);
     window_show(&window);
@@ -175,12 +174,11 @@ void window_select_list_show(int x, int y, int group, int num_items, void (*call
 
 void window_select_list_show_text(int x, int y, const uint8_t **items, int num_items, void (*callback)(int))
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_SELECT_LIST,
         window_draw_underlying_window,
         draw_foreground,
         handle_input,
-        0
     };
     init_text(x, y, items, num_items, callback);
     window_show(&window);

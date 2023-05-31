@@ -4,7 +4,7 @@
 #include "core/hotkey_config.h"
 #include "input/keys.h"
 
-typedef struct {
+struct hotkeys_t {
     // fixed keys with multiple functions
     int enter_pressed;
     int escape_pressed;
@@ -35,15 +35,15 @@ typedef struct {
     int cheat_money;
     int cheat_invasion;
     int cheat_victory;
-} hotkeys;
+};
 
-void hotkey_install_mapping(hotkey_mapping *mappings, int num_mappings);
+void hotkey_install_mapping(struct hotkey_mapping_t *mappings, int num_mappings);
 
-const hotkeys *hotkey_state(void);
+const struct hotkeys_t *hotkey_state(void);
 void hotkey_reset_state(void);
 
-void hotkey_key_pressed(key_type key, key_modifier_type modifiers, int repeat);
-void hotkey_key_released(key_type key, key_modifier_type modifiers);
+void hotkey_key_pressed(int key, int modifiers, int repeat);
+void hotkey_key_released(int key, int modifiers);
 
 void hotkey_handle_global_keys(void);
 

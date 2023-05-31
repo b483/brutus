@@ -12,7 +12,7 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 
-static void draw_farm(building_info_context *c, int help_id, const char *sound_file, int group_id, int resource)
+static void draw_farm(struct building_info_context_t *c, int help_id, const char *sound_file, int group_id, int resource)
 {
     c->help_id = help_id;
     window_building_play_sound(c, sound_file);
@@ -52,38 +52,38 @@ static void draw_farm(building_info_context *c, int help_id, const char *sound_f
     window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 136, group_id, 1);
 }
 
-void window_building_draw_wheat_farm(building_info_context *c)
+void window_building_draw_wheat_farm(struct building_info_context_t *c)
 {
     draw_farm(c, 89, "wavs/wheat_farm.wav", 112, RESOURCE_WHEAT);
 }
 
-void window_building_draw_vegetable_farm(building_info_context *c)
+void window_building_draw_vegetable_farm(struct building_info_context_t *c)
 {
     draw_farm(c, 90, "wavs/veg_farm.wav", 113, RESOURCE_VEGETABLES);
 }
 
-void window_building_draw_fruit_farm(building_info_context *c)
+void window_building_draw_fruit_farm(struct building_info_context_t *c)
 {
     draw_farm(c, 90, "wavs/figs_farm.wav", 114, RESOURCE_FRUIT);
 }
 
-void window_building_draw_olive_farm(building_info_context *c)
+void window_building_draw_olive_farm(struct building_info_context_t *c)
 {
     draw_farm(c, 91, "wavs/olives_farm.wav", 115, RESOURCE_OLIVES);
 }
 
-void window_building_draw_vines_farm(building_info_context *c)
+void window_building_draw_vines_farm(struct building_info_context_t *c)
 {
     draw_farm(c, 91, "wavs/vines_farm.wav", 116, RESOURCE_VINES);
 }
 
-void window_building_draw_pig_farm(building_info_context *c)
+void window_building_draw_pig_farm(struct building_info_context_t *c)
 {
     draw_farm(c, 90, "wavs/meat_farm.wav", 117, RESOURCE_MEAT);
 }
 
 static void draw_raw_material(
-    building_info_context *c, int help_id, const char *sound_file, int group_id, int resource)
+    struct building_info_context_t *c, int help_id, const char *sound_file, int group_id, int resource)
 {
     c->help_id = help_id;
     window_building_play_sound(c, sound_file);
@@ -122,28 +122,28 @@ static void draw_raw_material(
     window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 136, group_id, 1);
 }
 
-void window_building_draw_marble_quarry(building_info_context *c)
+void window_building_draw_marble_quarry(struct building_info_context_t *c)
 {
     draw_raw_material(c, 95, "wavs/quarry.wav", 118, RESOURCE_MARBLE);
 }
 
-void window_building_draw_iron_mine(building_info_context *c)
+void window_building_draw_iron_mine(struct building_info_context_t *c)
 {
     draw_raw_material(c, 93, "wavs/mine.wav", 119, RESOURCE_IRON);
 }
 
-void window_building_draw_timber_yard(building_info_context *c)
+void window_building_draw_timber_yard(struct building_info_context_t *c)
 {
     draw_raw_material(c, 94, "wavs/timber.wav", 120, RESOURCE_TIMBER);
 }
 
-void window_building_draw_clay_pit(building_info_context *c)
+void window_building_draw_clay_pit(struct building_info_context_t *c)
 {
     draw_raw_material(c, 92, "wavs/clay.wav", 121, RESOURCE_CLAY);
 }
 
 static void draw_workshop(
-    building_info_context *c, int help_id, const char *sound_file, int group_id, int resource, int input_resource)
+    struct building_info_context_t *c, int help_id, const char *sound_file, int group_id, int resource, int input_resource)
 {
     c->help_id = help_id;
     window_building_play_sound(c, sound_file);
@@ -191,32 +191,32 @@ static void draw_workshop(
     window_building_draw_employment(c, 142);
 }
 
-void window_building_draw_wine_workshop(building_info_context *c)
+void window_building_draw_wine_workshop(struct building_info_context_t *c)
 {
     draw_workshop(c, 96, "wavs/wine_workshop.wav", 122, RESOURCE_WINE, RESOURCE_VINES);
 }
 
-void window_building_draw_oil_workshop(building_info_context *c)
+void window_building_draw_oil_workshop(struct building_info_context_t *c)
 {
     draw_workshop(c, 97, "wavs/oil_workshop.wav", 123, RESOURCE_OIL, RESOURCE_OLIVES);
 }
 
-void window_building_draw_weapons_workshop(building_info_context *c)
+void window_building_draw_weapons_workshop(struct building_info_context_t *c)
 {
     draw_workshop(c, 98, "wavs/weapons_workshop.wav", 124, RESOURCE_WEAPONS, RESOURCE_IRON);
 }
 
-void window_building_draw_furniture_workshop(building_info_context *c)
+void window_building_draw_furniture_workshop(struct building_info_context_t *c)
 {
     draw_workshop(c, 99, "wavs/furniture_workshop.wav", 125, RESOURCE_FURNITURE, RESOURCE_TIMBER);
 }
 
-void window_building_draw_pottery_workshop(building_info_context *c)
+void window_building_draw_pottery_workshop(struct building_info_context_t *c)
 {
     draw_workshop(c, 1, "wavs/pottery_workshop.wav", 126, RESOURCE_POTTERY, RESOURCE_CLAY);
 }
 
-void window_building_draw_shipyard(building_info_context *c)
+void window_building_draw_shipyard(struct building_info_context_t *c)
 {
     c->help_id = 82;
     window_building_play_sound(c, "wavs/shipyard.wav");
@@ -245,7 +245,7 @@ void window_building_draw_shipyard(building_info_context *c)
     window_building_draw_employment(c, 142);
 }
 
-void window_building_draw_wharf(building_info_context *c)
+void window_building_draw_wharf(struct building_info_context_t *c)
 {
     c->help_id = 84;
     window_building_play_sound(c, "wavs/wharf.wav");

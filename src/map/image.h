@@ -16,8 +16,8 @@ void map_image_restore_at(int grid_offset);
 void map_image_clear(void);
 void map_image_init_edges(void);
 
-void map_image_save_state(buffer *buf);
+void map_image_save_state(struct buffer_t *buf);
 
-void map_image_load_state(buffer *buf);
+void map_image_load_state(struct buffer_t *buf);
 
 #endif // MAP_IMAGE_H

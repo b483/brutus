@@ -4,10 +4,10 @@
 #include "editor/tool.h"
 #include "map/point.h"
 
-int editor_tool_can_place_flag(tool_type type, const map_tile *tile, int *warning);
+int editor_tool_can_place_flag(int type, const struct map_tile_t *tile, int *warning);
 
-int editor_tool_can_place_access_ramp(const map_tile *tile, int *orientation_index);
+int editor_tool_can_place_access_ramp(const struct map_tile_t *tile, int *orientation_index);
 
-int editor_tool_can_place_building(const map_tile *tile, int num_tiles, int *blocked_tiles);
+int editor_tool_can_place_building(const struct map_tile_t *tile, int num_tiles, int *blocked_tiles);
 
 #endif // EDITOR_TOOL_RESTRICTION_H

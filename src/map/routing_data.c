@@ -1,6 +1,6 @@
 #include "routing_data.h"
 
-grid_i8 terrain_land_citizen;
-grid_i8 terrain_land_noncitizen;
-grid_i8 terrain_water;
-grid_i8 terrain_walls;
+struct grid_i8_t terrain_land_citizen;
+struct grid_i8_t terrain_land_noncitizen;
+struct grid_i8_t terrain_water;
+struct grid_i8_t terrain_walls;

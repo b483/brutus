@@ -20,7 +20,7 @@ static const int CLOUD_SPEED[] = {
     1, 2, 1, 3, 2, 1, 3, 2, 1, 1, 2, 1, 2, 1, 3, 1
 };
 
-static const map_point CLOUD_DIRECTION[] = {
+static const struct map_point_t CLOUD_DIRECTION[] = {
     {0, -6}, {-2, -5}, {-4, -4}, {-5, -2}, {-6, 0}, {-5, -2}, {-4, -4}, {-2, -5},
     {0, -6}, {-2, -5}, {-4, -4}, {-5, -2}, {-6, 0}, {-5, -2}, {-4, -4}, {-2, -5}
 };
@@ -51,7 +51,7 @@ void figure_create_explosion_cloud(int x, int y, int size)
     }
 }
 
-void figure_create_missile(struct figure_t *shooter, map_point *target_tile, int type)
+void figure_create_missile(struct figure_t *shooter, struct map_point_t *target_tile, int type)
 {
     struct figure_t *missile = figure_create(type, shooter->x, shooter->y, DIR_0_TOP);
     if (missile->id) {

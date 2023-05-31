@@ -41,11 +41,10 @@ static void menu_options_speed(int param);
 static void menu_options_autosave(int param);
 
 static void menu_help_help(int param);
-static void menu_help_mouse_help(int param);
 static void menu_help_warnings(int param);
 static void menu_help_about(int param);
 
-static menu_item menu_file[] = {
+static struct menu_item_t menu_file[] = {
     {1, 2, menu_file_replay_map, 0, 0},
     {1, 3, menu_file_load_game, 0, 0},
     {1, 4, menu_file_save_game, 0, 0},
@@ -53,24 +52,23 @@ static menu_item menu_file[] = {
     {1, 5, menu_file_exit_game, 0, 0},
 };
 
-static menu_item menu_options[] = {
+static struct menu_item_t menu_options[] = {
     {2, 1, menu_options_display, 0, 0},
     {2, 2, menu_options_sound, 0, 0},
     {2, 3, menu_options_speed, 0, 0},
     {19, 51, menu_options_autosave, 0, 0},
 };
 
-static menu_item menu_help[] = {
+static struct menu_item_t menu_help[] = {
     {3, 1, menu_help_help, 0, 0},
-    {3, 2, menu_help_mouse_help, 0, 0},
     {3, 5, menu_help_warnings, 0, 0},
     {3, 7, menu_help_about, 0, 0},
 };
 
-static menu_bar_item menu[] = {
+static struct menu_bar_item_t menu[] = {
     {1, menu_file, 5, 0, 0, 0, 0},
     {2, menu_options, 4, 0, 0, 0, 0},
-    {3, menu_help, 4, 0, 0, 0, 0},
+    {3, menu_help, 3, 0, 0, 0, 0},
 };
 
 static const int INDEX_OPTIONS = 1;
@@ -104,35 +102,15 @@ static void set_text_for_autosave(void)
     menu_update_text(&menu[INDEX_OPTIONS], 3, setting_monthly_autosave() ? 51 : 52);
 }
 
-static void set_text_for_tooltips(void)
-{
-    int new_text;
-    switch (setting_tooltips()) {
-        case TOOLTIPS_NONE:
-            new_text = 2;
-            break;
-        case TOOLTIPS_SOME:
-            new_text = 3;
-            break;
-        case TOOLTIPS_FULL:
-            new_text = 4;
-            break;
-        default:
-            return;
-    }
-    menu_update_text(&menu[INDEX_HELP], 1, new_text);
-}
-
 static void set_text_for_warnings(void)
 {
-    menu_update_text(&menu[INDEX_HELP], 2, setting_warnings() ? 6 : 5);
+    menu_update_text(&menu[INDEX_HELP], 1, setting_warnings() ? 6 : 5);
 }
 
 static void init(void)
 {
     menu[INDEX_OPTIONS].items[0].hidden = 0;
     set_text_for_autosave();
-    set_text_for_tooltips();
     set_text_for_warnings();
 }
 
@@ -149,19 +127,18 @@ static void draw_foreground(void)
     }
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     widget_top_menu_handle_input(m, h);
 }
 
 static void top_menu_window_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_TOP_MENU,
         draw_background,
         draw_foreground,
         handle_input,
-        0
     };
     init();
     window_show(&window);
@@ -200,7 +177,7 @@ void widget_top_menu_draw(int force)
     int s_width = screen_width();
 
     refresh_background();
-    menu_bar_draw(menu, sizeof(menu) / sizeof(menu_bar_item), s_width < 1024 ? 338 : 493);
+    menu_bar_draw(menu, sizeof(menu) / sizeof(struct menu_bar_item_t), s_width < 1024 ? 338 : 493);
 
     color_t treasure_color = COLOR_WHITE;
     if (city_data.finance.treasury < 0) {
@@ -250,14 +227,14 @@ void widget_top_menu_draw(int force)
     drawn.month = game_time_month();
 }
 
-static int handle_input_submenu(const mouse *m, const hotkeys *h)
+static int handle_input_submenu(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (m->right.went_up || h->escape_pressed) {
         clear_state();
         window_go_back();
         return 1;
     }
-    int menu_id = menu_bar_handle_mouse(m, menu, sizeof(menu) / sizeof(menu_bar_item), &data.focus_menu_id);
+    int menu_id = menu_bar_handle_mouse(m, menu, sizeof(menu) / sizeof(struct menu_bar_item_t), &data.focus_menu_id);
     if (menu_id && menu_id != data.open_sub_menu) {
         window_request_refresh();
         data.open_sub_menu = menu_id;
@@ -304,9 +281,9 @@ static int handle_right_click(int type)
     return 1;
 }
 
-static int handle_mouse_menu(const mouse *m)
+static int handle_mouse_menu(const struct mouse_t *m)
 {
-    int menu_id = menu_bar_handle_mouse(m, menu, sizeof(menu) / sizeof(menu_bar_item), &data.focus_menu_id);
+    int menu_id = menu_bar_handle_mouse(m, menu, sizeof(menu) / sizeof(struct menu_bar_item_t), &data.focus_menu_id);
     if (menu_id && m->left.went_up) {
         data.open_sub_menu = menu_id;
         top_menu_window_show();
@@ -318,7 +295,7 @@ static int handle_mouse_menu(const mouse *m)
     return 0;
 }
 
-int widget_top_menu_handle_input(const mouse *m, const hotkeys *h)
+int widget_top_menu_handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (widget_city_has_input()) {
         return 0;
@@ -328,18 +305,6 @@ int widget_top_menu_handle_input(const mouse *m, const hotkeys *h)
     } else {
         return handle_mouse_menu(m);
     }
-}
-
-int widget_top_menu_get_tooltip_text(tooltip_context *c)
-{
-    if (data.focus_menu_id) {
-        return 49 + data.focus_menu_id;
-    }
-    int button_id = get_info_id(c->mouse_x, c->mouse_y);
-    if (button_id) {
-        return 59 + button_id;
-    }
-    return 0;
 }
 
 static void menu_file_replay_map(__attribute__((unused)) int param)
@@ -405,12 +370,6 @@ static void menu_help_help(__attribute__((unused)) int param)
     clear_state();
     window_go_back();
     window_message_dialog_show(MESSAGE_DIALOG_HELP, window_city_draw_all);
-}
-
-static void menu_help_mouse_help(__attribute__((unused)) int param)
-{
-    setting_cycle_tooltips();
-    set_text_for_tooltips();
 }
 
 static void menu_help_warnings(__attribute__((unused)) int param)

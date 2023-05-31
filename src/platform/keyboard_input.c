@@ -6,7 +6,7 @@
 #include "input/keyboard.h"
 #include "input/mouse.h"
 
-static key_type get_key_from_scancode(SDL_Scancode scancode)
+static int get_key_from_scancode(SDL_Scancode scancode)
 {
     switch (scancode) {
         case SDL_SCANCODE_A: return KEY_TYPE_A;
@@ -105,7 +105,7 @@ static key_type get_key_from_scancode(SDL_Scancode scancode)
     }
 }
 
-static SDL_Scancode get_scancode_from_key(key_type key)
+static SDL_Scancode get_scancode_from_key(int key)
 {
     switch (key) {
         case KEY_TYPE_A: return SDL_SCANCODE_A;
@@ -203,9 +203,9 @@ static SDL_Scancode get_scancode_from_key(key_type key)
     }
 }
 
-static key_modifier_type get_modifier(int mod)
+static int get_modifier(int mod)
 {
-    key_modifier_type key_mod = KEY_MOD_NONE;
+    int key_mod = KEY_MOD_NONE;
     if (mod & KMOD_SHIFT) {
         key_mod |= KEY_MOD_SHIFT;
     }
@@ -261,16 +261,16 @@ void platform_handle_key_down(SDL_KeyboardEvent *event)
             break;
     }
 
-    // handle hotkeys
-    key_type key = get_key_from_scancode(event->keysym.scancode);
-    key_modifier_type mod = get_modifier(event->keysym.mod);
+    // handle struct hotkeys_t
+    int key = get_key_from_scancode(event->keysym.scancode);
+    int mod = get_modifier(event->keysym.mod);
     hotkey_key_pressed(key, mod, event->repeat);
 }
 
 void platform_handle_key_up(SDL_KeyboardEvent *event)
 {
-    key_type key = get_key_from_scancode(event->keysym.scancode);
-    key_modifier_type mod = get_modifier(event->keysym.mod);
+    int key = get_key_from_scancode(event->keysym.scancode);
+    int mod = get_modifier(event->keysym.mod);
     hotkey_key_released(key, mod);
 }
 
@@ -279,13 +279,13 @@ void platform_handle_text(SDL_TextInputEvent *event)
     keyboard_text(event->text);
 }
 
-const char *system_keyboard_key_name(key_type key)
+const char *system_keyboard_key_name(int key)
 {
     SDL_Scancode scancode = get_scancode_from_key(key);
     return SDL_GetKeyName(SDL_GetKeyFromScancode(scancode));
 }
 
-const char *system_keyboard_key_modifier_name(key_modifier_type modifier)
+const char *system_keyboard_key_modifier_name(int modifier)
 {
     switch (modifier) {
         case KEY_MOD_CTRL: return "Ctrl";

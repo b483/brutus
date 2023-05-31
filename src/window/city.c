@@ -213,7 +213,7 @@ static void cycle_buildings_reverse(void)
     }
 }
 
-static void handle_hotkeys(const hotkeys *h)
+static void handle_hotkeys(const struct hotkeys_t *h)
 {
     if (h->load_file) {
         window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_LOAD);
@@ -313,7 +313,7 @@ static void handle_hotkeys(const hotkeys *h)
     }
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     handle_hotkeys(h);
     if (!building_construction_in_progress()) {
@@ -327,27 +327,13 @@ static void handle_input(const mouse *m, const hotkeys *h)
     widget_city_handle_input(m, h);
 }
 
-static void handle_input_military(const mouse *m, const hotkeys *h)
+static void handle_input_military(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     handle_hotkeys(h);
     if (widget_top_menu_handle_input(m, h)) {
         return;
     }
     widget_city_handle_input_military(m, h, selected_legion_formation);
-}
-
-static void get_tooltip(tooltip_context *c)
-{
-    int text_id = widget_top_menu_get_tooltip_text(c);
-    if (!text_id) {
-        text_id = widget_sidebar_city_get_tooltip_text();
-    }
-    if (text_id) {
-        c->type = TOOLTIP_BUTTON;
-        c->text_id = text_id;
-        return;
-    }
-    widget_city_get_tooltip(c);
 }
 
 void window_city_draw_all(void)
@@ -361,12 +347,11 @@ void window_city_show(void)
     if (selected_legion_formation > -1) {
         selected_legion_formation = -1;
     }
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_CITY,
         window_city_draw_background,
         draw_foreground,
         handle_input,
-        get_tooltip
     };
     window_show(&window);
 }
@@ -378,12 +363,12 @@ void window_city_military_show(int legion_formation_id)
         building_construction_clear_type();
     }
     selected_legion_formation = legion_formation_id;
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_CITY_MILITARY,
         window_city_draw_background,
         draw_foreground,
         handle_input_military,
-        get_tooltip
+
     };
     window_show(&window);
 }

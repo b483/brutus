@@ -8,24 +8,24 @@
 #include "map/terrain.h"
 #include "scenario/data.h"
 
-typedef struct {
+struct tile_color_t {
     color_t left;
     color_t right;
-} tile_color;
+};
 
-typedef struct {
-    tile_color water[4];
-    tile_color tree[4];
-    tile_color rock[4];
-    tile_color meadow[4];
-    tile_color grass[8];
-    tile_color road;
-} tile_color_set;
+struct tile_color_set_t {
+    struct tile_color_t  water[4];
+    struct tile_color_t  tree[4];
+    struct tile_color_t  rock[4];
+    struct tile_color_t  meadow[4];
+    struct tile_color_t  grass[8];
+    struct tile_color_t  road;
+};
 
 // Since the minimap tiles are only 25 color sets per climate, we just hardcode them.
 // This "hack" is necessary to avoid reloading the climate graphics when selecting
 // a scenario with another climate in the CCK selection screen, which is expensive.
-static const tile_color_set MINIMAP_COLOR_SETS[3] = {
+static const struct tile_color_set_t MINIMAP_COLOR_SETS[3] = {
     // central
     {
         .water = {{0x394a7b, 0x31427b}, {0x394a7b, 0x314273}, {0x313973, 0x314273}, {0x31427b, 0x394a7b}},
@@ -110,8 +110,8 @@ static void draw_minimap_tile(int x_view, int y_view, int grid_offset)
         }
     } else {
         int rand = map_random_get(grid_offset);
-        const tile_color *color;
-        const tile_color_set *set = &MINIMAP_COLOR_SETS[scenario.climate];
+        const struct tile_color_t *color;
+        const struct tile_color_set_t *set = &MINIMAP_COLOR_SETS[scenario.climate];
         if (terrain_grid.items[grid_offset] & TERRAIN_WATER) {
             color = &set->water[rand & 3];
         } else if (terrain_grid.items[grid_offset] & (TERRAIN_TREE | TERRAIN_SHRUB)) {

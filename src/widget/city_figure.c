@@ -183,7 +183,7 @@ static void adjust_pixel_offset(struct figure_t *f, int *pixel_x, int *pixel_y)
     x_offset += 29;
     y_offset += 15;
 
-    image *img = (figure_properties[f->type].is_native_unit || (figure_properties[f->type].is_enemy_unit && f->type != FIGURE_ENEMY_GLADIATOR)) ? image_get_enemy(f) : image_get(f->image_id);
+    struct image_t *img = (figure_properties[f->type].is_native_unit || (figure_properties[f->type].is_enemy_unit && f->type != FIGURE_ENEMY_GLADIATOR)) ? image_get_enemy(f) : image_get(f->image_id);
     *pixel_x += x_offset - img->sprite_offset_x;
     *pixel_y += y_offset - img->sprite_offset_y;
 }
@@ -259,7 +259,7 @@ void city_draw_figure(struct figure_t *f, int x, int y, int highlight)
     draw_figure(f, x, y, highlight);
 }
 
-void city_draw_selected_figure(struct figure_t *f, int x, int y, pixel_coordinate *coord)
+void city_draw_selected_figure(struct figure_t *f, int x, int y, struct pixel_coordinate_t *coord)
 {
     adjust_pixel_offset(f, &x, &y);
     draw_figure(f, x, y, 0);

@@ -25,18 +25,18 @@ static void button_toggle_industry(int param1, int param2);
 static void button_toggle_trade(int param1, int param2);
 static void button_toggle_stockpile(int param1, int param2);
 
-static generic_button resource_generic_buttons[] = {
+static struct generic_button_t resource_generic_buttons[] = {
     {104, 204, 432, 30, button_toggle_trade, button_none, 0, 0},
     {104, 240, 432, 30, button_toggle_industry, button_none, 0, 0},
     {104, 276, 432, 50, button_toggle_stockpile, button_none, 0, 0},
 };
 
-static arrow_button resource_arrow_buttons[] = {
+static struct arrow_button_t resource_arrow_buttons[] = {
     {310, 207, 17, 24, button_export_amount_adjust, -1, 0, 0, 0},
     {334, 207, 15, 24, button_export_amount_adjust, 1, 0, 0, 0}
 };
 
-static image_button help_button_resource_settings[] = {
+static struct image_button_t help_button_resource_settings[] = {
     {64, 297, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help_resource_settings, button_none, 0, 0, 1, 0, 0, 0},
 };
 
@@ -167,13 +167,13 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (m->right.went_up || h->escape_pressed) {
         window_go_back();
         return;
     }
-    const mouse *m_dialog = mouse_in_dialog(m);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (city_data.resource.trade_status[data.resource] == TRADE_STATUS_EXPORT) {
         int button = 0;
         arrow_buttons_handle_mouse(m_dialog, 0, 0, resource_arrow_buttons, 2, &button);
@@ -181,7 +181,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
             return;
         }
     }
-    if (generic_buttons_handle_mouse(m_dialog, 0, 0, resource_generic_buttons, sizeof(resource_generic_buttons) / sizeof(generic_button), &data.focus_button_id)) {
+    if (generic_buttons_handle_mouse(m_dialog, 0, 0, resource_generic_buttons, sizeof(resource_generic_buttons) / sizeof(struct generic_button_t), &data.focus_button_id)) {
         return;
     }
     if (image_buttons_handle_mouse(m_dialog, 0, 0, help_button_resource_settings, 1, 0)) {
@@ -223,12 +223,11 @@ static void button_toggle_stockpile(__attribute__((unused)) int param1, __attrib
 
 void window_resource_settings_show(int resource)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_RESOURCE_SETTINGS,
         window_draw_underlying_window,
         draw_foreground,
         handle_input,
-        0
     };
     init(resource);
     window_show(&window);

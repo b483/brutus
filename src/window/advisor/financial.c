@@ -15,7 +15,7 @@
 
 static void button_change_taxes(int value, int param2);
 
-static arrow_button arrow_buttons_taxes[] = {
+static struct arrow_button_t arrow_buttons_taxes[] = {
     {180, 75, 17, 24, button_change_taxes, -1, 0, 0, 0},
     {204, 75, 15, 24, button_change_taxes, 1, 0, 0, 0}
 };
@@ -100,7 +100,7 @@ static void draw_foreground(void)
     arrow_buttons_draw(0, 0, arrow_buttons_taxes, 2);
 }
 
-static int handle_mouse(const mouse *m)
+static int handle_mouse(const struct mouse_t *m)
 {
     return arrow_buttons_handle_mouse(m, 0, 0, arrow_buttons_taxes, 2, &arrow_button_focus);
 }
@@ -113,22 +113,12 @@ static void button_change_taxes(int value, __attribute__((unused)) int param2)
     window_invalidate();
 }
 
-static int get_tooltip_text(void)
+struct advisor_window_type_t *window_advisor_financial(void)
 {
-    if (arrow_button_focus) {
-        return 120;
-    } else {
-        return 0;
-    }
-}
-
-const advisor_window_type *window_advisor_financial(void)
-{
-    static const advisor_window_type window = {
+    static struct advisor_window_type_t window = {
         draw_background,
         draw_foreground,
         handle_mouse,
-        get_tooltip_text
     };
     return &window;
 }

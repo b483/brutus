@@ -42,7 +42,7 @@ static void draw_building_image(int image_id, int x, int y)
     image_draw_isometric_top(image_id, x, y, COLOR_MASK_GREEN);
 }
 
-static void draw_building(const map_tile *tile, int x_view, int y_view, int type)
+static void draw_building(const struct map_tile_t *tile, int x_view, int y_view, int type)
 {
     int num_tiles = building_properties[type].size * building_properties[type].size;
     int blocked_tiles[MAX_TILES];
@@ -70,7 +70,7 @@ static void draw_building(const map_tile *tile, int x_view, int y_view, int type
     }
 }
 
-static void draw_road(const map_tile *tile, int x, int y)
+static void draw_road(const struct map_tile_t *tile, int x, int y)
 {
     int blocked = 0;
     int image_id = 0;
@@ -90,7 +90,7 @@ static void draw_road(const map_tile *tile, int x, int y)
     }
 }
 
-static void draw_access_ramp(const map_tile *tile, int x, int y)
+static void draw_access_ramp(const struct map_tile_t *tile, int x, int y)
 {
     int orientation;
     if (editor_tool_can_place_access_ramp(tile, &orientation)) {
@@ -107,13 +107,13 @@ static void draw_map_flag(int x, int y, int is_ok)
     draw_flat_tile(x, y, is_ok ? COLOR_MASK_GREEN : COLOR_MASK_RED);
 }
 
-void map_editor_tool_draw(const map_tile *tile)
+void map_editor_tool_draw(const struct map_tile_t *tile)
 {
     if (!tile->grid_offset || scroll_in_progress() || !editor_tool_is_active()) {
         return;
     }
 
-    tool_type type = editor_tool_type();
+    int type = editor_tool_type();
     int x, y;
     city_view_get_selected_tile_pixels(&x, &y);
     switch (type) {

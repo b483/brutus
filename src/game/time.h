@@ -65,12 +65,12 @@ void game_time_advance_year(void);
  * Saves the game time
  * @param buf Buffer
  */
-void game_time_save_state(buffer *buf);
+void game_time_save_state(struct buffer_t *buf);
 
 /**
  * Loads the game time
  * @param buf Buffer
  */
-void game_time_load_state(buffer *buf);
+void game_time_load_state(struct buffer_t *buf);
 
 #endif // GAME_TIME_H

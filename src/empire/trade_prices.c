@@ -47,7 +47,7 @@ int trade_price_change(int resource, int amount)
     return 1;
 }
 
-void trade_prices_save_state(buffer *buf)
+void trade_prices_save_state(struct buffer_t *buf)
 {
     for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         buffer_write_i32(buf, prices[i].buy);
@@ -55,7 +55,7 @@ void trade_prices_save_state(buffer *buf)
     }
 }
 
-void trade_prices_load_state(buffer *buf)
+void trade_prices_load_state(struct buffer_t *buf)
 {
     for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         prices[i].buy = buffer_read_i32(buf);

@@ -45,21 +45,21 @@ static const int ADJACENT_OFFSETS[2][4][7] = {
 };
 
 static struct {
-    time_millis last_water_animation_time;
+    uint32_t last_water_animation_time;
     int advance_water_animation;
 
     int image_id_water_first;
     int image_id_water_last;
     int selected_figure_id;
     int highlighted_formation;
-    pixel_coordinate *selected_figure_coord;
+    struct pixel_coordinate_t *selected_figure_coord;
 } draw_context;
 
-static void init_draw_context(int selected_figure_id, pixel_coordinate *figure_coord, int highlighted_formation)
+static void init_draw_context(int selected_figure_id, struct pixel_coordinate_t *figure_coord, int highlighted_formation)
 {
     draw_context.advance_water_animation = 0;
     if (!selected_figure_id) {
-        time_millis now = time_get_millis();
+        uint32_t now = time_get_millis();
         if (now - draw_context.last_water_animation_time > 60) {
             draw_context.last_water_animation_time = now;
             draw_context.advance_water_animation = 1;
@@ -340,7 +340,7 @@ static void draw_dock_workers(const struct building_t *b, int x, int y, color_t 
         } else if (num_dockers == 3) {
             image_dockers += 2;
         }
-        const image *img = image_get(image_dockers);
+        const struct image_t *img = image_get(image_dockers);
         image_draw_masked(image_dockers, x + img->sprite_offset_x, y + img->sprite_offset_y, color_mask);
     }
 }
@@ -353,7 +353,7 @@ static void draw_warehouse_ornaments(const struct building_t *b, int x, int y, c
     }
 }
 
-static void draw_granary_stores(const image *img, const struct building_t *b, int x, int y, color_t color_mask)
+static void draw_granary_stores(const struct image_t *img, const struct building_t *b, int x, int y, color_t color_mask)
 {
     image_draw_masked(image_group(GROUP_BUILDING_GRANARY) + 1,
                       x + img->sprite_offset_x,
@@ -376,7 +376,7 @@ static void draw_granary_stores(const image *img, const struct building_t *b, in
 static void draw_animation(int x, int y, int grid_offset)
 {
     int image_id = map_image_at(grid_offset);
-    const image *img = image_get(image_id);
+    const struct image_t *img = image_get(image_id);
     if (img->num_animation_sprites) {
         if (map_property_is_draw_tile(grid_offset)) {
             int building_id = map_building_at(grid_offset);
@@ -474,7 +474,7 @@ static void draw_elevated_figures(int x, int y, int grid_offset)
 static void draw_hippodrome_ornaments(int x, int y, int grid_offset)
 {
     int image_id = map_image_at(grid_offset);
-    const image *img = image_get(image_id);
+    const struct image_t *img = image_get(image_id);
     struct building_t *b = &all_buildings[map_building_at(grid_offset)];
     if (img->num_animation_sprites
         && map_property_is_draw_tile(grid_offset)
@@ -516,7 +516,7 @@ static void deletion_draw_remaining(int x, int y, int grid_offset)
     draw_hippodrome_ornaments(x, y, grid_offset);
 }
 
-void city_without_overlay_draw(int selected_figure_id, pixel_coordinate *figure_coord, const map_tile *tile)
+void city_without_overlay_draw(int selected_figure_id, struct pixel_coordinate_t *figure_coord, const struct map_tile_t *tile)
 {
     int highlighted_formation = -1;
     if (config_get(CONFIG_UI_HIGHLIGHT_LEGIONS)) {

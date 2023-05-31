@@ -10,13 +10,13 @@
 #include "sound/speech.h"
 #include "window/building/figures.h"
 
-void window_building_draw_no_people(building_info_context *c)
+void window_building_draw_no_people(struct building_info_context_t *c)
 {
     outer_panel_draw(c->x_offset, c->y_offset, c->width_blocks, c->height_blocks);
     lang_text_draw_centered(70, 0, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
 }
 
-void window_building_draw_terrain(building_info_context *c)
+void window_building_draw_terrain(struct building_info_context_t *c)
 {
     switch (c->terrain_type) {
         case TERRAIN_INFO_ROAD: c->help_id = 57; break;

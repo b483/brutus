@@ -1,13 +1,13 @@
 #ifndef CITY_RATINGS_H
 #define CITY_RATINGS_H
 
-typedef enum {
+enum {
     SELECTED_RATING_NONE = 0,
     SELECTED_RATING_CULTURE = 1,
     SELECTED_RATING_PROSPERITY = 2,
     SELECTED_RATING_PEACE = 3,
     SELECTED_RATING_FAVOR = 4
-} selected_rating;
+};
 
 int city_rating_selected_explanation(void);
 

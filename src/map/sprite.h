@@ -27,8 +27,8 @@ void map_sprite_backup(void);
 
 void map_sprite_restore(void);
 
-void map_sprite_save_state(buffer *buf, buffer *backup);
+void map_sprite_save_state(struct buffer_t *buf, struct buffer_t *backup);
 
-void map_sprite_load_state(buffer *buf, buffer *backup);
+void map_sprite_load_state(struct buffer_t *buf, struct buffer_t *backup);
 
 #endif // MAP_SPRITE_H

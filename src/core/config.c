@@ -34,22 +34,22 @@ static int default_values[CONFIG_MAX_ENTRIES] = {
 };
 static const char default_string_values[CONFIG_STRING_MAX_ENTRIES][CONFIG_STRING_VALUE_MAX];
 
-int config_get(config_key key)
+int config_get(int key)
 {
     return values[key];
 }
 
-void config_set(config_key key, int value)
+void config_set(int key, int value)
 {
     values[key] = value;
 }
 
-const char *config_get_string(config_string_key key)
+const char *config_get_string(int key)
 {
     return string_values[key];
 }
 
-void config_set_string(config_string_key key, const char *value)
+void config_set_string(int key, const char *value)
 {
     if (!value) {
         string_values[key][0] = 0;
@@ -58,12 +58,12 @@ void config_set_string(config_string_key key, const char *value)
     }
 }
 
-int config_get_default_value(config_key key)
+int config_get_default_value(int key)
 {
     return default_values[key];
 }
 
-const char *config_get_default_string_value(config_string_key key)
+const char *config_get_default_string_value(int key)
 {
     return default_string_values[key];
 }

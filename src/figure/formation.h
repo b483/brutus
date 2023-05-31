@@ -77,7 +77,7 @@ void update_formation_morale_after_death(struct formation_t *m);
 
 void formation_update_all(void);
 
-void formation_save_state(buffer *buf, struct formation_t *m);
-void formation_load_state(buffer *buf, struct formation_t *m);
+void formation_save_state(struct buffer_t *buf, struct formation_t *m);
+void formation_load_state(struct buffer_t *buf, struct formation_t *m);
 
 #endif // FIGURE_FORMATION_H

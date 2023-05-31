@@ -2,8 +2,8 @@
 
 #include "map/grid.h"
 
-static grid_u8 sprite;
-static grid_u8 sprite_backup;
+static struct grid_u8_t sprite;
+static struct grid_u8_t sprite_backup;
 
 int map_sprite_animation_at(int grid_offset)
 {
@@ -45,13 +45,13 @@ void map_sprite_restore(void)
     map_grid_copy_u8(sprite_backup.items, sprite.items);
 }
 
-void map_sprite_save_state(buffer *buf, buffer *backup)
+void map_sprite_save_state(struct buffer_t *buf, struct buffer_t *backup)
 {
     map_grid_save_state_u8(sprite.items, buf);
     map_grid_save_state_u8(sprite_backup.items, backup);
 }
 
-void map_sprite_load_state(buffer *buf, buffer *backup)
+void map_sprite_load_state(struct buffer_t *buf, struct buffer_t *backup)
 {
     map_grid_load_state_u8(sprite.items, buf);
     map_grid_load_state_u8(sprite_backup.items, backup);

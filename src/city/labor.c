@@ -59,7 +59,7 @@ int city_labor_lower_wages_rome(void)
     return 1;
 }
 
-const labor_category_data *city_labor_category(int category)
+struct labor_category_data_t *city_labor_category(int category)
 {
     return &city_data.labor.categories[category];
 }
@@ -252,7 +252,7 @@ static void set_building_worker_weight(void)
 static void allocate_workers_to_water(void)
 {
     static int start_building_id = 1;
-    labor_category_data *water_cat = &city_data.labor.categories[LABOR_CATEGORY_WATER];
+    struct labor_category_data_t *water_cat = &city_data.labor.categories[LABOR_CATEGORY_WATER];
 
     int percentage_not_filled = 100 - calc_percentage(water_cat->workers_allocated, water_cat->workers_needed);
 

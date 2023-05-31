@@ -12,7 +12,7 @@ int city_culture_coverage_colosseum(void);
 int city_culture_coverage_hippodrome(void);
 int city_culture_coverage_average_entertainment(void);
 
-int city_culture_coverage_religion(god_type god);
+int city_culture_coverage_religion(int god);
 
 int city_culture_coverage_school(void);
 int city_culture_coverage_library(void);
@@ -28,8 +28,8 @@ void city_culture_calculate(void);
 
 void city_festival_update(void);
 
-void city_culture_save_state(buffer *buf);
+void city_culture_save_state(struct buffer_t *buf);
 
-void city_culture_load_state(buffer *buf);
+void city_culture_load_state(struct buffer_t *buf);
 
 #endif // CITY_CULTURE_H

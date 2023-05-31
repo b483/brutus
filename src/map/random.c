@@ -3,7 +3,7 @@
 #include "core/random.h"
 #include "map/grid.h"
 
-static grid_u8 random;
+static struct grid_u8_t random;
 
 void map_random_clear(void)
 {
@@ -26,12 +26,12 @@ int map_random_get(int grid_offset)
     return random.items[grid_offset];
 }
 
-void map_random_save_state(buffer *buf)
+void map_random_save_state(struct buffer_t *buf)
 {
     map_grid_save_state_u8(random.items, buf);
 }
 
-void map_random_load_state(buffer *buf)
+void map_random_load_state(struct buffer_t *buf)
 {
     map_grid_load_state_u8(random.items, buf);
 }

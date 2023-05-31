@@ -196,7 +196,7 @@ static void get_building_base_xy(int map_x, int map_y, int building_size, int *x
     }
 }
 
-static void draw_bridge(const map_tile *tile, int x, int y, int type)
+static void draw_bridge(const struct map_tile_t *tile, int x, int y, int type)
 {
     int length, direction;
     int end_grid_offset = map_bridge_calculate_length_direction(tile->x, tile->y, &length, &direction);
@@ -254,7 +254,7 @@ static void draw_bridge(const map_tile *tile, int x, int y, int type)
     }
 }
 
-int city_building_ghost_mark_deleting(const map_tile *tile)
+int city_building_ghost_mark_deleting(const struct map_tile_t *tile)
 {
     if (!config_get(CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE)) {
         return 0;
@@ -271,7 +271,7 @@ int city_building_ghost_mark_deleting(const map_tile *tile)
     return 1;
 }
 
-void city_building_ghost_draw(const map_tile *tile)
+void city_building_ghost_draw(const struct map_tile_t *tile)
 {
     if (!tile->grid_offset || scroll_in_progress()) {
         return;
@@ -352,7 +352,7 @@ void city_building_ghost_draw(const map_tile *tile)
             draw_water_range_preview(x, y + 30, 11);
             draw_building(image_id, x, y);
             if (map_terrain_exists_tile_in_area_with_type(tile->x - 1, tile->y - 1, 5, TERRAIN_WATER)) {
-                const image *img = image_get(image_id);
+                const struct image_t *img = image_get(image_id);
                 int x_water = x - 58 + img->sprite_offset_x - 2;
                 int y_water = y + img->sprite_offset_y - (img->height - 90);
                 image_draw_masked(image_id + 1, x_water, y_water, COLOR_MASK_GREEN);
@@ -368,7 +368,7 @@ void city_building_ghost_draw(const map_tile *tile)
                 image_draw_blend(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, COLOR_MASK_RED);
                 return;
             }
-            const terrain_image *terrain_img = map_image_context_get_aqueduct(tile->grid_offset, 1);
+            const struct terrain_image_t *terrain_img = map_image_context_get_aqueduct(tile->grid_offset, 1);
             if (map_terrain_is(tile->grid_offset, TERRAIN_ROAD)) {
                 int group_offset = terrain_img->group_offset;
                 if (!terrain_img->aqueduct_offset) {
@@ -396,7 +396,7 @@ void city_building_ghost_draw(const map_tile *tile)
             draw_water_range_preview(x, y, scenario.climate == CLIMATE_DESERT ? 3 : 4);
             draw_building(image_id, x, y);
             if (map_terrain_is(tile->grid_offset, TERRAIN_RESERVOIR_RANGE)) {
-                const image *img = image_get(image_id);
+                const struct image_t *img = image_get(image_id);
                 image_draw_masked(image_id + 1, x + img->sprite_offset_x, y + img->sprite_offset_y, COLOR_MASK_GREEN);
             }
             return;
@@ -416,7 +416,7 @@ void city_building_ghost_draw(const map_tile *tile)
             draw_building(image_id, x, y);
             for (int i = 0; i < num_tiles; i++) {
                 if (map_terrain_is(tile->grid_offset + TILE_GRID_OFFSETS[orientation_index][i], TERRAIN_RESERVOIR_RANGE)) {
-                    const image *img = image_get(image_id);
+                    const struct image_t *img = image_get(image_id);
                     image_draw_masked(image_id - 1, x + img->sprite_offset_x - 7, y + img->sprite_offset_y + 6, COLOR_MASK_GREEN);
                     break;
                 }
@@ -483,7 +483,7 @@ void city_building_ghost_draw(const map_tile *tile)
                 return;
             }
             draw_building(image_id, x, y);
-            const image *img = image_get(image_id + 1);
+            const struct image_t *img = image_get(image_id + 1);
             if (image_id == image_group(GROUP_BUILDING_TRIUMPHAL_ARCH)) {
                 image_draw_masked(image_id + 1, x + img->sprite_offset_x + 4, y + img->sprite_offset_y - 51, COLOR_MASK_GREEN);
             } else {
@@ -594,7 +594,7 @@ void city_building_ghost_draw(const map_tile *tile)
                 return;
             }
             image_draw_isometric_footprint(image_id, x, y, COLOR_MASK_GREEN);
-            const image *img_granary = image_get(image_id + 1);
+            const struct image_t *img_granary = image_get(image_id + 1);
             image_draw_masked(image_id + 1, x + img_granary->sprite_offset_x - 32, y + img_granary->sprite_offset_y - 64, COLOR_MASK_GREEN);
             return;
         case BUILDING_WAREHOUSE:

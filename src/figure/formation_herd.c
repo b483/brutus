@@ -218,14 +218,14 @@ void update_herd_formations(void)
     }
 }
 
-void herd_formations_save_state(buffer *buf)
+void herd_formations_save_state(struct buffer_t *buf)
 {
     for (int i = 0; i < MAX_HERD_POINTS; i++) {
         formation_save_state(buf, &herd_formations[i]);
     }
 }
 
-void herd_formations_load_state(buffer *buf)
+void herd_formations_load_state(struct buffer_t *buf)
 {
     for (int i = 0; i < MAX_HERD_POINTS; i++) {
         herd_formations[i].id = i;

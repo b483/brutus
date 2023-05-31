@@ -43,8 +43,8 @@
 static struct {
     int type;
     int in_progress;
-    map_tile start;
-    map_tile end;
+    struct map_tile_t start;
+    struct map_tile_t end;
     int cost_preview;
     struct {
         int meadow;
@@ -54,7 +54,7 @@ static struct {
         int wall;
     } required_terrain;
     int road_orientation;
-    time_millis road_last_update;
+    uint32_t road_last_update;
     int draw_as_constructing;
     int start_offset_x_view;
     int start_offset_y_view;

@@ -39,11 +39,11 @@
 static void button_change_advisor(int advisor, int param2);
 static void button_help(int param1, int param2);
 
-static image_button help_button = {
+static struct image_button_t help_button = {
     11, -7, 27, 27, IB_NORMAL, GROUP_CONTEXT_ICONS, 0, button_help, button_none, 0, 0, 1, 0, 0, 0
 };
 
-static generic_button advisor_buttons[] = {
+static struct generic_button_t advisor_buttons[] = {
     {12, 1, 40, 40, button_change_advisor, button_none, ADVISOR_LABOR, 0},
     {60, 1, 40, 40, button_change_advisor, button_none, ADVISOR_MILITARY, 0},
     {108, 1, 40, 40, button_change_advisor, button_none, ADVISOR_IMPERIAL, 0},
@@ -59,7 +59,7 @@ static generic_button advisor_buttons[] = {
     {588, 1, 40, 40, button_change_advisor, button_none, 0, 0},
 };
 
-static const advisor_window_type *(*sub_advisors[])(void) = {
+struct advisor_window_type_t *(*sub_advisors[])(void) = {
     0,
     window_advisor_labor,
     window_advisor_military,
@@ -91,8 +91,8 @@ static const int ADVISOR_TO_MESSAGE_TEXT[] = {
     MESSAGE_DIALOG_ADVISOR_CHIEF
 };
 
-static const advisor_window_type *current_advisor_window = 0;
-static advisor_type current_advisor = ADVISOR_NONE;
+static struct advisor_window_type_t *current_advisor_window = 0;
+static int current_advisor = ADVISOR_NONE;
 
 static int focus_button_id;
 static int advisor_height;
@@ -170,7 +170,7 @@ static void draw_foreground(void)
     }
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (h->show_last_advisor) {
         window_city_show();
@@ -180,7 +180,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         window_empire_show();
         return;
     }
-    const mouse *m_dialog = mouse_in_dialog(m);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (generic_buttons_handle_mouse(m_dialog, 0, 440, advisor_buttons, 13, &focus_button_id)) {
         return;
     }
@@ -215,40 +215,18 @@ static void button_help(__attribute__((unused)) int param1, __attribute__((unuse
     }
 }
 
-static void get_tooltip(tooltip_context *c)
-{
-    if (focus_button_id) {
-        c->type = TOOLTIP_BUTTON;
-        if (focus_button_id == -1) {
-            c->text_id = 1; // help button
-        } else {
-            c->text_id = 69 + focus_button_id;
-        }
-        return;
-    }
-    int text_id = 0;
-    if (current_advisor_window->get_tooltip_text) {
-        text_id = current_advisor_window->get_tooltip_text();
-    }
-    if (text_id) {
-        c->text_id = text_id;
-        c->type = TOOLTIP_BUTTON;
-    }
-}
-
-advisor_type window_advisors_get_advisor(void)
+int window_advisors_get_advisor(void)
 {
     return current_advisor;
 }
 
-void window_advisors_show(advisor_type advisor)
+void window_advisors_show(int advisor)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_ADVISORS,
         draw_background,
         draw_foreground,
         handle_input,
-        get_tooltip
     };
     if (advisor) {
         set_advisor(advisor);

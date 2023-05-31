@@ -11,8 +11,8 @@ int formation_rioter_get_target_building(int *x_tile, int *y_tile);
 
 void update_enemy_formations(void);
 
-void enemy_formations_save_state(buffer *buf);
+void enemy_formations_save_state(struct buffer_t *buf);
 
-void enemy_formations_load_state(buffer *buf);
+void enemy_formations_load_state(struct buffer_t *buf);
 
 #endif // FIGURE_FORMATION_ENEMY_H

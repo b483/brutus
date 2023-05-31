@@ -4,14 +4,14 @@
 #define MIN_Y_POSITION 32
 #define MARGIN_POSITION 16
 
-typedef enum {
+enum {
     BUILDING_INFO_NONE = 0,
     BUILDING_INFO_TERRAIN = 1,
     BUILDING_INFO_BUILDING = 2,
     BUILDING_INFO_LEGION = 4
-} building_info_type;
+};
 
-typedef enum {
+enum {
     TERRAIN_INFO_NONE = 0,
     TERRAIN_INFO_TREE = 1,
     TERRAIN_INFO_ROCK = 2,
@@ -28,9 +28,9 @@ typedef enum {
     TERRAIN_INFO_PLAZA = 13,
     TERRAIN_INFO_ENTRY_FLAG = 14,
     TERRAIN_INFO_EXIT_FLAG = 15
-} terrain_info_type;
+};
 
-typedef struct {
+struct building_info_context_t {
     int x_offset;
     int y_offset;
     int width_blocks;
@@ -47,8 +47,8 @@ typedef struct {
     int barracks_soldiers_requested;
     int worst_desirability_building_id;
     int warehouse_space_text;
-    building_info_type type;
-    terrain_info_type terrain_type;
+    int type;
+    int terrain_type;
     int can_go_to_advisor;
     int rubble_building_type;
     int storage_show_special_orders;
@@ -60,20 +60,20 @@ typedef struct {
         int drawn;
         int figure_ids[7];
     } figure;
-} building_info_context;
+};
 
-void window_building_set_possible_position(int * x_offset, int * y_offset, int width_blocks, int height_blocks);
+void window_building_set_possible_position(int *x_offset, int *y_offset, int width_blocks, int height_blocks);
 
-int window_building_get_vertical_offset(building_info_context *c, int new_window_height);
+int window_building_get_vertical_offset(struct building_info_context_t *c, int new_window_height);
 
-void window_building_draw_employment(building_info_context *c, int y_offset);
+void window_building_draw_employment(struct building_info_context_t *c, int y_offset);
 
-void window_building_draw_employment_without_house_cover(building_info_context *c, int y_offset);
+void window_building_draw_employment_without_house_cover(struct building_info_context_t *c, int y_offset);
 
-void window_building_draw_description(building_info_context *c, int text_group, int text_id);
+void window_building_draw_description(struct building_info_context_t *c, int text_group, int text_id);
 
-void window_building_draw_description_at(building_info_context *c, int y_offset, int text_group, int text_id);
+void window_building_draw_description_at(struct building_info_context_t *c, int y_offset, int text_group, int text_id);
 
-void window_building_play_sound(building_info_context *c, const char *sound_file);
+void window_building_play_sound(struct building_info_context_t *c, const char *sound_file);
 
 #endif // WINDOW_BUILDING_COMMON_H

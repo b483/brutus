@@ -23,7 +23,7 @@ static const struct {
 struct scenario_t scenario;
 struct scenario_settings_t scenario_settings;
 
-static void init_point(map_point *point)
+static void init_point(struct map_point_t *point)
 {
     point->x = -1;
     point->y = -1;
@@ -127,7 +127,7 @@ void scenario_editor_create(int map_size)
     scenario.is_saved = 1;
 }
 
-void scenario_save_state(buffer *buf)
+void scenario_save_state(struct buffer_t *buf)
 {
     buffer_write_u16(buf, scenario.map.width);
     buffer_write_u16(buf, scenario.map.height);
@@ -322,7 +322,7 @@ void scenario_save_state(buffer *buf)
     scenario.is_saved = 1;
 }
 
-void scenario_load_state(buffer *buf)
+void scenario_load_state(struct buffer_t *buf)
 {
     scenario.map.width = buffer_read_u16(buf);
     scenario.map.height = buffer_read_u16(buf);
@@ -514,12 +514,12 @@ void scenario_settings_set_player_name(const uint8_t *name)
     string_copy(name, scenario_settings.player_name, MAX_PLAYER_NAME);
 }
 
-void scenario_settings_save_state(buffer *player_name)
+void scenario_settings_save_state(struct buffer_t *player_name)
 {
     buffer_write_raw(player_name, scenario_settings.player_name, MAX_PLAYER_NAME);
 }
 
-void scenario_settings_load_state(buffer *player_name)
+void scenario_settings_load_state(struct buffer_t *player_name)
 {
     buffer_read_raw(player_name, scenario_settings.player_name, MAX_PLAYER_NAME);
 }

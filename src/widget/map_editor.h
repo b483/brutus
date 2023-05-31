@@ -8,7 +8,7 @@ void widget_map_editor_draw(void);
 
 void request_exit_editor(void);
 
-void widget_map_editor_handle_input(const mouse *m, const hotkeys *h);
+void widget_map_editor_handle_input(const struct mouse_t *m, const struct hotkeys_t *h);
 
 void widget_map_editor_clear_current_tile(void);
 

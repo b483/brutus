@@ -1,13 +1,13 @@
 #include "core/time.h"
 
-static time_millis current_time;
+static uint32_t current_time;
 
-time_millis time_get_millis(void)
+uint32_t time_get_millis(void)
 {
     return current_time;
 }
 
-void time_set_millis(time_millis millis)
+void time_set_millis(uint32_t millis)
 {
     current_time = millis;
 }

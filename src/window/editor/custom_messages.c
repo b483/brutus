@@ -18,7 +18,7 @@
 
 static void button_message(int id, int category);
 
-static generic_button buttons_attributes[] = {
+static struct generic_button_t buttons_attributes[] = {
     {-300, 48, 125, 25, button_message, button_none, 0, 0},
     {-300, 78, 125, 25, button_message, button_none, 1, 0},
     {-300, 108, 125, 25, button_message, button_none, 2, 0},
@@ -66,7 +66,7 @@ static generic_button buttons_attributes[] = {
     {500, 468, 125, 25, button_message, button_none, 39, 0},
 };
 
-static generic_button buttons_custom_message_title[] = {
+static struct generic_button_t buttons_custom_message_title[] = {
     {-170, 48, 125, 25, button_message, button_none, 0, 1},
     {-170, 78, 125, 25, button_message, button_none, 1, 1},
     {-170, 108, 125, 25, button_message, button_none, 2, 1},
@@ -114,7 +114,7 @@ static generic_button buttons_custom_message_title[] = {
     {630, 468, 125, 25, button_message, button_none, 39, 1},
 };
 
-static generic_button buttons_custom_message_text[] = {
+static struct generic_button_t buttons_custom_message_text[] = {
     {-40, 48, 125, 25, button_message, button_none, 0, 2},
     {-40, 78, 125, 25, button_message, button_none, 1, 2},
     {-40, 108, 125, 25, button_message, button_none, 2, 2},
@@ -233,15 +233,15 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_attributes, sizeof(buttons_attributes) / sizeof(generic_button), &focus_button_id_attr)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_attributes, sizeof(buttons_attributes) / sizeof(struct generic_button_t), &focus_button_id_attr)) {
         return;
     }
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_custom_message_title, sizeof(buttons_custom_message_title) / sizeof(generic_button), &focus_button_id_title)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_custom_message_title, sizeof(buttons_custom_message_title) / sizeof(struct generic_button_t), &focus_button_id_title)) {
         return;
     }
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_custom_message_text, sizeof(buttons_custom_message_text) / sizeof(generic_button), &focus_button_id_text)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_custom_message_text, sizeof(buttons_custom_message_text) / sizeof(struct generic_button_t), &focus_button_id_text)) {
         return;
     }
     if (m->right.went_up || h->escape_pressed) {
@@ -256,12 +256,11 @@ static void button_message(int id, int category)
 
 void window_editor_custom_messages_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_CUSTOM_MESSAGES,
         window_editor_map_draw_all,
         draw_foreground,
         handle_input,
-        0
     };
     window_show(&window);
 }

@@ -1,26 +1,18 @@
 #ifndef CORE_TIME_H
 #define CORE_TIME_H
 
-/**
- * @file
- * Time tracking functions.
- */
-
-/**
- * Time in millisecond-precision. Use only for time difference calculations.
- */
-typedef unsigned int time_millis;
+#include <stdint.h>
 
 /**
  * Gets the current time
  * @return Current time in milliseconds
  */
-time_millis time_get_millis(void);
+uint32_t time_get_millis(void);
 
 /**
  * Sets the current time
  * @param millis Current milliseconds
  */
-void time_set_millis(time_millis millis);
+void time_set_millis(uint32_t millis);
 
 #endif // CORE_TIME_H

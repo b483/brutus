@@ -22,14 +22,14 @@ static void arrow_button_speech(int is_down, int param2);
 static void arrow_button_effects(int is_down, int param2);
 static void arrow_button_city(int is_down, int param2);
 
-static generic_button buttons_sound_options[] = {
+static struct generic_button_t buttons_sound_options[] = {
     {64, 162, 224, 20, button_toggle, button_none, SOUND_MUSIC, 0},
     {64, 192, 224, 20, button_toggle, button_none, SOUND_SPEECH, 0},
     {64, 222, 224, 20, button_toggle, button_none, SOUND_EFFECTS, 0},
     {64, 252, 224, 20, button_toggle, button_none, SOUND_CITY, 0},
 };
 
-static arrow_button arrow_buttons_sound_options[] = {
+static struct arrow_button_t arrow_buttons_sound_options[] = {
     {112, 100, 17, 24, arrow_button_music, 1, 0, 0, 0},
     {136, 100, 15, 24, arrow_button_music, 0, 0, 0, 0},
     {112, 130, 17, 24, arrow_button_speech, 1, 0, 0, 0},
@@ -43,10 +43,10 @@ static arrow_button arrow_buttons_sound_options[] = {
 static struct {
     int focus_button_id;
     int from_editor;
-    set_sound original_effects;
-    set_sound original_music;
-    set_sound original_speech;
-    set_sound original_city;
+    struct set_sound_t original_effects;
+    struct set_sound_t original_music;
+    struct set_sound_t original_speech;
+    struct set_sound_t original_city;
 } data;
 
 static void init(int from_editor)
@@ -78,32 +78,32 @@ static void draw_foreground(void)
     lang_text_draw(46, 10, 112, 142, FONT_SMALL_PLAIN);
     lang_text_draw(46, 11, 336, 142, FONT_SMALL_PLAIN);
 
-    const set_sound *music = setting_sound(SOUND_MUSIC);
+    struct set_sound_t *music = setting_sound(SOUND_MUSIC);
     lang_text_draw_centered(46, music->enabled ? 2 : 1, 64, 166, 224, FONT_NORMAL_GREEN);
     text_draw_percentage(music->volume, 374, 166, FONT_NORMAL_PLAIN);
 
-    const set_sound *speech = setting_sound(SOUND_SPEECH);
+    struct set_sound_t *speech = setting_sound(SOUND_SPEECH);
     lang_text_draw_centered(46, speech->enabled ? 4 : 3, 64, 196, 224, FONT_NORMAL_GREEN);
     text_draw_percentage(speech->volume, 374, 196, FONT_NORMAL_PLAIN);
 
-    const set_sound *effects = setting_sound(SOUND_EFFECTS);
+    struct set_sound_t *effects = setting_sound(SOUND_EFFECTS);
     lang_text_draw_centered(46, effects->enabled ? 6 : 5, 64, 226, 224, FONT_NORMAL_GREEN);
     text_draw_percentage(effects->volume, 374, 226, FONT_NORMAL_PLAIN);
 
-    const set_sound *city = setting_sound(SOUND_CITY);
+    struct set_sound_t *city = setting_sound(SOUND_CITY);
     lang_text_draw_centered(46, city->enabled ? 8 : 7, 64, 256, 224, FONT_NORMAL_GREEN);
     text_draw_percentage(city->volume, 374, 256, FONT_NORMAL_PLAIN);
 
-    arrow_buttons_draw(208, 60, arrow_buttons_sound_options, sizeof(arrow_buttons_sound_options) / sizeof(arrow_button));
+    arrow_buttons_draw(208, 60, arrow_buttons_sound_options, sizeof(arrow_buttons_sound_options) / sizeof(struct arrow_button_t));
 
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    const mouse *m_dialog = mouse_in_dialog(m);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_sound_options, 6, &data.focus_button_id) ||
-        arrow_buttons_handle_mouse(m_dialog, 208, 60, arrow_buttons_sound_options, sizeof(arrow_buttons_sound_options) / sizeof(arrow_button), 0)) {
+        arrow_buttons_handle_mouse(m_dialog, 208, 60, arrow_buttons_sound_options, sizeof(arrow_buttons_sound_options) / sizeof(struct arrow_button_t), 0)) {
         return;
     }
     if (m->right.went_up || h->escape_pressed) {
@@ -131,7 +131,7 @@ static void button_toggle(int type, __attribute__((unused)) int param2)
     }
 }
 
-static void update_volume(set_sound_type type, int is_decrease)
+static void update_volume(int type, int is_decrease)
 {
     if (is_decrease) {
         setting_decrease_sound_volume(type);
@@ -166,12 +166,11 @@ static void arrow_button_city(int is_down, __attribute__((unused)) int param2)
 
 void window_sound_options_show(int from_editor)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_SOUND_OPTIONS,
         window_draw_underlying_window,
         draw_foreground,
         handle_input,
-        0
     };
     init(from_editor);
     window_show(&window);

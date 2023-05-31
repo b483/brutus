@@ -62,114 +62,56 @@ static int get_column_height_academy(const struct building_t *b)
     return b->house_size && b->data.house.academy ? b->data.house.academy / 10 : NO_COLUMN;
 }
 
-static int get_tooltip_education(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
+const struct city_overlay_t *city_overlay_for_education(void)
 {
-    switch (b->data.house.education) {
-        case 0: return 100;
-        case 1: return 101;
-        case 2: return 102;
-        case 3: return 103;
-        default: return 0;
-    }
-}
-
-static int get_tooltip_school(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
-{
-    if (b->data.house.school <= 0) {
-        return 19;
-    } else if (b->data.house.school >= 80) {
-        return 20;
-    } else if (b->data.house.school >= 20) {
-        return 21;
-    } else {
-        return 22;
-    }
-}
-
-static int get_tooltip_library(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
-{
-    if (b->data.house.library <= 0) {
-        return 23;
-    } else if (b->data.house.library >= 80) {
-        return 24;
-    } else if (b->data.house.library >= 20) {
-        return 25;
-    } else {
-        return 26;
-    }
-}
-
-static int get_tooltip_academy(__attribute__((unused)) tooltip_context *c, const struct building_t *b)
-{
-    if (b->data.house.academy <= 0) {
-        return 27;
-    } else if (b->data.house.academy >= 80) {
-        return 28;
-    } else if (b->data.house.academy >= 20) {
-        return 29;
-    } else {
-        return 30;
-    }
-}
-
-const city_overlay *city_overlay_for_education(void)
-{
-    static city_overlay overlay = {
+    static struct city_overlay_t overlay = {
         OVERLAY_EDUCATION,
         COLUMN_TYPE_ACCESS,
         show_building_education,
         show_figure_education,
         get_column_height_education,
         0,
-        get_tooltip_education,
-        0,
         0
     };
     return &overlay;
 }
 
-const city_overlay *city_overlay_for_school(void)
+const struct city_overlay_t *city_overlay_for_school(void)
 {
-    static city_overlay overlay = {
+    static struct city_overlay_t overlay = {
         OVERLAY_SCHOOL,
         COLUMN_TYPE_ACCESS,
         show_building_school,
         show_figure_school,
         get_column_height_school,
         0,
-        get_tooltip_school,
-        0,
         0
     };
     return &overlay;
 }
 
-const city_overlay *city_overlay_for_library(void)
+const struct city_overlay_t *city_overlay_for_library(void)
 {
-    static city_overlay overlay = {
+    static struct city_overlay_t overlay = {
         OVERLAY_LIBRARY,
         COLUMN_TYPE_ACCESS,
         show_building_library,
         show_figure_library,
         get_column_height_library,
         0,
-        get_tooltip_library,
-        0,
         0
     };
     return &overlay;
 }
 
-const city_overlay *city_overlay_for_academy(void)
+const struct city_overlay_t *city_overlay_for_academy(void)
 {
-    static city_overlay overlay = {
+    static struct city_overlay_t overlay = {
         OVERLAY_ACADEMY,
         COLUMN_TYPE_ACCESS,
         show_building_academy,
         show_figure_academy,
         get_column_height_academy,
-        0,
-        get_tooltip_academy,
         0,
         0
     };

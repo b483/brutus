@@ -3,7 +3,7 @@
 
 #include "core/buffer.h"
 
-typedef enum {
+enum {
     MESSAGE_CAT_RIOT = 0,
     MESSAGE_CAT_FIRE = 1,
     MESSAGE_CAT_COLLAPSE = 2,
@@ -12,9 +12,9 @@ typedef enum {
     MESSAGE_CAT_WORKERS_NEEDED = 8,
     MESSAGE_CAT_NO_WORKING_DOCK = 10,
     MESSAGE_CAT_FISHING_BLOCKED = 11,
-} message_category;
+};
 
-typedef enum {
+enum {
     MESSAGE_ADVISOR_NONE = 0,
     MESSAGE_ADVISOR_LABOR = 1,
     MESSAGE_ADVISOR_TRADE = 2,
@@ -23,9 +23,9 @@ typedef enum {
     MESSAGE_ADVISOR_MILITARY = 5,
     MESSAGE_ADVISOR_HEALTH = 6,
     MESSAGE_ADVISOR_RELIGION = 7,
-} message_advisor;
+};
 
-typedef enum {
+enum {
     MESSAGE_POPULATION_500 = 2,
     MESSAGE_POPULATION_1000 = 3,
     MESSAGE_POPULATION_2000 = 4,
@@ -178,9 +178,9 @@ typedef enum {
     MESSAGE_EDITOR_43 = 165,
     MESSAGE_EDITOR_44 = 166,
     MESSAGE_EDITOR_45 = 167,
-} city_message_type;
+};
 
-typedef struct {
+struct city_message_t {
     int sequence;
     int message_type;
     int year;
@@ -188,7 +188,7 @@ typedef struct {
     int param1;
     int param2;
     int is_read;
-} city_message;
+};
 
 void city_message_init_scenario(void);
 
@@ -196,33 +196,33 @@ void city_message_init_problem_areas(void);
 
 void city_message_disable_sound_for_next_message(void);
 
-void city_message_apply_sound_interval(message_category category);
+void city_message_apply_sound_interval(int category);
 
 void city_message_post(int use_popup, int message_type, int param1, int param2);
 
-void city_message_post_with_popup_delay(message_category category, int message_type, int param1, short param2);
+void city_message_post_with_popup_delay(int category, int message_type, int param1, short param2);
 
-void city_message_post_with_message_delay(message_category category, int use_popup, int message_type, int delay);
+void city_message_post_with_message_delay(int category, int use_popup, int message_type, int delay);
 
 void city_message_process_queue(void);
 
 void city_message_sort_and_compact(void);
 
-int city_message_get_text_id(city_message_type message_type);
+int city_message_get_text_id(int message_type);
 
-message_advisor city_message_get_advisor(city_message_type message_type);
+int city_message_get_advisor(int message_type);
 
-void city_message_reset_category_count(message_category category);
+void city_message_reset_category_count(int category);
 
-void city_message_increase_category_count(message_category category);
+void city_message_increase_category_count(int category);
 
-int city_message_get_category_count(message_category category);
+int city_message_get_category_count(int category);
 
 void city_message_decrease_delays(void);
 
 int city_message_mark_population_shown(int population);
 
-const city_message *city_message_get(int message_id);
+struct city_message_t *city_message_get(int message_id);
 
 int city_message_set_current(int message_id);
 
@@ -242,8 +242,8 @@ int city_message_scroll_position(void);
 
 void city_message_set_scroll_position(int scroll_position);
 
-void city_message_save_state(buffer *messages, buffer *extra, buffer *counts, buffer *delays, buffer *population);
+void city_message_save_state(struct buffer_t *messages, struct buffer_t *extra, struct buffer_t *counts, struct buffer_t *delays, struct buffer_t *population);
 
-void city_message_load_state(buffer *messages, buffer *extra, buffer *counts, buffer *delays, buffer *population);
+void city_message_load_state(struct buffer_t *messages, struct buffer_t *extra, struct buffer_t *counts, struct buffer_t *delays, struct buffer_t *population);
 
 #endif // CITY_MESSAGE_H

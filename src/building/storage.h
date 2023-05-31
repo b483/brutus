@@ -74,12 +74,12 @@ void building_storage_reset_building_ids(void);
  * Save data
  * @param buf Buffer to read from
  */
-void building_storage_save_state(buffer *buf);
+void building_storage_save_state(struct buffer_t *buf);
 
 /**
  * Load data
  * @param buf Buffer to read from
  */
-void building_storage_load_state(buffer *buf);
+void building_storage_load_state(struct buffer_t *buf);
 
 #endif // BUILDING_STORAGE_H

@@ -23,7 +23,7 @@ static const int CHAR_TO_FONT_IMAGE_DEFAULT[] = {
     0x00, 0x66, 0x5F, 0x5E, 0x60, 0x60, 0x5D, 0x00, 0x86, 0x63, 0x62, 0x64, 0x61, 0x19, 0x00, 0x19,
 };
 
-static const font_definition DEFINITIONS_DEFAULT[] = {
+static const struct font_definition_t DEFINITIONS_DEFAULT[] = {
     {FONT_NORMAL_PLAIN,   0, 0, 6, 1, 11, image_y_offset_default},
     {FONT_NORMAL_BLACK, 134, 0, 6, 0, 11, image_y_offset_default},
     {FONT_NORMAL_WHITE, 268, 0, 6, 0, 11, image_y_offset_default},
@@ -42,7 +42,7 @@ enum {
 
 static struct {
     const int *font_mapping;
-    const font_definition *font_definitions;
+    const struct font_definition_t *font_definitions;
     int multibyte;
 } data;
 
@@ -65,7 +65,7 @@ void font_set_encoding(void)
     data.font_definitions = DEFINITIONS_DEFAULT;
 }
 
-const font_definition *font_definition_for(font_t font)
+const struct font_definition_t *font_definition_for(int font)
 {
     return &data.font_definitions[font];
 }
@@ -76,7 +76,7 @@ int font_can_display(const uint8_t *character)
     return font_letter_id(&data.font_definitions[FONT_NORMAL_BLACK], character, &dummy) >= 0;
 }
 
-int font_letter_id(const font_definition *def, const uint8_t *str, int *num_bytes)
+int font_letter_id(const struct font_definition_t *def, const uint8_t *str, int *num_bytes)
 {
     *num_bytes = 1;
     if (!data.font_mapping[*str]) {

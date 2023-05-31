@@ -20,7 +20,7 @@ static void button_go_to_legion(int legion_id, int param2);
 static void button_return_to_fort(int legion_id, int param2);
 static void button_empire_service(int legion_id, int param2);
 
-static generic_button fort_buttons[] = {
+static struct generic_button_t fort_buttons[] = {
     {400, 83, 30, 30, button_go_to_legion, button_none, 0, 0},
     {480, 83, 30, 30, button_return_to_fort, button_none, 0, 0},
     {560, 83, 30, 30, button_empire_service, button_none, 0, 0},
@@ -164,7 +164,7 @@ static void draw_foreground(void)
     }
 }
 
-static int handle_mouse(const mouse *m)
+static int handle_mouse(const struct mouse_t *m)
 {
     return generic_buttons_handle_mouse(m, 0, 0, fort_buttons, 3 * city_data.military.total_legions, &focus_button_id);
 }
@@ -208,13 +208,12 @@ static void button_empire_service(int legion_id, __attribute__((unused)) int par
     }
 }
 
-const advisor_window_type *window_advisor_military(void)
+struct advisor_window_type_t *window_advisor_military(void)
 {
-    static const advisor_window_type window = {
+    static struct advisor_window_type_t window = {
         draw_background,
         draw_foreground,
         handle_mouse,
-        0
     };
     return &window;
 }

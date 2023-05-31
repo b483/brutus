@@ -29,7 +29,7 @@ enum {
     TERRAIN_ALL = 65535
 };
 
-extern grid_u16 terrain_grid;
+extern struct grid_u16_t terrain_grid;
 
 int map_terrain_is(int grid_offset, int terrain);
 
@@ -65,8 +65,8 @@ void map_terrain_restore(void);
 
 void map_terrain_clear(void);
 
-void map_terrain_save_state(buffer *buf);
+void map_terrain_save_state(struct buffer_t *buf);
 
-void map_terrain_load_state(buffer *buf);
+void map_terrain_load_state(struct buffer_t *buf);
 
 #endif // MAP_TERRAIN_H

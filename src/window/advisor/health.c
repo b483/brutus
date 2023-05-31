@@ -16,7 +16,7 @@
 
 static int get_health_advice(void)
 {
-    house_demands *demands = city_houses_demands();
+    struct house_demands_t *demands = city_houses_demands();
     switch (demands->health) {
         case 1:
             return demands->requiring.bathhouse ? 1 : 0;
@@ -88,13 +88,12 @@ static int draw_background(void)
     return ADVISOR_HEIGHT;
 }
 
-const advisor_window_type *window_advisor_health(void)
+struct advisor_window_type_t *window_advisor_health(void)
 {
-    static const advisor_window_type window = {
+    static struct advisor_window_type_t window = {
         draw_background,
         0,
         0,
-        0
     };
     return &window;
 }

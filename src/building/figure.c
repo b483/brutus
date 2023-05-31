@@ -111,7 +111,7 @@ static void create_roaming_figure(struct building_t *b, int x, int y, int type)
 
 static int spawn_patrician(struct building_t *b, int spawned)
 {
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         b->figure_spawn_delay++;
         if (b->figure_spawn_delay > 40 && !spawned) {
@@ -138,7 +138,7 @@ static void spawn_figure_warehouse(struct building_t *b)
             space->show_on_problem_overlay = b->show_on_problem_overlay;
         }
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road) ||
         map_has_road_access(b->x, b->y, 3, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 100);
@@ -166,7 +166,7 @@ static void spawn_figure_warehouse(struct building_t *b)
 static void spawn_figure_granary(struct building_t *b)
 {
     check_labor_problem(b);
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access_granary(b->x, b->y, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 100);
         if (has_figure_of_type(b, FIGURE_WAREHOUSEMAN)) {
@@ -187,7 +187,7 @@ static void spawn_figure_granary(struct building_t *b)
 static void spawn_figure_tower(struct building_t *b)
 {
     check_labor_problem(b);
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         if (b->num_workers <= 0) {
@@ -213,7 +213,7 @@ static void spawn_figure_engineers_post(struct building_t *b)
     if (has_figure_of_type(b, FIGURE_ENGINEER)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 100);
         int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
@@ -250,7 +250,7 @@ static void spawn_figure_prefecture(struct building_t *b)
     if (has_figure_of_type(b, FIGURE_PREFECT)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 100);
         int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
@@ -283,7 +283,7 @@ static void spawn_figure_prefecture(struct building_t *b)
 static void spawn_figure_actor_colony(struct building_t *b)
 {
     check_labor_problem(b);
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int spawn_delay = default_spawn_delay(b);
@@ -306,7 +306,7 @@ static void spawn_figure_actor_colony(struct building_t *b)
 static void spawn_figure_gladiator_school(struct building_t *b)
 {
     check_labor_problem(b);
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int spawn_delay = default_spawn_delay(b);
@@ -331,7 +331,7 @@ static void spawn_figure_gladiator_school(struct building_t *b)
 static void spawn_figure_lion_house(struct building_t *b)
 {
     check_labor_problem(b);
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
@@ -365,7 +365,7 @@ static void spawn_figure_lion_house(struct building_t *b)
 static void spawn_figure_chariot_maker(struct building_t *b)
 {
     check_labor_problem(b);
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
@@ -402,7 +402,7 @@ static void spawn_figure_amphitheater(struct building_t *b)
     if (has_figure_of_types(b, FIGURE_ACTOR, FIGURE_GLADIATOR)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         if (b->houses_covered <= 50 ||
             (b->data.entertainment.days1 <= 0 && b->data.entertainment.days2 <= 0)) {
@@ -455,7 +455,7 @@ static void spawn_figure_theater(struct building_t *b)
     if (has_figure_of_type(b, FIGURE_ACTOR)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         if (b->houses_covered <= 50 || b->data.entertainment.days1 <= 0) {
             generate_labor_seeker(b, road.x, road.y);
@@ -494,7 +494,7 @@ static void spawn_figure_hippodrome(struct building_t *b)
     if (has_figure_of_type(b, FIGURE_CHARIOTEER)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access_hippodrome(b->x, b->y, &road)) {
         if (b->houses_covered <= 50 || b->data.entertainment.days1 <= 0) {
             generate_labor_seeker(b, road.x, road.y);
@@ -557,7 +557,7 @@ static void spawn_figure_colosseum(struct building_t *b)
     if (has_figure_of_types(b, FIGURE_GLADIATOR, FIGURE_LION_TAMER)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         if (b->houses_covered <= 50 ||
             (b->data.entertainment.days1 <= 0 && b->data.entertainment.days2 <= 0)) {
@@ -628,7 +628,7 @@ static void spawn_figure_market(struct building_t *b)
 {
     set_market_graphic(b);
     check_labor_problem(b);
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
@@ -727,7 +727,7 @@ static void spawn_figure_bathhouse(struct building_t *b)
     if (has_figure_of_type(b, FIGURE_BATHHOUSE_WORKER)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road) && b->has_water_access) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int spawn_delay = default_spawn_delay(b);
@@ -748,7 +748,7 @@ static void spawn_figure_school(struct building_t *b)
     if (has_figure_of_type(b, FIGURE_SCHOOL_CHILD)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int spawn_delay = default_spawn_delay(b);
@@ -797,7 +797,7 @@ static void spawn_figure_library(struct building_t *b)
     if (has_figure_of_type(b, FIGURE_LIBRARIAN)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int spawn_delay = default_spawn_delay(b);
@@ -818,7 +818,7 @@ static void spawn_figure_academy(struct building_t *b)
     if (has_figure_of_type(b, FIGURE_TEACHER)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int spawn_delay = default_spawn_delay(b);
@@ -839,7 +839,7 @@ static void spawn_figure_barber(struct building_t *b)
     if (has_figure_of_type(b, FIGURE_BARBER)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int spawn_delay = default_spawn_delay(b);
@@ -860,7 +860,7 @@ static void spawn_figure_doctor(struct building_t *b)
     if (has_figure_of_type(b, FIGURE_DOCTOR)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int spawn_delay = default_spawn_delay(b);
@@ -881,7 +881,7 @@ static void spawn_figure_hospital(struct building_t *b)
     if (has_figure_of_type(b, FIGURE_SURGEON)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int spawn_delay = default_spawn_delay(b);
@@ -902,7 +902,7 @@ static void spawn_figure_temple(struct building_t *b)
     if (has_figure_of_type(b, FIGURE_PRIEST)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
@@ -951,7 +951,7 @@ static void spawn_figure_senate_forum(struct building_t *b)
     if (has_figure_of_type(b, FIGURE_TAX_COLLECTOR)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
@@ -987,7 +987,7 @@ static void spawn_figure_mission_post(struct building_t *b)
     if (has_figure_of_type(b, FIGURE_MISSIONARY)) {
         return;
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         if (city_data.population.population > 0) {
             city_data.building.mission_post_operational = 1;
@@ -1003,7 +1003,7 @@ static void spawn_figure_mission_post(struct building_t *b)
 static void spawn_figure_industry(struct building_t *b)
 {
     check_labor_problem(b);
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         if (has_figure_of_type(b, FIGURE_CART_PUSHER)) {
@@ -1032,7 +1032,7 @@ static void spawn_figure_wharf(struct building_t *b)
             b->data.industry.fishing_boat_id = 0;
         }
     }
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         if (has_figure_of_type(b, FIGURE_CART_PUSHER)) {
@@ -1057,7 +1057,7 @@ static void spawn_figure_wharf(struct building_t *b)
 static void spawn_figure_shipyard(struct building_t *b)
 {
     check_labor_problem(b);
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         if (has_figure_of_type(b, FIGURE_FISHING_BOAT)) {
@@ -1077,7 +1077,7 @@ static void spawn_figure_shipyard(struct building_t *b)
         }
         if (b->data.industry.progress >= 160) {
             b->data.industry.progress = 0;
-            map_point boat;
+            struct map_point_t boat;
             if (map_water_can_spawn_fishing_boat(b->x, b->y, b->size, &boat)) {
                 struct figure_t *f = figure_create(FIGURE_FISHING_BOAT, boat.x, boat.y, DIR_0_TOP);
                 f->action_state = FIGURE_ACTION_FISHING_BOAT_CREATED;
@@ -1091,7 +1091,7 @@ static void spawn_figure_shipyard(struct building_t *b)
 static void spawn_figure_dock(struct building_t *b)
 {
     check_labor_problem(b);
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 50);
         int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
@@ -1185,7 +1185,7 @@ static void spawn_figure_native_meeting(struct building_t *b)
 static void spawn_figure_barracks(struct building_t *b)
 {
     check_labor_problem(b);
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 100);
         int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
@@ -1217,7 +1217,7 @@ static void spawn_figure_barracks(struct building_t *b)
 static void spawn_figure_military_academy(struct building_t *b)
 {
     check_labor_problem(b);
-    map_point road;
+    struct map_point_t road;
     if (map_has_road_access(b->x, b->y, b->size, &road)) {
         spawn_labor_seeker(b, road.x, road.y, 100);
     }

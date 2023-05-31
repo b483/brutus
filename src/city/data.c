@@ -44,7 +44,7 @@ void city_data_init_scenario(void)
     city_data.finance.last_year.balance = city_data.finance.treasury;
 }
 
-static void save_main_data(buffer *main)
+static void save_main_data(struct buffer_t *main)
 {
     buffer_write_i32(main, city_data.finance.tax_percentage);
     buffer_write_i32(main, city_data.finance.treasury);
@@ -411,7 +411,7 @@ static void save_main_data(buffer *main)
     buffer_write_i32(main, city_data.mission.victory_message_shown);
 }
 
-static void load_main_data(buffer *main)
+static void load_main_data(struct buffer_t *main)
 {
     city_data.finance.tax_percentage = buffer_read_i32(main);
     city_data.finance.treasury = buffer_read_i32(main);
@@ -778,7 +778,7 @@ static void load_main_data(buffer *main)
     city_data.mission.victory_message_shown = buffer_read_i32(main);
 }
 
-static void save_entry_exit(buffer *entry_exit_xy, buffer *entry_exit_grid_offset)
+static void save_entry_exit(struct buffer_t *entry_exit_xy, struct buffer_t *entry_exit_grid_offset)
 {
     buffer_write_i32(entry_exit_xy, city_data.map.entry_flag.x);
     buffer_write_i32(entry_exit_xy, city_data.map.entry_flag.y);
@@ -789,7 +789,7 @@ static void save_entry_exit(buffer *entry_exit_xy, buffer *entry_exit_grid_offse
     buffer_write_i32(entry_exit_grid_offset, city_data.map.exit_flag.grid_offset);
 }
 
-static void load_entry_exit(buffer *entry_exit_xy, buffer *entry_exit_grid_offset)
+static void load_entry_exit(struct buffer_t *entry_exit_xy, struct buffer_t *entry_exit_grid_offset)
 {
     city_data.map.entry_flag.x = buffer_read_i32(entry_exit_xy);
     city_data.map.entry_flag.y = buffer_read_i32(entry_exit_xy);
@@ -800,8 +800,8 @@ static void load_entry_exit(buffer *entry_exit_xy, buffer *entry_exit_grid_offse
     city_data.map.exit_flag.grid_offset = buffer_read_i32(entry_exit_grid_offset);
 }
 
-void city_data_save_state(buffer *main, buffer *graph_order,
-                          buffer *entry_exit_xy, buffer *entry_exit_grid_offset)
+void city_data_save_state(struct buffer_t *main, struct buffer_t *graph_order,
+                          struct buffer_t *entry_exit_xy, struct buffer_t *entry_exit_grid_offset)
 {
     save_main_data(main);
 
@@ -810,8 +810,8 @@ void city_data_save_state(buffer *main, buffer *graph_order,
     save_entry_exit(entry_exit_xy, entry_exit_grid_offset);
 }
 
-void city_data_load_state(buffer *main, buffer *graph_order,
-                          buffer *entry_exit_xy, buffer *entry_exit_grid_offset)
+void city_data_load_state(struct buffer_t *main, struct buffer_t *graph_order,
+                          struct buffer_t *entry_exit_xy, struct buffer_t *entry_exit_grid_offset)
 {
     load_main_data(main);
 

@@ -25,7 +25,7 @@ static void button_click(int type, int param2);
 
 static int focus_button_id;
 
-static generic_button buttons[] = {
+static struct generic_button_t buttons[] = {
     {192, 140, 256, 25, button_click, button_none, 1, 0},
     {192, 180, 256, 25, button_click, button_none, 2, 0},
     {192, 220, 256, 25, button_click, button_none, 3, 0},
@@ -82,9 +82,9 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    const mouse *m_dialog = mouse_in_dialog(m);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons, MAX_BUTTONS, &focus_button_id)) {
         return;
     }
@@ -120,12 +120,11 @@ void window_main_menu_show(int restart_music)
     if (restart_music) {
         sound_music_play_intro();
     }
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_MAIN_MENU,
         draw_background,
         draw_foreground,
         handle_input,
-        0
     };
     window_show(&window);
 }

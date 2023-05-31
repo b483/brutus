@@ -5,7 +5,7 @@
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
 
-static void draw_culture_info(building_info_context *c, int help_id, const char *sound_file, int group_id)
+static void draw_culture_info(struct building_info_context_t *c, int help_id, const char *sound_file, int group_id)
 {
     c->help_id = help_id;
     window_building_play_sound(c, sound_file);
@@ -24,17 +24,17 @@ static void draw_culture_info(building_info_context *c, int help_id, const char 
     window_building_draw_employment(c, 142);
 }
 
-void window_building_draw_clinic(building_info_context *c)
+void window_building_draw_clinic(struct building_info_context_t *c)
 {
     draw_culture_info(c, 65, "wavs/clinic.wav", 81);
 }
 
-void window_building_draw_hospital(building_info_context *c)
+void window_building_draw_hospital(struct building_info_context_t *c)
 {
     draw_culture_info(c, 66, "wavs/hospital.wav", 82);
 }
 
-void window_building_draw_bathhouse(building_info_context *c)
+void window_building_draw_bathhouse(struct building_info_context_t *c)
 {
     c->help_id = 64;
     window_building_play_sound(c, "wavs/baths.wav");
@@ -55,27 +55,27 @@ void window_building_draw_bathhouse(building_info_context *c)
     window_building_draw_employment(c, 142);
 }
 
-void window_building_draw_barber(building_info_context *c)
+void window_building_draw_barber(struct building_info_context_t *c)
 {
     draw_culture_info(c, 63, "wavs/barber.wav", 84);
 }
 
-void window_building_draw_school(building_info_context *c)
+void window_building_draw_school(struct building_info_context_t *c)
 {
     draw_culture_info(c, 68, "wavs/school.wav", 85);
 }
 
-void window_building_draw_academy(building_info_context *c)
+void window_building_draw_academy(struct building_info_context_t *c)
 {
     draw_culture_info(c, 69, "wavs/academy.wav", 86);
 }
 
-void window_building_draw_library(building_info_context *c)
+void window_building_draw_library(struct building_info_context_t *c)
 {
     draw_culture_info(c, 70, "wavs/library.wav", 87);
 }
 
-static void draw_temple(building_info_context *c, const char *sound_file, int group_id, int image_offset)
+static void draw_temple(struct building_info_context_t *c, const char *sound_file, int group_id, int image_offset)
 {
     c->help_id = 67;
     window_building_play_sound(c, sound_file);
@@ -92,32 +92,32 @@ static void draw_temple(building_info_context *c, const char *sound_file, int gr
     }
 }
 
-void window_building_draw_temple_ceres(building_info_context *c)
+void window_building_draw_temple_ceres(struct building_info_context_t *c)
 {
     draw_temple(c, "wavs/temple_farm.wav", 92, 21);
 }
 
-void window_building_draw_temple_neptune(building_info_context *c)
+void window_building_draw_temple_neptune(struct building_info_context_t *c)
 {
     draw_temple(c, "wavs/temple_ship.wav", 93, 22);
 }
 
-void window_building_draw_temple_mercury(building_info_context *c)
+void window_building_draw_temple_mercury(struct building_info_context_t *c)
 {
     draw_temple(c, "wavs/temple_comm.wav", 94, 23);
 }
 
-void window_building_draw_temple_mars(building_info_context *c)
+void window_building_draw_temple_mars(struct building_info_context_t *c)
 {
     draw_temple(c, "wavs/temple_war.wav", 95, 24);
 }
 
-void window_building_draw_temple_venus(building_info_context *c)
+void window_building_draw_temple_venus(struct building_info_context_t *c)
 {
     draw_temple(c, "wavs/temple_love.wav", 96, 25);
 }
 
-void window_building_draw_oracle(building_info_context *c)
+void window_building_draw_oracle(struct building_info_context_t *c)
 {
     c->help_id = 67;
     window_building_play_sound(c, "wavs/oracle.wav");
@@ -126,7 +126,7 @@ void window_building_draw_oracle(building_info_context *c)
     window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 158, 110, 1);
 }
 
-void window_building_draw_theater(building_info_context *c)
+void window_building_draw_theater(struct building_info_context_t *c)
 {
     c->help_id = 71;
     window_building_play_sound(c, "wavs/theatre.wav");
@@ -156,7 +156,7 @@ void window_building_draw_theater(building_info_context *c)
     }
 }
 
-void window_building_draw_amphitheater(building_info_context *c)
+void window_building_draw_amphitheater(struct building_info_context_t *c)
 {
     c->help_id = 72;
     window_building_play_sound(c, "wavs/ampitheatre.wav");
@@ -197,7 +197,7 @@ void window_building_draw_amphitheater(building_info_context *c)
     }
 }
 
-void window_building_draw_colosseum(building_info_context *c)
+void window_building_draw_colosseum(struct building_info_context_t *c)
 {
     c->help_id = 73;
     window_building_play_sound(c, "wavs/colloseum.wav");
@@ -236,7 +236,7 @@ void window_building_draw_colosseum(building_info_context *c)
     }
 }
 
-void window_building_draw_hippodrome(building_info_context *c)
+void window_building_draw_hippodrome(struct building_info_context_t *c)
 {
     c->help_id = 74;
     window_building_play_sound(c, "wavs/hippodrome.wav");
@@ -264,7 +264,7 @@ void window_building_draw_hippodrome(building_info_context *c)
     }
 }
 
-static void draw_entertainment_school(building_info_context *c, const char *sound_file, int group_id)
+static void draw_entertainment_school(struct building_info_context_t *c, const char *sound_file, int group_id)
 {
     c->help_id = 75;
     window_building_play_sound(c, sound_file);
@@ -291,22 +291,22 @@ static void draw_entertainment_school(building_info_context *c, const char *soun
     window_building_draw_employment(c, 142);
 }
 
-void window_building_draw_actor_colony(building_info_context *c)
+void window_building_draw_actor_colony(struct building_info_context_t *c)
 {
     draw_entertainment_school(c, "wavs/art_pit.wav", 77);
 }
 
-void window_building_draw_gladiator_school(building_info_context *c)
+void window_building_draw_gladiator_school(struct building_info_context_t *c)
 {
     draw_entertainment_school(c, "wavs/glad_pit.wav", 75);
 }
 
-void window_building_draw_lion_house(building_info_context *c)
+void window_building_draw_lion_house(struct building_info_context_t *c)
 {
     draw_entertainment_school(c, "wavs/lion_pit.wav", 76);
 }
 
-void window_building_draw_chariot_maker(building_info_context *c)
+void window_building_draw_chariot_maker(struct building_info_context_t *c)
 {
     draw_entertainment_school(c, "wavs/char_pit.wav", 78);
 }

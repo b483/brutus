@@ -396,7 +396,7 @@ enum {
 
 void figure_init_scenario(void);
 
-struct figure_t *figure_create(int type, int x, int y, direction_type dir);
+struct figure_t *figure_create(int type, int x, int y, int dir);
 
 void figure_delete(struct figure_t *f);
 
@@ -418,8 +418,8 @@ int city_figures_total_invading_enemies(void);
 
 void rout_unit(struct figure_t *f);
 
-void figure_save_state(buffer *list);
+void figure_save_state(struct buffer_t *list);
 
-void figure_load_state(buffer *list);
+void figure_load_state(struct buffer_t *list);
 
 #endif // FIGURE_FIGURE_H

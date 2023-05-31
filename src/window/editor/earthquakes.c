@@ -17,7 +17,7 @@
 
 static void button_schedule_earthquake(int id, int param2);
 
-static generic_button buttons_earthquake[] = {
+static struct generic_button_t buttons_earthquake[] = {
     {24, 64, 350, 25, button_schedule_earthquake, button_none, 0, 0},
     {24, 94, 350, 25, button_schedule_earthquake, button_none, 1, 0},
     {24, 124, 350, 25, button_schedule_earthquake, button_none, 2, 0},
@@ -71,9 +71,9 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_earthquake, sizeof(buttons_earthquake) / sizeof(generic_button), &focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_earthquake, sizeof(buttons_earthquake) / sizeof(struct generic_button_t), &focus_button_id)) {
         return;
     }
     if (m->right.went_up || h->escape_pressed) {
@@ -88,12 +88,11 @@ static void button_schedule_earthquake(int id, __attribute__((unused)) int param
 
 void window_editor_earthquakes_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_EARTHQUAKES,
         window_editor_map_draw_all,
         draw_foreground,
         handle_input,
-        0
     };
     window_show(&window);
 }

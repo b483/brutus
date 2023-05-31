@@ -313,7 +313,7 @@ static void update_mouse_grid_offset(int x_view, int y_view, int grid_offset)
     }
 }
 
-static int get_mouse_grid_offset(const mouse *m)
+static int get_mouse_grid_offset(const struct mouse_t *m)
 {
     data.mouse.x = m->x;
     data.mouse.y = m->y;
@@ -322,7 +322,7 @@ static int get_mouse_grid_offset(const mouse *m)
     return data.mouse.grid_offset;
 }
 
-static int is_in_minimap(const mouse *m)
+static int is_in_minimap(const struct mouse_t *m)
 {
     if (m->x >= data.x_offset && m->x < data.x_offset + data.width &&
         m->y >= data.y_offset && m->y < data.y_offset + data.height) {
@@ -331,7 +331,7 @@ static int is_in_minimap(const mouse *m)
     return 0;
 }
 
-int widget_minimap_handle_mouse(const mouse *m)
+int widget_minimap_handle_mouse(const struct mouse_t *m)
 {
     if ((m->left.went_down || m->right.went_down) && is_in_minimap(m)) {
         int grid_offset = get_mouse_grid_offset(m);

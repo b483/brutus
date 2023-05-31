@@ -5,7 +5,7 @@
 #include "graphics/font.h"
 #include "input/mouse.h"
 
-typedef struct {
+struct scrollbar_type_t {
     int x;
     int y;
     int height;
@@ -16,7 +16,7 @@ typedef struct {
     int scroll_position;
     int is_dragging_scroll;
     int scroll_position_drag;
-} scrollbar_type;
+};
 
 /**
  * Initializes the scrollbar
@@ -24,34 +24,34 @@ typedef struct {
  * @param scroll_position Scroll position to set
  * @param max_scroll_position Max position
  */
-void scrollbar_init(scrollbar_type *scrollbar, int scroll_position, int max_scroll_position);
+void scrollbar_init(struct scrollbar_type_t *scrollbar, int scroll_position, int max_scroll_position);
 
 /**
  * Resets the text to the specified scroll position and forces recalculation of lines
  * @param scrollbar Scrollbar
  * @param scroll_position Scroll position to set
  */
-void scrollbar_reset(scrollbar_type *scrollbar, int scroll_position);
+void scrollbar_reset(struct scrollbar_type_t *scrollbar, int scroll_position);
 
 /**
  * Update the max position, adjusting the scroll position if necessary
  * @param scrollbar Scrollbar
  * @param max_scroll_position New max position
  */
-void scrollbar_update_max(scrollbar_type *scrollbar, int max_scroll_position);
+void scrollbar_update_max(struct scrollbar_type_t *scrollbar, int max_scroll_position);
 
 /**
  * Draws the scrollbar
  * @param scrollbar Scrollbar
  */
-void scrollbar_draw(scrollbar_type *scrollbar);
+void scrollbar_draw(struct scrollbar_type_t *scrollbar);
 
 /**
  * Handles mouse interaction with the scrollbar and scroll wheel
  * @param scrollbar Scrollbar
- * @param m Mouse state
+ * @param m mouse state
  * @return True if any interaction was handled
  */
-int scrollbar_handle_mouse(scrollbar_type *scrollbar, const mouse *m);
+int scrollbar_handle_mouse(struct scrollbar_type_t *scrollbar, const struct mouse_t *m);
 
 #endif // GRAPHICS_SCROLLBAR_H

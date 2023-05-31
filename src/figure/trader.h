@@ -68,12 +68,12 @@ int trader_has_traded_max(int trader_id);
  * Save state to buffer
  * @param buf Buffer
  */
-void traders_save_state(buffer *buf);
+void traders_save_state(struct buffer_t *buf);
 
 /**
  * Load state from buffer
  * @param buf Buffer
  */
-void traders_load_state(buffer *buf);
+void traders_load_state(struct buffer_t *buf);
 
 #endif // FIGURE_TRADE_INFO_H

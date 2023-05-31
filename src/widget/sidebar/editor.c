@@ -29,7 +29,7 @@ static void button_build_menu(int submenu, int param2);
 static void button_attributes(int show, int param2);
 static void button_empire(int param1, int param2);
 
-static image_button buttons_build[] = {
+static struct image_button_t buttons_build[] = {
     {7, 123, 71, 23, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 48, button_attributes, button_none, 1, 0, 1, 0, 0, 0},
     {84, 123, 71, 23, IB_NORMAL, GROUP_SIDEBAR_ADVISORS_EMPIRE, 3, button_empire, button_none, 0, 0, 1, 0, 0, 0},
     {13, 267, 39, 26, IB_NORMAL, GROUP_EDITOR_SIDEBAR_BUTTONS, 0, button_build_tool, button_none, TOOL_GRASS, 0, 1, 0, 0, 0},
@@ -49,7 +49,7 @@ static image_button buttons_build[] = {
     {113, 411, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 51, button_build_menu, button_none, MENU_ANIMAL_POINTS, 0, 1, 0, 0, 0},
 };
 
-static uint8_t editor_sidebar_menu_tooltip_strings[][15] = {
+static uint8_t editor_sidebar_menu_label_strings[][15] = {
     "Grass",
     "Small shrub",
     "Medium shrub",
@@ -81,7 +81,7 @@ static uint8_t editor_sidebar_menu_tooltip_strings[][15] = {
 
 static void draw_buttons(void)
 {
-    image_buttons_draw(sidebar_common_get_x_offset_expanded(), TOP_MENU_HEIGHT, buttons_build, sizeof(buttons_build) / sizeof(image_button));
+    image_buttons_draw(sidebar_common_get_x_offset_expanded(), TOP_MENU_HEIGHT, buttons_build, sizeof(buttons_build) / sizeof(struct image_button_t));
 }
 
 static void draw_status(void)
@@ -91,7 +91,7 @@ static void draw_status(void)
     int text_offset = x_offset + 6;
 
     int selected_tool = editor_tool_type();
-    text_draw(editor_sidebar_menu_tooltip_strings[selected_tool], text_offset, 178, FONT_NORMAL_WHITE, 0);
+    text_draw(editor_sidebar_menu_label_strings[selected_tool], text_offset, 178, FONT_NORMAL_WHITE, 0);
     switch (selected_tool) {
         case TOOL_GRASS:
         case TOOL_SMALL_SHRUB:
@@ -113,7 +113,7 @@ static void draw_status(void)
     }
 
     int people_text;
-    font_t people_font = FONT_NORMAL_RED;
+    int people_font = FONT_NORMAL_RED;
     if (scenario.entry_point.x == -1) {
         if (scenario.exit_point.x == -1) {
             people_text = 60;
@@ -175,15 +175,15 @@ void widget_sidebar_editor_draw_foreground(void)
         MINIMAP_Y_OFFSET, MINIMAP_WIDTH, MINIMAP_HEIGHT, 0);
 }
 
-int widget_sidebar_editor_handle_mouse(const mouse *m)
+int widget_sidebar_editor_handle_mouse(const struct mouse_t *m)
 {
     if (widget_minimap_handle_mouse(m)) {
         return 1;
     }
-    return image_buttons_handle_mouse(m, sidebar_common_get_x_offset_expanded(), 24, buttons_build, sizeof(buttons_build) / sizeof(image_button), 0);
+    return image_buttons_handle_mouse(m, sidebar_common_get_x_offset_expanded(), 24, buttons_build, sizeof(buttons_build) / sizeof(struct image_button_t), 0);
 }
 
-int widget_sidebar_editor_handle_mouse_attributes(const mouse *m)
+int widget_sidebar_editor_handle_mouse_attributes(const struct mouse_t *m)
 {
     return image_buttons_handle_mouse(m, sidebar_common_get_x_offset_expanded(), 24, buttons_build, 1, 0);
 }

@@ -13,7 +13,7 @@
 
 static void button_set_salary(int rank, int param2);
 
-static generic_button buttons_set_salary[] = {
+static struct generic_button_t buttons_set_salary[] = {
     {196, 96, 250, 15, button_set_salary, button_none, 0, 0},
     {196, 116, 250, 15, button_set_salary, button_none, 1, 0},
     {196, 136, 250, 15, button_set_salary, button_none, 2, 0},
@@ -44,7 +44,7 @@ static void draw_foreground(void)
     inner_panel_draw(180, 80, 18, 15);
 
     for (int rank = 0; rank < 11; rank++) {
-        font_t font = focus_button_id == rank + 1 ? FONT_NORMAL_RED : FONT_NORMAL_WHITE;
+        int font = focus_button_id == rank + 1 ? FONT_NORMAL_RED : FONT_NORMAL_WHITE;
         lang_text_draw(52, rank + 4, 196, 96 + 20 * rank, font);
         text_draw_money(city_emperor_salary_for_rank(rank), 385, 96 + 20 * rank, font);
     }
@@ -63,15 +63,15 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (m->right.went_up || h->escape_pressed) {
         window_advisors_show(ADVISOR_IMPERIAL);
         return;
     }
 
-    const mouse *m_dialog = mouse_in_dialog(m);
-    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_set_salary, sizeof(buttons_set_salary) / sizeof(generic_button), &focus_button_id)) {
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
+    if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_set_salary, sizeof(buttons_set_salary) / sizeof(struct generic_button_t), &focus_button_id)) {
         return;
     }
     // exit window on click outside of outer panel boundaries
@@ -93,12 +93,11 @@ static void button_set_salary(int rank, __attribute__((unused)) int param2)
 
 void window_set_salary_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_SET_SALARY,
         window_advisors_draw_dialog_background,
         draw_foreground,
         handle_input,
-        0
     };
     window_show(&window);
 }

@@ -24,7 +24,7 @@ static void button_reset_message(int param1, int param2);
 static void button_reset_title(int param1, int param2);
 static void button_reset_text(int param1, int param2);
 
-static generic_button buttons_edit_custom_message[] = {
+static struct generic_button_t buttons_edit_custom_message[] = {
     {36, 58, 75, 25, button_year, button_none, 0, 0},
     {36, 88, 75, 25, button_month, button_none, 0, 0},
     {36, 118, 75, 25, button_urgent, button_none, 0, 0},
@@ -32,11 +32,11 @@ static generic_button buttons_edit_custom_message[] = {
     {135, 194, 125, 25, button_reset_message, button_none, 0, 0},
 };
 
-static generic_button reset_title_button[] = {
+static struct generic_button_t reset_title_button[] = {
     {5, 110, 125, 25, button_reset_title, button_none, 0, 0},
 };
 
-static generic_button reset_text_button[] = {
+static struct generic_button_t reset_text_button[] = {
     {515, 16, 150, 35, button_reset_text, button_none, 0, 0},
 };
 
@@ -44,9 +44,9 @@ static uint8_t editor_custom_message_video_file[MAX_CUSTOM_MESSAGE_VIDEO_TEXT];
 static uint8_t editor_custom_message_title[MAX_CUSTOM_MESSAGE_TEXT];
 static uint8_t editor_custom_message_text[MAX_CUSTOM_MESSAGE_TEXT];
 
-static input_box editor_custom_message_input_video_file = { 36, 154, 10, 2, FONT_NORMAL_WHITE, 1, editor_custom_message_video_file, MAX_CUSTOM_MESSAGE_TITLE };
-static input_box editor_custom_message_input_title = { -68, 64, 17, 2, FONT_NORMAL_WHITE, 1, editor_custom_message_title, MAX_CUSTOM_MESSAGE_TITLE };
-static input_box editor_custom_message_input_text = { -68, 64, 46, 2, FONT_NORMAL_WHITE, 1, editor_custom_message_text, MAX_CUSTOM_MESSAGE_TEXT };
+static struct input_box_t editor_custom_message_input_video_file = { 36, 154, 10, 2, FONT_NORMAL_WHITE, 1, editor_custom_message_video_file, MAX_CUSTOM_MESSAGE_TITLE };
+static struct input_box_t editor_custom_message_input_title = { -68, 64, 17, 2, FONT_NORMAL_WHITE, 1, editor_custom_message_title, MAX_CUSTOM_MESSAGE_TITLE };
+static struct input_box_t editor_custom_message_input_text = { -68, 64, 46, 2, FONT_NORMAL_WHITE, 1, editor_custom_message_text, MAX_CUSTOM_MESSAGE_TEXT };
 
 static struct {
     int id;
@@ -183,7 +183,7 @@ static void scenario_editor_sort_custom_messages(void)
     scenario.is_saved = 0;
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (m->right.went_up || h->escape_pressed) {
         if (data.category == CUSTOM_MESSAGE_ATTRIBUTES) {
@@ -207,9 +207,9 @@ static void handle_input(const mouse *m, const hotkeys *h)
         window_editor_custom_messages_show();
     }
 
-    const mouse *m_dialog = mouse_in_dialog(m);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (data.category == CUSTOM_MESSAGE_ATTRIBUTES) {
-        if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_edit_custom_message, sizeof(buttons_edit_custom_message) / sizeof(generic_button), &data.focus_button_id)) {
+        if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_edit_custom_message, sizeof(buttons_edit_custom_message) / sizeof(struct generic_button_t), &data.focus_button_id)) {
             return;
         }
     } else if (data.category == CUSTOM_MESSAGE_TITLE) {
@@ -291,12 +291,11 @@ static void button_reset_text(__attribute__((unused)) int param1, __attribute__(
 
 void window_editor_edit_custom_message_show(int id, int category)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_EDIT_CUSTOM_MESSAGE,
         window_editor_map_draw_all,
         draw_foreground,
         handle_input,
-        0
     };
     init(id, category);
     window_show(&window);

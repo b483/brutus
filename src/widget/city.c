@@ -33,8 +33,8 @@
 #include "window/popup_dialog.h"
 
 static struct {
-    map_tile current_tile;
-    map_tile selected_tile;
+    struct map_tile_t current_tile;
+    struct map_tile_t selected_tile;
     int new_start_grid_offset;
     int capture_input;
 } data;
@@ -59,7 +59,7 @@ void widget_city_draw(void)
     graphics_reset_clip_rectangle();
 }
 
-void widget_city_draw_for_figure(int figure_id, pixel_coordinate *coord)
+void widget_city_draw_for_figure(int figure_id, struct pixel_coordinate_t *coord)
 {
     set_city_clip_rectangle();
 
@@ -125,9 +125,9 @@ static int is_cancel_construction_button(int x, int y)
 
 // INPUT HANDLING
 
-static void update_city_view_coords(int x, int y, map_tile *tile)
+static void update_city_view_coords(int x, int y, struct map_tile_t *tile)
 {
-    view_tile view;
+    struct pixel_view_coordinates_t view;
     if (city_view_pixels_to_view_tile(x, y, &view)) {
         tile->grid_offset = city_view_tile_to_grid_offset(&view);
         city_view_set_selected_view_tile(&view);
@@ -138,7 +138,7 @@ static void update_city_view_coords(int x, int y, map_tile *tile)
     }
 }
 
-static int handle_right_click_allow_building_info(const map_tile *tile)
+static int handle_right_click_allow_building_info(const struct map_tile_t *tile)
 {
     int allow = 1;
     if (!window_is(WINDOW_CITY)) {
@@ -156,14 +156,14 @@ static int handle_right_click_allow_building_info(const map_tile *tile)
     return allow;
 }
 
-static void build_start(const map_tile *tile)
+static void build_start(const struct map_tile_t *tile)
 {
     if (tile->grid_offset) { // Allow building on paused
         building_construction_start(tile->x, tile->y, tile->grid_offset);
     }
 }
 
-static void build_move(const map_tile *tile)
+static void build_move(const struct map_tile_t *tile)
 {
     if (!building_construction_in_progress()) {
         return;
@@ -171,9 +171,9 @@ static void build_move(const map_tile *tile)
     building_construction_update(tile->x, tile->y, tile->grid_offset);
 }
 
-static void scroll_map(const mouse *m)
+static void scroll_map(const struct mouse_t *m)
 {
-    pixel_offset delta;
+    struct pixel_view_coordinates_t delta;
     if (scroll_get_delta(m, &delta, SCROLL_TYPE_CITY)) {
         city_view_scroll(delta.x, delta.y);
         sound_city_decay_views();
@@ -199,9 +199,9 @@ int widget_city_has_input(void)
     return data.capture_input;
 }
 
-static void handle_mouse(const mouse *m)
+static void handle_mouse(const struct mouse_t *m)
 {
-    map_tile *tile = &data.current_tile;
+    struct map_tile_t *tile = &data.current_tile;
     update_city_view_coords(m->x, m->y, tile);
     building_construction_reset_draw_as_constructing();
     if (m->left.went_down) {
@@ -259,7 +259,7 @@ void request_exit_scenario(void)
     window_popup_dialog_show(POPUP_DIALOG_QUIT, confirm_exit_to_main_menu, 1);
 }
 
-void widget_city_handle_input(const mouse *m, const hotkeys *h)
+void widget_city_handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     scroll_map(m);
 
@@ -275,9 +275,9 @@ void widget_city_handle_input(const mouse *m, const hotkeys *h)
     }
 }
 
-void widget_city_handle_input_military(const mouse *m, const hotkeys *h, int legion_formation_id)
+void widget_city_handle_input_military(const struct mouse_t *m, const struct hotkeys_t *h, int legion_formation_id)
 {
-    map_tile *tile = &data.current_tile;
+    struct map_tile_t *tile = &data.current_tile;
     update_city_view_coords(m->x, m->y, tile);
     if (!city_view_is_sidebar_collapsed() && widget_minimap_handle_mouse(m)) {
         return;
@@ -320,37 +320,6 @@ void widget_city_handle_input_military(const mouse *m, const hotkeys *h, int leg
 int widget_city_current_grid_offset(void)
 {
     return data.current_tile.grid_offset;
-}
-
-void widget_city_get_tooltip(tooltip_context *c)
-{
-    if (setting_tooltips() == TOOLTIPS_NONE) {
-        return;
-    }
-    if (!window_is(WINDOW_CITY)) {
-        return;
-    }
-    if (data.current_tile.grid_offset == 0) {
-        return;
-    }
-    int grid_offset = data.current_tile.grid_offset;
-    int building_id = map_building_at(grid_offset);
-    int overlay = game_state_overlay();
-    // regular tooltips
-    if (overlay == OVERLAY_NONE && building_id && all_buildings[building_id].type == BUILDING_SENATE) {
-        c->type = TOOLTIP_SENATE;
-        c->high_priority = 1;
-        return;
-    }
-    // overlay tooltips
-    if (overlay != OVERLAY_NONE) {
-        c->text_group = 66;
-        c->text_id = city_with_overlay_get_tooltip_text(c, grid_offset);
-        if (c->text_id) {
-            c->type = TOOLTIP_OVERLAY;
-            c->high_priority = 1;
-        }
-    }
 }
 
 void widget_city_clear_current_tile(void)

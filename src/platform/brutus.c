@@ -160,7 +160,7 @@ static struct {
 
 static void run_and_draw(void)
 {
-    time_millis time_before_run = SDL_GetTicks();
+    uint32_t time_before_run = SDL_GetTicks();
     time_set_millis(time_before_run);
 
     game_run();
@@ -426,7 +426,7 @@ static int pre_init(void)
     return 0;
 }
 
-static void setup(const brutus_args *args)
+static void setup(struct brutus_args_t *args)
 {
     signal(SIGSEGV, handler);
     setup_logging();
@@ -484,7 +484,7 @@ static void setup(const brutus_args *args)
 
 int main(int argc, char **argv)
 {
-    brutus_args args;
+    struct brutus_args_t args;
     platform_parse_arguments(argc, argv, &args);
 
     setup(&args);

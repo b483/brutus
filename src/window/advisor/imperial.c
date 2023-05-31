@@ -41,9 +41,9 @@ static void button_set_salary(int param1, int param2);
 static void button_gift_to_emperor(int param1, int param2);
 static void button_request(int index, int param2);
 
-static scrollbar_type scrollbar = { 591, 90, 222, on_scroll, 0, 0, 0, 0, 0, 0 };
+static struct scrollbar_type_t scrollbar = { 591, 90, 222, on_scroll, 0, 0, 0, 0, 0, 0 };
 
-static generic_button imperial_buttons[] = {
+static struct generic_button_t imperial_buttons[] = {
     {38, 96, 550, 40, button_request, button_none, 0, 0},
     {38, 138, 550, 40, button_request, button_none, 1, 0},
     {38, 180, 550, 40, button_request, button_none, 2, 0},
@@ -258,12 +258,12 @@ static void draw_foreground(void)
     scrollbar_draw(&scrollbar);
 }
 
-static int handle_mouse(const mouse *m)
+static int handle_mouse(const struct mouse_t *m)
 {
     if (scrollbar_handle_mouse(&scrollbar, m)) {
         return 1;
     }
-    if (generic_buttons_handle_mouse(m, 0, 0, imperial_buttons, sizeof(imperial_buttons) / sizeof(generic_button), &focus_button_id)) {
+    if (generic_buttons_handle_mouse(m, 0, 0, imperial_buttons, sizeof(imperial_buttons) / sizeof(struct generic_button_t), &focus_button_id)) {
         return 1;
     }
     return 0;
@@ -357,26 +357,12 @@ static void button_request(int index, __attribute__((unused)) int param2)
     }
 }
 
-static int get_tooltip_text(void)
+struct advisor_window_type_t *window_advisor_imperial(void)
 {
-    if (focus_button_id == 6) {
-        return 131;
-    } else if (focus_button_id == 7) {
-        return 94;
-    } else if (focus_button_id == 8) {
-        return 95;
-    } else {
-        return 0;
-    }
-}
-
-const advisor_window_type *window_advisor_imperial(void)
-{
-    static const advisor_window_type window = {
+    static struct advisor_window_type_t window = {
         draw_background,
         draw_foreground,
         handle_mouse,
-        get_tooltip_text
     };
     init();
     return &window;

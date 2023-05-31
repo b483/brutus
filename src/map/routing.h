@@ -3,18 +3,18 @@
 
 #include "core/buffer.h"
 
-typedef enum {
+enum {
     ROUTED_BUILDING_ROAD = 0,
     ROUTED_BUILDING_WALL = 1,
     ROUTED_BUILDING_AQUEDUCT = 2,
     ROUTED_BUILDING_AQUEDUCT_WITHOUT_GRAPHIC = 4,
-} routed_building_type;
+};
 
 void map_routing_calculate_distances(int x, int y);
 void map_routing_calculate_distances_water_boat(int x, int y);
 void map_routing_calculate_distances_water_flotsam(int x, int y);
 
-int map_routing_calculate_distances_for_building(routed_building_type type, int x, int y);
+int map_routing_calculate_distances_for_building(int type, int x, int y);
 
 void map_routing_delete_first_wall_or_aqueduct(int x, int y);
 
@@ -30,8 +30,8 @@ int map_routing_noncitizen_can_travel_through_everything(int src_x, int src_y, i
 
 void map_routing_block(int x, int y, int size);
 
-void map_routing_save_state(buffer *buf);
+void map_routing_save_state(struct buffer_t *buf);
 
-void map_routing_load_state(buffer *buf);
+void map_routing_load_state(struct buffer_t *buf);
 
 #endif // MAP_ROUTING_H

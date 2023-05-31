@@ -23,14 +23,14 @@
 #include "window/popup_dialog.h"
 
 static struct {
-    map_tile current_tile;
+    struct map_tile_t current_tile;
     int selected_grid_offset;
     int new_start_grid_offset;
     int capture_input;
 } data;
 
 static struct {
-    time_millis last_water_animation_time;
+    uint32_t last_water_animation_time;
     int advance_water_animation;
 
     int image_id_water_first;
@@ -40,7 +40,7 @@ static struct {
 static void init_draw_context(void)
 {
     draw_context.advance_water_animation = 0;
-    time_millis now = time_get_millis();
+    uint32_t now = time_get_millis();
     if (now - draw_context.last_water_animation_time > 60) {
         draw_context.last_water_animation_time = now;
         draw_context.advance_water_animation = 1;
@@ -112,9 +112,9 @@ void widget_map_editor_draw(void)
     graphics_reset_clip_rectangle();
 }
 
-static void update_city_view_coords(int x, int y, map_tile *tile)
+static void update_city_view_coords(int x, int y, struct map_tile_t *tile)
 {
-    view_tile view;
+    struct pixel_view_coordinates_t view;
     if (city_view_pixels_to_view_tile(x, y, &view)) {
         tile->grid_offset = city_view_tile_to_grid_offset(&view);
         city_view_set_selected_view_tile(&view);
@@ -125,9 +125,9 @@ static void update_city_view_coords(int x, int y, map_tile *tile)
     }
 }
 
-static void scroll_map(const mouse *m)
+static void scroll_map(const struct mouse_t *m)
 {
-    pixel_offset delta;
+    struct pixel_view_coordinates_t delta;
     if (scroll_get_delta(m, &delta, SCROLL_TYPE_CITY)) {
         city_view_scroll(delta.x, delta.y);
         sound_city_decay_views();
@@ -159,7 +159,7 @@ void request_exit_editor(void)
     }
 }
 
-void widget_map_editor_handle_input(const mouse *m, const hotkeys *h)
+void widget_map_editor_handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     scroll_map(m);
 
@@ -167,7 +167,7 @@ void widget_map_editor_handle_input(const mouse *m, const hotkeys *h)
         scroll_drag_start();
     }
 
-    map_tile *tile = &data.current_tile;
+    struct map_tile_t *tile = &data.current_tile;
     update_city_view_coords(m->x, m->y, tile);
 
     if (tile->grid_offset) {

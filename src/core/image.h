@@ -13,15 +13,7 @@ enum {
     IMAGE_TYPE_ISOMETRIC = 30
 };
 
-/**
- * @file
- * Image functions
- */
-
- /**
-  * Image metadata
-  */
-typedef struct {
+struct image_t {
     int width;
     int height;
     int num_animation_sprites;
@@ -39,71 +31,26 @@ typedef struct {
         int data_length;
         int uncompressed_length;
     } draw;
-} image;
+};
 
-/**
- * Initializes the image system
- */
 int image_init(void);
 
-/**
- * Loads the image collection for the specified climate
- * @param climate_id Climate to load
- * @param is_editor Whether to load the editor graphics or not
- * @param force_reload Whether to force loading graphics even if climate/editor are the same
- * @return boolean true on success, false on failure
- */
 int image_load_climate(int climate_id, int is_editor, int force_reload);
 
 int image_load_enemy(void);
 
-/**
- * Gets the image id of the first image in the group
- * @param group Image group
- * @return Image id of first image
- */
 int image_group(int group);
 
-/**
- * Gets an image by id
- * @param id Image ID
- * @return Image
- */
-image *image_get(int id);
+struct image_t *image_get(int id);
 
-/**
- * Gets a letter image by offset within font group
- * @param letter_id Letter offset
- * @return Image
- */
-const image *image_letter(int letter_id);
+const struct image_t *image_letter(int letter_id);
 
-/**
- * Gets an enemy image by id
- * @param id Enemy image ID
- * @return Enemy image
- */
-image *image_get_enemy(struct figure_t *f);
+struct image_t *image_get_enemy(struct figure_t *f);
 
-/**
- * Gets image pixel data by id
- * @param id Image ID
- * @return Pointer to data or null, short term use only.
- */
 const color_t *image_data(int id);
 
-/**
- * Gets letter image pixel data by id
- * @param letter_id Letter ID
- * @return Pointer to data or null, short term use only.
- */
 const color_t *image_data_letter(int letter_id);
 
-/**
- * Gets enemy image pixel data by id
- * @param id Enemy image ID
- * @return Pointer to data or null, short term use only.
- */
 const color_t *image_data_enemy(struct figure_t *f);
 
 #endif // CORE_IMAGE_H

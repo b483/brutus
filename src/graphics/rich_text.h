@@ -24,7 +24,7 @@ int rich_text_init(
  * @param link_font Link text
  * @param line_spacing Spacing between lines
  */
-void rich_text_set_fonts(font_t normal_font, font_t link_font, int line_spacing);
+void rich_text_set_fonts(int normal_font, int link_font, int line_spacing);
 
 /**
  * Resets the text to the specified scroll position and forces recalculation of lines
@@ -43,10 +43,10 @@ void rich_text_clear_links(void);
 
 /**
  * Get the clicked link, if any
- * @param m Mouse state
+ * @param m mouse state
  * @return ID of the link (>= 0), or -1 if no link was clicked
  */
-int rich_text_get_clicked_link(const mouse *m);
+int rich_text_get_clicked_link(const struct mouse_t *m);
 
 /**
  * Draws rich text
@@ -81,10 +81,10 @@ void rich_text_draw_scrollbar(void);
 
 /**
  * Handles mouse interaction with the scrollbar and scroll wheel
- * @param m Mouse state
+ * @param m mouse state
  * @return True if any interaction was handled
  */
-int rich_text_handle_mouse(const mouse *m);
+int rich_text_handle_mouse(const struct mouse_t *m);
 
 /**
  * Gets scroll position in absolute number of lines

@@ -134,7 +134,7 @@ void figure_shipwreck_action(struct figure_t *f)
     figure_image_increase_offset(f, 128);
     if (f->wait_ticks < 1000) {
         map_figure_delete(f);
-        map_point tile;
+        struct map_point_t tile;
         if (map_water_find_shipwreck_tile(f, &tile)) {
             f->x = tile.x;
             f->y = tile.y;
@@ -161,7 +161,7 @@ void figure_fishing_boat_action(struct figure_t *f)
         return;
     }
     if (f->action_state != FIGURE_ACTION_FISHING_BOAT_CREATED && b->data.industry.fishing_boat_id != f->id) {
-        map_point tile;
+        struct map_point_t tile;
         b = &all_buildings[map_water_get_wharf_for_new_fishing_boat(f, &tile)];
         if (b->id) {
             f->building_id = b->id;
@@ -184,7 +184,7 @@ void figure_fishing_boat_action(struct figure_t *f)
             f->wait_ticks++;
             if (f->wait_ticks >= 50) {
                 f->wait_ticks = 0;
-                map_point tile;
+                struct map_point_t tile;
                 int wharf_id = map_water_get_wharf_for_new_fishing_boat(f, &tile);
                 if (wharf_id) {
                     b->figure_id = 0; // remove from original building
@@ -203,7 +203,7 @@ void figure_fishing_boat_action(struct figure_t *f)
             figure_movement_move_ticks(f, 1);
             f->height_adjusted_ticks = 0;
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                map_point tile;
+                struct map_point_t tile;
                 if (map_water_find_alternative_fishing_boat_tile(f, &tile)) {
                     figure_route_remove(f);
                     f->destination_x = tile.x;
@@ -255,7 +255,7 @@ void figure_fishing_boat_action(struct figure_t *f)
                 f->wait_ticks++;
                 if (f->wait_ticks >= max_wait_ticks) {
                     f->wait_ticks = 0;
-                    map_point tile;
+                    struct map_point_t tile;
                     if (scenario_map_closest_fishing_point(f->x, f->y, &tile)) {
                         f->action_state = FIGURE_ACTION_FISHING_BOAT_GOING_TO_FISH;
                         f->destination_x = tile.x;

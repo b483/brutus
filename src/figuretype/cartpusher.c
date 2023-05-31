@@ -34,7 +34,7 @@ static void set_destination(struct figure_t *f, int action, int building_id, int
 
 static void determine_cartpusher_destination(struct figure_t *f, struct building_t *b, int road_network_id)
 {
-    map_point dst;
+    struct map_point_t dst;
     int understaffed_storages = 0;
 
     // priority 1: warehouse if resource is on stockpile
@@ -88,7 +88,7 @@ static void determine_cartpusher_destination(struct figure_t *f, struct building
 static void determine_cartpusher_destination_food(struct figure_t *f, int road_network_id)
 {
     struct building_t *b = &all_buildings[f->building_id];
-    map_point dst;
+    struct map_point_t dst;
     // priority 1: accepting granary for food
     int dst_building_id = building_granary_for_storing(f->x, f->y,
         b->output_resource_id, b->distance_from_entry, road_network_id, 0,
@@ -268,7 +268,7 @@ void figure_cartpusher_action(struct figure_t *f)
 
 static void determine_granaryman_destination(struct figure_t *f, int road_network_id)
 {
-    map_point dst;
+    struct map_point_t dst;
     int dst_building_id;
     struct building_t *granary = &all_buildings[f->building_id];
     if (!f->resource_id) {
@@ -326,7 +326,7 @@ static void remove_resource_from_warehouse(struct figure_t *f)
 
 static void determine_warehouseman_destination(struct figure_t *f, int road_network_id)
 {
-    map_point dst;
+    struct map_point_t dst;
     int dst_building_id;
     if (!f->resource_id) {
         // getting warehouseman

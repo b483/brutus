@@ -4,6 +4,6 @@
 #include "map/point.h"
 #include "widget/city.h"
 
-void city_without_overlay_draw(int selected_figure_id, pixel_coordinate *figure_coord, const map_tile *tile);
+void city_without_overlay_draw(int selected_figure_id, struct pixel_coordinate_t *figure_coord, const struct map_tile_t *tile);
 
 #endif // WIDGET_CITY_WITHOUT_OVERLAY_H

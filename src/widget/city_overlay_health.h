@@ -3,12 +3,12 @@
 
 #include "city_overlay.h"
 
-const city_overlay *city_overlay_for_bathhouse(void);
+const struct city_overlay_t *city_overlay_for_bathhouse(void);
 
-const city_overlay *city_overlay_for_barber(void);
+const struct city_overlay_t *city_overlay_for_barber(void);
 
-const city_overlay *city_overlay_for_clinic(void);
+const struct city_overlay_t *city_overlay_for_clinic(void);
 
-const city_overlay *city_overlay_for_hospital(void);
+const struct city_overlay_t *city_overlay_for_hospital(void);
 
 #endif // WIGET_CITY_OVERLAY_HEALTH_H

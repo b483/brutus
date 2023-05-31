@@ -291,14 +291,14 @@ void update_enemy_formations(void)
     }
 }
 
-void enemy_formations_save_state(buffer *buf)
+void enemy_formations_save_state(struct buffer_t *buf)
 {
     for (int i = 0; i < MAX_ENEMY_FORMATIONS; i++) {
         formation_save_state(buf, &enemy_formations[i]);
     }
 }
 
-void enemy_formations_load_state(buffer *buf)
+void enemy_formations_load_state(struct buffer_t *buf)
 {
     for (int i = 0; i < MAX_ENEMY_FORMATIONS; i++) {
         enemy_formations[i].id = i;

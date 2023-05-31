@@ -33,7 +33,7 @@ static void draw_foreground(void)
     video_draw_fullscreen();
 }
 
-static void handle_input(const mouse *m, __attribute__((unused)) const hotkeys *h)
+static void handle_input(const struct mouse_t *m, __attribute__((unused)) const struct hotkeys_t *h)
 {
     if (m->left.went_up || m->right.went_up || video_is_finished()) {
         video_stop();
@@ -44,12 +44,11 @@ static void handle_input(const mouse *m, __attribute__((unused)) const hotkeys *
 void window_victory_video_show(const char *filename, int width, int height, void (*callback)(void))
 {
     if (init(filename, width, height, callback)) {
-        window_type window = {
+        struct window_type_t window = {
             WINDOW_VICTORY_VIDEO,
             draw_background,
             draw_foreground,
             handle_input,
-            0
         };
         window_show(&window);
     } else {

@@ -9,7 +9,7 @@
 
 static int draw_cursor;
 
-void input_box_start(input_box *box)
+void input_box_start(struct input_box_t *box)
 {
     int text_width = (box->width_blocks - 2) * BLOCK_SIZE;
     keyboard_start_capture(box->text, box->text_length, box->allow_punctuation, text_width, box->font);
@@ -18,7 +18,7 @@ void input_box_start(input_box *box)
     draw_cursor = 1;
 }
 
-void input_box_stop(__attribute__((unused)) input_box *box)
+void input_box_stop(__attribute__((unused)) struct input_box_t *box)
 {
     keyboard_stop_capture();
     SDL_Rect rect = { 0, 0, 0, 0 };
@@ -26,23 +26,23 @@ void input_box_stop(__attribute__((unused)) input_box *box)
     draw_cursor = 0;
 }
 
-void input_box_refresh_text(__attribute__((unused)) input_box *box)
+void input_box_refresh_text(__attribute__((unused)) struct input_box_t *box)
 {
     keyboard_refresh();
 }
 
-int input_box_is_accepted(__attribute__((unused)) input_box *box)
+int input_box_is_accepted(__attribute__((unused)) struct input_box_t *box)
 {
     return keyboard_input_is_accepted();
 }
 
-int input_box_is_mouse_inside_input(const mouse *m, const input_box *box)
+int input_box_is_mouse_inside_input(const struct mouse_t *m, const struct input_box_t *box)
 {
     return m->x >= box->x && m->x < box->x + box->width_blocks * BLOCK_SIZE &&
         m->y >= box->y && m->y < box->y + box->height_blocks * BLOCK_SIZE;
 }
 
-void input_box_draw(const input_box *box)
+void input_box_draw(const struct input_box_t *box)
 {
     inner_panel_draw(box->x, box->y, box->width_blocks, box->height_blocks);
     int text_x = box->x + 16;

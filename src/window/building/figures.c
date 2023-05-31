@@ -120,7 +120,7 @@ static const int FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[] = {
 8, // FIGURE_EXPLOSION
 };
 
-static generic_button figure_buttons[] = {
+static struct generic_button_t figure_buttons[] = {
     {26, 46, 50, 50, select_figure, button_none, 0, 0},
     {86, 46, 50, 50, select_figure, button_none, 1, 0},
     {146, 46, 50, 50, select_figure, button_none, 2, 0},
@@ -133,7 +133,7 @@ static generic_button figure_buttons[] = {
 static struct {
     color_t figure_images[7][48 * 48];
     int focus_button_id;
-    building_info_context *context_for_callback;
+    struct building_info_context_t *context_for_callback;
 } data;
 
 static uint8_t figure_desc_strings[][26] = {
@@ -224,7 +224,7 @@ static int big_people_image(int type)
     return image_group(GROUP_BIG_PEOPLE) + FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[type] - 1;
 }
 
-static void draw_trader(building_info_context *c, struct figure_t *f)
+static void draw_trader(struct building_info_context_t *c, struct figure_t *f)
 {
     while (f->type == FIGURE_TRADE_CARAVAN_DONKEY) {
         f = &figures[f->leading_figure_id];
@@ -309,7 +309,7 @@ static void draw_trader(building_info_context *c, struct figure_t *f)
     }
 }
 
-static void draw_enemy(building_info_context *c, struct figure_t *f)
+static void draw_enemy(struct building_info_context_t *c, struct figure_t *f)
 {
     image_draw(image_group(GROUP_BIG_PEOPLE) + FIGURE_TYPE_TO_BIG_FIGURE_IMAGE[f->type] - 1, c->x_offset + 28, c->y_offset + 112);
 
@@ -398,13 +398,13 @@ static void draw_enemy(building_info_context *c, struct figure_t *f)
     }
 }
 
-static void draw_animal(building_info_context *c, struct figure_t *f)
+static void draw_animal(struct building_info_context_t *c, struct figure_t *f)
 {
     image_draw(big_people_image(f->type), c->x_offset + 28, c->y_offset + 112);
     text_draw(figure_desc_strings[f->type], c->x_offset + 92, c->y_offset + 139, FONT_NORMAL_BROWN, COLOR_BLACK);
 }
 
-static void draw_cartpusher(building_info_context *c, struct figure_t *f)
+static void draw_cartpusher(struct building_info_context_t *c, struct figure_t *f)
 {
     image_draw(big_people_image(f->type), c->x_offset + 28, c->y_offset + 112);
 
@@ -457,7 +457,7 @@ static void draw_cartpusher(building_info_context *c, struct figure_t *f)
     }
 }
 
-static void draw_market_buyer(building_info_context *c, struct figure_t *f)
+static void draw_market_buyer(struct building_info_context_t *c, struct figure_t *f)
 {
     image_draw(big_people_image(f->type), c->x_offset + 28, c->y_offset + 112);
 
@@ -479,7 +479,7 @@ static void draw_market_buyer(building_info_context *c, struct figure_t *f)
     }
 }
 
-static void draw_normal_figure(building_info_context *c, struct figure_t *f)
+static void draw_normal_figure(struct building_info_context_t *c, struct figure_t *f)
 {
     int image_id = big_people_image(f->type);
     if (f->action_state == FIGURE_ACTION_PREFECT_GOING_TO_FIRE ||
@@ -500,7 +500,7 @@ static void draw_normal_figure(building_info_context *c, struct figure_t *f)
     }
 }
 
-static void draw_figure_info(building_info_context *c, int figure_id)
+static void draw_figure_info(struct building_info_context_t *c, int figure_id)
 {
     button_border_draw(c->x_offset + 24, c->y_offset + 102, BLOCK_SIZE * (c->width_blocks - 3), 138, 0);
 
@@ -520,7 +520,7 @@ static void draw_figure_info(building_info_context *c, int figure_id)
     }
 }
 
-void window_building_draw_figure_list(building_info_context *c)
+void window_building_draw_figure_list(struct building_info_context_t *c)
 {
     inner_panel_draw(c->x_offset + 16, c->y_offset + 40, c->width_blocks - 2, 13);
     if (c->figure.count <= 0) {
@@ -536,7 +536,7 @@ void window_building_draw_figure_list(building_info_context *c)
     c->figure.drawn = 1;
 }
 
-static void draw_figure_in_city(int figure_id, pixel_coordinate *coord)
+static void draw_figure_in_city(int figure_id, struct pixel_coordinate_t *coord)
 {
     int x_cam, y_cam;
     city_view_get_camera(&x_cam, &y_cam);
@@ -551,10 +551,10 @@ static void draw_figure_in_city(int figure_id, pixel_coordinate *coord)
     city_view_set_camera(x_cam, y_cam);
 }
 
-void window_building_prepare_figure_list(building_info_context *c)
+void window_building_prepare_figure_list(struct building_info_context_t *c)
 {
     if (c->figure.count > 0) {
-        pixel_coordinate coord = { 0, 0 };
+        struct pixel_coordinate_t coord = { 0, 0 };
         for (int i = 0; i < c->figure.count; i++) {
             draw_figure_in_city(c->figure.figure_ids[i], &coord);
             graphics_save_to_buffer(coord.x, coord.y, 48, 48, data.figure_images[i]);
@@ -563,7 +563,7 @@ void window_building_prepare_figure_list(building_info_context *c)
     }
 }
 
-int window_building_handle_mouse_figure_list(const mouse *m, building_info_context *c)
+int window_building_handle_mouse_figure_list(const struct mouse_t *m, struct building_info_context_t *c)
 {
     data.context_for_callback = c;
     int handled = generic_buttons_handle_mouse(m, c->x_offset, c->y_offset,
@@ -579,7 +579,7 @@ static void select_figure(int index, __attribute__((unused)) int param2)
     window_invalidate();
 }
 
-void window_building_play_figure_phrase(building_info_context *c)
+void window_building_play_figure_phrase(struct building_info_context_t *c)
 {
     int figure_id = c->figure.figure_ids[c->figure.selected_index];
     struct figure_t *f = &figures[figure_id];

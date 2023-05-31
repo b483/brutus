@@ -3,7 +3,7 @@
 #include "city/data_private.h"
 #include "map/grid.h"
 
-static int set_tile(map_tile *tile, int x, int y)
+static int set_tile(struct map_tile_t *tile, int x, int y)
 {
     int grid_offset = map_grid_offset(x, y);
     tile->x = x;

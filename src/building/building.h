@@ -348,16 +348,16 @@ int building_get_highest_id(void);
 
 void building_update_highest_id(void);
 
-void set_destination__closest_building_of_type(int closest_to__building_id, int closest_building_of_type__type, map_point *closest_building_of_type__road_tile);
+void set_destination__closest_building_of_type(int closest_to__building_id, int closest_building_of_type__type, struct map_point_t *closest_building_of_type__road_tile);
 
 void building_totals_add_corrupted_house(int unfixable);
 
 void building_clear_all(void);
 
-void building_save_state(buffer *buf, buffer *highest_id, buffer *highest_id_ever,
-                         buffer *sequence, buffer *corrupt_houses);
+void building_save_state(struct buffer_t *buf, struct buffer_t *highest_id, struct buffer_t *highest_id_ever,
+                         struct buffer_t *sequence, struct buffer_t *corrupt_houses);
 
-void building_load_state(buffer *buf, buffer *highest_id, buffer *highest_id_ever,
-                         buffer *sequence, buffer *corrupt_houses);
+void building_load_state(struct buffer_t *buf, struct buffer_t *highest_id, struct buffer_t *highest_id_ever,
+                         struct buffer_t *sequence, struct buffer_t *corrupt_houses);
 
 #endif // BUILDING_BUILDING_H

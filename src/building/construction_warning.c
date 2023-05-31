@@ -21,7 +21,7 @@ void building_construction_warning_reset(void)
     has_warning = 0;
 }
 
-static void show(warning_type warning)
+static void show(int warning)
 {
     city_warning_show(warning);
     has_warning = 1;
@@ -204,8 +204,8 @@ void building_construction_warning_check_all(int type, int x, int y, int size)
     // check raw resources availability
     int raw_resource = 0;
     int finished_good = 0;
-    warning_type warning_resource_needed = 0;
-    warning_type warning_resource_building = 0;
+    int warning_resource_needed = 0;
+    int warning_resource_building = 0;
     switch (type) {
         case BUILDING_OIL_WORKSHOP:
             raw_resource = RESOURCE_OLIVES;

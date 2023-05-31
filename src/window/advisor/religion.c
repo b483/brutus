@@ -13,7 +13,7 @@
 
 static int get_religion_advice(void)
 {
-    const house_demands *demands = city_houses_demands();
+    struct house_demands_t *demands = city_houses_demands();
     if (city_data.religion.least_happy_god - 1 >= 0 && city_data.religion.gods[city_data.religion.least_happy_god - 1].wrath_bolts > 4) {
         return 6 + city_data.religion.least_happy_god - 1;
     } else if (demands->religion == 1) {
@@ -31,7 +31,7 @@ static int get_religion_advice(void)
     }
 }
 
-static void draw_god_row(god_type god, int y_offset, int small_temple, int large_temple)
+static void draw_god_row(int god, int y_offset, int small_temple, int large_temple)
 {
     lang_text_draw(59, 11 + god, 40, y_offset, FONT_NORMAL_WHITE);
     lang_text_draw(59, 16 + god, 120, y_offset + 1, FONT_SMALL_PLAIN);
@@ -84,13 +84,12 @@ static int draw_background(void)
     return height_blocks;
 }
 
-const advisor_window_type *window_advisor_religion(void)
+struct advisor_window_type_t *window_advisor_religion(void)
 {
-    static const advisor_window_type window = {
+    static struct advisor_window_type_t window = {
         draw_background,
         0,
         0,
-        0
     };
     return &window;
 }

@@ -12,10 +12,10 @@
 #define HALF_TILE_WIDTH_PIXELS 30
 #define HALF_TILE_HEIGHT_PIXELS 15
 
-typedef struct {
+struct pixel_view_coordinates_t {
     int x;
     int y;
-} view_tile, pixel_offset;
+};
 
 typedef void (map_callback)(int x, int y, int grid_offset);
 
@@ -39,11 +39,11 @@ void city_view_grid_offset_to_xy_view(int grid_offset, int *x_view, int *y_view)
 
 void city_view_get_selected_tile_pixels(int *x_pixels, int *y_pixels);
 
-int city_view_pixels_to_view_tile(int x_pixels, int y_pixels, view_tile *tile);
+int city_view_pixels_to_view_tile(int x_pixels, int y_pixels, struct pixel_view_coordinates_t *tile);
 
-void city_view_set_selected_view_tile(const view_tile *tile);
+void city_view_set_selected_view_tile(const struct pixel_view_coordinates_t *tile);
 
-int city_view_tile_to_grid_offset(const view_tile *tile);
+int city_view_tile_to_grid_offset(const struct pixel_view_coordinates_t *tile);
 
 void city_view_go_to_grid_offset(int grid_offset);
 
@@ -62,13 +62,13 @@ void city_view_start_sidebar_toggle(void);
 
 void city_view_toggle_sidebar(void);
 
-void city_view_save_state(buffer *orientation, buffer *camera);
+void city_view_save_state(struct buffer_t *orientation, struct buffer_t *camera);
 
-void city_view_load_state(buffer *orientation, buffer *camera);
+void city_view_load_state(struct buffer_t *orientation, struct buffer_t *camera);
 
-void city_view_save_scenario_state(buffer *camera);
+void city_view_save_scenario_state(struct buffer_t *camera);
 
-void city_view_load_scenario_state(buffer *camera);
+void city_view_load_scenario_state(struct buffer_t *camera);
 
 void city_view_foreach_map_tile(map_callback *callback);
 

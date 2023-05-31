@@ -5,7 +5,7 @@
 #include "game/system.h"
 #include "window/city.h"
 
-static const cursor ARROW[] = {
+static const struct cursor_t ARROW[] = {
     {
         0, 0, 13, 21,
         "#            "
@@ -108,7 +108,7 @@ static const cursor ARROW[] = {
     }
 };
 
-static const cursor SWORD[] = {
+static const struct cursor_t SWORD[] = {
     {
         0, 0, 22, 22,
         "#####                 "
@@ -220,7 +220,7 @@ static const cursor SWORD[] = {
     }
 };
 
-static const cursor SHOVEL[] = {
+static const struct cursor_t SHOVEL[] = {
     {
         1, 26, 28, 28,
         "                       ##   "
@@ -356,7 +356,7 @@ static const cursor SHOVEL[] = {
     }
 };
 
-const cursor *input_cursor_data(cursor_shape cursor_id, cursor_scale scale)
+const struct cursor_t *input_cursor_data(int cursor_id, int scale)
 {
     switch (cursor_id) {
         case CURSOR_ARROW: return &ARROW[scale];
@@ -366,7 +366,7 @@ const cursor *input_cursor_data(cursor_shape cursor_id, cursor_scale scale)
     }
 }
 
-void input_cursor_update(window_id window)
+void input_cursor_update(int window)
 {
     if (window == WINDOW_CITY_MILITARY) {
         system_set_cursor(CURSOR_SWORD);

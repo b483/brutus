@@ -163,7 +163,7 @@ static int draw_background(void)
     }
 
     // education
-    house_demands *demands = city_houses_demands();
+    struct house_demands_t *demands = city_houses_demands();
     draw_title(226, 8);
     if (demands->education == 1) {
         lang_text_draw(61, 39, X_OFFSET, 226, FONT_NORMAL_RED);
@@ -211,13 +211,12 @@ static int draw_background(void)
     return ADVISOR_HEIGHT;
 }
 
-const advisor_window_type *window_advisor_chief(void)
+struct advisor_window_type_t *window_advisor_chief(void)
 {
-    static const advisor_window_type window = {
+    static struct advisor_window_type_t window = {
         draw_background,
         0,
         0,
-        0
     };
     return &window;
 }

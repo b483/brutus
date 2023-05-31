@@ -17,7 +17,7 @@
 
 static void button_request(int id, int param2);
 
-static generic_button buttons_requests[] = {
+static struct generic_button_t buttons_requests[] = {
     {-300, 48, 290, 25, button_request, button_none, 0, 0},
     {-300, 78, 290, 25, button_request, button_none, 1, 0},
     {-300, 108, 290, 25, button_request, button_none, 2, 0},
@@ -103,9 +103,9 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_requests, sizeof(buttons_requests) / sizeof(generic_button), &focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_requests, sizeof(buttons_requests) / sizeof(struct generic_button_t), &focus_button_id)) {
         return;
     }
     if (m->right.went_up || h->escape_pressed) {
@@ -120,12 +120,11 @@ static void button_request(int id, __attribute__((unused)) int param2)
 
 void window_editor_requests_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_REQUESTS,
         window_editor_map_draw_all,
         draw_foreground,
         handle_input,
-        0
     };
     window_show(&window);
 }

@@ -21,12 +21,12 @@ static void button_reset_briefing_text(int param1, int param2);
 static uint8_t briefing[MAX_BRIEFING];
 static int focus_button_id;
 
-static input_box scenario_briefing_input = {
+static struct input_box_t scenario_briefing_input = {
     -260, -150, 55, 2, FONT_NORMAL_WHITE, 1,
     briefing, MAX_BRIEFING
 };
 
-static generic_button button_reset[] = {
+static struct generic_button_t button_reset[] = {
     {455, 540, 190, 35, button_reset_briefing_text, button_none, 0, 0}
 };
 
@@ -72,9 +72,9 @@ static void draw_foreground(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    const mouse *m_dialog = mouse_in_dialog(m);
+    const struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (m->right.went_up || h->escape_pressed) {
         stop_briefing_box_input();
         rich_text_reset(0);
@@ -96,12 +96,11 @@ static void button_reset_briefing_text(__attribute__((unused)) int param1, __att
 
 void window_editor_briefing_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_EDITOR_BRIEFING,
         window_editor_map_draw_all,
         draw_foreground,
         handle_input,
-        0
     };
     start_briefing_box_input();
     window_show(&window);

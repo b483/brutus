@@ -8,8 +8,8 @@
  * 2) to store image IDs for the aqueduct (0-15)
  * This leads to some strange results
  */
-static grid_u8 aqueduct;
-static grid_u8 aqueduct_backup;
+static struct grid_u8_t aqueduct;
+static struct grid_u8_t aqueduct_backup;
 
 int map_aqueduct_at(int grid_offset)
 {
@@ -53,13 +53,13 @@ void map_aqueduct_restore(void)
     map_grid_copy_u8(aqueduct_backup.items, aqueduct.items);
 }
 
-void map_aqueduct_save_state(buffer *buf, buffer *backup)
+void map_aqueduct_save_state(struct buffer_t *buf, struct buffer_t *backup)
 {
     map_grid_save_state_u8(aqueduct.items, buf);
     map_grid_save_state_u8(aqueduct_backup.items, backup);
 }
 
-void map_aqueduct_load_state(buffer *buf, buffer *backup)
+void map_aqueduct_load_state(struct buffer_t *buf, struct buffer_t *backup)
 {
     map_grid_load_state_u8(aqueduct.items, buf);
     map_grid_load_state_u8(aqueduct_backup.items, backup);

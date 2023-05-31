@@ -1,7 +1,7 @@
 #ifndef CITY_HOUSES_H
 #define CITY_HOUSES_H
 
-typedef struct {
+struct house_demands_t {
     struct {
         int well;
         int fountain;
@@ -31,11 +31,11 @@ typedef struct {
     int religion;
     int education;
     int entertainment;
-} house_demands;
+};
 
 void city_houses_reset_demands(void);
 
-house_demands *city_houses_demands(void);
+struct house_demands_t *city_houses_demands(void);
 
 void city_houses_calculate_culture_demands(void);
 

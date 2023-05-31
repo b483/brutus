@@ -33,12 +33,12 @@ static const char *key_display_names[KEY_TYPE_MAX_ITEMS] = {
     "Keypad .", "Keypad +", "Keypad -", "Keypad *", "Keypad /", "NonUS"
 };
 
-typedef struct {
-    key_modifier_type modifier;
+struct modifier_name_t {
+    int modifier;
     const char *name;
-} modifier_name;
+};
 
-static const modifier_name modifier_names[] = {
+static const struct modifier_name_t modifier_names[] = {
     {KEY_MOD_CTRL, "Ctrl"},
     {KEY_MOD_ALT, "Alt"},
     {KEY_MOD_GUI, "Gui"},
@@ -46,11 +46,11 @@ static const modifier_name modifier_names[] = {
     {KEY_MOD_NONE, 0}
 };
 
-const char *key_combination_name(key_type key, key_modifier_type modifiers)
+const char *key_combination_name(int key, int modifiers)
 {
     static char name[100];
     name[0] = 0;
-    for (const modifier_name *modname = modifier_names; modname->modifier; modname++) {
+    for (const struct modifier_name_t *modname = modifier_names; modname->modifier; modname++) {
         if (modifiers & modname->modifier) {
             strcat(name, modname->name);
             strcat(name, " ");
@@ -60,9 +60,9 @@ const char *key_combination_name(key_type key, key_modifier_type modifiers)
     return name;
 }
 
-static key_modifier_type parse_modifier(const char *name)
+static int parse_modifier(const char *name)
 {
-    for (const modifier_name *modname = modifier_names; modname->modifier; modname++) {
+    for (const struct modifier_name_t *modname = modifier_names; modname->modifier; modname++) {
         if (strcmp(modname->name, name) == 0) {
             return modname->modifier;
         }
@@ -70,7 +70,7 @@ static key_modifier_type parse_modifier(const char *name)
     return KEY_MOD_NONE;
 }
 
-static key_type parse_key(const char *name)
+static int parse_key(const char *name)
 {
     for (int i = 1; i < KEY_TYPE_MAX_ITEMS; i++) {
         if (strcmp(key_names[i], name) == 0) {
@@ -80,7 +80,7 @@ static key_type parse_key(const char *name)
     return KEY_TYPE_NONE;
 }
 
-int key_combination_from_name(const char *name, key_type *key, key_modifier_type *modifiers)
+int key_combination_from_name(const char *name, int *key, int *modifiers)
 {
     char editable_name[100] = { 0 };
     strncpy(editable_name, name, 99);
@@ -91,7 +91,7 @@ int key_combination_from_name(const char *name, key_type *key, key_modifier_type
     char *token = strtok(editable_name, " ");
     while (token) {
         if (token[0]) {
-            key_modifier_type mod = parse_modifier(token);
+            int mod = parse_modifier(token);
             if (mod != KEY_MOD_NONE) {
                 *modifiers |= mod;
             } else {
@@ -119,7 +119,7 @@ static int can_display(const char *key_name)
     return font_can_display(internal_name);
 }
 
-const uint8_t *key_combination_display_name(key_type key, key_modifier_type modifiers)
+const uint8_t *key_combination_display_name(int key, int modifiers)
 {
     static char result[100];
     static uint8_t str_result[100];

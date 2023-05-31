@@ -88,7 +88,7 @@ static void draw_background(void)
     graphics_reset_dialog();
 }
 
-static void handle_input(const mouse *m, const hotkeys *h)
+static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     rich_text_handle_mouse(mouse_in_dialog(m));
     if (m->right.went_up || h->escape_pressed || h->enter_pressed) {
@@ -102,12 +102,11 @@ static void handle_input(const mouse *m, const hotkeys *h)
 
 void window_mission_briefing_show(void)
 {
-    window_type window = {
+    struct window_type_t window = {
         WINDOW_MISSION_BRIEFING,
         draw_background,
         0,
         handle_input,
-        0
     };
     rich_text_reset(0);
     window_show(&window);

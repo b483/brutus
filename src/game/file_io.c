@@ -48,101 +48,101 @@
 
 static char compress_buffer[COMPRESS_BUFFER_SIZE];
 
-typedef struct {
-    buffer buf;
+struct file_piece_t {
+    struct buffer_t buf;
     int compressed;
-} file_piece;
+};
 
-typedef struct {
-    buffer *graphic_ids;
-    buffer *edge;
-    buffer *terrain;
-    buffer *bitfields;
-    buffer *random;
-    buffer *elevation;
-    buffer *random_iv;
-    buffer *camera;
-    buffer *scenario;
-    buffer *empire_objects;
-} scenario_state;
+struct scenario_state_t {
+    struct buffer_t *graphic_ids;
+    struct buffer_t *edge;
+    struct buffer_t *terrain;
+    struct buffer_t *bitfields;
+    struct buffer_t *random;
+    struct buffer_t *elevation;
+    struct buffer_t *random_iv;
+    struct buffer_t *camera;
+    struct buffer_t *scenario;
+    struct buffer_t *empire_objects;
+};
 
 static struct {
     int num_pieces;
-    file_piece pieces[11];
-    scenario_state state;
+    struct file_piece_t pieces[11];
+    struct scenario_state_t state;
 } scenario_data = { 0 };
 
-typedef struct {
-    buffer *image_grid;
-    buffer *edge_grid;
-    buffer *building_grid;
-    buffer *terrain_grid;
-    buffer *aqueduct_grid;
-    buffer *figure_grid;
-    buffer *bitfields_grid;
-    buffer *sprite_grid;
-    buffer *random_grid;
-    buffer *desirability_grid;
-    buffer *elevation_grid;
-    buffer *building_damage_grid;
-    buffer *aqueduct_backup_grid;
-    buffer *sprite_backup_grid;
-    buffer *figures;
-    buffer *route_figures;
-    buffer *route_paths;
-    buffer *legion_formations;
-    buffer *herd_formations;
-    buffer *enemy_formations;
-    buffer *city_data;
-    buffer *player_name;
-    buffer *buildings;
-    buffer *city_view_orientation;
-    buffer *game_time;
-    buffer *building_extra_highest_id_ever;
-    buffer *random_iv;
-    buffer *city_view_camera;
-    buffer *building_count_culture1;
-    buffer *city_graph_order;
-    buffer *empire;
-    buffer *empire_objects;
-    buffer *building_count_industry;
-    buffer *trade_prices;
-    buffer *figure_names;
-    buffer *culture_coverage;
-    buffer *scenario;
-    buffer *messages;
-    buffer *message_extra;
-    buffer *population_messages;
-    buffer *message_counts;
-    buffer *message_delays;
-    buffer *building_list_burning_totals;
-    buffer *city_sounds;
-    buffer *building_extra_highest_id;
-    buffer *figure_traders;
-    buffer *building_list_burning;
-    buffer *building_list_small;
-    buffer *building_list_large;
-    buffer *building_count_military;
-    buffer *building_storages;
-    buffer *building_count_culture2;
-    buffer *building_count_support;
-    buffer *building_barracks_tower_sentry;
-    buffer *building_extra_sequence;
-    buffer *routing_counters;
-    buffer *building_count_culture3;
-    buffer *city_entry_exit_xy;
-    buffer *building_extra_corrupt_houses;
-    buffer *bookmarks;
-    buffer *city_entry_exit_grid_offset;
-} savegame_state;
+struct savegame_state_t {
+    struct buffer_t *image_grid;
+    struct buffer_t *edge_grid;
+    struct buffer_t *building_grid;
+    struct buffer_t *terrain_grid;
+    struct buffer_t *aqueduct_grid;
+    struct buffer_t *figure_grid;
+    struct buffer_t *bitfields_grid;
+    struct buffer_t *sprite_grid;
+    struct buffer_t *random_grid;
+    struct buffer_t *desirability_grid;
+    struct buffer_t *elevation_grid;
+    struct buffer_t *building_damage_grid;
+    struct buffer_t *aqueduct_backup_grid;
+    struct buffer_t *sprite_backup_grid;
+    struct buffer_t *figures;
+    struct buffer_t *route_figures;
+    struct buffer_t *route_paths;
+    struct buffer_t *legion_formations;
+    struct buffer_t *herd_formations;
+    struct buffer_t *enemy_formations;
+    struct buffer_t *city_data;
+    struct buffer_t *player_name;
+    struct buffer_t *buildings;
+    struct buffer_t *city_view_orientation;
+    struct buffer_t *game_time;
+    struct buffer_t *building_extra_highest_id_ever;
+    struct buffer_t *random_iv;
+    struct buffer_t *city_view_camera;
+    struct buffer_t *building_count_culture1;
+    struct buffer_t *city_graph_order;
+    struct buffer_t *empire;
+    struct buffer_t *empire_objects;
+    struct buffer_t *building_count_industry;
+    struct buffer_t *trade_prices;
+    struct buffer_t *figure_names;
+    struct buffer_t *culture_coverage;
+    struct buffer_t *scenario;
+    struct buffer_t *messages;
+    struct buffer_t *message_extra;
+    struct buffer_t *population_messages;
+    struct buffer_t *message_counts;
+    struct buffer_t *message_delays;
+    struct buffer_t *building_list_burning_totals;
+    struct buffer_t *city_sounds;
+    struct buffer_t *building_extra_highest_id;
+    struct buffer_t *figure_traders;
+    struct buffer_t *building_list_burning;
+    struct buffer_t *building_list_small;
+    struct buffer_t *building_list_large;
+    struct buffer_t *building_count_military;
+    struct buffer_t *building_storages;
+    struct buffer_t *building_count_culture2;
+    struct buffer_t *building_count_support;
+    struct buffer_t *building_barracks_tower_sentry;
+    struct buffer_t *building_extra_sequence;
+    struct buffer_t *routing_counters;
+    struct buffer_t *building_count_culture3;
+    struct buffer_t *city_entry_exit_xy;
+    struct buffer_t *building_extra_corrupt_houses;
+    struct buffer_t *bookmarks;
+    struct buffer_t *city_entry_exit_grid_offset;
+};
 
 static struct {
     int num_pieces;
-    file_piece pieces[100];
-    savegame_state state;
+    struct file_piece_t pieces[100];
+    struct savegame_state_t state;
 } savegame_data = { 0 };
 
-static void init_file_piece(file_piece *piece, int size, int compressed)
+static void init_file_piece(struct file_piece_t *piece, int size, int compressed)
 {
     piece->compressed = compressed;
     void *data = malloc(size);
@@ -152,16 +152,16 @@ static void init_file_piece(file_piece *piece, int size, int compressed)
     }
 }
 
-static buffer *create_scenario_piece(int size)
+static struct buffer_t *create_scenario_piece(int size)
 {
-    file_piece *piece = &scenario_data.pieces[scenario_data.num_pieces++];
+    struct file_piece_t *piece = &scenario_data.pieces[scenario_data.num_pieces++];
     init_file_piece(piece, size, 0);
     return &piece->buf;
 }
 
-static buffer *create_savegame_piece(int size, int compressed)
+static struct buffer_t *create_savegame_piece(int size, int compressed)
 {
-    file_piece *piece = &savegame_data.pieces[savegame_data.num_pieces++];
+    struct file_piece_t *piece = &savegame_data.pieces[savegame_data.num_pieces++];
     init_file_piece(piece, size, compressed);
     return &piece->buf;
 }
@@ -174,7 +174,7 @@ static void init_scenario_data(void)
         }
         return;
     }
-    scenario_state *state = &scenario_data.state;
+    struct scenario_state_t *state = &scenario_data.state;
     state->graphic_ids = create_scenario_piece(52488);
     state->edge = create_scenario_piece(26244);
     state->terrain = create_scenario_piece(52488);
@@ -195,7 +195,7 @@ static void init_savegame_data(void)
         }
         return;
     }
-    savegame_state *state = &savegame_data.state;
+    struct savegame_state_t *state = &savegame_data.state;
     state->image_grid = create_savegame_piece(52488, 1);
     state->edge_grid = create_savegame_piece(26244, 1);
     state->building_grid = create_savegame_piece(52488, 1);
@@ -259,7 +259,7 @@ static void init_savegame_data(void)
     state->city_entry_exit_grid_offset = create_savegame_piece(8, 0);
 }
 
-static void scenario_load_from_state(scenario_state *file)
+static void scenario_load_from_state(struct scenario_state_t *file)
 {
     map_image_load_state(file->graphic_ids);
     map_terrain_load_state(file->terrain);
@@ -274,7 +274,7 @@ static void scenario_load_from_state(scenario_state *file)
     empire_object_load_state(file->empire_objects);
 }
 
-static void scenario_save_to_state(scenario_state *file)
+static void scenario_save_to_state(struct scenario_state_t *file)
 {
     map_image_save_state(file->graphic_ids);
     map_terrain_save_state(file->terrain);
@@ -289,7 +289,7 @@ static void scenario_save_to_state(scenario_state *file)
     empire_object_save_state(file->empire_objects);
 }
 
-static void savegame_load_from_state(savegame_state *state)
+static void savegame_load_from_state(struct savegame_state_t *state)
 {
     scenario_settings_load_state(state->player_name);
 
@@ -352,7 +352,7 @@ static void savegame_load_from_state(savegame_state *state)
     map_bookmark_load_state(state->bookmarks);
 }
 
-static void savegame_save_to_state(savegame_state *state)
+static void savegame_save_to_state(struct savegame_state_t *state)
 {
     scenario_settings_save_state(state->player_name);
 
@@ -468,7 +468,7 @@ static int read_int32(FILE *fp)
     if (fread(&data, 1, 4, fp) != 4) {
         return 0;
     }
-    buffer buf;
+    struct buffer_t buf;
     buffer_init(&buf, data, 4);
     return buffer_read_i32(&buf);
 }
@@ -476,7 +476,7 @@ static int read_int32(FILE *fp)
 static void write_int32(FILE *fp, int value)
 {
     uint8_t data[4];
-    buffer buf;
+    struct buffer_t buf;
     buffer_init(&buf, data, 4);
     buffer_write_i32(&buf, value);
     fwrite(&data, 1, 4, fp);
@@ -521,7 +521,7 @@ static int write_compressed_chunk(FILE *fp, const void *buffer, int bytes_to_wri
 static int savegame_read_from_file(FILE *fp)
 {
     for (int i = 0; i < savegame_data.num_pieces; i++) {
-        file_piece *piece = &savegame_data.pieces[i];
+        struct file_piece_t *piece = &savegame_data.pieces[i];
         int result = 0;
         if (piece->compressed) {
             result = read_compressed_chunk(fp, piece->buf.data, piece->buf.size);
@@ -539,7 +539,7 @@ static int savegame_read_from_file(FILE *fp)
 static void savegame_write_to_file(FILE *fp)
 {
     for (int i = 0; i < savegame_data.num_pieces; i++) {
-        file_piece *piece = &savegame_data.pieces[i];
+        struct file_piece_t *piece = &savegame_data.pieces[i];
         if (piece->compressed) {
             write_compressed_chunk(fp, piece->buf.data, piece->buf.size);
         } else {

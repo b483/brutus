@@ -7,7 +7,7 @@
 #include "map/ring.h"
 #include "map/terrain.h"
 
-static grid_i8 desirability_grid;
+static struct grid_i8_t desirability_grid;
 
 void map_desirability_clear(void)
 {
@@ -29,7 +29,7 @@ static void add_desirability_at_distance(int x, int y, int size, int distance, i
 
     if (partially_outside_map) {
         for (int i = start; i < end; i++) {
-            const ring_tile *tile = map_ring_tile(i);
+            const struct ring_tile_t *tile = map_ring_tile(i);
             if (map_ring_is_inside_map(x + tile->x, y + tile->y)) {
                 desirability_grid.items[base_offset + tile->grid_offset] += desirability;
                 // BUG: bounding on wrong tile:
@@ -38,7 +38,7 @@ static void add_desirability_at_distance(int x, int y, int size, int distance, i
         }
     } else {
         for (int i = start; i < end; i++) {
-            const ring_tile *tile = map_ring_tile(i);
+            const struct ring_tile_t *tile = map_ring_tile(i);
             desirability_grid.items[base_offset + tile->grid_offset] =
                 calc_bound(desirability_grid.items[base_offset + tile->grid_offset] + desirability, -100, 100);
         }
@@ -149,12 +149,12 @@ int map_desirability_get_max(int x, int y, int size)
     return max;
 }
 
-void map_desirability_save_state(buffer *buf)
+void map_desirability_save_state(struct buffer_t *buf)
 {
     map_grid_save_state_i8(desirability_grid.items, buf);
 }
 
-void map_desirability_load_state(buffer *buf)
+void map_desirability_load_state(struct buffer_t *buf)
 {
     map_grid_load_state_i8(desirability_grid.items, buf);
 }

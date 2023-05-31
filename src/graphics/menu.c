@@ -12,7 +12,7 @@
 
 uint8_t editor_top_menu_clear_earthquakes[] = "Clear earthquakes";
 
-void menu_bar_draw(menu_bar_item *items, int num_items, int max_width)
+void menu_bar_draw(struct menu_bar_item_t *items, int num_items, int max_width)
 {
     int total_text_width = 0;
     for (int i = 0; i < num_items; i++) {
@@ -32,7 +32,7 @@ void menu_bar_draw(menu_bar_item *items, int num_items, int max_width)
     }
 }
 
-static int get_menu_bar_item(const mouse *m, menu_bar_item *items, int num_items)
+static int get_menu_bar_item(const struct mouse_t *m, struct menu_bar_item_t *items, int num_items)
 {
     for (int i = 0; i < num_items; i++) {
         if (items[i].x_start <= m->x &&
@@ -45,7 +45,7 @@ static int get_menu_bar_item(const mouse *m, menu_bar_item *items, int num_items
     return 0;
 }
 
-int menu_bar_handle_mouse(const mouse *m, menu_bar_item *items, int num_items, int *focus_menu_id)
+int menu_bar_handle_mouse(const struct mouse_t *m, struct menu_bar_item_t *items, int num_items, int *focus_menu_id)
 {
     int menu_id = get_menu_bar_item(m, items, num_items);
     if (focus_menu_id) {
@@ -54,12 +54,12 @@ int menu_bar_handle_mouse(const mouse *m, menu_bar_item *items, int num_items, i
     return menu_id;
 }
 
-static void calculate_menu_dimensions(menu_bar_item *menu)
+static void calculate_menu_dimensions(struct menu_bar_item_t *menu)
 {
     int max_width = 0;
     int height_pixels = MENU_ITEM_HEIGHT;
     for (int i = 0; i < menu->num_items; i++) {
-        menu_item *sub = &menu->items[i];
+        struct menu_item_t *sub = &menu->items[i];
         if (sub->hidden) {
             continue;
         }
@@ -75,7 +75,7 @@ static void calculate_menu_dimensions(menu_bar_item *menu)
     menu->calculated_height_blocks = height_pixels / BLOCK_SIZE;
 }
 
-void menu_draw(menu_bar_item *menu, int focus_item_id)
+void menu_draw(struct menu_bar_item_t *menu, int focus_item_id)
 {
     if (menu->calculated_width_blocks == 0 || menu->calculated_height_blocks == 0) {
         calculate_menu_dimensions(menu);
@@ -84,7 +84,7 @@ void menu_draw(menu_bar_item *menu, int focus_item_id)
         menu->calculated_width_blocks, menu->calculated_height_blocks);
     int y_offset = TOP_MENU_HEIGHT + MENU_BASE_TEXT_Y_OFFSET * 2;
     for (int i = 0; i < menu->num_items; i++) {
-        menu_item *sub = &menu->items[i];
+        struct menu_item_t *sub = &menu->items[i];
         if (sub->hidden) {
             continue;
         }
@@ -106,7 +106,7 @@ void menu_draw(menu_bar_item *menu, int focus_item_id)
     }
 }
 
-static int get_menu_item(const mouse *m, menu_bar_item *menu)
+static int get_menu_item(const struct mouse_t *m, struct menu_bar_item_t *menu)
 {
     int y_offset = TOP_MENU_HEIGHT + MENU_BASE_TEXT_Y_OFFSET * 2;
     for (int i = 0; i < menu->num_items; i++) {
@@ -124,7 +124,7 @@ static int get_menu_item(const mouse *m, menu_bar_item *menu)
     return 0;
 }
 
-int menu_handle_mouse(const mouse *m, menu_bar_item *menu, int *focus_item_id)
+int menu_handle_mouse(const struct mouse_t *m, struct menu_bar_item_t *menu, int *focus_item_id)
 {
     int item_id = get_menu_item(m, menu);
     if (focus_item_id) {
@@ -134,13 +134,13 @@ int menu_handle_mouse(const mouse *m, menu_bar_item *menu, int *focus_item_id)
         return 0;
     }
     if (m->left.went_up) {
-        menu_item *item = &menu->items[item_id - 1];
+        struct menu_item_t *item = &menu->items[item_id - 1];
         item->left_click_handler(item->parameter);
     }
     return item_id;
 }
 
-void menu_update_text(menu_bar_item *menu, int index, int text_number)
+void menu_update_text(struct menu_bar_item_t *menu, int index, int text_number)
 {
     menu->items[index].text_number = text_number;
     if (menu->calculated_width_blocks > 0) {

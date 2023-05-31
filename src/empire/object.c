@@ -44,7 +44,7 @@ static void fix_image_ids(void)
     }
 }
 
-void empire_object_load_initial(buffer *buf)
+void empire_object_load_initial(struct buffer_t *buf)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
         empire_objects[i].id = i;
@@ -79,7 +79,7 @@ void empire_object_load_initial(buffer *buf)
     fix_image_ids();
 }
 
-void empire_object_load_state(buffer *buf)
+void empire_object_load_state(struct buffer_t *buf)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
         empire_objects[i].id = i;
@@ -117,7 +117,7 @@ void empire_object_load_state(buffer *buf)
     fix_image_ids();
 }
 
-void empire_object_save_state(buffer *buf)
+void empire_object_save_state(struct buffer_t *buf)
 {
     for (int i = 0; i < MAX_OBJECTS; i++) {
 
@@ -234,7 +234,7 @@ int empire_object_update_animation(struct empire_object_t *obj, int image_id)
     if (obj->animation_index <= 0) {
         obj->animation_index = 1;
     }
-    const image *img = image_get(image_id);
+    const struct image_t *img = image_get(image_id);
     if (!game_animation_should_advance(img->animation_speed_id)) {
         return obj->animation_index;
     }

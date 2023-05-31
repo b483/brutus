@@ -2,7 +2,6 @@
 
 #include "game/system.h"
 #include "graphics/color.h"
-#include "input/cursor.h"
 #include "platform/screen.h"
 
 #include "SDL.h"
@@ -10,8 +9,8 @@
 static struct {
     SDL_Cursor *cursors[CURSOR_MAX];
     SDL_Surface *surfaces[CURSOR_MAX];
-    cursor_shape current_shape;
-    cursor_scale current_scale;
+    int current_shape;
+    int current_scale;
 } data;
 
 static const color_t mouse_colors[] = {
@@ -25,7 +24,7 @@ static const color_t mouse_colors[] = {
     ALPHA_OPAQUE | COLOR_WHITE
 };
 
-static SDL_Surface *generate_cursor_surface(const cursor *c)
+static SDL_Surface *generate_cursor_surface(const struct cursor_t *c)
 {
     int size = platform_cursor_get_texture_size(c->width, c->height);
     SDL_Surface *cursor_surface =
@@ -40,7 +39,7 @@ static SDL_Surface *generate_cursor_surface(const cursor *c)
     return cursor_surface;
 }
 
-static cursor_scale get_cursor_scale(int scale_percentage)
+static int get_cursor_scale(int scale_percentage)
 {
     if (scale_percentage <= 100) {
         return CURSOR_SCALE_1;
@@ -55,7 +54,7 @@ void system_init_cursors(int scale_percentage)
 {
     data.current_scale = get_cursor_scale(scale_percentage);
     for (int i = 0; i < CURSOR_MAX; i++) {
-        const cursor *c = input_cursor_data(i, data.current_scale);
+        const struct cursor_t *c = input_cursor_data(i, data.current_scale);
         if (data.surfaces[i]) {
             SDL_FreeSurface(data.surfaces[i]);
         }

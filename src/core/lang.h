@@ -11,17 +11,17 @@
  /**
   * Type
   */
-typedef enum {
+enum {
     TYPE_MANUAL = 0,
     TYPE_ABOUT = 1,
     TYPE_MESSAGE = 2,
     TYPE_MISSION = 3
-} lang_type;
+};
 
 /**
  * Message type
  */
-typedef enum {
+enum {
     MESSAGE_TYPE_GENERAL = 0,
     MESSAGE_TYPE_DISASTER = 1,
     MESSAGE_TYPE_IMPERIAL = 2,
@@ -29,11 +29,8 @@ typedef enum {
     MESSAGE_TYPE_TRADE_CHANGE = 5,
     MESSAGE_TYPE_PRICE_CHANGE = 6,
     MESSAGE_TYPE_INVASION = 7
-} lang_message_type;
+};
 
-/**
- * Image in a message
- */
 struct lang_message_image {
     int id; /**< ID of the image */
     int x; /**< X offset */
@@ -52,9 +49,9 @@ struct lang_message_string {
 /**
  * Message
  */
-typedef struct {
-    lang_type type;
-    lang_message_type message_type;
+struct lang_message_t {
+    int type;
+    int message_type;
     int x;
     int y;
     int width_blocks;
@@ -65,7 +62,7 @@ typedef struct {
     struct lang_message_string subtitle;
     struct lang_message_string video;
     struct lang_message_string content;
-} lang_message;
+};
 
 /**
  * Loads the language files
@@ -92,6 +89,6 @@ const uint8_t *lang_get_string(int group, int index);
  * @param id ID of the message
  * @return Message
  */
-const lang_message *lang_get_message(int id);
+const struct lang_message_t *lang_get_message(int id);
 
 #endif // CORE_LANG_H

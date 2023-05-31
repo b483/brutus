@@ -6,20 +6,20 @@
 
 #define HIGH_CHAR_COUNT 128
 
-typedef struct {
+struct letter_code_t {
     uint8_t internal_value;
     int bytes;
     uint8_t utf8_value[3];
     int bytes_decomposed;
     uint8_t utf8_decomposed[4];
-} letter_code;
+};
 
-typedef struct {
+struct from_utf8_lookup_t {
     uint32_t utf8;
-    const letter_code *code;
-} from_utf8_lookup;
+    const struct letter_code_t *code;
+};
 
-static const letter_code HIGH_TO_UTF8_DEFAULT[HIGH_CHAR_COUNT] = {
+static const struct letter_code_t HIGH_TO_UTF8_DEFAULT[HIGH_CHAR_COUNT] = {
     {0x80, 3, {0xe2, 0x82, 0xac}, 0x0, {0x0, 0x0, 0x0, 0x0}},
     {0x81, 1, {0x3f}, 0x0, {0x0, 0x0, 0x0, 0x0}},
     {0x82, 3, {0xe2, 0x80, 0x9a}, 0x0, {0x0, 0x0, 0x0, 0x0}},
@@ -151,10 +151,10 @@ static const letter_code HIGH_TO_UTF8_DEFAULT[HIGH_CHAR_COUNT] = {
 };
 
 static struct {
-    encoding_type encoding;
-    const letter_code *to_utf8_table;
-    from_utf8_lookup from_utf8_table[HIGH_CHAR_COUNT];
-    from_utf8_lookup from_utf8_decomposed_table[HIGH_CHAR_COUNT];
+    int encoding;
+    const struct letter_code_t *to_utf8_table;
+    struct from_utf8_lookup_t from_utf8_table[HIGH_CHAR_COUNT];
+    struct from_utf8_lookup_t from_utf8_decomposed_table[HIGH_CHAR_COUNT];
     int utf8_table_size;
     int decomposed_table_size;
 } data;
@@ -179,8 +179,8 @@ static uint32_t calculate_utf8_value(const uint8_t *bytes, int length)
 
 static int compare_utf8_lookup(const void *a, const void *b)
 {
-    uint32_t va = ((const from_utf8_lookup *) a)->utf8;
-    uint32_t vb = ((const from_utf8_lookup *) b)->utf8;
+    uint32_t va = ((const struct from_utf8_lookup_t *) a)->utf8;
+    uint32_t vb = ((const struct from_utf8_lookup_t *) b)->utf8;
     return va == vb ? 0 : (va < vb ? -1 : 1);
 }
 
@@ -191,12 +191,12 @@ static void build_reverse_lookup_table(void)
         return;
     }
     for (int i = 0; i < HIGH_CHAR_COUNT; i++) {
-        const letter_code *code = &data.to_utf8_table[i];
+        const struct letter_code_t *code = &data.to_utf8_table[i];
         data.from_utf8_table[i].code = code;
         data.from_utf8_table[i].utf8 = calculate_utf8_value(code->utf8_value, code->bytes);
     }
     data.utf8_table_size = HIGH_CHAR_COUNT;
-    qsort(data.from_utf8_table, data.utf8_table_size, sizeof(from_utf8_lookup), compare_utf8_lookup);
+    qsort(data.from_utf8_table, data.utf8_table_size, sizeof(struct from_utf8_lookup_t), compare_utf8_lookup);
 }
 
 static void build_decomposed_lookup_table(void)
@@ -207,7 +207,7 @@ static void build_decomposed_lookup_table(void)
     }
     int index = 0;
     for (int i = 0; i < HIGH_CHAR_COUNT; i++) {
-        const letter_code *code = &data.to_utf8_table[i];
+        const struct letter_code_t *code = &data.to_utf8_table[i];
         if (code->bytes_decomposed > 0) {
             data.from_utf8_decomposed_table[index].code = code;
             data.from_utf8_decomposed_table[index].utf8 =
@@ -216,10 +216,10 @@ static void build_decomposed_lookup_table(void)
         }
     }
     data.decomposed_table_size = index;
-    qsort(data.from_utf8_decomposed_table, data.decomposed_table_size, sizeof(from_utf8_lookup), compare_utf8_lookup);
+    qsort(data.from_utf8_decomposed_table, data.decomposed_table_size, sizeof(struct from_utf8_lookup_t), compare_utf8_lookup);
 }
 
-static const letter_code *get_letter_code_for_internal(uint8_t c)
+static const struct letter_code_t *get_letter_code_for_internal(uint8_t c)
 {
     if (c < 0x80 || !data.to_utf8_table) {
         return NULL;
@@ -255,16 +255,16 @@ static int is_combining_char(uint8_t b1, uint8_t b2)
     return 0;
 }
 
-static const letter_code *search_utf8_table(const from_utf8_lookup *key, const from_utf8_lookup *table, int size)
+static const struct letter_code_t *search_utf8_table(const struct from_utf8_lookup_t *key, const struct from_utf8_lookup_t *table, int size)
 {
-    const from_utf8_lookup *result = bsearch(key, table, size, sizeof(from_utf8_lookup), compare_utf8_lookup);
+    const struct from_utf8_lookup_t *result = bsearch(key, table, size, sizeof(struct from_utf8_lookup_t), compare_utf8_lookup);
     return result ? result->code : NULL;
 }
 
-static const letter_code *get_letter_code_for_utf8(const char *c, int *num_bytes, int *is_accent)
+static const struct letter_code_t *get_letter_code_for_utf8(const char *c, int *num_bytes, int *is_accent)
 {
-    static letter_code single_char = { 0, 1, {0, 0, 0}, 0, {0, 0, 0} };
-    from_utf8_lookup key = { 0, NULL };
+    static struct letter_code_t single_char = { 0, 1, {0, 0, 0}, 0, {0, 0, 0} };
+    struct from_utf8_lookup_t key = { 0, NULL };
     if (is_accent) *is_accent = 0;
     const uint8_t *uc = (const uint8_t *) c;
 
@@ -294,7 +294,7 @@ static const letter_code *get_letter_code_for_utf8(const char *c, int *num_bytes
     return search_utf8_table(&key, data.from_utf8_table, data.utf8_table_size);
 }
 
-static const letter_code *get_letter_code_for_combining_utf8(const char *prev_char, const char *combining_char)
+static const struct letter_code_t *get_letter_code_for_combining_utf8(const char *prev_char, const char *combining_char)
 {
     int prev_bytes, comb_bytes;
     uint32_t prev_code = get_utf8_code(prev_char, &prev_bytes);
@@ -311,11 +311,11 @@ static const letter_code *get_letter_code_for_combining_utf8(const char *prev_ch
     }
     code |= prev_code;
 
-    from_utf8_lookup key = { code, 0 };
+    struct from_utf8_lookup_t key = { code, 0 };
     return search_utf8_table(&key, data.from_utf8_decomposed_table, data.decomposed_table_size);
 }
 
-encoding_type encoding_determine(void)
+int encoding_determine(void)
 {
     // Determine encoding based on language:
     // - Windows-1252 (Western Europe) is used in all other languages
@@ -358,7 +358,7 @@ void encoding_to_utf8(const uint8_t *input, char *output, int output_length, int
             ++output;
         } else {
             // multi-byte char
-            const letter_code *code = get_letter_code_for_internal(c);
+            const struct letter_code_t *code = get_letter_code_for_internal(c);
             int num_bytes;
             const uint8_t *bytes;
             if (!code) {
@@ -401,7 +401,7 @@ void encoding_from_utf8(const char *input, uint8_t *output, int output_length)
             // multi-byte char
             int bytes;
             int is_accent;
-            const letter_code *code = get_letter_code_for_utf8(input, &bytes, &is_accent);
+            const struct letter_code_t *code = get_letter_code_for_utf8(input, &bytes, &is_accent);
             if (code) {
                 *output = code->internal_value;
             } else if (is_accent) {

@@ -16,7 +16,7 @@
 static void button_return_to_fort(int param1, int param2);
 static void button_layout(int index, int param2);
 
-static generic_button layout_buttons[] = {
+static struct generic_button_t layout_buttons[] = {
     {19, 139, 84, 84, button_layout, button_none, 0, 0},
     {104, 139, 84, 84, button_layout, button_none, 1, 0},
     {189, 139, 84, 84, button_layout, button_none, 2, 0},
@@ -24,17 +24,17 @@ static generic_button layout_buttons[] = {
     {359, 139, 84, 84, button_layout, button_none, 4, 0}
 };
 
-static generic_button return_button[] = {
+static struct generic_button_t return_button[] = {
     {0, 0, 288, 32, button_return_to_fort, button_none, 0, 0},
 };
 
 static struct {
     int focus_button_id;
     int return_button_id;
-    building_info_context *context_for_callback;
+    struct building_info_context_t *context_for_callback;
 } data;
 
-void window_building_draw_wall(building_info_context *c)
+void window_building_draw_wall(struct building_info_context_t *c)
 {
     c->help_id = 85;
     window_building_play_sound(c, "wavs/wall.wav");
@@ -43,7 +43,7 @@ void window_building_draw_wall(building_info_context *c)
     window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 158, 139, 1);
 }
 
-void window_building_draw_gatehouse(building_info_context *c)
+void window_building_draw_gatehouse(struct building_info_context_t *c)
 {
     c->help_id = 85;
     window_building_play_sound(c, "wavs/gatehouse.wav");
@@ -52,7 +52,7 @@ void window_building_draw_gatehouse(building_info_context *c)
     window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 158, 90, 1);
 }
 
-void window_building_draw_tower(building_info_context *c)
+void window_building_draw_tower(struct building_info_context_t *c)
 {
     c->help_id = 85;
     window_building_play_sound(c, "wavs/tower.wav");
@@ -73,7 +73,7 @@ void window_building_draw_tower(building_info_context *c)
     window_building_draw_employment(c, 142);
 }
 
-void window_building_draw_barracks(building_info_context *c)
+void window_building_draw_barracks(struct building_info_context_t *c)
 {
     c->help_id = 37;
     window_building_play_sound(c, "wavs/barracks.wav");
@@ -113,7 +113,7 @@ void window_building_draw_barracks(building_info_context *c)
     window_building_draw_employment(c, 142);
 }
 
-void window_building_draw_military_academy(building_info_context *c)
+void window_building_draw_military_academy(struct building_info_context_t *c)
 {
     c->help_id = 88;
     window_building_play_sound(c, "wavs/mil_acad.wav");
@@ -134,7 +134,7 @@ void window_building_draw_military_academy(building_info_context *c)
     window_building_draw_employment(c, 142);
 }
 
-void window_building_draw_fort(building_info_context *c)
+void window_building_draw_fort(struct building_info_context_t *c)
 {
     c->help_id = 87;
     window_building_play_sound(c, "wavs/fort.wav");
@@ -143,7 +143,7 @@ void window_building_draw_fort(building_info_context *c)
     window_building_draw_description_at(c, BLOCK_SIZE * c->height_blocks - 158, 89, legion_formations[c->formation_id].cursed_by_mars ? 1 : 2);
 }
 
-void window_building_draw_legion_info(building_info_context *c)
+void window_building_draw_legion_info(struct building_info_context_t *c)
 {
     int text_id;
     c->help_id = 87;
@@ -153,7 +153,7 @@ void window_building_draw_legion_info(building_info_context *c)
     lang_text_draw_centered(138, m->id, c->x_offset, c->y_offset + 10, BLOCK_SIZE * c->width_blocks, FONT_LARGE_BLACK);
     // animal symbol at the top of banner pole
     int icon_image_id = image_group(GROUP_FIGURE_FORT_STANDARD_ICONS) + m->id;
-    const image *icon_image = image_get(icon_image_id);
+    const struct image_t *icon_image = image_get(icon_image_id);
     image_draw(icon_image_id, c->x_offset + 16 + (40 - icon_image->width) / 2, c->y_offset + 16);
     // legion banner
     int flag_image_id = image_group(GROUP_FIGURE_FORT_FLAGS);
@@ -162,7 +162,7 @@ void window_building_draw_legion_info(building_info_context *c)
     } else if (m->figure_type == FIGURE_FORT_MOUNTED) {
         flag_image_id += 18;
     }
-    const image *flag_image = image_get(flag_image_id);
+    const struct image_t *flag_image = image_get(flag_image_id);
     image_draw(flag_image_id, c->x_offset + 16 + (40 - flag_image->width) / 2, c->y_offset + 16 + icon_image->height);
     // banner pole and morale ball
     int pole_image_id = image_group(GROUP_FIGURE_FORT_STANDARD_POLE) + 20 - m->morale / 5;
@@ -254,7 +254,7 @@ void window_building_draw_legion_info(building_info_context *c)
     }
 }
 
-void window_building_draw_legion_info_foreground(building_info_context *c)
+void window_building_draw_legion_info_foreground(struct building_info_context_t *c)
 {
     struct formation_t *m = &legion_formations[c->formation_id];
     if (!m->num_figures) {
@@ -342,10 +342,10 @@ void window_building_draw_legion_info_foreground(building_info_context *c)
     }
 }
 
-int window_building_handle_mouse_legion_info(const mouse *m, building_info_context *c)
+int window_building_handle_mouse_legion_info(const struct mouse_t *m, struct building_info_context_t *c)
 {
     data.context_for_callback = c;
-    int handled = generic_buttons_handle_mouse(m, c->x_offset, c->y_offset, layout_buttons, sizeof(layout_buttons) / sizeof(generic_button), &data.focus_button_id);
+    int handled = generic_buttons_handle_mouse(m, c->x_offset, c->y_offset, layout_buttons, sizeof(layout_buttons) / sizeof(struct generic_button_t), &data.focus_button_id);
     if (legion_formations[c->formation_id].figure_type == FIGURE_FORT_LEGIONARY) {
         if (data.focus_button_id == 2 || (data.focus_button_id == 1 && c->formation_types == 3)) {
             data.focus_button_id = 0;

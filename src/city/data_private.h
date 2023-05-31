@@ -10,14 +10,14 @@
 #include "city/resource.h"
 #include "map/point.h"
 
-typedef struct {
+struct god_status_t {
     int8_t happiness;
     int8_t target_happiness;
     int8_t wrath_bolts;
     int8_t blessing_done;
     int8_t small_curse_done;
     int32_t months_since_festival;
-} god_status;
+};
 
 extern struct city_data_t {
     struct {
@@ -39,7 +39,7 @@ extern struct city_data_t {
         int16_t working_docks;
         int16_t working_dock_ids[10];
         int32_t mission_post_operational;
-        map_point main_native_meeting;
+        struct map_point_t main_native_meeting;
     } building;
     struct {
         int16_t animals;
@@ -48,9 +48,9 @@ extern struct city_data_t {
         int32_t rioters;
         int32_t soldiers;
     } figure;
-    house_demands houses;
+    struct house_demands_t houses;
     struct {
-        emperor_gift gifts[3];
+        struct emperor_gift_t gifts[3];
         int32_t selected_gift_size;
         int32_t months_since_gift;
         int32_t gift_overdose_penalty;
@@ -97,8 +97,8 @@ extern struct city_data_t {
         int32_t tax_percentage;
         int32_t estimated_tax_income;
         int32_t estimated_wages;
-        finance_overview last_year;
-        finance_overview this_year;
+        struct finance_overview_t last_year;
+        struct finance_overview_t this_year;
         int32_t interest_so_far;
         int32_t salary_so_far;
         int32_t wages_so_far;
@@ -178,7 +178,7 @@ extern struct city_data_t {
         int32_t workers_needed;
         int32_t unemployment_percentage;
         int32_t unemployment_percentage_for_senate;
-        labor_category_data categories[10];
+        struct labor_category_data_t categories[10];
     } labor;
     struct {
         int32_t immigration_duration;
@@ -251,7 +251,7 @@ extern struct city_data_t {
         int32_t religion_coverage;
     } culture;
     struct {
-        god_status gods[5];
+        struct god_status_t gods[5];
         int32_t least_happy_god;
         int32_t angry_message_delay;
         int32_t venus_curse_active;
@@ -325,10 +325,10 @@ extern struct city_data_t {
         int32_t docker_export_resource;
     } trade;
     struct {
-        map_tile entry_point;
-        map_tile exit_point;
-        map_tile entry_flag;
-        map_tile exit_flag;
+        struct map_tile_t entry_point;
+        struct map_tile_t exit_point;
+        struct map_tile_t entry_flag;
+        struct map_tile_t exit_flag;
         struct {
             int32_t id;
             int32_t size;

@@ -319,7 +319,7 @@ void platform_screen_generate_mouse_cursor_texture(int cursor_id, int scale, con
         SDL_DestroyTexture(SDL.cursors[cursor_id]);
         SDL.cursors[cursor_id] = 0;
     }
-    const cursor *c = input_cursor_data(cursor_id, scale);
+    const struct cursor_t *c = input_cursor_data(cursor_id, scale);
     int size = platform_cursor_get_texture_size(c->width, c->height);
     SDL.cursors[cursor_id] = SDL_CreateTexture(SDL.renderer,
         SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC,

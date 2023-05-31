@@ -15,16 +15,15 @@ static struct {
     int window_width;
     int window_height;
     // sound settings
-    set_sound sound_effects;
-    set_sound sound_music;
-    set_sound sound_speech;
-    set_sound sound_city;
+    struct set_sound_t sound_effects;
+    struct set_sound_t sound_music;
+    struct set_sound_t sound_speech;
+    struct set_sound_t sound_city;
     // speed settings
     int game_speed;
     int scroll_speed;
     // misc settings
     int monthly_autosave;
-    set_tooltips tooltips;
     int warnings;
     int victory_video;
     // persistent game state
@@ -52,13 +51,12 @@ static void load_default_settings(void)
     data.scroll_speed = 70;
 
     data.monthly_autosave = 0;
-    data.tooltips = TOOLTIPS_NONE;
     data.warnings = 1;
     data.victory_video = 0;
     data.last_advisor = ADVISOR_LABOR;
 }
 
-static void load_settings(buffer *buf)
+static void load_settings(struct buffer_t *buf)
 {
     data.fullscreen = buffer_read_i32(buf);
     data.window_width = buffer_read_i32(buf);
@@ -77,7 +75,6 @@ static void load_settings(buffer *buf)
     data.scroll_speed = buffer_read_i32(buf);
 
     data.monthly_autosave = buffer_read_u8(buf);
-    data.tooltips = buffer_read_i32(buf);
     data.warnings = buffer_read_u8(buf);
     data.victory_video = buffer_read_i32(buf);
     data.last_advisor = buffer_read_i32(buf);
@@ -92,7 +89,7 @@ void settings_load(void)
         return;
     }
 
-    buffer buf;
+    struct buffer_t buf;
     buffer_init(&buf, data.inf_file, size);
     load_settings(&buf);
 
@@ -108,8 +105,8 @@ void settings_load(void)
 
 void settings_save(void)
 {
-    buffer b;
-    buffer *buf = &b;
+    struct buffer_t b;
+    struct buffer_t *buf = &b;
     buffer_init(buf, data.inf_file, INF_SIZE);
 
     buffer_write_i32(buf, data.fullscreen);
@@ -129,7 +126,6 @@ void settings_save(void)
     buffer_write_i32(buf, data.scroll_speed);
 
     buffer_write_u8(buf, data.monthly_autosave);
-    buffer_write_i32(buf, data.tooltips);
     buffer_write_u8(buf, data.warnings);
     buffer_write_i32(buf, data.victory_video);
     buffer_write_i32(buf, data.last_advisor);
@@ -157,7 +153,7 @@ void setting_set_display(int fullscreen, int width, int height)
     }
 }
 
-static set_sound *get_sound(set_sound_type type)
+static struct set_sound_t *get_sound(int type)
 {
     switch (type) {
         case SOUND_MUSIC: return &data.sound_music;
@@ -168,38 +164,38 @@ static set_sound *get_sound(set_sound_type type)
     }
 }
 
-const set_sound *setting_sound(set_sound_type type)
+struct set_sound_t *setting_sound(int type)
 {
     return get_sound(type);
 }
 
-void setting_toggle_sound_enabled(set_sound_type type)
+void setting_toggle_sound_enabled(int type)
 {
-    set_sound *sound = get_sound(type);
+    struct set_sound_t *sound = get_sound(type);
     if (sound) {
         sound->enabled = sound->enabled ? 0 : 1;
     }
 }
 
-void setting_increase_sound_volume(set_sound_type type)
+void setting_increase_sound_volume(int type)
 {
-    set_sound *sound = get_sound(type);
+    struct set_sound_t *sound = get_sound(type);
     if (sound) {
         sound->volume = calc_bound(sound->volume + 1, 0, 100);
     }
 }
 
-void setting_decrease_sound_volume(set_sound_type type)
+void setting_decrease_sound_volume(int type)
 {
-    set_sound *sound = get_sound(type);
+    struct set_sound_t *sound = get_sound(type);
     if (sound) {
         sound->volume = calc_bound(sound->volume - 1, 0, 100);
     }
 }
 
-void setting_reset_sound(set_sound_type type, int enabled, int volume)
+void setting_reset_sound(int type, int enabled, int volume)
 {
-    set_sound *sound = get_sound(type);
+    struct set_sound_t *sound = get_sound(type);
     if (sound) {
         sound->enabled = enabled;
         sound->volume = calc_bound(volume, 0, 100);
@@ -250,20 +246,6 @@ void setting_reset_speeds(int game_speed, int scroll_speed)
 {
     data.game_speed = game_speed;
     data.scroll_speed = scroll_speed;
-}
-
-set_tooltips setting_tooltips(void)
-{
-    return data.tooltips;
-}
-
-void setting_cycle_tooltips(void)
-{
-    switch (data.tooltips) {
-        case TOOLTIPS_NONE: data.tooltips = TOOLTIPS_SOME; break;
-        case TOOLTIPS_SOME: data.tooltips = TOOLTIPS_FULL; break;
-        default: data.tooltips = TOOLTIPS_NONE; break;
-    }
 }
 
 int setting_warnings(void)

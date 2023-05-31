@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-typedef enum {
+enum {
     FONT_NORMAL_PLAIN,
     FONT_NORMAL_BLACK,
     FONT_NORMAL_WHITE,
@@ -17,10 +17,10 @@ typedef enum {
     FONT_NORMAL_GREEN,
     FONT_NORMAL_BROWN,
     FONT_TYPES_MAX
-} font_t;
+};
 
-typedef struct {
-    font_t font;
+struct font_definition_t {
+    int font;
     int image_offset;
     int multibyte_image_offset;
     int space_width;
@@ -35,7 +35,7 @@ typedef struct {
     * @return Offset to subtract from y coordinate
     */
     int (*image_y_offset)(uint8_t c, int image_height, int line_height);
-} font_definition;
+};
 
 void font_set_encoding(void);
 
@@ -44,7 +44,7 @@ void font_set_encoding(void);
  * @param font Font
  * @return Font definition
  */
-const font_definition *font_definition_for(font_t font);
+const struct font_definition_t *font_definition_for(int font);
 
 /**
  * Checks whether the font has a glyph for the passed character
@@ -60,6 +60,6 @@ int font_can_display(const uint8_t *character);
  * @param num_bytes Out: number of bytes consumed by letter
  * @return Letter ID to feed into image_letter(), or -1 if c is no letter
  */
-int font_letter_id(const font_definition *def, const uint8_t *str, int *num_bytes);
+int font_letter_id(const struct font_definition_t *def, const uint8_t *str, int *num_bytes);
 
 #endif // GRAPHICS_FONT_H

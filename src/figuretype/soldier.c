@@ -152,7 +152,7 @@ void figure_soldier_action(struct figure_t *f)
             f->image_offset = 0;
             map_figure_update(f);
             if (f->type == FIGURE_FORT_JAVELIN) {
-                map_point tile = { -1, -1 };
+                struct map_point_t tile = { -1, -1 };
                 if (f->wait_ticks_missile > figure_properties[f->type].missile_delay && set_missile_target(f, &tile)) {
                     f->is_shooting = 1;
                     f->wait_ticks_missile = 0;
