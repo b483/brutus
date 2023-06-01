@@ -124,15 +124,13 @@ static void add_link(int message_id, int x_start, int x_end, int y)
     }
 }
 
-static int get_word_width(const uint8_t *str, int in_link, int *num_chars)
+static int get_word_width(const uint8_t *str, int *num_chars)
 {
     int width = 0;
     int guard = 0;
     int word_char_seen = 0;
-    int start_link = 0;
     *num_chars = 0;
     while (*str && ++guard < 2000) {
-        int num_bytes = 1;
         if (*str == ' ') {
             if (word_char_seen) {
                 break;
@@ -140,32 +138,20 @@ static int get_word_width(const uint8_t *str, int in_link, int *num_chars)
             width += 4;
         } else if (*str > ' ') {
             // normal char
-            int letter_id = font_letter_id(data.normal_font, str, &num_bytes);
+            int letter_id = font_letter_id(data.normal_font, str);
             if (letter_id >= 0) {
                 width += 1 + image_letter(letter_id)->width;
             }
             word_char_seen = 1;
-            if (num_bytes > 1) {
-                if (start_link) {
-                    // add space before links in multibyte charsets
-                    width += 4;
-                    start_link = 0;
-                }
-                if (!in_link) {
-                    *num_chars += num_bytes;
-                    break;
-                }
-            }
         }
-        str += num_bytes;
-        *num_chars += num_bytes;
+        str += 1;
+        *num_chars += 1;
     }
     return width;
 }
 
 static void draw_line(const uint8_t *str, int x, int y, color_t color, int measure_only)
 {
-    int start_link = 0;
     int num_link_chars = 0;
     while (*str) {
         if (*str == '@') {
@@ -173,37 +159,29 @@ static void draw_line(const uint8_t *str, int x, int y, color_t color, int measu
             while (*str >= '0' && *str <= '9') {
                 str++;
             }
-            int width = get_word_width(str, 1, &num_link_chars);
+            int width = get_word_width(str, &num_link_chars);
             add_link(message_id, x, x + width, y);
-            start_link = 1;
         }
         if (*str >= ' ') {
             const struct font_definition_t *def = data.normal_font;
             if (num_link_chars > 0) {
                 def = data.link_font;
             }
-
-            int num_bytes = 1;
-            int letter_id = font_letter_id(def, str, &num_bytes);
+            int letter_id = font_letter_id(def, str);
             if (letter_id < 0) {
                 x += def->space_width;
             } else {
-                if (num_bytes > 1 && start_link) {
-                    // add space before links in multibyte charsets
-                    x += def->space_width;
-                    start_link = 0;
-                }
                 const struct image_t *img = image_letter(letter_id);
                 if (!measure_only) {
                     int height = def->image_y_offset(*str, img->height, def->line_height);
-                    image_draw_letter(def->font, letter_id, x, y - height, color);
+                    image_draw_letter(letter_id, x, y - height, color);
                 }
                 x += img->width + def->letter_spacing;
             }
             if (num_link_chars > 0) {
-                num_link_chars -= num_bytes;
+                num_link_chars -= 1;
             }
-            str += num_bytes;
+            str += 1;
         } else {
             str++;
         }
@@ -240,7 +218,7 @@ static int draw_text(const uint8_t *text, int x_offset, int y_offset,
                 break;
             }
             int word_num_chars;
-            current_width += get_word_width(text, 0, &word_num_chars);
+            current_width += get_word_width(text, &word_num_chars);
             if (current_width >= box_width) {
                 if (current_width == 0) {
                     has_more_characters = 0;

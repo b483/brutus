@@ -12,7 +12,6 @@
 #include "city/victory.h"
 #include "city/view.h"
 #include "core/config.h"
-#include "core/encoding.h"
 #include "core/file.h"
 #include "core/image.h"
 #include "core/io.h"
@@ -181,12 +180,9 @@ int game_file_start_scenario(const char *scenario_selected)
     // assume scenario can be passed in with or without .map extension
     char scenario_file[FILE_NAME_MAX];
     strncpy(scenario_file, scenario_selected, FILE_NAME_MAX - 1);
-    uint8_t scenario_name[FILE_NAME_MAX];
-    encoding_from_utf8(scenario_selected, scenario_name, FILE_NAME_MAX);
-    if (file_has_extension(scenario_file, "map")) {
-        file_remove_extension(scenario_name);
-    } else {
+    if (!file_has_extension(scenario_file, "map")) {
         file_append_extension(scenario_file, "map");
+
     }
     if (!file_exists(MAPS_DIR_PATH, scenario_file)) {
         return 0;
@@ -200,7 +196,10 @@ int game_file_start_scenario(const char *scenario_selected)
     }
     trade_prices_reset();
 
-    initialize_scenario_data(scenario_name);
+    if (file_has_extension(scenario_file, "map")) {
+        file_remove_extension((uint8_t *) scenario_file);
+    }
+    initialize_scenario_data((const uint8_t *) scenario_file); // requires map name only w/o ext
     set_player_name_from_config();
     city_emperor_init_scenario();
     map_building_menu_items();

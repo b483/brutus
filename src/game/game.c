@@ -25,19 +25,6 @@
 #include "window/logo.h"
 #include "window/main_menu.h"
 
-static void errlog(const char *msg)
-{
-    log_error(msg, 0, 0);
-}
-
-static int update_encoding(void)
-{
-    int encoding = encoding_determine();
-    log_info("Detected encoding:", 0, encoding);
-    font_set_encoding();
-    return encoding;
-}
-
 int game_pre_init(void)
 {
     settings_load();
@@ -46,10 +33,10 @@ int game_pre_init(void)
     game_state_unpause();
 
     if (!lang_load(0)) {
-        errlog("'c3.eng' or 'c3_mm.eng' files not found or too large.");
+        log_error("'c3.eng' or 'c3_mm.eng' files not found or too large.", 0, 0);
         return 0;
     }
-    update_encoding();
+    font_set_encoding();
     random_init();
     return 1;
 }
@@ -66,15 +53,15 @@ static int is_unpatched(void)
 int game_init(void)
 {
     if (!image_init()) {
-        errlog("unable to init graphics");
+        log_error("unable to init graphics", 0, 0);
         return 0;
     }
     if (!image_load_climate(CLIMATE_NORTHERN, 0, 1)) {
-        errlog("unable to load main graphics");
+        log_error("unable to load main graphics", 0, 0);
         return 0;
     }
     if (!image_load_enemy()) {
-        errlog("unable to load enemy graphics");
+        log_error("unable to load enemy graphics", 0, 0);
         return 0;
     }
 
@@ -89,15 +76,15 @@ static int reload_language(int is_editor, int reload_images)
 {
     if (!lang_load(is_editor)) {
         if (is_editor) {
-            errlog("'c3_map.eng' or 'c3_map_mm.eng' files not found or too large.");
+            log_error("'c3_map.eng' or 'c3_map_mm.eng' files not found or too large.", 0, 0);
         } else {
-            errlog("'c3.eng' or 'c3_mm.eng' files not found or too large.");
+            log_error("'c3.eng' or 'c3_mm.eng' files not found or too large.", 0, 0);
         }
         return 0;
     }
 
     if (!image_load_climate(scenario.climate, is_editor, reload_images)) {
-        errlog("unable to load main graphics");
+        log_error("unable to load main graphics", 0, 0);
         return 0;
     }
     return 1;

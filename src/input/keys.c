@@ -1,6 +1,5 @@
 #include "keys.h"
 
-#include "core/encoding.h"
 #include "game/system.h"
 #include "graphics/font.h"
 
@@ -109,20 +108,9 @@ int key_combination_from_name(const char *name, int *key, int *modifiers)
     return 1;
 }
 
-static int can_display(const char *key_name)
-{
-    if (!encoding_can_display(key_name)) {
-        return 0;
-    }
-    uint8_t internal_name[10];
-    encoding_from_utf8(key_name, internal_name, 10);
-    return font_can_display(internal_name);
-}
-
 const uint8_t *key_combination_display_name(int key, int modifiers)
 {
     static char result[100];
-    static uint8_t str_result[100];
 
     result[0] = 0;
     if (modifiers & KEY_MOD_CTRL) {
@@ -166,13 +154,12 @@ const uint8_t *key_combination_display_name(int key, int modifiers)
             case '\0': key_name = key_display_names[key];
         }
         strcat(result, key_name);
-    } else if (can_display(key_name)) {
+    } else if (font_can_display((unsigned char *) key_name)) {
         strcat(result, key_name);
     } else {
         strcat(result, "? (");
         strcat(result, key_display_names[key]);
         strcat(result, ")");
     }
-    encoding_from_utf8(result, str_result, 100);
-    return str_result;
+    return (const uint8_t *) result;
 }

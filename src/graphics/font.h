@@ -1,8 +1,6 @@
 #ifndef GRAPHICS_FONT_H
 #define GRAPHICS_FONT_H
 
-#include "core/encoding.h"
-
 #include <stdint.h>
 
 enum {
@@ -22,7 +20,6 @@ enum {
 struct font_definition_t {
     int font;
     int image_offset;
-    int multibyte_image_offset;
     int space_width;
     int letter_spacing;
     int line_height;
@@ -57,9 +54,8 @@ int font_can_display(const uint8_t *character);
  * Gets the letter ID for the specified character and font
  * @param def Font definition
  * @param str Character string
- * @param num_bytes Out: number of bytes consumed by letter
  * @return Letter ID to feed into image_letter(), or -1 if c is no letter
  */
-int font_letter_id(const struct font_definition_t *def, const uint8_t *str, int *num_bytes);
+int font_letter_id(const struct font_definition_t *def, const uint8_t *str);
 
 #endif // GRAPHICS_FONT_H

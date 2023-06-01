@@ -1,12 +1,9 @@
 #ifndef CORE_IMAGE_H
 #define CORE_IMAGE_H
 
-#include "core/encoding.h"
 #include "core/image_group.h"
 #include "figure/figure.h"
 #include "graphics/color.h"
-
-#define IMAGE_FONT_MULTIBYTE_OFFSET 10000
 
 enum {
     IMAGE_TYPE_WITH_TRANSPARENCY = 0,

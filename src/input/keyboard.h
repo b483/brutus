@@ -31,7 +31,7 @@ void keyboard_right(void);
 void keyboard_home(void);
 void keyboard_end(void);
 
-void keyboard_text(const char *text_utf8);
+void keyboard_text(const char *text);
 
 const uint8_t *keyboard_get_text(void);
 void keyboard_set_text(const uint8_t *text);

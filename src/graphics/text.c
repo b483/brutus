@@ -70,7 +70,7 @@ int text_get_width(const uint8_t *str, int font)
         if (*str == ' ') {
             width += def->space_width;
         } else {
-            int letter_id = font_letter_id(def, str, &num_bytes);
+            int letter_id = font_letter_id(def, str);
             if (letter_id >= 0) {
                 width += def->letter_spacing + image_letter(letter_id)->width;
             }
@@ -87,7 +87,7 @@ static int get_letter_width(const uint8_t *str, const struct font_definition_t *
     if (*str == ' ') {
         return def->space_width;
     }
-    int letter_id = font_letter_id(def, str, num_bytes);
+    int letter_id = font_letter_id(def, str);
     if (letter_id >= 0) {
         return def->letter_spacing + image_letter(letter_id)->width;
     } else {
@@ -146,23 +146,22 @@ void text_ellipsize(uint8_t *str, int font, int requested_width)
     int width = 0;
     int length_with_ellipsis = 0;
     while (*str && maxlen > 0) {
-        int num_bytes = 1;
         if (*str == ' ') {
             width += def->space_width;
         } else {
-            int letter_id = font_letter_id(def, str, &num_bytes);
+            int letter_id = font_letter_id(def, str);
             if (letter_id >= 0) {
                 width += def->letter_spacing + image_letter(letter_id)->width;
             }
         }
         if (ellipsis_width + width <= requested_width) {
-            length_with_ellipsis += num_bytes;
+            length_with_ellipsis += 1;
         }
         if (width > requested_width) {
             break;
         }
-        str += num_bytes;
-        maxlen -= num_bytes;
+        str += 1;
+        maxlen -= 1;
     }
     if (10000 - maxlen < string_length(orig_str)) {
         string_copy(ellipsis.string, orig_str + length_with_ellipsis, ELLIPSIS_LENGTH);
@@ -189,15 +188,11 @@ static int get_word_width(const uint8_t *str, int font, int *out_num_chars)
             }
         } else if (*str > ' ') {
             // normal char
-            int letter_id = font_letter_id(def, str, &num_bytes);
+            int letter_id = font_letter_id(def, str);
             if (letter_id >= 0) {
                 width += image_letter(letter_id)->width + def->letter_spacing;
             }
             word_char_seen = 1;
-            if (num_bytes > 1) {
-                num_chars += num_bytes;
-                break;
-            }
         }
         str += num_bytes;
         num_chars += num_bytes;
@@ -235,17 +230,15 @@ int text_draw(const uint8_t *str, int x, int y, int font, color_t color)
 
     int current_x = x;
     while (length > 0) {
-        int num_bytes = 1;
-
         if (*str >= ' ') {
-            int letter_id = font_letter_id(def, str, &num_bytes);
+            int letter_id = font_letter_id(def, str);
             int width;
             if (*str == ' ' || *str == '_' || letter_id < 0) {
                 width = def->space_width;
             } else {
                 const struct image_t *img = image_letter(letter_id);
                 int height = def->image_y_offset(*str, img->height, def->line_height);
-                image_draw_letter(def->font, letter_id, current_x, y - height, color);
+                image_draw_letter(letter_id, current_x, y - height, color);
                 width = def->letter_spacing + img->width;
             }
             if (input_cursor.capture && input_cursor.position == input_cursor.cursor_position) {
@@ -258,9 +251,9 @@ int text_draw(const uint8_t *str, int x, int y, int font, color_t color)
             current_x += width;
         }
 
-        str += num_bytes;
-        length -= num_bytes;
-        input_cursor.position += num_bytes;
+        str += 1;
+        length -= 1;
+        input_cursor.position += 1;
     }
     if (input_cursor.capture && !input_cursor.seen) {
         input_cursor.width = 4;

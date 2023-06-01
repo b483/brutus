@@ -72,8 +72,8 @@ void file_remove_extension(uint8_t *filename)
 int file_exists(const char *dir, const char *filename)
 {
     if (dir) {
-        static char filepath_to_save[FILE_NAME_MAX];
-        filepath_to_save[FILE_NAME_MAX - 1] = 0;
+        static char filepath_to_save[DIR_PATH_MAX];
+        filepath_to_save[DIR_PATH_MAX - 1] = 0;
         prepend_dir_to_path(dir, filename, filepath_to_save);
         if (access(filepath_to_save, F_OK) == 0) {
             return 1;

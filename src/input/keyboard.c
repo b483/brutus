@@ -2,7 +2,6 @@
 
 #include "SDL.h"
 
-#include "core/encoding.h"
 #include "core/string.h"
 #include "game/system.h"
 #include "graphics/text.h"
@@ -27,16 +26,6 @@ static struct {
     int box_width;
     int font;
 } data;
-
-static int get_char_bytes(const uint8_t *str)
-{
-    return str[0] >= 0x80 && encoding_is_multibyte() ? 2 : 1;
-}
-
-static int get_current_char_bytes(void)
-{
-    return get_char_bytes(&data.text[data.cursor_position]);
-}
 
 static void set_viewport_to_start(void)
 {
@@ -74,7 +63,7 @@ static void include_cursor_in_viewport(void)
         }
     } else {
         // move toward end
-        int viewport_length = data.cursor_position + get_current_char_bytes();
+        int viewport_length = data.cursor_position + 1;
         int maxlen = text_get_max_length_for_width(
             data.text, viewport_length, data.font, data.box_width, 1);
         if (maxlen < viewport_length) {
@@ -222,7 +211,7 @@ static void move_cursor_left(void)
 
 static void move_cursor_right(void)
 {
-    data.cursor_position += get_current_char_bytes();
+    data.cursor_position += 1;
 }
 
 static void insert_char(const uint8_t *value, int bytes)
@@ -240,11 +229,10 @@ static void insert_char(const uint8_t *value, int bytes)
 
 static void remove_current_char(void)
 {
-    int bytes = get_current_char_bytes();
-    for (int i = 0; i < bytes; i++) {
-        move_left(&data.text[data.cursor_position], &data.text[data.length]);
-    }
-    data.length -= bytes;
+
+    move_left(&data.text[data.cursor_position], &data.text[data.length]);
+
+    data.length -= 1;
 }
 
 void keyboard_backspace(void)
@@ -319,18 +307,17 @@ static int keyboard_character(uint8_t *text)
         add = 1;
     }
 
-    int bytes = get_char_bytes(text);
     if (add) {
-        insert_char(text, bytes);
+        insert_char(text, 1);
         update_viewport(1);
     }
-    return bytes;
+    return 1;
 }
 
-void keyboard_text(const char *text_utf8)
+void keyboard_text(const char *text)
 {
     if (data.capture_numeric) {
-        char c = text_utf8[0];
+        char c = text[0];
         if (c >= '0' && c <= '9') {
             data.capture_numeric_callback(c - '0');
         }
@@ -340,12 +327,9 @@ void keyboard_text(const char *text_utf8)
         return;
     }
 
-    uint8_t internal_char[100];
-    encoding_from_utf8(text_utf8, internal_char, 100);
-
     int index = 0;
-    while (internal_char[index]) {
-        index += keyboard_character(&internal_char[index]);
+    while (text[index]) {
+        index += keyboard_character((uint8_t *) &text[index]);
     }
 }
 

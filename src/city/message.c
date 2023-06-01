@@ -1,6 +1,5 @@
 #include "message.h"
 
-#include "core/encoding.h"
 #include "core/file.h"
 #include "core/lang.h"
 #include "core/string.h"
@@ -94,17 +93,6 @@ void city_message_init_problem_areas(void)
     data.problem_last_click_time = time_get_millis();
 }
 
-static int has_video(int text_id)
-{
-    const struct lang_message_t *msg = lang_get_message(text_id);
-    if (!msg->video.text) {
-        return 0;
-    }
-    char video_file[FILE_NAME_MAX];
-    encoding_to_utf8(msg->video.text, video_file, FILE_NAME_MAX, 0);
-    return file_exists(0, video_file);
-}
-
 static void play_sound(int text_id)
 {
     if (lang_get_message(text_id)->urgent == 1) {
@@ -119,7 +107,8 @@ static void show_message_popup(int message_id)
     data.consecutive_message_delay = 5;
     data.messages[message_id].is_read = 1;
     int text_id = city_message_get_text_id(data.messages[message_id].message_type);
-    if (!has_video(text_id)) {
+    const struct lang_message_t *msg = lang_get_message(text_id);
+    if (!msg->video.text || !file_exists(0, (char *) msg->video.text)) { // does not have video
         play_sound(text_id);
     }
     window_message_dialog_show_city_message(text_id,

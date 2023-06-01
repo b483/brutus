@@ -2,7 +2,6 @@
 
 #include "core/calc.h"
 #include "core/dir.h"
-#include "core/encoding.h"
 #include "core/file.h"
 #include "core/lang.h"
 #include "core/string.h"
@@ -111,9 +110,7 @@ static void scroll_to_typed_text(void)
         // No need to scroll
         return;
     }
-    char name_utf8[FILE_NAME_MAX];
-    encoding_to_utf8(data.typed_name, name_utf8, FILE_NAME_MAX, 0);
-    int index = find_first_file_with_prefix(name_utf8);
+    int index = find_first_file_with_prefix((const char *) data.typed_name);
     if (index >= 0) {
         scrollbar_reset(&scrollbar, calc_bound(index, 0, data.file_list->num_files - NUM_FILES_IN_VIEW));
     }
@@ -130,7 +127,7 @@ static void init(int type, int dialog_type)
     data.focus_button_id = 0;
 
     if (strlen(data.file_data->last_loaded_file) > 0) {
-        encoding_from_utf8(data.file_data->last_loaded_file, data.typed_name, FILE_NAME_MAX);
+        strncpy((char *) data.typed_name, data.file_data->last_loaded_file, FILE_NAME_MAX);
         file_remove_extension(data.typed_name);
     } else if (dialog_type == FILE_DIALOG_SAVE) {
         // Suggest default filename
@@ -178,7 +175,7 @@ static void draw_foreground(void)
         if (data.focus_button_id == i + 1) {
             font = FONT_NORMAL_WHITE;
         }
-        encoding_from_utf8(data.file_list->files[scrollbar.scroll_position + i], file, FILE_NAME_MAX);
+        strncpy((char *) file, data.file_list->files[scrollbar.scroll_position + i], FILE_NAME_MAX);
         file_remove_extension(file);
         text_ellipsize(file, font, MAX_FILE_WINDOW_TEXT_WIDTH);
         text_draw(file, 160, 130 + 16 * i, font, 0);
@@ -236,7 +233,7 @@ static const char *get_chosen_filename(void)
 {
     // Check if we should work with the selected file
     uint8_t selected_name[FILE_NAME_MAX];
-    encoding_from_utf8(data.selected_file, selected_name, FILE_NAME_MAX);
+    strncpy((char *) selected_name, data.selected_file, FILE_NAME_MAX);
     file_remove_extension(selected_name);
 
     if (string_equals(selected_name, data.typed_name)) {
@@ -244,9 +241,9 @@ static const char *get_chosen_filename(void)
         return data.selected_file;
     }
 
-    // We should use the typed name, which needs to be converted to UTF-8...
+    // We should use the typed name
     static char typed_file[FILE_NAME_MAX];
-    encoding_to_utf8(data.typed_name, typed_file, FILE_NAME_MAX, 0);
+    strncpy(typed_file, (char *) data.typed_name, FILE_NAME_MAX);
     file_append_extension(typed_file, data.file_data->extension);
     return typed_file;
 }
@@ -323,7 +320,7 @@ static void button_select_file(int index, __attribute__((unused)) int param2)
 {
     if (index < data.file_list->num_files) {
         strncpy(data.selected_file, data.file_list->files[scrollbar.scroll_position + index], FILE_NAME_MAX - 1);
-        encoding_from_utf8(data.selected_file, data.typed_name, FILE_NAME_MAX);
+        strncpy((char *) data.typed_name, data.selected_file, FILE_NAME_MAX);
         file_remove_extension(data.typed_name);
         string_copy(data.typed_name, data.previously_seen_typed_name, FILE_NAME_MAX);
         input_box_refresh_text(&file_name_input);

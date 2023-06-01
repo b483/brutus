@@ -24,26 +24,21 @@ static const int CHAR_TO_FONT_IMAGE_DEFAULT[] = {
 };
 
 static const struct font_definition_t DEFINITIONS_DEFAULT[] = {
-    {FONT_NORMAL_PLAIN,   0, 0, 6, 1, 11, image_y_offset_default},
-    {FONT_NORMAL_BLACK, 134, 0, 6, 0, 11, image_y_offset_default},
-    {FONT_NORMAL_WHITE, 268, 0, 6, 0, 11, image_y_offset_default},
-    {FONT_NORMAL_RED,   402, 0, 6, 0, 11, image_y_offset_default},
-    {FONT_LARGE_PLAIN,  536, 0, 8, 1, 23, image_y_offset_default},
-    {FONT_LARGE_BLACK,  670, 0, 8, 0, 23, image_y_offset_default},
-    {FONT_LARGE_BROWN,  804, 0, 8, 0, 24, image_y_offset_default},
-    {FONT_SMALL_PLAIN,  938, 0, 4, 1, 9, image_y_offset_default},
-    {FONT_NORMAL_GREEN,1072, 0, 6, 0, 11, image_y_offset_default},
-    {FONT_NORMAL_BROWN, 1206, 0, 6, 0, 11, image_y_offset_default}
-};
-
-enum {
-    MULTIBYTE_NONE = 0,
+    {FONT_NORMAL_PLAIN, 0, 6, 1, 11, image_y_offset_default},
+    {FONT_NORMAL_BLACK, 134, 6, 0, 11, image_y_offset_default},
+    {FONT_NORMAL_WHITE, 268, 6, 0, 11, image_y_offset_default},
+    {FONT_NORMAL_RED, 402, 6, 0, 11, image_y_offset_default},
+    {FONT_LARGE_PLAIN, 536, 8, 1, 23, image_y_offset_default},
+    {FONT_LARGE_BLACK, 670, 8, 0, 23, image_y_offset_default},
+    {FONT_LARGE_BROWN, 804, 8, 0, 24, image_y_offset_default},
+    {FONT_SMALL_PLAIN, 938, 4, 1, 9, image_y_offset_default},
+    {FONT_NORMAL_GREEN, 1072, 6, 0, 11, image_y_offset_default},
+    {FONT_NORMAL_BROWN, 1206, 6, 0, 11, image_y_offset_default}
 };
 
 static struct {
     const int *font_mapping;
     const struct font_definition_t *font_definitions;
-    int multibyte;
 } data;
 
 static int image_y_offset_default(uint8_t c, int image_height, int line_height)
@@ -60,7 +55,6 @@ static int image_y_offset_default(uint8_t c, int image_height, int line_height)
 
 void font_set_encoding(void)
 {
-    data.multibyte = MULTIBYTE_NONE;
     data.font_mapping = CHAR_TO_FONT_IMAGE_DEFAULT;
     data.font_definitions = DEFINITIONS_DEFAULT;
 }
@@ -72,13 +66,11 @@ const struct font_definition_t *font_definition_for(int font)
 
 int font_can_display(const uint8_t *character)
 {
-    int dummy;
-    return font_letter_id(&data.font_definitions[FONT_NORMAL_BLACK], character, &dummy) >= 0;
+    return font_letter_id(&data.font_definitions[FONT_NORMAL_BLACK], character) >= 0;
 }
 
-int font_letter_id(const struct font_definition_t *def, const uint8_t *str, int *num_bytes)
+int font_letter_id(const struct font_definition_t *def, const uint8_t *str)
 {
-    *num_bytes = 1;
     if (!data.font_mapping[*str]) {
         return -1;
     }

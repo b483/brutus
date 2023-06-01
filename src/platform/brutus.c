@@ -1,7 +1,6 @@
 #include "SDL.h"
 
 #include "core/config.h"
-#include "core/encoding.h"
 #include "core/file.h"
 #include "core/lang.h"
 #include "core/time.h"
@@ -458,9 +457,7 @@ static void setup(struct brutus_args_t *args)
         config_set(CONFIG_SCREEN_CURSOR_SCALE, args->cursor_scale_percentage);
     }
 
-    char title[100];
-    encoding_to_utf8(lang_get_string(9, 0), title, 100, 0);
-    if (!platform_screen_create(title, config_get(CONFIG_SCREEN_DISPLAY_SCALE))) {
+    if (!platform_screen_create("Caesar III", config_get(CONFIG_SCREEN_DISPLAY_SCALE))) {
         SDL_Log("Exiting: SDL create window failed");
         exit_with_status(-2);
     }

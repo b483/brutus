@@ -241,10 +241,10 @@ void window_editor_edit_invasion_show(int id)
         handle_input,
     };
     data.id = id;
-    for (int i = 0; i <= INVASION_TYPE_MAX_COUNT; i++) {
+    for (int i = 0; i < INVASION_TYPE_MAX_COUNT; i++) {
         data.invasion_type_names[i] = invasions_enemy_army_type_strings[i];
     }
-    for (int i = 0; i <= ENEMY_TYPE_MAX_COUNT; i++) {
+    for (int i = 0; i < ENEMY_TYPE_MAX_COUNT; i++) {
         data.enemy_type_names[i] = invasions_enemy_type_strings[i];
     }
     window_show(&window);

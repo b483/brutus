@@ -1,7 +1,6 @@
 #include "cck_selection.h"
 
 #include "core/dir.h"
-#include "core/encoding.h"
 #include "core/file.h"
 #include "core/image_group.h"
 #include "game/file.h"
@@ -86,7 +85,6 @@ static void draw_scenario_list(void)
 {
     inner_panel_draw(16, 210, 16, 16);
     char file[FILE_NAME_MAX];
-    uint8_t displayable_file[FILE_NAME_MAX];
     for (int i = 0; i < MAX_SCENARIOS; i++) {
         if (i >= data.scenarios->num_files) {
             break;
@@ -96,10 +94,9 @@ static void draw_scenario_list(void)
             font = FONT_NORMAL_WHITE;
         }
         strncpy(file, data.scenarios->files[i + scrollbar.scroll_position], FILE_NAME_MAX - 1);
-        encoding_from_utf8(file, displayable_file, FILE_NAME_MAX);
-        file_remove_extension(displayable_file);
-        text_ellipsize(displayable_file, font, 240);
-        text_draw(displayable_file, 24, 220 + 16 * i, font, 0);
+        file_remove_extension((uint8_t *) file);
+        text_ellipsize((uint8_t *) file, font, 240);
+        text_draw((uint8_t *) file, 24, 220 + 16 * i, font, 0);
     }
     if (data.scenarios->file_overflow) {
         text_draw(too_many_files_string, 35, 186, FONT_NORMAL_PLAIN, COLOR_RED);
@@ -116,8 +113,7 @@ static void draw_scenario_info(void)
     image_draw(image_group(GROUP_SCENARIO_IMAGE) + scenario.brief_description_image_id, 77, 37);
 
     text_ellipsize(data.selected_scenario_display, FONT_LARGE_BLACK, scenario_info_width + 10);
-    text_draw_centered(data.selected_scenario_display,
-        scenario_info_x, 25, scenario_info_width + 10, FONT_LARGE_BLACK, 0);
+    text_draw_centered(data.selected_scenario_display, scenario_info_x, 25, scenario_info_width + 10, FONT_LARGE_BLACK, 0);
     text_draw_centered(scenario.brief_description, scenario_info_x, 60, scenario_info_width, FONT_NORMAL_WHITE, 0);
     lang_text_draw_year(scenario.start_year, scenario_criteria_x, 90, FONT_LARGE_BLACK);
 
@@ -270,7 +266,7 @@ static void button_select_item(int index, __attribute__((unused)) int param2)
     data.selected_item = scrollbar.scroll_position + index;
     strncpy(data.selected_scenario_filename, data.scenarios->files[data.selected_item], FILE_NAME_MAX - 1);
     game_file_load_scenario_data(data.selected_scenario_filename);
-    encoding_from_utf8(data.selected_scenario_filename, data.selected_scenario_display, FILE_NAME_MAX);
+    strncpy((char *) data.selected_scenario_display, data.selected_scenario_filename, FILE_NAME_MAX - 1);
     file_remove_extension(data.selected_scenario_display);
     window_invalidate();
 }

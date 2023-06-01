@@ -26,12 +26,6 @@
 
 #define NAME_SIZE 32
 
-enum {
-    NO_EXTRA_FONT = 0,
-    FULL_CHARSET_IN_FONT = 1,
-    MULTIBYTE_IN_FONT = 2
-};
-
 static const char MAIN_GRAPHICS_SG2[][NAME_SIZE] = {
     "c3_north.sg2",
     "c3.sg2",
@@ -80,8 +74,6 @@ static const char ENEMY_GRAPHICS_555[ENEMY_FILES_COUNT][NAME_SIZE] = {
    "Persians.555",
    "Phoenician.555",
 };
-
-static const struct image_t DUMMY_IMAGE;
 
 static struct {
     int current_climate;
@@ -363,15 +355,8 @@ struct image_t *image_get(int id)
 
 const struct image_t *image_letter(int letter_id)
 {
-    if (data.fonts_enabled == FULL_CHARSET_IN_FONT) {
-        return &data.font[data.font_base_offset + letter_id];
-    } else if (data.fonts_enabled == MULTIBYTE_IN_FONT && letter_id >= IMAGE_FONT_MULTIBYTE_OFFSET) {
-        return &data.font[data.font_base_offset + letter_id - IMAGE_FONT_MULTIBYTE_OFFSET];
-    } else if (letter_id < IMAGE_FONT_MULTIBYTE_OFFSET) {
-        return &data.main[data.group_image_ids[GROUP_FONT] + letter_id];
-    } else {
-        return &DUMMY_IMAGE;
-    }
+    return &data.main[data.group_image_ids[GROUP_FONT] + letter_id];
+
 }
 
 struct image_t *image_get_enemy(struct figure_t *f)
@@ -399,16 +384,8 @@ const color_t *image_data(int id)
 
 const color_t *image_data_letter(int letter_id)
 {
-    if (data.fonts_enabled == FULL_CHARSET_IN_FONT) {
-        return &data.font_data[data.font[data.font_base_offset + letter_id].draw.offset];
-    } else if (data.fonts_enabled == MULTIBYTE_IN_FONT && letter_id >= IMAGE_FONT_MULTIBYTE_OFFSET) {
-        return &data.font_data[data.font[data.font_base_offset + letter_id - IMAGE_FONT_MULTIBYTE_OFFSET].draw.offset];
-    } else if (letter_id < IMAGE_FONT_MULTIBYTE_OFFSET) {
-        int image_id = data.group_image_ids[GROUP_FONT] + letter_id;
-        return &data.main_data[data.main[image_id].draw.offset];
-    } else {
-        return NULL;
-    }
+    int image_id = data.group_image_ids[GROUP_FONT] + letter_id;
+    return &data.main_data[data.main[image_id].draw.offset];
 }
 
 const color_t *image_data_enemy(struct figure_t *f)

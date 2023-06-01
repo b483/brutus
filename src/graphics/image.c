@@ -645,41 +645,11 @@ void image_draw_blend_alpha(int image_id, int x, int y, color_t color)
     }
 }
 
-static void draw_multibyte_letter(int font, const struct image_t *img, const color_t *data, int x, int y, color_t color)
-{
-    switch (font) {
-        case FONT_NORMAL_WHITE:
-            draw_uncompressed(img, data, x + 1, y + 1, 0x311c10, DRAW_TYPE_BLEND_ALPHA);
-            draw_uncompressed(img, data, x, y, COLOR_WHITE, DRAW_TYPE_BLEND_ALPHA);
-            break;
-        case FONT_NORMAL_RED:
-            draw_uncompressed(img, data, x + 1, y + 1, 0xe7cfad, DRAW_TYPE_BLEND_ALPHA);
-            draw_uncompressed(img, data, x, y, 0x731408, DRAW_TYPE_BLEND_ALPHA);
-            break;
-        case FONT_NORMAL_GREEN:
-            draw_uncompressed(img, data, x + 1, y + 1, 0xe7cfad, DRAW_TYPE_BLEND_ALPHA);
-            draw_uncompressed(img, data, x, y, 0x180800, DRAW_TYPE_BLEND_ALPHA);
-            break;
-        case FONT_NORMAL_BLACK:
-        case FONT_LARGE_BLACK:
-            draw_uncompressed(img, data, x + 1, y + 1, 0xcead9c, DRAW_TYPE_BLEND_ALPHA);
-            draw_uncompressed(img, data, x, y, COLOR_BLACK, DRAW_TYPE_BLEND_ALPHA);
-            break;
-        default: // Plain + brown
-            draw_uncompressed(img, data, x, y, color, DRAW_TYPE_BLEND_ALPHA);
-            break;
-    }
-}
-
-void image_draw_letter(int font, int letter_id, int x, int y, color_t color)
+void image_draw_letter(int letter_id, int x, int y, color_t color)
 {
     const struct image_t *img = image_letter(letter_id);
     const color_t *data = image_data_letter(letter_id);
     if (!data) {
-        return;
-    }
-    if (letter_id >= IMAGE_FONT_MULTIBYTE_OFFSET) {
-        draw_multibyte_letter(font, img, data, x, y, color);
         return;
     }
 
