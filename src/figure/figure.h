@@ -225,6 +225,8 @@ struct figure_properties_t {
     uint8_t max_damage;
     uint16_t max_roam_length;
     uint8_t is_boat; // 1 for boat, 2 for flotsam
+    uint8_t big_img_id;
+    int8_t sound_category;
 };
 
 extern struct figure_properties_t figure_properties[FIGURE_TYPE_MAX];
