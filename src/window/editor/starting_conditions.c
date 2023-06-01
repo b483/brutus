@@ -38,11 +38,6 @@ static struct generic_button_t buttons_starting_conditions[] = {
 
 static int focus_button_id;
 
-static uint8_t starting_conditions_strings[][25] = {
-    "Initial favor",
-    "Initial personal savings",
-};
-
 static void draw_foreground(void)
 {
     graphics_in_dialog();
@@ -62,7 +57,7 @@ static void draw_foreground(void)
     lang_text_draw_year(scenario.start_year, 330, 97, FONT_NORMAL_BLACK);
 
     // Initial favor
-    text_draw(starting_conditions_strings[0], 32, 137, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw("Initial favor", 32, 137, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(262, 128, 200, 30, focus_button_id == 3);
     text_draw_number_centered(scenario.initial_favor, 262, 137, 200, FONT_NORMAL_BLACK);
 
@@ -77,7 +72,7 @@ static void draw_foreground(void)
     text_draw_number_centered(scenario.rescue_loan, 262, 217, 200, FONT_NORMAL_BLACK);
 
     // Initial personal savings
-    text_draw(starting_conditions_strings[1], 32, 257, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw("Initial personal savings", 32, 257, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(262, 248, 200, 30, focus_button_id == 6);
     text_draw_number_centered(scenario.initial_personal_savings, 262, 257, 200, FONT_NORMAL_BLACK);
 

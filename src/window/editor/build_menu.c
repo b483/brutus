@@ -40,7 +40,7 @@ static struct generic_button_t build_menu_buttons[] = {
     {0, 360, 160, 20, button_menu_item, button_none, 15, 0}
 };
 
-static uint8_t editor_menu_types_strings[][MAX_ITEMS_PER_MENU][19] = {
+static char editor_menu_types_strings[][MAX_ITEMS_PER_MENU][19] = {
     {"Small shrub", "Medium shrub", "Large shrub", "Largest shrub"},
     {"Raise land", "Lower land", "Access ramp"},
     {"Small rock", "Medium rock", "Large rock"},

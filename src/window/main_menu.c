@@ -33,19 +33,12 @@ static struct generic_button_t buttons[] = {
     {192, 300, 256, 25, button_click, button_none, 5, 0},
 };
 
-static uint8_t main_menu_strings[][141] = {
-    "Editor not installed",
-    "Your Caesar 3 installation does not contain the editor files. \
-    You can download them from: https://github.com/bvschaik/julius/wiki/Editor",
-};
-
 void draw_version_string(void)
 {
-    uint8_t version_string[100] = "Brutus v";
-    int version_prefix_length = string_length(version_string);
+    char version_string[100] = "Brutus v";
     int text_y = screen_height() - 30;
 
-    string_copy(string_from_ascii(system_version()), version_string + version_prefix_length, 99);
+    string_copy(string_from_ascii(system_version()), version_string + string_length(version_string), 99);
 
     int text_width = text_get_width(version_string, FONT_SMALL_PLAIN);
 
@@ -104,7 +97,8 @@ static void button_click(int type, __attribute__((unused)) int param2)
         window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_LOAD);
     } else if (type == 3) {
         if (!editor_is_present() || !game_init_editor()) {
-            window_plain_message_dialog_show(main_menu_strings[0], main_menu_strings[1]);
+            window_plain_message_dialog_show("Editor not installed", "Your Caesar 3 installation does not contain the editor files.\n\
+                You can download them from: https://github.com/bvschaik/julius/wiki/Editor");
         } else {
             sound_music_play_editor();
         }

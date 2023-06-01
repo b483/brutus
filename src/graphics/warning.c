@@ -13,7 +13,7 @@ static int determine_top_offset(int sequential_warning_number)
     return 30 + sequential_warning_number * 25;
 }
 
-static int determine_width(const uint8_t *text)
+static int determine_width(const char *text)
 {
     int width = text_get_width(text, FONT_NORMAL_BLACK);
     if (width <= 100) {
@@ -36,7 +36,7 @@ void warning_draw(void)
 
     int center = (screen_width() - 180) / 2;
     for (int i = 0; i < MAX_WARNINGS; i++) {
-        const uint8_t *text = city_warning_get(i);
+        const char *text = city_warning_get(i);
         if (!text) {
             continue;
         }

@@ -3,9 +3,9 @@
 
 #include <stdint.h>
 
-extern uint8_t climate_types_strings[][19];
+extern char *climate_types_strings[];
 
-extern uint8_t common_editor_strings[][98];
+extern char *common_editor_strings[];
 
 void window_editor_attributes_show(void);
 

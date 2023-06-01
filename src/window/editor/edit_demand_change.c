@@ -37,13 +37,13 @@ static struct generic_button_t buttons_edit_demand_change[] = {
     {80, 312, 250, 25, button_delete, button_none, 0, 0},
 };
 
-static uint8_t route_display_names[MAX_ROUTES][NAME_LENGTH] = { {"None available"} };
+static char route_display_names[MAX_ROUTES][NAME_LENGTH] = { {"None available"} };
 
 static struct {
     int id;
     int focus_button_id;
     int route_ids[MAX_ROUTES];
-    const uint8_t *route_names[MAX_ROUTES];
+    const char *route_names[MAX_ROUTES];
     int num_routes;
 } data;
 
@@ -53,8 +53,8 @@ static void create_route_names(void)
     for (int i = 0; i < MAX_OBJECTS; i++) {
         struct empire_object_t *object = &empire_objects[i];
         if (object && (object->city_type == EMPIRE_CITY_TRADE || object->city_type == EMPIRE_CITY_FUTURE_TRADE)) {
-            if (object->resource_sell_limit[scenario.demand_changes[data.id].resource]) {
-                uint8_t *dst = route_display_names[i];
+            if (object->resource_sell_limit[scenario.demand_changes[data.id].resource] || object->resource_buy_limit[scenario.demand_changes[data.id].resource] ) {
+                char *dst = route_display_names[i];
                 int offset = string_from_int(dst, i, 0);
                 dst[offset++] = ' ';
                 dst[offset++] = '-';

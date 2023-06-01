@@ -10,7 +10,7 @@ option(DRAW_FPS "Draw FPS on the top left corner of the window." OFF)
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/cmake/")
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-Wall -Wextra -Wno-sign-compare -Wno-stringop-truncation -Wpedantic -Wformat-security -Wformat-y2k -Wnull-dereference
+    add_compile_options(-Wall -Wextra -Wno-sign-compare -Wno-discarded-qualifiers -Wno-stringop-truncation -Wpedantic -Wformat-security -Wformat-y2k -Wnull-dereference
         -Winit-self -Wsync-nand -Wunused-const-variable=2 -Wstringop-overflow=4 -Walloc-zero -Wtrivial-auto-var-init -Warith-conversion -Wbidi-chars=any
         -Wenum-conversion -Warray-bounds=2 -Wattribute-alias=2 -Wduplicated-branches -Wduplicated-cond -Wtrampolines -Wshadow=compatible-local
         -Wunsafe-loop-optimizations -Wbad-function-cast -Wcast-align -Wwrite-strings -Wdangling-else -Wdate-time -Wlogical-op
@@ -93,11 +93,9 @@ set(CORE_FILES
     ${PROJECT_SOURCE_DIR}/src/core/buffer.c
     ${PROJECT_SOURCE_DIR}/src/core/calc.c
     ${PROJECT_SOURCE_DIR}/src/core/config.c
-    ${PROJECT_SOURCE_DIR}/src/core/dir.c
     ${PROJECT_SOURCE_DIR}/src/core/file.c
     ${PROJECT_SOURCE_DIR}/src/core/hotkey_config.c
     ${PROJECT_SOURCE_DIR}/src/core/image.c
-    ${PROJECT_SOURCE_DIR}/src/core/io.c
     ${PROJECT_SOURCE_DIR}/src/core/lang.c
     ${PROJECT_SOURCE_DIR}/src/core/random.c
     ${PROJECT_SOURCE_DIR}/src/core/smacker.c

@@ -1,6 +1,5 @@
 #include "system.h"
 
-#include "core/dir.h"
 #include "game/settings.h"
 #include "sound/channel.h"
 #include "sound/city.h"

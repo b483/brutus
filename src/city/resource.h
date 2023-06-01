@@ -75,7 +75,7 @@ struct resource_img_ids_t {
 
 extern struct resource_img_ids_t resource_images[RESOURCE_TYPES_MAX];
 
-extern uint8_t resource_strings[RESOURCE_TYPES_MAX][11];
+extern char *resource_strings[];
 
 int resource_image_offset(int resource, int type);
 

@@ -48,7 +48,7 @@ const struct font_definition_t *font_definition_for(int font);
  * @param character Character to check
  * @return Boolean true if this character can be drawn on the screen, false otherwise
  */
-int font_can_display(const uint8_t *character);
+int font_can_display(const char *character);
 
 /**
  * Gets the letter ID for the specified character and font
@@ -56,6 +56,6 @@ int font_can_display(const uint8_t *character);
  * @param str Character string
  * @return Letter ID to feed into image_letter(), or -1 if c is no letter
  */
-int font_letter_id(const struct font_definition_t *def, const uint8_t *str);
+int font_letter_id(const struct font_definition_t *def, const char *str);
 
 #endif // GRAPHICS_FONT_H

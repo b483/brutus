@@ -2,11 +2,8 @@
 
 #include "core/buffer.h"
 #include "core/file.h"
-#include "core/io.h"
 #include "core/log.h"
-
-#include <stdlib.h>
-#include <string.h>
+#include "core/string.h"
 
 #define HEADER_SIZE 20680
 #define ENTRY_SIZE 64
@@ -309,7 +306,7 @@ static const color_t *load_external_data(int image_id)
 {
     struct image_t *img = &data.main[image_id];
     char filename[FILE_NAME_MAX] = "555/";
-    strncpy(&filename[4], data.bitmaps[img->draw.bitmap_id], FILE_NAME_MAX - 6);
+    string_copy(data.bitmaps[img->draw.bitmap_id], &filename[4], FILE_NAME_MAX - 6);
     file_change_extension(filename, "555");
     int size = io_read_file_part_into_buffer(
         &filename[4], data.tmp_data,

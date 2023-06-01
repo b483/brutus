@@ -27,7 +27,7 @@ extern const int BUILDING_MENU_SUBMENU_ITEM_MAPPING[BUILD_MENU_BUTTONS_COUNT][MA
 
 struct submenu_t {
     int building_id;
-    uint8_t *submenu_string;
+    char *submenu_string;
     int submenu_items[MAX_ITEMS_PER_SUBMENU];
 };
 

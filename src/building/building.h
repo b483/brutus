@@ -324,7 +324,7 @@ struct house_properties_t {
 
 extern struct house_properties_t house_properties[MAX_HOUSE_TYPES];
 
-extern uint8_t all_buildings_strings[][23];
+extern char *all_buildings_strings[];
 
 struct building_t *building_main(struct building_t *b);
 

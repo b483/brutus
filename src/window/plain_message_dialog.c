@@ -15,12 +15,12 @@ static struct image_button_t buttons[] = {
 };
 
 static struct {
-    const uint8_t *title;
-    const uint8_t *message;
-    const uint8_t *extra;
+    const char *title;
+    const char *message;
+    const char *extra;
 } data;
 
-static int init(uint8_t *title, uint8_t *message, const uint8_t *extra)
+static int init(char *title, char *message, const char *extra)
 {
     if (window_is(WINDOW_PLAIN_MESSAGE_DIALOG)) {
         // don't show popup over popup
@@ -71,7 +71,7 @@ static void button_ok(__attribute__((unused)) int param1, __attribute__((unused)
     close();
 }
 
-void window_plain_message_dialog_show(uint8_t *title, uint8_t *message)
+void window_plain_message_dialog_show(char *title, char *message)
 {
     if (init(title, message, 0)) {
         struct window_type_t window = {

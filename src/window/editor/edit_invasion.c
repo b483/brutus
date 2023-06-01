@@ -39,16 +39,10 @@ static struct generic_button_t buttons_edit_invasion[] = {
 
 static struct {
     int id;
-    const uint8_t *invasion_type_names[INVASION_TYPE_MAX_COUNT];
-    const uint8_t *enemy_type_names[ENEMY_TYPE_MAX_COUNT];
+    const char *invasion_type_names[INVASION_TYPE_MAX_COUNT];
+    const char *enemy_type_names[ENEMY_TYPE_MAX_COUNT];
     int focus_button_id;
 } data;
-
-static uint8_t edit_invasion_strings[][13] = {
-    "Type:", // 0
-    "From:", // 1
-    "Target type:", // 2
-};
 
 static void draw_foreground(void)
 {
@@ -80,7 +74,7 @@ static void draw_foreground(void)
     text_draw_number_centered(scenario.invasions[data.id].amount, 145, 218, 60, FONT_NORMAL_BLACK);
 
     // Type
-    text_draw(edit_invasion_strings[0], 30, 248, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw("Type:", 30, 248, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(145, 242, 200, 25, data.focus_button_id == 4);
     text_draw_centered(invasions_enemy_army_type_strings[scenario.invasions[data.id].type], 145, 248, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
 
@@ -92,12 +86,12 @@ static void draw_foreground(void)
                 text_draw_centered(invasions_enemy_type_strings[scenario.invasions[data.id].enemy_type], 145, 278, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
             }
             // From
-            text_draw(edit_invasion_strings[1], 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
+            text_draw("From:", 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
             button_border_draw(145, 302, 200, 25, data.focus_button_id == 6);
             lang_text_draw_centered(35, scenario.invasions[data.id].from, 145, 308, 200, FONT_NORMAL_BLACK);
         }
         // Attack type
-        text_draw(edit_invasion_strings[2], 30, 338, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw("Target type:", 30, 338, FONT_NORMAL_BLACK, COLOR_BLACK);
         button_border_draw(145, 332, 200, 25, data.focus_button_id == 7);
         lang_text_draw_centered(36, scenario.invasions[data.id].target_type, 145, 338, 200, FONT_NORMAL_BLACK);
     }

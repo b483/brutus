@@ -1,6 +1,17 @@
 #include "core/string.h"
 
-int string_equals(const uint8_t *a, const uint8_t *b)
+char *get_first_char_occurrence_in_string(const char *str, char c)
+{
+    while (*str) {
+        if (*str == c) {
+            return str;
+        }
+        str++;
+    }
+    return 0;
+}
+
+int string_equals(const char *a, const char *b)
 {
     while (*a && *b && *a == *b) {
         ++a;
@@ -13,7 +24,7 @@ int string_equals(const uint8_t *a, const uint8_t *b)
     }
 }
 
-void string_copy(const uint8_t *src, uint8_t *dst, int maxlength)
+void string_copy(const char *src, char *dst, int maxlength)
 {
     int length = 0;
     while (length < maxlength && *src) {
@@ -28,7 +39,7 @@ void string_copy(const uint8_t *src, uint8_t *dst, int maxlength)
     *dst = 0;
 }
 
-int string_length(const uint8_t *str)
+int string_length(const char *str)
 {
     int length = 0;
     while (*str) {
@@ -38,7 +49,7 @@ int string_length(const uint8_t *str)
     return length;
 }
 
-const uint8_t *string_from_ascii(const char *str)
+const char *string_from_ascii(const char *str)
 {
     const char *s = str;
     while (*s) {
@@ -47,13 +58,13 @@ const uint8_t *string_from_ascii(const char *str)
         }
         s++;
     }
-    return (const uint8_t *) str;
+    return (const char *) str;
 }
 
-int string_to_int(const uint8_t *str)
+int string_to_int(const char *str)
 {
-    static const int multipliers[] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000};
-    const uint8_t *ptr = str;
+    static const int multipliers[] = { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000 };
+    const char *ptr = str;
     int negative = 0;
     int num_chars = 0;
     if (*ptr == '-') {
@@ -84,7 +95,7 @@ int string_to_int(const uint8_t *str)
     return result;
 }
 
-int string_from_int(uint8_t *dst, int value, int force_plus_sign)
+int string_from_int(char *dst, int value, int force_plus_sign)
 {
     int total_chars = 0;
     if (value >= 0) {
@@ -126,7 +137,7 @@ int string_from_int(uint8_t *dst, int value, int force_plus_sign)
 
     dst[num_digits] = 0;
     while (--num_digits >= 0) {
-        dst[num_digits] = (uint8_t) (value % 10 + '0');
+        dst[num_digits] = value % 10 + '0';
         value /= 10;
     }
 

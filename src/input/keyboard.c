@@ -13,7 +13,7 @@ static struct {
     int capture_numeric;
     void (*capture_numeric_callback)(int);
 
-    uint8_t *text;
+    char *text;
     int cursor_position;
     int length;
     int max_length;
@@ -92,7 +92,7 @@ static void update_viewport(int has_changed)
     data.viewport_cursor_position = data.cursor_position;
 }
 
-void keyboard_start_capture(uint8_t *text, int max_length, int allow_punctuation, int box_width, int font)
+void keyboard_start_capture(char *text, int max_length, int allow_punctuation, int box_width, int font)
 {
     data.capture = 1;
     data.text = text;
@@ -186,7 +186,7 @@ void keyboard_return(void)
     data.accepted = 1;
 }
 
-static void move_left(uint8_t *start, const uint8_t *end)
+static void move_left(char *start, const char *end)
 {
     while (start < end) {
         start[0] = start[1];
@@ -195,7 +195,7 @@ static void move_left(uint8_t *start, const uint8_t *end)
     *start = 0;
 }
 
-static void move_right(const uint8_t *start, uint8_t *end)
+static void move_right(const char *start, char *end)
 {
     end[1] = 0;
     while (end > start) {
@@ -214,7 +214,7 @@ static void move_cursor_right(void)
     data.cursor_position += 1;
 }
 
-static void insert_char(const uint8_t *value, int bytes)
+static void insert_char(const char *value, int bytes)
 {
     if (data.length + bytes == data.max_length) {
         return;
@@ -288,9 +288,9 @@ void keyboard_end(void)
     }
 }
 
-static int keyboard_character(uint8_t *text)
+static int keyboard_character(char *text)
 {
-    uint8_t c = text[0];
+    char c = text[0];
 
     int add = 0;
     if (c == ' ' || c == '-') {
@@ -303,8 +303,6 @@ static int keyboard_character(uint8_t *text)
         add = 1;
     } else if (c == ',' || c == '.' || c == '?' || c == '!' || c == '@' || c == '%' || c == '\'' || c == '/' || c == '_') {
         add = data.allow_punctuation;
-    } else if (c >= 0x80) { // do not check non-ascii for valid characters
-        add = 1;
     }
 
     if (add) {
@@ -329,16 +327,16 @@ void keyboard_text(const char *text)
 
     int index = 0;
     while (text[index]) {
-        index += keyboard_character((uint8_t *) &text[index]);
+        index += keyboard_character(&text[index]);
     }
 }
 
-const uint8_t *keyboard_get_text(void)
+const char *keyboard_get_text(void)
 {
     return data.text;
 }
 
-void keyboard_set_text(const uint8_t *text)
+void keyboard_set_text(const char *text)
 {
     if (!data.capture) {
         return;

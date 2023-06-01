@@ -2,10 +2,10 @@
 
 #include "core/file.h"
 #include "core/log.h"
+#include "core/string.h"
 #include "game/system.h"
 #include "input/hotkey.h"
 
-#include <stdio.h>
 #include <string.h>
 
 #define MAX_LINE 100
@@ -303,18 +303,18 @@ static void load_file(void)
     char *line;
     while ((line = fgets(line_buffer, MAX_LINE, fp))) {
         // Remove newline from string
-        size_t size = strlen(line);
+        size_t size = string_length(line);
         while (size > 0 && (line[size - 1] == '\n' || line[size - 1] == '\r')) {
             line[--size] = 0;
         }
-        char *equals = strchr(line, '=');
+        char *equals = get_first_char_occurrence_in_string(line, '=');
         if (!equals) {
             continue;
         }
         *equals = 0;
         char *value = &equals[1];
         for (int i = 0; i < HOTKEY_MAX_ITEMS; i++) {
-            if (strcmp(ini_keys[i], line) == 0) {
+            if (string_equals(ini_keys[i], line)) {
                 struct hotkey_mapping_t mapping;
                 if (key_combination_from_name(value, &mapping.key, &mapping.modifiers)) {
                     mapping.action = i;

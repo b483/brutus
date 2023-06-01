@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-void keyboard_start_capture(uint8_t *text, int max_length, int allow_punctuation, int box_width, int font);
+void keyboard_start_capture(char *text, int max_length, int allow_punctuation, int box_width, int font);
 void keyboard_refresh(void);
 void keyboard_resume_capture(void);
 void keyboard_pause_capture(void);
@@ -33,8 +33,8 @@ void keyboard_end(void);
 
 void keyboard_text(const char *text);
 
-const uint8_t *keyboard_get_text(void);
-void keyboard_set_text(const uint8_t *text);
+const char *keyboard_get_text(void);
+void keyboard_set_text(const char *text);
 
 int keyboard_get_max_text_length(void);
 

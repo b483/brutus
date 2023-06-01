@@ -509,7 +509,7 @@ void scenario_load_state(struct buffer_t *buf)
     scenario.is_saved = 1;
 }
 
-void scenario_settings_set_player_name(const uint8_t *name)
+void scenario_settings_set_player_name(const char *name)
 {
     string_copy(name, scenario_settings.player_name, MAX_PLAYER_NAME);
 }

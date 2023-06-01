@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-extern uint8_t custom_messages_strings[][19];
+extern char *custom_messages_strings[];
 
 void window_editor_custom_messages_show(void);
 

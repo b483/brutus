@@ -38,8 +38,6 @@
 
 static int current_selected_legion_index = 0;
 
-static uint8_t pause_string[] = "Game paused";
-
 void window_city_draw_background(void)
 {
     widget_sidebar_city_draw_background();
@@ -59,7 +57,7 @@ static void draw_paused_banner(void)
     if (game_state_is_paused()) {
         int x_offset = center_in_city(448);
         outer_panel_draw(x_offset, 40, 28, 3);
-        text_draw_centered(pause_string, x_offset, 58, 448, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw_centered("Game paused", x_offset, 58, 448, FONT_NORMAL_BLACK, COLOR_BLACK);
     }
 }
 
@@ -156,7 +154,7 @@ static void set_construction_building_type(int type)
 
 static void replay_map_confirmed(void)
 {
-    if (game_file_start_scenario((char *) scenario.scenario_name)) {
+    if (game_file_start_scenario(scenario.scenario_name)) {
         window_city_show();
     }
 }

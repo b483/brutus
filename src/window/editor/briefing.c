@@ -14,11 +14,9 @@
 #include "window/editor/attributes.h"
 #include "window/editor/map.h"
 
-uint8_t briefing_reset_text[] = "Reset briefing";
-
 static void button_reset_briefing_text(int param1, int param2);
 
-static uint8_t briefing[MAX_BRIEFING];
+static char briefing[MAX_BRIEFING];
 static int focus_button_id;
 
 static struct input_box_t scenario_briefing_input = {
@@ -67,7 +65,7 @@ static void draw_foreground(void)
 
     // Reset briefing
     button_border_draw(455, 540, 190, 35, focus_button_id);
-    text_draw_centered(briefing_reset_text, 455, 545, 190, FONT_LARGE_PLAIN, COLOR_RED);
+    text_draw_centered("Reset briefing", 455, 545, 190, FONT_LARGE_PLAIN, COLOR_RED);
 
     graphics_reset_dialog();
 }

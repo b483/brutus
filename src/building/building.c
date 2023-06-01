@@ -169,7 +169,7 @@ struct house_properties_t house_properties[MAX_HOUSE_TYPES] = {
     { 85,        100,     80,   2,      4,     3,    1,     1,       2,     3,     1,    1,     1,     2,     1750,   200,      16},
 };
 
-uint8_t all_buildings_strings[][23] = {
+char *all_buildings_strings[] = {
 "None", // 0
 "Vacant Lot", // 1
 "Small Tent", // 2

@@ -166,7 +166,7 @@ static int focus_button_id_attr;
 static int focus_button_id_title;
 static int focus_button_id_text;
 
-uint8_t custom_messages_strings[][19] = {
+char *custom_messages_strings[] = {
     "Messages to player", // 0
     "Attributes", // 1
     "Title", // 2
@@ -202,7 +202,7 @@ static void draw_foreground(void)
         int max_preview_length = 12;
         button_border_draw(x + 130, y, 125, 25, focus_button_id_title == i + 1);
         if (scenario.editor_custom_messages[i].title[0] != '\0') {
-            uint8_t title_preview[max_preview_length + 3];
+            char title_preview[max_preview_length + 3];
             string_copy(scenario.editor_custom_messages[i].title, title_preview, max_preview_length);
             if (string_length(scenario.editor_custom_messages[i].title) > max_preview_length) {
                 title_preview[max_preview_length - 1] = '.';
@@ -216,7 +216,7 @@ static void draw_foreground(void)
         }
         button_border_draw(x + 260, y, 125, 25, focus_button_id_text == i + 1);
         if (scenario.editor_custom_messages[i].text[0] != '\0') {
-            uint8_t text_preview[max_preview_length + 3];
+            char text_preview[max_preview_length + 3];
             string_copy(scenario.editor_custom_messages[i].text, text_preview, max_preview_length);
             if (string_length(scenario.editor_custom_messages[i].text) > max_preview_length) {
                 text_preview[max_preview_length - 1] = '.';

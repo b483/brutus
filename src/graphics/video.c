@@ -1,6 +1,5 @@
 #include "video.h"
 
-#include "core/dir.h"
 #include "core/file.h"
 #include "core/smacker.h"
 #include "core/time.h"

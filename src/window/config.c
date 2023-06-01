@@ -2,7 +2,6 @@
 
 #include "core/calc.h"
 #include "core/config.h"
-#include "core/dir.h"
 #include "core/image_group.h"
 #include "core/lang.h"
 #include "core/string.h"
@@ -53,8 +52,8 @@ static void button_hotkeys(int param1, int param2);
 static void button_reset_defaults(int param1, int param2);
 static void button_close(int save, int param2);
 
-static const uint8_t *display_text_display_scale(void);
-static const uint8_t *display_text_cursor_scale(void);
+static const char *display_text_display_scale(void);
+static const char *display_text_cursor_scale(void);
 
 static struct scrollbar_type_t scrollbar = { 580, ITEM_Y_OFFSET, ITEM_HEIGHT * NUM_VISIBLE_ITEMS, on_scroll, 4, 0, 0, 0, 0, 0 };
 
@@ -84,7 +83,7 @@ struct numerical_range_widget_t {
 struct config_widget_t {
     int type;
     int subtype;
-    const uint8_t *(*get_display_text)(void);
+    const char *(*get_display_text)(void);
     int enabled;
 };
 
@@ -134,23 +133,21 @@ static struct {
     int active_numerical_range;
 } data;
 
-static struct input_box_t player_name_input = { 125, 50, 20, 2, FONT_NORMAL_WHITE, 0, (uint8_t *) data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value, MAX_PLAYER_NAME_LENGTH };
+static struct input_box_t player_name_input = { 125, 50, 20, 2, FONT_NORMAL_WHITE, 0, data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value, MAX_PLAYER_NAME_LENGTH };
 
 static int config_change_basic(int key);
 static int config_change_string_basic(int key);
 static int config_change_display_scale(int key);
 static int config_change_cursor_scale(int key);
 
-static uint8_t config_title_string[] = "Brutus configuration options";
-
-static uint8_t config_bottom_button_strings[][18] = {
+static char *config_bottom_button_strings[] = {
     "Configure hotkeys", // 0
     "Reset defaults", // 1
     "Cancel", // 2
     "OK", // 3
 };
 
-static uint8_t config_widget_strings[][43] = {
+static char *config_widget_strings[] = {
     "Player name:",
     "Display scale:",
     "Cursor scale:",
@@ -208,8 +205,8 @@ static void init(void)
     }
     for (int i = 0; i < CONFIG_STRING_MAX_ENTRIES; i++) {
         const char *value = config_get_string(i);
-        strncpy(data.config_string_values[i].original_value, value, CONFIG_STRING_VALUE_MAX - 1);
-        strncpy(data.config_string_values[i].new_value, value, CONFIG_STRING_VALUE_MAX - 1);
+        string_copy(value, data.config_string_values[i].original_value, CONFIG_STRING_VALUE_MAX - 1);
+        string_copy(value, data.config_string_values[i].new_value, CONFIG_STRING_VALUE_MAX - 1);
     }
 
     enable_all_widgets();
@@ -218,7 +215,7 @@ static void init(void)
     scrollbar_init(&scrollbar, 0, data.num_widgets - NUM_VISIBLE_ITEMS);
 }
 
-static void numerical_range_draw(const struct numerical_range_widget_t *w, int x, int y, const uint8_t *value_text)
+static void numerical_range_draw(const struct numerical_range_widget_t *w, int x, int y, const char *value_text)
 {
     text_draw(value_text, x, y + 6, FONT_NORMAL_BLACK, 0);
     inner_panel_draw(x + NUMERICAL_SLIDER_X, y + 4, w->width_blocks, 1);
@@ -229,7 +226,7 @@ static void numerical_range_draw(const struct numerical_range_widget_t *w, int x
         x + NUMERICAL_SLIDER_X + NUMERICAL_SLIDER_PADDING + scroll_position, y + 2);
 }
 
-static uint8_t *percentage_string(uint8_t *string, int percentage)
+static char *percentage_string(char *string, int percentage)
 {
     int offset = string_from_int(string, percentage, 0);
     string[offset] = '%';
@@ -237,15 +234,15 @@ static uint8_t *percentage_string(uint8_t *string, int percentage)
     return string;
 }
 
-static const uint8_t *display_text_display_scale(void)
+static const char *display_text_display_scale(void)
 {
-    static uint8_t value[10];
+    static char value[10];
     return percentage_string(value, data.config_values[CONFIG_SCREEN_DISPLAY_SCALE].new_value);
 }
 
-static const uint8_t *display_text_cursor_scale(void)
+static const char *display_text_cursor_scale(void)
 {
-    static uint8_t value[10];
+    static char value[10];
     return percentage_string(value, data.config_values[CONFIG_SCREEN_CURSOR_SCALE].new_value);
 }
 
@@ -270,7 +267,7 @@ static void draw_background(void)
     graphics_in_dialog();
     outer_panel_draw(0, 0, 40, 33);
 
-    text_draw_centered(config_title_string, 16, 16, 608, FONT_LARGE_BLACK, 0);
+    text_draw_centered("Brutus configuration options", 16, 16, 608, FONT_LARGE_BLACK, 0);
 
     int drawn = 0;
     for (int i = 0; i < NUM_VISIBLE_ITEMS && i < data.num_widgets; i++) {
@@ -410,7 +407,7 @@ static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
     }
     if (m->left.went_up && !input_box_is_mouse_inside_input(m_dialog, &player_name_input)) {
         input_box_stop(&player_name_input);
-        scenario_settings_set_player_name((const uint8_t *) data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value);
+        scenario_settings_set_player_name(data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value);
     }
 
     int handled = 0;
@@ -460,7 +457,7 @@ static void button_reset_defaults(__attribute__((unused)) int param1, __attribut
         data.config_values[i].new_value = config_get_default_value(i);
     }
     for (int i = 0; i < CONFIG_STRING_MAX_ENTRIES; ++i) {
-        strncpy(data.config_string_values[i].new_value, config_get_default_string_value(i), CONFIG_STRING_VALUE_MAX - 1);
+        string_copy(config_get_default_string_value(i), data.config_string_values[i].new_value, CONFIG_STRING_VALUE_MAX - 1);
     }
     window_invalidate();
 }
@@ -475,16 +472,6 @@ static void cancel_values(void)
         memcpy(data.config_string_values[i].new_value,
             data.config_string_values[i].original_value, CONFIG_STRING_VALUE_MAX - 1);
     }
-}
-
-static int config_changed(int key)
-{
-    return data.config_values[key].original_value != data.config_values[key].new_value;
-}
-
-static int config_string_changed(int key)
-{
-    return strcmp(data.config_string_values[key].original_value, data.config_string_values[key].new_value) != 0;
 }
 
 static int config_change_basic(int key)
@@ -511,21 +498,21 @@ static int config_change_cursor_scale(int key)
 static int config_change_string_basic(int key)
 {
     config_set_string(key, data.config_string_values[key].new_value);
-    strncpy(data.config_string_values[key].original_value, data.config_string_values[key].new_value, CONFIG_STRING_VALUE_MAX - 1);
+    string_copy(data.config_string_values[key].new_value, data.config_string_values[key].original_value, CONFIG_STRING_VALUE_MAX - 1);
     return 1;
 }
 
 static int apply_changed_configs(void)
 {
     for (int i = 0; i < CONFIG_MAX_ENTRIES; ++i) {
-        if (config_changed(i)) {
+        if (data.config_values[i].original_value != data.config_values[i].new_value) {
             if (!data.config_values[i].change_action(i)) {
                 return 0;
             }
         }
     }
     for (int i = 0; i < CONFIG_STRING_MAX_ENTRIES; ++i) {
-        if (config_string_changed(i)) {
+        if (!string_equals(data.config_string_values[i].original_value, data.config_string_values[i].new_value)) {
             if (!data.config_string_values[i].change_action(i)) {
                 return 0;
             }
@@ -543,7 +530,7 @@ static void button_close(int save, __attribute__((unused)) int param2)
     }
     if (apply_changed_configs()) {
         input_box_stop(&player_name_input);
-        scenario_settings_set_player_name((const uint8_t *) data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value);
+        scenario_settings_set_player_name(data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value);
     }
     config_save();
     window_main_menu_show(0);

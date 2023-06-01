@@ -121,7 +121,7 @@ static void init(int text_id, void (*background_callback)(void))
     const struct lang_message_t *msg = lang_get_message(text_id);
     if (player_message.use_popup != 1) {
         data.show_video = 0;
-    } else if (msg->video.text && video_start((char *) msg->video.text)) {
+    } else if (msg->video.text && video_start(msg->video.text)) {
         data.show_video = 1;
     } else {
         data.show_video = 0;

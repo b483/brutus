@@ -67,7 +67,7 @@ static struct arrow_button_t image_arrows[] = {
 };
 
 static struct {
-    uint8_t brief_description[MAX_BRIEF_DESCRIPTION];
+    char brief_description[MAX_BRIEF_DESCRIPTION];
     int focus_button_id;
 } data;
 
@@ -76,7 +76,7 @@ static struct input_box_t scenario_description_input = {
     data.brief_description, MAX_BRIEF_DESCRIPTION
 };
 
-static uint8_t attribute_window_strings[][22] = {
+static char *attribute_window_strings[] = {
     "Scenario briefing", // 0
     "Requests scheduled", // 1
     "No requests", // 2
@@ -92,13 +92,13 @@ static uint8_t attribute_window_strings[][22] = {
     "No demand changes", // 12
 };
 
-uint8_t climate_types_strings[][19] = {
+char *climate_types_strings[] = {
     "Northern provinces",
     "Central provinces",
     "Desert provinces",
 };
 
-uint8_t common_editor_strings[][98] = {
+char *common_editor_strings[] = {
     "Year offset:", // 0
     "Month:", // 1
     "Jan year 0 invalid", // 2

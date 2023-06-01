@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-void window_plain_message_dialog_show(uint8_t *title, uint8_t *message);
+void window_plain_message_dialog_show(char *title, char *message);
 
 #endif // WINDOW_PLAIN_MESSAGE_DIALOG_H

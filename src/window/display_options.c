@@ -22,8 +22,6 @@ static struct {
     void (*close_callback)(void);
 } data;
 
-uint8_t reset_window_string[] = "Reset window";
-
 static void init(void (*close_callback)(void))
 {
     data.focus_button_id = 0;
@@ -46,7 +44,7 @@ static void draw_foreground(void)
     lang_text_draw_centered(42, setting_fullscreen() ? 2 : 1, 128, 140, 224, FONT_NORMAL_GREEN);
 
     // Reset resolution
-    text_draw_centered(reset_window_string, 128, 164, 224, FONT_NORMAL_GREEN, COLOR_BLACK);
+    text_draw_centered("Reset window", 128, 164, 224, FONT_NORMAL_GREEN, COLOR_BLACK);
 
     graphics_reset_dialog();
 }

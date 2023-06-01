@@ -58,7 +58,7 @@ static struct generic_button_t buttons_invasions[] = {
 
 static int focus_button_id;
 
-uint8_t invasions_enemy_type_strings[][14] = {
+char *invasions_enemy_type_strings[] = {
     "Barbarians", // 0
     "Carthaginians", // 1
     "Britons", // 2
@@ -81,7 +81,7 @@ uint8_t invasions_enemy_type_strings[][14] = {
     "Seleucids", // 19
 };
 
-uint8_t invasions_enemy_army_type_strings[][17] = {
+char *invasions_enemy_army_type_strings[] = {
     "No invaders", // 0
     "Local raiders", // 1
     "Enemy army", // 2
@@ -117,10 +117,10 @@ static void draw_foreground(void)
             width += lang_text_draw_year(scenario.start_year + scenario.invasions[i].year_offset, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
             width += text_draw_number(scenario.invasions[i].amount, 0, 0, x + 12 + width, y + 6, FONT_NORMAL_BLACK);
             if (scenario.invasions[i].type == INVASION_TYPE_ENEMY_ARMY) {
-                uint8_t *enemy_type_text = invasions_enemy_type_strings[scenario.invasions[i].enemy_type];
+                char *enemy_type_text = invasions_enemy_type_strings[scenario.invasions[i].enemy_type];
                 text_draw(enemy_type_text, x - 12 + width + (290 - width - text_get_width(enemy_type_text, FONT_NORMAL_BLACK)), y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
             } else {
-                uint8_t *invasions_type_text = invasions_enemy_army_type_strings[scenario.invasions[i].type];
+                char *invasions_type_text = invasions_enemy_army_type_strings[scenario.invasions[i].type];
                 text_draw(invasions_type_text, x - 12 + width + (290 - width - text_get_width(invasions_type_text, FONT_NORMAL_BLACK)), y + 6, FONT_NORMAL_BLACK, COLOR_BLACK);
             }
         } else {

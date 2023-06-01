@@ -43,8 +43,8 @@ int game_pre_init(void)
 
 static int is_unpatched(void)
 {
-    const uint8_t *difficulty_option = lang_get_string(2, 6);
-    const uint8_t *help_menu = lang_get_string(3, 0);
+    const char *difficulty_option = lang_get_string(2, 6);
+    const char *help_menu = lang_get_string(3, 0);
     // Without patch, the difficulty option string does not exist and
     // getting it "falls through" to the next text group
     return difficulty_option == help_menu;

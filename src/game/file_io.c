@@ -10,7 +10,6 @@
 #include "core/log.h"
 #include "city/message.h"
 #include "city/view.h"
-#include "core/dir.h"
 #include "core/random.h"
 #include "core/zip.h"
 #include "empire/empire.h"

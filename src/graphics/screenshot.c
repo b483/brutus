@@ -181,8 +181,8 @@ static void image_finish(void)
 
 static void show_saved_notice(const char *filename)
 {
-    uint8_t notice_text[FILE_NAME_MAX] = "Screenshot saved: ";
-    int prefix_length = strlen("Screenshot saved: ");
+    char notice_text[FILE_NAME_MAX] = "Screenshot saved: ";
+    int prefix_length = string_length("Screenshot saved: ");
     string_copy(string_from_ascii(filename), &notice_text[prefix_length], FILE_NAME_MAX - prefix_length);
 
     city_warning_show_custom(notice_text);

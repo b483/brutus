@@ -2,7 +2,6 @@
 
 #include "core/buffer.h"
 #include "core/file.h"
-#include "core/io.h"
 #include "core/log.h"
 #include "core/string.h"
 #include "scenario/data.h"
@@ -32,16 +31,11 @@ static struct {
         int32_t offset;
         int32_t in_use;
     } text_entries[MAX_TEXT_ENTRIES];
-    uint8_t text_data[MAX_TEXT_DATA];
+    char text_data[MAX_TEXT_DATA];
 
     struct lang_message_t message_entries[MAX_MESSAGE_ENTRIES];
-    uint8_t message_data[MAX_MESSAGE_DATA];
+    char message_data[MAX_MESSAGE_DATA];
 } data;
-
-static uint8_t extra_messages_strings[][71] = {
-    "Roman city saved", // 0
-    "Your relief force defeated the invading barbarians. Caesar is pleased." // 1
-};
 
 static void parse_text(struct buffer_t *buf)
 {
@@ -65,7 +59,7 @@ static int load_text(const char *filename, uint8_t *buf_data)
     return 1;
 }
 
-static uint8_t *get_message_text(int32_t offset)
+static char *get_message_text(int32_t offset)
 {
     if (!offset) {
         return 0;
@@ -108,7 +102,7 @@ static void parse_message(struct buffer_t *buf)
     buffer_read_raw(buf, &data.message_data, MAX_MESSAGE_DATA);
 }
 
-static void set_message_parameters(struct lang_message_t *m, uint8_t *title, uint8_t * text, int urgent, int message_type)
+static void set_message_parameters(struct lang_message_t *m, char *title, char *text, int urgent, int message_type)
 {
     m->type = TYPE_MESSAGE;
     m->message_type = message_type;
@@ -140,8 +134,8 @@ void load_custom_messages(void)
     }
 
     // distant battle won but triumphal arch disabled from the editor
-    set_message_parameters(&data.message_entries[i], extra_messages_strings[0], extra_messages_strings[1], 0, MESSAGE_TYPE_GENERAL);
-    data.message_entries[i].video.text = (uint8_t *) "smk/army_win.smk";
+    set_message_parameters(&data.message_entries[i], "Roman city saved", "Your relief force defeated the invading barbarians. Caesar is pleased.", 0, MESSAGE_TYPE_GENERAL);
+    data.message_entries[i].video.text = "smk/army_win.smk";
     i += 1;
 
     // editor custom messages
@@ -197,10 +191,10 @@ int lang_load(int is_editor)
         load_files(FILE_TEXT_ENG, FILE_MM_ENG);
 }
 
-const uint8_t *lang_get_string(int group, int index)
+const char *lang_get_string(int group, int index)
 {
-    const uint8_t *str = &data.text_data[data.text_entries[group].offset];
-    uint8_t prev = 0;
+    const char *str = &data.text_data[data.text_entries[group].offset];
+    char prev = 0;
     while (index > 0) {
         if (!*str && (prev >= ' ' || prev == 0)) {
             --index;

@@ -12,7 +12,7 @@
 struct warning {
     int in_use;
     uint32_t time;
-    uint8_t text[MAX_TEXT];
+    char text[MAX_TEXT];
 };
 
 static struct warning warnings[MAX_WARNINGS];
@@ -29,7 +29,7 @@ static struct warning *new_warning(void)
 
 void city_warning_show(int type)
 {
-    const uint8_t *text;
+    const char *text;
     if (type == WARNING_ORIENTATION) {
         text = lang_get_string(17, city_view_orientation());
     } else {
@@ -38,7 +38,7 @@ void city_warning_show(int type)
     city_warning_show_custom(text);
 }
 
-void city_warning_show_custom(const uint8_t *text)
+void city_warning_show_custom(const char *text)
 {
     if (!setting_warnings()) {
         return;
@@ -62,7 +62,7 @@ int city_has_warnings(void)
     return 0;
 }
 
-const uint8_t *city_warning_get(int id)
+const char *city_warning_get(int id)
 {
     if (warnings[id].in_use) {
         return warnings[id].text;

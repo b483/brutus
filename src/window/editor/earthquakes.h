@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-extern uint8_t earthquakes_strings[][21];
+extern char *earthquakes_strings[];
 
 void window_editor_earthquakes_show(void);
 

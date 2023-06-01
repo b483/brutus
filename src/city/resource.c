@@ -27,7 +27,7 @@ struct resource_img_ids_t resource_images[RESOURCE_TYPES_MAX] = {
 {1199, 3386, 104, -1}, // RESOURCE_WEAPONS
 };
 
-uint8_t resource_strings[RESOURCE_TYPES_MAX][11] = {
+char *resource_strings[] = {
 "R_NONE", // RESOURCE_NONE
 "Wheat", // RESOURCE_WHEAT
 "Vegetables", // RESOURCE_VEGETABLES

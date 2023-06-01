@@ -34,15 +34,9 @@ static struct generic_button_t buttons_edit_earthquake[] = {
 
 static struct {
     int id;
-    const uint8_t *earthquake_point_names[MAX_EARTHQUAKE_POINTS];
+    const char *earthquake_point_names[MAX_EARTHQUAKE_POINTS];
     int focus_button_id;
 } data;
-
-static uint8_t edit_earthquake_strings[][25] = {
-    "Scheduling an earthquake", // 0
-    "Point", // 1
-    "Cancel earthquake", // 2
-};
 
 static void draw_foreground(void)
 {
@@ -50,7 +44,7 @@ static void draw_foreground(void)
 
     outer_panel_draw(0, 100, 29, 14);
     // Scheduling an earthquake
-    text_draw_centered(edit_earthquake_strings[0], 0, 116, 464, FONT_LARGE_BLACK, COLOR_BLACK);
+    text_draw_centered("Scheduling an earthquake", 0, 116, 464, FONT_LARGE_BLACK, COLOR_BLACK);
 
     // Year offset
     text_draw(common_editor_strings[0], 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
@@ -74,13 +68,13 @@ static void draw_foreground(void)
     lang_text_draw_centered(40, scenario.earthquakes[data.id].severity, 130, 218, 100, FONT_NORMAL_BLACK);
 
     // Point
-    text_draw(edit_earthquake_strings[1], 30, 248, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw("Point", 30, 248, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(130, 242, 200, 25, data.focus_button_id == 4);
     text_draw_centered(earthquakes_strings[scenario.earthquakes[data.id].point + 2], 130, 248, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
 
     // Cancel earthquake
     button_border_draw(130, 282, 200, 25, data.focus_button_id == 5);
-    text_draw_centered(edit_earthquake_strings[2], 130, 288, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw_centered("Cancel earthquake", 130, 288, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
 
     graphics_reset_dialog();
 }

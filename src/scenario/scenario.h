@@ -9,7 +9,7 @@ void scenario_save_state(struct buffer_t *buf);
 
 void scenario_load_state(struct buffer_t *buf);
 
-void scenario_settings_set_player_name(const uint8_t *name);
+void scenario_settings_set_player_name(const char *name);
 
 void scenario_settings_save_state(struct buffer_t *player_name);
 

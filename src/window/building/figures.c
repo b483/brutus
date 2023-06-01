@@ -136,66 +136,66 @@ static struct {
     struct building_info_context_t *context_for_callback;
 } data;
 
-static uint8_t figure_desc_strings[][26] = {
-    "Nobody", // 1
-    "Immigrant", // 2
-    "Emigrant", // 3
-    "Homeless", // 4
-    "Patrician", // 5
-    "Cart pusher", // 6
-    "Citizen", // 7
-    "Barber", // 8
-    "Baths worker", // 9
-    "Doctor", // 10
-    "Surgeon", // 11
-    "Priest", // 12
-    "School child", // 13
-    "Teacher", // 14
-    "Librarian", // 15
-    "Missionary", // 16
-    "Actor", // 17
-    "Gladiator", // 18
-    "Lion tamer", // 19
-    "Charioteer", // 20
-    "Hippodrome horse", // 21
-    "Tax collector", // 22
-    "Engineer", // 23
-    "Fishing boat", // 24
-    "Seagulls", // 25
-    "Shipwreck", // 26
-    "Docker", // 27
-    "Flotsam", // 28
-    "Ballista", // 29
-    "Bolt", // 30
-    "Sentry", // 31
-    "Javelin", // 32
-    "Prefect", // 33
-    "Standard bearer", // 34
-    "Javelin thrower", // 35
-    "Mounted auxiliary", // 36
-    "Legionary", // 37
-    "Market buyer", // 38
-    "Market trader", // 39
-    "Delivery boy", // 40
-    "Warehouseman", // 41
-    "Protestor", // 42
-    "Criminal", // 43
-    "Rioter", // 44
+static char *figure_desc_strings[] = {
+    "Nobody", // 0
+    "Immigrant", // 1
+    "Emigrant", // 2
+    "Homeless", // 3
+    "Patrician", // 4
+    "Cart pusher", // 5
+    "Citizen", // 6
+    "Barber", // 7
+    "Baths worker", // 8
+    "Doctor", // 9
+    "Surgeon", // 10
+    "Priest", // 11
+    "School child", // 12
+    "Teacher", // 13
+    "Librarian", // 14
+    "Missionary", // 15
+    "Actor", // 16
+    "Gladiator", // 17
+    "Lion tamer", // 18
+    "Charioteer", // 19
+    "Hippodrome horse", // 20
+    "Tax collector", // 21
+    "Engineer", // 22
+    "Fishing boat", // 23
+    "Seagulls", // 24
+    "Shipwreck", // 25
+    "Docker", // 26
+    "Flotsam", // 27
+    "Ballista", // 28
+    "Bolt", // 29
+    "Sentry", // 30
+    "Javelin", // 31
+    "Prefect", // 32
+    "Standard bearer", // 33
+    "Javelin thrower", // 34
+    "Mounted auxiliary", // 35
+    "Legionary", // 36
+    "Market buyer", // 37
+    "Market trader", // 38
+    "Delivery boy", // 39
+    "Warehouseman", // 40
+    "Protestor", // 41
+    "Criminal", // 42
+    "Rioter", // 43
+    "Caravan of merchants from", // 44
     "Caravan of merchants from", // 45
-    "Caravan of merchants from", // 46
-    "Trade ship from", // 47
-    "Indigenous native", // 48
-    "Native trader", // 49
-    "Wolf", // 50
-    "Sheep", // 51
-    "Zebra", // 52
-    "Enemy", // 53
-    "Arrow", // 54
-    "Map flag", // 55
-    "Explosion", // 56
+    "Trade ship from", // 46
+    "Indigenous native", // 47
+    "Native trader", // 48
+    "Wolf", // 49
+    "Sheep", // 50
+    "Zebra", // 51
+    "Enemy", // 52
+    "Arrow", // 53
+    "Map flag", // 54
+    "Explosion", // 55
 };
 
-static uint8_t enemy_desc_strings[][26] = {
+static char *enemy_desc_strings[] = {
     "A barbarian warrior", // 0
     "A Carthaginian soldier", // 1
     "A Briton", // 2

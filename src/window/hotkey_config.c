@@ -217,7 +217,7 @@ static struct {
     struct hotkey_mapping_t mappings[HOTKEY_MAX_ITEMS][2];
 } data;
 
-static uint8_t hotkey_strings[][28] = {
+static char *hotkey_strings[] = {
     "Brutus hotkey configuration", // 0
     "Hotkey", // 1
     "Alternative", // 2
@@ -226,7 +226,7 @@ static uint8_t hotkey_strings[][28] = {
     "OK", // 5
 };
 
-static uint8_t hotkey_widget_strings[][29] = {
+static char *hotkey_widget_strings[] = {
     "Arrow keys", // 0
     "Up", // 1
     "Down", // 2
@@ -329,7 +329,7 @@ static void draw_background(void)
             }
             const struct hotkey_mapping_t *mapping1 = &data.mappings[widget->action][0];
             if (mapping1->key) {
-                const uint8_t *keyname = key_combination_display_name(mapping1->key, mapping1->modifiers);
+                const char *keyname = key_combination_display_name(mapping1->key, mapping1->modifiers);
                 graphics_set_clip_rectangle(HOTKEY_X_OFFSET_1, text_offset, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT);
                 text_draw_centered(keyname, HOTKEY_X_OFFSET_1 + 3, text_offset, HOTKEY_BTN_WIDTH - 6, FONT_NORMAL_WHITE, 0);
                 graphics_reset_clip_rectangle();
@@ -338,7 +338,7 @@ static void draw_background(void)
             const struct hotkey_mapping_t *mapping2 = &data.mappings[widget->action][1];
             if (mapping2->key) {
                 graphics_set_clip_rectangle(HOTKEY_X_OFFSET_2, text_offset, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT);
-                const uint8_t *keyname = key_combination_display_name(mapping2->key, mapping2->modifiers);
+                const char *keyname = key_combination_display_name(mapping2->key, mapping2->modifiers);
                 text_draw_centered(keyname, HOTKEY_X_OFFSET_2 + 3, text_offset, HOTKEY_BTN_WIDTH - 6, FONT_NORMAL_WHITE, 0);
                 graphics_reset_clip_rectangle();
             }

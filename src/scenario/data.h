@@ -71,9 +71,9 @@ struct request_t {
 };
 
 struct editor_custom_messages_t {
-    unsigned char title[MAX_CUSTOM_MESSAGE_TITLE];
-    unsigned char text[MAX_CUSTOM_MESSAGE_TEXT];
-    unsigned char video_file[MAX_CUSTOM_MESSAGE_VIDEO_TEXT];
+    char title[MAX_CUSTOM_MESSAGE_TITLE];
+    char text[MAX_CUSTOM_MESSAGE_TEXT];
+    char video_file[MAX_CUSTOM_MESSAGE_VIDEO_TEXT];
     uint8_t month;
     uint8_t urgent;
     uint8_t enabled;
@@ -133,10 +133,10 @@ struct scenario_t {
         uint8_t distant_battle_roman_travel_months;
         uint8_t distant_battle_enemy_travel_months;
     } empire;
-    unsigned char scenario_name[MAX_SCENARIO_NAME];
-    unsigned char brief_description[MAX_BRIEF_DESCRIPTION];
+    char scenario_name[MAX_SCENARIO_NAME];
+    char brief_description[MAX_BRIEF_DESCRIPTION];
     uint8_t brief_description_image_id;
-    unsigned char briefing[MAX_BRIEFING];
+    char briefing[MAX_BRIEFING];
     uint8_t climate;
     uint8_t player_rank;
     int16_t start_year;
@@ -193,7 +193,7 @@ struct scenario_t {
 extern struct scenario_t scenario;
 
 struct scenario_settings_t {
-    unsigned char player_name[MAX_PLAYER_NAME];
+    char player_name[MAX_PLAYER_NAME];
 };
 
 extern struct scenario_settings_t scenario_settings;

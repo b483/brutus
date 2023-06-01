@@ -60,11 +60,11 @@ enum {
 };
 
 void city_warning_show(int type);
-void city_warning_show_custom(const uint8_t *text);
+void city_warning_show_custom(const char *text);
 
 int city_has_warnings(void);
 
-const uint8_t *city_warning_get(int id);
+const char *city_warning_get(int id);
 
 void city_warning_clear_all(void);
 void city_warning_clear_outdated(void);

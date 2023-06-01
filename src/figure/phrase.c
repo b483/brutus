@@ -10,6 +10,7 @@
 #include "city/resource.h"
 #include "city/sentiment.h"
 #include "core/calc.h"
+#include "core/string.h"
 #include "figure/trader.h"
 #include "figuretype/trader.h"
 #include "sound/speech.h"
@@ -356,7 +357,7 @@ static void play_sound_file(int sound_id, int phrase_id)
 {
     if (sound_id >= 0 && phrase_id >= 0) {
         char path[SOUND_FILENAME_MAX];
-        strncpy(path, "wavs/", SOUND_FILENAME_MAX - 1);
+        string_copy("wavs/", path, SOUND_FILENAME_MAX - 1);
         strcat(path, FIGURE_SOUNDS[sound_id][phrase_id]);
         sound_speech_play_file(path);
     }

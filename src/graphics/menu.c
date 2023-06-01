@@ -10,7 +10,7 @@
 #define MENU_BASE_TEXT_Y_OFFSET 6
 #define MENU_ITEM_HEIGHT 20
 
-uint8_t editor_top_menu_clear_earthquakes[] = "Clear earthquakes";
+char editor_top_menu_clear_earthquakes_string[] = "Clear earthquakes";
 
 void menu_bar_draw(struct menu_bar_item_t *items, int num_items, int max_width)
 {
@@ -91,13 +91,13 @@ void menu_draw(struct menu_bar_item_t *menu, int focus_item_id)
         if (i == focus_item_id - 1) {
             graphics_fill_rect(menu->x_start, y_offset - 4, BLOCK_SIZE * menu->calculated_width_blocks, 20, COLOR_BLACK);
             if (sub->text_group == 10 && sub->text_number == 4) {
-                text_draw(editor_top_menu_clear_earthquakes, menu->x_start + 8, y_offset, FONT_NORMAL_PLAIN, COLOR_FONT_ORANGE);
+                text_draw(editor_top_menu_clear_earthquakes_string, menu->x_start + 8, y_offset, FONT_NORMAL_PLAIN, COLOR_FONT_ORANGE);
             } else {
                 lang_text_draw_colored(sub->text_group, sub->text_number, menu->x_start + 8, y_offset, FONT_NORMAL_PLAIN, COLOR_FONT_ORANGE);
             }
         } else {
             if (sub->text_group == 10 && sub->text_number == 4) {
-                text_draw(editor_top_menu_clear_earthquakes, menu->x_start + 8, y_offset, FONT_NORMAL_BLACK, COLOR_BLACK);
+                text_draw(editor_top_menu_clear_earthquakes_string, menu->x_start + 8, y_offset, FONT_NORMAL_BLACK, COLOR_BLACK);
             } else {
                 lang_text_draw(sub->text_group, sub->text_number, menu->x_start + 8, y_offset, FONT_NORMAL_BLACK);
             }

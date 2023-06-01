@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-extern uint8_t invasions_enemy_type_strings[][14];
-extern uint8_t invasions_enemy_army_type_strings[][17];
+extern char *invasions_enemy_type_strings[];
+extern char *invasions_enemy_army_type_strings[];
 
 void window_editor_invasions_show(void);
 

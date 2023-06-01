@@ -6,38 +6,38 @@
 
 int lang_text_get_width(int group, int number, int font)
 {
-    const uint8_t *str = lang_get_string(group, number);
+    const char *str = lang_get_string(group, number);
     return text_get_width(str, font) + font_definition_for(font)->space_width;
 }
 
 int lang_text_draw(int group, int number, int x_offset, int y_offset, int font)
 {
-    const uint8_t *str = lang_get_string(group, number);
+    const char *str = lang_get_string(group, number);
     return text_draw(str, x_offset, y_offset, font, 0);
 }
 
 int lang_text_draw_colored(int group, int number, int x_offset, int y_offset, int font, color_t color)
 {
-    const uint8_t *str = lang_get_string(group, number);
+    const char *str = lang_get_string(group, number);
     return text_draw(str, x_offset, y_offset, font, color);
 }
 
 void lang_text_draw_centered(int group, int number, int x_offset, int y_offset, int box_width, int font)
 {
-    const uint8_t *str = lang_get_string(group, number);
+    const char *str = lang_get_string(group, number);
     text_draw_centered(str, x_offset, y_offset, box_width, font, 0);
 }
 
 void lang_text_draw_centered_colored(
     int group, int number, int x_offset, int y_offset, int box_width, int font, color_t color)
 {
-    const uint8_t *str = lang_get_string(group, number);
+    const char *str = lang_get_string(group, number);
     text_draw_centered(str, x_offset, y_offset, box_width, font, color);
 }
 
 void lang_text_draw_ellipsized(int group, int number, int x_offset, int y_offset, int box_width, int font)
 {
-    const uint8_t *str = lang_get_string(group, number);
+    const char *str = lang_get_string(group, number);
     text_draw_ellipsized(str, x_offset, y_offset, box_width, font, 0);
 }
 
@@ -103,6 +103,6 @@ void lang_text_draw_month_year_max_width(
 
 int lang_text_draw_multiline(int group, int number, int x_offset, int y_offset, int box_width, int font)
 {
-    const uint8_t *str = lang_get_string(group, number);
+    const char *str = lang_get_string(group, number);
     return text_draw_multiline(str, x_offset, y_offset, box_width, font, 0);
 }

@@ -108,7 +108,7 @@ static void show_message_popup(int message_id)
     data.messages[message_id].is_read = 1;
     int text_id = city_message_get_text_id(data.messages[message_id].message_type);
     const struct lang_message_t *msg = lang_get_message(text_id);
-    if (!msg->video.text || !file_exists(0, (char *) msg->video.text)) { // does not have video
+    if (!msg->video.text || !file_exists(0, msg->video.text)) { // does not have video
         play_sound(text_id);
     }
     window_message_dialog_show_city_message(text_id,

@@ -32,7 +32,7 @@ static struct generic_button_t buttons_earthquake[] = {
 
 static int focus_button_id;
 
-uint8_t earthquakes_strings[][21] = {
+char *earthquakes_strings[] = {
     "Earthquakes", // 0
     "Free earthquake slot", // 1
     "Earthquake point 1", // 2

@@ -11,13 +11,6 @@
 #include "window/main_menu.h"
 #include "window/plain_message_dialog.h"
 
-static uint8_t logo_strings[][186] = {
-    "Patch 1.0.1.0 not installed",
-    "Your Caesar 3 installation does not have the 1.0.1.0 patch installed. \
-    You can download the patch from: https://github.com/bvschaik/julius/wiki/Patches \
-    Continue at your own risk.",
-};
-
 static void draw_background(void)
 {
     graphics_clear_screen();
@@ -50,7 +43,8 @@ void window_logo_show(int show_patch_message)
     sound_music_play_intro();
     window_show(&window);
     if (show_patch_message == MESSAGE_MISSING_PATCH) {
-        window_plain_message_dialog_show(logo_strings[0], logo_strings[1]);
+        window_plain_message_dialog_show("Patch 1.0.1.0 not installed", "Your Caesar 3 installation does not have the 1.0.1.0 patch installed.\n\
+        You can download the patch from : https://github.com/bvschaik/julius/wiki/Patches.\nContinue at your own risk.");
     }
     if (config_get(CONFIG_UI_SHOW_INTRO_VIDEO)) {
         window_intro_video_show();

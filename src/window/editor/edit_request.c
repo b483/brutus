@@ -38,19 +38,13 @@ static struct {
     int focus_button_id;
 } data;
 
-static uint8_t edit_request_strings[][25] = {
-    "Request from the Emperor", // 0
-    "Years deadline:", // 1
-    "Favor granted:", // 2
-};
-
 static void draw_foreground(void)
 {
     graphics_in_dialog();
 
     outer_panel_draw(0, 100, 26, 18);
     // Request from the Emperor
-    text_draw_centered(edit_request_strings[0], 0, 116, 416, FONT_LARGE_BLACK, COLOR_BLACK);
+    text_draw_centered("Request from the Emperor", 0, 116, 416, FONT_LARGE_BLACK, COLOR_BLACK);
 
     // Year offset
     text_draw(common_editor_strings[0], 30, 158, FONT_NORMAL_BLACK, COLOR_BLACK);
@@ -79,12 +73,12 @@ static void draw_foreground(void)
     lang_text_draw_centered(23, scenario.requests[data.id].resource, 155, 248, 100, FONT_NORMAL_BLACK);
 
     // Years deadline
-    text_draw(edit_request_strings[1], 30, 278, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw("Years deadline:", 30, 278, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(155, 272, 100, 25, data.focus_button_id == 5);
     lang_text_draw_amount(8, 8, scenario.requests[data.id].years_deadline, 160, 278, FONT_NORMAL_BLACK);
 
     // Favor granted
-    text_draw(edit_request_strings[2], 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
+    text_draw("Favor granted:", 30, 308, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(155, 302, 100, 25, data.focus_button_id == 6);
     text_draw_number_centered_prefix(scenario.requests[data.id].favor, '+', 157, 308, 100, FONT_NORMAL_BLACK);
 

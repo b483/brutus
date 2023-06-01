@@ -40,9 +40,9 @@ static struct generic_button_t reset_text_button[] = {
     {515, 16, 150, 35, button_reset_text, button_none, 0, 0},
 };
 
-static uint8_t editor_custom_message_video_file[MAX_CUSTOM_MESSAGE_VIDEO_TEXT];
-static uint8_t editor_custom_message_title[MAX_CUSTOM_MESSAGE_TEXT];
-static uint8_t editor_custom_message_text[MAX_CUSTOM_MESSAGE_TEXT];
+static char editor_custom_message_video_file[MAX_CUSTOM_MESSAGE_VIDEO_TEXT];
+static char editor_custom_message_title[MAX_CUSTOM_MESSAGE_TEXT];
+static char editor_custom_message_text[MAX_CUSTOM_MESSAGE_TEXT];
 
 static struct input_box_t editor_custom_message_input_video_file = { 36, 154, 10, 2, FONT_NORMAL_WHITE, 1, editor_custom_message_video_file, MAX_CUSTOM_MESSAGE_TITLE };
 static struct input_box_t editor_custom_message_input_title = { -68, 64, 17, 2, FONT_NORMAL_WHITE, 1, editor_custom_message_title, MAX_CUSTOM_MESSAGE_TITLE };
@@ -53,16 +53,6 @@ static struct {
     int category;
     int focus_button_id;
 } data;
-
-static uint8_t edit_custom_messages_strings[][14] = {
-    "Urgent?", // 0
-    "Video file:", // 1
-    "smk/file", // 2
-    "Enabled?", // 3
-    "Reset message", // 4
-    "Reset title", // 5
-    "Reset text", // 6
-};
 
 static void init(int id, int category)
 {
@@ -107,25 +97,25 @@ static void draw_foreground(void)
         }
 
         // Urgent
-        text_draw(edit_custom_messages_strings[0], -68, 124, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw("Urgent?", -68, 124, FONT_NORMAL_BLACK, COLOR_BLACK);
         button_border_draw(36, 118, 75, 25, data.focus_button_id == 3);
         lang_text_draw_centered(18, scenario.editor_custom_messages[data.id].urgent, 36, 124, 75, FONT_NORMAL_BLACK);
 
         // Video file
-        text_draw(edit_custom_messages_strings[1], -68, 160, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw("Video file:", -68, 160, FONT_NORMAL_BLACK, COLOR_BLACK);
         input_box_draw(&editor_custom_message_input_video_file);
 
         // Video file hint
-        text_draw(edit_custom_messages_strings[2], 200, 160, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
+        text_draw("smk/file", 200, 160, FONT_NORMAL_PLAIN, COLOR_TOOLTIP);
 
         // Enabled
-        text_draw(edit_custom_messages_strings[3], -68, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
+        text_draw("Enabled?", -68, 200, FONT_NORMAL_BLACK, COLOR_BLACK);
         button_border_draw(36, 194, 75, 25, data.focus_button_id == 4);
         lang_text_draw_centered(18, scenario.editor_custom_messages[data.id].enabled, 36, 200, 75, FONT_NORMAL_BLACK);
 
         // Reset message
         button_border_draw(135, 194, 125, 25, data.focus_button_id == 5);
-        text_draw_centered(edit_custom_messages_strings[4], 135, 200, 125, FONT_NORMAL_PLAIN, COLOR_RED);
+        text_draw_centered("Reset message", 135, 200, 125, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 
     else if (data.category == CUSTOM_MESSAGE_TITLE) {
@@ -136,7 +126,7 @@ static void draw_foreground(void)
 
         // Reset title
         button_border_draw(5, 110, 125, 25, data.focus_button_id == 1);
-        text_draw_centered(edit_custom_messages_strings[5], 5, 116, 125, FONT_NORMAL_PLAIN, COLOR_RED);
+        text_draw_centered("Reset title", 5, 116, 125, FONT_NORMAL_PLAIN, COLOR_RED);
     }
 
     else if (data.category == CUSTOM_MESSAGE_TEXT) {
@@ -159,7 +149,7 @@ static void draw_foreground(void)
 
         // Reset text
         button_border_draw(515, 16, 150, 35, data.focus_button_id == 1);
-        text_draw_centered(edit_custom_messages_strings[6], 515, 21, 150, FONT_LARGE_PLAIN, COLOR_RED);
+        text_draw_centered("Reset text", 515, 21, 150, FONT_LARGE_PLAIN, COLOR_RED);
     }
 
     graphics_reset_dialog();

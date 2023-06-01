@@ -3,6 +3,7 @@
 #include "core/config.h"
 #include "core/file.h"
 #include "core/lang.h"
+#include "core/string.h"
 #include "core/time.h"
 #include "game/game.h"
 #include "game/settings.h"
@@ -16,9 +17,6 @@
 
 #include <stdnoreturn.h>
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #if defined(_WIN32)
 #include <direct.h>
@@ -80,7 +78,7 @@ static void write_log(__attribute__((unused)) void *userdata, __attribute__((unu
         } else {
             fwrite("INFO: ", sizeof(char), 6, log_file);
         }
-        fwrite(message, sizeof(char), strlen(message), log_file);
+        fwrite(message, sizeof(char), string_length(message), log_file);
         fwrite("\n", sizeof(char), 1, log_file);
         fflush(log_file);
     }
@@ -369,24 +367,24 @@ static int pre_init(void)
 {
     char *executable_path = SDL_GetBasePath();
     if (executable_path) {
-        if (strlen(executable_path) < DIR_PATH_MAX - strlen("brutus.hconfigs")) {
-            strncpy(EXECUTABLE_DIR_PATH, executable_path, DIR_PATH_MAX - 1);
+        if (string_length(executable_path) < DIR_PATH_MAX - string_length("brutus.hconfigs")) {
+            string_copy(executable_path, EXECUTABLE_DIR_PATH, DIR_PATH_MAX - 1);
 
-            strncpy(DATA_TEXT_FILE_PATH, executable_path, DIR_PATH_MAX - 1);
+            string_copy(executable_path, DATA_TEXT_FILE_PATH, DIR_PATH_MAX - 1);
             strcat(DATA_TEXT_FILE_PATH, "data_dir.txt");
 
-            strncpy(SETTINGS_FILE_PATH, executable_path, DIR_PATH_MAX - 1);
+            string_copy(executable_path, SETTINGS_FILE_PATH, DIR_PATH_MAX - 1);
             strcat(SETTINGS_FILE_PATH, "brutus.settings");
 
-            strncpy(CONFIGS_FILE_PATH, executable_path, DIR_PATH_MAX - 1);
+            string_copy(executable_path, CONFIGS_FILE_PATH, DIR_PATH_MAX - 1);
             strcat(CONFIGS_FILE_PATH, "brutus.configs");
 
-            strncpy(HOTKEY_CONFIGS_FILE_PATH, executable_path, DIR_PATH_MAX - 1);
+            string_copy(executable_path, HOTKEY_CONFIGS_FILE_PATH, DIR_PATH_MAX - 1);
             strcat(HOTKEY_CONFIGS_FILE_PATH, "brutus.hconfigs");
 
-            strncpy(MAPS_DIR_PATH, executable_path, DIR_PATH_MAX - 1);
+            string_copy(executable_path, MAPS_DIR_PATH, DIR_PATH_MAX - 1);
             strcat(MAPS_DIR_PATH, "maps");
-            strncpy(SAVES_DIR_PATH, executable_path, DIR_PATH_MAX - 1);
+            string_copy(executable_path, SAVES_DIR_PATH, DIR_PATH_MAX - 1);
             strcat(SAVES_DIR_PATH, "saves");
         } else {
             SDL_Log("Brutus directory path too long, exiting");
@@ -409,13 +407,13 @@ static int pre_init(void)
         SDL_Log("Loading game from user pref %s", GAME_DATA_PATH);
         if (_chdir(GAME_DATA_PATH) == 0 && game_pre_init()) {
             return 1;
-    } else {
+        } else {
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
                 "Ya dun goofed",
                 "Incorrect game path specified in data_dir.txt",
                 NULL);
         }
-} else {
+    } else {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,
             "Game path not specified",
             "Brutus requires Caesar 3 to run. Provide the path to the game in data_dir.txt.",

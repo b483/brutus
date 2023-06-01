@@ -11,7 +11,7 @@ struct input_box_t {
     int height_blocks;
     int font;
     int allow_punctuation;
-    uint8_t *text;
+    char *text;
     int text_length;
 };
 

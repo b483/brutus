@@ -14,7 +14,6 @@
 #include "core/config.h"
 #include "core/file.h"
 #include "core/image.h"
-#include "core/io.h"
 #include "core/lang.h"
 #include "core/string.h"
 #include "empire/empire.h"
@@ -58,9 +57,6 @@
 #include "sound/music.h"
 #include "window/build_menu.h"
 
-#include <string.h>
-
-
 static void clear_scenario_data(void)
 {
     // clear data
@@ -97,7 +93,7 @@ static void clear_scenario_data(void)
     map_random_init();
 }
 
-static void initialize_scenario_data(const uint8_t *scenario_name)
+static void initialize_scenario_data(const char *scenario_name)
 {
     string_copy(scenario_name, scenario.scenario_name, MAX_SCENARIO_NAME);
     scenario_map_init();
@@ -179,7 +175,7 @@ int game_file_start_scenario(const char *scenario_selected)
 {
     // assume scenario can be passed in with or without .map extension
     char scenario_file[FILE_NAME_MAX];
-    strncpy(scenario_file, scenario_selected, FILE_NAME_MAX - 1);
+    string_copy(scenario_selected, scenario_file, FILE_NAME_MAX - 1);
     if (!file_has_extension(scenario_file, "map")) {
         file_append_extension(scenario_file, "map");
 
@@ -197,9 +193,9 @@ int game_file_start_scenario(const char *scenario_selected)
     trade_prices_reset();
 
     if (file_has_extension(scenario_file, "map")) {
-        file_remove_extension((uint8_t *) scenario_file);
+        file_remove_extension(scenario_file);
     }
-    initialize_scenario_data((const uint8_t *) scenario_file); // requires map name only w/o ext
+    initialize_scenario_data(scenario_file); // requires map name only w/o ext
     set_player_name_from_config();
     city_emperor_init_scenario();
     map_building_menu_items();

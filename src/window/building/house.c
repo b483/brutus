@@ -148,7 +148,7 @@ void window_building_draw_house(struct building_info_context_t *c)
             c->x_offset + 32, c->y_offset + 60, FONT_NORMAL_BLACK);
         width += lang_text_draw_colored(41, all_buildings[c->worst_desirability_building_id].type,
             c->x_offset + 32 + width, c->y_offset + 60, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
-        text_draw((uint8_t *) ")", c->x_offset + 32 + width, c->y_offset + 60, FONT_NORMAL_BLACK, 0);
+        text_draw(")", c->x_offset + 32 + width, c->y_offset + 60, FONT_NORMAL_BLACK, 0);
         lang_text_draw_multiline(127, 41 + b->data.house.evolve_text_id,
             c->x_offset + 32, c->y_offset + 76, BLOCK_SIZE * (c->width_blocks - 4), FONT_NORMAL_BLACK);
     } else {

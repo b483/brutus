@@ -242,7 +242,7 @@ void window_building_draw_granary_orders(struct building_info_context_t *c)
 
 static void draw_accept_none_button(int x, int y, int focused)
 {
-    uint8_t refuse_button_text[] = { 'x', 0 };
+    char refuse_button_text[] = { 'x', 0 };
     button_border_draw(x, y, 20, 20, focused ? 1 : 0);
     text_draw_centered(refuse_button_text, x + 1, y + 4, 20, FONT_NORMAL_BLACK, 0);
 }

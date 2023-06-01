@@ -16,11 +16,6 @@
 #include "window/city.h"
 #include "window/intermezzo.h"
 
-static uint8_t win_criteria_strings[][12] = {
-    "Fired after",
-    "Survive for",
-};
-
 static void draw_background(void)
 {
     image_draw_fullscreen_background(image_group(GROUP_INTERMEZZO_BACKGROUND) + 16);
@@ -68,11 +63,11 @@ static void draw_background(void)
     }
     if (scenario.time_limit_win_criteria.enabled) {
         label_draw(492, 83, 13, 2);
-        int width = text_draw(win_criteria_strings[0], 500, 87, FONT_NORMAL_RED, COLOR_BLACK);
+        int width = text_draw("Fired after", 500, 87, FONT_NORMAL_RED, COLOR_BLACK);
         text_draw_number(scenario.time_limit_win_criteria.years, 0, " Years", width + 500, 87, FONT_NORMAL_RED);
     } else if (scenario.survival_time_win_criteria.enabled) {
         label_draw(492, 83, 13, 2);
-        int width = text_draw(win_criteria_strings[1], 500, 87, FONT_NORMAL_RED, COLOR_BLACK);
+        int width = text_draw("Survive for", 500, 87, FONT_NORMAL_RED, COLOR_BLACK);
         text_draw_number(scenario.survival_time_win_criteria.years, 0, " Years", width + 500, 87, FONT_NORMAL_RED);
     }
 

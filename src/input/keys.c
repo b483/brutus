@@ -1,5 +1,6 @@
 #include "keys.h"
 
+#include "core/string.h"
 #include "game/system.h"
 #include "graphics/font.h"
 
@@ -62,7 +63,7 @@ const char *key_combination_name(int key, int modifiers)
 static int parse_modifier(const char *name)
 {
     for (const struct modifier_name_t *modname = modifier_names; modname->modifier; modname++) {
-        if (strcmp(modname->name, name) == 0) {
+        if (string_equals(modname->name, name)) {
             return modname->modifier;
         }
     }
@@ -72,7 +73,7 @@ static int parse_modifier(const char *name)
 static int parse_key(const char *name)
 {
     for (int i = 1; i < KEY_TYPE_MAX_ITEMS; i++) {
-        if (strcmp(key_names[i], name) == 0) {
+        if (string_equals(key_names[i], name)) {
             return i;
         }
     }
@@ -82,7 +83,7 @@ static int parse_key(const char *name)
 int key_combination_from_name(const char *name, int *key, int *modifiers)
 {
     char editable_name[100] = { 0 };
-    strncpy(editable_name, name, 99);
+    string_copy(name, editable_name, 99);
 
     *key = KEY_TYPE_NONE;
     *modifiers = KEY_MOD_NONE;
@@ -108,7 +109,7 @@ int key_combination_from_name(const char *name, int *key, int *modifiers)
     return 1;
 }
 
-const uint8_t *key_combination_display_name(int key, int modifiers)
+const char *key_combination_display_name(int key, int modifiers)
 {
     static char result[100];
 
@@ -154,12 +155,12 @@ const uint8_t *key_combination_display_name(int key, int modifiers)
             case '\0': key_name = key_display_names[key];
         }
         strcat(result, key_name);
-    } else if (font_can_display((unsigned char *) key_name)) {
+    } else if (font_can_display(key_name)) {
         strcat(result, key_name);
     } else {
         strcat(result, "? (");
         strcat(result, key_display_names[key]);
         strcat(result, ")");
     }
-    return (const uint8_t *) result;
+    return result;
 }

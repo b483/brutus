@@ -2,10 +2,8 @@
 
 #include "core/file.h"
 #include "core/log.h"
+#include "core/string.h"
 #include "scenario/scenario.h"
-
-#include <stdio.h>
-#include <string.h>
 
 #define MAX_LINE 100
 
@@ -54,7 +52,7 @@ void config_set_string(int key, const char *value)
     if (!value) {
         string_values[key][0] = 0;
     } else {
-        strncpy(string_values[key], value, CONFIG_STRING_VALUE_MAX - 1);
+        string_copy(value, string_values[key], CONFIG_STRING_VALUE_MAX - 1);
     }
 }
 
@@ -70,7 +68,7 @@ const char *config_get_default_string_value(int key)
 
 void set_player_name_from_config(void)
 {
-    scenario_settings_set_player_name((const uint8_t *) string_values[CONFIG_STRING_PLAYER_NAME]);
+    scenario_settings_set_player_name(string_values[CONFIG_STRING_PLAYER_NAME]);
 }
 
 static void set_defaults(void)
@@ -78,7 +76,7 @@ static void set_defaults(void)
     for (int i = 0; i < CONFIG_MAX_ENTRIES; ++i) {
         values[i] = default_values[i];
     }
-    strncpy(string_values[CONFIG_STRING_PLAYER_NAME], "BRUTUS", CONFIG_STRING_VALUE_MAX - 1);
+    string_copy("BRUTUS", string_values[CONFIG_STRING_PLAYER_NAME], CONFIG_STRING_VALUE_MAX - 1);
     set_player_name_from_config();
 }
 
@@ -93,15 +91,15 @@ void config_load(void)
     char *line;
     while ((line = fgets(line_buffer, MAX_LINE, fp))) {
         // Remove newline from string
-        size_t size = strlen(line);
+        size_t size = string_length(line);
         while (size > 0 && (line[size - 1] == '\n' || line[size - 1] == '\r')) {
             line[--size] = 0;
         }
-        char *equals = strchr(line, '=');
+        char *equals = get_first_char_occurrence_in_string(line, '=');
         if (equals) {
             *equals = 0;
             for (int i = 0; i < CONFIG_MAX_ENTRIES; i++) {
-                if (strcmp(ini_keys[i], line) == 0) {
+                if (string_equals(ini_keys[i], line)) {
                     int value = atoi(&equals[1]);
                     log_info("Config key", ini_keys[i], value);
                     values[i] = value;
@@ -109,11 +107,11 @@ void config_load(void)
                 }
             }
             for (int i = 0; i < CONFIG_STRING_MAX_ENTRIES; i++) {
-                if (strcmp(ini_string_keys[i], line) == 0) {
+                if (string_equals(ini_string_keys[i], line)) {
                     const char *value = &equals[1];
                     log_info("Config key", ini_string_keys[i], 0);
                     log_info("Config value", value, 0);
-                    strncpy(string_values[i], value, CONFIG_STRING_VALUE_MAX - 1);
+                    string_copy(value, string_values[i], CONFIG_STRING_VALUE_MAX - 1);
                     break;
                 }
             }

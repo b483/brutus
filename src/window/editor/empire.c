@@ -83,13 +83,6 @@ static struct {
     int show_battle_objects;
 } data;
 
-static uint8_t editor_empire_strings[][35] = {
-    "Cost to open trade route: ", // 0
-    "A future trade city", // 1
-    "Year offset for empire expansion: ", // 2
-    "A trade city", // 3
-};
-
 static void init(void)
 {
     data.selected_object = 0;
@@ -281,7 +274,7 @@ static void draw_trade_city_info(int x_offset, int y_offset, int width)
     // draw the trade route cost
     button_set_trade_route_cost->x = resource_x_offset + 255;
     button_set_trade_route_cost->y = y_offset - 8;
-    text_draw(editor_empire_strings[0], resource_x_offset + 50, y_offset, FONT_NORMAL_GREEN, 0);
+    text_draw("Cost to open trade route: ", resource_x_offset + 50, y_offset, FONT_NORMAL_GREEN, 0);
     button_border_draw(button_set_trade_route_cost->x, button_set_trade_route_cost->y, button_set_trade_route_cost->width, 24, data.focus_trade_route_cost_button_id == 1);
     text_draw_number_centered(data.selected_object->trade_route_cost, button_set_trade_route_cost->x, y_offset, button_set_trade_route_cost->width, FONT_NORMAL_GREEN);
 }
@@ -305,10 +298,10 @@ static void draw_city_info(void)
             }
             break;
         case EMPIRE_CITY_FUTURE_TRADE:
-            width += text_draw(editor_empire_strings[1], x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN, 0);
+            width += text_draw("A future trade city", x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN, 0);
             draw_trade_city_info(x_offset, y_offset, width);
             // draw empire expansion year (offset from scenario start year)
-            text_draw(editor_empire_strings[2], x_offset + 350, y_offset + 40, FONT_NORMAL_GREEN, 0);
+            text_draw("Year offset for empire expansion: ", x_offset + 350, y_offset + 40, FONT_NORMAL_GREEN, 0);
             button_border_draw(x_offset + 620, y_offset + 32, button_set_expansion_year->width, button_set_expansion_year->height, data.focus_expansion_year_button_id == 1);
             text_draw_number_centered(scenario.empire.expansion_year, x_offset + 620, y_offset + 40, button_set_expansion_year->width, FONT_NORMAL_GREEN);
             break;
@@ -335,7 +328,7 @@ static void draw_city_info(void)
         }
         case EMPIRE_CITY_TRADE:
         {
-            width += text_draw(editor_empire_strings[3], x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN, 0);
+            width += text_draw("A trade city", x_offset + 20 + width, y_offset, FONT_NORMAL_GREEN, 0);
             draw_trade_city_info(x_offset, y_offset, width);
             break;
         }

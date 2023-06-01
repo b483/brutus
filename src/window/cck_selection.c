@@ -1,8 +1,8 @@
 #include "cck_selection.h"
 
-#include "core/dir.h"
 #include "core/file.h"
 #include "core/image_group.h"
+#include "core/string.h"
 #include "game/file.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -24,8 +24,6 @@
 #include "window/file_dialog.h"
 #include "window/main_menu.h"
 #include "window/mission_briefing.h"
-
-#include <string.h>
 
 #define MAX_SCENARIOS 15
 
@@ -66,7 +64,7 @@ static struct {
     int selected_item;
     int show_minimap;
     char selected_scenario_filename[FILE_NAME_MAX];
-    uint8_t selected_scenario_display[FILE_NAME_MAX];
+    char selected_scenario_display[FILE_NAME_MAX];
 
     const struct dir_listing *scenarios;
 } data;
@@ -93,10 +91,10 @@ static void draw_scenario_list(void)
         if (data.focus_button_id == i + 1) {
             font = FONT_NORMAL_WHITE;
         }
-        strncpy(file, data.scenarios->files[i + scrollbar.scroll_position], FILE_NAME_MAX - 1);
-        file_remove_extension((uint8_t *) file);
-        text_ellipsize((uint8_t *) file, font, 240);
-        text_draw((uint8_t *) file, 24, 220 + 16 * i, font, 0);
+        string_copy(data.scenarios->files[i + scrollbar.scroll_position], file, FILE_NAME_MAX - 1);
+        file_remove_extension(file);
+        text_ellipsize(file, font, 240);
+        text_draw(file, 24, 220 + 16 * i, font, 0);
     }
     if (data.scenarios->file_overflow) {
         text_draw(too_many_files_string, 35, 186, FONT_NORMAL_PLAIN, COLOR_RED);
@@ -264,9 +262,9 @@ static void button_select_item(int index, __attribute__((unused)) int param2)
         return;
     }
     data.selected_item = scrollbar.scroll_position + index;
-    strncpy(data.selected_scenario_filename, data.scenarios->files[data.selected_item], FILE_NAME_MAX - 1);
+    string_copy(data.scenarios->files[data.selected_item], data.selected_scenario_filename, FILE_NAME_MAX - 1);
     game_file_load_scenario_data(data.selected_scenario_filename);
-    strncpy((char *) data.selected_scenario_display, data.selected_scenario_filename, FILE_NAME_MAX - 1);
+    string_copy(data.selected_scenario_filename, data.selected_scenario_display, FILE_NAME_MAX - 1);
     file_remove_extension(data.selected_scenario_display);
     window_invalidate();
 }

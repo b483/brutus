@@ -16,7 +16,7 @@
  * @return Width of the text in blocks
  */
 int rich_text_init(
-    const uint8_t *text, int x_text, int y_text, int width_blocks, int height_blocks, int adjust_width_on_no_scroll);
+    const char *text, int x_text, int y_text, int width_blocks, int height_blocks, int adjust_width_on_no_scroll);
 
 /**
  * Sets fonts to use
@@ -58,7 +58,7 @@ int rich_text_get_clicked_link(const struct mouse_t *m);
  * @param measure_only True to only measure text, not draw it
  * @return Total number of lines required for the text
  */
-int rich_text_draw(const uint8_t *text, int x_offset, int y_offset,
+int rich_text_draw(const char *text, int x_offset, int y_offset,
                    int box_width, int height_lines, int measure_only);
 
 /**
@@ -71,7 +71,7 @@ int rich_text_draw(const uint8_t *text, int x_offset, int y_offset,
  * @param color Color to draw with
  * @return Total number of lines required for the text
  */
-int rich_text_draw_colored(const uint8_t *text, int x_offset, int y_offset,
+int rich_text_draw_colored(const char *text, int x_offset, int y_offset,
                            int box_width, int height_lines, color_t color);
 
 /**

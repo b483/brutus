@@ -41,7 +41,7 @@ struct lang_message_image {
  * Message string
  */
 struct lang_message_string {
-    uint8_t *text; /**< Text */
+    const char *text; /**< Text */
     int x; /**< X offset */
     int y; /**< Y offset */
 };
@@ -82,7 +82,7 @@ void load_custom_messages(void);
  * @param index Index within the group
  * @return String
  */
-const uint8_t *lang_get_string(int group, int index);
+const char *lang_get_string(int group, int index);
 
 /**
  * Gets the message for the specified ID

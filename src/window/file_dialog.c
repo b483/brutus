@@ -1,7 +1,6 @@
 #include "file_dialog.h"
 
 #include "core/calc.h"
-#include "core/dir.h"
 #include "core/file.h"
 #include "core/lang.h"
 #include "core/string.h"
@@ -69,8 +68,8 @@ static struct {
     const struct dir_listing *file_list;
 
     struct file_type_data_t *file_data;
-    uint8_t typed_name[FILE_NAME_MAX];
-    uint8_t previously_seen_typed_name[FILE_NAME_MAX];
+    char typed_name[FILE_NAME_MAX];
+    char previously_seen_typed_name[FILE_NAME_MAX];
     char selected_file[FILE_NAME_MAX];
 } data;
 
@@ -79,11 +78,11 @@ static struct input_box_t file_name_input = { 144, 80, 20, 2, FONT_NORMAL_WHITE,
 static struct file_type_data_t saved_game_data = { "sav", {0} };
 static struct file_type_data_t scenario_data = { "map", {0} };
 
-uint8_t too_many_files_string[] = "Too many files. Showing 128.";
+char *too_many_files_string = "Too many files. Showing 128.";
 
 static int find_first_file_with_prefix(const char *prefix)
 {
-    int len = (int) strlen(prefix);
+    int len = string_length(prefix);
     if (len == 0) {
         return -1;
     }
@@ -126,8 +125,8 @@ static void init(int type, int dialog_type)
     data.double_click = 0;
     data.focus_button_id = 0;
 
-    if (strlen(data.file_data->last_loaded_file) > 0) {
-        strncpy((char *) data.typed_name, data.file_data->last_loaded_file, FILE_NAME_MAX);
+    if (string_length(data.file_data->last_loaded_file) > 0) {
+        string_copy(data.file_data->last_loaded_file, data.typed_name, FILE_NAME_MAX);
         file_remove_extension(data.typed_name);
     } else if (dialog_type == FILE_DIALOG_SAVE) {
         // Suggest default filename
@@ -142,14 +141,14 @@ static void init(int type, int dialog_type)
     scrollbar_init(&scrollbar, 0, data.file_list->num_files - NUM_FILES_IN_VIEW);
     scroll_to_typed_text();
 
-    strncpy(data.selected_file, data.file_data->last_loaded_file, FILE_NAME_MAX - 1);
+    string_copy(data.file_data->last_loaded_file, data.selected_file, FILE_NAME_MAX - 1);
     input_box_start(&file_name_input);
 }
 
 static void draw_foreground(void)
 {
     graphics_in_dialog();
-    uint8_t file[FILE_NAME_MAX];
+    char file[FILE_NAME_MAX];
 
     outer_panel_draw(128, 40, 22, 21);
     input_box_draw(&file_name_input);
@@ -175,7 +174,7 @@ static void draw_foreground(void)
         if (data.focus_button_id == i + 1) {
             font = FONT_NORMAL_WHITE;
         }
-        strncpy((char *) file, data.file_list->files[scrollbar.scroll_position + i], FILE_NAME_MAX);
+        string_copy(data.file_list->files[scrollbar.scroll_position + i], file, FILE_NAME_MAX);
         file_remove_extension(file);
         text_ellipsize(file, font, MAX_FILE_WINDOW_TEXT_WIDTH);
         text_draw(file, 160, 130 + 16 * i, font, 0);
@@ -231,9 +230,8 @@ static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 
 static const char *get_chosen_filename(void)
 {
-    // Check if we should work with the selected file
-    uint8_t selected_name[FILE_NAME_MAX];
-    strncpy((char *) selected_name, data.selected_file, FILE_NAME_MAX);
+    char selected_name[FILE_NAME_MAX];
+    string_copy(data.selected_file, selected_name, FILE_NAME_MAX);
     file_remove_extension(selected_name);
 
     if (string_equals(selected_name, data.typed_name)) {
@@ -243,7 +241,7 @@ static const char *get_chosen_filename(void)
 
     // We should use the typed name
     static char typed_file[FILE_NAME_MAX];
-    strncpy(typed_file, (char *) data.typed_name, FILE_NAME_MAX);
+    string_copy(data.typed_name, typed_file, FILE_NAME_MAX);
     file_append_extension(typed_file, data.file_data->extension);
     return typed_file;
 }
@@ -308,7 +306,7 @@ static void button_ok_cancel(int is_ok, __attribute__((unused)) int param2)
         }
     }
     sound_effect_play(SOUND_EFFECT_ICON);
-    strncpy(data.file_data->last_loaded_file, filename, FILE_NAME_MAX - 1);
+    string_copy(filename, data.file_data->last_loaded_file, FILE_NAME_MAX - 1);
 }
 
 static void on_scroll(void)
@@ -319,8 +317,8 @@ static void on_scroll(void)
 static void button_select_file(int index, __attribute__((unused)) int param2)
 {
     if (index < data.file_list->num_files) {
-        strncpy(data.selected_file, data.file_list->files[scrollbar.scroll_position + index], FILE_NAME_MAX - 1);
-        strncpy((char *) data.typed_name, data.selected_file, FILE_NAME_MAX);
+        string_copy(data.file_list->files[scrollbar.scroll_position + index], data.selected_file, FILE_NAME_MAX - 1);
+        string_copy(data.selected_file, data.typed_name, FILE_NAME_MAX);
         file_remove_extension(data.typed_name);
         string_copy(data.typed_name, data.previously_seen_typed_name, FILE_NAME_MAX);
         input_box_refresh_text(&file_name_input);

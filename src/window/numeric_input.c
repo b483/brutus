@@ -67,7 +67,7 @@ static void draw_number_button(int x, int y, int number, int is_selected)
 {
     color_t color = is_selected ? COLOR_FONT_BLUE : COLOR_BLACK;
     graphics_draw_rect(x, y, 25, 25, color);
-    uint8_t number_string[2];
+    char number_string[2];
     number_string[0] = '0' + number;
     number_string[1] = 0;
     text_draw_centered(number_string, x, y, 25, FONT_LARGE_PLAIN, color);

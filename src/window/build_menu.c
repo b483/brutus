@@ -130,7 +130,7 @@ const int BUILDING_MENU_SUBMENU_ITEM_MAPPING[BUILD_MENU_BUTTONS_COUNT][MAX_ITEMS
     }
 };
 
-static uint8_t submenu_strings[][20] = {
+static char *submenu_strings[] = {
 "Menu: Small Temples",  // 0
 "Menu: Large Temples",  // 1
 "Menu: Forts", // 2

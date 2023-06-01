@@ -49,7 +49,7 @@ static struct image_button_t buttons_build[] = {
     {113, 411, 39, 26, IB_BUILD, GROUP_EDITOR_SIDEBAR_BUTTONS, 51, button_build_menu, button_none, MENU_ANIMAL_POINTS, 0, 1, 0, 0, 0},
 };
 
-static uint8_t editor_sidebar_menu_label_strings[][15] = {
+static char *editor_sidebar_menu_label_strings[] = {
     "Grass",
     "Small shrub",
     "Medium shrub",

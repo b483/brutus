@@ -39,7 +39,7 @@ static void init(int action, int index,
     data.focus_button = 0;
 }
 
-static uint8_t hotkey_editor_bottom_button_strings[][17] = {
+static char *hotkey_editor_bottom_button_strings[] = {
     "Press new hotkey", // 0
     "Cancel", // 1
     "OK", // 2

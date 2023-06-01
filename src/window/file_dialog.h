@@ -14,7 +14,7 @@ enum {
     FILE_TYPE_SCENARIO = 1
 };
 
-extern uint8_t too_many_files_string[];
+extern char *too_many_files_string;
 
 void window_file_dialog_show(int type, int dialog_type);
 

@@ -593,7 +593,6 @@ int start_invasion(int enemy_type, int amount, int invasion_point, int enemy_att
     if (enemy_type == ENEMY_TYPE_CAESAR) {
         x = scenario.entry_point.x;
         y = scenario.entry_point.y;
-        city_data.emperor.invasion.from_editor = 1;
     } else {
         int invasion_flags_placed = 0;
         for (int i = 0; i < MAX_INVASION_POINTS; i++) {
@@ -735,6 +734,7 @@ void scenario_invasion_process(void)
                     scenario.invasions[i].from,
                     scenario.invasions[i].target_type);
                 if (grid_offset > 0) {
+                    city_data.emperor.invasion.from_editor = 1;
                     city_message_post(1, MESSAGE_CAESAR_ARMY_ATTACK, 0, grid_offset);
                 }
             }
