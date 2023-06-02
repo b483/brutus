@@ -143,11 +143,11 @@ static int has_required_goods_and_services(struct building_t *house, int for_upg
     if (house->data.house.inventory[INVENTORY_FURNITURE] < house_properties[level].furniture) {
         return 0;
     }
-    int wine = house_properties[level].wine;
-    if (wine && house->data.house.inventory[INVENTORY_WINE] <= 0) {
+    int wine_required = house_properties[level].wine;
+    if (wine_required && !house->data.house.inventory[INVENTORY_WINE]) {
         return 0;
     }
-    if (wine > 1 && !city_resource_multiple_wine_available()) {
+    if (wine_required > 1 && !city_resource_multiple_wine_available()) {
         ++demands->missing.second_wine;
         return 0;
     }

@@ -89,7 +89,7 @@ static void draw_foreground(void)
             int width = lang_text_draw(25, scenario.requests[i].month, x + 12, y + 6, FONT_NORMAL_BLACK);
             width += lang_text_draw_year(scenario.start_year + scenario.requests[i].year, x + 6 + width, y + 6, FONT_NORMAL_BLACK);
             width += text_draw_number(scenario.requests[i].amount, 0, "", x + 6 + width, y + 6, FONT_NORMAL_BLACK);
-            image_draw(image_group(GROUP_EDITOR_RESOURCE_ICONS) + scenario.requests[i].resource + resource_image_offset(scenario.requests[i].resource, RESOURCE_IMAGE_ICON), x + 12 + width, y + 3);
+            image_draw(resource_images[scenario.requests[i].resource].editor_icon_img_id + resource_image_offset(scenario.requests[i].resource, RESOURCE_IMAGE_ICON), x + 12 + width, y + 3);
             width += text_draw_number(scenario.requests[i].years_deadline, 0, "Y", x + 40 + width, y + 6, FONT_NORMAL_BLACK);
             text_draw_number(scenario.requests[i].favor, 0, "F", x + 40 + width, y + 6, FONT_NORMAL_BLACK);
         } else {

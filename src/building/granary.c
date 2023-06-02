@@ -52,7 +52,7 @@ int building_granary_add_resource(struct building_t *granary, int resource, int 
         return 0; // no space
     }
     if (is_produced) {
-        city_resource_add_produced_to_granary(ONE_LOAD);
+        city_data.resource.food_produced_this_month += ONE_LOAD;
     }
     if (granary->data.granary.resource_stored[RESOURCE_NONE] <= ONE_LOAD) {
         granary->data.granary.resource_stored[resource] += granary->data.granary.resource_stored[RESOURCE_NONE];
@@ -75,7 +75,7 @@ int building_granary_remove_resource(struct building_t *granary, int resource, i
     } else {
         removed = granary->data.granary.resource_stored[resource];
     }
-    city_resource_remove_from_granary(resource, removed);
+    city_data.resource.granary_food_stored[resource] -= removed;
     granary->data.granary.resource_stored[resource] -= removed;
     granary->data.granary.resource_stored[RESOURCE_NONE] += removed;
     return amount - removed;

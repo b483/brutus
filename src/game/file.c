@@ -17,7 +17,6 @@
 #include "core/lang.h"
 #include "core/string.h"
 #include "empire/empire.h"
-#include "empire/trade_prices.h"
 #include "figure/formation.h"
 #include "figure/formation_herd.h"
 #include "figure/name.h"
@@ -190,7 +189,11 @@ int game_file_start_scenario(const char *scenario_selected)
     if (!game_file_load_scenario_data(scenario_file)) {
         return 0;
     }
-    trade_prices_reset();
+
+    // reset trade prices
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
+        trade_prices[i] = DEFAULT_PRICES[i];
+    }
 
     if (file_has_extension(scenario_file, "map")) {
         file_remove_extension(scenario_file);

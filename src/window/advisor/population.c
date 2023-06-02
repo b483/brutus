@@ -332,13 +332,13 @@ static int draw_background(void)
     if (scenario.rome_supplies_wheat) {
         lang_text_draw(55, 11, 75, 342, FONT_NORMAL_WHITE);
     } else {
-        width = lang_text_draw_amount(8, 6, city_resource_operating_granaries(), 75, 342, FONT_NORMAL_WHITE);
-        if (city_resource_food_supply_months() > 0) {
+        width = lang_text_draw_amount(8, 6, city_data.resource.granaries.operating, 75, 342, FONT_NORMAL_WHITE);
+        if (city_data.resource.food_supply_months > 0) {
             width += lang_text_draw(55, 12, 75 + width, 342, FONT_NORMAL_WHITE);
-            lang_text_draw_amount(8, 4, city_resource_food_supply_months(), 75 + width, 342, FONT_NORMAL_WHITE);
-        } else if (city_resource_food_stored() > city_resource_food_needed() / 2) {
+            lang_text_draw_amount(8, 4, city_data.resource.food_supply_months, 75 + width, 342, FONT_NORMAL_WHITE);
+        } else if (city_data.resource.granary_total_stored > city_data.resource.food_needed_per_month / 2) {
             lang_text_draw(55, 13, 75 + width, 342, FONT_NORMAL_WHITE);
-        } else if (city_resource_food_stored() > 0) {
+        } else if (city_data.resource.granary_total_stored > 0) {
             lang_text_draw(55, 15, 75 + width, 342, FONT_NORMAL_WHITE);
         } else {
             lang_text_draw(55, 14, 75 + width, 342, FONT_NORMAL_WHITE);
@@ -347,7 +347,7 @@ static int draw_background(void)
 
     // food types eaten
     width = lang_text_draw(55, 16, 75, 360, FONT_NORMAL_WHITE);
-    text_draw_number(city_resource_food_types_available(), '@', " ", 75 + width, 360, FONT_NORMAL_WHITE);
+    text_draw_number(city_data.resource.food_types_available, '@', " ", 75 + width, 360, FONT_NORMAL_WHITE);
 
     // immigration
     int newcomers = city_migration_newcomers();

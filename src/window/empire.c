@@ -120,9 +120,8 @@ static void draw_trade_resource(int resource, int trade_max, int x_offset, int y
 {
     graphics_draw_inset_rect(x_offset, y_offset, 26, 26);
 
-    int image_id = resource + image_group(GROUP_EMPIRE_RESOURCES);
-    int resource_offset = resource_image_offset(resource, RESOURCE_IMAGE_ICON);
-    image_draw(image_id + resource_offset, x_offset + 1, y_offset + 1);
+    int image_id = resource_images[resource].empire_icon_img_id + resource_image_offset(resource, RESOURCE_IMAGE_ICON);
+    image_draw(image_id, x_offset + 1, y_offset + 1);
 
     if (data.focus_resource == resource) {
         button_border_draw(x_offset - 2, y_offset - 2, 101 + 4, 30, 1);

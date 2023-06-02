@@ -39,8 +39,8 @@ static struct generic_button_t buttons_edit_invasion[] = {
 
 static struct {
     int id;
-    const char *invasion_type_names[INVASION_TYPE_MAX_COUNT];
-    const char *enemy_type_names[ENEMY_TYPE_MAX_COUNT];
+    char *invasion_type_names[INVASION_TYPE_MAX_COUNT];
+    char *enemy_type_names[ENEMY_TYPE_MAX_COUNT];
     int focus_button_id;
 } data;
 

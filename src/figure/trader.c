@@ -1,18 +1,14 @@
 #include "figure/trader.h"
 
-#include "empire/trade_prices.h"
-
 #include <string.h>
 
 #define MAX_TRADERS 100
 
 struct trader {
     int32_t bought_amount;
-    int32_t bought_value;
     uint8_t bought_resources[RESOURCE_TYPES_MAX];
 
     int32_t sold_amount;
-    int32_t sold_value;
     uint8_t sold_resources[RESOURCE_TYPES_MAX];
 };
 
@@ -41,16 +37,12 @@ void trader_record_bought_resource(int trader_id, int resource)
 {
     data.traders[trader_id].bought_amount++;
     data.traders[trader_id].bought_resources[resource]++;
-    // BUG: trader buys resource from city, so city sells the resource: should be sell price
-    data.traders[trader_id].bought_value += trade_price_buy(resource);
 }
 
 void trader_record_sold_resource(int trader_id, int resource)
 {
     data.traders[trader_id].sold_amount++;
     data.traders[trader_id].sold_resources[resource]++;
-    // BUG: trader sells resource to city, so city buys the resource: should be buy price
-    data.traders[trader_id].sold_value += trade_price_sell(resource);
 }
 
 int trader_bought_resources(int trader_id, int resource)
@@ -85,8 +77,6 @@ void traders_save_state(struct buffer_t *buf)
         for (int r = 0; r < RESOURCE_TYPES_MAX; r++) {
             buffer_write_u8(buf, t->sold_resources[r]);
         }
-        buffer_write_i32(buf, t->bought_value);
-        buffer_write_i32(buf, t->sold_value);
     }
     buffer_write_i32(buf, data.next_index);
 }
@@ -103,8 +93,6 @@ void traders_load_state(struct buffer_t *buf)
         for (int r = 0; r < RESOURCE_TYPES_MAX; r++) {
             t->sold_resources[r] = buffer_read_u8(buf);
         }
-        t->bought_value = buffer_read_i32(buf);
-        t->sold_value = buffer_read_i32(buf);
     }
     data.next_index = buffer_read_i32(buf);
 }

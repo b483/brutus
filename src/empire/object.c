@@ -431,11 +431,13 @@ int empire_can_produce_resource(int resource)
     if (resource == raw_resource) {
         return (our_city_can_produce_resource(resource) || resource_import_trade_route_open(resource));
     }
-    // if finished resource, available if we can either produce the raw material or import it, and we can produce the finished material (workshop is allowed)
+    // if finished goods, available if we can either:
+    // - produce the raw material or import it, and we can produce the finished material (workshop is allowed)
+    // - import the finished goods
     else {
         return (
-            (our_city_can_produce_resource(raw_resource) || resource_import_trade_route_open(raw_resource))
-            && our_city_can_produce_resource(resource)
+                resource_import_trade_route_open(resource)
+            || ((our_city_can_produce_resource(raw_resource) || resource_import_trade_route_open(raw_resource)) && our_city_can_produce_resource(resource))
         );
     }
 }

@@ -60,42 +60,40 @@ static void draw_foreground(void)
     image_draw(resource_images[data.resource].icon_img_id + resource_image_offset(data.resource, RESOURCE_IMAGE_ICON), 64, 116);
 
     // Resource name
-    lang_text_draw_centered(23, data.resource, 48, 116, 544, FONT_LARGE_BLACK);
+    text_draw_centered(resource_strings[data.resource], 48, 116, 544, FONT_LARGE_BLACK, COLOR_BLACK);
 
-    if (empire_can_produce_resource(data.resource)) {
-        int total_buildings = building_count_industry_total(data.resource);
-        int active_buildings = building_count_industry_active(data.resource);
-        if (total_buildings <= 0) {
-            // No industries in the city
-            lang_text_draw(54, 7, 109, 164, FONT_NORMAL_BLACK);
-        } else if (city_data.resource.mothballed[data.resource]) {
-            // [count of] mothballed industry/ies in the city
+    int total_buildings = building_count_industry_total(data.resource);
+    int active_buildings = building_count_industry_active(data.resource);
+    if (total_buildings <= 0) {
+        // No industries in the city
+        lang_text_draw(54, 7, 109, 164, FONT_NORMAL_BLACK);
+    } else if (city_data.resource.mothballed[data.resource]) {
+        // [count of] mothballed industry/ies in the city
+        int width = text_draw_number(total_buildings, 0, " ", 109, 164, FONT_NORMAL_BLACK);
+        if (total_buildings == 1) {
+            lang_text_draw(54, 10, 109 + width, 164, FONT_NORMAL_BLACK);
+        } else {
+            lang_text_draw(54, 11, 109 + width, 164, FONT_NORMAL_BLACK);
+        }
+    } else {
+        if (total_buildings == active_buildings) {
+            // [count of] working industry/ies in the city
             int width = text_draw_number(total_buildings, 0, " ", 109, 164, FONT_NORMAL_BLACK);
             if (total_buildings == 1) {
-                lang_text_draw(54, 10, 109 + width, 164, FONT_NORMAL_BLACK);
+                lang_text_draw(54, 8, 109 + width, 164, FONT_NORMAL_BLACK);
             } else {
-                lang_text_draw(54, 11, 109 + width, 164, FONT_NORMAL_BLACK);
+                lang_text_draw(54, 9, 109 + width, 164, FONT_NORMAL_BLACK);
             }
-        } else {
-            if (total_buildings == active_buildings) {
-                // [count of] working industry/ies in the city
-                int width = text_draw_number(total_buildings, 0, " ", 109, 164, FONT_NORMAL_BLACK);
-                if (total_buildings == 1) {
-                    lang_text_draw(54, 8, 109 + width, 164, FONT_NORMAL_BLACK);
-                } else {
-                    lang_text_draw(54, 9, 109 + width, 164, FONT_NORMAL_BLACK);
-                }
-            } else if (total_buildings > active_buildings) {
-                // [count of] working [count of] idle industry/ies in the city
-                int idle_buildings_count = total_buildings - active_buildings;
-                int width = text_draw_number(active_buildings, 0, " ", 109, 164, FONT_NORMAL_BLACK);
-                width += lang_text_draw(54, 12, 109 + width, 164, FONT_NORMAL_BLACK);
-                width += text_draw_number(idle_buildings_count, 0, " ", 109 + width, 164, FONT_NORMAL_BLACK);
-                if (idle_buildings_count == 1) {
-                    lang_text_draw(54, 14, 109 + width, 164, FONT_NORMAL_BLACK);
-                } else {
-                    lang_text_draw(54, 13, 109 + width, 164, FONT_NORMAL_BLACK);
-                }
+        } else if (total_buildings > active_buildings) {
+            // [count of] working [count of] idle industry/ies in the city
+            int idle_buildings_count = total_buildings - active_buildings;
+            int width = text_draw_number(active_buildings, 0, " ", 109, 164, FONT_NORMAL_BLACK);
+            width += lang_text_draw(54, 12, 109 + width, 164, FONT_NORMAL_BLACK);
+            width += text_draw_number(idle_buildings_count, 0, " ", 109 + width, 164, FONT_NORMAL_BLACK);
+            if (idle_buildings_count == 1) {
+                lang_text_draw(54, 14, 109 + width, 164, FONT_NORMAL_BLACK);
+            } else {
+                lang_text_draw(54, 13, 109 + width, 164, FONT_NORMAL_BLACK);
             }
         }
     }

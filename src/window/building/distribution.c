@@ -256,13 +256,10 @@ void window_building_draw_granary_orders_foreground(struct building_info_context
         data.orders_focus_button_id == 1 ? 1 : 0);
     struct building_storage_t *storage = building_storage_get(all_buildings[c->building_id].storage_id);
     if (storage->empty_all) {
-        lang_text_draw_centered(98, 8, c->x_offset + 80, y_offset + 408,
-            BLOCK_SIZE * (c->width_blocks - 10), FONT_NORMAL_BLACK);
-        lang_text_draw_centered(98, 9, c->x_offset, y_offset + 384,
-            BLOCK_SIZE * c->width_blocks, FONT_NORMAL_BLACK);
+        lang_text_draw_centered(98, 8, c->x_offset + 80, y_offset + 408, BLOCK_SIZE * (c->width_blocks - 10), FONT_NORMAL_BLACK);
+        lang_text_draw_centered(98, 9, c->x_offset, y_offset + 384, BLOCK_SIZE * c->width_blocks, FONT_NORMAL_BLACK);
     } else {
-        lang_text_draw_centered(98, 7, c->x_offset + 80, y_offset + 408,
-            BLOCK_SIZE * (c->width_blocks - 10), FONT_NORMAL_BLACK);
+        lang_text_draw_centered(98, 7, c->x_offset + 80, y_offset + 408, BLOCK_SIZE * (c->width_blocks - 10), FONT_NORMAL_BLACK);
     }
 
     // accept none button
@@ -274,7 +271,7 @@ void window_building_draw_granary_orders_foreground(struct building_info_context
         int image_id = resource_images[resource].icon_img_id + resource_image_offset(resource, RESOURCE_IMAGE_ICON);
         image_draw(image_id, c->x_offset + 32, y_offset + 46 + 22 * i);
         image_draw(image_id, c->x_offset + 408, y_offset + 46 + 22 * i);
-        lang_text_draw(23, resource, c->x_offset + 72, y_offset + 50 + 22 * i, FONT_NORMAL_WHITE);
+        text_draw(resource_strings[resource], c->x_offset + 72, y_offset + 50 + 22 * i, FONT_NORMAL_WHITE, COLOR_BLACK);
         button_border_draw(c->x_offset + 180, y_offset + 46 + 22 * i, 210, 22, data.resource_focus_button_id == i + 1);
 
         int state = storage->resource_state[resource];
@@ -413,7 +410,7 @@ void window_building_draw_warehouse_orders_foreground(struct building_info_conte
         int image_id = resource_images[resource].icon_img_id + resource_image_offset(resource, RESOURCE_IMAGE_ICON);
         image_draw(image_id, c->x_offset + 32, y_offset + 46 + 22 * i);
         image_draw(image_id, c->x_offset + 408, y_offset + 46 + 22 * i);
-        lang_text_draw(23, resource, c->x_offset + 72, y_offset + 50 + 22 * i, FONT_NORMAL_WHITE);
+        text_draw(resource_strings[resource], c->x_offset + 72, y_offset + 50 + 22 * i, FONT_NORMAL_WHITE, COLOR_BLACK);
         button_border_draw(c->x_offset + 180, y_offset + 46 + 22 * i, 210, 22, data.resource_focus_button_id == i + 1);
 
         int state = storage->resource_state[resource];

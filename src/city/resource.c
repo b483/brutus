@@ -9,26 +9,26 @@
 #include "scenario/data.h"
 
 struct resource_img_ids_t resource_images[RESOURCE_TYPES_MAX] = {
-{0, 0, 0, -1}, // RESOURCE_NONE
-{1187, 3338, 8, 0}, // RESOURCE_WHEAT
-{1188, 3342, 16, 5}, // RESOURCE_VEGETABLES
-{1189, 3346, 24, 10}, // RESOURCE_FRUIT
-{1192, 3358, 48, 25}, // RESOURCE_MEAT
-{1190, 3350, 32, 15}, // RESOURCE_OLIVES
-{1191, 3354, 40, 20}, // RESOURCE_VINES
-{1197, 3378, 88, -1}, // RESOURCE_CLAY
-{1196, 3366, 80, -1}, // RESOURCE_TIMBER
-{1198, 3382, 96, -1}, // RESOURCE_MARBLE
-{1195, 3370, 72, -1}, // RESOURCE_IRON
-{1194, 3366, 64, -1}, // RESOURCE_OIL
-{1193, 3362, 56, -1}, // RESOURCE_WINE
-{1201, 3394, 120, -1}, // RESOURCE_POTTERY
-{1200, 3390, 112, -1}, // RESOURCE_FURNITURE
-{1199, 3386, 104, -1}, // RESOURCE_WEAPONS
+{0, 0, 0, 0, -1, 0, 0}, // RESOURCE_NONE
+{1187, 1190, 3338, 8, 0, 7983, 3233}, // RESOURCE_WHEAT
+{1188, 1191, 3342, 16, 5, 7984, 3234}, // RESOURCE_VEGETABLES
+{1189, 1192, 3346, 24, 10, 7985, 3235}, // RESOURCE_FRUIT
+{1192, 1195, 3358, 48, 25, 7988, 3238}, // RESOURCE_MEAT
+{1190, 1193, 3350, 32, 15, 7986, 3236}, // RESOURCE_OLIVES
+{1191, 1194, 3354, 40, 20, 7987, 3237}, // RESOURCE_VINES
+{1197, 1200, 3378, 88, -1, 7993, 3243}, // RESOURCE_CLAY
+{1196, 1199, 3366, 80, -1, 7992, 3242}, // RESOURCE_TIMBER
+{1198, 1201, 3382, 96, -1, 7994, 3244}, // RESOURCE_MARBLE
+{1195, 1198, 3370, 72, -1, 7991, 3241}, // RESOURCE_IRON
+{1194, 1197, 3366, 64, -1, 7990, 3240}, // RESOURCE_OIL
+{1193, 1196, 3362, 56, -1, 7989, 3239}, // RESOURCE_WINE
+{1201, 1204, 3394, 120, -1, 7997, 3247}, // RESOURCE_POTTERY
+{1200, 1203, 3390, 112, -1, 7996, 3246}, // RESOURCE_FURNITURE
+{1199, 1202, 3386, 104, -1, 7995, 3245}, // RESOURCE_WEAPONS
 };
 
 char *resource_strings[] = {
-"R_NONE", // RESOURCE_NONE
+"No resource", // RESOURCE_NONE
 "Wheat", // RESOURCE_WHEAT
 "Vegetables", // RESOURCE_VEGETABLES
 "Fruit", // RESOURCE_FRUIT
@@ -44,7 +44,29 @@ char *resource_strings[] = {
 "Pottery", // RESOURCE_POTTERY
 "Furniture", // RESOURCE_FURNITURE
 "Weapons", // RESOURCE_WEAPONS
+"Denarii" // RESOURCE_DENARII
 };
+
+struct trade_price_t DEFAULT_PRICES[RESOURCE_TYPES_MAX] = {
+    {0, 0}, // RESOURCE_NONE
+    {28, 22}, // RESOURCE_WHEAT
+    {38, 30}, // RESOURCE_VEGETABLES
+    {38, 30}, // RESOURCE_FRUIT
+    {44, 36}, // RESOURCE_MEAT
+    {42, 34}, // RESOURCE_OLIVES
+    {44, 36}, // RESOURCE_VINES
+    {40, 30}, // RESOURCE_CLAY
+    {50, 35}, // RESOURCE_TIMBER
+    {200, 140}, // RESOURCE_MARBLE
+    {60, 40}, // RESOURCE_IRON
+    {180, 140}, // RESOURCE_OIL
+    {215, 160}, // RESOURCE_WINE
+    {180, 140}, // RESOURCE_POTTERY
+    {200, 150}, // RESOURCE_FURNITURE
+    {250, 180}, // RESOURCE_WEAPONS
+};
+
+struct trade_price_t trade_prices[RESOURCE_TYPES_MAX];
 
 int resource_image_offset(int resource, int type)
 {
@@ -102,47 +124,7 @@ struct resource_list_t *city_resource_get_available_foods(void)
 
 int city_resource_multiple_wine_available(void)
 {
-    return city_data.resource.wine_types_available >= 2;
-}
-
-int city_resource_food_types_available(void)
-{
-    return city_data.resource.food_types_available;
-}
-
-int city_resource_food_stored(void)
-{
-    return city_data.resource.granary_total_stored;
-}
-
-int city_resource_food_needed(void)
-{
-    return city_data.resource.food_needed_per_month;
-}
-
-int city_resource_food_supply_months(void)
-{
-    return city_data.resource.food_supply_months;
-}
-
-int city_resource_food_percentage_produced(void)
-{
-    return calc_percentage(city_data.resource.food_produced_last_month, city_data.resource.food_consumed_last_month);
-}
-
-int city_resource_operating_granaries(void)
-{
-    return city_data.resource.granaries.operating;
-}
-
-int city_resource_last_used_warehouse(void)
-{
-    return city_data.resource.last_used_warehouse;
-}
-
-void city_resource_set_last_used_warehouse(int warehouse_id)
-{
-    city_data.resource.last_used_warehouse = warehouse_id;
+    return city_data.resource.wine_types_available > 1;
 }
 
 void city_resource_cycle_trade_status(int resource)
@@ -175,21 +157,6 @@ void city_resource_toggle_stockpiled(int resource)
             city_data.resource.trade_status[resource] = TRADE_STATUS_NONE;
         }
     }
-}
-
-int city_resource_has_workshop_with_room(int workshop_type)
-{
-    return city_data.resource.space_in_workshops[workshop_type] > 0;
-}
-
-void city_resource_add_produced_to_granary(int amount)
-{
-    city_data.resource.food_produced_this_month += amount;
-}
-
-void city_resource_remove_from_granary(int food, int amount)
-{
-    city_data.resource.granary_food_stored[food] -= amount;
 }
 
 void city_resource_add_to_warehouse(int resource, int amount)
@@ -255,10 +222,7 @@ void city_resource_determine_available(void)
             available.resource_list.items[available.resource_list.size++] = i;
         }
     }
-    for (int i = RESOURCE_WHEAT; i < FOOD_TYPES_MAX; i++) {
-        if (i == RESOURCE_OLIVES || i == RESOURCE_VINES) {
-            continue;
-        }
+    for (int i = RESOURCE_WHEAT; i <= RESOURCE_MEAT; i++) {
         if (empire_can_produce_resource(i)) {
             available.food_list.items[available.food_list.size++] = i;
         }
@@ -406,4 +370,36 @@ void city_resource_consume_food(void)
     city_data.resource.food_consumed_last_month = total_consumed;
     city_data.resource.food_produced_last_month = city_data.resource.food_produced_this_month;
     city_data.resource.food_produced_this_month = 0;
+}
+
+int trade_price_change(int resource, int amount)
+{
+    if (amount < 0 && trade_prices[resource].sell <= 0) {
+        // cannot lower the price to negative
+        return 0;
+    }
+    if (amount < 0 && trade_prices[resource].sell <= -amount) {
+        trade_prices[resource].buy = 2;
+        trade_prices[resource].sell = 0;
+    } else {
+        trade_prices[resource].buy += amount;
+        trade_prices[resource].sell += amount;
+    }
+    return 1;
+}
+
+void trade_prices_save_state(struct buffer_t *buf)
+{
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
+        buffer_write_u16(buf, trade_prices[i].buy);
+        buffer_write_u16(buf, trade_prices[i].sell);
+    }
+}
+
+void trade_prices_load_state(struct buffer_t *buf)
+{
+    for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
+        trade_prices[i].buy = buffer_read_u16(buf);
+        trade_prices[i].sell = buffer_read_u16(buf);
+    }
 }

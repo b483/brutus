@@ -34,7 +34,7 @@ static struct generic_button_t buttons_edit_earthquake[] = {
 
 static struct {
     int id;
-    const char *earthquake_point_names[MAX_EARTHQUAKE_POINTS];
+    char *earthquake_point_names[MAX_EARTHQUAKE_POINTS];
     int focus_button_id;
 } data;
 

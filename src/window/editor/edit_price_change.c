@@ -1,5 +1,6 @@
 #include "edit_price_change.h"
 
+#include "city/resource.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -68,7 +69,7 @@ static void draw_foreground(void)
     // Resource
     text_draw(common_editor_strings[4], 30, 218, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(130, 212, 100, 25, data.focus_button_id == 3);
-    lang_text_draw_centered(23, scenario.price_changes[data.id].resource, 130, 218, 100, FONT_NORMAL_BLACK);
+    text_draw_centered(resource_strings[scenario.price_changes[data.id].resource], 130, 218, 100, FONT_NORMAL_BLACK, COLOR_BLACK);
 
     // Rises/falls by
     button_border_draw(235, 212, 100, 25, data.focus_button_id == 4);
@@ -146,7 +147,7 @@ static void set_resource(int value)
 
 static void button_resource(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_select_list_show(screen_dialog_offset_x() + 80, screen_dialog_offset_y() + 55, 23, 16, set_resource);
+    window_select_list_show_text(screen_dialog_offset_x() + 80, screen_dialog_offset_y() + 55, resource_strings, RESOURCE_TYPES_MAX, set_resource);
 }
 
 static void button_toggle_rise(__attribute__((unused)) int param1, __attribute__((unused)) int param2)

@@ -14,7 +14,6 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "empire/object.h"
-#include "empire/trade_prices.h"
 #include "figure/combat.h"
 #include "figure/movement.h"
 #include "figure/route.h"
@@ -124,7 +123,7 @@ static int trader_get_buy_resource(int warehouse_id, int city_id)
                 space->subtype.warehouse_resource_id = RESOURCE_NONE;
             }
             // update finances
-            city_finance_process_export(trade_price_sell(resource));
+            city_finance_process_export(trade_prices[resource].sell);
 
             // update graphics
             building_warehouse_space_set_image(space, resource);

@@ -68,9 +68,8 @@ static void draw_foreground(void)
         if (focus_button_id - 3 == i) {
             button_border_draw(80, y_offset + 54, 480, 24, 1);
         }
-        lang_text_draw(23, resource, 88, y_offset + 61, FONT_NORMAL_WHITE);
-        text_draw_number_centered(city_data.resource.stored_in_warehouses[resource],
-            180, y_offset + 61, 60, FONT_NORMAL_WHITE);
+        text_draw(resource_strings[resource], 88, y_offset + 61, FONT_NORMAL_WHITE, COLOR_BLACK);
+        text_draw_number_centered(city_data.resource.stored_in_warehouses[resource], 180, y_offset + 61, 60, FONT_NORMAL_WHITE);
         if (city_data.resource.mothballed[resource]) {
             lang_text_draw_centered(18, 5, 240, y_offset + 61, 100, FONT_NORMAL_WHITE);
         }

@@ -68,7 +68,7 @@ static struct {
     int y;
     int mode;
     int group;
-    const char **items;
+    char **items;
     int num_items;
     void (*callback)(int);
     int focus_button_id;
@@ -84,7 +84,7 @@ static void init_group(int x, int y, int group, int num_items, void (*callback)(
     data.callback = callback;
 }
 
-static void init_text(int x, int y, const char **items, int num_items, void (*callback)(int))
+static void init_text(int x, int y, char **items, int num_items, void (*callback)(int))
 {
     data.x = x;
     data.y = y;
@@ -172,7 +172,7 @@ void window_select_list_show(int x, int y, int group, int num_items, void (*call
     window_show(&window);
 }
 
-void window_select_list_show_text(int x, int y, const char **items, int num_items, void (*callback)(int))
+void window_select_list_show_text(int x, int y, char **items, int num_items, void (*callback)(int))
 {
     struct window_type_t window = {
         WINDOW_SELECT_LIST,

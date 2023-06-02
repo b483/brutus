@@ -158,7 +158,6 @@ set(CITY_FILES
 set(EMPIRE_FILES
     ${PROJECT_SOURCE_DIR}/src/empire/empire.c
     ${PROJECT_SOURCE_DIR}/src/empire/object.c
-    ${PROJECT_SOURCE_DIR}/src/empire/trade_prices.c
 )
 set(FIGURE_FILES
     ${PROJECT_SOURCE_DIR}/src/figure/combat.c

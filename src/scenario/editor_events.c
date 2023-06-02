@@ -14,7 +14,6 @@
 #include "core/image.h"
 #include "core/random.h"
 #include "empire/object.h"
-#include "empire/trade_prices.h"
 #include "figure/figure.h"
 #include "figure/formation_enemy.h"
 #include "figure/name.h"

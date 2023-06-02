@@ -43,7 +43,7 @@ static struct {
     int id;
     int focus_button_id;
     int route_ids[MAX_ROUTES];
-    const char *route_names[MAX_ROUTES];
+    char *route_names[MAX_ROUTES];
     int num_routes;
 } data;
 
@@ -53,7 +53,7 @@ static void create_route_names(void)
     for (int i = 0; i < MAX_OBJECTS; i++) {
         struct empire_object_t *object = &empire_objects[i];
         if (object && (object->city_type == EMPIRE_CITY_TRADE || object->city_type == EMPIRE_CITY_FUTURE_TRADE)) {
-            if (object->resource_sell_limit[scenario.demand_changes[data.id].resource] || object->resource_buy_limit[scenario.demand_changes[data.id].resource] ) {
+            if (object->resource_sell_limit[scenario.demand_changes[data.id].resource] || object->resource_buy_limit[scenario.demand_changes[data.id].resource]) {
                 char *dst = route_display_names[i];
                 int offset = string_from_int(dst, i, 0);
                 dst[offset++] = ' ';
@@ -100,7 +100,7 @@ static void draw_foreground(void)
     // Resource
     text_draw(common_editor_strings[4], 30, 218, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(130, 212, 100, 25, data.focus_button_id == 3);
-    lang_text_draw_centered(23, scenario.demand_changes[data.id].resource, 130, 218, 100, FONT_NORMAL_BLACK);
+    text_draw_centered(resource_strings[scenario.demand_changes[data.id].resource], 130, 218, 100, FONT_NORMAL_BLACK, COLOR_BLACK);
 
     // in route
     lang_text_draw(44, 97, 30, 248, FONT_NORMAL_BLACK);
@@ -185,7 +185,7 @@ static void set_resource(int value)
 
 static void button_resource(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_select_list_show(screen_dialog_offset_x() + 230, screen_dialog_offset_y() + 55, 23, 16, set_resource);
+    window_select_list_show_text(screen_dialog_offset_x() + 230, screen_dialog_offset_y() + 55, resource_strings, RESOURCE_TYPES_MAX, set_resource);
 }
 
 static void set_route_id(int index)

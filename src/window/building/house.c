@@ -144,15 +144,12 @@ void window_building_draw_house(struct building_info_context_t *c)
         c->x_offset + 394, c->y_offset + 278, FONT_NORMAL_BROWN);
 
     if (b->data.house.evolve_text_id == 62) {
-        int width = lang_text_draw(127, 40 + b->data.house.evolve_text_id,
-            c->x_offset + 32, c->y_offset + 60, FONT_NORMAL_BLACK);
-        width += lang_text_draw_colored(41, all_buildings[c->worst_desirability_building_id].type,
-            c->x_offset + 32 + width, c->y_offset + 60, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
+        int width = lang_text_draw(127, 40 + b->data.house.evolve_text_id, c->x_offset + 32, c->y_offset + 60, FONT_NORMAL_BLACK);
+        width += text_draw(all_buildings_strings[all_buildings[c->worst_desirability_building_id].type], c->x_offset + 32 + width, c->y_offset + 60, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
         text_draw(")", c->x_offset + 32 + width, c->y_offset + 60, FONT_NORMAL_BLACK, 0);
         lang_text_draw_multiline(127, 41 + b->data.house.evolve_text_id,
             c->x_offset + 32, c->y_offset + 76, BLOCK_SIZE * (c->width_blocks - 4), FONT_NORMAL_BLACK);
     } else {
-        lang_text_draw_multiline(127, 40 + b->data.house.evolve_text_id,
-            c->x_offset + 32, c->y_offset + 70, BLOCK_SIZE * (c->width_blocks - 4), FONT_NORMAL_BLACK);
+        lang_text_draw_multiline(127, 40 + b->data.house.evolve_text_id, c->x_offset + 32, c->y_offset + 70, BLOCK_SIZE * (c->width_blocks - 4), FONT_NORMAL_BLACK);
     }
 }

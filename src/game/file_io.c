@@ -14,7 +14,6 @@
 #include "core/zip.h"
 #include "empire/empire.h"
 #include "empire/object.h"
-#include "empire/trade_prices.h"
 #include "figure/formation_legion.h"
 #include "figure/formation_herd.h"
 #include "figure/formation_enemy.h"
@@ -228,7 +227,7 @@ static void init_savegame_data(void)
     state->empire = create_savegame_piece(8, 0);
     state->empire_objects = create_savegame_piece(20600, 1);
     state->building_count_industry = create_savegame_piece(128, 0);
-    state->trade_prices = create_savegame_piece(128, 0);
+    state->trade_prices = create_savegame_piece(64, 0);
     state->figure_names = create_savegame_piece(76, 0);
     state->culture_coverage = create_savegame_piece(56, 0);
     state->scenario = create_savegame_piece(52424, 0);
@@ -240,7 +239,7 @@ static void init_savegame_data(void)
     state->building_list_burning_totals = create_savegame_piece(8, 0);
     state->city_sounds = create_savegame_piece(3920, 0);
     state->building_extra_highest_id = create_savegame_piece(4, 0);
-    state->figure_traders = create_savegame_piece(4804, 0);
+    state->figure_traders = create_savegame_piece(4004, 0);
     state->building_list_burning = create_savegame_piece(1000, 1);
     state->building_list_small = create_savegame_piece(1000, 1);
     state->building_list_large = create_savegame_piece(4000, 1);

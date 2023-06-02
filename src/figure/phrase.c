@@ -576,7 +576,7 @@ static int phrase_based_on_city_state(struct figure_t *f)
     int god_state = city_god_state();
     int unemployment_pct = city_data.labor.unemployment_percentage;
 
-    if (city_resource_food_supply_months() <= 0) {
+    if (city_data.resource.food_supply_months <= 0) {
         return 0;
     } else if (unemployment_pct >= 17) {
         return 1;
@@ -592,7 +592,7 @@ static int phrase_based_on_city_state(struct figure_t *f)
         return 4;
     } else if (city_culture_average_entertainment() <= 20) {
         return 3;
-    } else if (city_resource_food_supply_months() >= 4 &&
+    } else if (city_data.resource.food_supply_months >= 4 &&
             unemployment_pct <= 5 &&
             city_culture_average_health() > 0 &&
             city_culture_average_education() > 0) {

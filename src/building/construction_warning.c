@@ -258,7 +258,7 @@ void building_construction_warning_check_food_stocks(int type)
 {
     if (!has_warning && type == BUILDING_HOUSE_VACANT_LOT) {
         if (city_data.population.population >= 200 && !scenario.rome_supplies_wheat) {
-            if (city_resource_food_percentage_produced() <= 95) {
+            if (calc_percentage(city_data.resource.food_produced_last_month, city_data.resource.food_consumed_last_month) <= 95) {
                 show(WARNING_MORE_FOOD_NEEDED);
             }
         }

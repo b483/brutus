@@ -1,6 +1,6 @@
 #include "trade_prices.h"
 
-#include "empire/trade_prices.h"
+#include "city/resource.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
 #include "graphics/lang_text.h"
@@ -29,8 +29,8 @@ static void draw_foreground(void)
 
     for (int i = RESOURCE_WHEAT; i < RESOURCE_TYPES_MAX; i++) {
         image_draw(resource_images[i].icon_img_id + resource_image_offset(i, RESOURCE_IMAGE_ICON), 126 + 30 * i, 201);
-        text_draw_number_centered(trade_price_buy(i), 120 + 30 * i, 234, 30, FONT_SMALL_PLAIN);
-        text_draw_number_centered(trade_price_sell(i), 120 + 30 * i, 259, 30, FONT_SMALL_PLAIN);
+        text_draw_number_centered(trade_prices[i].buy, 120 + 30 * i, 234, 30, FONT_SMALL_PLAIN);
+        text_draw_number_centered(trade_prices[i].sell, 120 + 30 * i, 259, 30, FONT_SMALL_PLAIN);
     }
 
     graphics_reset_dialog();

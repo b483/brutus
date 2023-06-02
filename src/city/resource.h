@@ -2,6 +2,7 @@
 #define CITY_RESOURCE_H
 
 #include "city/constants.h"
+#include "core/buffer.h"
 
 #define RESOURCE_TYPES_MAX 16
 #define FOOD_TYPES_MAX 7
@@ -68,14 +69,25 @@ struct resource_list_t {
 
 struct resource_img_ids_t {
     int icon_img_id;
+    int editor_icon_img_id;
     int warehouse_space_img_id;
     int cart_img_id;
     int farm_field_img_id;
+    int empire_icon_img_id;
+    int editor_empire_icon_img_id;
 };
 
 extern struct resource_img_ids_t resource_images[RESOURCE_TYPES_MAX];
 
 extern char *resource_strings[];
+
+struct trade_price_t {
+    uint16_t buy;
+    uint16_t sell;
+};
+
+extern struct trade_price_t DEFAULT_PRICES[RESOURCE_TYPES_MAX];
+extern struct trade_price_t trade_prices[RESOURCE_TYPES_MAX];
 
 int resource_image_offset(int resource, int type);
 
@@ -89,25 +101,9 @@ struct resource_list_t *city_resource_get_available_foods(void);
 
 int city_resource_multiple_wine_available(void);
 
-int city_resource_food_types_available(void);
-int city_resource_food_stored(void);
-int city_resource_food_needed(void);
-int city_resource_food_supply_months(void);
-int city_resource_food_percentage_produced(void);
-
-int city_resource_operating_granaries(void);
-
-int city_resource_last_used_warehouse(void);
-void city_resource_set_last_used_warehouse(int warehouse_id);
-
 void city_resource_cycle_trade_status(int resource);
 
 void city_resource_toggle_stockpiled(int resource);
-
-int city_resource_has_workshop_with_room(int workshop_type);
-
-void city_resource_add_produced_to_granary(int amount);
-void city_resource_remove_from_granary(int food, int amount);
 
 void city_resource_add_to_warehouse(int resource, int amount);
 void city_resource_remove_from_warehouse(int resource, int amount);
@@ -120,5 +116,11 @@ void city_resource_calculate_food_stocks_and_supply_wheat(void);
 void city_resource_calculate_workshop_stocks(void);
 
 void city_resource_consume_food(void);
+
+int trade_price_change(int resource, int amount);
+
+void trade_prices_save_state(struct buffer_t *buf);
+
+void trade_prices_load_state(struct buffer_t *buf);
 
 #endif // CITY_RESOURCE_H

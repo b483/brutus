@@ -213,23 +213,22 @@ static void draw_map(void)
 
 static void draw_resource_trade_city(int resource, int trade_max, int x_offset, int y_offset)
 {
-    int image_id = resource + image_group(GROUP_EDITOR_EMPIRE_RESOURCES);
-    int resource_offset = resource_image_offset(resource, RESOURCE_IMAGE_ICON);
+    int image_id = resource_images[resource].editor_empire_icon_img_id + resource_image_offset(resource, RESOURCE_IMAGE_ICON);
     switch (trade_max) {
         case 15:
-            image_draw(image_id + resource_offset, x_offset, y_offset);
+            image_draw(image_id, x_offset, y_offset);
             image_draw(image_group(GROUP_EDITOR_TRADE_AMOUNT), x_offset + 17, y_offset);
             break;
         case 25:
-            image_draw(image_id + resource_offset, x_offset, y_offset);
+            image_draw(image_id, x_offset, y_offset);
             image_draw(image_group(GROUP_EDITOR_TRADE_AMOUNT) + 1, x_offset + 13, y_offset);
             break;
         case 40:
-            image_draw(image_id + resource_offset, x_offset, y_offset);
+            image_draw(image_id, x_offset, y_offset);
             image_draw(image_group(GROUP_EDITOR_TRADE_AMOUNT) + 2, x_offset + 11, y_offset);
             break;
         default:
-            image_draw(image_id + resource_offset, x_offset, y_offset);
+            image_draw(image_id, x_offset, y_offset);
     }
 }
 
@@ -318,9 +317,8 @@ static void draw_city_info(void)
             for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
                 if (data.selected_object->resource_sell_limit[r]) {
                     graphics_draw_inset_rect(resource_x_offset, y_offset - 9, 26, 26);
-                    int image_id = r + image_group(GROUP_EDITOR_EMPIRE_RESOURCES);
-                    int resource_offset = resource_image_offset(r, RESOURCE_IMAGE_ICON);
-                    image_draw(image_id + resource_offset, resource_x_offset + 1, y_offset - 8);
+                    int image_id = resource_images[r].editor_empire_icon_img_id + resource_image_offset(r, RESOURCE_IMAGE_ICON);
+                    image_draw(image_id, resource_x_offset + 1, y_offset - 8);
                     resource_x_offset += 32;
                 }
             }

@@ -9,7 +9,6 @@
 #include "city/resource.h"
 #include "core/calc.h"
 #include "core/image.h"
-#include "empire/trade_prices.h"
 #include "map/image.h"
 #include "map/road_access.h"
 #include "scenario/data.h"
@@ -174,9 +173,8 @@ void building_warehouse_space_add_import(struct building_t *space, int resource)
     space->loads_stored++;
     space->subtype.warehouse_resource_id = resource;
 
-    int price = trade_price_buy(resource);
-    city_data.finance.treasury -= price;
-    city_data.finance.this_year.expenses.imports += price;
+    city_data.finance.treasury -= trade_prices[resource].buy;
+    city_data.finance.this_year.expenses.imports += trade_prices[resource].buy;
 
     building_warehouse_space_set_image(space, resource);
 }
@@ -189,15 +187,14 @@ void building_warehouse_space_remove_export(struct building_t *space, int resour
         space->subtype.warehouse_resource_id = RESOURCE_NONE;
     }
 
-    int price = trade_price_sell(resource);
-    city_finance_process_export(price);
+    city_finance_process_export(trade_prices[resource].sell);
 
     building_warehouse_space_set_image(space, resource);
 }
 
 void building_warehouses_add_resource(int resource, int amount)
 {
-    int building_id = city_resource_last_used_warehouse();
+    int building_id = city_data.resource.last_used_warehouse;
     for (int i = 1; i < MAX_BUILDINGS && amount > 0; i++) {
         building_id++;
         if (building_id >= MAX_BUILDINGS) {
@@ -205,7 +202,7 @@ void building_warehouses_add_resource(int resource, int amount)
         }
         struct building_t *b = &all_buildings[building_id];
         if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_WAREHOUSE) {
-            city_resource_set_last_used_warehouse(building_id);
+            city_data.resource.last_used_warehouse = building_id;
             while (amount && building_warehouse_add_resource(b, resource)) {
                 amount--;
             }
@@ -216,7 +213,7 @@ void building_warehouses_add_resource(int resource, int amount)
 int building_warehouses_remove_resource(int resource, int amount)
 {
     int amount_left = amount;
-    int building_id = city_resource_last_used_warehouse();
+    int building_id = city_data.resource.last_used_warehouse;
     // first go for non-getting warehouses
     for (int i = 1; i < MAX_BUILDINGS && amount_left > 0; i++) {
         building_id++;
@@ -226,7 +223,7 @@ int building_warehouses_remove_resource(int resource, int amount)
         struct building_t *b = &all_buildings[building_id];
         if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_WAREHOUSE) {
             if (building_storage_get(b->storage_id)->resource_state[resource] != BUILDING_STORAGE_STATE_GETTING) {
-                city_resource_set_last_used_warehouse(building_id);
+                city_data.resource.last_used_warehouse = building_id;
                 amount_left = building_warehouse_remove_resource(b, resource, amount_left);
             }
         }
@@ -239,7 +236,7 @@ int building_warehouses_remove_resource(int resource, int amount)
         }
         struct building_t *b = &all_buildings[building_id];
         if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_WAREHOUSE) {
-            city_resource_set_last_used_warehouse(building_id);
+            city_data.resource.last_used_warehouse = building_id;
             amount_left = building_warehouse_remove_resource(b, resource, amount_left);
         }
     }
@@ -479,7 +476,7 @@ int building_warehouse_determine_worker_task(struct building_t *warehouse, int *
         if (space->id > 0 && space->loads_stored > 0) {
             if (!city_data.resource.stockpiled[space->subtype.warehouse_resource_id]) {
                 int workshop_type = resource_to_workshop_type(space->subtype.warehouse_resource_id);
-                if (workshop_type != WORKSHOP_NONE && city_resource_has_workshop_with_room(workshop_type)) {
+                if (workshop_type != WORKSHOP_NONE && city_data.resource.space_in_workshops[workshop_type]) {
                     *resource = space->subtype.warehouse_resource_id;
                     return WAREHOUSE_TASK_DELIVERING;
                 }

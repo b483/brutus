@@ -70,7 +70,7 @@ static void draw_foreground(void)
     // Resource
     text_draw(common_editor_strings[4], 30, 248, FONT_NORMAL_BLACK, COLOR_BLACK);
     button_border_draw(155, 242, 100, 25, data.focus_button_id == 4);
-    lang_text_draw_centered(23, scenario.requests[data.id].resource, 155, 248, 100, FONT_NORMAL_BLACK);
+    text_draw_centered(resource_strings[scenario.requests[data.id].resource], 155, 248, 100, FONT_NORMAL_BLACK, COLOR_BLACK);
 
     // Years deadline
     text_draw("Years deadline:", 30, 278, FONT_NORMAL_BLACK, COLOR_BLACK);
@@ -173,7 +173,7 @@ static void set_resource(int value)
 
 static void button_resource(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_select_list_show(screen_dialog_offset_x() + 255, screen_dialog_offset_y() + 77, 23, 17, set_resource);
+    window_select_list_show_text(screen_dialog_offset_x() + 255, screen_dialog_offset_y() + 77, resource_strings, RESOURCE_TYPES_MAX + 1, set_resource);
 }
 
 static void set_deadline_years(int value)
