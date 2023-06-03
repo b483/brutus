@@ -186,7 +186,8 @@ int building_get_workshop_for_raw_material_with_room(
         }
     }
     if (min_building) {
-        map_point_store_result(min_building->road_access_x, min_building->road_access_y, dst);
+        dst->x = min_building->road_access_x;
+        dst->y = min_building->road_access_y;
         return min_building->id;
     }
     return 0;
@@ -222,7 +223,8 @@ int building_get_workshop_for_raw_material(
         }
     }
     if (min_building) {
-        map_point_store_result(min_building->road_access_x, min_building->road_access_y, dst);
+        dst->x = min_building->road_access_x;
+        dst->y = min_building->road_access_y;
         return min_building->id;
     }
     return 0;

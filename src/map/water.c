@@ -6,7 +6,6 @@
 #include "map/figure.h"
 #include "map/grid.h"
 #include "map/image.h"
-#include "map/point.h"
 #include "map/property.h"
 #include "map/terrain.h"
 
@@ -78,8 +77,8 @@ int map_water_determine_orientation_size2(int x, int y, int adjust_xy,
     }
 
     int base_offset = map_grid_offset(x, y);
-    int tile_offsets[] = {OFFSET(0,0), OFFSET(1,0), OFFSET(0,1), OFFSET(1,1)};
-    const int should_be_water[4][4] = {{1, 1, 0, 0}, {0, 1, 0, 1}, {0, 0, 1, 1}, {1, 0, 1, 0}};
+    int tile_offsets[] = { OFFSET(0,0), OFFSET(1,0), OFFSET(0,1), OFFSET(1,1) };
+    const int should_be_water[4][4] = { {1, 1, 0, 0}, {0, 1, 0, 1}, {0, 0, 1, 1}, {1, 0, 1, 0} };
     for (int dir = 0; dir < 4; dir++) {
         int ok_tiles = 0;
         int blocked_tiles = 0;
@@ -228,7 +227,8 @@ int map_water_get_wharf_for_new_fishing_boat(struct figure_t *boat, struct map_p
         case 2: dx = 1; dy = 2; break;
         default: dx = -1; dy = 1; break;
     }
-    map_point_store_result(wharf->x + dx, wharf->y + dy, tile);
+    tile->x = wharf->x + dx;
+    tile->y = wharf->y + dy;
     return wharf->id;
 }
 
@@ -245,7 +245,8 @@ int map_water_find_alternative_fishing_boat_tile(struct figure_t *boat, struct m
             for (int xx = x_min; xx <= x_max; xx++) {
                 int grid_offset = map_grid_offset(xx, yy);
                 if (!map_has_figure_at(grid_offset) && map_terrain_is(grid_offset, TERRAIN_WATER)) {
-                    map_point_store_result(xx, yy, tile);
+                    tile->x = xx;
+                    tile->y = yy;
                     return 1;
                 }
             }
@@ -272,7 +273,8 @@ int map_water_find_shipwreck_tile(struct figure_t *wreck, struct map_point_t *ti
                         map_terrain_is(map_grid_offset(xx, yy + 2), TERRAIN_WATER) &&
                         map_terrain_is(map_grid_offset(xx - 2, yy), TERRAIN_WATER) &&
                         map_terrain_is(map_grid_offset(xx + 2, yy), TERRAIN_WATER)) {
-                        map_point_store_result(xx, yy, tile);
+                        tile->x = xx;
+                        tile->y = yy;
                         return 1;
                     }
                 }
@@ -301,7 +303,8 @@ int map_water_can_spawn_fishing_boat(int x, int y, int size, struct map_point_t 
         if (map_terrain_is(grid_offset, TERRAIN_WATER)) {
             if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
                 if (num_surrounding_water_tiles(grid_offset) >= 8) {
-                    map_point_store_result(map_grid_offset_to_x(grid_offset), map_grid_offset_to_y(grid_offset), tile);
+                    tile->x = map_grid_offset_to_x(grid_offset);
+                    tile->y = map_grid_offset_to_y(grid_offset);
                     return 1;
                 }
             }

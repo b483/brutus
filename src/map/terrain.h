@@ -31,6 +31,8 @@ enum {
 
 extern struct grid_u16_t terrain_grid;
 
+extern struct grid_u8_t terrain_elevation;
+
 int map_terrain_is(int grid_offset, int terrain);
 
 void map_terrain_add_with_radius(int x, int y, int size, int radius, int terrain);
@@ -64,6 +66,8 @@ void map_terrain_backup(void);
 void map_terrain_restore(void);
 
 void map_terrain_clear(void);
+
+void map_elevation_remove_cliffs(void);
 
 void map_terrain_save_state(struct buffer_t *buf);
 

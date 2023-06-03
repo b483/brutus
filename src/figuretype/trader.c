@@ -271,7 +271,8 @@ static int get_closest_warehouse(
         return 0;
     }
     if (min_building->has_road_access == 1) {
-        map_point_store_result(min_building->x, min_building->y, warehouse);
+        warehouse->x = min_building->x;
+        warehouse->y = min_building->y;
     } else if (!map_has_road_access(min_building->x, min_building->y, 3, warehouse)) {
         return 0;
     }

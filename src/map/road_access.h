@@ -1,7 +1,7 @@
 #ifndef MAP_ROAD_ACCESS_H
 #define MAP_ROAD_ACCESS_H
 
-#include "map/point.h"
+#include "map/tiles.h"
 
 int map_has_road_access(int x, int y, int size, struct map_point_t *road);
 

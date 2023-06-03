@@ -286,7 +286,8 @@ int building_warehouse_for_storing(int src_building_id, int x, int y, int resour
     }
     struct building_t *b = building_main(&all_buildings[min_building_id]);
     if (b->has_road_access == 1) {
-        map_point_store_result(b->x, b->y, dst);
+        dst->x = b->x;
+        dst->y = b->y;
     } else if (!map_has_road_access(b->x, b->y, 3, dst)) {
         return 0;
     }
@@ -327,7 +328,8 @@ int building_warehouse_for_getting(struct building_t *src, int resource, struct 
         }
     }
     if (min_building) {
-        map_point_store_result(min_building->road_access_x, min_building->road_access_y, dst);
+        dst->x = min_building->road_access_x;
+        dst->y = min_building->road_access_y;
         return min_building->id;
     } else {
         return 0;

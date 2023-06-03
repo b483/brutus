@@ -7,7 +7,7 @@
 #include "city/labor.h"
 #include "city/resource.h"
 #include "core/buffer.h"
-#include "map/point.h"
+#include "map/tiles.h"
 
 struct god_status_t {
     int8_t happiness;

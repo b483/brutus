@@ -56,11 +56,8 @@ int scenario_map_closest_fishing_point(int x, int y, struct map_point_t *fish)
         }
     }
     if (min_dist < 10000) {
-        map_point_store_result(
-            scenario.fishing_points[min_fish_id].x,
-            scenario.fishing_points[min_fish_id].y,
-            fish
-        );
+        fish->x = scenario.fishing_points[min_fish_id].x;
+        fish->y = scenario.fishing_points[min_fish_id].y;
         return 1;
     }
     return 0;

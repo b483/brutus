@@ -2,7 +2,6 @@
 #define SCENARIO_DATA_H
 
 #include "building/building.h"
-#include "map/point.h"
 
 #include <stdint.h>
 

@@ -29,7 +29,6 @@
 #include "map/grid.h"
 #include "map/image.h"
 #include "map/orientation.h"
-#include "map/point.h"
 #include "map/property.h"
 #include "map/routing.h"
 #include "map/routing_terrain.h"

@@ -4,7 +4,6 @@
 #include "city/view.h"
 #include "city/warning.h"
 #include "core/random.h"
-#include "map/ring.h"
 
 static struct {
     int paused;
@@ -15,7 +14,6 @@ static struct {
 void game_state_init(void)
 {
     city_victory_reset();
-    map_ring_init();
 
     city_view_set_camera(76, 152);
 

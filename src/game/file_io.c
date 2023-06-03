@@ -25,7 +25,6 @@
 #include "map/bookmark.h"
 #include "map/building.h"
 #include "map/desirability.h"
-#include "map/elevation.h"
 #include "map/figure.h"
 #include "map/image.h"
 #include "map/property.h"
@@ -57,7 +56,6 @@ struct scenario_state_t {
     struct buffer_t *terrain;
     struct buffer_t *bitfields;
     struct buffer_t *random;
-    struct buffer_t *elevation;
     struct buffer_t *random_iv;
     struct buffer_t *camera;
     struct buffer_t *scenario;
@@ -81,7 +79,6 @@ struct savegame_state_t {
     struct buffer_t *sprite_grid;
     struct buffer_t *random_grid;
     struct buffer_t *desirability_grid;
-    struct buffer_t *elevation_grid;
     struct buffer_t *building_damage_grid;
     struct buffer_t *aqueduct_backup_grid;
     struct buffer_t *sprite_backup_grid;
@@ -175,10 +172,9 @@ static void init_scenario_data(void)
     struct scenario_state_t *state = &scenario_data.state;
     state->graphic_ids = create_scenario_piece(52488);
     state->edge = create_scenario_piece(26244);
-    state->terrain = create_scenario_piece(52488);
+    state->terrain = create_scenario_piece(78732);
     state->bitfields = create_scenario_piece(26244);
     state->random = create_scenario_piece(26244);
-    state->elevation = create_scenario_piece(26244);
     state->random_iv = create_scenario_piece(8);
     state->camera = create_scenario_piece(8);
     state->scenario = create_scenario_piece(52424);
@@ -197,14 +193,13 @@ static void init_savegame_data(void)
     state->image_grid = create_savegame_piece(52488, 1);
     state->edge_grid = create_savegame_piece(26244, 1);
     state->building_grid = create_savegame_piece(52488, 1);
-    state->terrain_grid = create_savegame_piece(52488, 1);
+    state->terrain_grid = create_savegame_piece(78732, 1);
     state->aqueduct_grid = create_savegame_piece(26244, 1);
     state->figure_grid = create_savegame_piece(52488, 1);
     state->bitfields_grid = create_savegame_piece(26244, 1);
     state->sprite_grid = create_savegame_piece(26244, 1);
     state->random_grid = create_savegame_piece(26244, 0);
     state->desirability_grid = create_savegame_piece(26244, 1);
-    state->elevation_grid = create_savegame_piece(26244, 1);
     state->building_damage_grid = create_savegame_piece(26244, 1);
     state->aqueduct_backup_grid = create_savegame_piece(26244, 1);
     state->sprite_backup_grid = create_savegame_piece(26244, 1);
@@ -263,11 +258,8 @@ static void scenario_load_from_state(struct scenario_state_t *file)
     map_terrain_load_state(file->terrain);
     map_property_load_state(file->bitfields, file->edge);
     map_random_load_state(file->random);
-    map_elevation_load_state(file->elevation);
     city_view_load_scenario_state(file->camera);
-
     random_load_state(file->random_iv);
-
     scenario_load_state(file->scenario);
     empire_object_load_state(file->empire_objects);
 }
@@ -278,11 +270,8 @@ static void scenario_save_to_state(struct scenario_state_t *file)
     map_terrain_save_state(file->terrain);
     map_property_save_state(file->bitfields, file->edge);
     map_random_save_state(file->random);
-    map_elevation_save_state(file->elevation);
     city_view_save_scenario_state(file->camera);
-
     random_save_state(file->random_iv);
-
     scenario_save_state(file->scenario);
     empire_object_save_state(file->empire_objects);
 }
@@ -300,7 +289,6 @@ static void savegame_load_from_state(struct savegame_state_t *state)
     map_property_load_state(state->bitfields_grid, state->edge_grid);
     map_random_load_state(state->random_grid);
     map_desirability_load_state(state->desirability_grid);
-    map_elevation_load_state(state->elevation_grid);
 
     figure_load_state(state->figures);
     figure_route_load_state(state->route_figures, state->route_paths);
@@ -363,7 +351,6 @@ static void savegame_save_to_state(struct savegame_state_t *state)
     map_property_save_state(state->bitfields_grid, state->edge_grid);
     map_random_save_state(state->random_grid);
     map_desirability_save_state(state->desirability_grid);
-    map_elevation_save_state(state->elevation_grid);
 
     figure_save_state(state->figures);
     figure_route_save_state(state->route_figures, state->route_paths);

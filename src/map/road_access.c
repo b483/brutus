@@ -34,7 +34,8 @@ int map_has_road_access(int x, int y, int size, struct map_point_t *road)
     find_minimum_road_tile(x, y, size, &min_value, &min_grid_offset);
     if (min_value < 12) {
         if (road) {
-            map_point_store_result(map_grid_offset_to_x(min_grid_offset), map_grid_offset_to_y(min_grid_offset), road);
+            road->x = map_grid_offset_to_x(min_grid_offset);
+            road->y = map_grid_offset_to_y(min_grid_offset);
         }
         return 1;
     }
@@ -50,7 +51,8 @@ int map_has_road_access_hippodrome(int x, int y, struct map_point_t *road)
     find_minimum_road_tile(x + 10, y, 5, &min_value, &min_grid_offset);
     if (min_value < 12) {
         if (road) {
-            map_point_store_result(map_grid_offset_to_x(min_grid_offset), map_grid_offset_to_y(min_grid_offset), road);
+            road->x = map_grid_offset_to_x(min_grid_offset);
+            road->y = map_grid_offset_to_y(min_grid_offset);
         }
         return 1;
     }
@@ -75,7 +77,8 @@ int map_has_road_access_granary(int x, int y, struct map_point_t *road)
     }
     if (rx >= 0 && ry >= 0) {
         if (road) {
-            map_point_store_result(rx, ry, road);
+            road->x = rx;
+            road->y = ry;
         }
         return 1;
     }

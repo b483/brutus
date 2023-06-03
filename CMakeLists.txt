@@ -221,17 +221,14 @@ set(MAP_FILES
     ${PROJECT_SOURCE_DIR}/src/map/building.c
     ${PROJECT_SOURCE_DIR}/src/map/building_tiles.c
     ${PROJECT_SOURCE_DIR}/src/map/desirability.c
-    ${PROJECT_SOURCE_DIR}/src/map/elevation.c
     ${PROJECT_SOURCE_DIR}/src/map/figure.c
     ${PROJECT_SOURCE_DIR}/src/map/grid.c
     ${PROJECT_SOURCE_DIR}/src/map/image.c
     ${PROJECT_SOURCE_DIR}/src/map/image_context.c
     ${PROJECT_SOURCE_DIR}/src/map/natives.c
     ${PROJECT_SOURCE_DIR}/src/map/orientation.c
-    ${PROJECT_SOURCE_DIR}/src/map/point.c
     ${PROJECT_SOURCE_DIR}/src/map/property.c
     ${PROJECT_SOURCE_DIR}/src/map/random.c
-    ${PROJECT_SOURCE_DIR}/src/map/ring.c
     ${PROJECT_SOURCE_DIR}/src/map/road_access.c
     ${PROJECT_SOURCE_DIR}/src/map/road_aqueduct.c
     ${PROJECT_SOURCE_DIR}/src/map/road_network.c
@@ -387,7 +384,6 @@ set(WINDOW_FILES
 set(EDITOR_FILES
     ${PROJECT_SOURCE_DIR}/src/editor/editor.c
     ${PROJECT_SOURCE_DIR}/src/editor/tool.c
-    ${PROJECT_SOURCE_DIR}/src/editor/tool_restriction.c
 )
 
 set(SOURCE_FILES

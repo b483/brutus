@@ -11,7 +11,6 @@
 #include "figuretype/missile.h"
 #include "map/figure.h"
 #include "map/grid.h"
-#include "map/point.h"
 #include "sound/effect.h"
 
 #include <stdlib.h>

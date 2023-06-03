@@ -2,7 +2,7 @@
 #define MAP_WATER_H
 
 #include "figure/figure.h"
-#include "map/point.h"
+#include "map/tiles.h"
 
 void map_water_add_building(int building_id, int x, int y, int size, int image_id);
 

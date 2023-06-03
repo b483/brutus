@@ -24,7 +24,6 @@
 #include "map/aqueduct.h"
 #include "map/building.h"
 #include "map/desirability.h"
-#include "map/elevation.h"
 #include "map/figure.h"
 #include "map/image.h"
 #include "map/image_context.h"
@@ -90,7 +89,7 @@ static void clear_map_data(void)
     map_sprite_clear();
     map_random_clear();
     map_desirability_clear();
-    map_elevation_clear();
+    map_grid_clear_u8(terrain_elevation.items);
     map_road_network_clear();
 
     map_image_context_init();

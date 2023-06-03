@@ -2,7 +2,6 @@
 #define BUILDING_WAREHOUSE_H
 
 #include "building/building.h"
-#include "map/point.h"
 
 enum {
     WAREHOUSE_ROOM = 0,

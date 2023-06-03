@@ -8,7 +8,6 @@
 #include "map/building.h"
 #include "map/building_tiles.h"
 #include "map/desirability.h"
-#include "map/elevation.h"
 #include "map/figure.h"
 #include "map/grid.h"
 #include "map/image.h"
@@ -935,18 +934,18 @@ static int get_access_ramp_image_offset(int x, int y)
                 if (map_terrain_is(grid_offset, TERRAIN_ELEVATION)) {
                     right_tiles++;
                 }
-                height = map_elevation_at(grid_offset);
+                height = terrain_elevation.items[grid_offset];
             } else if (i < 4) { // 1st row
                 if (map_terrain_is(grid_offset, TERRAIN_ACCESS_RAMP) &&
-                    map_elevation_at(grid_offset) < height) {
+                    terrain_elevation.items[grid_offset] < height) {
                     right_tiles++;
                 }
             } else { // higher row beyond access ramp
                 if (map_terrain_is(grid_offset, TERRAIN_ELEVATION)) {
-                    if (map_elevation_at(grid_offset) != height) {
+                    if (terrain_elevation.items[grid_offset] != height) {
                         right_tiles++;
                     }
-                } else if (map_elevation_at(grid_offset) >= height) {
+                } else if (terrain_elevation.items[grid_offset] >= height) {
                     right_tiles++;
                 }
             }
@@ -981,7 +980,7 @@ static void set_elevation_image(int x, int y, int grid_offset)
             terrain_grid.items[grid_offset] &= ~TERRAIN_ACCESS_RAMP;
             map_property_set_multi_tile_size(grid_offset, 1);
             map_property_mark_draw_tile(grid_offset);
-            if (map_elevation_at(grid_offset)) {
+            if (terrain_elevation.items[grid_offset]) {
                 terrain_grid.items[grid_offset] |= TERRAIN_ELEVATION;
             } else {
                 terrain_grid.items[grid_offset] &= ~TERRAIN_ELEVATION;
@@ -993,11 +992,11 @@ static void set_elevation_image(int x, int y, int grid_offset)
                 image_group(GROUP_TERRAIN_ACCESS_RAMP) + image_offset, TERRAIN_ACCESS_RAMP);
         }
     }
-    if (map_elevation_at(grid_offset)
+    if (terrain_elevation.items[grid_offset]
     && !map_terrain_is(grid_offset, TERRAIN_ACCESS_RAMP)
     && !map_terrain_is(grid_offset, TERRAIN_WATER)
     && !map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
-        const struct terrain_image_t *img = map_image_context_get_elevation(grid_offset, map_elevation_at(grid_offset));
+        const struct terrain_image_t *img = map_image_context_get_elevation(grid_offset, terrain_elevation.items[grid_offset]);
         if (img->group_offset == 44) {
             terrain_grid.items[grid_offset] &= ~TERRAIN_ELEVATION;
             map_property_set_multi_tile_xy(grid_offset, 0, 0, 1);

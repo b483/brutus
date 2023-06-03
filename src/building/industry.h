@@ -2,7 +2,6 @@
 #define BUILDING_INDUSTRY_H
 
 #include "building/building.h"
-#include "map/point.h"
 
 int building_is_farm(int type);
 int building_is_workshop(int type);

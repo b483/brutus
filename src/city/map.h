@@ -1,8 +1,6 @@
 #ifndef CITY_MAP_H
 #define CITY_MAP_H
 
-#include "map/point.h"
-
 void city_map_set_entry_point(int x, int y);
 void city_map_set_exit_point(int x, int y);
 

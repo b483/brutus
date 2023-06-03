@@ -1,7 +1,7 @@
 #ifndef SCENARIO_MAP_H
 #define SCENARIO_MAP_H
 
-#include "map/point.h"
+#include "map/tiles.h"
 
 void scenario_map_init(void);
 

@@ -5,12 +5,11 @@
 #include "core/image.h"
 #include "core/image_group_editor.h"
 #include "core/random.h"
-#include "editor/tool_restriction.h"
 #include "figuretype/water.h"
 #include "game/undo.h"
 #include "graphics/window.h"
 #include "map/building_tiles.h"
-#include "map/elevation.h"
+#include "map/figure.h"
 #include "map/grid.h"
 #include "map/image.h"
 #include "map/image_context.h"
@@ -27,6 +26,17 @@
 #include "widget/minimap.h"
 
 #define TERRAIN_NOT_DISPLACEABLE TERRAIN_ROCK | TERRAIN_WATER | TERRAIN_BUILDING | TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP
+
+#define OFFSET(x,y) (x + GRID_SIZE * y)
+
+static const int TILE_GRID_OFFSETS[] = { 0, GRID_SIZE, 1, GRID_SIZE + 1 };
+
+static const int ACCESS_RAMP_TILE_OFFSETS_BY_ORIENTATION[4][6] = {
+    {OFFSET(0,1), OFFSET(1,1), OFFSET(0,2), OFFSET(1,2), OFFSET(0,0), OFFSET(1,0)},
+    {OFFSET(0,0), OFFSET(0,1), OFFSET(-1,0), OFFSET(-1,1), OFFSET(1,0), OFFSET(1,1)},
+    {OFFSET(0,0), OFFSET(1,0), OFFSET(0,-1), OFFSET(1,-1), OFFSET(0,1), OFFSET(1,1)},
+    {OFFSET(1,0), OFFSET(1,1), OFFSET(2,0), OFFSET(2,1), OFFSET(0,0), OFFSET(0,1)},
+};
 
 static struct {
     int active;
@@ -91,7 +101,7 @@ void editor_tool_start_use(const struct map_tile_t *tile)
         return;
     }
     data.build_in_progress = 1;
-    data.start_elevation = map_elevation_at(tile->grid_offset);
+    data.start_elevation = terrain_elevation.items[tile->grid_offset];
     data.start_tile = *tile;
     if (data.type == TOOL_ROAD) {
         game_undo_start_build(BUILDING_ROAD);
@@ -160,7 +170,7 @@ static void add_terrain_at(int x, int y)
     }
     int grid_offset = map_grid_offset(x, y);
     int shrub_rnd = map_random_get(grid_offset) & 7;
-    int elevation = map_elevation_at(grid_offset);
+    int elevation = terrain_elevation.items[grid_offset];
     switch (data.type) {
         case TOOL_GRASS:
             if (!map_terrain_is(grid_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP)) {
@@ -232,17 +242,17 @@ static void add_terrain_at(int x, int y)
         case TOOL_RAISE_LAND:
             if (elevation < 5 && elevation == data.start_elevation) {
                 map_property_set_multi_tile_size(grid_offset, 1);
-                map_elevation_set(grid_offset, elevation + 1);
+                terrain_elevation.items[grid_offset] = elevation + 1;
                 terrain_grid.items[grid_offset] = TERRAIN_ELEVATION;
             }
             break;
         case TOOL_LOWER_LAND:
             if (elevation == data.start_elevation) {
                 if (elevation == 1) {
-                    map_elevation_set(grid_offset, 0);
+                    terrain_elevation.items[grid_offset] = 0;
                     terrain_grid.items[grid_offset] = 0;
                 } else if (elevation) {
-                    map_elevation_set(grid_offset, elevation - 1);
+                    terrain_elevation.items[grid_offset] = elevation - 1;
                     terrain_grid.items[grid_offset] = TERRAIN_ELEVATION;
                 }
             }
@@ -479,4 +489,131 @@ void editor_tool_end_use(const struct map_tile_t *tile)
     if (warning) {
         city_warning_show(warning);
     }
+}
+
+static int is_clear_terrain(const struct map_tile_t *tile, int *warning)
+{
+    int result = !map_terrain_is(tile->grid_offset, TERRAIN_NOT_CLEAR ^ TERRAIN_ROAD);
+    if (!result && warning) {
+        *warning = WARNING_EDITOR_CANNOT_PLACE;
+    }
+    return result;
+}
+
+static int is_edge(const struct map_tile_t *tile, int *warning)
+{
+    int result = tile->x == 0 || tile->y == 0 || tile->x == map_data.width - 1 || tile->y == map_data.height - 1;
+    if (!result && warning) {
+        *warning = WARNING_EDITOR_NEED_MAP_EDGE;
+    }
+    return result;
+}
+
+static int is_water(const struct map_tile_t *tile, int *warning)
+{
+    int result = map_terrain_is(tile->grid_offset, TERRAIN_WATER);
+    if (!result && warning) {
+        *warning = WARNING_EDITOR_NEED_OPEN_WATER;
+    }
+    return result;
+}
+
+static int is_deep_water(const struct map_tile_t *tile, int *warning)
+{
+    int result = map_terrain_is(tile->grid_offset, TERRAIN_WATER) &&
+        map_terrain_count_directly_adjacent_with_type(tile->grid_offset, TERRAIN_WATER) == 4;
+    if (!result && warning) {
+        *warning = WARNING_EDITOR_NEED_OPEN_WATER;
+    }
+    return result;
+}
+
+int editor_tool_can_place_flag(int type, const struct map_tile_t *tile, int *warning)
+{
+    switch (type) {
+        case TOOL_ENTRY_POINT:
+        case TOOL_EXIT_POINT:
+        case TOOL_INVASION_POINT:
+            return is_clear_terrain(tile, warning) && is_edge(tile, warning);
+
+        case TOOL_EARTHQUAKE_POINT:
+        case TOOL_HERD_POINT:
+            return is_clear_terrain(tile, warning);
+
+        case TOOL_FISHING_POINT:
+            return is_water(tile, warning);
+
+        case TOOL_RIVER_ENTRY_POINT:
+        case TOOL_RIVER_EXIT_POINT:
+            return is_edge(tile, warning) && is_deep_water(tile, warning);
+
+        default:
+            return 0;
+    }
+}
+
+int editor_tool_can_place_access_ramp(const struct map_tile_t *tile, int *orientation_index)
+{
+    if (!map_grid_is_inside(tile->x, tile->y, 2)) {
+        return 0;
+    }
+    for (int orientation = 0; orientation < 4; orientation++) {
+        int right_tiles = 0;
+        int wrong_tiles = 0;
+        int top_elevation = 0;
+        for (int index = 0; index < 6; index++) {
+            int tile_offset = tile->grid_offset + ACCESS_RAMP_TILE_OFFSETS_BY_ORIENTATION[orientation][index];
+            int elevation = terrain_elevation.items[tile_offset];
+            if (index < 2) {
+                if (map_terrain_is(tile_offset, TERRAIN_ELEVATION)) {
+                    right_tiles++;
+                } else {
+                    wrong_tiles++;
+                }
+                top_elevation = elevation;
+            } else if (index < 4) {
+                if (map_terrain_is(tile_offset, TERRAIN_ELEVATION)) {
+                    if (elevation == top_elevation) {
+                        wrong_tiles++;
+                    } else {
+                        right_tiles++;
+                    }
+                } else if (elevation >= top_elevation) {
+                    right_tiles++;
+                } else {
+                    wrong_tiles++;
+                }
+            } else {
+                if (map_terrain_is(tile_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP)) {
+                    wrong_tiles++;
+                } else if (elevation >= top_elevation) {
+                    wrong_tiles++;
+                } else {
+                    right_tiles++;
+                }
+            }
+        }
+        if (right_tiles == 6) {
+            if (orientation_index) {
+                *orientation_index = orientation;
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int editor_tool_can_place_building(const struct map_tile_t *tile, int num_tiles, int *blocked_tiles)
+{
+    int blocked = 0;
+    for (int i = 0; i < num_tiles; i++) {
+        int tile_offset = tile->grid_offset + TILE_GRID_OFFSETS[i];
+        if ((terrain_grid.items[tile_offset] & TERRAIN_NOT_CLEAR) || map_has_figure_at(tile_offset)) {
+            blocked = 1;
+            if (blocked_tiles) blocked_tiles[i] = 1;
+        } else {
+            if (blocked_tiles) blocked_tiles[i] = 0;
+        }
+    }
+    return !blocked;
 }

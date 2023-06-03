@@ -2,7 +2,7 @@
 #define FIGURE_COMBAT_H
 
 #include "figure/figure.h"
-#include "map/point.h"
+#include "map/tiles.h"
 
 #define PREFECT_TARGET_ACQUISITION_RANGE 15
 

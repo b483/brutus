@@ -9,7 +9,6 @@
 #include "figure/movement.h"
 #include "figure/sound.h"
 #include "map/figure.h"
-#include "map/point.h"
 #include "sound/effect.h"
 
 static const int CLOUD_TILE_OFFSETS[] = { 0, 0, 0, 1, 1, 2 };

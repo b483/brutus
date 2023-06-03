@@ -4,10 +4,70 @@
 #include "core/calc.h"
 #include "map/grid.h"
 #include "map/property.h"
-#include "map/ring.h"
 #include "map/terrain.h"
 
 static struct grid_i8_t desirability_grid;
+
+struct ring_tile_t {
+    int x;
+    int y;
+    int grid_offset;
+};
+
+static struct {
+    struct ring_tile_t tiles[1080];
+    int index[6][7];
+} data;
+
+static void map_ring_init(void)
+{
+    int index = 0;
+    int x, y;
+    for (int size = 1; size <= 5; size++) {
+        for (int dist = 1; dist <= 6; dist++) {
+            data.index[size][dist] = index;
+            // top row, from x=0
+            for (y = -dist, x = 0; x < size + dist; x++, index++) {
+                data.tiles[index].x = x;
+                data.tiles[index].y = y;
+            }
+            // right row down
+            for (x = size + dist - 1, y = -dist + 1; y < size + dist; y++, index++) {
+                data.tiles[index].x = x;
+                data.tiles[index].y = y;
+            }
+            // bottom row to the left
+            for (y = size + dist - 1, x = size + dist - 2; x >= -dist; x--, index++) {
+                data.tiles[index].x = x;
+                data.tiles[index].y = y;
+            }
+            // exception (bug in game): size 4 distance 2, left corner is off by x+1, y-1
+            if (size == 4 && dist == 2) {
+                data.tiles[index - 1].x += 1;
+                data.tiles[index - 1].y -= 1;
+            }
+            // left row up
+            for (x = -dist, y = size + dist - 2; y >= -dist; y--, index++) {
+                data.tiles[index].x = x;
+                data.tiles[index].y = y;
+            }
+            // top row up to x=0
+            for (y = -dist, x = -dist + 1; x < 0; x++, index++) {
+                data.tiles[index].x = x;
+                data.tiles[index].y = y;
+            }
+        }
+    }
+    for (int i = 0; i < index; i++) {
+        data.tiles[i].grid_offset = map_grid_delta(data.tiles[i].x, data.tiles[i].y);
+    }
+}
+
+static int map_ring_is_inside_map(int x, int y)
+{
+    return x >= -1 && x <= map_data.width &&
+        y >= -1 && y <= map_data.height;
+}
 
 void map_desirability_clear(void)
 {
@@ -24,12 +84,10 @@ static void add_desirability_at_distance(int x, int y, int size, int distance, i
         partially_outside_map = 1;
     }
     int base_offset = map_grid_offset(x, y);
-    int start = map_ring_start(size, distance);
-    int end = map_ring_end(size, distance);
 
     if (partially_outside_map) {
-        for (int i = start; i < end; i++) {
-            const struct ring_tile_t *tile = map_ring_tile(i);
+        for (int i = data.index[size][distance]; i < data.index[size][distance] + 4 * (size - 1) + 8 * distance; i++) {
+            const struct ring_tile_t *tile = &data.tiles[i];
             if (map_ring_is_inside_map(x + tile->x, y + tile->y)) {
                 desirability_grid.items[base_offset + tile->grid_offset] += desirability;
                 // BUG: bounding on wrong tile:
@@ -37,8 +95,8 @@ static void add_desirability_at_distance(int x, int y, int size, int distance, i
             }
         }
     } else {
-        for (int i = start; i < end; i++) {
-            const struct ring_tile_t *tile = map_ring_tile(i);
+        for (int i = data.index[size][distance]; i < data.index[size][distance] + 4 * (size - 1) + 8 * distance; i++) {
+            const struct ring_tile_t *tile = &data.tiles[i];
             desirability_grid.items[base_offset + tile->grid_offset] =
                 calc_bound(desirability_grid.items[base_offset + tile->grid_offset] + desirability, -100, 100);
         }
@@ -125,6 +183,7 @@ void map_desirability_update(void)
     map_desirability_clear();
     update_buildings();
     update_terrain();
+    map_ring_init();
 }
 
 int map_desirability_get(int grid_offset)

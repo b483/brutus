@@ -65,7 +65,8 @@ int building_dock_get_free_destination(int ship_id, struct map_point_t *tile)
         case 2: dx = 1; dy = 3; break;
         default: dx = -1; dy = 1; break;
     }
-    map_point_store_result(dock->x + dx, dock->y + dy, tile);
+    tile->x = dock->x + dx;
+    tile->y = dock->y + dy;
     dock->data.dock.trade_ship_id = ship_id;
     return dock_id;
 }
@@ -87,7 +88,8 @@ int building_dock_get_queue_destination(struct map_point_t *tile)
             case 2: dx = 2; dy = 4; break;
             default: dx = -2; dy = 2; break;
         }
-        map_point_store_result(dock->x + dx, dock->y + dy, tile);
+        tile->x = dock->x + dx;
+        tile->y = dock->y + dy;
         if (!map_has_figure_at(map_grid_offset(tile->x, tile->y))) {
             return dock_id;
         }
@@ -104,7 +106,8 @@ int building_dock_get_queue_destination(struct map_point_t *tile)
             case 2: dx = 2; dy = 5; break;
             default: dx = -3; dy = 2; break;
         }
-        map_point_store_result(dock->x + dx, dock->y + dy, tile);
+        tile->x = dock->x + dx;
+        tile->y = dock->y + dy;
         if (!map_has_figure_at(map_grid_offset(tile->x, tile->y))) {
             return dock_id;
         }

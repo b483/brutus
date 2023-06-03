@@ -2,7 +2,7 @@
 #define BUILDING_BUILDING_H
 
 #include "core/buffer.h"
-#include "map/point.h"
+#include "map/tiles.h"
 
 #define MAX_BUILDINGS 2000
 #define MAX_HOUSE_TYPES 20

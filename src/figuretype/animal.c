@@ -13,7 +13,6 @@
 #include "figure/route.h"
 #include "map/figure.h"
 #include "map/grid.h"
-#include "map/point.h"
 #include "map/terrain.h"
 #include "scenario/map.h"
 #include "sound/effect.h"

@@ -128,7 +128,9 @@ static int get_closest_warehouse_for_import(int x, int y, int city_id, int dista
     }
     struct building_t *min = &all_buildings[min_building_id];
     if (min->has_road_access == 1) {
-        map_point_store_result(min->x, min->y, warehouse);
+        warehouse->x = min->x;
+        warehouse->y = min->y;
+
     } else if (!map_has_road_access(min->x, min->y, 3, warehouse)) {
         return 0;
     }
@@ -187,7 +189,8 @@ static int get_closest_warehouse_for_export(int x, int y, int city_id, int dista
     }
     struct building_t *min = &all_buildings[min_building_id];
     if (min->has_road_access == 1) {
-        map_point_store_result(min->x, min->y, warehouse);
+        warehouse->x = min->x;
+        warehouse->y = min->y;
     } else if (!map_has_road_access(min->x, min->y, 3, warehouse)) {
         return 0;
     }

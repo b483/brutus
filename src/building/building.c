@@ -15,7 +15,6 @@
 #include "game/undo.h"
 #include "map/building_tiles.h"
 #include "map/desirability.h"
-#include "map/elevation.h"
 #include "map/figure.h"
 #include "map/grid.h"
 #include "map/random.h"

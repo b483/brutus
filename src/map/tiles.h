@@ -1,6 +1,17 @@
 #ifndef MAP_TILES_H
 #define MAP_TILES_H
 
+struct map_point_t {
+    int x;
+    int y;
+};
+
+struct map_tile_t {
+    int x;
+    int y;
+    int grid_offset;
+};
+
 void map_tiles_update_all_gardens(void);
 void map_tiles_determine_gardens(void);
 

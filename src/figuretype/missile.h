@@ -2,7 +2,7 @@
 #define FIGURETYPE_MISSILE_H
 
 #include "figure/figure.h"
-#include "map/point.h"
+#include "map/tiles.h"
 
 void figure_create_explosion_cloud(int x, int y, int size);
 

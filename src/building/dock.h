@@ -2,7 +2,6 @@
 #define BUILDING_DOCK_H
 
 #include "building/building.h"
-#include "map/point.h"
 
 int building_dock_count_idle_dockers(const struct building_t *dock);
 

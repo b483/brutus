@@ -255,7 +255,8 @@ int building_granary_for_storing(int x, int y, int resource, int distance_from_e
     }
     // deliver to center of granary
     struct building_t *min = &all_buildings[min_building_id];
-    map_point_store_result(min->x + 1, min->y + 1, dst);
+    dst->x = min->x + 1;
+    dst->y = min->y + 1;
     return min_building_id;
 }
 
@@ -299,7 +300,8 @@ int building_getting_granary_for_storing(int x, int y, int resource, int distanc
         }
     }
     struct building_t *min = &all_buildings[min_building_id];
-    map_point_store_result(min->x + 1, min->y + 1, dst);
+    dst->x = min->x + 1;
+    dst->y = min->y + 1;
     return min_building_id;
 }
 
@@ -363,7 +365,8 @@ int building_granary_for_getting(struct building_t *src, struct map_point_t *dst
         }
     }
     struct building_t *min = &all_buildings[min_building_id];
-    map_point_store_result(min->x + 1, min->y + 1, dst);
+    dst->x = min->x + 1;
+    dst->y = min->y + 1;
     return min_building_id;
 }
 

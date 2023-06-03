@@ -4,7 +4,6 @@
 #include "building/building.h"
 #include "figure/figure.h"
 #include "figure/formation.h"
-#include "map/point.h"
 
 #define MAX_LEGIONS 6
 

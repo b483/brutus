@@ -1,7 +1,7 @@
 #ifndef EDITOR_TOOL_H
 #define EDITOR_TOOL_H
 
-#include "map/point.h"
+#include "map/tiles.h"
 
 enum {
     TOOL_GRASS = 0,
@@ -53,5 +53,11 @@ void draw_brush(int x, int y);
 void editor_tool_update_use(const struct map_tile_t *tile);
 
 void editor_tool_end_use(const struct map_tile_t *tile);
+
+int editor_tool_can_place_flag(int type, const struct map_tile_t *tile, int *warning);
+
+int editor_tool_can_place_access_ramp(const struct map_tile_t *tile, int *orientation_index);
+
+int editor_tool_can_place_building(const struct map_tile_t *tile, int num_tiles, int *blocked_tiles);
 
 #endif // EDITOR_TOOL_H

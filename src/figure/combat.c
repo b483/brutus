@@ -12,7 +12,6 @@
 #include "figure/sound.h"
 #include "figuretype/enemy.h"
 #include "map/building.h"
-#include "map/elevation.h"
 #include "map/figure.h"
 #include "map/grid.h"
 #include "map/image.h"
@@ -34,7 +33,7 @@ static int tile_obstructed(int grid_offset)
     int map_img_at_offset = map_image_at(grid_offset);
 
     // low elevation between targets does not obstruct
-    if (map_elevation_at(grid_offset) > 1) {
+    if (terrain_elevation.items[grid_offset] > 1) {
         return 1;
     }
     // shrubs lower to the ground do not obstruct
@@ -68,16 +67,9 @@ static int tile_obstructed(int grid_offset)
 
 static int can_see_target(struct figure_t *observer, struct figure_t *target)
 {
-    int observer_elevation = 0;
-    if (map_elevation_at(observer->grid_offset)) {
-        observer_elevation += map_elevation_at(observer->grid_offset);
-    }
+    int observer_elevation = terrain_elevation.items[observer->grid_offset];
     if (map_terrain_is(observer->grid_offset, TERRAIN_WALL_OR_GATEHOUSE)) {
         observer_elevation += 6;
-    }
-    int target_elevation = 0;
-    if (map_elevation_at(target->grid_offset)) {
-        target_elevation += map_elevation_at(target->grid_offset);
     }
 
     int x_delta = abs(observer->x - target->x);
@@ -112,7 +104,7 @@ static int can_see_target(struct figure_t *observer, struct figure_t *target)
             }
             x_check = slope * (y_check - observer->y) + observer->x;
         }
-        if (observer_elevation > target_elevation) {
+        if (observer_elevation > terrain_elevation.items[target->grid_offset]) {
             observer_elevation--;
             continue;
         }
@@ -632,7 +624,8 @@ static void update_ranged_targeting(struct figure_t *shooter, struct figure_t *t
             }
         };
     }
-    map_point_store_result(target->x, target->y, tile);
+    tile->x = target->x;
+    tile->y = target->y;
 }
 
 int set_missile_target(struct figure_t *shooter, struct map_point_t *tile)

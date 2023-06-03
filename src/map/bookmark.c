@@ -2,7 +2,7 @@
 
 #include "city/view.h"
 #include "map/grid.h"
-#include "map/point.h"
+#include "map/tiles.h"
 
 #define MAX_BOOKMARKS 4
 
