@@ -7,7 +7,6 @@
 #include "city/buildings.h"
 #include "city/data.h"
 #include "city/finance.h"
-#include "city/map.h"
 #include "city/message.h"
 #include "city/resource.h"
 #include "city/trade.h"
@@ -21,7 +20,6 @@
 #include "map/figure.h"
 #include "map/road_access.h"
 #include "scenario/data.h"
-#include "scenario/map.h"
 
 int figure_trade_caravan_can_buy(struct figure_t *trader, int warehouse_id, int city_id)
 {
@@ -290,8 +288,8 @@ static void go_to_next_warehouse(struct figure_t *f, int x_src, int y_src, int d
         f->destination_y = dst.y;
     } else {
         f->action_state = FIGURE_ACTION_TRADE_CARAVAN_LEAVING;
-        f->destination_x = city_data.map.exit_point.x;
-        f->destination_y = city_data.map.exit_point.y;
+        f->destination_x = scenario.exit_point.x;
+        f->destination_y = scenario.exit_point.y;
     }
 }
 

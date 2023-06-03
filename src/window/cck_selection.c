@@ -16,7 +16,6 @@
 #include "graphics/window.h"
 #include "scenario/data.h"
 #include "scenario/editor_events.h"
-#include "scenario/map.h"
 #include "sound/music.h"
 #include "widget/scenario_minimap.h"
 #include "window/city.h"

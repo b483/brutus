@@ -96,12 +96,6 @@ static void save_main_data(struct buffer_t *main)
     buffer_write_i32(main, city_data.migration.emigration_duration);
     buffer_write_i32(main, city_data.migration.newcomers);
     buffer_write_i16(main, city_data.resource.last_used_warehouse);
-    buffer_write_u8(main, city_data.map.entry_point.x);
-    buffer_write_u8(main, city_data.map.entry_point.y);
-    buffer_write_i16(main, city_data.map.entry_point.grid_offset);
-    buffer_write_u8(main, city_data.map.exit_point.x);
-    buffer_write_u8(main, city_data.map.exit_point.y);
-    buffer_write_i16(main, city_data.map.exit_point.grid_offset);
     buffer_write_u8(main, city_data.building.senate_x);
     buffer_write_u8(main, city_data.building.senate_y);
     buffer_write_i16(main, city_data.building.senate_grid_offset);
@@ -463,12 +457,6 @@ static void load_main_data(struct buffer_t *main)
     city_data.migration.emigration_duration = buffer_read_i32(main);
     city_data.migration.newcomers = buffer_read_i32(main);
     city_data.resource.last_used_warehouse = buffer_read_i16(main);
-    city_data.map.entry_point.x = buffer_read_u8(main);
-    city_data.map.entry_point.y = buffer_read_u8(main);
-    city_data.map.entry_point.grid_offset = buffer_read_i16(main);
-    city_data.map.exit_point.x = buffer_read_u8(main);
-    city_data.map.exit_point.y = buffer_read_u8(main);
-    city_data.map.exit_point.grid_offset = buffer_read_i16(main);
     city_data.building.senate_x = buffer_read_u8(main);
     city_data.building.senate_y = buffer_read_u8(main);
     city_data.building.senate_grid_offset = buffer_read_i16(main);
@@ -780,44 +768,16 @@ static void load_main_data(struct buffer_t *main)
     city_data.mission.victory_message_shown = buffer_read_i32(main);
 }
 
-static void save_entry_exit(struct buffer_t *entry_exit_xy, struct buffer_t *entry_exit_grid_offset)
-{
-    buffer_write_i32(entry_exit_xy, city_data.map.entry_flag.x);
-    buffer_write_i32(entry_exit_xy, city_data.map.entry_flag.y);
-    buffer_write_i32(entry_exit_xy, city_data.map.exit_flag.x);
-    buffer_write_i32(entry_exit_xy, city_data.map.exit_flag.y);
-
-    buffer_write_i32(entry_exit_grid_offset, city_data.map.entry_flag.grid_offset);
-    buffer_write_i32(entry_exit_grid_offset, city_data.map.exit_flag.grid_offset);
-}
-
-static void load_entry_exit(struct buffer_t *entry_exit_xy, struct buffer_t *entry_exit_grid_offset)
-{
-    city_data.map.entry_flag.x = buffer_read_i32(entry_exit_xy);
-    city_data.map.entry_flag.y = buffer_read_i32(entry_exit_xy);
-    city_data.map.exit_flag.x = buffer_read_i32(entry_exit_xy);
-    city_data.map.exit_flag.y = buffer_read_i32(entry_exit_xy);
-
-    city_data.map.entry_flag.grid_offset = buffer_read_i32(entry_exit_grid_offset);
-    city_data.map.exit_flag.grid_offset = buffer_read_i32(entry_exit_grid_offset);
-}
-
-void city_data_save_state(struct buffer_t *main, struct buffer_t *graph_order,
-                          struct buffer_t *entry_exit_xy, struct buffer_t *entry_exit_grid_offset)
+void city_data_save_state(struct buffer_t *main, struct buffer_t *graph_order)
 {
     save_main_data(main);
 
     buffer_write_i32(graph_order, city_data.population.graph_order);
-
-    save_entry_exit(entry_exit_xy, entry_exit_grid_offset);
 }
 
-void city_data_load_state(struct buffer_t *main, struct buffer_t *graph_order,
-                          struct buffer_t *entry_exit_xy, struct buffer_t *entry_exit_grid_offset)
+void city_data_load_state(struct buffer_t *main, struct buffer_t *graph_order)
 {
     load_main_data(main);
 
     city_data.population.graph_order = buffer_read_i32(graph_order);
-
-    load_entry_exit(entry_exit_xy, entry_exit_grid_offset);
 }

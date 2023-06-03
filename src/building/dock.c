@@ -7,7 +7,6 @@
 #include "map/routing.h"
 #include "map/terrain.h"
 #include "scenario/data.h"
-#include "scenario/map.h"
 
 int building_dock_count_idle_dockers(const struct building_t *dock)
 {

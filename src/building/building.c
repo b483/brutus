@@ -22,6 +22,7 @@
 #include "map/routing_terrain.h"
 #include "map/terrain.h"
 #include "map/tiles.h"
+#include "scenario/data.h"
 
 #include <string.h>
 
@@ -441,8 +442,8 @@ void building_clear_related_data(struct building_t *b)
                     f->destination_x = nearest_barracks_road_tile.x;
                     f->destination_y = nearest_barracks_road_tile.y;
                 } else {
-                    f->destination_x = city_data.map.exit_point.x;
-                    f->destination_y = city_data.map.exit_point.y;
+                    f->destination_x = scenario.exit_point.x;
+                    f->destination_y = scenario.exit_point.y;
                 }
                 f->action_state = FIGURE_ACTION_SOLDIER_RETURNING_TO_BARRACKS;
             }

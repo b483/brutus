@@ -125,10 +125,8 @@ struct savegame_state_t {
     struct buffer_t *building_extra_sequence;
     struct buffer_t *routing_counters;
     struct buffer_t *building_count_culture3;
-    struct buffer_t *city_entry_exit_xy;
     struct buffer_t *building_extra_corrupt_houses;
     struct buffer_t *bookmarks;
-    struct buffer_t *city_entry_exit_grid_offset;
 };
 
 static struct {
@@ -209,9 +207,9 @@ static void init_savegame_data(void)
     state->legion_formations = create_savegame_piece(420, 1);
     state->herd_formations = create_savegame_piece(560, 1);
     state->enemy_formations = create_savegame_piece(7000, 1);
-    state->city_data = create_savegame_piece(11592, 1);
+    state->city_data = create_savegame_piece(11584, 1);
     state->player_name = create_savegame_piece(24, 0);
-    state->buildings = create_savegame_piece(162000, 1);
+    state->buildings = create_savegame_piece(162043, 1);
     state->city_view_orientation = create_savegame_piece(4, 0);
     state->game_time = create_savegame_piece(20, 0);
     state->building_extra_highest_id_ever = create_savegame_piece(4, 0);
@@ -246,10 +244,8 @@ static void init_savegame_data(void)
     state->building_extra_sequence = create_savegame_piece(4, 0);
     state->routing_counters = create_savegame_piece(8, 0);
     state->building_count_culture3 = create_savegame_piece(40, 0);
-    state->city_entry_exit_xy = create_savegame_piece(16, 0);
     state->building_extra_corrupt_houses = create_savegame_piece(8, 0);
     state->bookmarks = create_savegame_piece(32, 0);
-    state->city_entry_exit_grid_offset = create_savegame_piece(8, 0);
 }
 
 static void scenario_load_from_state(struct scenario_state_t *file)
@@ -296,10 +292,7 @@ static void savegame_load_from_state(struct savegame_state_t *state)
     herd_formations_load_state(state->herd_formations);
     enemy_formations_load_state(state->enemy_formations);
 
-    city_data_load_state(state->city_data,
-                         state->city_graph_order,
-                         state->city_entry_exit_xy,
-                         state->city_entry_exit_grid_offset);
+    city_data_load_state(state->city_data, state->city_graph_order);
 
     building_load_state(state->buildings,
                         state->building_extra_highest_id,
@@ -358,16 +351,13 @@ static void savegame_save_to_state(struct savegame_state_t *state)
     herd_formations_save_state(state->herd_formations);
     enemy_formations_save_state(state->enemy_formations);
 
-    city_data_save_state(state->city_data,
-                         state->city_graph_order,
-                         state->city_entry_exit_xy,
-                         state->city_entry_exit_grid_offset);
+    city_data_save_state(state->city_data, state->city_graph_order);
 
     building_save_state(state->buildings,
-                        state->building_extra_highest_id,
-                        state->building_extra_highest_id_ever,
-                        state->building_extra_sequence,
-                        state->building_extra_corrupt_houses);
+        state->building_extra_highest_id,
+        state->building_extra_highest_id_ever,
+        state->building_extra_sequence,
+        state->building_extra_corrupt_houses);
     building_barracks_save_state(state->building_barracks_tower_sentry);
     city_view_save_state(state->city_view_orientation, state->city_view_camera);
     game_time_save_state(state->game_time);

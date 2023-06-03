@@ -20,4 +20,8 @@ int map_water_find_shipwreck_tile(struct figure_t *wreck, struct map_point_t *ti
 
 int map_water_can_spawn_fishing_boat(int x, int y, int size, struct map_point_t *tile);
 
+int scenario_map_has_river_entry(void);
+
+int scenario_map_has_river_exit(void);
+
 #endif // MAP_WATER_H

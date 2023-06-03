@@ -1,7 +1,6 @@
 #include "soldier.h"
 
 #include "city/data.h"
-#include "city/map.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"
@@ -11,6 +10,7 @@
 #include "figuretype/missile.h"
 #include "map/figure.h"
 #include "map/grid.h"
+#include "scenario/data.h"
 #include "sound/effect.h"
 
 #include <stdlib.h>
@@ -206,8 +206,8 @@ void figure_soldier_action(struct figure_t *f)
             break;
         case FIGURE_ACTION_SOLDIER_GOING_TO_DISTANT_BATTLE:
         {
-            f->destination_x = city_data.map.exit_point.x;
-            f->destination_y = city_data.map.exit_point.y;
+            f->destination_x = scenario.exit_point.x;
+            f->destination_y = scenario.exit_point.y;
             figure_movement_move_ticks(f, f->speed_multiplier);
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
                 f->is_invisible = 1;

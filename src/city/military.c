@@ -9,6 +9,7 @@
 #include "figure/figure.h"
 #include "figure/formation.h"
 #include "figure/formation_legion.h"
+#include "map/grid.h"
 #include "scenario/data.h"
 #include "scenario/editor_events.h"
 #include "window/build_menu.h"
@@ -190,10 +191,10 @@ static void update_aftermath(void)
         if (city_data.distant_battle.roman_months_to_travel_back <= 0) {
             if (city_data.distant_battle.city_foreign_months_left) {
                 // soldiers return - not in time
-                city_message_post(1, MESSAGE_TROOPS_RETURN_FAILED, 0, city_data.map.exit_point.grid_offset);
+                city_message_post(1, MESSAGE_TROOPS_RETURN_FAILED, 0, map_grid_offset(scenario.exit_point.x, scenario.exit_point.y));
             } else {
                 // victorious
-                city_message_post(1, MESSAGE_TROOPS_RETURN_VICTORIOUS, 0, city_data.map.exit_point.grid_offset);
+                city_message_post(1, MESSAGE_TROOPS_RETURN_VICTORIOUS, 0, map_grid_offset(scenario.exit_point.x, scenario.exit_point.y));
             }
             city_data.distant_battle.roman_months_traveled = 0;
             // return soldiers

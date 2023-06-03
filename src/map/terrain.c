@@ -107,27 +107,6 @@ int map_terrain_exist_multiple_tiles_in_radius_with_type(int x, int y, int size,
     return 0;
 }
 
-int map_terrain_exists_clear_tile_in_radius(int x, int y, int size, int radius, int except_grid_offset,
-                                            int *x_tile, int *y_tile)
-{
-    int x_min, y_min, x_max, y_max;
-    map_grid_get_area(x, y, size, radius, &x_min, &y_min, &x_max, &y_max);
-
-    for (int yy = y_min; yy <= y_max; yy++) {
-        for (int xx = x_min; xx <= x_max; xx++) {
-            int grid_offset = map_grid_offset(xx, yy);
-            if (grid_offset != except_grid_offset && !terrain_grid.items[grid_offset]) {
-                *x_tile = xx;
-                *y_tile = yy;
-                return 1;
-            }
-        }
-    }
-    *x_tile = x_max;
-    *y_tile = y_max;
-    return 0;
-}
-
 int map_terrain_all_tiles_in_radius_are(int x, int y, int size, int radius, int terrain)
 {
     int x_min, y_min, x_max, y_max;

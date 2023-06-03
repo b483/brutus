@@ -25,7 +25,6 @@
 #include "map/terrain.h"
 #include "map/tiles.h"
 #include "scenario/data.h"
-#include "scenario/map.h"
 #include "sound/effect.h"
 
 #include <stdlib.h>

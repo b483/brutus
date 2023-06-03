@@ -324,10 +324,6 @@ extern struct city_data_t {
         int32_t docker_export_resource;
     } trade;
     struct {
-        struct map_tile_t entry_point;
-        struct map_tile_t exit_point;
-        struct map_tile_t entry_flag;
-        struct map_tile_t exit_flag;
         struct {
             int32_t id;
             int32_t size;
@@ -346,8 +342,8 @@ void city_data_init(void);
 
 void city_data_init_scenario(void);
 
-void city_data_save_state(struct buffer_t *main, struct buffer_t *graph_order, struct buffer_t *entry_exit_xy, struct buffer_t *entry_exit_grid_offset);
+void city_data_save_state(struct buffer_t *main, struct buffer_t *graph_order);
 
-void city_data_load_state(struct buffer_t *main, struct buffer_t *graph_order, struct buffer_t *entry_exit_xy, struct buffer_t *entry_exit_grid_offset);
+void city_data_load_state(struct buffer_t *main, struct buffer_t *graph_order);
 
 #endif // CITY_DATA_H

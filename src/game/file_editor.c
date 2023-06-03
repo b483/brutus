@@ -37,7 +37,6 @@
 #include "map/tiles.h"
 #include "scenario/data.h"
 #include "scenario/editor_events.h"
-#include "scenario/map.h"
 #include "scenario/scenario.h"
 #include "sound/city.h"
 #include "sound/music.h"
@@ -101,7 +100,7 @@ static void clear_map_data(void)
 static void create_blank_map(int size)
 {
     scenario_editor_create(size);
-    scenario_map_init();
+    map_grid_init(scenario.map.width, scenario.map.height, scenario.map.grid_start, scenario.map.grid_border_size);
     clear_map_data();
     map_image_init_edges();
     city_view_set_camera(76, 152);
@@ -147,7 +146,7 @@ int game_file_editor_load_scenario(const char *dir, const char *scenario_file)
     if (!game_file_io_read_scenario(dir, scenario_file)) {
         return 0;
     }
-    scenario_map_init();
+    map_grid_init(scenario.map.width, scenario.map.height, scenario.map.grid_start, scenario.map.grid_border_size);
 
     prepare_map_for_editing(0);
     return 1;

@@ -8,6 +8,7 @@
 #include "map/image.h"
 #include "map/property.h"
 #include "map/terrain.h"
+#include "scenario/data.h"
 
 #define OFFSET(x,y) (x + GRID_SIZE * y)
 
@@ -311,4 +312,14 @@ int map_water_can_spawn_fishing_boat(int x, int y, int size, struct map_point_t 
         }
     }
     return 0;
+}
+
+int scenario_map_has_river_entry(void)
+{
+    return scenario.river_entry_point.x != -1 && scenario.river_entry_point.y != -1;
+}
+
+int scenario_map_has_river_exit(void)
+{
+    return scenario.river_exit_point.x != -1 && scenario.river_exit_point.y != -1;
 }

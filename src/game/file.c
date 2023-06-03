@@ -6,7 +6,6 @@
 #include "building/storage.h"
 #include "city/data.h"
 #include "city/emperor.h"
-#include "city/map.h"
 #include "city/message.h"
 #include "city/military.h"
 #include "city/victory.h"
@@ -48,7 +47,6 @@
 #include "map/terrain.h"
 #include "map/tiles.h"
 #include "scenario/editor_events.h"
-#include "scenario/map.h"
 #include "scenario/data.h"
 #include "scenario/scenario.h"
 #include "sound/city.h"
@@ -94,7 +92,7 @@ static void clear_scenario_data(void)
 static void initialize_scenario_data(const char *scenario_name)
 {
     string_copy(scenario_name, scenario.scenario_name, MAX_SCENARIO_NAME);
-    scenario_map_init();
+    map_grid_init(scenario.map.width, scenario.map.height, scenario.map.grid_start, scenario.map.grid_border_size);
 
     // initialize grids
     map_tiles_update_all_elevation();
@@ -116,10 +114,15 @@ static void initialize_scenario_data(const char *scenario_name)
 
     map_routing_update_all();
 
-    scenario_map_init_entry_exit();
-
-    city_map_set_entry_point(scenario.entry_point.x, scenario.entry_point.y);
-    city_map_set_exit_point(scenario.exit_point.x, scenario.exit_point.y);
+    // init entry/exit
+    if (scenario.entry_point.x == -1 || scenario.entry_point.y == -1) {
+        scenario.entry_point.x = scenario.map.width - 1;
+        scenario.entry_point.y = scenario.map.height / 2;
+    }
+    if (scenario.exit_point.x == -1 || scenario.exit_point.y == -1) {
+        scenario.exit_point.x = scenario.entry_point.x;
+        scenario.exit_point.y = scenario.entry_point.y;
+    }
 
     game_time_init(scenario.start_year);
 
@@ -140,7 +143,7 @@ static void initialize_saved_game(void)
     scenario.empire.distant_battle_roman_travel_months = empire_object_init_distant_battle_travel_months(EMPIRE_OBJECT_ROMAN_ARMY);
     scenario.empire.distant_battle_enemy_travel_months = empire_object_init_distant_battle_travel_months(EMPIRE_OBJECT_ENEMY_ARMY);
 
-    scenario_map_init();
+    map_grid_init(scenario.map.width, scenario.map.height, scenario.map.grid_start, scenario.map.grid_border_size);
 
     city_view_init();
 

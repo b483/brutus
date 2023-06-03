@@ -2,7 +2,6 @@
 
 #include "building/house.h"
 #include "city/data.h"
-#include "city/map.h"
 #include "city/population.h"
 #include "core/calc.h"
 #include "core/image.h"
@@ -10,10 +9,11 @@
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "map/road_access.h"
+#include "scenario/data.h"
 
 void figure_create_immigrant(struct building_t *house, int num_people)
 {
-    struct figure_t *f = figure_create(FIGURE_IMMIGRANT, city_data.map.entry_point.x, city_data.map.entry_point.y, DIR_0_TOP);
+    struct figure_t *f = figure_create(FIGURE_IMMIGRANT, scenario.entry_point.x, scenario.entry_point.y, DIR_0_TOP);
     f->action_state = FIGURE_ACTION_IMMIGRANT_CREATED;
     f->is_targetable = 1;
     f->terrain_usage = TERRAIN_USAGE_ANY;
@@ -185,8 +185,8 @@ void figure_emigrant_action(struct figure_t *f)
             f->is_invisible = 1;
             if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
                 f->action_state = FIGURE_ACTION_EMIGRANT_LEAVING;
-                f->destination_x = city_data.map.entry_point.x;
-                f->destination_y = city_data.map.entry_point.y;
+                f->destination_x = scenario.entry_point.x;
+                f->destination_y = scenario.entry_point.y;
                 f->roam_length = 0;
                 f->progress_on_tile = 15;
             }
@@ -231,8 +231,8 @@ void figure_homeless_action(struct figure_t *f)
                     }
                 } else {
                     f->action_state = FIGURE_ACTION_HOMELESS_LEAVING;
-                    f->destination_x = city_data.map.exit_point.x;
-                    f->destination_y = city_data.map.exit_point.y;
+                    f->destination_x = scenario.exit_point.x;
+                    f->destination_y = scenario.exit_point.y;
                     f->roam_length = 0;
                     f->wait_ticks = 0;
                 }

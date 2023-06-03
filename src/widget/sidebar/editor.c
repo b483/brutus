@@ -12,7 +12,6 @@
 #include "graphics/window.h"
 #include "scenario/data.h"
 #include "scenario/editor_events.h"
-#include "scenario/map.h"
 #include "widget/map_editor.h"
 #include "widget/minimap.h"
 #include "widget/sidebar/common.h"

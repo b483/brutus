@@ -56,9 +56,9 @@
 #include "map/road_network.h"
 #include "map/routing_terrain.h"
 #include "map/tiles.h"
+#include "map/water.h"
 #include "map/water_supply.h"
 #include "scenario/editor_events.h"
-#include "scenario/map.h"
 #include "sound/music.h"
 #include "widget/minimap.h"
 

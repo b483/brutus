@@ -14,7 +14,6 @@
 #include "map/figure.h"
 #include "map/grid.h"
 #include "map/terrain.h"
-#include "scenario/map.h"
 #include "sound/effect.h"
 
 static const struct map_point_t SEAGULL_OFFSETS[] = {

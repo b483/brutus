@@ -4,7 +4,8 @@
 #include "map/figure.h"
 #include "map/grid.h"
 #include "scenario/data.h"
-#include "scenario/map.h"
+
+#define MAP_FLAG_IMG_ID 2916
 
 void figure_create_editor_flags(void)
 {
@@ -16,7 +17,7 @@ void figure_create_editor_flags(void)
 void figure_editor_flag_action(struct figure_t *f)
 {
     figure_image_increase_offset(f, 16);
-    f->image_id = image_group(GROUP_FIGURE_MAP_FLAG_FLAGS) + f->image_offset / 2;
+    f->image_id = MAP_FLAG_IMG_ID + f->image_offset / 2;
     map_figure_delete(f);
 
     struct map_point_t point = { 0, 0 };

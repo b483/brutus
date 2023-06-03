@@ -1,7 +1,6 @@
 #include "tiles.h"
 
 #include "city/data.h"
-#include "city/map.h"
 #include "city/view.h"
 #include "core/image.h"
 #include "map/aqueduct.h"
@@ -16,7 +15,6 @@
 #include "map/random.h"
 #include "map/terrain.h"
 #include "scenario/data.h"
-#include "scenario/map.h"
 
 #define OFFSET(x,y) (x + GRID_SIZE * y)
 
@@ -1030,6 +1028,13 @@ void map_tiles_add_entry_exit_flags(void)
     } else {
         entry_orientation = -1;
     }
+    if (entry_orientation >= 0) {
+        int grid_offset = map_grid_offset(scenario.entry_point.x, scenario.entry_point.y);
+        terrain_grid.items[grid_offset] |= TERRAIN_ROCK;
+        int orientation = (city_view_orientation() + entry_orientation) % 8;
+        map_image_set(grid_offset, image_group(GROUP_TERRAIN_ENTRY_EXIT_FLAGS) + orientation / 2);
+    }
+
     int exit_orientation;
     if (scenario.exit_point.x == 0) {
         exit_orientation = DIR_2_RIGHT;
@@ -1042,46 +1047,11 @@ void map_tiles_add_entry_exit_flags(void)
     } else {
         exit_orientation = -1;
     }
-    if (entry_orientation >= 0) {
-        int grid_offset = map_grid_offset(scenario.entry_point.x, scenario.entry_point.y);
-        int x_tile = 0;
-        int y_tile = 0;
-        for (int i = 1; i < 10; i++) {
-            if (map_terrain_exists_clear_tile_in_radius(scenario.entry_point.x, scenario.entry_point.y,
-                1, i, grid_offset, &x_tile, &y_tile)) {
-                break;
-            }
-        }
-        int grid_offset_flag = city_map_set_entry_flag(x_tile, y_tile);
-        terrain_grid.items[grid_offset_flag] |= TERRAIN_ROCK;
-        int orientation = (city_view_orientation() + entry_orientation) % 8;
-        map_image_set(grid_offset_flag, image_group(GROUP_TERRAIN_ENTRY_EXIT_FLAGS) + orientation / 2);
-    }
     if (exit_orientation >= 0) {
         int grid_offset = map_grid_offset(scenario.exit_point.x, scenario.exit_point.y);
-        int x_tile = 0;
-        int y_tile = 0;
-        for (int i = 1; i < 10; i++) {
-            if (map_terrain_exists_clear_tile_in_radius(scenario.exit_point.x, scenario.exit_point.y,
-                1, i, grid_offset, &x_tile, &y_tile)) {
-                break;
-            }
-        }
-        int grid_offset_flag = city_map_set_exit_flag(x_tile, y_tile);
-        terrain_grid.items[grid_offset_flag] |= TERRAIN_ROCK;
+        terrain_grid.items[grid_offset] |= TERRAIN_ROCK;
         int orientation = (city_view_orientation() + exit_orientation) % 8;
-        map_image_set(grid_offset_flag, image_group(GROUP_TERRAIN_ENTRY_EXIT_FLAGS) + 4 + orientation / 2);
+        map_image_set(grid_offset, image_group(GROUP_TERRAIN_ENTRY_EXIT_FLAGS) + 4 + orientation / 2);
     }
 }
 
-static void remove_entry_exit_flag(const struct map_tile_t *tile)
-{
-    // re-calculate grid_offset because the stored offset might be invalid
-    terrain_grid.items[map_grid_offset(tile->x, tile->y)] &= ~TERRAIN_ROCK;
-}
-
-void map_tiles_remove_entry_exit_flags(void)
-{
-    remove_entry_exit_flag(&city_data.map.entry_flag);
-    remove_entry_exit_flag(&city_data.map.exit_flag);
-}

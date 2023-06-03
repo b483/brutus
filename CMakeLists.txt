@@ -142,7 +142,6 @@ set(CITY_FILES
     ${PROJECT_SOURCE_DIR}/src/city/health.c
     ${PROJECT_SOURCE_DIR}/src/city/houses.c
     ${PROJECT_SOURCE_DIR}/src/city/labor.c
-    ${PROJECT_SOURCE_DIR}/src/city/map.c
     ${PROJECT_SOURCE_DIR}/src/city/message.c
     ${PROJECT_SOURCE_DIR}/src/city/migration.c
     ${PROJECT_SOURCE_DIR}/src/city/military.c
@@ -244,7 +243,6 @@ set(MAP_FILES
 )
 set(SCENARIO_FILES
     ${PROJECT_SOURCE_DIR}/src/scenario/editor_events.c
-    ${PROJECT_SOURCE_DIR}/src/scenario/map.c
     ${PROJECT_SOURCE_DIR}/src/scenario/scenario.c
 )
 set(GRAPHICS_FILES

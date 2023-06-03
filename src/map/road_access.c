@@ -1,13 +1,23 @@
 #include "road_access.h"
 
 #include "building/building.h"
-#include "city/map.h"
+#include "city/data.h"
 #include "map/building.h"
 #include "map/grid.h"
 #include "map/road_network.h"
 #include "map/routing.h"
 #include "map/routing_terrain.h"
 #include "map/terrain.h"
+
+static int city_map_road_network_index(int network_id)
+{
+    for (int n = 0; n < 10; n++) {
+        if (city_data.map.largest_road_networks[n].id == network_id) {
+            return n;
+        }
+    }
+    return 11;
+}
 
 static void find_minimum_road_tile(int x, int y, int size, int *min_value, int *min_grid_offset)
 {

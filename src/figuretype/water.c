@@ -12,7 +12,6 @@
 #include "map/grid.h"
 #include "map/water.h"
 #include "scenario/data.h"
-#include "scenario/map.h"
 
 static const int FLOTSAM_RESOURCE_IDS[] = {
     3, 1, 3, 2, 1, 3, 2, 3, 2, 1, 3, 3, 2, 3, 3, 3, 1, 2, 0, 1
@@ -151,6 +150,37 @@ void figure_shipwreck_action(struct figure_t *f)
         return;
     }
     f->image_id = image_group(GROUP_FIGURE_SHIPWRECK) + f->image_offset / 16;
+}
+
+static int scenario_map_closest_fishing_point(int x, int y, struct map_point_t *fish)
+{
+    int num_fishing_spots = 0;
+    for (int i = 0; i < MAX_FISH_POINTS; i++) {
+        if (scenario.fishing_points[i].x > 0) {
+            num_fishing_spots++;
+        }
+    }
+    if (num_fishing_spots <= 0) {
+        return 0;
+    }
+    int min_dist = 10000;
+    int min_fish_id = 0;
+    for (int i = 0; i < MAX_FISH_POINTS; i++) {
+        if (scenario.fishing_points[i].x > 0) {
+            int dist = calc_maximum_distance(x, y,
+                scenario.fishing_points[i].x, scenario.fishing_points[i].y);
+            if (dist < min_dist) {
+                min_dist = dist;
+                min_fish_id = i;
+            }
+        }
+    }
+    if (min_dist < 10000) {
+        fish->x = scenario.fishing_points[min_fish_id].x;
+        fish->y = scenario.fishing_points[min_fish_id].y;
+        return 1;
+    }
+    return 0;
 }
 
 void figure_fishing_boat_action(struct figure_t *f)

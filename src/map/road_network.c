@@ -1,7 +1,6 @@
 #include "road_network.h"
 
-#include "city/map.h"
-#include "map/grid.h"
+#include "city/data.h"
 #include "map/routing_terrain.h"
 #include "map/terrain.h"
 
@@ -70,6 +69,30 @@ static int mark_road_network(int grid_offset, uint8_t network_id)
         grid_offset = next_offset;
     } while (next_offset > -1);
     return size;
+}
+
+static void city_map_clear_largest_road_networks(void)
+{
+    for (int i = 0; i < 10; i++) {
+        city_data.map.largest_road_networks[i].id = 0;
+        city_data.map.largest_road_networks[i].size = 0;
+    }
+}
+
+static void city_map_add_to_largest_road_networks(int network_id, int size)
+{
+    for (int n = 0; n < 10; n++) {
+        if (size > city_data.map.largest_road_networks[n].size) {
+            // move everyone down
+            for (int m = 9; m > n; m--) {
+                city_data.map.largest_road_networks[m].id = city_data.map.largest_road_networks[m-1].id;
+                city_data.map.largest_road_networks[m].size = city_data.map.largest_road_networks[m-1].size;
+            }
+            city_data.map.largest_road_networks[n].id = network_id;
+            city_data.map.largest_road_networks[n].size = size;
+            break;
+        }
+    }
 }
 
 void map_road_network_update(void)

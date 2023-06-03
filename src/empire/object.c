@@ -4,7 +4,6 @@
 #include "city/buildings.h"
 #include "city/data.h"
 #include "city/finance.h"
-#include "city/map.h"
 #include "city/message.h"
 #include "city/trade.h"
 #include "core/calc.h"
@@ -12,7 +11,6 @@
 #include "figuretype/trader.h"
 #include "game/animation.h"
 #include "scenario/data.h"
-#include "scenario/map.h"
 
 struct empire_object_t empire_objects[MAX_OBJECTS];
 
