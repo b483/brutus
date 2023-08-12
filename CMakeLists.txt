@@ -242,7 +242,6 @@ set(MAP_FILES
     ${PROJECT_SOURCE_DIR}/src/map/water_supply.c
 )
 set(SCENARIO_FILES
-    ${PROJECT_SOURCE_DIR}/src/scenario/editor_events.c
     ${PROJECT_SOURCE_DIR}/src/scenario/scenario.c
 )
 set(GRAPHICS_FILES

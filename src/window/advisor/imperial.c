@@ -15,8 +15,7 @@
 #include "graphics/scrollbar.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/data.h"
-#include "scenario/editor_events.h"
+#include "scenario/scenario.h"
 #include "window/donate_to_city.h"
 #include "window/empire.h"
 #include "window/gift_to_emperor.h"
@@ -327,7 +326,7 @@ static void confirm_send_troops(void)
 
 static void confirm_send_goods(void)
 {
-    scenario_request_dispatch(selected_request_id);
+    dispatch_imperial_request(selected_request_id);
     goods_requests_to_draw--;
     scrollbar_update_max(&scrollbar, scrollbar.max_scroll_position - 1);
 }

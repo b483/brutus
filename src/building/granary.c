@@ -8,7 +8,7 @@
 #include "city/resource.h"
 #include "core/calc.h"
 #include "map/routing_terrain.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "sound/effect.h"
 
 #define MAX_GRANARIES 100

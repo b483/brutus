@@ -20,7 +20,7 @@
 #include "map/building.h"
 #include "map/grid.h"
 #include "map/routing.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "sound/city.h"
 #include "sound/speech.h"
 #include "sound/effect.h"

@@ -12,7 +12,7 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 #define ADVISOR_HEIGHT 27
 

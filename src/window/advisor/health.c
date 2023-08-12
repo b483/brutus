@@ -38,7 +38,7 @@ static int draw_background(void)
 
     lang_text_draw(56, 0, 60, 12, FONT_LARGE_BLACK);
     if (city_data.population.population >= 200) {
-        lang_text_draw_multiline(56, city_health() / 10 + 16, 60, 46, 512, FONT_NORMAL_BLACK);
+        lang_text_draw_multiline(56, city_data.health.value / 10 + 16, 60, 46, 512, FONT_NORMAL_BLACK);
     } else {
         lang_text_draw_multiline(56, 15, 60, 46, 512, FONT_NORMAL_BLACK);
     }

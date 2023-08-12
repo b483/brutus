@@ -10,7 +10,7 @@
 #include "core/image.h"
 #include "figuretype/trader.h"
 #include "game/animation.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 struct empire_object_t empire_objects[MAX_OBJECTS];
 

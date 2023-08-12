@@ -32,7 +32,6 @@
 #include "map/routing.h"
 #include "map/sprite.h"
 #include "map/terrain.h"
-#include "scenario/editor_events.h"
 #include "scenario/scenario.h"
 #include "sound/city.h"
 

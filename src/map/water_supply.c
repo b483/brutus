@@ -11,7 +11,7 @@
 #include "map/image.h"
 #include "map/property.h"
 #include "map/terrain.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 #include <string.h>
 

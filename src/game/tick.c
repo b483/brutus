@@ -58,7 +58,7 @@
 #include "map/tiles.h"
 #include "map/water.h"
 #include "map/water_supply.h"
-#include "scenario/editor_events.h"
+#include "scenario/scenario.h"
 #include "sound/music.h"
 #include "widget/minimap.h"
 
@@ -66,7 +66,7 @@ static void advance_year(void)
 {
     game_undo_disable();
     game_time_advance_year();
-    scenario_empire_process_expansion();
+    process_empire_expansion();
     city_population_request_yearly_update();
     city_finance_handle_year_change();
 
@@ -89,7 +89,7 @@ static void advance_month(void)
 {
     city_migration_reset_newcomers();
     city_health_update();
-    scenario_random_event_process();
+    process_random_event();
     city_finance_handle_month_change();
     city_resource_consume_food();
     city_victory_update_months_to_govern();
@@ -106,13 +106,13 @@ static void advance_month(void)
     } else {
         city_ratings_update(0);
     }
-    scenario_custom_messages_process();
-    scenario_gladiator_revolt_process();
-    scenario_request_process();
-    scenario_price_change_process();
-    scenario_demand_change_process();
-    scenario_invasion_process();
-    scenario_distant_battle_process();
+    process_custom_messages();
+    process_gladiator_revolt();
+    process_imperial_requests();
+    process_price_changes();
+    process_demand_changes();
+    process_invasions();
+    process_distant_battles();
     // record monthly population
     city_data.population.monthly.values[city_data.population.monthly.next_index++] = city_data.population.population;
     if (city_data.population.monthly.next_index >= 2400) {
@@ -203,7 +203,7 @@ void game_tick_run(void)
     random_generate_next();
     game_undo_reduce_time_available();
     advance_tick();
-    scenario_earthquake_process();
+    process_earthquake();
     city_victory_check();
     city_data.entertainment.hippodrome_has_race = 0;
     for (int i = 1; i < MAX_FIGURES; i++) {

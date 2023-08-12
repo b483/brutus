@@ -22,7 +22,7 @@
 #include "map/routing_terrain.h"
 #include "map/terrain.h"
 #include "map/tiles.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 #include <string.h>
 

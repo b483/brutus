@@ -5,7 +5,7 @@
 #include "city/resource.h"
 #include "core/calc.h"
 #include "city/resource.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 struct resource_data {
     int building_id;

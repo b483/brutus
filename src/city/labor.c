@@ -7,7 +7,7 @@
 #include "core/calc.h"
 #include "core/random.h"
 #include "game/time.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 #define LABOR_CATEGORIES_COUNT 9
 

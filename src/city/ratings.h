@@ -19,10 +19,6 @@ void city_ratings_peace_record_criminal(void);
 
 void city_ratings_peace_record_rioter(void);
 
-void city_ratings_change_favor(int amount);
-
-void city_ratings_reduce_favor_missed_request(int penalty);
-
 void city_ratings_update_favor_explanation(void);
 
 void city_ratings_update_explanations(void);

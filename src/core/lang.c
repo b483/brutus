@@ -4,7 +4,7 @@
 #include "core/file.h"
 #include "core/log.h"
 #include "core/string.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 #include <stdlib.h>
 #include <string.h>

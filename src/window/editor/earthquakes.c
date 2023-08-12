@@ -10,7 +10,7 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "window/editor/attributes.h"
 #include "window/editor/edit_earthquake.h"
 #include "window/editor/map.h"

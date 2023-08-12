@@ -12,7 +12,7 @@
 #include "figuretype/missile.h"
 #include "map/figure.h"
 #include "map/terrain.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "sound/effect.h"
 #include "sound/speech.h"
 

@@ -7,7 +7,7 @@
 #include "graphics/menu.h"
 #include "graphics/screen.h"
 #include "graphics/window.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "widget/map_editor.h"
 #include "window/display_options.h"
 #include "window/file_dialog.h"

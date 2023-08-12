@@ -9,7 +9,7 @@
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "map/road_access.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 void figure_create_immigrant(struct building_t *house, int num_people)
 {

@@ -14,7 +14,7 @@
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
 #include "graphics/text.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 #define ADVISOR_HEIGHT 23
 #define X_OFFSET 232
@@ -155,11 +155,10 @@ static int draw_background(void)
 
     // health
     draw_title(206, 7);
-    int health_rate = city_health();
-    if (health_rate >= 40) {
-        lang_text_draw(56, health_rate / 10 + 27, X_OFFSET, 206, FONT_NORMAL_GREEN);
+    if (city_data.health.value >= 40) {
+        lang_text_draw(56, city_data.health.value / 10 + 27, X_OFFSET, 206, FONT_NORMAL_GREEN);
     } else {
-        lang_text_draw(56, health_rate / 10 + 27, X_OFFSET, 206, FONT_NORMAL_RED);
+        lang_text_draw(56, city_data.health.value / 10 + 27, X_OFFSET, 206, FONT_NORMAL_RED);
     }
 
     // education

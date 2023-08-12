@@ -7,16 +7,6 @@
 #include "core/calc.h"
 #include "core/random.h"
 
-int city_health(void)
-{
-    return city_data.health.value;
-}
-
-void city_health_change(int amount)
-{
-    city_data.health.value = calc_bound(city_data.health.value + amount, 0, 100);
-}
-
 static void cause_disease(int total_people)
 {
     if (city_data.health.value >= 40) {
@@ -36,7 +26,7 @@ static void cause_disease(int total_people)
     if (sick_people <= 0) {
         return;
     }
-    city_health_change(10);
+    city_data.health.value = calc_bound(city_data.health.value + 10, 0, 100);
     int people_to_kill = sick_people - city_data.health.num_hospital_workers;
     if (people_to_kill <= 0) {
         city_message_post(1, MESSAGE_HEALTH_ILLNESS, 0, 0);

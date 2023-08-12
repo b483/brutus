@@ -24,8 +24,7 @@
 #include "graphics/window.h"
 #include "map/bookmark.h"
 #include "map/grid.h"
-#include "scenario/data.h"
-#include "scenario/editor_events.h"
+#include "scenario/scenario.h"
 #include "widget/city.h"
 #include "widget/city_with_overlay.h"
 #include "widget/top_menu.h"
@@ -304,7 +303,7 @@ static void handle_hotkeys(const struct hotkeys_t *h)
         window_invalidate();
     }
     if (h->cheat_invasion) {
-        scenario_invasion_start_from_cheat();
+        start_invasion_by_cheat();
     }
     if (h->cheat_victory) {
         city_victory_force_win();

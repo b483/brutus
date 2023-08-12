@@ -2,7 +2,7 @@
 #define FIGURE_FORMATION_HERD_H
 
 #include "figure/formation.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 #define WOLF_PACK_SIZE 8
 #define MAX_WOLF_ROAM_DISTANCE 16

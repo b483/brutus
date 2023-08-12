@@ -11,7 +11,7 @@
 #include "map/grid.h"
 #include "map/road_access.h"
 #include "map/road_network.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 static int determine_destination(int x, int y, int type1, int type2)
 {

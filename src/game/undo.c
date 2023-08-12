@@ -16,7 +16,7 @@
 #include "map/routing_terrain.h"
 #include "map/sprite.h"
 #include "map/terrain.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 #include <string.h>
 

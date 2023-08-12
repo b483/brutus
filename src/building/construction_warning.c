@@ -12,7 +12,7 @@
 #include "map/grid.h"
 #include "map/road_access.h"
 #include "map/terrain.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 static int has_warning = 0;
 

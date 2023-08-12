@@ -5,7 +5,7 @@
 #include "city/data.h"
 #include "core/calc.h"
 #include "game/time.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 int city_rating_selected_explanation(void)
 {
@@ -61,17 +61,6 @@ void city_ratings_peace_record_rioter(void)
 {
     city_data.ratings.peace_num_rioters++;
     city_data.ratings.peace_riot_cause = city_data.sentiment.low_mood_cause;
-}
-
-void city_ratings_change_favor(int amount)
-{
-    city_data.ratings.favor = calc_bound(city_data.ratings.favor + amount, 0, 100);
-}
-
-void city_ratings_reduce_favor_missed_request(int penalty)
-{
-    city_ratings_change_favor(-penalty);
-    city_data.ratings.favor_ignored_request_penalty = penalty;
 }
 
 static void update_culture_explanation(void)

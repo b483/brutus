@@ -35,7 +35,7 @@
 #include "map/terrain.h"
 #include "map/tiles.h"
 #include "map/water.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "sound/effect.h"
 #include "window/build_menu.h"
 

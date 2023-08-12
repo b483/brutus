@@ -9,7 +9,7 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "widget/city.h"
 #include "widget/sidebar/city.h"
 #include "window/city.h"

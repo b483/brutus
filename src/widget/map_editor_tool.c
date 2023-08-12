@@ -6,7 +6,7 @@
 #include "graphics/image.h"
 #include "input/scroll.h"
 #include "map/terrain.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 #define MAX_TILES 4
 

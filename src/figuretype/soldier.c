@@ -10,7 +10,7 @@
 #include "figuretype/missile.h"
 #include "map/figure.h"
 #include "map/grid.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "sound/effect.h"
 
 #include <stdlib.h>

@@ -13,7 +13,7 @@
 #include "graphics/menu.h"
 #include "graphics/panel.h"
 #include "graphics/text.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 
 #define EXTRA_INFO_LINE_SPACE 16

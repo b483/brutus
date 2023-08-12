@@ -8,7 +8,7 @@
 #include "graphics/rich_text.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "widget/input_box.h"
 #include "widget/sidebar/editor.h"
 #include "window/editor/attributes.h"

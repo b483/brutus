@@ -7,7 +7,7 @@
 #include "city/resource.h"
 #include "map/building_tiles.h"
 #include "map/road_access.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 #define MAX_PROGRESS_RAW 200
 #define MAX_PROGRESS_WORKSHOP 400

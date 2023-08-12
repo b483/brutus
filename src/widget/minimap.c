@@ -12,7 +12,7 @@
 #include "map/property.h"
 #include "map/random.h"
 #include "map/terrain.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 #include <stdlib.h>
 

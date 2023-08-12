@@ -11,7 +11,7 @@
 #include "core/image.h"
 #include "map/image.h"
 #include "map/road_access.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 int building_warehouse_get_space_info(struct building_t *warehouse)
 {

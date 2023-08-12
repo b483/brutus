@@ -17,7 +17,7 @@
 #include "graphics/font.h"
 #include "graphics/video.h"
 #include "graphics/window.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "scenario/scenario.h"
 #include "sound/city.h"
 #include "sound/system.h"

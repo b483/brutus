@@ -14,7 +14,7 @@
 #include "graphics/screen.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "widget/input_box.h"
 #include "widget/minimap.h"
 #include "widget/sidebar/editor.h"

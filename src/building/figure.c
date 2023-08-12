@@ -23,8 +23,7 @@
 #include "map/road_access.h"
 #include "map/terrain.h"
 #include "map/water.h"
-#include "scenario/data.h"
-#include "scenario/editor_events.h"
+#include "scenario/scenario.h"
 
 static void check_labor_problem(struct building_t *b)
 {

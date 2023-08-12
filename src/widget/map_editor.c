@@ -12,7 +12,7 @@
 #include "map/grid.h"
 #include "map/image.h"
 #include "map/property.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "scenario/scenario.h"
 #include "sound/city.h"
 #include "sound/effect.h"

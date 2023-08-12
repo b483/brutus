@@ -3,7 +3,7 @@
 #include "core/image.h"
 #include "map/figure.h"
 #include "map/grid.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 #define MAP_FLAG_IMG_ID 2916
 

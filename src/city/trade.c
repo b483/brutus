@@ -6,7 +6,7 @@
 #include "city/message.h"
 #include "empire/object.h"
 #include "figure/figure.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "map/water.h"
 
 static int generate_trader(struct empire_object_t *city)

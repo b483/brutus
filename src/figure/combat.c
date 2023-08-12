@@ -16,7 +16,7 @@
 #include "map/grid.h"
 #include "map/image.h"
 #include "map/terrain.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "sound/effect.h"
 
 #include <stdlib.h>

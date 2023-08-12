@@ -11,7 +11,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "map/grid.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "window/city.h"
 
 #define ADVISOR_HEIGHT 26

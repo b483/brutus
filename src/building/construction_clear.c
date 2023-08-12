@@ -15,8 +15,7 @@
 #include "map/routing_terrain.h"
 #include "map/terrain.h"
 #include "map/tiles.h"
-#include "scenario/data.h"
-#include "scenario/editor_events.h"
+#include "scenario/scenario.h"
 #include "window/popup_dialog.h"
 
 static struct {

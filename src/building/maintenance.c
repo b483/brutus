@@ -23,7 +23,7 @@
 #include "map/routing.h"
 #include "map/routing_terrain.h"
 #include "map/tiles.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "sound/effect.h"
 
 static int fire_spread_direction = 0;

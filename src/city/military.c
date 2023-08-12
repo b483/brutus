@@ -10,8 +10,7 @@
 #include "figure/formation.h"
 #include "figure/formation_legion.h"
 #include "map/grid.h"
-#include "scenario/data.h"
-#include "scenario/editor_events.h"
+#include "scenario/scenario.h"
 #include "window/build_menu.h"
 
 void city_military_determine_distant_battle_city(void)
@@ -27,25 +26,6 @@ int city_military_distant_battle_roman_army_is_traveling(void)
 {
     return city_data.distant_battle.roman_months_to_travel_forth > 0 ||
         city_data.distant_battle.roman_months_to_travel_back > 0;
-}
-
-int city_military_has_distant_battle(void)
-{
-    return city_data.distant_battle.months_until_battle > 0 ||
-        city_data.distant_battle.roman_months_to_travel_back > 0 ||
-        city_data.distant_battle.roman_months_to_travel_forth > 0 ||
-        city_data.distant_battle.city_foreign_months_left > 0;
-}
-
-void city_military_init_distant_battle(int enemy_strength)
-{
-    city_data.distant_battle.enemy_months_traveled = 1;
-    city_data.distant_battle.roman_months_traveled = 1;
-    city_data.distant_battle.months_until_battle = 24;
-    city_data.distant_battle.enemy_strength = enemy_strength;
-    city_data.distant_battle.total_count++;
-    city_data.distant_battle.roman_months_to_travel_back = 0;
-    city_data.distant_battle.roman_months_to_travel_forth = 0;
 }
 
 static void update_time_traveled(void)
@@ -151,16 +131,16 @@ static void fight_distant_battle(void)
 {
     if (city_data.distant_battle.roman_months_to_travel_forth <= 0) {
         city_message_post(1, MESSAGE_DISTANT_BATTLE_LOST_NO_TROOPS, 0, 0);
-        city_ratings_change_favor(-50);
+        city_data.ratings.favor = calc_bound(city_data.ratings.favor - 50, 0, 100);
         set_city_foreign();
     } else if (city_data.distant_battle.roman_months_to_travel_forth > 2) {
         city_message_post(1, MESSAGE_DISTANT_BATTLE_LOST_TOO_LATE, 0, 0);
-        city_ratings_change_favor(-25);
+        city_data.ratings.favor = calc_bound(city_data.ratings.favor - 25, 0, 100);
         set_city_foreign();
         city_data.distant_battle.roman_months_to_travel_back = city_data.distant_battle.roman_months_traveled;
     } else if (!player_has_won()) {
         city_message_post(1, MESSAGE_DISTANT_BATTLE_LOST_TOO_WEAK, 0, 0);
-        city_ratings_change_favor(-10);
+        city_data.ratings.favor = calc_bound(city_data.ratings.favor - 10, 0, 100);
         set_city_foreign();
         city_data.distant_battle.roman_months_traveled = 0;
         // no return: all soldiers killed
@@ -173,7 +153,7 @@ static void fight_distant_battle(void)
         } else {
             city_message_post(1, MESSAGE_DISTANT_BATTLE_WON_TRIUMPHAL_ARCH_DISABLED, 0, 0);
         }
-        city_ratings_change_favor(25);
+        city_data.ratings.favor = calc_bound(city_data.ratings.favor + 25, 0, 100);
         city_data.distant_battle.won_count++;
         city_data.distant_battle.city_foreign_months_left = 0;
         city_data.distant_battle.roman_months_to_travel_back = city_data.distant_battle.roman_months_traveled;

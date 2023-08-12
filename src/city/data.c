@@ -3,7 +3,7 @@
 #include "city/constants.h"
 #include "city/data.h"
 #include "city/gods.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 #include <string.h>
 

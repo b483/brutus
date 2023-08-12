@@ -17,8 +17,7 @@
 #include "graphics/video.h"
 #include "graphics/window.h"
 #include "input/scroll.h"
-#include "scenario/data.h"
-#include "scenario/editor_events.h"
+#include "scenario/scenario.h"
 #include "window/advisors.h"
 #include "window/city.h"
 

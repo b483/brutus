@@ -6,7 +6,7 @@
 #include "core/calc.h"
 #include "empire/object.h"
 #include "map/road_access.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 struct resource_img_ids_t resource_images[RESOURCE_TYPES_MAX] = {
 {0, 0, 0, 0, -1, 0, 0}, // RESOURCE_NONE

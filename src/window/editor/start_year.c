@@ -8,7 +8,7 @@
 #include "graphics/text.h"
 #include "graphics/screen.h"
 #include "graphics/window.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "window/editor/map.h"
 #include "window/editor/starting_conditions.h"
 #include "window/numeric_input.h"

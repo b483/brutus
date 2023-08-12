@@ -9,7 +9,7 @@
 #include "graphics/rich_text.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "sound/music.h"
 #include "sound/speech.h"
 #include "window/cck_selection.h"

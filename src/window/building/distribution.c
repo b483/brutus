@@ -14,7 +14,7 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "window/building_info.h"
 
 static void go_to_orders(int param1, int param2);

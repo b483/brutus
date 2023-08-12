@@ -7,8 +7,7 @@
 #include "core/calc.h"
 #include "figure/formation_enemy.h"
 #include "game/time.h"
-#include "scenario/data.h"
-#include "scenario/editor_events.h"
+#include "scenario/scenario.h"
 
 static const int SALARY_FOR_RANK[11] = { 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144 };
 
@@ -40,7 +39,7 @@ void update_debt_state(void)
         city_data.emperor.debt_state = 2;
         city_data.emperor.months_in_debt = 0;
         city_message_post(1, MESSAGE_CITY_IN_DEBT_AGAIN, 0, 0);
-        city_ratings_change_favor(-5);
+        city_data.ratings.favor = calc_bound(city_data.ratings.favor - 5, 0, 100);
     } else if (city_data.emperor.debt_state == 2) {
         if (city_data.emperor.months_in_debt == -1) {
             city_message_post(1, MESSAGE_CITY_IN_DEBT_AGAIN, 0, 0);
@@ -54,7 +53,7 @@ void update_debt_state(void)
             city_data.emperor.months_in_debt = 0;
             if (!city_data.figure.imperial_soldiers) {
                 city_message_post(1, MESSAGE_CITY_STILL_IN_DEBT, 0, 0);
-                city_ratings_change_favor(-10);
+                city_data.ratings.favor = calc_bound(city_data.ratings.favor - 10, 0, 100);
             }
         }
     } else if (city_data.emperor.debt_state == 3) {
@@ -112,7 +111,7 @@ void process_caesar_invasion(void)
         city_data.emperor.invasion.soldiers_killed = 0;
         if (!city_data.emperor.invasion.from_editor) {
             if (city_data.ratings.favor < 35) {
-                city_ratings_change_favor(10);
+                city_data.ratings.favor = calc_bound(city_data.ratings.favor + 10, 0, 100);
                 if (city_data.emperor.invasion.count < 2) {
                     city_message_post(1, MESSAGE_CAESAR_RESPECT_1, 0, 0);
                 } else if (city_data.emperor.invasion.count < 3) {
@@ -148,7 +147,7 @@ void process_caesar_invasion(void)
             } else {
                 size = 160;
             }
-            if (scenario_invasion_start_from_caesar(size)) {
+            if (start_invasion_by_caesar(size)) {
                 city_data.emperor.invasion.count++;
                 city_data.emperor.invasion.duration_day_countdown = 192;
                 city_data.emperor.invasion.retreat_message_shown = 0;
@@ -174,38 +173,38 @@ void city_emperor_send_gift(void)
     if (city_data.emperor.gift_overdose_penalty <= 0) {
         city_data.emperor.gift_overdose_penalty = 1;
         if (size == GIFT_MODEST) {
-            city_ratings_change_favor(3);
+            city_data.ratings.favor = calc_bound(city_data.ratings.favor + 3, 0, 100);
         } else if (size == GIFT_GENEROUS) {
-            city_ratings_change_favor(5);
+            city_data.ratings.favor = calc_bound(city_data.ratings.favor + 5, 0, 100);
         } else if (size == GIFT_LAVISH) {
-            city_ratings_change_favor(10);
+            city_data.ratings.favor = calc_bound(city_data.ratings.favor + 10, 0, 100);
         }
     } else if (city_data.emperor.gift_overdose_penalty == 1) {
         city_data.emperor.gift_overdose_penalty = 2;
         if (size == GIFT_MODEST) {
-            city_ratings_change_favor(1);
+            city_data.ratings.favor = calc_bound(city_data.ratings.favor + 1, 0, 100);
         } else if (size == GIFT_GENEROUS) {
-            city_ratings_change_favor(3);
+            city_data.ratings.favor = calc_bound(city_data.ratings.favor + 3, 0, 100);
         } else if (size == GIFT_LAVISH) {
-            city_ratings_change_favor(5);
+            city_data.ratings.favor = calc_bound(city_data.ratings.favor + 5, 0, 100);
         }
     } else if (city_data.emperor.gift_overdose_penalty == 2) {
         city_data.emperor.gift_overdose_penalty = 3;
         if (size == GIFT_MODEST) {
-            city_ratings_change_favor(0);
+            city_data.ratings.favor = calc_bound(city_data.ratings.favor + 0, 0, 100);
         } else if (size == GIFT_GENEROUS) {
-            city_ratings_change_favor(1);
+            city_data.ratings.favor = calc_bound(city_data.ratings.favor + 0, 0, 100);
         } else if (size == GIFT_LAVISH) {
-            city_ratings_change_favor(3);
+            city_data.ratings.favor = calc_bound(city_data.ratings.favor + 3, 0, 100);
         }
     } else if (city_data.emperor.gift_overdose_penalty == 3) {
         city_data.emperor.gift_overdose_penalty = 4;
         if (size == GIFT_MODEST) {
-            city_ratings_change_favor(0);
+            city_data.ratings.favor = calc_bound(city_data.ratings.favor + 0, 0, 100);
         } else if (size == GIFT_GENEROUS) {
-            city_ratings_change_favor(0);
+            city_data.ratings.favor = calc_bound(city_data.ratings.favor + 0, 0, 100);
         } else if (size == GIFT_LAVISH) {
-            city_ratings_change_favor(1);
+            city_data.ratings.favor = calc_bound(city_data.ratings.favor + 1, 0, 100);
         }
     }
 

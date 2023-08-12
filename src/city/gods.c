@@ -16,8 +16,7 @@
 #include "figuretype/water.h"
 #include "game/settings.h"
 #include "game/time.h"
-#include "scenario/data.h"
-#include "scenario/editor_events.h"
+#include "scenario/scenario.h"
 
 #define TIE 10
 
@@ -79,7 +78,7 @@ static void perform_small_curse(int god)
             city_message_post(1, MESSAGE_VENUS_IS_UPSET, 0, 0);
             city_sentiment_set_max_happiness(50);
             city_sentiment_change_happiness(-5);
-            city_health_change(-10);
+            city_data.health.value = calc_bound(city_data.health.value - 10, 0, 100);
             city_sentiment_update();
             break;
     }
@@ -151,11 +150,11 @@ static int perform_large_curse(int god)
             city_sentiment_set_max_happiness(40);
             city_sentiment_change_happiness(-10);
             if (city_data.health.value >= 80) {
-                city_health_change(-50);
+                city_data.health.value = calc_bound(city_data.health.value - 50, 0, 100);
             } else if (city_data.health.value >= 60) {
-                city_health_change(-40);
+                city_data.health.value = calc_bound(city_data.health.value - 40, 0, 100);
             } else {
-                city_health_change(-20);
+                city_data.health.value = calc_bound(city_data.health.value - 20, 0, 100);
             }
             city_data.religion.venus_curse_active = 1;
             city_sentiment_update();

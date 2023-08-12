@@ -25,7 +25,7 @@
 #include "map/road_access.h"
 #include "map/sprite.h"
 #include "map/terrain.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "widget/city.h"
 #include "window/advisors.h"
 #include "window/city.h"

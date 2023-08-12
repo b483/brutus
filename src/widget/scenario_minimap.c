@@ -6,7 +6,7 @@
 #include "map/property.h"
 #include "map/random.h"
 #include "map/terrain.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 
 struct tile_color_t {
     color_t left;

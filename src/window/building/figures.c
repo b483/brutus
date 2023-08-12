@@ -14,7 +14,7 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "scenario/data.h"
+#include "scenario/scenario.h"
 #include "widget/city.h"
 
 static void select_figure(int index, int param2);
