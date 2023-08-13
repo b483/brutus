@@ -2,8 +2,8 @@
 
 #include "core/buffer.h"
 #include "core/file.h"
-#include "core/log.h"
 #include "core/string.h"
+#include "platform/brutus.h"
 
 #define HEADER_SIZE 20680
 #define ENTRY_SIZE 64

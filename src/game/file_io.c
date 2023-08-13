@@ -7,7 +7,6 @@
 #include "city/culture.h"
 #include "city/data.h"
 #include "core/file.h"
-#include "core/log.h"
 #include "city/message.h"
 #include "city/view.h"
 #include "core/random.h"
@@ -32,6 +31,7 @@
 #include "map/routing.h"
 #include "map/sprite.h"
 #include "map/terrain.h"
+#include "platform/brutus.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
 

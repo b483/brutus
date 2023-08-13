@@ -4,7 +4,7 @@
 #include "city/constants.h"
 #include "game/settings.h"
 #include "game/state.h"
-#include "game/system.h"
+#include "platform/brutus.h"
 #include "graphics/screenshot.h"
 #include "graphics/video.h"
 #include "graphics/window.h"
@@ -623,10 +623,10 @@ void hotkey_handle_global_keys(void)
 {
     if (data.global_hotkey_state.reset_window) {
         system_resize(1280, 800);
-        system_center();
+        post_event(USER_EVENT_CENTER_WINDOW);
     }
     if (data.global_hotkey_state.toggle_fullscreen) {
-        system_set_fullscreen(!setting_fullscreen());
+        post_event(setting_fullscreen() ? USER_EVENT_WINDOWED : USER_EVENT_FULLSCREEN);
     }
     if (data.global_hotkey_state.save_screenshot) {
         graphics_save_screenshot(0);

@@ -3,7 +3,7 @@
 #include "SDL.h"
 
 #include "core/string.h"
-#include "game/system.h"
+#include "platform/brutus.h"
 #include "graphics/text.h"
 
 static struct {

@@ -77,13 +77,7 @@ configure_file(${PROJECT_SOURCE_DIR}/gen/version.rc.in ${PROJECT_SOURCE_DIR}/res
 configure_file(${PROJECT_SOURCE_DIR}/gen/version.txt.in ${PROJECT_SOURCE_DIR}/res/version.txt)
 
 set(PLATFORM_FILES
-    ${PROJECT_SOURCE_DIR}/src/platform/arguments.c
-    ${PROJECT_SOURCE_DIR}/src/platform/cursor.c
     ${PROJECT_SOURCE_DIR}/src/platform/brutus.c
-    ${PROJECT_SOURCE_DIR}/src/platform/keyboard_input.c
-    ${PROJECT_SOURCE_DIR}/src/platform/log.c
-    ${PROJECT_SOURCE_DIR}/src/platform/mouse.c
-    ${PROJECT_SOURCE_DIR}/src/platform/screen.c
     ${PROJECT_SOURCE_DIR}/src/platform/version.c
 )
 

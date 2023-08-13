@@ -1,8 +1,8 @@
 #include "image.h"
 
-#include "core/log.h"
 #include "graphics/graphics.h"
 #include "graphics/screen.h"
+#include "platform/brutus.h"
 
 #include <string.h>
 

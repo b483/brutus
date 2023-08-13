@@ -1,6 +1,6 @@
 #include "graphics.h"
 
-#include "game/system.h"
+#include "platform/brutus.h"
 #include "graphics/screen.h"
 
 #include <stdlib.h>
@@ -28,7 +28,11 @@ static struct clip_info_t clip;
 
 void graphics_init_canvas(int width, int height)
 {
-    canvas.pixels = system_create_framebuffer(width, height);
+    canvas.pixels = (color_t *) malloc((size_t) width * height * sizeof(color_t));
+    if (!canvas.pixels) {
+        return;
+    }
+
     memset(canvas.pixels, 0, (size_t) width * height * sizeof(color_t));
     canvas.width = width;
     canvas.height = height;

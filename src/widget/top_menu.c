@@ -6,7 +6,7 @@
 #include "city/population.h"
 #include "game/settings.h"
 #include "game/state.h"
-#include "game/system.h"
+#include "platform/brutus.h"
 #include "game/time.h"
 #include "graphics/image.h"
 #include "graphics/lang_text.h"

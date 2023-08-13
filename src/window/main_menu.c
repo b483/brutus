@@ -4,7 +4,7 @@
 #include "editor/editor.h"
 #include "game/game.h"
 #include "game/settings.h"
-#include "game/system.h"
+#include "platform/brutus.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
@@ -83,7 +83,7 @@ static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
         return;
     }
     if (h->escape_pressed) {
-        system_exit();
+        post_event(USER_EVENT_QUIT);
     }
     if (h->load_file) {
         window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_LOAD);
@@ -106,7 +106,7 @@ static void button_click(int type, __attribute__((unused)) int param2)
     } else if (type == 4) {
         window_config_show();
     } else if (type == 5) {
-        system_exit();
+        post_event(USER_EVENT_QUIT);
     }
 }
 

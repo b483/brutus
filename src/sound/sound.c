@@ -2,10 +2,10 @@
 
 #include "building/building.h"
 #include "city/data.h"
-#include "core/log.h"
 #include "core/time.h"
 #include "figure/figure.h"
 #include "game/settings.h"
+#include "platform/brutus.h"
 
 #include "SDL.h"
 #include "SDL_mixer.h"

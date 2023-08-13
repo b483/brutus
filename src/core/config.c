@@ -1,8 +1,8 @@
 #include "config.h"
 
 #include "core/file.h"
-#include "core/log.h"
 #include "core/string.h"
+#include "platform/brutus.h"
 #include "scenario/scenario.h"
 
 #define MAX_LINE 100

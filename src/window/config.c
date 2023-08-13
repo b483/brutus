@@ -6,7 +6,7 @@
 #include "core/lang.h"
 #include "core/string.h"
 #include "game/game.h"
-#include "game/system.h"
+#include "platform/brutus.h"
 #include "graphics/button.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -248,7 +248,7 @@ static const char *display_text_cursor_scale(void)
 
 static void update_scale(void)
 {
-    int max_scale = system_get_max_display_scale();
+    int max_scale = get_max_display_scale();
     scale_ranges[RANGE_DISPLAY_SCALE].max = max_scale;
     if (*scale_ranges[RANGE_DISPLAY_SCALE].value > max_scale) {
         *scale_ranges[RANGE_DISPLAY_SCALE].value = max_scale;
@@ -483,7 +483,7 @@ static int config_change_basic(int key)
 
 static int config_change_display_scale(int key)
 {
-    data.config_values[key].new_value = system_scale_display(data.config_values[key].new_value);
+    data.config_values[key].new_value = scale_display(data.config_values[key].new_value);
     config_change_basic(key);
     return 1;
 }
@@ -491,7 +491,7 @@ static int config_change_display_scale(int key)
 static int config_change_cursor_scale(int key)
 {
     config_change_basic(key);
-    system_init_cursors(data.config_values[key].new_value);
+    init_cursors(data.config_values[key].new_value);
     return 1;
 }
 

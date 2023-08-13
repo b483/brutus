@@ -1,7 +1,7 @@
 #include "logo.h"
 
 #include "core/config.h"
-#include "game/system.h"
+#include "platform/brutus.h"
 #include "graphics/graphics.h"
 #include "graphics/image.h"
 #include "graphics/lang_text.h"
@@ -28,7 +28,7 @@ static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
         return;
     }
     if (h->escape_pressed) {
-        system_exit();
+        post_event(USER_EVENT_QUIT);
     }
 }
 

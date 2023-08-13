@@ -5,7 +5,6 @@
 #include "building/industry.h"
 #include "city/view.h"
 #include "core/config.h"
-#include "core/log.h"
 #include "city/resource.h"
 #include "game/state.h"
 #include "graphics/image.h"

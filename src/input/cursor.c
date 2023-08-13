@@ -2,7 +2,7 @@
 
 #include "building/building.h"
 #include "building/construction.h"
-#include "game/system.h"
+#include "platform/brutus.h"
 #include "window/city.h"
 
 static const struct cursor_t ARROW[] = {
@@ -369,10 +369,10 @@ const struct cursor_t *input_cursor_data(int cursor_id, int scale)
 void input_cursor_update(int window)
 {
     if (window == WINDOW_CITY_MILITARY) {
-        system_set_cursor(CURSOR_SWORD);
+        set_cursor(CURSOR_SWORD);
     } else if (window == WINDOW_CITY && building_construction_type() == BUILDING_CLEAR_LAND) {
-        system_set_cursor(CURSOR_SHOVEL);
+        set_cursor(CURSOR_SHOVEL);
     } else {
-        system_set_cursor(CURSOR_ARROW);
+        set_cursor(CURSOR_ARROW);
     }
 }

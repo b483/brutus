@@ -5,7 +5,7 @@
 #include "core/speed.h"
 #include "core/time.h"
 #include "game/settings.h"
-#include "game/system.h"
+#include "platform/brutus.h"
 #include "graphics/screen.h"
 
 #include <math.h>
@@ -184,7 +184,7 @@ void scroll_drag_start(void)
     data.drag.active = 1;
     data.drag.delta.x = 0;
     data.drag.delta.y = 0;
-    system_mouse_get_relative_state(0, 0);
+    SDL_GetRelativeMouseState(0, 0);
     clear_scroll_speed();
 }
 
@@ -196,12 +196,12 @@ static int set_scroll_speed_from_drag(void)
 
     int delta_x = 0;
     int delta_y = 0;
-    system_mouse_get_relative_state(&delta_x, &delta_y);
+    SDL_GetRelativeMouseState(&delta_x, &delta_y);
 
     data.drag.delta.x += delta_x;
     data.drag.delta.y += delta_y;
     if ((delta_x != 0 || delta_y != 0)) {
-        system_mouse_set_relative_mode(1);
+        set_relative_mouse_mode(1);
         // Store tiny movements until we decide that it's enough to move into scroll mode
         if (!data.drag.has_started) {
             data.drag.has_started = abs(data.drag.delta.x) > SCROLL_DRAG_MIN_DELTA
@@ -228,7 +228,7 @@ int scroll_drag_end(void)
     data.drag.active = 0;
     data.drag.has_started = 0;
 
-    system_mouse_set_relative_mode(0);
+    set_relative_mouse_mode(0);
     data.x_align_direction = speed_get_current_direction(&data.speed.x);
     data.y_align_direction = speed_get_current_direction(&data.speed.y);
     speed_set_target(&data.speed.x, 0, SPEED_CHANGE_IMMEDIATE, 1);
@@ -368,7 +368,7 @@ int scroll_get_delta(const struct mouse_t *m, struct pixel_view_coordinates_t *d
 void scroll_stop(void)
 {
     clear_scroll_speed();
-    system_mouse_set_relative_mode(0);
+    set_relative_mouse_mode(0);
     data.is_scrolling = 0;
     data.constant_input = 0;
     data.drag.active = 0;

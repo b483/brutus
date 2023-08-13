@@ -2,15 +2,13 @@
 
 #include "core/string.h"
 
-#ifdef _WIN32
 #include <io.h>
 #define F_OK 0
 #define access _access
-#endif
 
-#if defined (_WIN32) && defined (__MINGW32__)
+#if defined (__MINGW32__)
 #include <dirent.h>
-#elif defined (_WIN32)
+#else
 #include "../ext/dirent/dirent.h"
 #endif
 
@@ -52,11 +50,7 @@ void prepend_dir_to_path(const char *dir_to_prepend, const char *filepath, char 
 {
     size_t dir_len = string_length(dir_to_prepend) + 1;
     string_copy(dir_to_prepend, resulting_string, DIR_PATH_MAX);
-#ifdef _WIN32
     resulting_string[dir_len - 1] = '\\';
-#elif(__linux__)
-    resulting_string[dir_len - 1] = '/';
-#endif
     string_copy(filepath, &resulting_string[dir_len], DIR_PATH_MAX - dir_len - 1);
 }
 

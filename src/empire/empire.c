@@ -7,8 +7,8 @@
 #include "city/resource.h"
 #include "core/calc.h"
 #include "core/file.h"
-#include "core/log.h"
 #include "empire/object.h"
+#include "platform/brutus.h"
 
 #include <string.h>
 

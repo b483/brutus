@@ -1,7 +1,7 @@
 #include "display_options.h"
 
 #include "game/settings.h"
-#include "game/system.h"
+#include "platform/brutus.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
 #include "graphics/lang_text.h"
@@ -51,7 +51,7 @@ static void draw_foreground(void)
 
 static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
-    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, display_top_menu_buttons, sizeof(display_top_menu_buttons)/(sizeof(struct generic_button_t)), &data.focus_button_id)) {
+    if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, display_top_menu_buttons, sizeof(display_top_menu_buttons) / (sizeof(struct generic_button_t)), &data.focus_button_id)) {
         return;
     }
     if (m->right.went_up || h->escape_pressed) {
@@ -61,13 +61,13 @@ static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 
 static void button_fullscreen(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    system_set_fullscreen(!setting_fullscreen());
+    post_event(setting_fullscreen() ? USER_EVENT_WINDOWED : USER_EVENT_FULLSCREEN);
 }
 
 static void button_reset_window(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     system_resize(1280, 800);
-    system_center();
+    post_event(USER_EVENT_CENTER_WINDOW);
 }
 
 void window_display_options_show(void (*close_callback)(void))

@@ -2,7 +2,7 @@
 
 #include "game/file_editor.h"
 #include "game/game.h"
-#include "game/system.h"
+#include "platform/brutus.h"
 #include "graphics/image.h"
 #include "graphics/menu.h"
 #include "graphics/screen.h"

@@ -2,7 +2,7 @@
 
 #include "SDL.h"
 
-#include "game/system.h"
+#include "platform/brutus.h"
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "input/keyboard.h"

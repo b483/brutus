@@ -1,7 +1,7 @@
 #include "smacker.h"
 
 #include "core/file.h"
-#include "core/log.h"
+#include "platform/brutus.h"
 
 #include <stdint.h>
 #include <stdlib.h>

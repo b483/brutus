@@ -2,8 +2,8 @@
 
 #include "core/buffer.h"
 #include "core/file.h"
-#include "core/log.h"
 #include "core/string.h"
+#include "platform/brutus.h"
 #include "scenario/scenario.h"
 
 #include <stdlib.h>

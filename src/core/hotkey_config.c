@@ -1,9 +1,8 @@
 #include "hotkey_config.h"
 
 #include "core/file.h"
-#include "core/log.h"
 #include "core/string.h"
-#include "game/system.h"
+#include "platform/brutus.h"
 #include "input/hotkey.h"
 
 #include <string.h>
