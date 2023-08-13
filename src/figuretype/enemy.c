@@ -13,8 +13,7 @@
 #include "map/figure.h"
 #include "map/terrain.h"
 #include "scenario/scenario.h"
-#include "sound/effect.h"
-#include "sound/speech.h"
+#include "sound/sound.h"
 
 static void spawn_enemy(struct figure_t *f, struct formation_t *m)
 {
@@ -23,9 +22,9 @@ static void spawn_enemy(struct figure_t *f, struct formation_t *m)
         if (!f->wait_ticks) {
             if (f->index_in_formation % 4 < 1) {
                 if (m->layout == FORMATION_ENEMY_MOB) {
-                    sound_speech_play_file("wavs/drums.wav");
+                    play_speech_file("wavs/drums.wav");
                 } else {
-                    sound_speech_play_file("wavs/horn1.wav");
+                    play_speech_file("wavs/horn1.wav");
                 }
             }
             f->is_invisible = 0;
@@ -81,7 +80,7 @@ static void shoot_enemy_missile(struct figure_t *f, struct map_point_t *tile)
     f->attack_image_offset = 1;
     figure_create_missile(f, tile, figure_properties[f->type].missile_type);
     if (figure_properties[f->type].missile_type == FIGURE_ARROW) {
-        sound_effect_play(SOUND_EFFECT_ARROW);
+        play_sound_effect(SOUND_EFFECT_ARROW);
     }
     f->wait_ticks_missile = 0;
     // clear targeting

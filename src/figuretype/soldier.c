@@ -11,7 +11,7 @@
 #include "map/figure.h"
 #include "map/grid.h"
 #include "scenario/scenario.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 
 #include <stdlib.h>
 
@@ -140,7 +140,7 @@ void figure_soldier_action(struct figure_t *f)
             if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
                 f->action_state = FIGURE_ACTION_SOLDIER_AT_STANDARD;
                 if (f->type == FIGURE_FORT_LEGIONARY && rand() % 100 == 1) {
-                    sound_effect_play(SOUND_EFFECT_FORMATION_SHIELD);
+                    play_sound_effect(SOUND_EFFECT_FORMATION_SHIELD);
                 }
                 update_legion_facing_direction(m);
             } else if (f->direction == DIR_FIGURE_REROUTE) {

@@ -152,7 +152,7 @@ void setting_set_display(int fullscreen, int width, int height)
     }
 }
 
-static struct set_sound_t *get_sound(int type)
+struct set_sound_t *get_sound(int type)
 {
     switch (type) {
         case SOUND_MUSIC: return &data.sound_music;
@@ -161,11 +161,6 @@ static struct set_sound_t *get_sound(int type)
         case SOUND_CITY: return &data.sound_city;
         default: return 0;
     }
-}
-
-struct set_sound_t *setting_sound(int type)
-{
-    return get_sound(type);
 }
 
 void setting_toggle_sound_enabled(int type)

@@ -6,7 +6,7 @@
 #include "graphics/image.h"
 #include "graphics/lang_text.h"
 #include "graphics/window.h"
-#include "sound/music.h"
+#include "sound/sound.h"
 #include "window/intro_video.h"
 #include "window/main_menu.h"
 #include "window/plain_message_dialog.h"
@@ -40,7 +40,7 @@ void window_logo_show(int show_patch_message)
         0,
         handle_input,
     };
-    sound_music_play_intro();
+    play_intro_music();
     window_show(&window);
     if (show_patch_message == MESSAGE_MISSING_PATCH) {
         window_plain_message_dialog_show("Patch 1.0.1.0 not installed", "Your Caesar 3 installation does not have the 1.0.1.0 patch installed.\n\

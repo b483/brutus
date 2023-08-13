@@ -14,7 +14,7 @@
 #include "map/figure.h"
 #include "map/grid.h"
 #include "map/terrain.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 
 static const struct map_point_t SEAGULL_OFFSETS[] = {
     {0, 0}, {0, -2}, {-2, 0}, {1, 2}, {2, 0}, {-3, 1}, {4, -3}, {-2, 4}, {0, 0}
@@ -107,7 +107,7 @@ void figure_wolf_action(struct figure_t *f)
                 figure_movement_move_ticks(f, 2);
                 random_generate_next();
                 if (random_byte() < 3) {
-                    sound_effect_play(SOUND_EFFECT_WOLF_HOWL);
+                    play_sound_effect(SOUND_EFFECT_WOLF_HOWL);
                 }
                 break;
             } else {

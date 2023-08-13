@@ -13,8 +13,7 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "sound/music.h"
-#include "sound/speech.h"
+#include "sound/sound.h"
 #include "window/intermezzo.h"
 #include "window/main_menu.h"
 #include "window/victory_video.h"
@@ -71,8 +70,8 @@ static void draw_background(void)
 static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
 {
     if (m->right.went_up || h->escape_pressed) {
-        sound_music_stop();
-        sound_speech_stop();
+        stop_music();
+        stop_sound_channel(SOUND_CHANNEL_SPEECH);
         city_victory_stop_governing();
         game_undo_disable();
         game_state_reset_overlay();

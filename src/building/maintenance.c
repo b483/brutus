@@ -24,7 +24,7 @@
 #include "map/routing_terrain.h"
 #include "map/tiles.h"
 #include "scenario/scenario.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 
 static int fire_spread_direction = 0;
 
@@ -78,19 +78,19 @@ void building_maintenance_update_burning_ruins(void)
         int next_building_id = map_building_at(grid_offset + map_grid_direction_delta(fire_spread_direction));
         if (next_building_id && !all_buildings[next_building_id].fire_proof) {
             building_destroy_by_fire(&all_buildings[next_building_id]);
-            sound_effect_play(SOUND_EFFECT_EXPLOSION);
+            play_sound_effect(SOUND_EFFECT_EXPLOSION);
             recalculate_terrain = 1;
         } else {
             next_building_id = map_building_at(grid_offset + map_grid_direction_delta(dir1));
             if (next_building_id && !all_buildings[next_building_id].fire_proof) {
                 building_destroy_by_fire(&all_buildings[next_building_id]);
-                sound_effect_play(SOUND_EFFECT_EXPLOSION);
+                play_sound_effect(SOUND_EFFECT_EXPLOSION);
                 recalculate_terrain = 1;
             } else {
                 next_building_id = map_building_at(grid_offset + map_grid_direction_delta(dir2));
                 if (next_building_id && !all_buildings[next_building_id].fire_proof) {
                     building_destroy_by_fire(&all_buildings[next_building_id]);
-                    sound_effect_play(SOUND_EFFECT_EXPLOSION);
+                    play_sound_effect(SOUND_EFFECT_EXPLOSION);
                     recalculate_terrain = 1;
                 }
             }
@@ -146,7 +146,7 @@ static void fire_building(struct building_t *b)
     city_message_apply_sound_interval(MESSAGE_CAT_FIRE);
     city_message_post_with_popup_delay(MESSAGE_CAT_FIRE, MESSAGE_FIRE, b->type, b->grid_offset);
     building_destroy_by_fire(b);
-    sound_effect_play(SOUND_EFFECT_EXPLOSION);
+    play_sound_effect(SOUND_EFFECT_EXPLOSION);
 }
 
 void building_maintenance_check_fire_collapse(void)

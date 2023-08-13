@@ -36,7 +36,7 @@
 #include "map/tiles.h"
 #include "map/water.h"
 #include "scenario/scenario.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 #include "window/build_menu.h"
 
 static struct {
@@ -1067,7 +1067,7 @@ void building_construction_place(void)
             map_property_clear_constructing_and_deleted();
         }
         if (enemy_type == 1) {
-            sound_effect_play(SOUND_EFFECT_WOLF_ATTACK_2);
+            play_sound_effect(SOUND_EFFECT_WOLF_ATTACK_2);
         } else {
             city_warning_show(WARNING_ENEMY_NEARBY);
         }

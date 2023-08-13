@@ -9,7 +9,7 @@
 #include "figure/movement.h"
 #include "figure/sound.h"
 #include "map/figure.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 
 static const int CLOUD_TILE_OFFSETS[] = { 0, 0, 0, 1, 1, 2 };
 
@@ -153,7 +153,7 @@ void figure_arrow_action(struct figure_t *projectile)
     if (target_id) {
         struct figure_t *target = &figures[target_id];
         missile_hit_target(projectile, target);
-        sound_effect_play(SOUND_EFFECT_ARROW_HIT);
+        play_sound_effect(SOUND_EFFECT_ARROW_HIT);
     }
     int dir = (16 + projectile->direction - 2 * city_view_orientation()) % 16;
     projectile->image_id = image_group(GROUP_FIGURE_MISSILE) + 16 + dir;
@@ -174,7 +174,7 @@ void figure_javelin_action(struct figure_t *projectile)
     if (target_id) {
         struct figure_t *target = &figures[target_id];
         missile_hit_target(projectile, target);
-        sound_effect_play(SOUND_EFFECT_JAVELIN);
+        play_sound_effect(SOUND_EFFECT_JAVELIN);
     }
     int dir = (16 + projectile->direction - 2 * city_view_orientation()) % 16;
     projectile->image_id = image_group(GROUP_FIGURE_MISSILE) + dir;
@@ -195,7 +195,7 @@ void figure_bolt_action(struct figure_t *projectile)
     if (target_id) {
         struct figure_t *target = &figures[target_id];
         missile_hit_target(projectile, target);
-        sound_effect_play(SOUND_EFFECT_BALLISTA_HIT_PERSON);
+        play_sound_effect(SOUND_EFFECT_BALLISTA_HIT_PERSON);
     }
     int dir = (16 + projectile->direction - 2 * city_view_orientation()) % 16;
     projectile->image_id = image_group(GROUP_FIGURE_MISSILE) + 32 + dir;
@@ -203,7 +203,7 @@ void figure_bolt_action(struct figure_t *projectile)
         figure_delete(projectile);
     }
     if (should_die || target_id) {
-        sound_effect_play(SOUND_EFFECT_BALLISTA_HIT_GROUND);
+        play_sound_effect(SOUND_EFFECT_BALLISTA_HIT_GROUND);
         figure_delete(projectile);
     }
 }

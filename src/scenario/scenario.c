@@ -24,7 +24,7 @@
 #include "map/grid.h"
 #include "map/routing_terrain.h"
 #include "map/terrain.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 
 #include "stdlib.h"
 #include <string.h>
@@ -739,7 +739,7 @@ void process_earthquake(void)
                     map_tiles_update_all_plazas();
                     map_routing_update_land();
                     map_routing_update_walls();
-                    sound_effect_play(SOUND_EFFECT_EXPLOSION);
+                    play_sound_effect(SOUND_EFFECT_EXPLOSION);
                     figure_create_explosion_cloud(x, y, 1);
                 }
             }

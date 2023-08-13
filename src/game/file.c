@@ -48,8 +48,7 @@
 #include "map/tiles.h"
 #include "scenario/scenario.h"
 #include "scenario/scenario.h"
-#include "sound/city.h"
-#include "sound/music.h"
+#include "sound/sound.h"
 #include "window/build_menu.h"
 
 static void clear_scenario_data(void)
@@ -61,7 +60,7 @@ static void clear_scenario_data(void)
     city_message_init_scenario();
     game_state_init();
     game_animation_init();
-    sound_city_init();
+    initialize_city_sounds();
     building_clear_all();
     building_storage_clear_all();
     figure_init_scenario();
@@ -156,7 +155,7 @@ static void initialize_saved_game(void)
     map_building_menu_items();
     city_message_init_problem_areas();
 
-    sound_city_init();
+    initialize_city_sounds();
 
     building_construction_clear_type();
     game_undo_disable();
@@ -224,7 +223,7 @@ int game_file_load_saved_game(const char *dir, const char *filename)
     initialize_saved_game();
     building_storage_reset_building_ids();
 
-    sound_music_update(1);
+    update_music(1);
     return 1;
 }
 

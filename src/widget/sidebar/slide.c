@@ -4,7 +4,7 @@
 #include "graphics/graphics.h"
 #include "graphics/menu.h"
 #include "graphics/window.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 #include "widget/sidebar/common.h"
 #include "widget/city.h"
 
@@ -64,7 +64,7 @@ void sidebar_slide(int direction, back_sidebar_draw_function back_sidebar_callba
     data.back_sidebar_draw = back_sidebar_callback;
     data.front_sidebar_draw = front_sidebar_callback;
     data.finished_callback = finished_callback;
-    sound_effect_play(SOUND_EFFECT_SIDEBAR);
+    play_sound_effect(SOUND_EFFECT_SIDEBAR);
 
     struct window_type_t window = {
         WINDOW_SLIDING_SIDEBAR,

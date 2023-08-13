@@ -13,10 +13,9 @@
 #include "map/figure.h"
 #include "map/grid.h"
 #include "map/routing.h"
-#include "scenario/scenario.h"
-#include "sound/speech.h"
 #include "map/terrain.h"
-#include "sound/speech.h"
+#include "scenario/scenario.h"
+#include "sound/sound.h"
 
 struct formation_t legion_formations[MAX_LEGIONS];
 
@@ -174,7 +173,7 @@ void deploy_legion_unit_to_formation_location(struct figure_t *legion_unit, stru
 
 void move_legion_formation_to(struct formation_t *m, struct map_tile_t *tile)
 {
-    sound_speech_play_file("wavs/cohort5.wav");
+    play_speech_file("wavs/cohort5.wav");
 
     m->standard_x = tile->x;
     m->standard_y = tile->y;
@@ -320,7 +319,7 @@ void update_legion_formations(void)
                     }
                     m->routed = 1;
                     if (city_data.figure.enemies) {
-                        sound_speech_play_file("wavs/barbarian_war_cry.wav");
+                        play_speech_file("wavs/barbarian_war_cry.wav");
                     }
                 }
             }

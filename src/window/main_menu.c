@@ -3,6 +3,7 @@
 #include "core/string.h"
 #include "editor/editor.h"
 #include "game/game.h"
+#include "game/settings.h"
 #include "game/system.h"
 #include "graphics/generic_button.h"
 #include "graphics/graphics.h"
@@ -13,7 +14,7 @@
 #include "graphics/text.h"
 #include "graphics/screen.h"
 #include "graphics/window.h"
-#include "sound/music.h"
+#include "sound/sound.h"
 #include "window/cck_selection.h"
 #include "window/config.h"
 #include "window/file_dialog.h"
@@ -100,7 +101,7 @@ static void button_click(int type, __attribute__((unused)) int param2)
             window_plain_message_dialog_show("Editor not installed", "Your Caesar 3 installation does not contain the editor files.\n\
                 You can download them from: https://github.com/bvschaik/julius/wiki/Editor");
         } else {
-            sound_music_play_editor();
+            update_music(1);
         }
     } else if (type == 4) {
         window_config_show();
@@ -112,7 +113,7 @@ static void button_click(int type, __attribute__((unused)) int param2)
 void window_main_menu_show(int restart_music)
 {
     if (restart_music) {
-        sound_music_play_intro();
+        play_intro_music();
     }
     struct window_type_t window = {
         WINDOW_MAIN_MENU,

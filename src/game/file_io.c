@@ -33,7 +33,7 @@
 #include "map/sprite.h"
 #include "map/terrain.h"
 #include "scenario/scenario.h"
-#include "sound/city.h"
+#include "sound/sound.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -319,7 +319,7 @@ static void savegame_load_from_state(struct savegame_state_t *state)
     city_message_load_state(state->messages, state->message_extra,
                             state->message_counts, state->message_delays,
                             state->population_messages);
-    sound_city_load_state(state->city_sounds);
+    load_city_sounds_state(state->city_sounds);
     traders_load_state(state->figure_traders);
 
     building_list_load_state(state->building_list_small, state->building_list_large,
@@ -378,7 +378,7 @@ static void savegame_save_to_state(struct savegame_state_t *state)
     city_message_save_state(state->messages, state->message_extra,
                             state->message_counts, state->message_delays,
                             state->population_messages);
-    sound_city_save_state(state->city_sounds);
+    save_city_sounds_state(state->city_sounds);
     traders_save_state(state->figure_traders);
 
     building_list_save_state(state->building_list_small, state->building_list_large,

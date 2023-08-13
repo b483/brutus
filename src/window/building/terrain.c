@@ -7,7 +7,7 @@
 #include "figure/figure.h"
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
-#include "sound/speech.h"
+#include "sound/sound.h"
 #include "window/building/figures.h"
 
 void window_building_draw_no_people(struct building_info_context_t *c)
@@ -42,7 +42,7 @@ void window_building_draw_terrain(struct building_info_context_t *c)
             if (c->figure.count > 0) {
                 window_building_play_figure_phrase(c);
             } else {
-                sound_speech_play_file("wavs/empty_land.wav");
+                play_speech_file("wavs/empty_land.wav");
             }
         }
         if (c->figure.count > 0 && c->figure.figure_ids[c->figure.selected_index]) {

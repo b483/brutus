@@ -12,7 +12,6 @@
 #include "input/mouse.h"
 #include "platform/arguments.h"
 #include "platform/keyboard_input.h"
-#include "platform/platform.h"
 #include "platform/screen.h"
 
 #include <stdnoreturn.h>

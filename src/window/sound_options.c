@@ -8,12 +8,11 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
-#include "sound/city.h"
-#include "sound/effect.h"
-#include "sound/music.h"
-#include "sound/speech.h"
+#include "sound/sound.h"
 #include "window/city.h"
 #include "window/editor/map.h"
+
+#include "SDL_mixer.h"
 
 static void button_toggle(int type, int param2);
 
@@ -54,10 +53,10 @@ static void init(int from_editor)
     data.focus_button_id = 0;
     data.from_editor = from_editor;
 
-    data.original_effects = *setting_sound(SOUND_EFFECTS);
-    data.original_music = *setting_sound(SOUND_MUSIC);
-    data.original_speech = *setting_sound(SOUND_SPEECH);
-    data.original_city = *setting_sound(SOUND_CITY);
+    data.original_effects = *get_sound(SOUND_EFFECTS);
+    data.original_music = *get_sound(SOUND_MUSIC);
+    data.original_speech = *get_sound(SOUND_SPEECH);
+    data.original_city = *get_sound(SOUND_CITY);
 }
 
 static void draw_foreground(void)
@@ -78,19 +77,19 @@ static void draw_foreground(void)
     lang_text_draw(46, 10, 112, 142, FONT_SMALL_PLAIN);
     lang_text_draw(46, 11, 336, 142, FONT_SMALL_PLAIN);
 
-    struct set_sound_t *music = setting_sound(SOUND_MUSIC);
+    struct set_sound_t *music = get_sound(SOUND_MUSIC);
     lang_text_draw_centered(46, music->enabled ? 2 : 1, 64, 166, 224, FONT_NORMAL_GREEN);
     text_draw_percentage(music->volume, 374, 166, FONT_NORMAL_PLAIN);
 
-    struct set_sound_t *speech = setting_sound(SOUND_SPEECH);
+    struct set_sound_t *speech = get_sound(SOUND_SPEECH);
     lang_text_draw_centered(46, speech->enabled ? 4 : 3, 64, 196, 224, FONT_NORMAL_GREEN);
     text_draw_percentage(speech->volume, 374, 196, FONT_NORMAL_PLAIN);
 
-    struct set_sound_t *effects = setting_sound(SOUND_EFFECTS);
+    struct set_sound_t *effects = get_sound(SOUND_EFFECTS);
     lang_text_draw_centered(46, effects->enabled ? 6 : 5, 64, 226, 224, FONT_NORMAL_GREEN);
     text_draw_percentage(effects->volume, 374, 226, FONT_NORMAL_PLAIN);
 
-    struct set_sound_t *city = setting_sound(SOUND_CITY);
+    struct set_sound_t *city = get_sound(SOUND_CITY);
     lang_text_draw_centered(46, city->enabled ? 8 : 7, 64, 256, 224, FONT_NORMAL_GREEN);
     text_draw_percentage(city->volume, 374, 256, FONT_NORMAL_PLAIN);
 
@@ -119,14 +118,14 @@ static void button_toggle(int type, __attribute__((unused)) int param2)
 {
     setting_toggle_sound_enabled(type);
     if (type == SOUND_MUSIC) {
-        if (setting_sound(SOUND_MUSIC)->enabled) {
-            sound_music_update(1);
+        if (get_sound(SOUND_MUSIC)->enabled) {
+            update_music(1);
         } else {
-            sound_music_stop();
+            stop_music();
         }
     } else if (type == SOUND_SPEECH) {
-        if (!setting_sound(SOUND_SPEECH)->enabled) {
-            sound_speech_stop();
+        if (!get_sound(SOUND_SPEECH)->enabled) {
+            stop_sound_channel(SOUND_CHANNEL_SPEECH);
         }
     }
 }
@@ -143,25 +142,25 @@ static void update_volume(int type, int is_decrease)
 static void arrow_button_music(int is_down, __attribute__((unused)) int param2)
 {
     update_volume(SOUND_MUSIC, is_down);
-    sound_music_set_volume(setting_sound(SOUND_MUSIC)->volume);
+    Mix_VolumeMusic(percentage_to_volume(get_sound(SOUND_MUSIC)->volume));
 }
 
 static void arrow_button_speech(int is_down, __attribute__((unused)) int param2)
 {
     update_volume(SOUND_SPEECH, is_down);
-    sound_speech_set_volume(setting_sound(SOUND_SPEECH)->volume);
+    set_channel_volume(SOUND_CHANNEL_SPEECH, get_sound(SOUND_SPEECH)->volume);
 }
 
 static void arrow_button_effects(int is_down, __attribute__((unused)) int param2)
 {
     update_volume(SOUND_EFFECTS, is_down);
-    sound_effect_set_volume(setting_sound(SOUND_EFFECTS)->volume);
+    set_sound_effect_volume(get_sound(SOUND_EFFECTS)->volume);
 }
 
 static void arrow_button_city(int is_down, __attribute__((unused)) int param2)
 {
     update_volume(SOUND_CITY, is_down);
-    sound_city_set_volume(setting_sound(SOUND_CITY)->volume);
+    set_city_sounds_volume(get_sound(SOUND_CITY)->volume);
 }
 
 void window_sound_options_show(int from_editor)

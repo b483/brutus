@@ -13,7 +13,7 @@
 #include "core/string.h"
 #include "figure/trader.h"
 #include "figuretype/trader.h"
-#include "sound/speech.h"
+#include "sound/sound.h"
 
 #include <string.h>
 
@@ -258,7 +258,7 @@ static void play_sound_file(int sound_id, int phrase_id)
         char path[SOUND_FILENAME_MAX];
         string_copy("wavs/", path, SOUND_FILENAME_MAX - 1);
         strcat(path, FIGURE_SOUNDS[sound_id][phrase_id]);
-        sound_speech_play_file(path);
+        play_speech_file(path);
     }
 }
 

@@ -13,9 +13,7 @@
 #include "map/image.h"
 #include "map/property.h"
 #include "scenario/scenario.h"
-#include "scenario/scenario.h"
-#include "sound/city.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 #include "widget/city_figure.h"
 #include "widget/map_editor_tool.h"
 #include "window/editor/map.h"
@@ -129,7 +127,7 @@ static void scroll_map(const struct mouse_t *m)
     struct pixel_view_coordinates_t delta;
     if (scroll_get_delta(m, &delta, SCROLL_TYPE_CITY)) {
         city_view_scroll(delta.x, delta.y);
-        sound_city_decay_views();
+        decay_city_sounds_views();
     }
 }
 
@@ -180,7 +178,7 @@ void widget_map_editor_handle_input(const struct mouse_t *m, const struct hotkey
     }
     if (m->left.went_up && editor_tool_is_in_use()) {
         editor_tool_end_use(tile);
-        sound_effect_play(SOUND_EFFECT_BUILD);
+        play_sound_effect(SOUND_EFFECT_BUILD);
     }
     if (m->right.went_up) {
         if (!editor_tool_is_active()) {

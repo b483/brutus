@@ -1,7 +1,7 @@
 #include "sound.h"
 
 #include "city/data.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 
 void figure_play_die_sound(const struct figure_t *f)
 {
@@ -9,19 +9,19 @@ void figure_play_die_sound(const struct figure_t *f)
     int is_citizen = 0;
     switch (f->type) {
         case FIGURE_WOLF:
-            sound_effect_play(SOUND_EFFECT_WOLF_DIE);
+            play_sound_effect(SOUND_EFFECT_WOLF_DIE);
             break;
         case FIGURE_SHEEP:
-            sound_effect_play(SOUND_EFFECT_SHEEP_DIE);
+            play_sound_effect(SOUND_EFFECT_SHEEP_DIE);
             break;
         case FIGURE_ZEBRA:
-            sound_effect_play(SOUND_EFFECT_ZEBRA_DIE);
+            play_sound_effect(SOUND_EFFECT_ZEBRA_DIE);
             break;
         case FIGURE_LION_TAMER:
-            sound_effect_play(SOUND_EFFECT_LION_DIE);
+            play_sound_effect(SOUND_EFFECT_LION_DIE);
             break;
         case FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT:
-            sound_effect_play(SOUND_EFFECT_ELEPHANT_DIE);
+            play_sound_effect(SOUND_EFFECT_ELEPHANT_DIE);
             break;
         case FIGURE_ENEMY_BRITON_CHARIOT:
         case FIGURE_ENEMY_CELT_CHARIOT:
@@ -29,10 +29,10 @@ void figure_play_die_sound(const struct figure_t *f)
         case FIGURE_ENEMY_HUN_MOUNTED_ARCHER:
         case FIGURE_ENEMY_GOTH_MOUNTED_ARCHER:
         case FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER:
-            sound_effect_play(SOUND_EFFECT_HORSE2);
+            play_sound_effect(SOUND_EFFECT_HORSE2);
             break;
         case FIGURE_ENEMY_EGYPTIAN_CAMEL:
-            sound_effect_play(SOUND_EFFECT_CAMEL);
+            play_sound_effect(SOUND_EFFECT_CAMEL);
             break;
         case FIGURE_NATIVE_TRADER:
         case FIGURE_TRADE_CARAVAN:
@@ -94,12 +94,12 @@ void figure_play_die_sound(const struct figure_t *f)
         if (city_data.sound.die_soldier >= 4) {
             city_data.sound.die_soldier = 0;
         }
-        sound_effect_play(SOUND_EFFECT_SOLDIER_DIE + city_data.sound.die_soldier);
+        play_sound_effect(SOUND_EFFECT_SOLDIER_DIE + city_data.sound.die_soldier);
     } else if (is_citizen) {
         if (city_data.sound.die_citizen >= 4) {
             city_data.sound.die_citizen = 0;
         }
-        sound_effect_play(SOUND_EFFECT_CITIZEN_DIE + city_data.sound.die_citizen);
+        play_sound_effect(SOUND_EFFECT_CITIZEN_DIE + city_data.sound.die_citizen);
     }
 }
 
@@ -107,14 +107,14 @@ void figure_play_hit_sound(int type)
 {
     switch (type) {
         case FIGURE_LION_TAMER:
-            sound_effect_play(SOUND_EFFECT_LION_ATTACK);
+            play_sound_effect(SOUND_EFFECT_LION_ATTACK);
             break;
         case FIGURE_WOLF:
-            sound_effect_play(SOUND_EFFECT_WOLF_ATTACK);
+            play_sound_effect(SOUND_EFFECT_WOLF_ATTACK);
             break;
         case FIGURE_FORT_LEGIONARY:
         case FIGURE_ENEMY_CAESAR_LEGIONARY:
-            sound_effect_play(SOUND_EFFECT_SWORD);
+            play_sound_effect(SOUND_EFFECT_SWORD);
             break;
         case FIGURE_FORT_JAVELIN:
         case FIGURE_FORT_MOUNTED:
@@ -135,7 +135,7 @@ void figure_play_hit_sound(int type)
         case FIGURE_ENEMY_HUN_MOUNTED_ARCHER:
         case FIGURE_ENEMY_GOTH_MOUNTED_ARCHER:
         case FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER:
-            sound_effect_play(SOUND_EFFECT_LIGHT_SWORD);
+            play_sound_effect(SOUND_EFFECT_LIGHT_SWORD);
             break;
         case FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER:
         case FIGURE_ENEMY_SAMNITE_SPEAR_THROWER:
@@ -145,7 +145,7 @@ void figure_play_hit_sound(int type)
         case FIGURE_ENEMY_IBERIAN_SPEAR_THROWER:
         case FIGURE_ENEMY_JUDEAN_SPEAR_THROWER:
         case FIGURE_ENEMY_SELEUCID_SPEAR_THROWER:
-            sound_effect_play(SOUND_EFFECT_SPEAR);
+            play_sound_effect(SOUND_EFFECT_SPEAR);
             break;
         case FIGURE_ENEMY_EGYPTIAN_SWORDSMAN:
         case FIGURE_ENEMY_PERGAMUM_SWORDSMAN:
@@ -157,21 +157,21 @@ void figure_play_hit_sound(int type)
         case FIGURE_ENEMY_GOTH_SWORDSMAN:
         case FIGURE_ENEMY_VISIGOTH_SWORDSMAN:
         case FIGURE_ENEMY_NUMIDIAN_SWORDSMAN:
-            sound_effect_play(SOUND_EFFECT_CLUB);
+            play_sound_effect(SOUND_EFFECT_CLUB);
             break;
         case FIGURE_ENEMY_GAUL_AXEMAN:
         case FIGURE_ENEMY_HELVETIUS_AXEMAN:
-            sound_effect_play(SOUND_EFFECT_AXE);
+            play_sound_effect(SOUND_EFFECT_AXE);
             break;
         case FIGURE_ENEMY_EGYPTIAN_CAMEL:
-            sound_effect_play(SOUND_EFFECT_CAMEL);
+            play_sound_effect(SOUND_EFFECT_CAMEL);
             break;
         case FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT:
             city_data.sound.hit_elephant = !city_data.sound.hit_elephant;
             if (city_data.sound.hit_elephant) {
-                sound_effect_play(SOUND_EFFECT_ELEPHANT);
+                play_sound_effect(SOUND_EFFECT_ELEPHANT);
             } else {
-                sound_effect_play(SOUND_EFFECT_ELEPHANT_HIT);
+                play_sound_effect(SOUND_EFFECT_ELEPHANT_HIT);
             }
             break;
         default:

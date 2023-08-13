@@ -16,8 +16,7 @@
 #include "map/routing.h"
 #include "map/routing_path.h"
 #include "map/terrain.h"
-#include "sound/effect.h"
-#include "sound/speech.h"
+#include "sound/sound.h"
 
 #include <stdlib.h>
 
@@ -213,8 +212,8 @@ void update_enemy_formations(void)
                         legion_formations[j].morale = calc_bound(legion_formations[j].morale + 5, 0, legion_formations[j].max_morale);
                     }
                     m->routed = 1;
-                    sound_effect_play(SOUND_EFFECT_HORN3);
-                    sound_speech_play_file("wavs/army_war_cry.wav");
+                    play_sound_effect(SOUND_EFFECT_HORN3);
+                    play_speech_file("wavs/army_war_cry.wav");
                 }
                 continue;
             }

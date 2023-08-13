@@ -4,7 +4,7 @@
 #include "graphics/screen.h"
 #include "graphics/video.h"
 #include "graphics/window.h"
-#include "sound/music.h"
+#include "sound/sound.h"
 
 #define NUM_INTRO_VIDEOS 3
 
@@ -41,7 +41,7 @@ static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
     if (!started || m->left.went_up || m->right.went_up || video_is_finished() || h->enter_pressed) {
         video_stop();
         if (!start_next_video()) {
-            sound_music_play_intro();
+            play_intro_music();
             window_go_back();
         }
         started = 1;

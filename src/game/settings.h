@@ -23,7 +23,7 @@ int setting_fullscreen(void);
 void setting_window(int *width, int *height);
 void setting_set_display(int fullscreen, int width, int height);
 
-struct set_sound_t *setting_sound(int type);
+struct set_sound_t *get_sound(int type);
 
 void setting_toggle_sound_enabled(int type);
 void setting_increase_sound_volume(int type);

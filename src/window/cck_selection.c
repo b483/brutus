@@ -15,7 +15,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/scenario.h"
-#include "sound/music.h"
+#include "sound/sound.h"
 #include "widget/scenario_minimap.h"
 #include "window/city.h"
 #include "window/editor/attributes.h"
@@ -270,7 +270,7 @@ static void button_select_item(int index, __attribute__((unused)) int param2)
 static void button_start_scenario(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     if (game_file_start_scenario(data.selected_scenario_filename)) {
-        sound_music_update(1);
+        update_music(1);
         window_mission_briefing_show();
     }
 }

@@ -10,8 +10,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/scenario.h"
-#include "sound/music.h"
-#include "sound/speech.h"
+#include "sound/sound.h"
 #include "window/cck_selection.h"
 #include "window/city.h"
 #include "window/intermezzo.h"
@@ -88,8 +87,8 @@ static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
     rich_text_handle_mouse(mouse_in_dialog(m));
     if (m->right.went_up || h->escape_pressed || h->enter_pressed) {
         rich_text_reset(0);
-        sound_speech_stop();
-        sound_music_update(1);
+        stop_sound_channel(SOUND_CHANNEL_SPEECH);
+        update_music(1);
         window_city_show();
         return;
     }

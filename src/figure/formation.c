@@ -8,7 +8,7 @@
 #include "figure/formation_legion.h"
 #include "figure/route.h"
 #include "map/grid.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 
 #include <string.h>
 

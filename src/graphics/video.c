@@ -6,9 +6,7 @@
 #include "game/settings.h"
 #include "graphics/graphics.h"
 #include "graphics/screen.h"
-#include "sound/device.h"
-#include "sound/music.h"
-#include "sound/speech.h"
+#include "sound/sound.h"
 
 static struct {
     int is_playing;
@@ -61,7 +59,7 @@ static int load_smk(const char *filename)
     data.video.micros_per_frame = micros_per_frame;
 
     data.audio.has_audio = 0;
-    if (setting_sound(SOUND_EFFECTS)->enabled) {
+    if (get_sound(SOUND_EFFECTS)->enabled) {
         int has_track, channels, bitdepth, rate;
         smacker_get_audio_info(data.s, 0, &has_track, &channels, &bitdepth, &rate);
         if (has_track) {
@@ -81,9 +79,9 @@ static int load_smk(const char *filename)
 
 static void end_video(void)
 {
-    sound_device_use_default_music_player();
+    use_default_music_player();
     if (data.restart_music) {
-        sound_music_update(1);
+        update_music(1);
     }
 }
 
@@ -93,8 +91,8 @@ int video_start(const char *filename)
     data.is_ended = 0;
 
     if (load_smk(filename)) {
-        sound_music_stop();
-        sound_speech_stop();
+        stop_music();
+        stop_sound_channel(SOUND_CHANNEL_SPEECH);
         data.is_playing = 1;
         return 1;
     } else {
@@ -116,7 +114,7 @@ void video_init(int restart_music)
     if (data.audio.has_audio) {
         int audio_len = smacker_get_frame_audio_size(data.s, 0);
         if (audio_len > 0) {
-            sound_device_use_custom_music_player(
+            use_custom_music_player(
                 data.audio.bitdepth, data.audio.channels, data.audio.rate,
                 smacker_get_frame_audio(data.s, 0), audio_len
             );
@@ -171,7 +169,7 @@ static int get_next_frame(void)
         if (data.audio.has_audio) {
             int audio_len = smacker_get_frame_audio_size(data.s, 0);
             if (audio_len > 0) {
-                sound_device_write_custom_music_data(smacker_get_frame_audio(data.s, 0), audio_len);
+                write_custom_music_data(smacker_get_frame_audio(data.s, 0), audio_len);
             }
         }
     }

@@ -14,7 +14,7 @@
 #include "map/road_access.h"
 #include "map/routing_terrain.h"
 #include "map/terrain.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 
 static const int BALLISTA_FIRING_OFFSETS[] = {
     0, 1, 2, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -81,7 +81,7 @@ void figure_ballista_action(struct figure_t *f)
             if (f->wait_ticks_missile > figure_properties[f->type].missile_delay && set_missile_target(f, &tile)) {
                 f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
                 figure_create_missile(f, &tile, figure_properties[f->type].missile_type);
-                sound_effect_play(SOUND_EFFECT_BALLISTA_SHOOT);
+                play_sound_effect(SOUND_EFFECT_BALLISTA_SHOOT);
                 f->wait_ticks_missile = 0;
                 f->is_shooting = 1;
             }

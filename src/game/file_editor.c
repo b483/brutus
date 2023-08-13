@@ -37,8 +37,7 @@
 #include "map/tiles.h"
 #include "scenario/scenario.h"
 #include "scenario/scenario.h"
-#include "sound/city.h"
-#include "sound/music.h"
+#include "sound/sound.h"
 
 void game_file_editor_clear_data(void)
 {
@@ -49,7 +48,7 @@ void game_file_editor_clear_data(void)
     city_message_init_scenario();
     game_state_init();
     game_animation_init();
-    sound_city_init();
+    initialize_city_sounds();
     building_clear_all();
     building_storage_clear_all();
     figure_init_scenario();

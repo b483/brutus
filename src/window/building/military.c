@@ -10,7 +10,7 @@
 #include "graphics/lang_text.h"
 #include "graphics/panel.h"
 #include "graphics/text.h"
-#include "sound/speech.h"
+#include "sound/sound.h"
 #include "window/city.h"
 
 static void button_return_to_fort(int param1, int param2);
@@ -405,11 +405,11 @@ static void button_layout(int index, __attribute__((unused)) int param2)
     }
 
     switch (index) {
-        case 0: sound_speech_play_file("wavs/cohort1.wav"); break;
-        case 1: sound_speech_play_file("wavs/cohort2.wav"); break;
-        case 2: sound_speech_play_file("wavs/cohort3.wav"); break;
-        case 3: sound_speech_play_file("wavs/cohort4.wav"); break;
-        case 4: sound_speech_play_file("wavs/cohort5.wav"); break;
+        case 0: play_speech_file("wavs/cohort1.wav"); break;
+        case 1: play_speech_file("wavs/cohort2.wav"); break;
+        case 2: play_speech_file("wavs/cohort3.wav"); break;
+        case 3: play_speech_file("wavs/cohort4.wav"); break;
+        case 4: play_speech_file("wavs/cohort5.wav"); break;
     }
     window_city_military_show(data.context_for_callback->formation_id);
 }

@@ -7,7 +7,7 @@
 #include "figure/formation.h"
 #include "game/time.h"
 #include "graphics/window.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 #include "window/message_dialog.h"
 
 #define MAX_MESSAGES 1000
@@ -96,9 +96,9 @@ void city_message_init_problem_areas(void)
 static void play_sound(int text_id)
 {
     if (lang_get_message(text_id)->urgent == 1) {
-        sound_effect_play(SOUND_EFFECT_FANFARE_URGENT);
+        play_sound_effect(SOUND_EFFECT_FANFARE_URGENT);
     } else {
-        sound_effect_play(SOUND_EFFECT_FANFARE);
+        play_sound_effect(SOUND_EFFECT_FANFARE);
     }
 }
 

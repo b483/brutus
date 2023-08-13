@@ -5,8 +5,7 @@
 #include "graphics/image.h"
 #include "graphics/screen.h"
 #include "graphics/window.h"
-#include "sound/music.h"
-#include "sound/speech.h"
+#include "sound/sound.h"
 
 #define DISPLAY_TIME_MILLIS 1000
 
@@ -24,13 +23,13 @@ static void init(int type, void (*callback)(void))
     data.type = type;
     data.callback = callback;
     data.start_time = time_get_millis();
-    sound_speech_stop();
+    stop_sound_channel(SOUND_CHANNEL_SPEECH);
     if (data.type == INTERMEZZO_FIRED) {
-        sound_music_stop();
-        sound_speech_play_file(SOUND_FILE_LOSE);
+        stop_music();
+        play_speech_file(SOUND_FILE_LOSE);
     } else if (data.type == INTERMEZZO_WON) {
-        sound_music_stop();
-        sound_speech_play_file(SOUND_FILE_WIN);
+        stop_music();
+        play_speech_file(SOUND_FILE_WIN);
     }
 }
 

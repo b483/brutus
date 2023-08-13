@@ -17,7 +17,7 @@
 #include "map/image.h"
 #include "map/terrain.h"
 #include "scenario/scenario.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 
 #include <stdlib.h>
 
@@ -373,7 +373,7 @@ static void hit_opponent(struct figure_t *attacker, struct figure_t *opponent)
         case BACK_ATTACK:
             attacker_attack_value *= 2;
             opponent_defense_value = 0;
-            sound_effect_play(SOUND_EFFECT_SWORD_SWING);
+            play_sound_effect(SOUND_EFFECT_SWORD_SWING);
             break;
         default:
             break;
@@ -421,7 +421,7 @@ void figure_combat_handle_attack(struct figure_t *f)
         if (f->attack_image_offset >= 24 || unit_is_charging_opponent(f, opponent)) {
             hit_opponent(f, opponent);
             if (unit_is_charging_opponent(f, opponent)) {
-                sound_effect_play(SOUND_EFFECT_HORSE_MOVING);
+                play_sound_effect(SOUND_EFFECT_HORSE_MOVING);
                 f->mounted_charge_ticks--;
             }
             if (figure_properties[opponent->type].is_player_legion_unit) {

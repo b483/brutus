@@ -10,7 +10,7 @@
 #include "figure/route.h"
 #include "map/building.h"
 #include "map/road_access.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 
 #define PREFECT_LEASH_RANGE 20
 
@@ -126,7 +126,7 @@ static void extinguish_fire(struct figure_t *f)
     int distance = calc_maximum_distance(f->x, f->y, burn->x, burn->y);
     if (burn->state == BUILDING_STATE_IN_USE && burn->type == BUILDING_BURNING_RUIN && distance < 2) {
         burn->fire_duration = 32;
-        sound_effect_play(SOUND_EFFECT_FIRE_SPLASH);
+        play_sound_effect(SOUND_EFFECT_FIRE_SPLASH);
     } else {
         f->wait_ticks = 1;
     }

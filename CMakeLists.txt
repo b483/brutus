@@ -83,9 +83,7 @@ set(PLATFORM_FILES
     ${PROJECT_SOURCE_DIR}/src/platform/keyboard_input.c
     ${PROJECT_SOURCE_DIR}/src/platform/log.c
     ${PROJECT_SOURCE_DIR}/src/platform/mouse.c
-    ${PROJECT_SOURCE_DIR}/src/platform/platform.c
     ${PROJECT_SOURCE_DIR}/src/platform/screen.c
-    ${PROJECT_SOURCE_DIR}/src/platform/sound_device.c
     ${PROJECT_SOURCE_DIR}/src/platform/version.c
 )
 
@@ -265,11 +263,7 @@ set(GRAPHICS_FILES
     ${PROJECT_SOURCE_DIR}/src/graphics/window.c
 )
 set(SOUND_FILES
-    ${PROJECT_SOURCE_DIR}/src/sound/city.c
-    ${PROJECT_SOURCE_DIR}/src/sound/effect.c
-    ${PROJECT_SOURCE_DIR}/src/sound/music.c
-    ${PROJECT_SOURCE_DIR}/src/sound/speech.c
-    ${PROJECT_SOURCE_DIR}/src/sound/system.c
+    ${PROJECT_SOURCE_DIR}/src/sound/sound.c
 )
 set(WIDGET_FILES
     ${PROJECT_SOURCE_DIR}/src/widget/city.c

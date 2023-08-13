@@ -1,7 +1,7 @@
 #include "image_button.h"
 
 #include "graphics/image.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 
 #define PRESSED_EFFECT_MILLIS 100
 #define PRESSED_REPEAT_INITIAL_MILLIS 300
@@ -108,7 +108,7 @@ int image_buttons_handle_mouse(
         }
     }
     if (m->left.went_up) {
-        sound_effect_play(SOUND_EFFECT_ICON);
+        play_sound_effect(SOUND_EFFECT_ICON);
         hit_button->left_click_handler(hit_button->parameter1, hit_button->parameter2);
         return hit_button->left_click_handler != button_none;
     } else if (m->right.went_up) {

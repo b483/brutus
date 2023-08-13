@@ -8,11 +8,11 @@
 #include "city/entertainment.h"
 #include "city/population.h"
 #include "city/ratings.h"
+#include "city/resource.h"
 #include "city/view.h"
 #include "core/config.h"
 #include "core/time.h"
 #include "figure/formation_legion.h"
-#include "city/resource.h"
 #include "graphics/image.h"
 #include "graphics/window.h"
 #include "map/building.h"
@@ -22,7 +22,7 @@
 #include "map/property.h"
 #include "map/sprite.h"
 #include "map/terrain.h"
-#include "sound/city.h"
+#include "sound/sound.h"
 #include "widget/city_bridge.h"
 #include "widget/city_building_ghost.h"
 #include "widget/city_figure.h"
@@ -116,27 +116,27 @@ static void draw_footprint(int x, int y, int grid_offset)
                     color_mask = COLOR_MASK_RED;
                 }
                 if (x < view_x + 100) {
-                    sound_city_mark_building_view(b->type, b->num_workers, SOUND_DIRECTION_LEFT);
+                    city_sounds__mark_building_view(b->type, b->num_workers, SOUND_DIRECTION_LEFT);
                 } else if (x > view_x + view_width - 100) {
-                    sound_city_mark_building_view(b->type, b->num_workers, SOUND_DIRECTION_RIGHT);
+                    city_sounds__mark_building_view(b->type, b->num_workers, SOUND_DIRECTION_RIGHT);
                 } else {
-                    sound_city_mark_building_view(b->type, b->num_workers, SOUND_DIRECTION_CENTER);
+                    city_sounds__mark_building_view(b->type, b->num_workers, SOUND_DIRECTION_CENTER);
                 }
             } else if (map_terrain_is(grid_offset, TERRAIN_GARDEN)) {
                 if (x < view_x + 100) {
-                    sound_city_mark_building_view(BUILDING_GARDENS, 0, SOUND_DIRECTION_LEFT);
+                    city_sounds__mark_building_view(BUILDING_GARDENS, 0, SOUND_DIRECTION_LEFT);
                 } else if (x > view_x + view_width - 100) {
-                    sound_city_mark_building_view(BUILDING_GARDENS, 0, SOUND_DIRECTION_RIGHT);
+                    city_sounds__mark_building_view(BUILDING_GARDENS, 0, SOUND_DIRECTION_RIGHT);
                 } else {
-                    sound_city_mark_building_view(BUILDING_GARDENS, 0, SOUND_DIRECTION_CENTER);
+                    city_sounds__mark_building_view(BUILDING_GARDENS, 0, SOUND_DIRECTION_CENTER);
                 }
             } else if (map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
                 if (x < view_x + 100) {
-                    sound_city_mark_building_view(BUILDING_AQUEDUCT, 0, SOUND_DIRECTION_LEFT);
+                    city_sounds__mark_building_view(BUILDING_AQUEDUCT, 0, SOUND_DIRECTION_LEFT);
                 } else if (x > view_x + view_width - 100) {
-                    sound_city_mark_building_view(BUILDING_AQUEDUCT, 0, SOUND_DIRECTION_RIGHT);
+                    city_sounds__mark_building_view(BUILDING_AQUEDUCT, 0, SOUND_DIRECTION_RIGHT);
                 } else {
-                    sound_city_mark_building_view(BUILDING_AQUEDUCT, 0, SOUND_DIRECTION_CENTER);
+                    city_sounds__mark_building_view(BUILDING_AQUEDUCT, 0, SOUND_DIRECTION_CENTER);
                 }
             }
         }

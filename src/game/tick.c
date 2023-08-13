@@ -59,7 +59,7 @@
 #include "map/water.h"
 #include "map/water_supply.h"
 #include "scenario/scenario.h"
-#include "sound/music.h"
+#include "sound/sound.h"
 #include "widget/minimap.h"
 
 static void advance_year(void)
@@ -141,7 +141,7 @@ static void advance_tick(void)
     // 0, 9, 11, 13, 14, 15, 26, 29, 41, 42, 47
     switch (game_time_tick()) {
         case 1: city_gods_calculate_moods(1); break;
-        case 2: sound_music_update(0); break;
+        case 2: update_music(0); break;
         case 3: widget_minimap_invalidate(); break;
         case 4:
             update_debt_state();

@@ -8,7 +8,7 @@
 #include "figure/figure.h"
 #include "game/time.h"
 #include "scenario/scenario.h"
-#include "sound/music.h"
+#include "sound/sound.h"
 #include "window/mission_end.h"
 #include "window/victory_dialog.h"
 
@@ -122,7 +122,7 @@ void city_victory_check(void)
             }
             data.force_win = 0;
         } else if (data.state == VICTORY_STATE_WON) {
-            sound_music_stop();
+            stop_music();
             if (city_data.mission.victory_message_shown) {
                 window_mission_end_show_won();
                 data.force_win = 0;

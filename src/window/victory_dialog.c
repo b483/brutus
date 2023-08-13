@@ -8,7 +8,7 @@
 #include "graphics/text.h"
 #include "graphics/window.h"
 #include "scenario/scenario.h"
-#include "sound/music.h"
+#include "sound/sound.h"
 #include "window/city.h"
 
 static void button_accept(int param1, int param2);
@@ -64,7 +64,7 @@ static void button_continue_governing(int months, __attribute__((unused)) int pa
     city_victory_continue_governing(months);
     window_city_show();
     city_victory_reset();
-    sound_music_update(1);
+    update_music(1);
 }
 
 void window_victory_dialog_show(void)

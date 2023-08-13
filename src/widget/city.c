@@ -21,9 +21,7 @@
 #include "map/grid.h"
 #include "map/routing.h"
 #include "scenario/scenario.h"
-#include "sound/city.h"
-#include "sound/speech.h"
-#include "sound/effect.h"
+#include "sound/sound.h"
 #include "widget/city_with_overlay.h"
 #include "widget/city_without_overlay.h"
 #include "widget/minimap.h"
@@ -176,7 +174,7 @@ static void scroll_map(const struct mouse_t *m)
     struct pixel_view_coordinates_t delta;
     if (scroll_get_delta(m, &delta, SCROLL_TYPE_CITY)) {
         city_view_scroll(delta.x, delta.y);
-        sound_city_decay_views();
+        decay_city_sounds_views();
     }
 }
 
@@ -223,7 +221,7 @@ static void handle_mouse(const struct mouse_t *m)
     if (m->left.went_up) {
         if (building_construction_in_progress()) {
             if (building_construction_type() != BUILDING_NONE) {
-                sound_effect_play(SOUND_EFFECT_BUILD);
+                play_sound_effect(SOUND_EFFECT_BUILD);
             }
             building_construction_place();
             widget_minimap_invalidate();
