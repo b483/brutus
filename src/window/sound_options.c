@@ -8,9 +8,9 @@
 #include "graphics/panel.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
+#include "editor/editor.h"
 #include "sound/sound.h"
 #include "window/city.h"
-#include "window/editor/map.h"
 
 #include "SDL_mixer.h"
 
@@ -107,7 +107,7 @@ static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
     }
     if (m->right.went_up || h->escape_pressed) {
         if (data.from_editor) {
-            window_editor_map_show();
+            show_editor_map();
         } else {
             window_city_return();
         }

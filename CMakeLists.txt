@@ -272,15 +272,11 @@ set(WIDGET_FILES
     ${PROJECT_SOURCE_DIR}/src/widget/city_with_overlay.c
     ${PROJECT_SOURCE_DIR}/src/widget/city_without_overlay.c
     ${PROJECT_SOURCE_DIR}/src/widget/input_box.c
-    ${PROJECT_SOURCE_DIR}/src/widget/map_editor.c
-    ${PROJECT_SOURCE_DIR}/src/widget/map_editor_tool.c
     ${PROJECT_SOURCE_DIR}/src/widget/minimap.c
     ${PROJECT_SOURCE_DIR}/src/widget/scenario_minimap.c
     ${PROJECT_SOURCE_DIR}/src/widget/top_menu.c
-    ${PROJECT_SOURCE_DIR}/src/widget/top_menu_editor.c
     ${PROJECT_SOURCE_DIR}/src/widget/sidebar/city.c
     ${PROJECT_SOURCE_DIR}/src/widget/sidebar/common.c
-    ${PROJECT_SOURCE_DIR}/src/widget/sidebar/editor.c
     ${PROJECT_SOURCE_DIR}/src/widget/sidebar/extra.c
     ${PROJECT_SOURCE_DIR}/src/widget/sidebar/slide.c
 )
@@ -310,28 +306,6 @@ set(WINDOW_FILES
     ${PROJECT_SOURCE_DIR}/src/window/building/military.c
     ${PROJECT_SOURCE_DIR}/src/window/building/terrain.c
     ${PROJECT_SOURCE_DIR}/src/window/building/utility.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/allowed_buildings.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/attributes.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/briefing.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/build_menu.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/custom_messages.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/demand_changes.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/earthquakes.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/edit_earthquake.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/edit_custom_message.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/edit_demand_change.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/edit_invasion.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/edit_price_change.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/edit_request.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/empire.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/invasions.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/map.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/price_changes.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/requests.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/special_events.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/start_year.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/starting_conditions.c
-    ${PROJECT_SOURCE_DIR}/src/window/editor/win_criteria.c
     ${PROJECT_SOURCE_DIR}/src/window/cck_selection.c
     ${PROJECT_SOURCE_DIR}/src/window/city.c
     ${PROJECT_SOURCE_DIR}/src/window/config.c
@@ -368,7 +342,6 @@ set(WINDOW_FILES
 )
 set(EDITOR_FILES
     ${PROJECT_SOURCE_DIR}/src/editor/editor.c
-    ${PROJECT_SOURCE_DIR}/src/editor/tool.c
 )
 
 set(SOURCE_FILES

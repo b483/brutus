@@ -3,6 +3,7 @@
 
 #include "input/hotkey.h"
 #include "input/mouse.h"
+#include "map/tiles.h"
 
 struct pixel_coordinate_t {
     int x;
@@ -13,6 +14,10 @@ void widget_city_draw(void);
 void widget_city_draw_for_figure(int figure_id, struct pixel_coordinate_t *coord);
 
 void widget_city_draw_construction_cost_and_size(void);
+
+void update_city_view_coords(int x, int y, struct map_tile_t *tile);
+
+void scroll_map(const struct mouse_t *m);
 
 int widget_city_has_input(void);
 void request_exit_scenario(void);

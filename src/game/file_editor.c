@@ -7,7 +7,7 @@
 #include "city/victory.h"
 #include "city/view.h"
 #include "core/image.h"
-#include "core/image_group_editor.h"
+#include "editor/editor.h"
 #include "empire/empire.h"
 #include "empire/object.h"
 #include "figure/figure.h"

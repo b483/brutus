@@ -20,7 +20,6 @@
 #include "scenario/scenario.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
-#include "window/editor/map.h"
 #include "window/logo.h"
 #include "window/main_menu.h"
 
@@ -235,7 +234,7 @@ int game_init(void)
     return 1;
 }
 
-static int reload_language(int is_editor, int reload_images)
+int reload_language(int is_editor, int reload_images)
 {
     if (!lang_load(is_editor)) {
         if (is_editor) {
@@ -267,17 +266,8 @@ int game_init_editor(void)
     }
 
     editor_set_active(1);
-    window_editor_map_show();
+    show_editor_map();
     return 1;
-}
-
-void game_exit_editor(void)
-{
-    if (!reload_language(0, 0)) {
-        return;
-    }
-    editor_set_active(0);
-    window_main_menu_show(1);
 }
 
 void game_run(void)

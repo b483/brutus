@@ -1,5 +1,6 @@
 #include "main_menu.h"
 
+#include "core/file.h"
 #include "core/string.h"
 #include "editor/editor.h"
 #include "game/game.h"
@@ -20,7 +21,21 @@
 #include "window/file_dialog.h"
 #include "window/plain_message_dialog.h"
 
+#define MAX_EDITOR_FILES 9
+
 #define MAX_BUTTONS 5
+
+static const char EDITOR_FILES[MAX_EDITOR_FILES][32] = {
+    "c3_map.eng",
+    "c3_map_mm.eng",
+    "c3map.sg2",
+    "c3map.555",
+    "c3map_north.sg2",
+    "c3map_north.555",
+    "c3map_south.sg2",
+    "c3map_south.555",
+    "map_panels.555"
+};
 
 static void button_click(int type, int param2);
 
@@ -97,7 +112,14 @@ static void button_click(int type, __attribute__((unused)) int param2)
     } else if (type == 2) {
         window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_LOAD);
     } else if (type == 3) {
-        if (!editor_is_present() || !game_init_editor()) {
+        int editor_present = 1;
+        for (int i = 0; i < MAX_EDITOR_FILES; i++) {
+            if (!file_exists(0, EDITOR_FILES[i])) {
+                editor_present = 0;
+                break;
+            }
+        }
+        if (!editor_present || !game_init_editor()) {
             window_plain_message_dialog_show("Editor not installed", "Your Caesar 3 installation does not contain the editor files.\n\
                 You can download them from: https://github.com/bvschaik/julius/wiki/Editor");
         } else {

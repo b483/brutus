@@ -123,7 +123,7 @@ static int is_cancel_construction_button(int x, int y)
 
 // INPUT HANDLING
 
-static void update_city_view_coords(int x, int y, struct map_tile_t *tile)
+void update_city_view_coords(int x, int y, struct map_tile_t *tile)
 {
     struct pixel_view_coordinates_t view;
     if (city_view_pixels_to_view_tile(x, y, &view)) {
@@ -169,7 +169,7 @@ static void build_move(const struct map_tile_t *tile)
     building_construction_update(tile->x, tile->y, tile->grid_offset);
 }
 
-static void scroll_map(const struct mouse_t *m)
+void scroll_map(const struct mouse_t *m)
 {
     struct pixel_view_coordinates_t delta;
     if (scroll_get_delta(m, &delta, SCROLL_TYPE_CITY)) {

@@ -17,10 +17,10 @@
 #include "graphics/scrollbar.h"
 #include "graphics/text.h"
 #include "graphics/window.h"
+#include "editor/editor.h"
 #include "sound/sound.h"
 #include "widget/input_box.h"
 #include "window/city.h"
-#include "window/editor/map.h"
 
 #include <string.h>
 
@@ -294,11 +294,11 @@ static void button_ok_cancel(int is_ok, __attribute__((unused)) int param2)
         if (data.dialog_type == FILE_DIALOG_SAVE) {
             input_box_stop(&file_name_input);
             game_file_editor_write_scenario(MAPS_DIR_PATH, filename);
-            window_editor_map_show();
+            show_editor_map();
         } else if (data.dialog_type == FILE_DIALOG_LOAD) {
             if (game_file_editor_load_scenario(MAPS_DIR_PATH, filename)) {
                 input_box_stop(&file_name_input);
-                window_editor_map_show();
+                show_editor_map();
             } else {
                 data.message_not_exist_start_time = time_get_millis();
                 return;

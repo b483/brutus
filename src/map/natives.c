@@ -7,7 +7,7 @@
 #include "city/military.h"
 #include "core/calc.h"
 #include "core/image.h"
-#include "core/image_group_editor.h"
+#include "editor/editor.h"
 #include "map/building.h"
 #include "map/building_tiles.h"
 #include "map/grid.h"
