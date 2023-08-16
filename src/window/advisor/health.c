@@ -7,10 +7,7 @@
 #include "city/health.h"
 #include "city/houses.h"
 #include "city/population.h"
-#include "graphics/image.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
+#include "core/image.h"
 
 #define ADVISOR_HEIGHT 18
 

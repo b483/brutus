@@ -1,7 +1,7 @@
 #include "input/mouse.h"
 
 #include "core/time.h"
-#include "graphics/screen.h"
+#include "graphics/graphics.h"
 
 enum {
     SYSTEM_NONE = 0,

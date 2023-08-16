@@ -1,12 +1,7 @@
 #include "victory_dialog.h"
 
 #include "city/victory.h"
-#include "graphics/generic_button.h"
 #include "graphics/graphics.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
-#include "graphics/window.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
 #include "window/city.h"

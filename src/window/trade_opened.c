@@ -3,10 +3,6 @@
 #include "core/image_group.h"
 #include "empire/object.h"
 #include "graphics/graphics.h"
-#include "graphics/image_button.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/window.h"
 #include "window/advisors.h"
 #include "window/empire.h"
 

@@ -7,12 +7,7 @@
 #include "core/lang.h"
 #include "core/string.h"
 #include "game/settings.h"
-#include "graphics/arrow_button.h"
 #include "graphics/graphics.h"
-#include "graphics/lang_text.h"
-#include "graphics/menu.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
 #include "scenario/scenario.h"
 
 

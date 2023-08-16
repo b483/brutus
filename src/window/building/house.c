@@ -5,10 +5,7 @@
 #include "city/finance.h"
 #include "core/calc.h"
 #include "city/resource.h"
-#include "graphics/image.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
+#include "core/image.h"
 #include "map/road_access.h"
 #include "window/building/figures.h"
 

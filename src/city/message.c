@@ -6,7 +6,7 @@
 #include "core/time.h"
 #include "figure/formation.h"
 #include "game/time.h"
-#include "graphics/window.h"
+#include "graphics/graphics.h"
 #include "sound/sound.h"
 #include "window/message_dialog.h"
 

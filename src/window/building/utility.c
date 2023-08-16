@@ -1,8 +1,7 @@
 #include "utility.h"
 
 #include "building/building.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
+#include "graphics/graphics.h"
 #include "map/water_supply.h"
 
 void window_building_draw_engineers_post(struct building_info_context_t *c)

@@ -1,11 +1,9 @@
 #include "logo.h"
 
 #include "core/config.h"
+#include "core/image.h"
 #include "platform/brutus.h"
 #include "graphics/graphics.h"
-#include "graphics/image.h"
-#include "graphics/lang_text.h"
-#include "graphics/window.h"
 #include "sound/sound.h"
 #include "window/intro_video.h"
 #include "window/main_menu.h"

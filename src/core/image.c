@@ -3,6 +3,7 @@
 #include "core/buffer.h"
 #include "core/file.h"
 #include "core/string.h"
+#include "graphics/graphics.h"
 #include "platform/brutus.h"
 
 #define HEADER_SIZE 20680

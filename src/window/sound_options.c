@@ -1,13 +1,7 @@
 #include "sound_options.h"
 
 #include "game/settings.h"
-#include "graphics/arrow_button.h"
-#include "graphics/generic_button.h"
 #include "graphics/graphics.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
-#include "graphics/window.h"
 #include "editor/editor.h"
 #include "sound/sound.h"
 #include "window/city.h"

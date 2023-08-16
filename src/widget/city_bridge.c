@@ -1,6 +1,6 @@
 #include "city_bridge.h"
 
-#include "graphics/image.h"
+#include "core/image.h"
 #include "map/property.h"
 #include "map/sprite.h"
 #include "map/terrain.h"

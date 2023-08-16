@@ -9,11 +9,8 @@
 #include "city/resource.h"
 #include "city/sentiment.h"
 #include "core/calc.h"
+#include "core/image.h"
 #include "figure/figure.h"
-#include "graphics/image.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
 #include "scenario/scenario.h"
 
 #define ADVISOR_HEIGHT 23

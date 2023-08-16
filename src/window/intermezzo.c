@@ -1,10 +1,8 @@
 #include "intermezzo.h"
 
+#include "core/image.h"
 #include "core/time.h"
 #include "graphics/graphics.h"
-#include "graphics/image.h"
-#include "graphics/screen.h"
-#include "graphics/window.h"
 #include "sound/sound.h"
 
 #define DISPLAY_TIME_MILLIS 1000

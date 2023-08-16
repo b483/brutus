@@ -1,9 +1,6 @@
 #include "intro_video.h"
 
 #include "graphics/graphics.h"
-#include "graphics/screen.h"
-#include "graphics/video.h"
-#include "graphics/window.h"
 #include "sound/sound.h"
 
 #define NUM_INTRO_VIDEOS 3

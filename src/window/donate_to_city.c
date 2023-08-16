@@ -2,14 +2,7 @@
 
 #include "city/data.h"
 #include "core/calc.h"
-#include "graphics/arrow_button.h"
-#include "graphics/generic_button.h"
 #include "graphics/graphics.h"
-#include "graphics/image.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
-#include "graphics/window.h"
 #include "window/advisors.h"
 
 static void button_set_amount(int amount_id, int param2);

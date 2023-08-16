@@ -1,11 +1,7 @@
 #include "labor_priority.h"
 
 #include "city/labor.h"
-#include "graphics/generic_button.h"
 #include "graphics/graphics.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/window.h"
 
 static void button_set_priority(int new_priority, int param2);
 static void button_remove_priority(int param1, int param2);

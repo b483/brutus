@@ -3,12 +3,7 @@
 #include "core/hotkey_config.h"
 #include "core/image_group.h"
 #include "core/string.h"
-#include "graphics/generic_button.h"
 #include "graphics/graphics.h"
-#include "graphics/image.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
-#include "graphics/window.h"
 
 #define NUM_BOTTOM_BUTTONS 2
 

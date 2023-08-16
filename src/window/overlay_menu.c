@@ -1,13 +1,10 @@
 #include "overlay_menu.h"
 
 #include "city/view.h"
+#include "core/image.h"
 #include "core/time.h"
 #include "game/state.h"
-#include "graphics/generic_button.h"
-#include "graphics/image.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/window.h"
+#include "graphics/graphics.h"
 #include "widget/city.h"
 #include "window/city.h"
 

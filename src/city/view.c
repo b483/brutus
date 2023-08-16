@@ -1,7 +1,7 @@
 #include "view.h"
 
 #include "game/orientation.h"
-#include "graphics/menu.h"
+#include "graphics/graphics.h"
 #include "map/grid.h"
 #include "map/image.h"
 #include "widget/minimap.h"

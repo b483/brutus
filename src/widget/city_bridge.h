@@ -1,7 +1,7 @@
 #ifndef WIDGET_CITY_BRIDGE_H
 #define WIDGET_CITY_BRIDGE_H
 
-#include "graphics/color.h"
+#include "graphics/graphics.h"
 
 void city_draw_bridge(int x, int y, int grid_offset);
 

@@ -4,7 +4,7 @@
 #include "core/time.h"
 #include "game/settings.h"
 #include "game/state.h"
-#include "graphics/window.h"
+#include "graphics/graphics.h"
 #include "input/scroll.h"
 
 #define MAX_TICKS_PER_FRAME 20

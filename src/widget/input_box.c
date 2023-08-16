@@ -2,10 +2,9 @@
 
 #include "SDL.h"
 
-#include "platform/brutus.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
+#include "graphics/graphics.h"
 #include "input/keyboard.h"
+#include "platform/brutus.h"
 
 static int draw_cursor;
 

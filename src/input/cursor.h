@@ -1,8 +1,6 @@
 #ifndef INPUT_CURSOR_H
 #define INPUT_CURSOR_H
 
-#include "graphics/window.h"
-
 enum {
     CURSOR_ARROW = 0,
     CURSOR_SHOVEL = 1,

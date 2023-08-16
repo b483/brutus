@@ -3,8 +3,8 @@
 #include "SDL.h"
 
 #include "core/string.h"
+#include "graphics/graphics.h"
 #include "platform/brutus.h"
-#include "graphics/text.h"
 
 static struct {
     int capture;

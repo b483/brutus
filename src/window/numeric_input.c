@@ -1,12 +1,6 @@
 #include "numeric_input.h"
 
-#include "graphics/color.h"
-#include "graphics/generic_button.h"
 #include "graphics/graphics.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
-#include "graphics/window.h"
 #include "input/keyboard.h"
 #include "sound/sound.h"
 

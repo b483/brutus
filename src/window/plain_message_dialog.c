@@ -3,10 +3,6 @@
 #include "core/image_group.h"
 #include "core/string.h"
 #include "graphics/graphics.h"
-#include "graphics/image_button.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
-#include "graphics/window.h"
 
 static void button_ok(int param1, int param2);
 

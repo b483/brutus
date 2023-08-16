@@ -2,6 +2,7 @@
 
 #include "building/building.h"
 #include "building/construction.h"
+#include "graphics/graphics.h"
 #include "platform/brutus.h"
 #include "window/city.h"
 

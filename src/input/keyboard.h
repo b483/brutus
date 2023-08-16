@@ -1,8 +1,6 @@
 #ifndef INPUT_KEYBOARD_H
 #define INPUT_KEYBOARD_H
 
-#include "graphics/font.h"
-
 #include <stdint.h>
 
 void keyboard_start_capture(char *text, int max_length, int allow_punctuation, int box_width, int font);

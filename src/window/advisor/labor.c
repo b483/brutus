@@ -3,13 +3,8 @@
 #include "city/data.h"
 #include "city/finance.h"
 #include "core/calc.h"
-#include "graphics/arrow_button.h"
-#include "graphics/generic_button.h"
-#include "graphics/image.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
-#include "graphics/window.h"
+#include "core/image.h"
+#include "graphics/graphics.h"
 #include "window/labor_priority.h"
 
 static void arrow_button_wages(int value, int param2);

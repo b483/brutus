@@ -1,10 +1,9 @@
 #include "city_figure.h"
 
 #include "city/view.h"
+#include "core/image.h"
 #include "figure/formation_legion.h"
 #include "figuretype/editor.h"
-#include "graphics/image.h"
-#include "graphics/text.h"
 
 static void draw_figure_with_cart(const struct figure_t *f, int x, int y)
 {

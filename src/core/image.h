@@ -3,7 +3,7 @@
 
 #include "core/image_group.h"
 #include "figure/figure.h"
-#include "graphics/color.h"
+#include "graphics/graphics.h"
 
 enum {
     IMAGE_TYPE_WITH_TRANSPARENCY = 0,

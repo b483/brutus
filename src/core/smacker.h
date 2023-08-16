@@ -1,7 +1,7 @@
 #ifndef CORE_SMACKER_H
 #define CORE_SMACKER_H
 
-#include "graphics/color.h"
+#include "graphics/graphics.h"
 
 #include <stdio.h>
 #include <stdint.h>

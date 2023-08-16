@@ -2,17 +2,10 @@
 
 #include "city/message.h"
 #include "core/calc.h"
+#include "core/image.h"
 #include "core/image_group.h"
 #include "core/lang.h"
-#include "graphics/generic_button.h"
 #include "graphics/graphics.h"
-#include "graphics/image.h"
-#include "graphics/image_button.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/scrollbar.h"
-#include "graphics/text.h"
-#include "graphics/window.h"
 #include "window/city.h"
 #include "window/message_dialog.h"
 

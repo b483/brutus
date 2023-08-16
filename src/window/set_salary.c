@@ -2,13 +2,7 @@
 
 #include "city/data.h"
 #include "city/ratings.h"
-#include "graphics/generic_button.h"
 #include "graphics/graphics.h"
-#include "graphics/image.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
-#include "graphics/window.h"
 #include "window/advisors.h"
 
 static void button_set_salary(int rank, int param2);

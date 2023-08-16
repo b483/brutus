@@ -6,7 +6,6 @@
 #include "city/finance.h"
 #include "core/image.h"
 #include "city/resource.h"
-#include "graphics/window.h"
 #include "map/aqueduct.h"
 #include "map/building.h"
 #include "map/building_tiles.h"

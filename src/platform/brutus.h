@@ -1,7 +1,6 @@
 #ifndef GAME_SYSTEM_H
 #define GAME_SYSTEM_H
 
-#include "graphics/color.h"
 #include "input/keys.h"
 
 #include "SDL.h"

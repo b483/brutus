@@ -4,11 +4,9 @@
 #include "city/constants.h"
 #include "game/settings.h"
 #include "game/state.h"
-#include "platform/brutus.h"
-#include "graphics/screenshot.h"
-#include "graphics/video.h"
-#include "graphics/window.h"
+#include "graphics/graphics.h"
 #include "input/scroll.h"
+#include "platform/brutus.h"
 #include "window/hotkey_editor.h"
 
 #include <stdlib.h>

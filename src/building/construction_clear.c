@@ -5,7 +5,7 @@
 #include "core/config.h"
 #include "figuretype/migrant.h"
 #include "game/undo.h"
-#include "graphics/window.h"
+#include "graphics/graphics.h"
 #include "map/aqueduct.h"
 #include "map/bridge.h"
 #include "map/building.h"

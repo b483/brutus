@@ -2,12 +2,7 @@
 
 #include "game/settings.h"
 #include "platform/brutus.h"
-#include "graphics/generic_button.h"
 #include "graphics/graphics.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
-#include "graphics/window.h"
 
 static void button_fullscreen(int param1, int param2);
 static void button_reset_window(int param1, int param2);

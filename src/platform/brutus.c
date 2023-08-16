@@ -8,7 +8,6 @@
 #include "core/time.h"
 #include "game/game.h"
 #include "game/settings.h"
-#include "graphics/screen.h"
 #include "input/cursor.h"
 #include "input/keyboard.h"
 #include "input/mouse.h"
@@ -20,9 +19,7 @@
 #include <signal.h>
 
 #ifdef DRAW_FPS
-#include "graphics/window.h"
 #include "graphics/graphics.h"
-#include "graphics/text.h"
 #endif
 
 #define INTPTR(d) (*(int*)(d))

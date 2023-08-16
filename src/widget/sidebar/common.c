@@ -1,8 +1,7 @@
 #include "common.h"
 
 #include "city/view.h"
-#include "graphics/image.h"
-#include "graphics/screen.h"
+#include "core/image.h"
 #include "widget/minimap.h"
 
 int sidebar_common_get_x_offset_expanded(void)

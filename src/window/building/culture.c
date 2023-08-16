@@ -1,9 +1,7 @@
 #include "culture.h"
 
 #include "building/building.h"
-#include "graphics/image.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
+#include "core/image.h"
 
 static void draw_culture_info(struct building_info_context_t *c, int help_id, const char *sound_file, int group_id)
 {

@@ -5,11 +5,7 @@
 #include "city/labor.h"
 #include "city/population.h"
 #include "city/view.h"
-#include "graphics/image.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/screen.h"
-#include "graphics/text.h"
+#include "core/image.h"
 #include "sound/sound.h"
 
 void window_building_set_possible_position(int *x_offset, int *y_offset, int width_blocks, int height_blocks)

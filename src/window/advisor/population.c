@@ -4,14 +4,9 @@
 #include "city/migration.h"
 #include "city/population.h"
 #include "city/resource.h"
+#include "core/image.h"
 #include "game/time.h"
-#include "graphics/generic_button.h"
 #include "graphics/graphics.h"
-#include "graphics/image.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
-#include "graphics/window.h"
 #include "scenario/scenario.h"
 
 #define ADVISOR_HEIGHT 27

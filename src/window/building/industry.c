@@ -6,11 +6,7 @@
 #include "city/resource.h"
 #include "core/calc.h"
 #include "figure/figure.h"
-#include "city/resource.h"
-#include "graphics/image.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
+#include "graphics/graphics.h"
 
 static void draw_farm(struct building_info_context_t *c, int help_id, const char *sound_file, int group_id, int resource)
 {

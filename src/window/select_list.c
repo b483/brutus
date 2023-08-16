@@ -1,12 +1,6 @@
 #include "select_list.h"
 
-#include "graphics/button.h"
-#include "graphics/color.h"
-#include "graphics/generic_button.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
-#include "graphics/window.h"
+#include "graphics/graphics.h"
 
 #define MAX_ITEMS_PER_LIST 20
 

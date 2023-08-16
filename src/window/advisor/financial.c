@@ -3,13 +3,8 @@
 #include "city/data.h"
 #include "city/finance.h"
 #include "core/calc.h"
-#include "graphics/arrow_button.h"
+#include "core/image.h"
 #include "graphics/graphics.h"
-#include "graphics/image.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
-#include "graphics/window.h"
 
 #define ADVISOR_HEIGHT 26
 

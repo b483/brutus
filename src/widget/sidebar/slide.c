@@ -2,8 +2,6 @@
 
 #include "core/speed.h"
 #include "graphics/graphics.h"
-#include "graphics/menu.h"
-#include "graphics/window.h"
 #include "sound/sound.h"
 #include "widget/sidebar/common.h"
 #include "widget/city.h"

@@ -7,12 +7,8 @@
 #include "city/entertainment.h"
 #include "city/gods.h"
 #include "city/houses.h"
-#include "graphics/generic_button.h"
-#include "graphics/image.h"
-#include "graphics/lang_text.h"
-#include "graphics/panel.h"
-#include "graphics/text.h"
-#include "graphics/window.h"
+#include "core/image.h"
+#include "graphics/graphics.h"
 #include "window/hold_festival.h"
 
 #define ADVISOR_HEIGHT 23

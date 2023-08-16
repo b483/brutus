@@ -1,8 +1,8 @@
 #include "keys.h"
 
 #include "core/string.h"
+#include "graphics/graphics.h"
 #include "platform/brutus.h"
-#include "graphics/font.h"
 
 #include <string.h>
 

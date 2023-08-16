@@ -5,8 +5,8 @@
 #include "core/speed.h"
 #include "core/time.h"
 #include "game/settings.h"
+#include "graphics/graphics.h"
 #include "platform/brutus.h"
-#include "graphics/screen.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -249,7 +249,7 @@ static int set_arrow_input(struct key_t *arrow, const struct key_t *opposite_arr
     return 0;
 }
 
-static int get_direction(const struct mouse_t *m)
+static int get_direction_scrolling(const struct mouse_t *m)
 {
     int is_inside_window = m->is_inside_window;
     int width = screen_width();
@@ -324,7 +324,7 @@ static int set_scroll_speed_from_input(const struct mouse_t *m, int type)
     if (set_scroll_speed_from_drag()) {
         return 1;
     }
-    int direction = get_direction(m);
+    int direction = get_direction_scrolling(m);
     if (direction == DIR_8_NONE) {
         uint32_t time = SPEED_CHANGE_IMMEDIATE;
         speed_set_target(&data.speed.x, 0, time, 1);

@@ -2,6 +2,7 @@
 
 #include "core/calc.h"
 #include "game/undo.h"
+#include "graphics/graphics.h"
 #include "map/building.h"
 #include "map/building_tiles.h"
 #include "map/grid.h"
@@ -10,7 +11,6 @@
 #include "map/routing_terrain.h"
 #include "map/terrain.h"
 #include "map/tiles.h"
-#include "graphics/window.h"
 
 static int place_routed_building(int x_start, int y_start, int x_end, int y_end, int type, int *items)
 {
