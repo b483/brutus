@@ -1,7 +1,6 @@
 #include "culture.h"
 
 #include "building/building.h"
-#include "building/count.h"
 #include "city/constants.h"
 #include "city/data.h"
 #include "city/entertainment.h"
@@ -71,21 +70,6 @@ int city_culture_coverage_academy(void)
 int city_culture_coverage_hospital(void)
 {
     return coverage.hospital;
-}
-
-int city_culture_average_education(void)
-{
-    return city_data.culture.average_education;
-}
-
-int city_culture_average_entertainment(void)
-{
-    return city_data.culture.average_entertainment;
-}
-
-int city_culture_average_health(void)
-{
-    return city_data.culture.average_health;
 }
 
 static int top(int input)

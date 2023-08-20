@@ -1,18 +1,18 @@
 #include "cartpusher.h"
 
-#include "building/barracks.h"
-#include "building/granary.h"
-#include "building/industry.h"
-#include "building/warehouse.h"
+#include "building/building.h"
 #include "city/data.h"
 #include "city/resource.h"
+#include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "city/resource.h"
+#include "map/road_access.h"
 #include "map/road_network.h"
 #include "map/routing_terrain.h"
+#include "scenario/scenario.h"
 
 static const int CART_OFFSET_MULTIPLE_LOADS_FOOD[] = { 0, 0, 8, 16, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 static const int CART_OFFSET_MULTIPLE_LOADS_NON_FOOD[] = { 0, 0, 0, 0, 0, 8, 0, 16, 24, 32, 40, 48, 56, 64, 72, 80 };
@@ -30,6 +30,93 @@ static void set_destination(struct figure_t *f, int action, int building_id, int
     f->wait_ticks = 0;
     f->destination_x = x_dst;
     f->destination_y = y_dst;
+}
+
+static int building_get_workshop_for_raw_material_with_room(int x, int y, int resource, int distance_from_entry, int road_network_id, struct map_point_t *dst)
+{
+    if (city_data.resource.stockpiled[resource]) {
+        return 0;
+    }
+    int output_type = resource_to_workshop_type(resource);
+    if (output_type == WORKSHOP_NONE) {
+        return 0;
+    }
+    int min_dist = INFINITE;
+    struct building_t *min_building = 0;
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state != BUILDING_STATE_IN_USE || !building_is_workshop(b->type)) {
+            continue;
+        }
+        if (!b->has_road_access || b->distance_from_entry <= 0) {
+            continue;
+        }
+        if (b->subtype.workshop_type == output_type && b->road_network_id == road_network_id && b->loads_stored < 2) {
+            int dist = calc_distance_with_penalty(b->x, b->y, x, y, distance_from_entry, b->distance_from_entry);
+            if (b->loads_stored > 0) {
+                dist += 20;
+            }
+            if (dist < min_dist) {
+                min_dist = dist;
+                min_building = b;
+            }
+        }
+    }
+    if (min_building) {
+        dst->x = min_building->road_access_x;
+        dst->y = min_building->road_access_y;
+        return min_building->id;
+    }
+    return 0;
+}
+
+static int building_granary_for_storing(int x, int y, int resource, int distance_from_entry, int road_network_id,
+                                 int force_on_stockpile, int *understaffed, struct map_point_t *dst)
+{
+    if (scenario.rome_supplies_wheat) {
+        return 0;
+    }
+    if (!resource_is_food(resource)) {
+        return 0;
+    }
+    if (city_data.resource.stockpiled[resource] && !force_on_stockpile) {
+        return 0;
+    }
+    int min_dist = INFINITE;
+    int min_building_id = 0;
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY) {
+            continue;
+        }
+        if (!b->has_road_access || b->distance_from_entry <= 0 || b->road_network_id != road_network_id) {
+            continue;
+        }
+        if (calc_percentage(b->num_workers, building_properties[b->type].n_laborers) < 100) {
+            if (understaffed) {
+                *understaffed += 1;
+            }
+            continue;
+        }
+        struct building_storage_t *s = building_storage_get(b->storage_id);
+        if (s->resource_state[resource] == BUILDING_STORAGE_STATE_NOT_ACCEPTING || s->empty_all) {
+            continue;
+        }
+        if (b->data.granary.resource_stored[RESOURCE_NONE] >= ONE_LOAD) {
+            // there is room
+            int dist = calc_distance_with_penalty(
+                b->x + 1, b->y + 1, x, y, distance_from_entry, b->distance_from_entry);
+            if (dist < min_dist) {
+                min_dist = dist;
+                min_building_id = i;
+            }
+        }
+    }
+    // deliver to center of granary
+    struct building_t *min = &all_buildings[min_building_id];
+    dst->x = min->x + 1;
+    dst->y = min->y + 1;
+    return min_building_id;
 }
 
 static void determine_cartpusher_destination(struct figure_t *f, struct building_t *b, int road_network_id)
@@ -138,6 +225,13 @@ static void reroute_cartpusher(struct figure_t *f)
         f->action_state = FIGURE_ACTION_CARTPUSHER_INITIAL;
     }
     f->wait_ticks = 0;
+}
+
+static void building_workshop_add_raw_material(struct building_t *b)
+{
+    if (b->id > 0 && building_is_workshop(b->type)) {
+        b->loads_stored++; // BUG: any raw material accepted
+    }
 }
 
 void figure_cartpusher_action(struct figure_t *f)
@@ -324,10 +418,46 @@ static void remove_resource_from_warehouse(struct figure_t *f)
     }
 }
 
+static int building_get_workshop_for_raw_material(int x, int y, int resource, int distance_from_entry, int road_network_id, struct map_point_t *dst)
+{
+    if (city_data.resource.stockpiled[resource]) {
+        return 0;
+    }
+    int output_type = resource_to_workshop_type(resource);
+    if (output_type == WORKSHOP_NONE) {
+        return 0;
+    }
+    int min_dist = INFINITE;
+    struct building_t *min_building = 0;
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state != BUILDING_STATE_IN_USE || !building_is_workshop(b->type)) {
+            continue;
+        }
+        if (!b->has_road_access || b->distance_from_entry <= 0) {
+            continue;
+        }
+        if (b->subtype.workshop_type == output_type && b->road_network_id == road_network_id) {
+            int dist = 10 * b->loads_stored +
+                calc_distance_with_penalty(b->x, b->y, x, y, distance_from_entry, b->distance_from_entry);
+            if (dist < min_dist) {
+                min_dist = dist;
+                min_building = b;
+            }
+        }
+    }
+    if (min_building) {
+        dst->x = min_building->road_access_x;
+        dst->y = min_building->road_access_y;
+        return min_building->id;
+    }
+    return 0;
+}
+
 static void determine_warehouseman_destination(struct figure_t *f, int road_network_id)
 {
     struct map_point_t dst;
-    int dst_building_id;
+    int dst_building_id = 0;
     if (!f->resource_id) {
         // getting warehouseman
         dst_building_id = building_warehouse_for_getting(
@@ -344,7 +474,14 @@ static void determine_warehouseman_destination(struct figure_t *f, int road_netw
     struct building_t *warehouse = &all_buildings[f->building_id];
     // delivering resource
     // priority 1: weapons to barracks
-    dst_building_id = building_get_barracks_for_weapon(f->resource_id, road_network_id, &dst);
+    if (f->resource_id == RESOURCE_WEAPONS && !city_data.resource.stockpiled[RESOURCE_WEAPONS] && building_count_active(BUILDING_BARRACKS)) {
+        struct building_t *b = &all_buildings[city_data.building.barracks_building_id];
+        if (b->loads_stored < 5 && city_data.military.legionary_legions) {
+            if (map_has_road_access(b->x, b->y, b->size, &dst) && b->road_network_id == road_network_id) {
+                dst_building_id = b->id;
+            }
+        }
+    }
     if (dst_building_id) {
         set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE, dst_building_id, dst.x, dst.y);
         remove_resource_from_warehouse(f);
@@ -367,12 +504,42 @@ static void determine_warehouseman_destination(struct figure_t *f, int road_netw
         return;
     }
     // priority 4: food to getting granary
-    dst_building_id = building_getting_granary_for_storing(f->x, f->y, f->resource_id,
-        warehouse->distance_from_entry, road_network_id, &dst);
-    if (dst_building_id) {
-        set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE, dst_building_id, dst.x, dst.y);
-        remove_resource_from_warehouse(f);
-        return;
+    if (!scenario.rome_supplies_wheat && resource_is_food(f->resource_id) && !city_data.resource.stockpiled[f->resource_id]) {
+        int min_dist = INFINITE;
+        int min_building_id = 0;
+        for (int i = 1; i < MAX_BUILDINGS; i++) {
+            struct building_t *b = &all_buildings[i];
+            if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY) {
+                continue;
+            }
+            if (!b->has_road_access || b->distance_from_entry <= 0 || b->road_network_id != road_network_id) {
+                continue;
+            }
+            if (calc_percentage(b->num_workers, building_properties[b->type].n_laborers) < 100) {
+                continue;
+            }
+            struct building_storage_t *s = building_storage_get(b->storage_id);
+            if (s->resource_state[f->resource_id] != BUILDING_STORAGE_STATE_GETTING || s->empty_all) {
+                continue;
+            }
+            if (b->data.granary.resource_stored[RESOURCE_NONE] > ONE_LOAD) {
+                // there is room
+                int dist = calc_distance_with_penalty(b->x + 1, b->y + 1, f->x, f->y, warehouse->distance_from_entry, b->distance_from_entry);
+                if (dist < min_dist) {
+                    min_dist = dist;
+                    min_building_id = i;
+                }
+            }
+        }
+        struct building_t *min = &all_buildings[min_building_id];
+        dst.x = min->x + 1;
+        dst.y = min->y + 1;
+        dst_building_id = min_building_id;
+        if (dst_building_id) {
+            set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE, dst_building_id, dst.x, dst.y);
+            remove_resource_from_warehouse(f);
+            return;
+        }
     }
     // priority 5: resource to other warehouse
     dst_building_id = building_warehouse_for_storing(f->building_id, f->x, f->y, f->resource_id,
@@ -493,10 +660,49 @@ void figure_warehouseman_action(struct figure_t *f)
         case FIGURE_ACTION_WAREHOUSEMAN_AT_GRANARY:
             f->wait_ticks++;
             if (f->wait_ticks > 4) {
-                int resource;
-                f->loads_sold_or_carrying = building_granary_remove_for_getting_deliveryman(
-                    &all_buildings[f->destination_building_id], &all_buildings[f->building_id], &resource);
-                f->resource_id = resource;
+                struct building_t *src = &all_buildings[f->destination_building_id];
+                struct building_t *dst = &all_buildings[f->building_id];
+                struct building_storage_t *s_src = building_storage_get(src->storage_id);
+                struct building_storage_t *s_dst = building_storage_get(dst->storage_id);
+                int max_amount = 0;
+                int max_resource = 0;
+                if (s_dst->resource_state[RESOURCE_WHEAT] == BUILDING_STORAGE_STATE_GETTING &&
+                        s_src->resource_state[RESOURCE_WHEAT] != BUILDING_STORAGE_STATE_GETTING) {
+                    if (src->data.granary.resource_stored[RESOURCE_WHEAT] > max_amount) {
+                        max_amount = src->data.granary.resource_stored[RESOURCE_WHEAT];
+                        max_resource = RESOURCE_WHEAT;
+                    }
+                }
+                if (s_dst->resource_state[RESOURCE_VEGETABLES] == BUILDING_STORAGE_STATE_GETTING &&
+                        s_src->resource_state[RESOURCE_VEGETABLES] != BUILDING_STORAGE_STATE_GETTING) {
+                    if (src->data.granary.resource_stored[RESOURCE_VEGETABLES] > max_amount) {
+                        max_amount = src->data.granary.resource_stored[RESOURCE_VEGETABLES];
+                        max_resource = RESOURCE_VEGETABLES;
+                    }
+                }
+                if (s_dst->resource_state[RESOURCE_FRUIT] == BUILDING_STORAGE_STATE_GETTING &&
+                        s_src->resource_state[RESOURCE_FRUIT] != BUILDING_STORAGE_STATE_GETTING) {
+                    if (src->data.granary.resource_stored[RESOURCE_FRUIT] > max_amount) {
+                        max_amount = src->data.granary.resource_stored[RESOURCE_FRUIT];
+                        max_resource = RESOURCE_FRUIT;
+                    }
+                }
+                if (s_dst->resource_state[RESOURCE_MEAT] == BUILDING_STORAGE_STATE_GETTING &&
+                        s_src->resource_state[RESOURCE_MEAT] != BUILDING_STORAGE_STATE_GETTING) {
+                    if (src->data.granary.resource_stored[RESOURCE_MEAT] > max_amount) {
+                        max_amount = src->data.granary.resource_stored[RESOURCE_MEAT];
+                        max_resource = RESOURCE_MEAT;
+                    }
+                }
+                if (max_amount > 800) {
+                    max_amount = 800;
+                }
+                if (max_amount > dst->data.granary.resource_stored[RESOURCE_NONE]) {
+                    max_amount = dst->data.granary.resource_stored[RESOURCE_NONE];
+                }
+                building_granary_remove_resource(src, max_resource, max_amount);
+                f->loads_sold_or_carrying = max_amount / UNITS_PER_LOAD;
+                f->resource_id = max_resource;
                 f->action_state = FIGURE_ACTION_WAREHOUSEMAN_RETURNING_WITH_FOOD;
                 f->wait_ticks = 0;
                 f->destination_x = f->source_x;

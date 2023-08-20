@@ -1,8 +1,5 @@
 #include "scenario.h"
 
-#include "building/count.h"
-#include "building/destruction.h"
-#include "building/warehouse.h"
 #include "city/data.h"
 #include "city/labor.h"
 #include "city/message.h"

@@ -1,7 +1,6 @@
 #include "religion.h"
 
 #include "building/building.h"
-#include "building/count.h"
 #include "city/data.h"
 #include "city/gods.h"
 #include "city/houses.h"

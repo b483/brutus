@@ -1,6 +1,5 @@
 #include "city.h"
 
-#include "building/construction.h"
 #include "city/message.h"
 #include "city/view.h"
 #include "city/warning.h"

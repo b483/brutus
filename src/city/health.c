@@ -1,7 +1,6 @@
 #include "health.h"
 
 #include "building/building.h"
-#include "building/destruction.h"
 #include "city/data.h"
 #include "city/message.h"
 #include "core/calc.h"
@@ -44,7 +43,7 @@ static void cause_disease(int total_people)
         if (b->state == BUILDING_STATE_IN_USE && b->house_size && b->house_population) {
             if (!b->data.house.clinic) {
                 people_to_kill -= b->house_population;
-                building_destroy_by_plague(b);
+                destroy_on_fire(b, 1);
                 if (people_to_kill <= 0) {
                     return;
                 }
@@ -57,7 +56,7 @@ static void cause_disease(int total_people)
         if (b->state == BUILDING_STATE_IN_USE && b->house_size && b->house_population) {
             if (b->subtype.house_level <= HOUSE_LARGE_TENT) {
                 people_to_kill -= b->house_population;
-                building_destroy_by_plague(b);
+                destroy_on_fire(b, 1);
                 if (people_to_kill <= 0) {
                     return;
                 }
@@ -69,7 +68,7 @@ static void cause_disease(int total_people)
         struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->house_size && b->house_population) {
             people_to_kill -= b->house_population;
-            building_destroy_by_plague(b);
+            destroy_on_fire(b, 1);
             if (people_to_kill <= 0) {
                 return;
             }

@@ -2888,6 +2888,43 @@ void text_draw_number_centered_colored(
     text_draw_centered(str, x_offset, y_offset, box_width, font, color);
 }
 
+static int get_word_width(const char *str, int font, int *out_num_chars)
+{
+    const struct font_definition_t *def = font_definition_for(font);
+    int width = 0;
+    int guard = 0;
+    int word_char_seen = 0;
+    int num_chars = 0;
+    while (*str && ++guard < 200) {
+        int num_bytes = 1;
+        if (*str == ' ' || *str == '\n') {
+            if (word_char_seen) {
+                break;
+            }
+            width += def->space_width;
+        } else if (*str == '$') {
+            if (word_char_seen) {
+                break;
+            }
+        } else if (*str > ' ') {
+            // normal char
+            int letter_id = font_letter_id(def, str);
+            if (letter_id >= 0) {
+                width += image_letter(letter_id)->width + def->letter_spacing;
+            }
+            word_char_seen = 1;
+            if (num_bytes > 1) {
+                num_chars += num_bytes;
+                break;
+            }
+        }
+        str += num_bytes;
+        num_chars += num_bytes;
+    }
+    *out_num_chars = num_chars;
+    return width;
+}
+
 int text_draw_multiline(const char *str, int x_offset, int y_offset, int box_width, int font, uint32_t color)
 {
     int line_height = font_definition_for(font)->line_height;
@@ -2909,36 +2946,7 @@ int text_draw_multiline(const char *str, int x_offset, int y_offset, int box_wid
         int line_index = 0;
         while (has_more_characters && current_width < box_width) {
             int word_num_chars;
-            int word_width = 0;
-            const struct font_definition_t *def = font_definition_for(font);
-            int width = 0;
-            int guard2 = 0;
-            int word_char_seen = 0;
-            int num_chars = 0;
-            while (*str && ++guard2 < 200) {
-                int num_bytes = 1;
-                if (*str == ' ' || *str == '\n') {
-                    if (word_char_seen) {
-                        break;
-                    }
-                    width += def->space_width;
-                } else if (*str == '$') {
-                    if (word_char_seen) {
-                        break;
-                    }
-                } else if (*str > ' ') {
-                    // normal char
-                    int letter_id = font_letter_id(def, str);
-                    if (letter_id >= 0) {
-                        width += image_letter(letter_id)->width + def->letter_spacing;
-                    }
-                    word_char_seen = 1;
-                }
-                str += num_bytes;
-                num_chars += num_bytes;
-            }
-            word_num_chars = num_chars;
-            word_width = width;
+            int word_width = get_word_width(str, font, &word_num_chars);
             current_width += word_width;
             if (current_width >= box_width) {
                 if (current_width == 0) {

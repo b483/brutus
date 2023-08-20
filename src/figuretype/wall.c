@@ -1,6 +1,5 @@
 #include "wall.h"
 
-#include "building/barracks.h"
 #include "building/building.h"
 #include "city/view.h"
 #include "core/calc.h"

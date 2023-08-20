@@ -1,9 +1,5 @@
 #include "file.h"
 
-#include "building/construction.h"
-#include "building/granary.h"
-#include "building/maintenance.h"
-#include "building/storage.h"
 #include "city/data.h"
 #include "city/emperor.h"
 #include "city/message.h"
@@ -150,7 +146,6 @@ static void initialize_saved_game(void)
     map_orientation_update_buildings();
     figure_route_clean();
     map_road_network_update();
-    building_maintenance_check_rome_access();
     building_granaries_calculate_stocks();
     map_building_menu_items();
     city_message_init_problem_areas();

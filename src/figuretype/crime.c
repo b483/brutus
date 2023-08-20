@@ -1,7 +1,6 @@
 #include "crime.h"
 
 #include "building/building.h"
-#include "building/destruction.h"
 #include "city/data.h"
 #include "city/finance.h"
 #include "city/message.h"
@@ -62,7 +61,7 @@ static void generate_rioter(struct building_t *b)
         }
         city_data.figure.rioters++;
     }
-    building_destroy_by_rioter(b);
+    destroy_on_fire(b, 0);
     city_ratings_peace_record_rioter();
     city_sentiment_change_happiness(20);
     city_message_apply_sound_interval(MESSAGE_CAT_RIOT);
@@ -267,7 +266,7 @@ int figure_rioter_collapse_building(struct figure_t *f)
         city_message_apply_sound_interval(MESSAGE_CAT_RIOT_COLLAPSE);
         city_message_post(0, MESSAGE_DESTROYED_BUILDING, b->type, f->grid_offset);
         city_message_increase_category_count(MESSAGE_CAT_RIOT_COLLAPSE);
-        building_destroy_by_rioter(b);
+        destroy_on_fire(b, 0);
         f->action_state = FIGURE_ACTION_RIOTER_CREATED;
         f->wait_ticks = 0;
         f->direction = dir;

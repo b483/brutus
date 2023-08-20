@@ -1,6 +1,6 @@
 #include "hold_festival.h"
 
-#include "building/warehouse.h"
+#include "building/building.h"
 #include "city/constants.h"
 #include "city/data.h"
 #include "city/finance.h"

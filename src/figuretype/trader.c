@@ -1,9 +1,6 @@
 #include "trader.h"
 
 #include "building/building.h"
-#include "building/dock.h"
-#include "building/warehouse.h"
-#include "building/storage.h"
 #include "city/buildings.h"
 #include "city/data.h"
 #include "city/finance.h"
@@ -32,7 +29,7 @@ int figure_trade_caravan_can_buy(struct figure_t *trader, int warehouse_id, int 
     }
     struct building_t *space = warehouse;
     for (int i = 0; i < 8; i++) {
-        space = building_next(space);
+        space = &all_buildings[space->next_part_building_id];
         if (space->id > 0 && space->loads_stored > 0 &&
             can_export_resource_to_trade_city(city_id, space->subtype.warehouse_resource_id)) {
             return 1;
@@ -85,7 +82,7 @@ int figure_trade_caravan_can_sell(struct figure_t *trader, int warehouse_id, int
         // check if warehouse can store any importable goods
         struct building_t *space = warehouse;
         for (int s = 0; s < 8; s++) {
-            space = building_next(space);
+            space = &all_buildings[space->next_part_building_id];
             if (space->id > 0 && space->loads_stored < 4) {
                 if (!space->loads_stored) {
                     // empty space
@@ -108,7 +105,7 @@ static int trader_get_buy_resource(int warehouse_id, int city_id)
     }
     struct building_t *space = warehouse;
     for (int i = 0; i < 8; i++) {
-        space = building_next(space);
+        space = &all_buildings[space->next_part_building_id];
         if (space->id <= 0) {
             continue;
         }
@@ -149,7 +146,7 @@ static int trader_get_sell_resource(int warehouse_id, int city_id)
     // add to existing bay with room
     struct building_t *space = warehouse;
     for (int i = 0; i < 8; i++) {
-        space = building_next(space);
+        space = &all_buildings[space->next_part_building_id];
         if (space->id > 0 && space->loads_stored > 0 && space->loads_stored < 4 &&
             space->subtype.warehouse_resource_id == resource_to_import) {
             building_warehouse_space_add_import(space, resource_to_import);
@@ -160,7 +157,7 @@ static int trader_get_sell_resource(int warehouse_id, int city_id)
     // add to empty bay
     space = warehouse;
     for (int i = 0; i < 8; i++) {
-        space = building_next(space);
+        space = &all_buildings[space->next_part_building_id];
         if (space->id > 0 && !space->loads_stored) {
             building_warehouse_space_add_import(space, resource_to_import);
             city_trade_next_caravan_import_resource();
@@ -173,7 +170,7 @@ static int trader_get_sell_resource(int warehouse_id, int city_id)
         if (can_import_resource_from_trade_city(city_id, resource_to_import)) {
             space = warehouse;
             for (int i = 0; i < 8; i++) {
-                space = building_next(space);
+                space = &all_buildings[space->next_part_building_id];
                 if (space->id > 0 && space->loads_stored < 4
                     && space->subtype.warehouse_resource_id == resource_to_import) {
                     building_warehouse_space_add_import(space, resource_to_import);
@@ -233,7 +230,7 @@ static int get_closest_warehouse(
         int distance_penalty = 32;
         struct building_t *space = b;
         for (int space_cnt = 0; space_cnt < 8; space_cnt++) {
-            space = building_next(space);
+            space = &all_buildings[space->next_part_building_id];
             if (space->id && exportable[space->subtype.warehouse_resource_id]) {
                 distance_penalty -= 4;
             }
@@ -556,6 +553,82 @@ static int trade_ship_done_trading(struct figure_t *f)
         return 0;
     }
     return 1;
+}
+
+static int building_dock_get_queue_destination(struct map_point_t *tile)
+{
+    if (!city_data.building.working_docks) {
+        return 0;
+    }
+    // first queue position
+    for (int i = 0; i < 10; i++) {
+        int dock_id = city_data.building.working_dock_ids[i];
+        if (!dock_id) continue;
+        struct building_t *dock = &all_buildings[dock_id];
+        int dx, dy;
+        switch (dock->data.dock.orientation) {
+            case 0: dx = 2; dy = -2; break;
+            case 1: dx = 4; dy = 2; break;
+            case 2: dx = 2; dy = 4; break;
+            default: dx = -2; dy = 2; break;
+        }
+        tile->x = dock->x + dx;
+        tile->y = dock->y + dy;
+        if (!map_has_figure_at(map_grid_offset(tile->x, tile->y))) {
+            return dock_id;
+        }
+    }
+    // second queue position
+    for (int i = 0; i < 10; i++) {
+        int dock_id = city_data.building.working_dock_ids[i];
+        if (!dock_id) continue;
+        struct building_t *dock = &all_buildings[dock_id];
+        int dx, dy;
+        switch (dock->data.dock.orientation) {
+            case 0: dx = 2; dy = -3; break;
+            case 1: dx = 5; dy = 2; break;
+            case 2: dx = 2; dy = 5; break;
+            default: dx = -3; dy = 2; break;
+        }
+        tile->x = dock->x + dx;
+        tile->y = dock->y + dy;
+        if (!map_has_figure_at(map_grid_offset(tile->x, tile->y))) {
+            return dock_id;
+        }
+    }
+    return 0;
+}
+
+static int building_dock_get_free_destination(int ship_id, struct map_point_t *tile)
+{
+    if (!city_data.building.working_docks) {
+        return 0;
+    }
+    int dock_id = 0;
+    for (int i = 0; i < 10; i++) {
+        dock_id = city_data.building.working_dock_ids[i];
+        if (!dock_id) continue;
+        struct building_t *dock = &all_buildings[dock_id];
+        if (!dock->data.dock.trade_ship_id || dock->data.dock.trade_ship_id == ship_id) {
+            break;
+        }
+    }
+    // BUG: when 10 docks in city, always takes last one... regardless of whether it is free
+    if (dock_id <= 0) {
+        return 0;
+    }
+    struct building_t *dock = &all_buildings[dock_id];
+    int dx, dy;
+    switch (dock->data.dock.orientation) {
+        case 0: dx = 1; dy = -1; break;
+        case 1: dx = 3; dy = 1; break;
+        case 2: dx = 1; dy = 3; break;
+        default: dx = -1; dy = 1; break;
+    }
+    tile->x = dock->x + dx;
+    tile->y = dock->y + dy;
+    dock->data.dock.trade_ship_id = ship_id;
+    return dock_id;
 }
 
 void figure_trade_ship_action(struct figure_t *f)

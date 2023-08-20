@@ -1,7 +1,5 @@
 #include "file_editor.h"
 
-#include "building/construction.h"
-#include "building/storage.h"
 #include "city/data.h"
 #include "city/message.h"
 #include "city/victory.h"

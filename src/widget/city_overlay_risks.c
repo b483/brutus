@@ -1,6 +1,5 @@
 #include "city_overlay_risks.h"
 
-#include "building/industry.h"
 #include "core/image.h"
 #include "game/state.h"
 #include "graphics/graphics.h"

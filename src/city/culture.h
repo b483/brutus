@@ -20,10 +20,6 @@ int city_culture_coverage_academy(void);
 
 int city_culture_coverage_hospital(void);
 
-int city_culture_average_education(void);
-int city_culture_average_entertainment(void);
-int city_culture_average_health(void);
-
 void city_culture_calculate(void);
 
 void city_festival_update(void);

@@ -1,6 +1,6 @@
 #include "top_menu.h"
 
-#include "building/construction.h"
+#include "building/building.h"
 #include "city/data.h"
 #include "city/finance.h"
 #include "city/population.h"

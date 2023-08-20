@@ -1,7 +1,6 @@
 #include "entertainment.h"
 
 #include "building/building.h"
-#include "building/count.h"
 #include "city/culture.h"
 #include "city/data.h"
 #include "city/entertainment.h"
@@ -31,7 +30,7 @@ static int get_entertainment_advice(void)
     if (demands->missing.entertainment > demands->missing.more_entertainment) {
         return 3;
     } else if (!demands->missing.more_entertainment) {
-        return city_culture_average_entertainment() ? 1 : 0;
+        return city_data.culture.average_entertainment ? 1 : 0;
     } else if (city_data.entertainment.venue_needing_shows) {
         return 3 + city_data.entertainment.venue_needing_shows;
     } else {

@@ -1,7 +1,5 @@
 #include "city.h"
 
-#include "building/clone.h"
-#include "building/construction.h"
 #include "city/data.h"
 #include "city/message.h"
 #include "city/victory.h"
@@ -18,7 +16,11 @@
 #include "game/undo.h"
 #include "graphics/graphics.h"
 #include "map/bookmark.h"
+#include "map/building.h"
 #include "map/grid.h"
+#include "map/property.h"
+#include "map/sprite.h"
+#include "map/terrain.h"
 #include "scenario/scenario.h"
 #include "widget/city.h"
 #include "widget/city_with_overlay.h"
@@ -38,7 +40,7 @@ void window_city_draw_background(void)
     widget_top_menu_draw(1);
 }
 
-static int center_in_city(int element_width_pixels)
+int center_in_city(int element_width_pixels)
 {
     int x, y, width, height;
     city_view_get_viewport(&x, &y, &width, &height);
@@ -203,6 +205,47 @@ static void cycle_buildings_reverse(void)
         }
         last_building_type_selected--;
     }
+}
+
+static int building_clone_type_from_grid_offset(int grid_offset)
+{
+    if (terrain_grid.items[grid_offset] & TERRAIN_BUILDING) {
+        int building_id = map_building_at(grid_offset);
+        if (building_id) {
+            struct building_t *b = building_main(&all_buildings[building_id]);
+            int clone_type = b->type;
+            if (building_is_house(clone_type)) {
+                return BUILDING_HOUSE_VACANT_LOT;
+            }
+            switch (clone_type) {
+                case BUILDING_NATIVE_CROPS:
+                case BUILDING_NATIVE_HUT:
+                case BUILDING_NATIVE_MEETING:
+                case BUILDING_BURNING_RUIN:
+                    return BUILDING_NONE;
+                default:
+                    return clone_type;
+            }
+        }
+    } else if (terrain_grid.items[grid_offset] & TERRAIN_AQUEDUCT) {
+        return BUILDING_AQUEDUCT;
+    } else if (terrain_grid.items[grid_offset] & TERRAIN_WALL) {
+        return BUILDING_WALL;
+    } else if (terrain_grid.items[grid_offset] & TERRAIN_GARDEN) {
+        return BUILDING_GARDENS;
+    } else if (terrain_grid.items[grid_offset] & TERRAIN_ROAD) {
+        if (terrain_grid.items[grid_offset] & TERRAIN_WATER) {
+            if (map_sprite_bridge_at(grid_offset) > 6) {
+                return BUILDING_SHIP_BRIDGE;
+            }
+            return BUILDING_LOW_BRIDGE;
+        } else if (map_property_is_plaza_or_earthquake(grid_offset)) {
+            return BUILDING_PLAZA;
+        }
+        return BUILDING_ROAD;
+    }
+
+    return BUILDING_NONE;
 }
 
 static void handle_hotkeys(const struct hotkeys_t *h)

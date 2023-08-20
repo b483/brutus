@@ -1,7 +1,6 @@
 #include "movement.h"
 
 #include "building/building.h"
-#include "building/destruction.h"
 #include "core/calc.h"
 #include "figure/combat.h"
 #include "figure/route.h"
@@ -182,7 +181,9 @@ static void advance_route_tile(struct figure_t *f, int roaming_enabled)
                 f->attack_direction = f->direction;
                 f->direction = DIR_FIGURE_ATTACK;
                 if (!(game_time_tick() & 3)) {
-                    building_destroy_increase_enemy_damage(target_grid_offset, max_damage);
+                    if (map_building_damage_increase(target_grid_offset) > max_damage) {
+                        building_destroy_by_enemy(map_grid_offset_to_x(target_grid_offset), map_grid_offset_to_y(target_grid_offset), target_grid_offset);
+                    }
                 }
             }
         }

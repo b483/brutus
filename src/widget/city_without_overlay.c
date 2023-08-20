@@ -1,8 +1,5 @@
 #include "city_without_overlay.h"
 
-#include "building/animation.h"
-#include "building/construction.h"
-#include "building/dock.h"
 #include "city/buildings.h"
 #include "city/data.h"
 #include "city/entertainment.h"
@@ -321,8 +318,17 @@ static void draw_figures(int x, int y, int grid_offset)
 
 static void draw_dock_workers(const struct building_t *b, int x, int y, color_t color_mask)
 {
-    int num_dockers = building_dock_count_idle_dockers(b);
-    if (num_dockers > 0) {
+    int num_idle = 0;
+    for (int i = 0; i < 3; i++) {
+        if (b->data.dock.docker_ids[i]) {
+            struct figure_t *f = &figures[b->data.dock.docker_ids[i]];
+            if (f->action_state == FIGURE_ACTION_DOCKER_IDLING ||
+                f->action_state == FIGURE_ACTION_DOCKER_IMPORT_QUEUE) {
+                num_idle++;
+            }
+        }
+    }
+    if (num_idle > 0) {
         int image_dock = map_image_at(b->grid_offset);
         int image_dockers = image_group(GROUP_BUILDING_DOCK_DOCKERS);
         if (image_dock == image_group(GROUP_BUILDING_DOCK_1)) {
@@ -334,9 +340,9 @@ static void draw_dock_workers(const struct building_t *b, int x, int y, color_t 
         } else {
             image_dockers += 9;
         }
-        if (num_dockers == 2) {
+        if (num_idle == 2) {
             image_dockers += 1;
-        } else if (num_dockers == 3) {
+        } else if (num_idle == 3) {
             image_dockers += 2;
         }
         const struct image_t *img = image_get(image_dockers);

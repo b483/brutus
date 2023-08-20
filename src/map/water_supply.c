@@ -1,7 +1,6 @@
 #include "water_supply.h"
 
 #include "building/building.h"
-#include "building/list.h"
 #include "core/image.h"
 #include "map/aqueduct.h"
 #include "map/building_tiles.h"
@@ -220,26 +219,4 @@ void map_water_supply_update_reservoir_fountain(void)
         }
         map_terrain_add_with_radius(b->x, b->y, 1, 2, TERRAIN_FOUNTAIN_RANGE);
     }
-}
-
-int map_water_supply_is_well_unnecessary(int well_id, int radius)
-{
-    struct building_t *well = &all_buildings[well_id];
-    int num_houses = 0;
-    int x_min, y_min, x_max, y_max;
-    map_grid_get_area(well->x, well->y, 1, radius, &x_min, &y_min, &x_max, &y_max);
-
-    for (int yy = y_min; yy <= y_max; yy++) {
-        for (int xx = x_min; xx <= x_max; xx++) {
-            int grid_offset = map_grid_offset(xx, yy);
-            int building_id = map_building_at(grid_offset);
-            if (building_id && all_buildings[building_id].house_size) {
-                num_houses++;
-                if (!map_terrain_is(grid_offset, TERRAIN_FOUNTAIN_RANGE)) {
-                    return WELL_NECESSARY;
-                }
-            }
-        }
-    }
-    return num_houses ? WELL_UNNECESSARY_FOUNTAIN : WELL_UNNECESSARY_NO_HOUSES;
 }

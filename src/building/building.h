@@ -1,11 +1,22 @@
 #ifndef BUILDING_BUILDING_H
 #define BUILDING_BUILDING_H
 
+#include "city/resource.h"
 #include "core/buffer.h"
 #include "map/tiles.h"
 
 #define MAX_BUILDINGS 2000
 #define MAX_HOUSE_TYPES 20
+#define MAX_PROGRESS_WORKSHOP 400
+
+#define MAX_PROGRESS_RAW 200
+
+#define INFINITE 10000
+
+#define OFFSET(x,y) (x + GRID_SIZE * y)
+
+#define UNITS_PER_LOAD 100
+#define ONE_LOAD 100
 
 enum {
     BUILDING_NONE = 0,
@@ -151,6 +162,12 @@ enum {
     BUILDING_STATE_RUBBLE = 4,
     BUILDING_STATE_DELETED_BY_GAME = 5, // used for earthquakes, fires, house mergers
     BUILDING_STATE_DELETED_BY_PLAYER = 6
+};
+
+enum {
+    BUILDING_STORAGE_STATE_ACCEPTING = 0,
+    BUILDING_STORAGE_STATE_NOT_ACCEPTING = 1,
+    BUILDING_STORAGE_STATE_GETTING = 2
 };
 
 
@@ -326,17 +343,16 @@ extern struct house_properties_t house_properties[MAX_HOUSE_TYPES];
 
 extern char *all_buildings_strings[];
 
-struct building_t *building_main(struct building_t *b);
+struct building_storage_t {
+    int empty_all;
+    int resource_state[RESOURCE_TYPES_MAX];
+};
 
-struct building_t *building_next(struct building_t *b);
+struct building_t *building_main(struct building_t *b);
 
 struct building_t *building_create(int type, int x, int y);
 
-void building_clear_related_data(struct building_t *b);
-
 void building_update_state(void);
-
-void building_update_desirability(void);
 
 int align_bulding_type_index_to_strings(int building_type_index);
 
@@ -359,5 +375,168 @@ void building_save_state(struct buffer_t *buf, struct buffer_t *highest_id, stru
 
 void building_load_state(struct buffer_t *buf, struct buffer_t *highest_id, struct buffer_t *highest_id_ever,
                          struct buffer_t *sequence, struct buffer_t *corrupt_houses);
+
+int building_animation_offset(struct building_t *b, int image_id, int grid_offset);
+
+void building_barracks_save_state(struct buffer_t *buf);
+
+void building_barracks_load_state(struct buffer_t *buf);
+
+void building_state_save_to_buffer(struct buffer_t *buf, const struct building_t *b);
+
+void building_state_load_from_buffer(struct buffer_t *buf, struct building_t *b);
+
+int building_construction_place_road(int measure_only, int x_start, int y_start, int x_end, int y_end);
+
+void building_construction_set_cost(int cost);
+
+void building_construction_set_type(int type);
+
+void building_construction_clear_type(void);
+
+int building_construction_type(void);
+
+int building_construction_cost(void);
+
+int building_construction_size(int *x, int *y);
+
+int building_construction_in_progress(void);
+
+void building_construction_start(int x, int y, int grid_offset);
+
+void building_construction_cancel(void);
+
+void building_construction_update(int x, int y, int grid_offset);
+
+void building_construction_place(void);
+
+int check_building_terrain_requirements(int x, int y, int *warning_id);
+
+void building_construction_update_road_orientation(void);
+int building_construction_road_orientation(void);
+
+void building_construction_record_view_position(int view_x, int view_y, int grid_offset);
+void building_construction_get_view_position(int *view_x, int *view_y);
+int building_construction_get_start_grid_offset(void);
+
+void building_construction_reset_draw_as_constructing(void);
+int building_construction_draw_as_constructing(void);
+
+void building_count_update(void);
+
+int building_count_active(int type);
+
+int building_count_total(int type);
+
+int building_count_industry_active(int resource);
+
+int building_count_industry_total(int resource);
+
+/**
+ * Save the building counts
+ * @param industry Buffer for industry
+ * @param culture1 Culture part 1
+ * @param culture2 Culture part 2 (schools)
+ * @param culture3 Culture part 3 (temples)
+ * @param military Military
+ * @param support Market and water
+ */
+void building_count_save_state(struct buffer_t *industry, struct buffer_t *culture1, struct buffer_t *culture2, struct buffer_t *culture3, struct buffer_t *military, struct buffer_t *support);
+
+/**
+ * Load the building counts
+ * @param industry Buffer for industry
+ * @param culture1 Culture part 1
+ * @param culture2 Culture part 2 (schools)
+ * @param culture3 Culture part 3 (temples)
+ * @param military Military
+ * @param support Market and water
+ */
+void building_count_load_state(struct buffer_t *industry, struct buffer_t *culture1, struct buffer_t *culture2, struct buffer_t *culture3, struct buffer_t *military, struct buffer_t *support);
+
+void building_destroy_by_collapse(struct building_t *b);
+
+void building_destroy_by_fire(struct building_t *b);
+
+void destroy_on_fire(struct building_t *b, int plagued);
+
+void building_destroy_by_enemy(int x, int y, int grid_offset);
+
+void building_figure_generate(void);
+
+int building_granary_add_resource(struct building_t *granary, int resource, int is_produced);
+
+int building_granary_remove_resource(struct building_t *granary, int resource, int amount);
+
+void building_granaries_calculate_stocks(void);
+
+int building_granary_for_getting(struct building_t *src, struct map_point_t *dst);
+
+int building_is_farm(int type);
+int building_is_workshop(int type);
+
+void update_farm_image(const struct building_t *b);
+
+void building_list_small_clear(void);
+
+void building_list_small_add(int building_id);
+
+int building_list_small_size(void);
+
+const int *building_list_small_items(void);
+
+void building_list_large_clear(int clear_entries);
+
+void building_list_large_add(int building_id);
+
+int building_list_large_size(void);
+
+const int *building_list_large_items(void);
+
+void building_list_burning_clear(void);
+
+void building_list_burning_add(int building_id);
+
+int building_list_burning_size(void);
+
+const int *building_list_burning_items(void);
+
+void building_list_save_state(struct buffer_t *small, struct buffer_t *large, struct buffer_t *burning, struct buffer_t *burning_totals);
+
+void building_list_load_state(struct buffer_t *small, struct buffer_t *large, struct buffer_t *burning, struct buffer_t *burning_totals);
+
+int building_market_get_max_food_stock(struct building_t *market);
+
+void building_storage_clear_all(void);
+
+int building_storage_restore(int storage_id);
+
+struct building_storage_t *building_storage_get(int storage_id);
+
+void building_storage_reset_building_ids(void);
+
+void building_storage_save_state(struct buffer_t *buf);
+
+void building_storage_load_state(struct buffer_t *buf);
+
+int building_warehouse_get_amount(struct building_t *warehouse, int resource);
+
+int building_warehouse_add_resource(struct building_t *b, int resource);
+
+int building_warehouse_remove_resource(struct building_t *warehouse, int resource, int amount);
+
+void building_warehouse_space_set_image(struct building_t *space, int resource);
+
+void building_warehouse_space_add_import(struct building_t *space, int resource);
+
+int building_warehouses_remove_resource(int resource, int amount);
+
+int building_warehouse_for_storing(int src_building_id, int x, int y, int resource,
+                                   int distance_from_entry, int road_network_id, int *understaffed,
+                                   struct map_point_t *dst);
+
+int building_warehouse_for_getting(struct building_t *src, int resource, struct map_point_t *dst);
+
+void window_building_info_show(int grid_offset);
 
 #endif // BUILDING_BUILDING_H

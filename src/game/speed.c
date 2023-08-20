@@ -1,6 +1,6 @@
 #include "game/speed.h"
 
-#include "building/construction.h"
+#include "building/building.h"
 #include "core/time.h"
 #include "game/settings.h"
 #include "game/state.h"

@@ -1,7 +1,6 @@
 #include "service.h"
 
 #include "building/building.h"
-#include "building/market.h"
 #include "core/image.h"
 #include "figure/combat.h"
 #include "figure/movement.h"
@@ -150,8 +149,16 @@ void figure_market_trader_action(struct figure_t *f)
     }
     if (f->action_state == FIGURE_ACTION_ROAMING) {
         // force return on out of stock
-        int stock = building_market_get_max_food_stock(market) +
-            building_market_get_max_goods_stock(market);
+        int max_stock = 0;
+        if (market->id > 0 && market->type == BUILDING_MARKET) {
+            for (int i = INVENTORY_OIL; i <= INVENTORY_FURNITURE; i++) {
+                int stock = market->data.market.inventory[i];
+                if (stock > max_stock) {
+                    max_stock = stock;
+                }
+            }
+        }
+        int stock = building_market_get_max_food_stock(market) + max_stock;
         if (f->roam_length >= 96 && stock <= 0) {
             f->roam_length = figure_properties[f->type].max_roam_length;
         }

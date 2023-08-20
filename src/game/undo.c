@@ -1,8 +1,6 @@
 #include "undo.h"
 
-#include "building/industry.h"
-#include "building/storage.h"
-#include "building/warehouse.h"
+#include "city/data.h"
 #include "city/finance.h"
 #include "core/image.h"
 #include "city/resource.h"
@@ -193,6 +191,24 @@ static void add_building_to_terrain(struct building_t *b)
         }
     }
     b->state = BUILDING_STATE_IN_USE;
+}
+
+static void building_warehouses_add_resource(int resource, int amount)
+{
+    int building_id = city_data.resource.last_used_warehouse;
+    for (int i = 1; i < MAX_BUILDINGS && amount > 0; i++) {
+        building_id++;
+        if (building_id >= MAX_BUILDINGS) {
+            building_id = 1;
+        }
+        struct building_t *b = &all_buildings[building_id];
+        if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_WAREHOUSE) {
+            city_data.resource.last_used_warehouse = building_id;
+            while (amount && building_warehouse_add_resource(b, resource)) {
+                amount--;
+            }
+        }
+    }
 }
 
 void game_undo_perform(void)

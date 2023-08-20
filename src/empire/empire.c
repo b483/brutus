@@ -1,6 +1,5 @@
 #include "empire.h"
 
-#include "building/count.h"
 #include "city/constants.h"
 #include "city/data.h"
 #include "city/population.h"

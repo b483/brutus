@@ -1,8 +1,6 @@
 #include "maintenance.h"
 
 #include "building/building.h"
-#include "building/list.h"
-#include "building/maintenance.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"
@@ -86,6 +84,38 @@ void figure_engineer_action(struct figure_t *f)
             break;
     }
     f->image_id = image_group(GROUP_FIGURE_ENGINEER) + figure_image_direction(f) + 8 * f->image_offset;
+}
+
+static int building_maintenance_get_closest_burning_ruin(int x, int y, int *distance)
+{
+    int min_free_building_id = 0;
+    int min_occupied_building_id = 0;
+    int min_occupied_dist = *distance = 10000;
+
+    const int *burning = building_list_burning_items();
+    int burning_size = building_list_burning_size();
+    for (int i = 0; i < burning_size; i++) {
+        int building_id = burning[i];
+        struct building_t *b = &all_buildings[building_id];
+        if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_BURNING_RUIN
+            && !b->ruin_has_plague && b->distance_from_entry) {
+            int dist = calc_maximum_distance(x, y, b->x, b->y);
+            if (b->figure_id4) {
+                if (dist < min_occupied_dist) {
+                    min_occupied_dist = dist;
+                    min_occupied_building_id = building_id;
+                }
+            } else if (dist < *distance) {
+                *distance = dist;
+                min_free_building_id = building_id;
+            }
+        }
+    }
+    if (!min_free_building_id && min_occupied_dist <= 2) {
+        min_free_building_id = min_occupied_building_id;
+        *distance = 2;
+    }
+    return min_free_building_id;
 }
 
 static int fight_fire(struct figure_t *f)

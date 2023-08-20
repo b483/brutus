@@ -1,6 +1,5 @@
 #include "migrant.h"
 
-#include "building/house.h"
 #include "city/data.h"
 #include "city/population.h"
 #include "core/calc.h"
@@ -8,37 +7,11 @@
 #include "figure/combat.h"
 #include "figure/movement.h"
 #include "figure/route.h"
+#include "game/tick.h"
+#include "map/building_tiles.h"
 #include "map/road_access.h"
+#include "map/terrain.h"
 #include "scenario/scenario.h"
-
-void figure_create_immigrant(struct building_t *house, int num_people)
-{
-    struct figure_t *f = figure_create(FIGURE_IMMIGRANT, scenario.entry_point.x, scenario.entry_point.y, DIR_0_TOP);
-    f->action_state = FIGURE_ACTION_IMMIGRANT_CREATED;
-    f->is_targetable = 1;
-    f->terrain_usage = TERRAIN_USAGE_ANY;
-    f->immigrant_building_id = house->id;
-    f->wait_ticks = 10 + (house->house_figure_generation_delay & 0x7f);
-    f->migrant_num_people = num_people;
-    house->immigrant_figure_id = f->id;
-}
-
-void figure_create_emigrant(struct building_t *house, int num_people)
-{
-    city_population_remove(num_people);
-    if (num_people < house->house_population) {
-        house->house_population -= num_people;
-    } else {
-        house->house_population = 0;
-        building_house_change_to_vacant_lot(house);
-    }
-    struct figure_t *f = figure_create(FIGURE_EMIGRANT, house->x, house->y, DIR_0_TOP);
-    f->action_state = FIGURE_ACTION_EMIGRANT_CREATED;
-    f->is_targetable = 1;
-    f->terrain_usage = TERRAIN_USAGE_ANY;
-    f->wait_ticks = 0;
-    f->migrant_num_people = num_people;
-}
 
 void figure_create_homeless(int x, int y, int num_people)
 {

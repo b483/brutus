@@ -1,7 +1,6 @@
 #include "editor/editor.h"
 
 #include "building/building.h"
-#include "building/construction_routed.h"
 #include "city/view.h"
 #include "city/warning.h"
 #include "core/image.h"

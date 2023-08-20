@@ -1,7 +1,6 @@
 #include "population.h"
 
 #include "building/building.h"
-#include "building/house_population.h"
 #include "city/data.h"
 #include "core/calc.h"
 #include "core/config.h"
@@ -147,6 +146,26 @@ void city_population_remove_home_removed(int num_people)
     recalculate_population();
 }
 
+static int house_population_remove_from_city(int num_people)
+{
+    int removed = 0;
+    int building_id = city_data.population.last_used_house_remove;
+    for (int i = 1; i < 4 * MAX_BUILDINGS && removed < num_people; i++) {
+        if (++building_id >= MAX_BUILDINGS) {
+            building_id = 1;
+        }
+        struct building_t *b = &all_buildings[building_id];
+        if (b->state == BUILDING_STATE_IN_USE && b->house_size) {
+            city_data.population.last_used_house_remove = building_id;
+            if (b->house_population > 0) {
+                ++removed;
+                --b->house_population;
+            }
+        }
+    }
+    return removed;
+}
+
 void city_population_remove_for_troop_request(int num_people)
 {
     int removed = house_population_remove_from_city(num_people);
@@ -213,7 +232,27 @@ static void yearly_calculate_births(void)
     for (int decennium = 9; decennium >= 0; decennium--) {
         int people = get_people_in_age_decennium(decennium);
         int births = calc_adjust_with_percentage(people, BIRTHS_PER_AGE_DECENNIUM[decennium]);
-        int added = house_population_add_to_city(births);
+        int added = 0;
+        int building_id = city_data.population.last_used_house_add;
+        for (int i = 1; i < MAX_BUILDINGS && added < births; i++) {
+            if (++building_id >= MAX_BUILDINGS) {
+                building_id = 1;
+            }
+            struct building_t *b = &all_buildings[building_id];
+            if (b->state == BUILDING_STATE_IN_USE && b->house_size
+                && b->distance_from_entry > 0 && b->house_population > 0) {
+                city_data.population.last_used_house_add = building_id;
+                int max_people = house_properties[b->subtype.house_level].max_people;
+                if (b->house_is_merged) {
+                    max_people *= 4;
+                }
+                if (b->house_population < max_people) {
+                    ++added;
+                    ++b->house_population;
+                    b->house_population_room = max_people - b->house_population;
+                }
+            }
+        }
         city_data.population.at_age[0] += added;
         city_data.population.yearly_births += added;
     }

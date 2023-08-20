@@ -98,30 +98,7 @@ set(CORE_FILES
 )
 
 set(BUILDING_FILES
-    ${PROJECT_SOURCE_DIR}/src/building/animation.c
-    ${PROJECT_SOURCE_DIR}/src/building/barracks.c
     ${PROJECT_SOURCE_DIR}/src/building/building.c
-    ${PROJECT_SOURCE_DIR}/src/building/building_state.c
-    ${PROJECT_SOURCE_DIR}/src/building/clone.c
-    ${PROJECT_SOURCE_DIR}/src/building/construction.c
-    ${PROJECT_SOURCE_DIR}/src/building/construction_clear.c
-    ${PROJECT_SOURCE_DIR}/src/building/construction_routed.c
-    ${PROJECT_SOURCE_DIR}/src/building/construction_warning.c
-    ${PROJECT_SOURCE_DIR}/src/building/count.c
-    ${PROJECT_SOURCE_DIR}/src/building/destruction.c
-    ${PROJECT_SOURCE_DIR}/src/building/dock.c
-    ${PROJECT_SOURCE_DIR}/src/building/figure.c
-    ${PROJECT_SOURCE_DIR}/src/building/granary.c
-    ${PROJECT_SOURCE_DIR}/src/building/house.c
-    ${PROJECT_SOURCE_DIR}/src/building/house_evolution.c
-    ${PROJECT_SOURCE_DIR}/src/building/house_population.c
-    ${PROJECT_SOURCE_DIR}/src/building/house_service.c
-    ${PROJECT_SOURCE_DIR}/src/building/industry.c
-    ${PROJECT_SOURCE_DIR}/src/building/list.c
-    ${PROJECT_SOURCE_DIR}/src/building/maintenance.c
-    ${PROJECT_SOURCE_DIR}/src/building/market.c
-    ${PROJECT_SOURCE_DIR}/src/building/storage.c
-    ${PROJECT_SOURCE_DIR}/src/building/warehouse.c
 )
 set(CITY_FILES
     ${PROJECT_SOURCE_DIR}/src/city/buildings.c
@@ -159,7 +136,6 @@ set(FIGURE_FILES
     ${PROJECT_SOURCE_DIR}/src/figure/formation_legion.c
     ${PROJECT_SOURCE_DIR}/src/figure/movement.c
     ${PROJECT_SOURCE_DIR}/src/figure/name.c
-    ${PROJECT_SOURCE_DIR}/src/figure/phrase.c
     ${PROJECT_SOURCE_DIR}/src/figure/route.c
     ${PROJECT_SOURCE_DIR}/src/figure/service.c
     ${PROJECT_SOURCE_DIR}/src/figure/sound.c
@@ -278,17 +254,6 @@ set(WINDOW_FILES
     ${PROJECT_SOURCE_DIR}/src/window/advisor/religion.c
     ${PROJECT_SOURCE_DIR}/src/window/advisor/trade.c
     ${PROJECT_SOURCE_DIR}/src/window/build_menu.c
-    ${PROJECT_SOURCE_DIR}/src/window/building_info.c
-    ${PROJECT_SOURCE_DIR}/src/window/building/common.c
-    ${PROJECT_SOURCE_DIR}/src/window/building/culture.c
-    ${PROJECT_SOURCE_DIR}/src/window/building/distribution.c
-    ${PROJECT_SOURCE_DIR}/src/window/building/figures.c
-    ${PROJECT_SOURCE_DIR}/src/window/building/government.c
-    ${PROJECT_SOURCE_DIR}/src/window/building/house.c
-    ${PROJECT_SOURCE_DIR}/src/window/building/industry.c
-    ${PROJECT_SOURCE_DIR}/src/window/building/military.c
-    ${PROJECT_SOURCE_DIR}/src/window/building/terrain.c
-    ${PROJECT_SOURCE_DIR}/src/window/building/utility.c
     ${PROJECT_SOURCE_DIR}/src/window/cck_selection.c
     ${PROJECT_SOURCE_DIR}/src/window/city.c
     ${PROJECT_SOURCE_DIR}/src/window/config.c

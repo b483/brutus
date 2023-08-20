@@ -3,6 +3,8 @@
 
 void window_city_draw_background(void);
 
+int center_in_city(int element_width_pixels);
+
 void replay_map(void);
 
 void window_city_draw_all(void);

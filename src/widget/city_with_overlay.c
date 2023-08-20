@@ -1,8 +1,5 @@
 #include "city_with_overlay.h"
 
-#include "building/animation.h"
-#include "building/construction.h"
-#include "building/industry.h"
 #include "city/view.h"
 #include "core/config.h"
 #include "core/image.h"

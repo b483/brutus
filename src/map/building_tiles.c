@@ -1,7 +1,6 @@
 #include "building_tiles.h"
 
 #include "building/building.h"
-#include "building/industry.h"
 #include "city/view.h"
 #include "core/image.h"
 #include "map/aqueduct.h"

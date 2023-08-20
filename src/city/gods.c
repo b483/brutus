@@ -1,8 +1,5 @@
 #include "gods.h"
 
-#include "building/count.h"
-#include "building/granary.h"
-#include "building/industry.h"
 #include "city/culture.h"
 #include "city/data.h"
 #include "city/health.h"
@@ -16,9 +13,37 @@
 #include "figuretype/water.h"
 #include "game/settings.h"
 #include "game/time.h"
+#include "map/routing_terrain.h"
 #include "scenario/scenario.h"
+#include "sound/sound.h"
 
 #define TIE 10
+#define CURSE_LOADS 16
+
+
+static void building_bless_farms(void)
+{
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state == BUILDING_STATE_IN_USE && b->output_resource_id && building_is_farm(b->type)) {
+            b->data.industry.progress = MAX_PROGRESS_RAW;
+            b->data.industry.curse_days_left = 0;
+            b->data.industry.blessing_days_left = 16;
+            update_farm_image(b);
+        }
+    }
+}
+
+static int get_amount(struct building_t *granary, int resource)
+{
+    if (!resource_is_food(resource)) {
+        return 0;
+    }
+    if (granary->type != BUILDING_GRANARY) {
+        return 0;
+    }
+    return granary->data.granary.resource_stored[resource];
+}
 
 static void perform_blessing(int god)
 {
@@ -33,7 +58,36 @@ static void perform_blessing(int god)
             break;
         case GOD_MERCURY:
             city_message_post(1, MESSAGE_BLESSING_FROM_MERCURY, 0, 0);
-            building_granary_bless();
+            int min_stored = INFINITE;
+            struct building_t *min_building = 0;
+            for (int i = 1; i < MAX_BUILDINGS; i++) {
+                struct building_t *b = &all_buildings[i];
+                if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY) {
+                    continue;
+                }
+                int total_stored = 0;
+                for (int r = RESOURCE_WHEAT; r < FOOD_TYPES_MAX; r++) {
+                    total_stored += get_amount(b, r);
+                }
+                if (total_stored < min_stored) {
+                    min_stored = total_stored;
+                    min_building = b;
+                }
+            }
+            if (min_building) {
+                for (int n = 0; n < 6; n++) {
+                    building_granary_add_resource(min_building, RESOURCE_WHEAT, 0);
+                }
+                for (int n = 0; n < 6; n++) {
+                    building_granary_add_resource(min_building, RESOURCE_VEGETABLES, 0);
+                }
+                for (int n = 0; n < 6; n++) {
+                    building_granary_add_resource(min_building, RESOURCE_FRUIT, 0);
+                }
+                for (int n = 0; n < 6; n++) {
+                    building_granary_add_resource(min_building, RESOURCE_MEAT, 0);
+                }
+            }
             break;
         case GOD_MARS:
             city_message_post(1, MESSAGE_BLESSING_FROM_MARS, 0, 0);
@@ -51,6 +105,86 @@ static void cause_invasion_mars(int enemy_amount)
     int grid_offset = start_invasion(ENEMY_TYPE_BARBARIAN, enemy_amount, MAX_INVASION_POINTS, FORMATION_ATTACK_FOOD_CHAIN);
     if (grid_offset > 0) {
         city_message_post(1, MESSAGE_LOCAL_UPRISING_MARS, 0, grid_offset);
+    }
+}
+
+static void building_curse_farms(int big_curse)
+{
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state == BUILDING_STATE_IN_USE && b->output_resource_id && building_is_farm(b->type)) {
+            b->data.industry.progress = 0;
+            b->data.industry.blessing_days_left = 0;
+            b->data.industry.curse_days_left = big_curse ? 48 : 4;
+            update_farm_image(b);
+        }
+    }
+}
+
+static void building_granary_warehouse_curse(int big)
+{
+    int max_stored = 0;
+    struct building_t *max_building = 0;
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state != BUILDING_STATE_IN_USE) {
+            continue;
+        }
+        int total_stored = 0;
+        if (b->type == BUILDING_WAREHOUSE) {
+            for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
+                total_stored += building_warehouse_get_amount(b, r);
+            }
+        } else if (b->type == BUILDING_GRANARY) {
+            for (int r = RESOURCE_WHEAT; r < FOOD_TYPES_MAX; r++) {
+                total_stored += get_amount(b, r);
+            }
+            total_stored /= UNITS_PER_LOAD;
+        } else {
+            continue;
+        }
+        if (total_stored > max_stored) {
+            max_stored = total_stored;
+            max_building = b;
+        }
+    }
+    if (!max_building) {
+        return;
+    }
+    if (big) {
+        city_message_disable_sound_for_next_message();
+        city_message_post(0, MESSAGE_FIRE, max_building->type, max_building->grid_offset);
+        building_destroy_by_fire(max_building);
+        play_sound_effect(SOUND_EFFECT_EXPLOSION);
+        map_routing_update_land();
+    } else {
+        if (max_building->type == BUILDING_WAREHOUSE) {
+            int amount = CURSE_LOADS;
+            struct building_t *space = max_building;
+            for (int i = 0; i < 8 && amount > 0; i++) {
+                space = &all_buildings[space->next_part_building_id];
+                if (space->id <= 0 || space->loads_stored <= 0) {
+                    continue;
+                }
+                int resource = space->subtype.warehouse_resource_id;
+                if (space->loads_stored > amount) {
+                    city_resource_remove_from_warehouse(resource, amount);
+                    space->loads_stored -= amount;
+                    amount = 0;
+                } else {
+                    city_resource_remove_from_warehouse(resource, space->loads_stored);
+                    amount -= space->loads_stored;
+                    space->loads_stored = 0;
+                    space->subtype.warehouse_resource_id = RESOURCE_NONE;
+                }
+                building_warehouse_space_set_image(space, resource);
+            }
+        } else if (max_building->type == BUILDING_GRANARY) {
+            int amount = building_granary_remove_resource(max_building, RESOURCE_WHEAT, CURSE_LOADS * UNITS_PER_LOAD);
+            amount = building_granary_remove_resource(max_building, RESOURCE_VEGETABLES, amount);
+            amount = building_granary_remove_resource(max_building, RESOURCE_FRUIT, amount);
+            building_granary_remove_resource(max_building, RESOURCE_MEAT, amount);
+        }
     }
 }
 

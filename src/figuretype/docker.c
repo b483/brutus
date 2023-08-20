@@ -1,8 +1,6 @@
 #include "docker.h"
 
 #include "building/building.h"
-#include "building/storage.h"
-#include "building/warehouse.h"
 #include "city/buildings.h"
 #include "city/data.h"
 #include "city/trade.h"
@@ -25,7 +23,7 @@ static int try_import_resource(int building_id, int resource, int city_id)
     // try existing storage bay with the same resource
     struct building_t *space = warehouse;
     for (int i = 0; i < 8; i++) {
-        space = building_next(space);
+        space = &all_buildings[space->next_part_building_id];
         if (space->id > 0) {
             if (space->loads_stored && space->loads_stored < 4 && space->subtype.warehouse_resource_id == resource) {
                 empire_objects[city_id].resource_sold[resource]++;
@@ -37,7 +35,7 @@ static int try_import_resource(int building_id, int resource, int city_id)
     // try unused storage bay
     space = warehouse;
     for (int i = 0; i < 8; i++) {
-        space = building_next(space);
+        space = &all_buildings[space->next_part_building_id];
         if (space->id > 0) {
             if (space->subtype.warehouse_resource_id == RESOURCE_NONE) {
                 empire_objects[city_id].resource_sold[resource]++;
@@ -58,11 +56,17 @@ static int try_export_resource(int building_id, int resource, int city_id)
 
     struct building_t *space = warehouse;
     for (int i = 0; i < 8; i++) {
-        space = building_next(space);
+        space = &all_buildings[space->next_part_building_id];
         if (space->id > 0) {
             if (space->loads_stored && space->subtype.warehouse_resource_id == resource) {
                 empire_objects[city_id].resource_bought[resource]++;
-                building_warehouse_space_remove_export(space, resource);
+                city_resource_remove_from_warehouse(resource, 1);
+                space->loads_stored--;
+                if (space->loads_stored <= 0) {
+                    space->subtype.warehouse_resource_id = RESOURCE_NONE;
+                }
+                city_finance_process_export(trade_prices[resource].sell);
+                building_warehouse_space_set_image(space, resource);
                 return 1;
             }
         }
@@ -103,7 +107,7 @@ static int get_closest_warehouse_for_import(int x, int y, int city_id, int dista
             int distance_penalty = 32;
             struct building_t *space = b;
             for (int s = 0; s < 8; s++) {
-                space = building_next(space);
+                space = &all_buildings[space->next_part_building_id];
                 if (space->id && space->subtype.warehouse_resource_id == RESOURCE_NONE) {
                     distance_penalty -= 8;
                 }
@@ -169,7 +173,7 @@ static int get_closest_warehouse_for_export(int x, int y, int city_id, int dista
         int distance_penalty = 32;
         struct building_t *space = b;
         for (int s = 0; s < 8; s++) {
-            space = building_next(space);
+            space = &all_buildings[space->next_part_building_id];
             if (space->id && space->subtype.warehouse_resource_id == resource && space->loads_stored > 0) {
                 distance_penalty--;
             }

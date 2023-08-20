@@ -1,6 +1,6 @@
 #include "resource_settings.h"
 
-#include "building/count.h"
+#include "building/building.h"
 #include "city/data.h"
 #include "city/resource.h"
 #include "core/calc.h"
