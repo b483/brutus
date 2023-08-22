@@ -11,9 +11,7 @@
 #include "figure/formation_herd.h"
 #include "figure/movement.h"
 #include "figure/route.h"
-#include "map/figure.h"
-#include "map/grid.h"
-#include "map/terrain.h"
+#include "map/map.h"
 #include "sound/sound.h"
 
 static const struct map_point_t SEAGULL_OFFSETS[] = {

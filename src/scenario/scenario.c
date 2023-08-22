@@ -17,10 +17,7 @@
 #include "figuretype/missile.h"
 #include "game/settings.h"
 #include "game/time.h"
-#include "map/building.h"
-#include "map/grid.h"
-#include "map/routing_terrain.h"
-#include "map/terrain.h"
+#include "map/map.h"
 #include "sound/sound.h"
 
 #include "stdlib.h"
@@ -730,7 +727,11 @@ void process_earthquake(void)
                         }
                     }
                     terrain_grid.items[grid_offset] = 0;
-                    map_tiles_set_earthquake(x, y);
+                    // earthquake: terrain = rock && bitfields = plaza
+                    terrain_grid.items[grid_offset] |= TERRAIN_ROCK;
+                    map_property_mark_plaza_or_earthquake(grid_offset);
+
+                    foreach_region_tile(x - 1, y - 1, x + 1, y + 1, set_earthquake_image);
                     map_tiles_update_all_gardens();
                     map_tiles_update_all_roads();
                     map_tiles_update_all_plazas();

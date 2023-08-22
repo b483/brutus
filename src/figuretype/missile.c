@@ -8,7 +8,7 @@
 #include "figure/formation_legion.h"
 #include "figure/movement.h"
 #include "figure/sound.h"
-#include "map/figure.h"
+#include "map/map.h"
 #include "sound/sound.h"
 
 static const int CLOUD_TILE_OFFSETS[] = { 0, 0, 0, 1, 1, 2 };

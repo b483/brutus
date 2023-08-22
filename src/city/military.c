@@ -9,7 +9,7 @@
 #include "figure/figure.h"
 #include "figure/formation.h"
 #include "figure/formation_legion.h"
-#include "map/grid.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 #include "window/build_menu.h"
 

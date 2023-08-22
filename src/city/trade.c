@@ -5,8 +5,8 @@
 #include "city/message.h"
 #include "empire/object.h"
 #include "figure/figure.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
-#include "map/water.h"
 
 static int generate_trader(struct empire_object_t *city)
 {
@@ -75,7 +75,7 @@ static int generate_trader(struct empire_object_t *city)
 
     if (city->is_sea_trade) {
         // generate ship
-        if (city_data.building.working_docks && scenario_map_has_river_entry() && !city_data.trade.sea_trade_problem_duration) {
+        if (city_data.building.working_docks && (scenario.river_entry_point.x != -1 && scenario.river_entry_point.y != -1) && !city_data.trade.sea_trade_problem_duration) {
             struct figure_t *ship = figure_create(FIGURE_TRADE_SHIP, scenario.river_entry_point.x, scenario.river_entry_point.y, DIR_0_TOP);
             ship->empire_city_id = city->id;
             ship->action_state = FIGURE_ACTION_TRADE_SHIP_CREATED;
@@ -150,7 +150,7 @@ void city_trade_update(void)
                 city_message_post_with_message_delay(MESSAGE_CAT_NO_WORKING_DOCK, 1, MESSAGE_NO_WORKING_DOCK, 384);
                 continue;
             }
-            if (!scenario_map_has_river_entry()) {
+            if (scenario.river_entry_point.x == -1 || scenario.river_entry_point.y == -1) {
                 continue;
             }
             city_data.trade.num_sea_routes++;

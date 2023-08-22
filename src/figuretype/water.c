@@ -8,9 +8,7 @@
 #include "core/random.h"
 #include "figure/movement.h"
 #include "figure/route.h"
-#include "map/figure.h"
-#include "map/grid.h"
-#include "map/water.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 
 static const int FLOTSAM_RESOURCE_IDS[] = {
@@ -31,7 +29,7 @@ static const int FLOTSAM_TYPE_3[] = {
 
 void figure_create_flotsam(void)
 {
-    if (!scenario_map_has_river_entry() || !scenario_map_has_river_exit() || !scenario.flotsam_enabled) {
+    if (scenario.river_entry_point.x == -1 || scenario.river_entry_point.y == -1 || scenario.river_exit_point.x == -1 || scenario.river_exit_point.y == -1 || !scenario.flotsam_enabled) {
         return;
     }
     for (int i = 1; i < MAX_FIGURES; i++) {
@@ -133,13 +131,32 @@ void figure_shipwreck_action(struct figure_t *f)
     figure_image_increase_offset(f, 128);
     if (f->wait_ticks < 1000) {
         map_figure_delete(f);
-        struct map_point_t tile;
-        if (map_water_find_shipwreck_tile(f, &tile)) {
-            f->x = tile.x;
-            f->y = tile.y;
-            f->grid_offset = map_grid_offset(f->x, f->y);
-            f->cross_country_x = 15 * f->x + 7;
-            f->cross_country_y = 15 * f->y + 7;
+        struct map_point_t tile = { 0 };
+        if (!(map_terrain_is(f->grid_offset, TERRAIN_WATER) && map_figure_at(f->grid_offset) == f->id)) {
+            for (int radius = 1; radius <= 5; radius++) {
+                int x_min, y_min, x_max, y_max;
+                map_grid_get_area(f->x, f->y, 1, radius, &x_min, &y_min, &x_max, &y_max);
+
+                for (int yy = y_min; yy <= y_max; yy++) {
+                    for (int xx = x_min; xx <= x_max; xx++) {
+                        int grid_offset = map_grid_offset(xx, yy);
+                        if (!map_has_figure_at(grid_offset) || map_figure_at(grid_offset) == f->id) {
+                            if (map_terrain_is(grid_offset, TERRAIN_WATER) &&
+                                map_terrain_is(map_grid_offset(xx, yy - 2), TERRAIN_WATER) &&
+                                map_terrain_is(map_grid_offset(xx, yy + 2), TERRAIN_WATER) &&
+                                map_terrain_is(map_grid_offset(xx - 2, yy), TERRAIN_WATER) &&
+                                map_terrain_is(map_grid_offset(xx + 2, yy), TERRAIN_WATER)) {
+                                f->x = tile.x;
+                                f->y = tile.y;
+                                f->grid_offset = map_grid_offset(f->x, f->y);
+                                f->cross_country_x = 15 * f->x + 7;
+                                f->cross_country_y = 15 * f->y + 7;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
         map_figure_add(f);
         f->wait_ticks = 1000;
@@ -181,6 +198,34 @@ static int scenario_map_closest_fishing_point(int x, int y, struct map_point_t *
         return 1;
     }
     return 0;
+}
+
+static int map_water_get_wharf_for_new_fishing_boat(struct figure_t *boat, struct map_point_t *tile)
+{
+    struct building_t *wharf = 0;
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_WHARF) {
+            int wharf_boat_id = b->data.industry.fishing_boat_id;
+            if (!wharf_boat_id || wharf_boat_id == boat->id) {
+                wharf = b;
+                break;
+            }
+        }
+    }
+    if (!wharf) {
+        return 0;
+    }
+    int dx, dy;
+    switch (wharf->data.industry.orientation) {
+        case 0: dx = 1; dy = -1; break;
+        case 1: dx = 2; dy = 1; break;
+        case 2: dx = 1; dy = 2; break;
+        default: dx = -1; dy = 1; break;
+    }
+    tile->x = wharf->x + dx;
+    tile->y = wharf->y + dy;
+    return wharf->id;
 }
 
 void figure_fishing_boat_action(struct figure_t *f)
@@ -233,8 +278,25 @@ void figure_fishing_boat_action(struct figure_t *f)
             figure_movement_move_ticks(f, 1);
             f->height_adjusted_ticks = 0;
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                struct map_point_t tile;
-                if (map_water_find_alternative_fishing_boat_tile(f, &tile)) {
+                struct map_point_t tile = {0};
+
+                if (map_figure_at(f->grid_offset) != f->id) {
+                    for (int radius = 1; radius <= 5; radius++) {
+                        int x_min, y_min, x_max, y_max;
+                        map_grid_get_area(f->x, f->y, 1, radius, &x_min, &y_min, &x_max, &y_max);
+                        for (int yy = y_min; yy <= y_max; yy++) {
+                            for (int xx = x_min; xx <= x_max; xx++) {
+                                int grid_offset = map_grid_offset(xx, yy);
+                                if (!map_has_figure_at(grid_offset) && map_terrain_is(grid_offset, TERRAIN_WATER)) {
+                                    tile.x = xx;
+                                    tile.y = yy;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (tile.x) {
                     figure_route_remove(f);
                     f->destination_x = tile.x;
                     f->destination_y = tile.y;

@@ -1,7 +1,7 @@
 #ifndef WIDGET_CITY_WITH_OVERLAY_H
 #define WIDGET_CITY_WITH_OVERLAY_H
 
-#include "map/tiles.h"
+#include "map/map.h"
 
 /**
  * Update the internal state after changing overlay

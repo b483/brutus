@@ -5,14 +5,7 @@
 #include "core/image.h"
 #include "city/resource.h"
 #include "game/state.h"
-#include "map/bridge.h"
-#include "map/building.h"
-#include "map/figure.h"
-#include "map/grid.h"
-#include "map/image.h"
-#include "map/property.h"
-#include "map/random.h"
-#include "map/terrain.h"
+#include "map/map.h"
 #include "widget/city_bridge.h"
 #include "widget/city_building_ghost.h"
 #include "widget/city_figure.h"
@@ -25,8 +18,6 @@
 #include "widget/city_without_overlay.h"
 
 static const struct city_overlay_t *overlay = 0;
-
-#define OFFSET(x,y) (x + GRID_SIZE * y)
 
 static const int ADJACENT_OFFSETS[2][4][7] = {
     {

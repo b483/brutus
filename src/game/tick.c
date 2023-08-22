@@ -44,20 +44,7 @@
 #include "game/settings.h"
 #include "game/time.h"
 #include "game/undo.h"
-#include "map/building.h"
-#include "map/building_tiles.h"
-#include "map/desirability.h"
-#include "map/grid.h"
-#include "map/natives.h"
-#include "map/random.h"
-#include "map/road_access.h"
-#include "map/road_network.h"
-#include "map/routing.h"
-#include "map/routing_terrain.h"
-#include "map/terrain.h"
-#include "map/tiles.h"
-#include "map/water.h"
-#include "map/water_supply.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
 #include "widget/minimap.h"
@@ -1496,6 +1483,43 @@ static void consume_resource(struct building_t *b, int inventory, int amount)
     }
 }
 
+static void map_water_supply_update_houses(void)
+{
+    building_list_small_clear();
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state != BUILDING_STATE_IN_USE) {
+            continue;
+        }
+        if (b->type == BUILDING_WELL) {
+            building_list_small_add(i);
+        } else if (b->house_size) {
+            b->has_water_access = 0;
+            b->has_well_access = 0;
+            if (map_terrain_exists_tile_in_area_with_type(
+                b->x, b->y, b->size, TERRAIN_FOUNTAIN_RANGE)) {
+                b->has_water_access = 1;
+            }
+        }
+    }
+    int total_wells = building_list_small_size();
+    const int *wells = building_list_small_items();
+    for (int i = 0; i < total_wells; i++) {
+        struct building_t *well = &all_buildings[wells[i]];
+        int x_min, y_min, x_max, y_max;
+        map_grid_get_area(well->x, well->y, 1, 2, &x_min, &y_min, &x_max, &y_max);
+
+        for (int yy = y_min; yy <= y_max; yy++) {
+            for (int xx = x_min; xx <= x_max; xx++) {
+                int building_id = map_building_at(map_grid_offset(xx, yy));
+                if (building_id) {
+                    all_buildings[building_id].has_well_access = 1;
+                }
+            }
+        }
+    }
+}
+
 static void building_house_process_evolve_and_consume_goods(void)
 {
     city_houses_reset_demands();
@@ -1809,7 +1833,7 @@ void game_tick_run(void)
                     figure_docker_action(f);
                     break;
                 case FIGURE_FLOTSAM:
-                    if (scenario_map_has_river_exit()) {
+                    if (scenario.river_exit_point.x != -1 && scenario.river_exit_point.y != -1) {
                         figure_flotsam_action(f);
                     }
                     break;

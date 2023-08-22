@@ -9,12 +9,7 @@
 #include "city/resource.h"
 #include "game/state.h"
 #include "graphics/graphics.h"
-#include "map/building.h"
-#include "map/desirability.h"
-#include "map/image.h"
-#include "map/property.h"
-#include "map/random.h"
-#include "map/terrain.h"
+#include "map/map.h"
 
 static int show_building_religion(const struct building_t *b)
 {

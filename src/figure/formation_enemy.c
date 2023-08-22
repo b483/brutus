@@ -11,11 +11,7 @@
 #include "figure/formation.h"
 #include "figure/formation_legion.h"
 #include "figure/route.h"
-#include "map/figure.h"
-#include "map/grid.h"
-#include "map/routing.h"
-#include "map/routing_path.h"
-#include "map/terrain.h"
+#include "map/map.h"
 #include "sound/sound.h"
 
 #include <stdlib.h>

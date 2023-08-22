@@ -182,32 +182,7 @@ set(INPUT_FILES
     ${PROJECT_SOURCE_DIR}/src/input/scroll.c
 )
 set(MAP_FILES
-    ${PROJECT_SOURCE_DIR}/src/map/aqueduct.c
-    ${PROJECT_SOURCE_DIR}/src/map/bookmark.c
-    ${PROJECT_SOURCE_DIR}/src/map/bridge.c
-    ${PROJECT_SOURCE_DIR}/src/map/building.c
-    ${PROJECT_SOURCE_DIR}/src/map/building_tiles.c
-    ${PROJECT_SOURCE_DIR}/src/map/desirability.c
-    ${PROJECT_SOURCE_DIR}/src/map/figure.c
-    ${PROJECT_SOURCE_DIR}/src/map/grid.c
-    ${PROJECT_SOURCE_DIR}/src/map/image.c
-    ${PROJECT_SOURCE_DIR}/src/map/image_context.c
-    ${PROJECT_SOURCE_DIR}/src/map/natives.c
-    ${PROJECT_SOURCE_DIR}/src/map/orientation.c
-    ${PROJECT_SOURCE_DIR}/src/map/property.c
-    ${PROJECT_SOURCE_DIR}/src/map/random.c
-    ${PROJECT_SOURCE_DIR}/src/map/road_access.c
-    ${PROJECT_SOURCE_DIR}/src/map/road_aqueduct.c
-    ${PROJECT_SOURCE_DIR}/src/map/road_network.c
-    ${PROJECT_SOURCE_DIR}/src/map/routing.c
-    ${PROJECT_SOURCE_DIR}/src/map/routing_data.c
-    ${PROJECT_SOURCE_DIR}/src/map/routing_path.c
-    ${PROJECT_SOURCE_DIR}/src/map/routing_terrain.c
-    ${PROJECT_SOURCE_DIR}/src/map/sprite.c
-    ${PROJECT_SOURCE_DIR}/src/map/terrain.c
-    ${PROJECT_SOURCE_DIR}/src/map/tiles.c
-    ${PROJECT_SOURCE_DIR}/src/map/water.c
-    ${PROJECT_SOURCE_DIR}/src/map/water_supply.c
+    ${PROJECT_SOURCE_DIR}/src/map/map.c
 )
 set(SCENARIO_FILES
     ${PROJECT_SOURCE_DIR}/src/scenario/scenario.c

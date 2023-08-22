@@ -14,8 +14,7 @@
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "figure/trader.h"
-#include "map/figure.h"
-#include "map/road_access.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 
 int figure_trade_caravan_can_buy(struct figure_t *trader, int warehouse_id, int city_id)

@@ -7,7 +7,7 @@
 #include "figure/formation_herd.h"
 #include "figure/formation_legion.h"
 #include "figure/route.h"
-#include "map/grid.h"
+#include "map/map.h"
 #include "sound/sound.h"
 
 #include <string.h>

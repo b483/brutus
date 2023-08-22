@@ -6,8 +6,7 @@
 #include "figure/combat.h"
 #include "figure/movement.h"
 #include "figure/route.h"
-#include "map/building.h"
-#include "map/road_access.h"
+#include "map/map.h"
 #include "sound/sound.h"
 
 #define PREFECT_LEASH_RANGE 20

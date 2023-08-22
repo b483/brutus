@@ -19,23 +19,12 @@
 #include "game/file_io.h"
 #include "game/state.h"
 #include "game/time.h"
-#include "map/aqueduct.h"
-#include "map/building.h"
-#include "map/desirability.h"
-#include "map/figure.h"
-#include "map/image.h"
-#include "map/image_context.h"
-#include "map/natives.h"
-#include "map/property.h"
-#include "map/random.h"
-#include "map/road_network.h"
-#include "map/routing_terrain.h"
-#include "map/sprite.h"
-#include "map/terrain.h"
-#include "map/tiles.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
+
+#include <string.h>
 
 void game_file_editor_clear_data(void)
 {
@@ -77,14 +66,14 @@ static void clear_map_data(void)
 {
     map_image_clear();
     map_building_clear();
-    map_terrain_clear();
+    memset(terrain_grid.items, 0, GRID_SIZE * GRID_SIZE * sizeof(uint16_t));
     map_aqueduct_clear();
-    map_grid_clear_u16(map_figures.items);
+    memset(map_figures.items, 0, GRID_SIZE * GRID_SIZE * sizeof(uint16_t));
     map_property_clear();
     map_sprite_clear();
     map_random_clear();
     map_desirability_clear();
-    map_grid_clear_u8(terrain_elevation.items);
+    memset(terrain_elevation.items, 0, GRID_SIZE * GRID_SIZE * sizeof(uint8_t));
     map_road_network_clear();
 
     map_image_context_init();

@@ -13,7 +13,7 @@
 #include "figuretype/water.h"
 #include "game/settings.h"
 #include "game/time.h"
-#include "map/routing_terrain.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
 

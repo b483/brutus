@@ -6,12 +6,7 @@
 #include "figure/figure.h"
 #include "figure/formation_legion.h"
 #include "graphics/graphics.h"
-#include "map/building.h"
-#include "map/figure.h"
-#include "map/grid.h"
-#include "map/property.h"
-#include "map/random.h"
-#include "map/terrain.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 
 #include <stdlib.h>

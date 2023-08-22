@@ -10,8 +10,7 @@
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "figuretype/missile.h"
-#include "map/figure.h"
-#include "map/terrain.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
 

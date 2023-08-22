@@ -3,7 +3,7 @@
 
 #include "city/resource.h"
 #include "core/buffer.h"
-#include "map/tiles.h"
+#include "map/map.h"
 
 #define MAX_BUILDINGS 2000
 #define MAX_HOUSE_TYPES 20
@@ -12,8 +12,6 @@
 #define MAX_PROGRESS_RAW 200
 
 #define INFINITE 10000
-
-#define OFFSET(x,y) (x + GRID_SIZE * y)
 
 #define UNITS_PER_LOAD 100
 #define ONE_LOAD 100
@@ -405,6 +403,10 @@ int building_construction_in_progress(void);
 void building_construction_start(int x, int y, int grid_offset);
 
 void building_construction_cancel(void);
+
+int map_water_determine_orientation_size2(int x, int y, int adjust_xy, int *orientation_absolute, int *orientation_relative);
+
+int map_water_determine_orientation_size3(int x, int y, int adjust_xy, int *orientation_absolute, int *orientation_relative);
 
 void building_construction_update(int x, int y, int grid_offset);
 

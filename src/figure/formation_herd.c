@@ -5,10 +5,7 @@
 #include "figure/figure.h"
 #include "figure/formation.h"
 #include "figure/route.h"
-#include "map/figure.h"
-#include "map/grid.h"
-#include "map/routing.h"
-#include "map/terrain.h"
+#include "map/map.h"
 
 #include <stdlib.h>
 

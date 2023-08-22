@@ -8,18 +8,7 @@
 #include "core/image.h"
 #include "figure/formation_legion.h"
 #include "input/scroll.h"
-#include "map/bridge.h"
-#include "map/building.h"
-#include "map/building_tiles.h"
-#include "map/figure.h"
-#include "map/grid.h"
-#include "map/image_context.h"
-#include "map/orientation.h"
-#include "map/property.h"
-#include "map/road_aqueduct.h"
-#include "map/terrain.h"
-#include "map/tiles.h"
-#include "map/water.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 #include "widget/city_bridge.h"
 
@@ -40,8 +29,6 @@ static const int Y_VIEW_OFFSETS[MAX_TILES] = {
     45, 45, 60, 60, 75, 75, 90,
     60, 60, 75, 75, 90, 90, 105, 105, 120
 };
-
-#define OFFSET(x,y) (x + GRID_SIZE * y)
 
 static const int TILE_GRID_OFFSETS[4][MAX_TILES] = {
     {OFFSET(0,0),
@@ -268,6 +255,24 @@ int city_building_ghost_mark_deleting(const struct map_tile_t *tile)
     return 1;
 }
 
+static int is_road_tile_for_aqueduct(int grid_offset, int gate_orientation)
+{
+    int is_road = map_terrain_is(grid_offset, TERRAIN_ROAD) ? 1 : 0;
+    if (map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
+        struct building_t *b = &all_buildings[map_building_at(grid_offset)];
+        if (b->type == BUILDING_GATEHOUSE) {
+            if (b->subtype.orientation == gate_orientation) {
+                is_road = 1;
+            }
+        } else if (b->type == BUILDING_GRANARY) {
+            if (terrain_land_citizen.items[grid_offset] == CITIZEN_0_ROAD) {
+                is_road = 1;
+            }
+        }
+    }
+    return is_road;
+}
+
 void city_building_ghost_draw(const struct map_tile_t *tile)
 {
     if (!tile->grid_offset || scroll_in_progress()) {
@@ -357,7 +362,18 @@ void city_building_ghost_draw(const struct map_tile_t *tile)
             return;
         case BUILDING_AQUEDUCT:
             if (map_terrain_is(tile->grid_offset, TERRAIN_ROAD)) {
-                if (!map_is_straight_road_for_aqueduct(tile->grid_offset) || map_property_is_plaza_or_earthquake(tile->grid_offset)) {
+                int map_is_straight_road_for_aqueduct = 0;
+                int road_tiles_x =
+                    is_road_tile_for_aqueduct(tile->grid_offset + map_grid_delta(1, 0), 2) +
+                    is_road_tile_for_aqueduct(tile->grid_offset + map_grid_delta(-1, 0), 2);
+                int road_tiles_y =
+                    is_road_tile_for_aqueduct(tile->grid_offset + map_grid_delta(0, -1), 1) +
+                    is_road_tile_for_aqueduct(tile->grid_offset + map_grid_delta(0, 1), 1);
+                if ((road_tiles_x == 2 && road_tiles_y == 0)
+                || (road_tiles_y == 2 && road_tiles_x == 0)) {
+                    map_is_straight_road_for_aqueduct = 1;
+                }
+                if (!map_is_straight_road_for_aqueduct || map_property_is_plaza_or_earthquake(tile->grid_offset)) {
                     image_draw_blend(image_group(GROUP_TERRAIN_FLAT_TILE), x, y, COLOR_MASK_RED);
                     return;
                 }

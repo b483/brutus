@@ -4,15 +4,7 @@
 #include "city/finance.h"
 #include "core/image.h"
 #include "city/resource.h"
-#include "map/aqueduct.h"
-#include "map/building.h"
-#include "map/building_tiles.h"
-#include "map/grid.h"
-#include "map/image.h"
-#include "map/property.h"
-#include "map/routing_terrain.h"
-#include "map/sprite.h"
-#include "map/terrain.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 
 #include <string.h>

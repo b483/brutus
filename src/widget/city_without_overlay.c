@@ -11,19 +11,11 @@
 #include "core/image.h"
 #include "core/time.h"
 #include "figure/formation_legion.h"
-#include "map/building.h"
-#include "map/figure.h"
-#include "map/grid.h"
-#include "map/image.h"
-#include "map/property.h"
-#include "map/sprite.h"
-#include "map/terrain.h"
+#include "map/map.h"
 #include "sound/sound.h"
 #include "widget/city_bridge.h"
 #include "widget/city_building_ghost.h"
 #include "widget/city_figure.h"
-
-#define OFFSET(x,y) (x + GRID_SIZE * y)
 
 static const int ADJACENT_OFFSETS[2][4][7] = {
     {

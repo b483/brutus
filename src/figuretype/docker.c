@@ -11,7 +11,7 @@
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "figure/trader.h"
-#include "map/road_access.h"
+#include "map/map.h"
 
 static int try_import_resource(int building_id, int resource, int city_id)
 {

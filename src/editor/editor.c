@@ -18,14 +18,7 @@
 #include "empire/object.h"
 #include "input/hotkey.h"
 #include "input/scroll.h"
-#include "map/building_tiles.h"
-#include "map/figure.h"
-#include "map/image.h"
-#include "map/image_context.h"
-#include "map/property.h"
-#include "map/random.h"
-#include "map/routing_terrain.h"
-#include "map/terrain.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
 #include "widget/city_figure.h"
@@ -52,7 +45,6 @@
 #define MAX_ITEMS_PER_MENU 16
 
 #define MAX_TILES_OFFSETS 4
-#define OFFSET(x,y) (x + GRID_SIZE * y)
 #define TERRAIN_NOT_DISPLACEABLE TERRAIN_ROCK | TERRAIN_WATER | TERRAIN_BUILDING | TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP
 
 #define MAX_EMPIRE_WIDTH 2032
@@ -4774,6 +4766,28 @@ static void add_terrain_at(int x, int y)
     }
 }
 
+static void map_elevation_remove_cliffs(void)
+{
+    // elevation is max 5, so we need 4 passes to fix the lot
+    for (int level = 0; level < 4; level++) {
+        int grid_offset = map_data.start_offset;
+        for (int y = 0; y < map_data.height; y++, grid_offset += map_data.border_size) {
+            for (int x = 0; x < map_data.width; x++, grid_offset++) {
+                if (terrain_elevation.items[grid_offset] > 0) {
+                    // reduce elevation when the surrounding tiles are at least 2 lower
+                    int max = terrain_elevation.items[grid_offset] - 1;
+                    if (terrain_elevation.items[grid_offset + map_grid_delta(-1, 0)] < max ||
+                        terrain_elevation.items[grid_offset + map_grid_delta(0, -1)] < max ||
+                        terrain_elevation.items[grid_offset + map_grid_delta(1, 0)] < max ||
+                        terrain_elevation.items[grid_offset + map_grid_delta(0, 1)] < max) {
+                        terrain_elevation.items[grid_offset]--;
+                    }
+                }
+            }
+        }
+    }
+}
+
 static void update_terrain_after_elevation_changes(void)
 {
     map_elevation_remove_cliffs();
@@ -5040,10 +5054,10 @@ static void handle_input_editor_map(const struct mouse_t *m, const struct hotkey
             int y_min = tile->y - tool_data.brush_size;
             int y_max = tile->y + tool_data.brush_size;
             map_image_context_reset_water();
-            map_tiles_update_region_water(x_min, y_min, x_max, y_max);
+            foreach_region_tile(x_min, y_min, x_max, y_max, update_water_tile);
             switch (tool_data.type) {
                 case TOOL_GRASS:
-                    map_tiles_update_region_water(x_min, y_min, x_max, y_max);
+                    foreach_region_tile(x_min, y_min, x_max, y_max, update_water_tile);
                     map_tiles_update_region_empty_land(x_min, y_min, x_max, y_max);
                     break;
                 case TOOL_RAISE_LAND:
@@ -5051,7 +5065,7 @@ static void handle_input_editor_map(const struct mouse_t *m, const struct hotkey
                     map_image_context_reset_water();
                     map_image_context_reset_elevation();
                     map_tiles_update_all_elevation();
-                    map_tiles_update_region_water(x_min, y_min, x_max, y_max);
+                    foreach_region_tile(x_min, y_min, x_max, y_max, update_water_tile);
                     map_tiles_update_region_empty_land(x_min, y_min, x_max, y_max);
                     break;
                 default:

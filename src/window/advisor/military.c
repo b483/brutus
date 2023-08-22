@@ -6,7 +6,7 @@
 #include "core/image.h"
 #include "figure/formation_legion.h"
 #include "graphics/graphics.h"
-#include "map/grid.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 #include "window/city.h"
 

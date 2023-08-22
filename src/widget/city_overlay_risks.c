@@ -3,11 +3,7 @@
 #include "core/image.h"
 #include "game/state.h"
 #include "graphics/graphics.h"
-#include "map/building.h"
-#include "map/image.h"
-#include "map/property.h"
-#include "map/random.h"
-#include "map/terrain.h"
+#include "map/map.h"
 
 static int is_problem_cartpusher(int figure_id)
 {

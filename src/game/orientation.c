@@ -2,7 +2,7 @@
 
 #include "city/view.h"
 #include "city/warning.h"
-#include "map/orientation.h"
+#include "map/map.h"
 #include "widget/minimap.h"
 
 void game_orientation_rotate_left(void)

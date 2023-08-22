@@ -2,8 +2,7 @@
 
 #include "game/orientation.h"
 #include "graphics/graphics.h"
-#include "map/grid.h"
-#include "map/image.h"
+#include "map/map.h"
 #include "widget/minimap.h"
 
 static struct {

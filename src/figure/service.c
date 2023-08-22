@@ -3,8 +3,7 @@
 #include "building/building.h"
 #include "figuretype/crime.h"
 #include "city/resource.h"
-#include "map/building.h"
-#include "map/grid.h"
+#include "map/map.h"
 
 #define MAX_COVERAGE 96
 

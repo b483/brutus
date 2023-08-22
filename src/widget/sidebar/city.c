@@ -10,7 +10,7 @@
 #include "game/state.h"
 #include "game/undo.h"
 #include "graphics/graphics.h"
-#include "map/orientation.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 #include "widget/city.h"
 #include "widget/minimap.h"

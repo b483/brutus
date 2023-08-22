@@ -7,9 +7,7 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/figure.h"
-#include "map/building_tiles.h"
-#include "map/image.h"
-#include "map/terrain.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 
 static void update_status(void)

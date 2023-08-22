@@ -3,7 +3,7 @@
 
 #include "input/hotkey.h"
 #include "input/mouse.h"
-#include "map/tiles.h"
+#include "map/map.h"
 
 struct pixel_coordinate_t {
     int x;

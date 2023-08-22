@@ -6,15 +6,15 @@
 #include "figure/route.h"
 #include "figure/service.h"
 #include "game/time.h"
-#include "map/bridge.h"
-#include "map/building.h"
-#include "map/figure.h"
-#include "map/grid.h"
-#include "map/property.h"
-#include "map/random.h"
-#include "map/road_access.h"
-#include "map/routing_terrain.h"
-#include "map/terrain.h"
+#include "map/map.h"
+
+enum {
+    DESTROYABLE_BUILDING,
+    DESTROYABLE_AQUEDUCT_GARDEN,
+    DESTROYABLE_WALL,
+    DESTROYABLE_GATEHOUSE,
+    DESTROYABLE_NONE
+};
 
 static void advance_tick(struct figure_t *f)
 {
@@ -73,7 +73,39 @@ static void advance_tick(struct figure_t *f)
 static void set_target_height_bridge(struct figure_t *f)
 {
     f->height_adjusted_ticks = 18;
-    f->target_height = map_bridge_height(f->grid_offset);
+    int sprite = map_sprite_bridge_at(f->grid_offset);
+    if (sprite <= 6) {
+        // low bridge
+        switch (sprite) {
+            case 1:
+            case 4:
+                f->target_height = 10;
+                break;
+            case 2:
+            case 3:
+                f->target_height = 16;
+                break;
+            default:
+                f->target_height = 20;
+                break;
+        }
+    } else {
+        // ship bridge
+        switch (sprite) {
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+                f->target_height = 14;
+                break;
+            case 13:
+                f->target_height = 30;
+                break;
+            default:
+                f->target_height = 36;
+                break;
+        }
+    }
 }
 
 static void move_to_next_tile(struct figure_t *f)
@@ -154,12 +186,30 @@ static void advance_route_tile(struct figure_t *f, int roaming_enabled)
             f->direction = DIR_FIGURE_REROUTE;
         }
     } else if (f->terrain_usage == TERRAIN_USAGE_ENEMY) {
-        if (!map_routing_noncitizen_is_passable(target_grid_offset)) {
+        if (terrain_land_noncitizen.items[target_grid_offset] < NONCITIZEN_0_PASSABLE) {
             f->direction = DIR_FIGURE_REROUTE;
-        } else if (map_routing_is_destroyable(target_grid_offset)) {
+        } else if (terrain_land_noncitizen.items[target_grid_offset] > NONCITIZEN_0_PASSABLE && terrain_land_noncitizen.items[target_grid_offset] != NONCITIZEN_5_FORT) {
             int cause_damage = 1;
             int max_damage = 0;
-            switch (map_routing_get_destroyable(target_grid_offset)) {
+            int destructible = 0;
+            switch (terrain_land_noncitizen.items[target_grid_offset]) {
+                case NONCITIZEN_1_BUILDING:
+                    destructible = DESTROYABLE_BUILDING;
+                    break;
+                case NONCITIZEN_2_CLEARABLE:
+                    destructible = DESTROYABLE_AQUEDUCT_GARDEN;
+                    break;
+                case NONCITIZEN_3_WALL:
+                    destructible = DESTROYABLE_WALL;
+                    break;
+                case NONCITIZEN_4_GATEHOUSE:
+                    destructible = DESTROYABLE_GATEHOUSE;
+                    break;
+                default:
+                    destructible = DESTROYABLE_NONE;
+                    break;
+            }
+            switch (destructible) {
                 case DESTROYABLE_BUILDING:
                     max_damage = 10;
                     break;
@@ -341,6 +391,49 @@ void figure_movement_follow_ticks(struct figure_t *f, int num_ticks)
     }
 }
 
+static int terrain_is_road_like(int grid_offset)
+{
+    return map_terrain_is(grid_offset, TERRAIN_ROAD | TERRAIN_ACCESS_RAMP) ? 1 : 0;
+}
+
+static int get_adjacent_road_tile_for_roaming(int grid_offset)
+{
+    int is_road = terrain_is_road_like(grid_offset);
+    if (map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
+        struct building_t *b = &all_buildings[map_building_at(grid_offset)];
+        if (b->type == BUILDING_GATEHOUSE) {
+            is_road = 0;
+        } else if (b->type == BUILDING_GRANARY) {
+            if (terrain_land_citizen.items[grid_offset] == CITIZEN_0_ROAD) {
+                is_road = 1;
+            }
+        }
+    }
+    return is_road;
+}
+
+static int map_get_diagonal_road_tiles_for_roaming(int grid_offset, int *road_tiles)
+{
+    road_tiles[1] = terrain_is_road_like(grid_offset + map_grid_delta(1, -1));
+    road_tiles[3] = terrain_is_road_like(grid_offset + map_grid_delta(1, 1));
+    road_tiles[5] = terrain_is_road_like(grid_offset + map_grid_delta(-1, 1));
+    road_tiles[7] = terrain_is_road_like(grid_offset + map_grid_delta(-1, -1));
+
+    int max_stretch = 0;
+    int stretch = 0;
+    for (int i = 0; i < 16; i++) {
+        if (road_tiles[i % 8]) {
+            stretch++;
+            if (stretch > max_stretch) {
+                max_stretch = stretch;
+            }
+        } else {
+            stretch = 0;
+        }
+    }
+    return max_stretch;
+}
+
 void figure_movement_roam_ticks(struct figure_t *f, int num_ticks)
 {
     if (f->roam_choose_destination == 0) {
@@ -372,7 +465,12 @@ void figure_movement_roam_ticks(struct figure_t *f, int num_ticks)
                 return;
             }
             int road_tiles[8];
-            int adjacent_road_tiles = map_get_adjacent_road_tiles_for_roaming(f->grid_offset, road_tiles);
+            road_tiles[1] = road_tiles[3] = road_tiles[5] = road_tiles[7] = 0;
+            road_tiles[0] = get_adjacent_road_tile_for_roaming(f->grid_offset + map_grid_delta(0, -1));
+            road_tiles[2] = get_adjacent_road_tile_for_roaming(f->grid_offset + map_grid_delta(1, 0));
+            road_tiles[4] = get_adjacent_road_tile_for_roaming(f->grid_offset + map_grid_delta(0, 1));
+            road_tiles[6] = get_adjacent_road_tile_for_roaming(f->grid_offset + map_grid_delta(-1, 0));
+            int adjacent_road_tiles = road_tiles[0] + road_tiles[2] + road_tiles[4] + road_tiles[6];
             if (adjacent_road_tiles == 3 && map_get_diagonal_road_tiles_for_roaming(f->grid_offset, road_tiles) >= 5) {
                 // go in the straight direction of a double-wide road
                 adjacent_road_tiles = 2;

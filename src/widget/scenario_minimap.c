@@ -3,9 +3,7 @@
 #include "city/view.h"
 #include "core/image.h"
 #include "graphics/graphics.h"
-#include "map/property.h"
-#include "map/random.h"
-#include "map/terrain.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 
 struct tile_color_t {

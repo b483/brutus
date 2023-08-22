@@ -1,7 +1,6 @@
 #include "route.h"
 
-#include "map/routing.h"
-#include "map/routing_path.h"
+#include "map/map.h"
 
 #define MAX_PATH_LENGTH 500
 #define MAX_ROUTES 600
@@ -56,7 +55,12 @@ void figure_route_add(struct figure_t *f)
     int path_length;
     if (figure_properties[f->type].is_boat) {
         if (figure_properties[f->type].is_boat == 2) { // flotsam
-            map_routing_calculate_distances_water_flotsam(f->x, f->y);
+            int grid_offset = map_grid_offset(f->x, f->y);
+            if (terrain_water.items[grid_offset] == WATER_N1_BLOCKED) {
+                clear_distances();
+            } else {
+                route_queue_dir8(grid_offset, callback_calc_distance_water_flotsam);
+            }
             path_length = map_routing_get_path_on_water(data.direction_paths[path_id],
                 f->destination_x, f->destination_y, 1);
         } else {

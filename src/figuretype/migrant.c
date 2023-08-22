@@ -8,9 +8,7 @@
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "game/tick.h"
-#include "map/building_tiles.h"
-#include "map/road_access.h"
-#include "map/terrain.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 
 void figure_create_homeless(int x, int y, int num_people)

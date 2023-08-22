@@ -16,8 +16,7 @@
 #include "figure/route.h"
 #include "figure/trader.h"
 #include "figuretype/soldier.h"
-#include "map/figure.h"
-#include "map/grid.h"
+#include "map/map.h"
 
 #include <string.h>
 

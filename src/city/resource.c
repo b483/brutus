@@ -4,7 +4,7 @@
 #include "city/data.h"
 #include "core/calc.h"
 #include "empire/object.h"
-#include "map/road_access.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 
 struct resource_img_ids_t resource_images[RESOURCE_TYPES_MAX] = {

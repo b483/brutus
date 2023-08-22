@@ -8,11 +8,7 @@
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "figuretype/missile.h"
-#include "map/figure.h"
-#include "map/grid.h"
-#include "map/road_access.h"
-#include "map/routing_terrain.h"
-#include "map/terrain.h"
+#include "map/map.h"
 #include "sound/sound.h"
 
 static const int BALLISTA_FIRING_OFFSETS[] = {
@@ -92,6 +88,30 @@ void figure_ballista_action(struct figure_t *f)
     } else {
         f->image_id = image_group(GROUP_FIGURE_BALLISTA) + dir;
     }
+}
+
+static int map_routing_wall_tile_in_radius(int x, int y, int radius, int *x_wall, int *y_wall)
+{
+    for (int i = 1; i <= radius; i++) {
+        int wall_tile_in_radius = 0;
+        int size = 1;
+        int x_min, y_min, x_max, y_max;
+        map_grid_get_area(x, y, size, i, &x_min, &y_min, &x_max, &y_max);
+        for (int yy = y_min; yy <= y_max; yy++) {
+            for (int xx = x_min; xx <= x_max; xx++) {
+                if (map_routing_is_wall_passable(map_grid_offset(xx, yy))) {
+                    *x_wall = xx;
+                    *y_wall = yy;
+                    wall_tile_in_radius = 1;
+                    break;
+                }
+            }
+        }
+        if (wall_tile_in_radius) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 static int tower_sentry_init_patrol(struct building_t *b, int *x_tile, int *y_tile)

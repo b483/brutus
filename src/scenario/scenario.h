@@ -3,7 +3,7 @@
 
 #include "core/buffer.h"
 #include "building/building.h"
-#include "map/tiles.h"
+#include "map/map.h"
 
 #define MAX_PLAYER_NAME 24
 #define MAX_SCENARIO_NAME 65

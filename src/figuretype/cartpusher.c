@@ -9,9 +9,7 @@
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "city/resource.h"
-#include "map/road_access.h"
-#include "map/road_network.h"
-#include "map/routing_terrain.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 
 static const int CART_OFFSET_MULTIPLE_LOADS_FOOD[] = { 0, 0, 8, 16, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -221,7 +219,7 @@ static void update_image(struct figure_t *f)
 static void reroute_cartpusher(struct figure_t *f)
 {
     figure_route_remove(f);
-    if (!map_routing_citizen_is_passable_terrain(f->grid_offset)) {
+    if (terrain_land_citizen.items[f->grid_offset] != CITIZEN_2_PASSABLE_TERRAIN) {
         f->action_state = FIGURE_ACTION_CARTPUSHER_INITIAL;
     }
     f->wait_ticks = 0;

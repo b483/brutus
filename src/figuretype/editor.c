@@ -1,8 +1,7 @@
 #include "editor.h"
 
 #include "core/image.h"
-#include "map/figure.h"
-#include "map/grid.h"
+#include "map/map.h"
 #include "scenario/scenario.h"
 
 #define MAP_FLAG_IMG_ID 2916
