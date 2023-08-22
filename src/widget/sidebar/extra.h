@@ -1,7 +1,7 @@
 #ifndef WIDGET_SIDEBAR_FILLER_H
 #define WIDGET_SIDEBAR_FILLER_H
 
-#include "input/mouse.h"
+#include "input/input.h"
 
 enum {
     SIDEBAR_EXTRA_DISPLAY_NONE = 0,

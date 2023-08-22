@@ -174,12 +174,7 @@ set(GAME_FILES
     ${PROJECT_SOURCE_DIR}/src/game/undo.c
 )
 set(INPUT_FILES
-    ${PROJECT_SOURCE_DIR}/src/input/cursor.c
-    ${PROJECT_SOURCE_DIR}/src/input/hotkey.c
-    ${PROJECT_SOURCE_DIR}/src/input/keyboard.c
-    ${PROJECT_SOURCE_DIR}/src/input/keys.c
-    ${PROJECT_SOURCE_DIR}/src/input/mouse.c
-    ${PROJECT_SOURCE_DIR}/src/input/scroll.c
+    ${PROJECT_SOURCE_DIR}/src/input/input.c
 )
 set(MAP_FILES
     ${PROJECT_SOURCE_DIR}/src/map/map.c

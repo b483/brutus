@@ -1,8 +1,7 @@
 #ifndef WIDGET_CITY_H
 #define WIDGET_CITY_H
 
-#include "input/hotkey.h"
-#include "input/mouse.h"
+#include "input/input.h"
 #include "map/map.h"
 
 struct pixel_coordinate_t {

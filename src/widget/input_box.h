@@ -1,7 +1,7 @@
 #ifndef WIDGET_INPUT_BOX_H
 #define WIDGET_INPUT_BOX_H
 
-#include "input/mouse.h"
+#include "input/input.h"
 
 struct input_box_t {
     int x;

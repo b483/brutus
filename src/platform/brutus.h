@@ -1,7 +1,7 @@
 #ifndef GAME_SYSTEM_H
 #define GAME_SYSTEM_H
 
-#include "input/keys.h"
+#include "input/input.h"
 
 #include "SDL.h"
 

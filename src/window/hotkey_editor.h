@@ -2,7 +2,7 @@
 #define WINDOW_HOTKEY_EDITOR_H
 
 #include "core/hotkey_config.h"
-#include "input/keys.h"
+#include "input/input.h"
 
 void window_hotkey_editor_show(int action, int index, void (*callback)(int, int, int, int));
 

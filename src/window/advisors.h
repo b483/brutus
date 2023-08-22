@@ -2,7 +2,7 @@
 #define WINDOW_ADVISORS_H
 
 #include "city/constants.h"
-#include "input/mouse.h"
+#include "input/input.h"
 
 struct advisor_window_type_t {
     /**

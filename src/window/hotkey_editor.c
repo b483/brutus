@@ -4,6 +4,7 @@
 #include "core/image_group.h"
 #include "core/string.h"
 #include "graphics/graphics.h"
+#include "window/hotkey_config.h"
 
 #define NUM_BOTTOM_BUTTONS 2
 

@@ -7,7 +7,7 @@
 #include "core/config.h"
 #include "core/image.h"
 #include "figure/formation_legion.h"
-#include "input/scroll.h"
+#include "input/input.h"
 #include "map/map.h"
 #include "scenario/scenario.h"
 #include "widget/city_bridge.h"

@@ -1,7 +1,7 @@
 #ifndef WIDGET_MINIMAP_H
 #define WIDGET_MINIMAP_H
 
-#include "input/mouse.h"
+#include "input/input.h"
 
 void widget_minimap_invalidate(void);
 

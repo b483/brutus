@@ -1,7 +1,7 @@
 #ifndef CORE_HOTKEY_CONFIG_H
 #define CORE_HOTKEY_CONFIG_H
 
-#include "input/keys.h"
+#include "input/input.h"
 
 enum {
     HOTKEY_ARROW_UP,
@@ -126,12 +126,6 @@ enum {
     HOTKEY_CHEAT_INVASION,
     HOTKEY_CHEAT_VICTORY,
     HOTKEY_MAX_ITEMS
-};
-
-struct hotkey_mapping_t {
-    int key;
-    int modifiers;
-    int action;
 };
 
 /**

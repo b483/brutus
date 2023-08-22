@@ -8,9 +8,7 @@
 #include "core/time.h"
 #include "game/game.h"
 #include "game/settings.h"
-#include "input/cursor.h"
-#include "input/keyboard.h"
-#include "input/mouse.h"
+#include "input/input.h"
 
 #include "SDL.h"
 

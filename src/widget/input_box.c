@@ -3,7 +3,7 @@
 #include "SDL.h"
 
 #include "graphics/graphics.h"
-#include "input/keyboard.h"
+#include "input/input.h"
 #include "platform/brutus.h"
 
 static int draw_cursor;

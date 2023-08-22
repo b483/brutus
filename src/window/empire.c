@@ -10,7 +10,7 @@
 #include "game/settings.h"
 #include "game/time.h"
 #include "graphics/graphics.h"
-#include "input/scroll.h"
+#include "input/input.h"
 #include "scenario/scenario.h"
 #include "window/advisors.h"
 #include "window/city.h"

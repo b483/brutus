@@ -1,7 +1,7 @@
 #ifndef WIDGET_SIDEBAR_CITY_H
 #define WIDGET_SIDEBAR_CITY_H
 
-#include "input/mouse.h"
+#include "input/input.h"
 
 void widget_sidebar_city_draw_background(void);
 void widget_sidebar_city_draw_foreground(void);

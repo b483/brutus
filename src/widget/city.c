@@ -10,7 +10,7 @@
 #include "game/state.h"
 #include "game/undo.h"
 #include "graphics/graphics.h"
-#include "input/scroll.h"
+#include "input/input.h"
 #include "map/map.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"

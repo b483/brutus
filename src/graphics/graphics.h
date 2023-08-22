@@ -1,8 +1,7 @@
 #ifndef GRAPHICS_GRAPHICS_H
 #define GRAPHICS_GRAPHICS_H
 
-#include "input/hotkey.h"
-#include "input/mouse.h"
+#include "input/input.h"
 #include "figure/figure.h"
 
 #include <stdint.h>

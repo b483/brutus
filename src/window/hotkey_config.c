@@ -12,12 +12,28 @@
 #include "window/main_menu.h"
 #include "window/plain_message_dialog.h"
 
+#include "SDL.h"
+
 #define HOTKEY_HEADER -1
 #define TR_NONE -1
 #define GROUP_BUILDINGS 28
 
 #define NUM_VISIBLE_OPTIONS 14
 #define NUM_BOTTOM_BUTTONS 3
+
+static const char *key_display_names[KEY_TYPE_MAX_ITEMS] = {
+    "", "A", "B", "C", "D", "E", "F", "G", "H", "I",
+    "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S",
+    "T", "U", "V", "W", "X", "Y", "Z", "1", "2", "3",
+    "4", "5", "6", "7", "8", "9", "0", "-", "=", "Enter",
+    "Esc", "Backspace", "Tab", "Space", "Left bracket", "Right bracket", "Backslash", ";", "'", "Backtick",
+    ",", ".", "/", "F1", "F2", "F3", "F4", "F5", "F6", "F7",
+    "F8", "F9", "F10", "F11", "F12", "Insert", "Delete", "Home", "End", "PageUp",
+    "PageDown", "Right", "Left", "Down", "Up",
+    "Keypad 1", "Keypad 2", "Keypad 3", "Keypad 4", "Keypad 5",
+    "Keypad 6", "Keypad 7", "Keypad 8", "Keypad 9", "Keypad 0",
+    "Keypad .", "Keypad +", "Keypad -", "Keypad *", "Keypad /", "NonUS"
+};
 
 static void on_scroll(void);
 
@@ -288,6 +304,155 @@ static void init(void)
         mapping = hotkey_for_action(i, 1);
         data.mappings[i][1] = mapping ? *mapping : empty;
     }
+}
+
+const char *key_combination_display_name(int key, int modifiers)
+{
+    static char result[100];
+    result[0] = 0;
+    if (modifiers & KEY_MOD_CTRL) {
+        strcat(result, "Ctrl");
+        strcat(result, " ");
+    }
+    if (modifiers & KEY_MOD_ALT) {
+        strcat(result, "Alt");
+        strcat(result, " ");
+    }
+    if (modifiers & KEY_MOD_GUI) {
+        strcat(result, "Gui");
+        strcat(result, " ");
+    }
+    if (modifiers & KEY_MOD_SHIFT) {
+        strcat(result, "Shift");
+        strcat(result, " ");
+    }
+    // Modifiers are easy, now for key name...
+    SDL_Scancode scan_code;
+    switch (key) {
+        case KEY_TYPE_A: scan_code = SDL_SCANCODE_A; break;
+        case KEY_TYPE_B: scan_code = SDL_SCANCODE_B; break;
+        case KEY_TYPE_C: scan_code = SDL_SCANCODE_C; break;
+        case KEY_TYPE_D: scan_code = SDL_SCANCODE_D; break;
+        case KEY_TYPE_E: scan_code = SDL_SCANCODE_E; break;
+        case KEY_TYPE_F: scan_code = SDL_SCANCODE_F; break;
+        case KEY_TYPE_G: scan_code = SDL_SCANCODE_G; break;
+        case KEY_TYPE_H: scan_code = SDL_SCANCODE_H; break;
+        case KEY_TYPE_I: scan_code = SDL_SCANCODE_I; break;
+        case KEY_TYPE_J: scan_code = SDL_SCANCODE_J; break;
+        case KEY_TYPE_K: scan_code = SDL_SCANCODE_K; break;
+        case KEY_TYPE_L: scan_code = SDL_SCANCODE_L; break;
+        case KEY_TYPE_M: scan_code = SDL_SCANCODE_M; break;
+        case KEY_TYPE_N: scan_code = SDL_SCANCODE_N; break;
+        case KEY_TYPE_O: scan_code = SDL_SCANCODE_O; break;
+        case KEY_TYPE_P: scan_code = SDL_SCANCODE_P; break;
+        case KEY_TYPE_Q: scan_code = SDL_SCANCODE_Q; break;
+        case KEY_TYPE_R: scan_code = SDL_SCANCODE_R; break;
+        case KEY_TYPE_S: scan_code = SDL_SCANCODE_S; break;
+        case KEY_TYPE_T: scan_code = SDL_SCANCODE_T; break;
+        case KEY_TYPE_U: scan_code = SDL_SCANCODE_U; break;
+        case KEY_TYPE_V: scan_code = SDL_SCANCODE_V; break;
+        case KEY_TYPE_W: scan_code = SDL_SCANCODE_W; break;
+        case KEY_TYPE_X: scan_code = SDL_SCANCODE_X; break;
+        case KEY_TYPE_Y: scan_code = SDL_SCANCODE_Y; break;
+        case KEY_TYPE_Z: scan_code = SDL_SCANCODE_Z; break;
+        case KEY_TYPE_1: scan_code = SDL_SCANCODE_1; break;
+        case KEY_TYPE_2: scan_code = SDL_SCANCODE_2; break;
+        case KEY_TYPE_3: scan_code = SDL_SCANCODE_3; break;
+        case KEY_TYPE_4: scan_code = SDL_SCANCODE_4; break;
+        case KEY_TYPE_5: scan_code = SDL_SCANCODE_5; break;
+        case KEY_TYPE_6: scan_code = SDL_SCANCODE_6; break;
+        case KEY_TYPE_7: scan_code = SDL_SCANCODE_7; break;
+        case KEY_TYPE_8: scan_code = SDL_SCANCODE_8; break;
+        case KEY_TYPE_9: scan_code = SDL_SCANCODE_9; break;
+        case KEY_TYPE_0: scan_code = SDL_SCANCODE_0; break;
+        case KEY_TYPE_ENTER: scan_code = SDL_SCANCODE_RETURN; break;
+        case KEY_TYPE_ESCAPE: scan_code = SDL_SCANCODE_ESCAPE; break;
+        case KEY_TYPE_BACKSPACE: scan_code = SDL_SCANCODE_BACKSPACE; break;
+        case KEY_TYPE_TAB: scan_code = SDL_SCANCODE_TAB; break;
+        case KEY_TYPE_SPACE: scan_code = SDL_SCANCODE_SPACE; break;
+        case KEY_TYPE_MINUS: scan_code = SDL_SCANCODE_MINUS; break;
+        case KEY_TYPE_EQUALS: scan_code = SDL_SCANCODE_EQUALS; break;
+        case KEY_TYPE_LEFTBRACKET: scan_code = SDL_SCANCODE_LEFTBRACKET; break;
+        case KEY_TYPE_RIGHTBRACKET: scan_code = SDL_SCANCODE_RIGHTBRACKET; break;
+        case KEY_TYPE_BACKSLASH: scan_code = SDL_SCANCODE_BACKSLASH; break;
+        case KEY_TYPE_SEMICOLON: scan_code = SDL_SCANCODE_SEMICOLON; break;
+        case KEY_TYPE_APOSTROPHE: scan_code = SDL_SCANCODE_APOSTROPHE; break;
+        case KEY_TYPE_GRAVE: scan_code = SDL_SCANCODE_GRAVE; break;
+        case KEY_TYPE_COMMA: scan_code = SDL_SCANCODE_COMMA; break;
+        case KEY_TYPE_PERIOD: scan_code = SDL_SCANCODE_PERIOD; break;
+        case KEY_TYPE_SLASH: scan_code = SDL_SCANCODE_SLASH; break;
+        case KEY_TYPE_CAPSLOCK: scan_code = SDL_SCANCODE_CAPSLOCK; break;
+        case KEY_TYPE_F1: scan_code = SDL_SCANCODE_F1; break;
+        case KEY_TYPE_F2: scan_code = SDL_SCANCODE_F2; break;
+        case KEY_TYPE_F3: scan_code = SDL_SCANCODE_F3; break;
+        case KEY_TYPE_F4: scan_code = SDL_SCANCODE_F4; break;
+        case KEY_TYPE_F5: scan_code = SDL_SCANCODE_F5; break;
+        case KEY_TYPE_F6: scan_code = SDL_SCANCODE_F6; break;
+        case KEY_TYPE_F7: scan_code = SDL_SCANCODE_F7; break;
+        case KEY_TYPE_F8: scan_code = SDL_SCANCODE_F8; break;
+        case KEY_TYPE_F9: scan_code = SDL_SCANCODE_F9; break;
+        case KEY_TYPE_F10: scan_code = SDL_SCANCODE_F10; break;
+        case KEY_TYPE_F11: scan_code = SDL_SCANCODE_F11; break;
+        case KEY_TYPE_F12: scan_code = SDL_SCANCODE_F12; break;
+        case KEY_TYPE_INSERT: scan_code = SDL_SCANCODE_INSERT; break;
+        case KEY_TYPE_HOME: scan_code = SDL_SCANCODE_HOME; break;
+        case KEY_TYPE_PAGEUP: scan_code = SDL_SCANCODE_PAGEUP; break;
+        case KEY_TYPE_DELETE: scan_code = SDL_SCANCODE_DELETE; break;
+        case KEY_TYPE_END: scan_code = SDL_SCANCODE_END; break;
+        case KEY_TYPE_PAGEDOWN: scan_code = SDL_SCANCODE_PAGEDOWN; break;
+        case KEY_TYPE_RIGHT: scan_code = SDL_SCANCODE_RIGHT; break;
+        case KEY_TYPE_LEFT: scan_code = SDL_SCANCODE_LEFT; break;
+        case KEY_TYPE_DOWN: scan_code = SDL_SCANCODE_DOWN; break;
+        case KEY_TYPE_UP: scan_code = SDL_SCANCODE_UP; break;
+        case KEY_TYPE_KP_1: scan_code = SDL_SCANCODE_KP_1; break;
+        case KEY_TYPE_KP_2: scan_code = SDL_SCANCODE_KP_2; break;
+        case KEY_TYPE_KP_3: scan_code = SDL_SCANCODE_KP_3; break;
+        case KEY_TYPE_KP_4: scan_code = SDL_SCANCODE_KP_4; break;
+        case KEY_TYPE_KP_5: scan_code = SDL_SCANCODE_KP_5; break;
+        case KEY_TYPE_KP_6: scan_code = SDL_SCANCODE_KP_6; break;
+        case KEY_TYPE_KP_7: scan_code = SDL_SCANCODE_KP_7; break;
+        case KEY_TYPE_KP_8: scan_code = SDL_SCANCODE_KP_8; break;
+        case KEY_TYPE_KP_9: scan_code = SDL_SCANCODE_KP_9; break;
+        case KEY_TYPE_KP_0: scan_code = SDL_SCANCODE_KP_0; break;
+        case KEY_TYPE_KP_PERIOD: scan_code = SDL_SCANCODE_KP_PERIOD; break;
+        case KEY_TYPE_KP_PLUS: scan_code = SDL_SCANCODE_KP_PLUS; break;
+        case KEY_TYPE_KP_MINUS: scan_code = SDL_SCANCODE_KP_MINUS; break;
+        case KEY_TYPE_KP_MULTIPLY: scan_code = SDL_SCANCODE_KP_MULTIPLY; break;
+        case KEY_TYPE_KP_DIVIDE: scan_code = SDL_SCANCODE_KP_DIVIDE; break;
+        case KEY_TYPE_NON_US: scan_code = SDL_SCANCODE_NONUSBACKSLASH; break;
+        default: scan_code = SDL_SCANCODE_UNKNOWN; break;
+    }
+    const char *key_name = SDL_GetKeyName(SDL_GetKeyFromScancode(scan_code));
+    if ((key_name[0] & 0x80) == 0) {
+        // Special cases where we know the key is not displayable using the internal font
+        switch (key_name[0]) {
+            case '[': key_name = "Left bracket"; break;
+            case ']': key_name = "Right bracket"; break;
+            case '\\': key_name = "Backslash"; break;
+            case '`': key_name = "Backtick"; break;
+            case '~': key_name = "Tilde"; break;
+            case '#': key_name = "Hash"; break;
+            case '$': key_name = "Dollar"; break;
+            case '&': key_name = "Ampersand"; break;
+            case '<': key_name = "Less than"; break;
+            case '>': key_name = "Greater than"; break;
+            case '@': key_name = "At-sign"; break;
+            case '^': key_name = "Caret"; break;
+            case '_': key_name = "Underscore"; break;
+            case '|': key_name = "Pipe"; break;
+            case '{': key_name = "Left curly brace"; break;
+            case '}': key_name = "Right curly brace"; break;
+            case '\0': key_name = key_display_names[key];
+        }
+        strcat(result, key_name);
+    } else if (font_can_display(key_name)) {
+        strcat(result, key_name);
+    } else {
+        strcat(result, "? (");
+        strcat(result, key_display_names[key]);
+        strcat(result, ")");
+    }
+    return result;
 }
 
 static void draw_background(void)

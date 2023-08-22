@@ -3,7 +3,7 @@
 #include "core/file.h"
 #include "core/string.h"
 #include "platform/brutus.h"
-#include "input/hotkey.h"
+#include "input/input.h"
 
 #include <string.h>
 

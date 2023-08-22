@@ -1,7 +1,7 @@
 #include "numeric_input.h"
 
 #include "graphics/graphics.h"
-#include "input/keyboard.h"
+#include "input/input.h"
 #include "sound/sound.h"
 
 static void button_number(int number, int param2);
