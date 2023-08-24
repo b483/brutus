@@ -41,7 +41,7 @@ static int closest_house_with_room(int x, int y)
     for (int i = 1; i <= max_id; i++) {
         struct building_t *b = &all_buildings[i];
         if (b->state == BUILDING_STATE_IN_USE && b->house_size
-            && b->distance_from_entry > 0 && b->house_population_room > 0) {
+            && b->house_population_room > 0) {
             if (!b->immigrant_figure_id) {
                 int dist = calc_maximum_distance(x, y, b->x, b->y);
                 if (dist < min_dist) {
@@ -96,7 +96,6 @@ void figure_immigrant_action(struct figure_t *f)
                     break;
                 case DIR_FIGURE_LOST:
                     b->immigrant_figure_id = 0;
-                    b->distance_from_entry = 0;
                     figure_delete(f);
                     return;
             }

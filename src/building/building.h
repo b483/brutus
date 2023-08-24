@@ -193,9 +193,7 @@ struct building_t {
     short percentage_houses_covered;
     short house_population;
     short house_population_room;
-    short distance_from_entry;
     short house_highest_population;
-    short house_unreachable_ticks;
     unsigned char road_access_x;
     unsigned char road_access_y;
     short figure_id;
@@ -534,7 +532,7 @@ void building_warehouse_space_add_import(struct building_t *space, int resource)
 int building_warehouses_remove_resource(int resource, int amount);
 
 int building_warehouse_for_storing(int src_building_id, int x, int y, int resource,
-                                   int distance_from_entry, int road_network_id, int *understaffed,
+                                   int road_network_id, int *understaffed,
                                    struct map_point_t *dst);
 
 int building_warehouse_for_getting(struct building_t *src, int resource, struct map_point_t *dst);

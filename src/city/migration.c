@@ -90,7 +90,7 @@ static void create_immigrants(int num_people)
     // houses with plenty of room
     for (int i = 0; i < total_houses && to_immigrate > 0; i++) {
         struct building_t *b = &all_buildings[houses[i]];
-        if (b->distance_from_entry > 0 && b->house_population_room >= 8 && !b->immigrant_figure_id) {
+        if (b->house_population_room >= 8 && !b->immigrant_figure_id) {
             if (to_immigrate <= 4) {
                 figure_create_immigrant(b, to_immigrate);
                 to_immigrate = 0;
@@ -103,7 +103,7 @@ static void create_immigrants(int num_people)
     // houses with less room
     for (int i = 0; i < total_houses && to_immigrate > 0; i++) {
         struct building_t *b = &all_buildings[houses[i]];
-        if (b->distance_from_entry > 0 && b->house_population_room > 0 && !b->immigrant_figure_id) {
+        if (b->house_population_room > 0 && !b->immigrant_figure_id) {
             if (to_immigrate <= b->house_population_room) {
                 figure_create_immigrant(b, to_immigrate);
                 to_immigrate = 0;
@@ -128,7 +128,6 @@ static void create_vacant_lot(int x, int y, int image_id)
 {
     struct building_t *b = building_create(BUILDING_HOUSE_VACANT_LOT, x, y);
     b->house_population = 0;
-    b->distance_from_entry = 0;
     map_building_tiles_add(b->id, b->x, b->y, 1, image_id, TERRAIN_BUILDING);
 }
 

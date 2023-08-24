@@ -23,7 +23,6 @@
 #include "core/string.h"
 #include "core/random.h"
 #include "core/time.h"
-#include "core/zip.h"
 #include "editor/editor.h"
 #include "empire/empire.h"
 #include "figure/combat.h"
@@ -76,11 +75,8 @@ static struct {
     int should_update;
 } timers[MAX_ANIM_TIMERS];
 
-static char compress_buffer[COMPRESS_BUFFER_SIZE];
-
 struct file_piece_t {
     struct buffer_t buf;
-    int compressed;
 };
 
 struct scenario_state_t {
@@ -932,7 +928,6 @@ static void create_house_tile(int type, int x, int y, int image_id, int populati
     for (int i = 0; i < INVENTORY_MAX; i++) {
         house->data.house.inventory[i] = inventory[i];
     }
-    house->distance_from_entry = 0;
     map_building_tiles_add(house->id, house->x, house->y, 1, image_id + (map_random_get(house->grid_offset) & 1), TERRAIN_BUILDING);
 }
 
@@ -958,7 +953,6 @@ static void split_size2(struct building_t *house, int new_type)
     for (int i = 0; i < INVENTORY_MAX; i++) {
         house->data.house.inventory[i] = inventory_per_tile[i] + inventory_remainder[i];
     }
-    house->distance_from_entry = 0;
 
     int image_id = house_image_group(house->subtype.house_level);
     map_building_tiles_add(house->id, house->x, house->y, house->size,
@@ -1001,7 +995,6 @@ static void split(struct building_t *house, int num_tiles)
                     for (int ii = 0; ii < INVENTORY_MAX; ii++) {
                         other_house->data.house.inventory[ii] = inventory_per_tile[ii] + inventory_remainder[ii];
                     }
-                    other_house->distance_from_entry = 0;
 
                     int image_id = house_image_group(other_house->subtype.house_level);
                     map_building_tiles_add(other_house->id, other_house->x, other_house->y, other_house->size,
@@ -1236,7 +1229,6 @@ static int evolve_large_villa(struct building_t *house, struct house_demands_t *
             for (int i = 0; i < INVENTORY_MAX; i++) {
                 house->data.house.inventory[i] = inventory_per_tile[i] + inventory_remainder[i];
             }
-            house->distance_from_entry = 0;
 
             int image_id = house_image_group(house->subtype.house_level);
             map_building_tiles_add(house->id, house->x, house->y, house->size, image_id + (map_random_get(house->grid_offset) & 1), TERRAIN_BUILDING);
@@ -1340,7 +1332,6 @@ static int evolve_large_palace(struct building_t *house, struct house_demands_t 
             for (int i = 0; i < INVENTORY_MAX; i++) {
                 house->data.house.inventory[i] = inventory_per_tile[i] + inventory_remainder[i];
             }
-            house->distance_from_entry = 0;
 
             int image_id = house_image_group(house->subtype.house_level);
             map_building_tiles_add(house->id, house->x, house->y, house->size, image_id, TERRAIN_BUILDING);
@@ -1614,136 +1605,6 @@ void game_run(void)
                     }
                 }
                 break;
-            case 21: // check rome access
-                map_routing_calculate_distances(scenario.entry_point.x, scenario.entry_point.y);
-                int problem_grid_offset = 0;
-                for (int j = 1; j < MAX_BUILDINGS; j++) {
-                    struct building_t *b = &all_buildings[j];
-                    if (b->state != BUILDING_STATE_IN_USE) {
-                        continue;
-                    }
-                    if (b->house_size) {
-                        int x_road, y_road;
-                        if (!map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
-                            // no road: eject people
-                            b->distance_from_entry = 0;
-                            b->house_unreachable_ticks++;
-                            if (b->house_unreachable_ticks > 4) {
-                                if (b->house_population) {
-                                    figure_create_homeless(b->x, b->y, b->house_population);
-                                    b->house_population = 0;
-                                    b->house_unreachable_ticks = 0;
-                                }
-                                b->state = BUILDING_STATE_UNDO;
-                            }
-                        } else if (map_routing_distance(map_grid_offset(x_road, y_road))) {
-                            // reachable from rome
-                            b->distance_from_entry = map_routing_distance(map_grid_offset(x_road, y_road));
-                            b->house_unreachable_ticks = 0;
-                        } else if (map_closest_reachable_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
-                            b->distance_from_entry = map_routing_distance(map_grid_offset(x_road, y_road));
-                            b->house_unreachable_ticks = 0;
-                        } else {
-                            // no reachable road in radius
-                            if (!b->house_unreachable_ticks) {
-                                problem_grid_offset = b->grid_offset;
-                            }
-                            b->house_unreachable_ticks++;
-                            if (b->house_unreachable_ticks > 8) {
-                                b->distance_from_entry = 0;
-                                b->house_unreachable_ticks = 0;
-                                b->state = BUILDING_STATE_UNDO;
-                            }
-                        }
-                    } else if (b->type == BUILDING_WAREHOUSE) {
-                        if (!city_data.building.trade_center_building_id) {
-                            city_data.building.trade_center_building_id = j;
-                        }
-                        b->distance_from_entry = 0;
-                        int x_road, y_road;
-                        int road_grid_offset = map_road_to_largest_network(b->x, b->y, 3, &x_road, &y_road);
-                        if (road_grid_offset >= 0) {
-                            b->road_network_id = map_road_network_get(road_grid_offset);
-                            b->distance_from_entry = map_routing_distance(road_grid_offset);
-                            b->road_access_x = x_road;
-                            b->road_access_y = y_road;
-                        }
-                    } else if (b->type == BUILDING_WAREHOUSE_SPACE) {
-                        b->distance_from_entry = 0;
-                        struct building_t *main_building = building_main(b);
-                        b->road_network_id = main_building->road_network_id;
-                        b->distance_from_entry = main_building->distance_from_entry;
-                        b->road_access_x = main_building->road_access_x;
-                        b->road_access_y = main_building->road_access_y;
-                    } else if (b->type == BUILDING_HIPPODROME) {
-                        b->distance_from_entry = 0;
-                        int x_road, y_road;
-                        int road_grid_offset = map_road_to_largest_network_hippodrome(b->x, b->y, &x_road, &y_road);
-                        if (road_grid_offset >= 0) {
-                            b->road_network_id = map_road_network_get(road_grid_offset);
-                            b->distance_from_entry = map_routing_distance(road_grid_offset);
-                            b->road_access_x = x_road;
-                            b->road_access_y = y_road;
-                        }
-                    } else { // other building
-                        b->distance_from_entry = 0;
-                        int x_road, y_road;
-                        int road_grid_offset = map_road_to_largest_network(b->x, b->y, b->size, &x_road, &y_road);
-                        if (road_grid_offset >= 0) {
-                            b->road_network_id = map_road_network_get(road_grid_offset);
-                            b->distance_from_entry = map_routing_distance(road_grid_offset);
-                            b->road_access_x = x_road;
-                            b->road_access_y = y_road;
-                        }
-                    }
-                }
-                if (!map_routing_distance(map_grid_offset(scenario.exit_point.x, scenario.exit_point.y))) {
-                    // no route through city
-                    if (city_data.population.population <= 0) {
-                        return;
-                    }
-                    for (int j = 0; j < 15; j++) {
-                        map_routing_delete_first_wall_or_aqueduct(scenario.entry_point.x, scenario.entry_point.y);
-                        map_routing_delete_first_wall_or_aqueduct(scenario.exit_point.x, scenario.exit_point.y);
-                        map_routing_calculate_distances(scenario.entry_point.x, scenario.entry_point.y);
-
-                        map_tiles_update_all_walls();
-                        map_tiles_update_all_aqueducts(0);
-                        map_tiles_update_all_empty_land();
-
-                        map_routing_update_land();
-                        map_routing_update_walls();
-
-                        if (map_routing_distance(map_grid_offset(scenario.exit_point.x, scenario.exit_point.y))) {
-                            city_message_post(1, MESSAGE_ROAD_TO_ROME_OBSTRUCTED, 0, 0);
-                            game_undo_disable();
-                            return;
-                        }
-                    }
-                    int highest_sequence = 0;
-                    struct building_t *last_building = 0;
-                    for (int j = 1; j < MAX_BUILDINGS; j++) {
-                        struct building_t *b = &all_buildings[j];
-                        if (b->state == BUILDING_STATE_CREATED || b->state == BUILDING_STATE_IN_USE) {
-                            if (b->created_sequence > highest_sequence) {
-                                highest_sequence = b->created_sequence;
-                                last_building = b;
-                            }
-                        }
-                    }
-                    if (last_building) {
-                        city_message_post(1, MESSAGE_ROAD_TO_ROME_BLOCKED, 0, last_building->grid_offset);
-                        game_undo_disable();
-                        building_destroy_by_collapse(last_building);
-                        map_routing_update_land();
-                    }
-                } else if (problem_grid_offset) {
-                    // parts of city disconnected
-                    city_warning_show(WARNING_CITY_BOXED_IN);
-                    city_warning_show(WARNING_CITY_BOXED_IN_PEOPLE_WILL_PERISH);
-                    city_view_go_to_grid_offset(problem_grid_offset);
-                }
-                break;
             case 22: // update house room
                 city_data.population.total_capacity = 0;
                 city_data.population.room_in_houses = 0;
@@ -1760,20 +1621,15 @@ void game_run(void)
                 for (int j = 0; j < total_houses; j++) {
                     struct building_t *b = &all_buildings[houses[j]];
                     b->house_population_room = 0;
-                    if (b->distance_from_entry > 0) {
-                        int max_pop = house_properties[b->subtype.house_level].max_people;
-                        if (b->house_is_merged) {
-                            max_pop *= 4;
-                        }
-                        city_data.population.total_capacity += max_pop;
-                        city_data.population.room_in_houses += max_pop - b->house_population;
-                        b->house_population_room = max_pop - b->house_population;
-                        if (b->house_population > b->house_highest_population) {
-                            b->house_highest_population = b->house_population;
-                        }
-                    } else if (b->house_population) {
-                        // not connected to Rome, mark people for eviction
-                        b->house_population_room = -b->house_population;
+                    int max_pop = house_properties[b->subtype.house_level].max_people;
+                    if (b->house_is_merged) {
+                        max_pop *= 4;
+                    }
+                    city_data.population.total_capacity += max_pop;
+                    city_data.population.room_in_houses += max_pop - b->house_population;
+                    b->house_population_room = max_pop - b->house_population;
+                    if (b->house_population > b->house_highest_population) {
+                        b->house_highest_population = b->house_population;
                     }
                 }
                 break;
@@ -2577,9 +2433,8 @@ void game_file_editor_create_scenario(int size)
     prepare_map_for_editing(1);
 }
 
-static void init_file_piece(struct file_piece_t *piece, int size, int compressed)
+static void init_file_piece(struct file_piece_t *piece, int size)
 {
-    piece->compressed = compressed;
     void *data = malloc(size);
     if (data) {
         memset(data, 0, size);
@@ -2590,7 +2445,7 @@ static void init_file_piece(struct file_piece_t *piece, int size, int compressed
 static struct buffer_t *create_scenario_piece(int size)
 {
     struct file_piece_t *piece = &scenario_data.pieces[scenario_data.num_pieces++];
-    init_file_piece(piece, size, 0);
+    init_file_piece(piece, size);
     return &piece->buf;
 }
 
@@ -2688,10 +2543,10 @@ int game_file_editor_write_scenario(const char *dir, const char *scenario_file)
     return 1;
 }
 
-static struct buffer_t *create_savegame_piece(int size, int compressed)
+static struct buffer_t *create_savegame_piece(int size)
 {
     struct file_piece_t *piece = &savegame_data.pieces[savegame_data.num_pieces++];
-    init_file_piece(piece, size, compressed);
+    init_file_piece(piece, size);
     return &piece->buf;
 }
 
@@ -2704,73 +2559,64 @@ static void init_savegame_data(void)
         return;
     }
     struct savegame_state_t *state = &savegame_data.state;
-    state->image_grid = create_savegame_piece(52488, 1);
-    state->edge_grid = create_savegame_piece(26244, 1);
-    state->building_grid = create_savegame_piece(52488, 1);
-    state->terrain_grid = create_savegame_piece(78732, 1);
-    state->aqueduct_grid = create_savegame_piece(26244, 1);
-    state->figure_grid = create_savegame_piece(52488, 1);
-    state->bitfields_grid = create_savegame_piece(26244, 1);
-    state->sprite_grid = create_savegame_piece(26244, 1);
-    state->random_grid = create_savegame_piece(26244, 0);
-    state->desirability_grid = create_savegame_piece(26244, 1);
-    state->building_damage_grid = create_savegame_piece(26244, 1);
-    state->aqueduct_backup_grid = create_savegame_piece(26244, 1);
-    state->sprite_backup_grid = create_savegame_piece(26244, 1);
-    state->figures = create_savegame_piece(132000, 1);
-    state->route_figures = create_savegame_piece(1200, 1);
-    state->route_paths = create_savegame_piece(300000, 1);
-    state->legion_formations = create_savegame_piece(420, 1);
-    state->herd_formations = create_savegame_piece(560, 1);
-    state->enemy_formations = create_savegame_piece(7000, 1);
-    state->city_data = create_savegame_piece(11584, 1);
-    state->player_name = create_savegame_piece(24, 0);
-    state->buildings = create_savegame_piece(162043, 1);
-    state->city_view_orientation = create_savegame_piece(4, 0);
-    state->game_time = create_savegame_piece(20, 0);
-    state->building_extra_highest_id_ever = create_savegame_piece(4, 0);
-    state->random_iv = create_savegame_piece(8, 0);
-    state->city_view_camera = create_savegame_piece(8, 0);
-    state->building_count_culture1 = create_savegame_piece(132, 0);
-    state->city_graph_order = create_savegame_piece(4, 0);
-    state->empire = create_savegame_piece(8, 0);
-    state->empire_objects = create_savegame_piece(20600, 1);
-    state->building_count_industry = create_savegame_piece(128, 0);
-    state->trade_prices = create_savegame_piece(64, 0);
-    state->figure_names = create_savegame_piece(76, 0);
-    state->culture_coverage = create_savegame_piece(56, 0);
-    state->scenario = create_savegame_piece(52424, 0);
-    state->messages = create_savegame_piece(14000, 1);
-    state->message_extra = create_savegame_piece(12, 0);
-    state->population_messages = create_savegame_piece(9, 0);
-    state->message_counts = create_savegame_piece(80, 0);
-    state->message_delays = create_savegame_piece(80, 0);
-    state->building_list_burning_totals = create_savegame_piece(8, 0);
-    state->city_sounds = create_savegame_piece(3920, 0);
-    state->building_extra_highest_id = create_savegame_piece(4, 0);
-    state->figure_traders = create_savegame_piece(4004, 0);
-    state->building_list_burning = create_savegame_piece(1000, 1);
-    state->building_list_small = create_savegame_piece(1000, 1);
-    state->building_list_large = create_savegame_piece(4000, 1);
-    state->building_count_military = create_savegame_piece(16, 0);
-    state->building_storages = create_savegame_piece(4400, 0);
-    state->building_count_culture2 = create_savegame_piece(32, 0);
-    state->building_count_support = create_savegame_piece(24, 0);
-    state->building_barracks_tower_sentry = create_savegame_piece(4, 0);
-    state->building_extra_sequence = create_savegame_piece(4, 0);
-    state->routing_counters = create_savegame_piece(8, 0);
-    state->building_count_culture3 = create_savegame_piece(40, 0);
-    state->building_extra_corrupt_houses = create_savegame_piece(8, 0);
-    state->bookmarks = create_savegame_piece(32, 0);
-}
-
-static void write_int32(FILE *fp, int value)
-{
-    uint8_t data[4];
-    struct buffer_t buf;
-    buffer_init(&buf, data, 4);
-    buffer_write_i32(&buf, value);
-    fwrite(&data, 1, 4, fp);
+    state->image_grid = create_savegame_piece(52488);
+    state->edge_grid = create_savegame_piece(26244);
+    state->building_grid = create_savegame_piece(52488);
+    state->terrain_grid = create_savegame_piece(78732);
+    state->aqueduct_grid = create_savegame_piece(26244);
+    state->figure_grid = create_savegame_piece(52488);
+    state->bitfields_grid = create_savegame_piece(26244);
+    state->sprite_grid = create_savegame_piece(26244);
+    state->random_grid = create_savegame_piece(26244);
+    state->desirability_grid = create_savegame_piece(26244);
+    state->building_damage_grid = create_savegame_piece(26244);
+    state->aqueduct_backup_grid = create_savegame_piece(26244);
+    state->sprite_backup_grid = create_savegame_piece(26244);
+    state->figures = create_savegame_piece(136000);
+    state->route_figures = create_savegame_piece(1200);
+    state->route_paths = create_savegame_piece(300000);
+    state->legion_formations = create_savegame_piece(420);
+    state->herd_formations = create_savegame_piece(560);
+    state->enemy_formations = create_savegame_piece(7000);
+    state->city_data = create_savegame_piece(11584);
+    state->player_name = create_savegame_piece(24);
+    state->buildings = create_savegame_piece(154000);
+    state->city_view_orientation = create_savegame_piece(4);
+    state->game_time = create_savegame_piece(20);
+    state->building_extra_highest_id_ever = create_savegame_piece(4);
+    state->random_iv = create_savegame_piece(8);
+    state->city_view_camera = create_savegame_piece(8);
+    state->building_count_culture1 = create_savegame_piece(132);
+    state->city_graph_order = create_savegame_piece(4);
+    state->empire = create_savegame_piece(8);
+    state->empire_objects = create_savegame_piece(20600);
+    state->building_count_industry = create_savegame_piece(128);
+    state->trade_prices = create_savegame_piece(64);
+    state->figure_names = create_savegame_piece(76);
+    state->culture_coverage = create_savegame_piece(56);
+    state->scenario = create_savegame_piece(52424);
+    state->messages = create_savegame_piece(14000);
+    state->message_extra = create_savegame_piece(12);
+    state->population_messages = create_savegame_piece(9);
+    state->message_counts = create_savegame_piece(80);
+    state->message_delays = create_savegame_piece(80);
+    state->building_list_burning_totals = create_savegame_piece(8);
+    state->city_sounds = create_savegame_piece(3920);
+    state->building_extra_highest_id = create_savegame_piece(4);
+    state->figure_traders = create_savegame_piece(4004);
+    state->building_list_burning = create_savegame_piece(1000);
+    state->building_list_small = create_savegame_piece(1000);
+    state->building_list_large = create_savegame_piece(4000);
+    state->building_count_military = create_savegame_piece(16);
+    state->building_storages = create_savegame_piece(4400);
+    state->building_count_culture2 = create_savegame_piece(32);
+    state->building_count_support = create_savegame_piece(24);
+    state->building_barracks_tower_sentry = create_savegame_piece(4);
+    state->building_extra_sequence = create_savegame_piece(4);
+    state->routing_counters = create_savegame_piece(8);
+    state->building_count_culture3 = create_savegame_piece(40);
+    state->building_extra_corrupt_houses = create_savegame_piece(8);
+    state->bookmarks = create_savegame_piece(32);
 }
 
 int game_file_io_write_saved_game(const char *dir, const char *filename)
@@ -2835,21 +2681,7 @@ int game_file_io_write_saved_game(const char *dir, const char *filename)
     }
     for (int i = 0; i < savegame_data.num_pieces; i++) {
         struct file_piece_t *piece = &savegame_data.pieces[i];
-        if (piece->compressed) {
-            if (piece->buf.size <= COMPRESS_BUFFER_SIZE) {
-                int output_size = COMPRESS_BUFFER_SIZE;
-                if (zip_compress(piece->buf.data, piece->buf.size, compress_buffer, &output_size)) {
-                    write_int32(fp, output_size);
-                    fwrite(compress_buffer, 1, output_size, fp);
-                } else {
-                    // unable to compress: write uncompressed
-                    write_int32(fp, UNCOMPRESSED);
-                    fwrite(piece->buf.data, 1, piece->buf.size, fp);
-                }
-            }
-        } else {
-            fwrite(piece->buf.data, 1, piece->buf.size, fp);
-        }
+        fwrite(piece->buf.data, 1, piece->buf.size, fp);
     }
     fclose(fp);
     return 1;
@@ -2982,31 +2814,7 @@ int game_file_load_saved_game(const char *dir, const char *filename)
     int result = 0;
     for (int i = 0; i < savegame_data.num_pieces; i++) {
         struct file_piece_t *piece = &savegame_data.pieces[i];
-        if (piece->compressed) {
-            result = 1;
-            if (piece->buf.size <= COMPRESS_BUFFER_SIZE) {
-                uint8_t data[4];
-                int input_size;
-                if (fread(&data, 1, 4, fp) != 4) {
-                    input_size = 0;
-                } else {
-                    struct buffer_t buf;
-                    buffer_init(&buf, data, 4);
-                    input_size = buffer_read_i32(&buf);
-                }
-                if ((unsigned int) input_size == UNCOMPRESSED) {
-                    if (fread(piece->buf.data, 1, piece->buf.size, fp) != (unsigned) piece->buf.size) {
-                        result = 0;
-                    }
-                } else {
-                    if (fread(compress_buffer, 1, input_size, fp) != (unsigned) input_size || !zip_decompress(compress_buffer, input_size, piece->buf.data, &piece->buf.size)) {
-                        result = 0;
-                    }
-                }
-            }
-        } else {
-            result = fread(piece->buf.data, 1, piece->buf.size, fp) == (unsigned) piece->buf.size;
-        }
+        result = fread(piece->buf.data, 1, piece->buf.size, fp) == (unsigned) piece->buf.size;
         // The last piece may be smaller than buf.size
         if (!result && i != (savegame_data.num_pieces - 1)) {
             log_error("Unable to load game", 0, 0);

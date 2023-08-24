@@ -42,8 +42,8 @@ struct figure_t {
     int8_t previous_tile_y;
     int8_t direction;
     uint8_t progress_on_tile;
-    int8_t x;
-    int8_t y;
+    int16_t x;
+    int16_t y;
     uint16_t grid_offset;
     int8_t destination_x;
     int8_t destination_y;

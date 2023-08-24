@@ -181,8 +181,7 @@ static int trader_get_sell_resource(int warehouse_id, int city_id)
     return 0;
 }
 
-static int get_closest_warehouse(
-    const struct figure_t *f, int x, int y, int city_id, int distance_from_entry, struct map_point_t *warehouse)
+static int get_closest_warehouse(const struct figure_t *f, int x, int y, int city_id, struct map_point_t *warehouse)
 {
     int exportable[RESOURCE_TYPES_MAX];
     int importable[RESOURCE_TYPES_MAX];
@@ -215,7 +214,7 @@ static int get_closest_warehouse(
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WAREHOUSE) {
             continue;
         }
-        if (!b->has_road_access || b->distance_from_entry <= 0) {
+        if (!b->has_road_access) {
             continue;
         }
         struct building_storage_t *s = building_storage_get(b->storage_id);
@@ -253,7 +252,7 @@ static int get_closest_warehouse(
             }
         }
         if (distance_penalty < 32) {
-            int distance = calc_distance_with_penalty(b->x, b->y, x, y, distance_from_entry, b->distance_from_entry);
+            int distance = calc_maximum_distance(b->x, b->y, x, y);
             distance += distance_penalty;
             if (distance < min_distance) {
                 min_distance = distance;
@@ -273,10 +272,10 @@ static int get_closest_warehouse(
     return min_building->id;
 }
 
-static void go_to_next_warehouse(struct figure_t *f, int x_src, int y_src, int distance_to_entry)
+static void go_to_next_warehouse(struct figure_t *f, int x_src, int y_src)
 {
     struct map_point_t dst;
-    int warehouse_id = get_closest_warehouse(f, x_src, y_src, f->empire_city_id, distance_to_entry, &dst);
+    int warehouse_id = get_closest_warehouse(f, x_src, y_src, f->empire_city_id, &dst);
     if (warehouse_id) {
         f->destination_building_id = warehouse_id;
         f->action_state = FIGURE_ACTION_TRADE_CARAVAN_ARRIVING;
@@ -308,7 +307,7 @@ void figure_trade_caravan_action(struct figure_t *f)
                     x_base = f->x;
                     y_base = f->y;
                 }
-                go_to_next_warehouse(f, x_base, y_base, 0);
+                go_to_next_warehouse(f, x_base, y_base);
             }
             f->image_offset = 0;
             break;
@@ -360,7 +359,7 @@ void figure_trade_caravan_action(struct figure_t *f)
                     move_on++;
                 }
                 if (move_on == 2) {
-                    go_to_next_warehouse(f, f->x, f->y, -1);
+                    go_to_next_warehouse(f, f->x, f->y);
                 }
             }
             f->image_offset = 0;
@@ -446,7 +445,7 @@ void figure_native_trader_action(struct figure_t *f)
             if (f->wait_ticks > 10) {
                 f->wait_ticks = 0;
                 struct map_point_t tile;
-                int building_id = get_closest_warehouse(f, f->x, f->y, 0, -1, &tile);
+                int building_id = get_closest_warehouse(f, f->x, f->y, 0, &tile);
                 if (building_id) {
                     f->action_state = FIGURE_ACTION_NATIVE_TRADER_GOING_TO_WAREHOUSE;
                     f->destination_building_id = building_id;
@@ -469,7 +468,7 @@ void figure_native_trader_action(struct figure_t *f)
                     f->trader_amount_bought += 3;
                 } else {
                     struct map_point_t tile;
-                    int building_id = get_closest_warehouse(f, f->x, f->y, 0, -1, &tile);
+                    int building_id = get_closest_warehouse(f, f->x, f->y, 0, &tile);
                     if (building_id) {
                         f->action_state = FIGURE_ACTION_NATIVE_TRADER_GOING_TO_WAREHOUSE;
                         f->destination_building_id = building_id;

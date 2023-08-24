@@ -843,7 +843,6 @@ struct building_t *building_create(int type, int x, int y)
     b->size = building_properties[type].size;
     b->created_sequence = extra.created_sequence++;
     b->sentiment.house_happiness = 50;
-    b->distance_from_entry = 0;
 
     // house size
     b->house_size = 0;
@@ -1271,9 +1270,7 @@ void building_state_save_to_buffer(struct buffer_t *buf, const struct building_t
     buffer_write_i16(buf, b->percentage_houses_covered);
     buffer_write_i16(buf, b->house_population);
     buffer_write_i16(buf, b->house_population_room);
-    buffer_write_i16(buf, b->distance_from_entry);
     buffer_write_i16(buf, b->house_highest_population);
-    buffer_write_i16(buf, b->house_unreachable_ticks);
     buffer_write_u8(buf, b->road_access_x);
     buffer_write_u8(buf, b->road_access_y);
     buffer_write_i16(buf, b->figure_id);
@@ -1391,9 +1388,7 @@ void building_state_load_from_buffer(struct buffer_t *buf, struct building_t *b)
     b->percentage_houses_covered = buffer_read_i16(buf);
     b->house_population = buffer_read_i16(buf);
     b->house_population_room = buffer_read_i16(buf);
-    b->distance_from_entry = buffer_read_i16(buf);
     b->house_highest_population = buffer_read_i16(buf);
-    b->house_unreachable_ticks = buffer_read_i16(buf);
     b->road_access_x = buffer_read_u8(buf);
     b->road_access_y = buffer_read_u8(buf);
     b->figure_id = buffer_read_i16(buf);
@@ -3713,7 +3708,6 @@ void destroy_on_fire(struct building_t *b, int plagued)
     b->house_population = 0;
     b->house_size = 0;
     b->output_resource_id = 0;
-    b->distance_from_entry = 0;
     building_clear_related_data(b);
 
     int waterside_building = 0;
@@ -4765,7 +4759,7 @@ void building_figure_generate(void)
                                     if (bb->type != BUILDING_GRANARY && bb->type != BUILDING_WAREHOUSE) {
                                         continue;
                                     }
-                                    if (!bb->has_road_access || bb->distance_from_entry <= 0 || bb->road_network_id != b->road_network_id) {
+                                    if (!bb->has_road_access || bb->road_network_id != b->road_network_id) {
                                         continue;
                                     }
                                     int distance = calc_maximum_distance(b->x, b->y, bb->x, bb->y);
@@ -5449,7 +5443,7 @@ void building_granaries_calculate_stocks(void)
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY) {
             continue;
         }
-        if (!b->has_road_access || b->distance_from_entry <= 0) {
+        if (!b->has_road_access) {
             continue;
         }
         struct building_storage_t *s = building_storage_get(b->storage_id);
@@ -5525,10 +5519,9 @@ int building_granary_for_getting(struct building_t *src, struct map_point_t *dst
             amount_gettable += b->data.granary.resource_stored[RESOURCE_MEAT];
         }
         if (amount_gettable > 0) {
-            int dist = calc_distance_with_penalty(
+            int dist = calc_maximum_distance(
                 b->x + 1, b->y + 1,
-                src->x + 1, src->x + 1, // BUG passing src->x twice is a bug in original C3
-                src->distance_from_entry, b->distance_from_entry);
+                src->x + 1, src->y + 1);
             if (amount_gettable <= 400) {
                 dist *= 2; // penalty for less food
             }
@@ -5894,7 +5887,7 @@ int building_warehouses_remove_resource(int resource, int amount)
 }
 
 int building_warehouse_for_storing(int src_building_id, int x, int y, int resource,
-                                   int distance_from_entry, int road_network_id, int *understaffed,
+                                   int road_network_id, int *understaffed,
                                    struct map_point_t *dst)
 {
     int min_dist = 10000;
@@ -5904,7 +5897,7 @@ int building_warehouse_for_storing(int src_building_id, int x, int y, int resour
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WAREHOUSE_SPACE) {
             continue;
         }
-        if (!b->has_road_access || b->distance_from_entry <= 0 || b->road_network_id != road_network_id) {
+        if (!b->has_road_access || b->road_network_id != road_network_id) {
             continue;
         }
         struct building_t *building_dst = building_main(b);
@@ -5923,9 +5916,9 @@ int building_warehouse_for_storing(int src_building_id, int x, int y, int resour
         }
         int dist;
         if (b->subtype.warehouse_resource_id == RESOURCE_NONE) { // empty warehouse space
-            dist = calc_distance_with_penalty(b->x, b->y, x, y, distance_from_entry, b->distance_from_entry);
+            dist = calc_maximum_distance(b->x, b->y, x, y);
         } else if (b->subtype.warehouse_resource_id == resource && b->loads_stored < 4) {
-            dist = calc_distance_with_penalty(b->x, b->y, x, y, distance_from_entry, b->distance_from_entry);
+            dist = calc_maximum_distance(b->x, b->y, x, y);
         } else {
             dist = 0;
         }
@@ -5968,8 +5961,7 @@ int building_warehouse_for_getting(struct building_t *src, int resource, struct 
             }
         }
         if (loads_stored > 0 && s->resource_state[resource] != BUILDING_STORAGE_STATE_GETTING) {
-            int dist = calc_distance_with_penalty(b->x, b->y, src->x, src->y,
-                                                  src->distance_from_entry, b->distance_from_entry);
+            int dist = calc_maximum_distance(b->x, b->y, src->x, src->y);
             dist -= 4 * loads_stored;
             if (dist < min_dist) {
                 min_dist = dist;
@@ -6989,7 +6981,9 @@ static void draw_background_building_info(void)
                 lang_text_draw_multiline(70, b_info_context.terrain_type + 25, b_info_context.x_offset + 40, b_info_context.y_offset + BLOCK_SIZE * b_info_context.height_blocks - 113,
                     BLOCK_SIZE * (b_info_context.width_blocks - 4), FONT_NORMAL_BLACK);
             }
-            window_building_draw_figure_list(&b_info_context);
+            if (b_info_context.figure.count) {
+                window_building_draw_figure_list(&b_info_context);
+            }
         }
     } else if (b_info_context.type == BUILDING_INFO_BUILDING) {
         int btype = all_buildings[b_info_context.building_id].type;
@@ -8217,13 +8211,10 @@ static void handle_input_building_info(const struct mouse_t *m, const struct hot
                     b_info_context.y_offset + BLOCK_SIZE * b_info_context.height_blocks - 48, return_button, 1, &building_military_data.return_button_id);
             }
             building_military_data.context_for_callback = 0;
-            return;
         } else if (b_info_context.figure.drawn) {
             building_figures_data.context_for_callback = &b_info_context;
-            handled = generic_buttons_handle_mouse(m, b_info_context.x_offset, b_info_context.y_offset,
-                figure_buttons, b_info_context.figure.count, &building_figures_data.focus_button_id);
+            handled = generic_buttons_handle_mouse(m, b_info_context.x_offset, b_info_context.y_offset, figure_buttons, b_info_context.figure.count, &building_figures_data.focus_button_id);
             building_figures_data.context_for_callback = 0;
-            return;
         } else if (b_info_context.type == BUILDING_INFO_BUILDING) {
             int btype = all_buildings[b_info_context.building_id].type;
             if (btype == BUILDING_GRANARY) {
@@ -8233,14 +8224,10 @@ static void handle_input_building_info(const struct mouse_t *m, const struct hot
                     if (generic_buttons_handle_mouse(m, b_info_context.x_offset + 180, y_offset + 46,
                         orders_resource_buttons, city_resource_get_available_foods()->size,
                         &distribution_data.resource_focus_button_id)) {
-                        return;
                     }
-                    if (generic_buttons_handle_mouse(m, b_info_context.x_offset + 80, y_offset + 404, granary_order_buttons, 2, &distribution_data.orders_focus_button_id)) {
-                        return;
-                    }
+                    generic_buttons_handle_mouse(m, b_info_context.x_offset + 80, y_offset + 404, granary_order_buttons, 2, &distribution_data.orders_focus_button_id);
                 } else {
                     generic_buttons_handle_mouse(m, b_info_context.x_offset + 80, b_info_context.y_offset + BLOCK_SIZE * b_info_context.height_blocks - 34, go_to_orders_button, 1, &distribution_data.focus_button_id);
-                    return;
                 }
             } else if (btype == BUILDING_WAREHOUSE) {
                 if (b_info_context.storage_show_special_orders) {
@@ -8248,15 +8235,10 @@ static void handle_input_building_info(const struct mouse_t *m, const struct hot
                     distribution_data.building_id = b_info_context.building_id;
                     if (generic_buttons_handle_mouse(m, b_info_context.x_offset + 180, y_offset + 46, orders_resource_buttons, city_resource_get_available()->size,
                         &distribution_data.resource_focus_button_id)) {
-                        return;
                     }
-                    if (generic_buttons_handle_mouse(m, b_info_context.x_offset + 80, y_offset + 404, warehouse_order_buttons, 3, &distribution_data.orders_focus_button_id)) {
-                        return;
-                    }
+                    generic_buttons_handle_mouse(m, b_info_context.x_offset + 80, y_offset + 404, warehouse_order_buttons, 3, &distribution_data.orders_focus_button_id);
                 } else {
-                    if (generic_buttons_handle_mouse(m, b_info_context.x_offset + 80, b_info_context.y_offset + BLOCK_SIZE * b_info_context.height_blocks - 34, go_to_orders_button, 1, &distribution_data.focus_button_id)) {
-                        return;
-                    }
+                    generic_buttons_handle_mouse(m, b_info_context.x_offset + 80, b_info_context.y_offset + BLOCK_SIZE * b_info_context.height_blocks - 34, go_to_orders_button, 1, &distribution_data.focus_button_id);
                 }
             }
         }

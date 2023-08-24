@@ -4997,13 +4997,10 @@ static void handle_input_editor_map(const struct mouse_t *m, const struct hotkey
             request_exit_editor();
         }
     }
-    if (tile->grid_offset) {
+    if (tool_data.active && tile->grid_offset) {
         if (m->left.went_down) {
             if (!tool_data.build_in_progress) {
                 // start tool use
-                if (!tool_data.active) {
-                    return;
-                }
                 tool_data.build_in_progress = 1;
                 tool_data.start_elevation = terrain_elevation.items[tile->grid_offset];
                 tool_data.start_tile = *tile;

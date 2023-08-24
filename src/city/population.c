@@ -239,8 +239,7 @@ static void yearly_calculate_births(void)
                 building_id = 1;
             }
             struct building_t *b = &all_buildings[building_id];
-            if (b->state == BUILDING_STATE_IN_USE && b->house_size
-                && b->distance_from_entry > 0 && b->house_population > 0) {
+            if (b->state == BUILDING_STATE_IN_USE && b->house_size && b->house_population > 0) {
                 city_data.population.last_used_house_add = building_id;
                 int max_people = house_properties[b->subtype.house_level].max_people;
                 if (b->house_is_merged) {

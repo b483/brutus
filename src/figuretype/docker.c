@@ -74,8 +74,7 @@ static int try_export_resource(int building_id, int resource, int city_id)
     return 0;
 }
 
-static int get_closest_warehouse_for_import(int x, int y, int city_id, int distance_from_entry, int road_network_id,
-                                            struct map_point_t *warehouse, int *import_resource)
+static int get_closest_warehouse_for_import(int x, int y, int city_id, int road_network_id, struct map_point_t *warehouse, int *import_resource)
 {
     int importable[16];
     importable[RESOURCE_NONE] = 0;
@@ -96,7 +95,7 @@ static int get_closest_warehouse_for_import(int x, int y, int city_id, int dista
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WAREHOUSE) {
             continue;
         }
-        if (!b->has_road_access || b->distance_from_entry <= 0) {
+        if (!b->has_road_access) {
             continue;
         }
         if (b->road_network_id != road_network_id) {
@@ -116,8 +115,8 @@ static int get_closest_warehouse_for_import(int x, int y, int city_id, int dista
                 }
             }
             if (distance_penalty < 32) {
-                int distance = calc_distance_with_penalty(
-                    b->x, b->y, x, y, distance_from_entry, b->distance_from_entry);
+                int distance = calc_maximum_distance(
+                    b->x, b->y, x, y);
                 // prefer emptier warehouse
                 distance += distance_penalty;
                 if (distance < min_distance) {
@@ -142,8 +141,7 @@ static int get_closest_warehouse_for_import(int x, int y, int city_id, int dista
     return min_building_id;
 }
 
-static int get_closest_warehouse_for_export(int x, int y, int city_id, int distance_from_entry, int road_network_id,
-                                            struct map_point_t *warehouse, int *export_resource)
+static int get_closest_warehouse_for_export(int x, int y, int city_id, int road_network_id, struct map_point_t *warehouse, int *export_resource)
 {
     int exportable[RESOURCE_TYPES_MAX];
     exportable[RESOURCE_NONE] = 0;
@@ -164,7 +162,7 @@ static int get_closest_warehouse_for_export(int x, int y, int city_id, int dista
         if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WAREHOUSE) {
             continue;
         }
-        if (!b->has_road_access || b->distance_from_entry <= 0) {
+        if (!b->has_road_access) {
             continue;
         }
         if (b->road_network_id != road_network_id) {
@@ -179,7 +177,7 @@ static int get_closest_warehouse_for_export(int x, int y, int city_id, int dista
             }
         }
         if (distance_penalty < 32) {
-            int distance = calc_distance_with_penalty(b->x, b->y, x, y, distance_from_entry, b->distance_from_entry);
+            int distance = calc_maximum_distance(b->x, b->y, x, y);
             // prefer fuller warehouse
             distance += distance_penalty;
             if (distance < min_distance) {
@@ -228,8 +226,7 @@ static int deliver_import_resource(struct figure_t *f, struct building_t *dock)
     get_trade_center_location(f, &x, &y);
     struct map_point_t tile;
     int resource;
-    int warehouse_id = get_closest_warehouse_for_import(x, y, ship->empire_city_id,
-                      dock->distance_from_entry, dock->road_network_id, &tile, &resource);
+    int warehouse_id = get_closest_warehouse_for_import(x, y, ship->empire_city_id, dock->road_network_id, &tile, &resource);
     if (!warehouse_id) {
         return 0;
     }
@@ -257,8 +254,7 @@ static int fetch_export_resource(struct figure_t *f, struct building_t *dock)
     get_trade_center_location(f, &x, &y);
     struct map_point_t tile;
     int resource;
-    int warehouse_id = get_closest_warehouse_for_export(x, y, ship->empire_city_id,
-        dock->distance_from_entry, dock->road_network_id, &tile, &resource);
+    int warehouse_id = get_closest_warehouse_for_export(x, y, ship->empire_city_id, dock->road_network_id, &tile, &resource);
     if (!warehouse_id) {
         return 0;
     }
