@@ -6,7 +6,7 @@
 #include "core/config.h"
 #include "core/lang.h"
 #include "core/string.h"
-#include "game/settings.h"
+#include "game/game.h"
 #include "graphics/graphics.h"
 #include "scenario/scenario.h"
 

@@ -5,7 +5,7 @@
 #include "core/image_group.h"
 #include "core/string.h"
 #include "editor/editor.h"
-#include "game/file.h"
+#include "game/game.h"
 #include "graphics/graphics.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"

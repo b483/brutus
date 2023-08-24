@@ -6,7 +6,7 @@
 #include "city/population.h"
 #include "core/calc.h"
 #include "core/random.h"
-#include "game/time.h"
+#include "game/game.h"
 #include "scenario/scenario.h"
 
 #define LABOR_CATEGORIES_COUNT 9

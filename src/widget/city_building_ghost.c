@@ -7,6 +7,7 @@
 #include "core/config.h"
 #include "core/image.h"
 #include "figure/formation_legion.h"
+#include "game/game.h"
 #include "input/input.h"
 #include "map/map.h"
 #include "scenario/scenario.h"

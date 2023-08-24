@@ -1,6 +1,6 @@
 #include "city_overlay_health.h"
 
-#include "game/state.h"
+#include "game/game.h"
 
 static int show_building_barber(const struct building_t *b)
 {

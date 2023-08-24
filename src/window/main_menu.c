@@ -5,7 +5,6 @@
 #include "core/string.h"
 #include "editor/editor.h"
 #include "game/game.h"
-#include "game/settings.h"
 #include "graphics/graphics.h"
 #include "platform/brutus.h"
 #include "sound/sound.h"

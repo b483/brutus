@@ -5,7 +5,7 @@
 #include "city/population.h"
 #include "city/resource.h"
 #include "core/image.h"
-#include "game/time.h"
+#include "game/game.h"
 #include "graphics/graphics.h"
 #include "scenario/scenario.h"
 

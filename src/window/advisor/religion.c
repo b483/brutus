@@ -5,7 +5,7 @@
 #include "city/gods.h"
 #include "city/houses.h"
 #include "core/image.h"
-#include "game/settings.h"
+#include "game/game.h"
 
 static int get_religion_advice(void)
 {

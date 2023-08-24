@@ -1,7 +1,7 @@
 #include "city_overlay_risks.h"
 
 #include "core/image.h"
-#include "game/state.h"
+#include "game/game.h"
 #include "graphics/graphics.h"
 #include "map/map.h"
 

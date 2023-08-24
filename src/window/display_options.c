@@ -1,6 +1,6 @@
 #include "display_options.h"
 
-#include "game/settings.h"
+#include "game/game.h"
 #include "platform/brutus.h"
 #include "graphics/graphics.h"
 

@@ -8,7 +8,7 @@
 #include "core/random.h"
 #include "figuretype/animal.h"
 #include "figuretype/wall.h"
-#include "game/undo.h"
+#include "game/game.h"
 #include "editor/editor.h"
 #include "scenario/scenario.h"
 

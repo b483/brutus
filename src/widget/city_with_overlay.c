@@ -4,7 +4,7 @@
 #include "core/config.h"
 #include "core/image.h"
 #include "city/resource.h"
-#include "game/state.h"
+#include "game/game.h"
 #include "map/map.h"
 #include "widget/city_bridge.h"
 #include "widget/city_building_ghost.h"

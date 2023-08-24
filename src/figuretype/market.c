@@ -1,11 +1,12 @@
 #include "market.h"
 
 #include "building/building.h"
+#include "city/resource.h"
 #include "core/image.h"
 #include "figure/combat.h"
 #include "figure/movement.h"
 #include "figure/route.h"
-#include "city/resource.h"
+#include "game/game.h"
 
 static int create_delivery_boy(int leader_id, struct figure_t *f)
 {

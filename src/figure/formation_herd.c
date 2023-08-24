@@ -5,6 +5,7 @@
 #include "figure/figure.h"
 #include "figure/formation.h"
 #include "figure/route.h"
+#include "game/game.h"
 #include "map/map.h"
 
 #include <stdlib.h>

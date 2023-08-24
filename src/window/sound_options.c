@@ -1,6 +1,6 @@
 #include "sound_options.h"
 
-#include "game/settings.h"
+#include "game/game.h"
 #include "graphics/graphics.h"
 #include "editor/editor.h"
 #include "sound/sound.h"

@@ -3,7 +3,7 @@
 #include "city/view.h"
 #include "core/image.h"
 #include "core/time.h"
-#include "game/state.h"
+#include "game/game.h"
 #include "graphics/graphics.h"
 #include "widget/city.h"
 #include "window/city.h"

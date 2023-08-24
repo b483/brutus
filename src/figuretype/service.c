@@ -5,6 +5,7 @@
 #include "figure/combat.h"
 #include "figure/movement.h"
 #include "figure/route.h"
+#include "game/game.h"
 #include "map/map.h"
 
 static void roamer_action(struct figure_t *f, int num_ticks)

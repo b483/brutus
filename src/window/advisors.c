@@ -14,7 +14,7 @@
 #include "core/image.h"
 #include "core/image_group.h"
 #include "figure/formation.h"
-#include "game/settings.h"
+#include "game/game.h"
 #include "graphics/graphics.h"
 #include "window/city.h"
 #include "window/message_dialog.h"

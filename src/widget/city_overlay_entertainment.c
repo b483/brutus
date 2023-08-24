@@ -1,6 +1,6 @@
 #include "city_overlay_entertainment.h"
 
-#include "game/state.h"
+#include "game/game.h"
 
 static int show_building_entertainment(const struct building_t *b)
 {

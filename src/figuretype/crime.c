@@ -13,6 +13,7 @@
 #include "figure/formation_enemy.h"
 #include "figure/movement.h"
 #include "figure/route.h"
+#include "game/game.h"
 #include "map/map.h"
 
 static const int CRIMINAL_OFFSETS[] = {

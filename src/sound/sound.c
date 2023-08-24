@@ -4,7 +4,7 @@
 #include "city/data.h"
 #include "core/time.h"
 #include "figure/figure.h"
-#include "game/settings.h"
+#include "game/game.h"
 #include "platform/brutus.h"
 
 #include "SDL.h"

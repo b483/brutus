@@ -8,7 +8,7 @@
 #include "core/calc.h"
 #include "core/image.h"
 #include "figuretype/trader.h"
-#include "game/animation.h"
+#include "game/game.h"
 #include "scenario/scenario.h"
 
 struct empire_object_t empire_objects[MAX_OBJECTS];

@@ -6,7 +6,7 @@
 #include "city/ratings.h"
 #include "core/calc.h"
 #include "figure/formation_enemy.h"
-#include "game/time.h"
+#include "game/game.h"
 #include "scenario/scenario.h"
 
 static const int SALARY_FOR_RANK[11] = { 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144 };

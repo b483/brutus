@@ -7,7 +7,7 @@
 #include "core/string.h"
 #include "core/time.h"
 #include "game/game.h"
-#include "game/settings.h"
+#include "game/game.h"
 #include "input/input.h"
 
 #include "SDL.h"
@@ -23,6 +23,12 @@
 #define INTPTR(d) (*(int*)(d))
 
 #define MSG_SIZE 1000
+
+enum {
+    CURSOR_SCALE_1 = 0,
+    CURSOR_SCALE_1_5 = 1,
+    CURSOR_SCALE_2 = 2,
+};
 
 char EXECUTABLE_DIR_PATH[DIR_PATH_MAX];
 char DATA_TEXT_FILE_PATH[DIR_PATH_MAX];

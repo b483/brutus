@@ -15,8 +15,7 @@
 #include "figure/formation.h"
 #include "figure/formation_enemy.h"
 #include "figuretype/missile.h"
-#include "game/settings.h"
-#include "game/time.h"
+#include "game/game.h"
 #include "map/map.h"
 #include "sound/sound.h"
 

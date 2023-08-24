@@ -4,7 +4,7 @@
 #include "core/lang.h"
 #include "core/string.h"
 #include "core/time.h"
-#include "game/settings.h"
+#include "game/game.h"
 
 #define MAX_TEXT 100
 #define TIMEOUT_MS 15000

@@ -5,7 +5,7 @@
 #include "city/message.h"
 #include "core/config.h"
 #include "figure/figure.h"
-#include "game/time.h"
+#include "game/game.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
 #include "window/mission_end.h"

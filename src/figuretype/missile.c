@@ -8,6 +8,7 @@
 #include "figure/formation_legion.h"
 #include "figure/movement.h"
 #include "figure/sound.h"
+#include "game/game.h"
 #include "map/map.h"
 #include "sound/sound.h"
 

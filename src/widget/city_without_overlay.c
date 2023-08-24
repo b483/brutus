@@ -11,6 +11,7 @@
 #include "core/image.h"
 #include "core/time.h"
 #include "figure/formation_legion.h"
+#include "game/game.h"
 #include "map/map.h"
 #include "sound/sound.h"
 #include "widget/city_bridge.h"

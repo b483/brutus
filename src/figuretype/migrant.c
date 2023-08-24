@@ -7,7 +7,7 @@
 #include "figure/combat.h"
 #include "figure/movement.h"
 #include "figure/route.h"
-#include "game/tick.h"
+#include "game/game.h"
 #include "map/map.h"
 #include "scenario/scenario.h"
 

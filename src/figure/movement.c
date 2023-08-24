@@ -5,7 +5,7 @@
 #include "figure/combat.h"
 #include "figure/route.h"
 #include "figure/service.h"
-#include "game/time.h"
+#include "game/game.h"
 #include "map/map.h"
 
 enum {
@@ -16,7 +16,7 @@ enum {
     DESTROYABLE_NONE
 };
 
-static void advance_tick(struct figure_t *f)
+static void advance_tick_movement(struct figure_t *f)
 {
     switch (f->direction) {
         case DIR_0_TOP:
@@ -270,7 +270,7 @@ static void walk_ticks(struct figure_t *f, int num_ticks, int roaming_enabled)
         num_ticks--;
         f->progress_on_tile++;
         if (f->progress_on_tile < 15) {
-            advance_tick(f);
+            advance_tick_movement(f);
         } else {
             figure_service_provide_coverage(f);
             f->progress_on_tile = 15;
@@ -286,7 +286,7 @@ static void walk_ticks(struct figure_t *f, int num_ticks, int roaming_enabled)
             f->previous_tile_direction = f->direction;
             f->progress_on_tile = 0;
             move_to_next_tile(f);
-            advance_tick(f);
+            advance_tick_movement(f);
         }
     }
 }
@@ -375,7 +375,7 @@ void figure_movement_follow_ticks(struct figure_t *f, int num_ticks)
         num_ticks--;
         f->progress_on_tile++;
         if (f->progress_on_tile < 15) {
-            advance_tick(f);
+            advance_tick_movement(f);
         } else {
             f->progress_on_tile = 15;
             f->direction = calc_general_direction(f->x, f->y,
@@ -386,7 +386,7 @@ void figure_movement_follow_ticks(struct figure_t *f, int num_ticks)
             f->previous_tile_direction = f->direction;
             f->progress_on_tile = 0;
             move_to_next_tile(f);
-            advance_tick(f);
+            advance_tick_movement(f);
         }
     }
 }
@@ -456,7 +456,7 @@ void figure_movement_roam_ticks(struct figure_t *f, int num_ticks)
         num_ticks--;
         f->progress_on_tile++;
         if (f->progress_on_tile < 15) {
-            advance_tick(f);
+            advance_tick_movement(f);
         } else {
             f->progress_on_tile = 15;
             f->roam_random_counter++;
@@ -545,7 +545,7 @@ void figure_movement_roam_ticks(struct figure_t *f, int num_ticks)
             f->previous_tile_direction = f->direction;
             f->progress_on_tile = 0;
             move_to_next_tile(f);
-            advance_tick(f);
+            advance_tick_movement(f);
         }
     }
 }
@@ -554,7 +554,7 @@ void figure_movement_advance_attack(struct figure_t *f)
 {
     if (f->progress_on_tile <= 5) {
         f->progress_on_tile++;
-        advance_tick(f);
+        advance_tick_movement(f);
     }
 }
 

@@ -2,7 +2,6 @@
 #define FIGURE_FIGURE_H
 
 #include "core/buffer.h"
-#include "game/orientation.h"
 
 #define MAX_FIGURES 1000
 #define MAX_RANGED_TARGETERS_PER_UNIT 4

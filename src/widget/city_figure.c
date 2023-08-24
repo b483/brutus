@@ -4,6 +4,7 @@
 #include "core/image.h"
 #include "figure/formation_legion.h"
 #include "figuretype/editor.h"
+#include "game/game.h"
 
 static void draw_figure_with_cart(const struct figure_t *f, int x, int y)
 {

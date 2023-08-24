@@ -160,18 +160,7 @@ set(FIGURETYPE_FILES
     ${PROJECT_SOURCE_DIR}/src/figuretype/water.c
 )
 set(GAME_FILES
-    ${PROJECT_SOURCE_DIR}/src/game/animation.c
-    ${PROJECT_SOURCE_DIR}/src/game/file.c
-    ${PROJECT_SOURCE_DIR}/src/game/file_editor.c
-    ${PROJECT_SOURCE_DIR}/src/game/file_io.c
     ${PROJECT_SOURCE_DIR}/src/game/game.c
-    ${PROJECT_SOURCE_DIR}/src/game/orientation.c
-    ${PROJECT_SOURCE_DIR}/src/game/settings.c
-    ${PROJECT_SOURCE_DIR}/src/game/speed.c
-    ${PROJECT_SOURCE_DIR}/src/game/state.c
-    ${PROJECT_SOURCE_DIR}/src/game/tick.c
-    ${PROJECT_SOURCE_DIR}/src/game/time.c
-    ${PROJECT_SOURCE_DIR}/src/game/undo.c
 )
 set(INPUT_FILES
     ${PROJECT_SOURCE_DIR}/src/input/input.c

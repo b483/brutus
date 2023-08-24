@@ -16,12 +16,6 @@ enum {
     CURSOR_MAX,
 };
 
-enum {
-    CURSOR_SCALE_1 = 0,
-    CURSOR_SCALE_1_5 = 1,
-    CURSOR_SCALE_2 = 2,
-};
-
 struct cursor_t {
     int hotspot_x;
     int hotspot_y;

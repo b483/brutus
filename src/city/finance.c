@@ -3,7 +3,7 @@
 #include "building/building.h"
 #include "city/data.h"
 #include "core/calc.h"
-#include "game/time.h"
+#include "game/game.h"
 
 #define MAX_HOUSE_LEVELS 20
 

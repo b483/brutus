@@ -4,7 +4,7 @@
 #include "city/culture.h"
 #include "city/data.h"
 #include "core/calc.h"
-#include "game/time.h"
+#include "game/game.h"
 #include "scenario/scenario.h"
 
 int city_rating_selected_explanation(void)

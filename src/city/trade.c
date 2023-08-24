@@ -5,6 +5,7 @@
 #include "city/message.h"
 #include "empire/object.h"
 #include "figure/figure.h"
+#include "game/game.h"
 #include "map/map.h"
 #include "scenario/scenario.h"
 
