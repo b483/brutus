@@ -319,6 +319,8 @@ void city_building_ghost_draw(const struct map_tile_t *tile)
 
     int image_id = get_building_image_id(tile->x, tile->y, type, building_props);
 
+    int dir_absolute;
+    int dir_relative;
     switch (type) {
         case BUILDING_HOUSE_VACANT_LOT:
             if (map_terrain_is(tile->grid_offset, TERRAIN_NOT_CLEAR)) {
@@ -437,6 +439,7 @@ void city_building_ghost_draw(const struct map_tile_t *tile)
             }
             return;
         case BUILDING_HIPPODROME:
+        {
             int blocked_tiles2[25];
             int blocked_tiles3[25];
             if (city_data.building.hippodrome_placed) {
@@ -480,6 +483,7 @@ void city_building_ghost_draw(const struct map_tile_t *tile)
                 draw_building(image_id, x, y);
             }
             return;
+        }
         case BUILDING_SENATE:
             if (city_data.building.senate_placed) {
                 draw_blocked_building_preview(x, y, num_tiles, blocked_tiles, 1);
@@ -517,8 +521,6 @@ void city_building_ghost_draw(const struct map_tile_t *tile)
             break;
         case BUILDING_SHIPYARD:
         case BUILDING_WHARF:
-            int dir_absolute;
-            int dir_relative;
             if (map_water_determine_orientation_size2(tile->x, tile->y, 1, &dir_absolute, &dir_relative)) {
                 draw_blocked_building_preview(x, y, num_tiles, blocked_tiles, 1);
                 return;
@@ -527,13 +529,11 @@ void city_building_ghost_draw(const struct map_tile_t *tile)
             draw_building(image_id, x, y);
             return;
         case BUILDING_DOCK:
-            int dir_absolute_d;
-            int dir_relative_d;
-            if (map_water_determine_orientation_size3(tile->x, tile->y, 1, &dir_absolute_d, &dir_relative_d)) {
+            if (map_water_determine_orientation_size3(tile->x, tile->y, 1, &dir_absolute, &dir_relative)) {
                 draw_blocked_building_preview(x, y, num_tiles, blocked_tiles, 1);
                 return;
             }
-            switch (dir_relative_d) {
+            switch (dir_relative) {
                 case 0: image_id = image_group(GROUP_BUILDING_DOCK_1); break;
                 case 1: image_id = image_group(GROUP_BUILDING_DOCK_2); break;
                 case 2: image_id = image_group(GROUP_BUILDING_DOCK_3); break;
@@ -553,6 +553,7 @@ void city_building_ghost_draw(const struct map_tile_t *tile)
         case BUILDING_FORT_LEGIONARIES:
         case BUILDING_FORT_JAVELIN:
         case BUILDING_FORT_MOUNTED:
+        {
             int num_fort_ground_tiles = building_properties[BUILDING_FORT_GROUND].size * building_properties[BUILDING_FORT_GROUND].size;
             int blocked_tiles_ground[MAX_TILES];
             if (city_data.military.total_legions >= MAX_LEGIONS) {
@@ -575,6 +576,7 @@ void city_building_ghost_draw(const struct map_tile_t *tile)
                 draw_building(image_id, x, y);
             }
             return;
+        }
         case BUILDING_BARRACKS:
             if (building_count_total(BUILDING_BARRACKS)) {
                 draw_blocked_building_preview(x, y, num_tiles, blocked_tiles, 1);

@@ -1681,6 +1681,7 @@ void game_run(void)
                 }
                 break;
             case 24: // evict overcrowded
+            {
                 int size = building_list_large_size();
                 const int *items = building_list_large_items();
                 for (int j = 0; j < size; j++) {
@@ -1697,6 +1698,7 @@ void game_run(void)
                     }
                 }
                 break;
+            }
             case 25: city_labor_update(); break;
             case 27: map_water_supply_update_reservoir_fountain(); break;
             case 28: // update houses water supply
@@ -1766,6 +1768,7 @@ void game_run(void)
                 }
                 break;
             case 36: // calculate culture aggregates
+            {
                 int base_entertainment = city_culture_coverage_average_entertainment() / 5;
                 for (int j = 1; j < MAX_BUILDINGS; j++) {
                     struct building_t *b = &all_buildings[j];
@@ -1836,6 +1839,7 @@ void game_run(void)
                     }
                 }
                 break;
+            }
             case 37: map_desirability_update(); break;
             case 38: // update desirability
                 for (int j = 1; j < MAX_BUILDINGS; j++) {

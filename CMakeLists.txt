@@ -18,9 +18,7 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
         -Wnested-externs -Winline -Winvalid-pch -Wvector-operation-performance -Wdisabled-optimization -Wstrict-prototypes -Werror
         -fanalyzer)
 elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    add_compile_options(-Weverything -Wno-sign-compare -Wno-sign-conversion -Wno-declaration-after-statement -Wno-c++98-compat -Wno-switch-enum -Wno-float-conversion -Wno-float-equal
-        -Wno-implicit-int-float-conversion -Wno-cast-align -Wno-implicit-int-conversion -Wno-covered-switch-default -Wno-double-promotion -Wno-implicit-fallthrough -Wno-vla -Wno-reserved-identifier
-    )
+    add_compile_options(-Wall -Wextra -Wno-sign-compare)
 endif()
 
 if(IS_RELEASE_VERSION)
@@ -316,41 +314,8 @@ endif()
 
 target_link_libraries(${SHORT_NAME} ${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARY})
 
-set(PNG_FILES
-    ext/png/png.c
-    ext/png/pngerror.c
-    ext/png/pngmem.c
-    ext/png/pngset.c
-    ext/png/pngwio.c
-    ext/png/pngwrite.c
-    ext/png/pngwutil.c
-)
-
-set(ZLIB_FILES
-    ext/zlib/adler32.c
-    ext/zlib/crc32.c
-    ext/zlib/deflate.c
-    ext/zlib/trees.c
-    ext/zlib/zutil.c
-)
-
-target_include_directories(${SHORT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/ext/png)
-target_sources(${SHORT_NAME} PRIVATE "${PNG_FILES}" "${ZLIB_FILES}")
-
 include_directories(ext)
 target_include_directories(${SHORT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-
-set_source_files_properties(
-    ${PNG_FILES}
-    PROPERTIES
-    COMPILE_FLAGS "-w"
-)
-
-set_source_files_properties(
-    ${ZLIB_FILES}
-    PROPERTIES
-    COMPILE_FLAGS "-w"
-)
 
 if(UNIX AND CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "GNU")
     target_link_libraries(${SHORT_NAME} m)

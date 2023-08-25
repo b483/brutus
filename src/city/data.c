@@ -54,7 +54,7 @@ static void save_main_data(struct buffer_t *main)
     buffer_write_i32(main, city_data.health.target_value);
     buffer_write_i32(main, city_data.health.value);
     buffer_write_i32(main, city_data.health.num_hospital_workers);
-    buffer_write_i32(main, city_data.population.population);
+    buffer_write_u32(main, city_data.population.population);
     buffer_write_i32(main, city_data.population.population_last_year);
     buffer_write_i32(main, city_data.population.school_age);
     buffer_write_i32(main, city_data.population.academy_age);
@@ -104,7 +104,7 @@ static void save_main_data(struct buffer_t *main)
         buffer_write_i16(main, city_data.resource.space_in_warehouses[i]);
     }
     for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
-        buffer_write_i16(main, city_data.resource.stored_in_warehouses[i]);
+        buffer_write_u16(main, city_data.resource.stored_in_warehouses[i]);
     }
     for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         buffer_write_i16(main, city_data.resource.trade_status[i]);
@@ -195,10 +195,10 @@ static void save_main_data(struct buffer_t *main)
     buffer_write_i32(main, city_data.finance.this_year.balance);
     buffer_write_i32(main, city_data.trade.caravan_import_resource);
     buffer_write_i32(main, city_data.trade.caravan_backup_import_resource);
-    buffer_write_i32(main, city_data.ratings.culture);
-    buffer_write_i32(main, city_data.ratings.prosperity);
-    buffer_write_i32(main, city_data.ratings.peace);
-    buffer_write_i32(main, city_data.ratings.favor);
+    buffer_write_u32(main, city_data.ratings.culture);
+    buffer_write_u32(main, city_data.ratings.prosperity);
+    buffer_write_u32(main, city_data.ratings.peace);
+    buffer_write_u32(main, city_data.ratings.favor);
     buffer_write_i32(main, city_data.ratings.prosperity_treasury_last_year);
     buffer_write_i32(main, city_data.ratings.culture_points.theater);
     buffer_write_i32(main, city_data.ratings.culture_points.religion);
@@ -333,7 +333,7 @@ static void save_main_data(struct buffer_t *main)
     buffer_write_i32(main, city_data.emperor.gifts[GIFT_LAVISH].cost);
     buffer_write_i32(main, city_data.ratings.favor_salary_penalty);
     buffer_write_i32(main, city_data.ratings.favor_ignored_request_penalty);
-    buffer_write_i32(main, city_data.ratings.favor_last_year);
+    buffer_write_u32(main, city_data.ratings.favor_last_year);
     buffer_write_i32(main, city_data.ratings.favor_change);
     buffer_write_i32(main, city_data.military.native_attack_duration);
     buffer_write_i32(main, city_data.building.mission_post_operational);
@@ -389,10 +389,10 @@ static void save_main_data(struct buffer_t *main)
     buffer_write_i32(main, city_data.emperor.invasion.size);
     buffer_write_i32(main, city_data.emperor.invasion.soldiers_killed);
     buffer_write_i32(main, city_data.military.legionary_legions);
-    buffer_write_i32(main, city_data.population.highest_ever);
+    buffer_write_u32(main, city_data.population.highest_ever);
     buffer_write_i32(main, city_data.finance.estimated_wages);
     buffer_write_i32(main, city_data.resource.wine_types_available);
-    buffer_write_i32(main, city_data.ratings.prosperity_max);
+    buffer_write_u32(main, city_data.ratings.prosperity_max);
     for (int i = 0; i < 10; i++) {
         buffer_write_i32(main, city_data.map.largest_road_networks[i].id);
         buffer_write_i32(main, city_data.map.largest_road_networks[i].size);
@@ -415,7 +415,7 @@ static void load_main_data(struct buffer_t *main)
     city_data.health.target_value = buffer_read_i32(main);
     city_data.health.value = buffer_read_i32(main);
     city_data.health.num_hospital_workers = buffer_read_i32(main);
-    city_data.population.population = buffer_read_i32(main);
+    city_data.population.population = buffer_read_u32(main);
     city_data.population.population_last_year = buffer_read_i32(main);
     city_data.population.school_age = buffer_read_i32(main);
     city_data.population.academy_age = buffer_read_i32(main);
@@ -465,7 +465,7 @@ static void load_main_data(struct buffer_t *main)
         city_data.resource.space_in_warehouses[i] = buffer_read_i16(main);
     }
     for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
-        city_data.resource.stored_in_warehouses[i] = buffer_read_i16(main);
+        city_data.resource.stored_in_warehouses[i] = buffer_read_u16(main);
     }
     for (int i = 0; i < RESOURCE_TYPES_MAX; i++) {
         city_data.resource.trade_status[i] = buffer_read_i16(main);
@@ -556,10 +556,10 @@ static void load_main_data(struct buffer_t *main)
     city_data.finance.this_year.balance = buffer_read_i32(main);
     city_data.trade.caravan_import_resource = buffer_read_i32(main);
     city_data.trade.caravan_backup_import_resource = buffer_read_i32(main);
-    city_data.ratings.culture = buffer_read_i32(main);
-    city_data.ratings.prosperity = buffer_read_i32(main);
-    city_data.ratings.peace = buffer_read_i32(main);
-    city_data.ratings.favor = buffer_read_i32(main);
+    city_data.ratings.culture = buffer_read_u32(main);
+    city_data.ratings.prosperity = buffer_read_u32(main);
+    city_data.ratings.peace = buffer_read_u32(main);
+    city_data.ratings.favor = buffer_read_u32(main);
     city_data.ratings.prosperity_treasury_last_year = buffer_read_i32(main);
     city_data.ratings.culture_points.theater = buffer_read_i32(main);
     city_data.ratings.culture_points.religion = buffer_read_i32(main);
@@ -694,7 +694,7 @@ static void load_main_data(struct buffer_t *main)
     city_data.emperor.gifts[GIFT_LAVISH].cost = buffer_read_i32(main);
     city_data.ratings.favor_salary_penalty = buffer_read_i32(main);
     city_data.ratings.favor_ignored_request_penalty = buffer_read_i32(main);
-    city_data.ratings.favor_last_year = buffer_read_i32(main);
+    city_data.ratings.favor_last_year = buffer_read_u32(main);
     city_data.ratings.favor_change = buffer_read_i32(main);
     city_data.military.native_attack_duration = buffer_read_i32(main);
     city_data.building.mission_post_operational = buffer_read_i32(main);
@@ -750,10 +750,10 @@ static void load_main_data(struct buffer_t *main)
     city_data.emperor.invasion.size = buffer_read_i32(main);
     city_data.emperor.invasion.soldiers_killed = buffer_read_i32(main);
     city_data.military.legionary_legions = buffer_read_i32(main);
-    city_data.population.highest_ever = buffer_read_i32(main);
+    city_data.population.highest_ever = buffer_read_u32(main);
     city_data.finance.estimated_wages = buffer_read_i32(main);
     city_data.resource.wine_types_available = buffer_read_i32(main);
-    city_data.ratings.prosperity_max = buffer_read_i32(main);
+    city_data.ratings.prosperity_max = buffer_read_u32(main);
     for (int i = 0; i < 10; i++) {
         city_data.map.largest_road_networks[i].id = buffer_read_i32(main);
         city_data.map.largest_road_networks[i].size = buffer_read_i32(main);

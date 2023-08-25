@@ -100,6 +100,7 @@ void figure_wolf_action(struct figure_t *f)
             }
             break;
         case FIGURE_ACTION_HERD_ANIMAL_MOVING:
+        {
             struct figure_t *target = melee_unit__set_closest_target(f);
             if (target) {
                 figure_movement_move_ticks(f, 2);
@@ -124,6 +125,7 @@ void figure_wolf_action(struct figure_t *f)
                 }
             }
             break;
+        }
     }
     int dir = figure_image_direction(f);
     if (f->action_state == FIGURE_ACTION_HERD_ANIMAL_AT_REST) {

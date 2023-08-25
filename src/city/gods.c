@@ -240,6 +240,7 @@ static int perform_large_curse(int god)
             building_granary_warehouse_curse(1);
             break;
         case GOD_MARS:
+        {
             struct formation_t *best_legion = 0;
             int best_legion_weight = 0;
             for (int i = 0; i < MAX_LEGIONS; i++) {
@@ -278,6 +279,7 @@ static int perform_large_curse(int god)
             }
             cause_invasion_mars(32);
             break;
+        }
         case GOD_VENUS:
             city_message_post(1, MESSAGE_WRATH_OF_VENUS, 0, 0);
             city_sentiment_set_max_happiness(40);

@@ -2713,6 +2713,7 @@ void building_construction_place(void)
             case BUILDING_FORT_MOUNTED:
                 break;
             default:
+            {
                 int has_road = 0;
                 if (map_has_road_access(x_end, y_end, size, 0)
                 || (construction_data.type == BUILDING_WAREHOUSE && map_has_road_access(x_end, y_end, size, 0))
@@ -2722,6 +2723,7 @@ void building_construction_place(void)
                 if (!has_road) {
                     show(WARNING_ROAD_ACCESS_NEEDED);
                 }
+            }
         }
         // check raw resources availability
         int raw_resource = 0;
@@ -3043,6 +3045,7 @@ void building_construction_place(void)
                 }
                 break;
             case BUILDING_TOWER:
+            {
                 int x_min, y_min, x_max, y_max;
                 map_grid_get_area(b->x, b->y, size, 0, &x_min, &y_min, &x_max, &y_max);
 
@@ -3055,6 +3058,7 @@ void building_construction_place(void)
                     TERRAIN_BUILDING | TERRAIN_GATEHOUSE);
                 foreach_region_tile(b->x - 1, b->y - 1, b->x + 5 - 2, b->y + 5 - 2, set_wall_image);
                 break;
+            }
             case BUILDING_GATEHOUSE:
                 map_building_tiles_add(b->id, b->x, b->y, b->size,
                     image_group(GROUP_BUILDING_TOWER) + building_orientation, TERRAIN_BUILDING | TERRAIN_GATEHOUSE);
@@ -3101,6 +3105,7 @@ void building_construction_place(void)
                 add_warehouse(b);
                 break;
             case BUILDING_HIPPODROME:
+            {
                 int image1 = image_group(GROUP_BUILDING_HIPPODROME_1);
                 int image2 = image_group(GROUP_BUILDING_HIPPODROME_2);
                 city_data.building.hippodrome_placed = 1;
@@ -3177,6 +3182,7 @@ void building_construction_place(void)
                 }
                 map_building_tiles_add(part3->id, b->x + 10, b->y, b->size, image_id, TERRAIN_BUILDING);
                 break;
+            }
             case BUILDING_FORT_LEGIONARIES:
             case BUILDING_FORT_JAVELIN:
             case BUILDING_FORT_MOUNTED:
@@ -7709,7 +7715,6 @@ static void draw_background_building_info(void)
             lang_text_draw_centered(109, 0, b_info_context.x_offset, b_info_context.y_offset + 10, BLOCK_SIZE * b_info_context.width_blocks, FONT_LARGE_BLACK);
             int well_necessity = WELL_UNNECESSARY_NO_HOUSES;
             struct building_t *well = &all_buildings[b_info_context.building_id];
-            int num_houses = 0;
             int x_min, y_min, x_max, y_max;
             map_grid_get_area(well->x, well->y, 1, 2, &x_min, &y_min, &x_max, &y_max);
             for (int yy = y_min; yy <= y_max; yy++) {
@@ -7717,7 +7722,6 @@ static void draw_background_building_info(void)
                     int grid_offset = map_grid_offset(xx, yy);
                     int building_id = map_building_at(grid_offset);
                     if (building_id && all_buildings[building_id].house_size) {
-                        num_houses++;
                         if (!map_terrain_is(grid_offset, TERRAIN_FOUNTAIN_RANGE)) {
                             well_necessity = WELL_NECESSARY;
                             break;

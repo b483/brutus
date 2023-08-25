@@ -587,7 +587,6 @@ static int can_place_access_ramp_editor(const struct map_tile_t *tile, int *orie
     }
     for (int orientation = 0; orientation < 4; orientation++) {
         int right_tiles = 0;
-        int wrong_tiles = 0;
         int top_elevation = 0;
         for (int index = 0; index < 6; index++) {
             int tile_offset = tile->grid_offset + ACCESS_RAMP_TILE_OFFSETS_BY_ORIENTATION[orientation][index];
@@ -595,28 +594,18 @@ static int can_place_access_ramp_editor(const struct map_tile_t *tile, int *orie
             if (index < 2) {
                 if (map_terrain_is(tile_offset, TERRAIN_ELEVATION)) {
                     right_tiles++;
-                } else {
-                    wrong_tiles++;
                 }
                 top_elevation = elevation;
             } else if (index < 4) {
                 if (map_terrain_is(tile_offset, TERRAIN_ELEVATION)) {
-                    if (elevation == top_elevation) {
-                        wrong_tiles++;
-                    } else {
+                    if (elevation != top_elevation) {
                         right_tiles++;
                     }
                 } else if (elevation >= top_elevation) {
                     right_tiles++;
-                } else {
-                    wrong_tiles++;
                 }
             } else {
-                if (map_terrain_is(tile_offset, TERRAIN_ELEVATION | TERRAIN_ACCESS_RAMP)) {
-                    wrong_tiles++;
-                } else if (elevation >= top_elevation) {
-                    wrong_tiles++;
-                } else {
+                if (elevation < top_elevation) {
                     right_tiles++;
                 }
             }
@@ -660,18 +649,22 @@ static int can_place_flag_editor(int type, const struct map_tile_t *tile, int *w
         case TOOL_HERD_POINT:
             return is_clear_terrain(tile, warning);
         case TOOL_FISHING_POINT:
+        {
             int is_water = map_terrain_is(tile->grid_offset, TERRAIN_WATER);
             if (!is_water && warning) {
                 *warning = WARNING_EDITOR_NEED_OPEN_WATER;
             }
             return is_water;
+        }
         case TOOL_RIVER_ENTRY_POINT:
         case TOOL_RIVER_EXIT_POINT:
+        {
             int is_deep_water = map_terrain_is(tile->grid_offset, TERRAIN_WATER) && map_terrain_count_directly_adjacent_with_type(tile->grid_offset, TERRAIN_WATER) == 4;
             if (!is_deep_water && warning) {
                 *warning = WARNING_EDITOR_NEED_OPEN_WATER;
             }
             return is_edge(tile, warning) && is_deep_water;
+        }
         default:
             return 0;
     }
@@ -724,6 +717,7 @@ static void draw_editor_map(void)
             draw_flat_tile(x, y, can_place_flag_editor(tool_data.type, &current_tile, 0) ? COLOR_MASK_GREEN : COLOR_MASK_RED);
             break;
         case TOOL_ACCESS_RAMP:
+        {
             int orientation;
             if (can_place_access_ramp_editor(&current_tile, &orientation)) {
                 int image_id = image_group(GROUP_TERRAIN_ACCESS_RAMP) + orientation;
@@ -733,6 +727,7 @@ static void draw_editor_map(void)
                 draw_partially_blocked(x, y, 4, blocked);
             }
             break;
+        }
         case TOOL_GRASS:
         case TOOL_SMALL_SHRUB:
         case TOOL_MEDIUM_SHRUB:
@@ -760,6 +755,7 @@ static void draw_editor_map(void)
             }
             break;
         case TOOL_ROAD:
+        {
             int blocked = 0;
             int image_id = 0;
             if (map_terrain_is(current_tile.grid_offset, TERRAIN_NOT_CLEAR)) {
@@ -777,6 +773,7 @@ static void draw_editor_map(void)
                 draw_building_image(image_id, x, y);
             }
             break;
+        }
     }
 
     graphics_reset_clip_rectangle();
@@ -4864,6 +4861,7 @@ static void end_editor_tool_use(const struct map_tile_t *tile)
         case TOOL_NATIVE_FIELD:
         case TOOL_NATIVE_HUT:
         case TOOL_HOUSE_VACANT_LOT:
+        {
             int image_id;
             int size;
             int type;
@@ -4899,11 +4897,13 @@ static void end_editor_tool_use(const struct map_tile_t *tile)
                 city_warning_show(WARNING_EDITOR_CANNOT_PLACE);
             }
             break;
+        }
         case TOOL_RAISE_LAND:
         case TOOL_LOWER_LAND:
             update_terrain_after_elevation_changes();
             break;
         case TOOL_ACCESS_RAMP:
+        {
             int orientation = 0;
             if (can_place_access_ramp_editor(tile, &orientation)) {
                 int terrain_mask = ~(TERRAIN_ROCK | TERRAIN_WATER | TERRAIN_BUILDING | TERRAIN_GARDEN | TERRAIN_AQUEDUCT);
@@ -4927,6 +4927,7 @@ static void end_editor_tool_use(const struct map_tile_t *tile)
             break;
         default:
             break;
+        }
     }
     scenario.is_saved = 0;
     if (warning) {

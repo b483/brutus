@@ -716,7 +716,7 @@ static void custom_music_callback(__attribute__((unused)) void *dummy, Uint8 *st
     // Write silence
     memset(stream, 0, len);
 
-    if (!stream || len <= 0 || custom_music.stream == 0) {
+    if (len <= 0 || custom_music.stream == 0) {
         return;
     }
     int bytes_copied = 0;
@@ -739,8 +739,7 @@ static void custom_music_callback(__attribute__((unused)) void *dummy, Uint8 *st
     free(mix_buffer);
 }
 
-void use_custom_music_player(int bitdepth, int num_channels, int rate,
-                                          const unsigned char *audio_data, int len)
+void use_custom_music_player(int bitdepth, int num_channels, int rate, const unsigned char *audio_data, int len)
 {
     SDL_AudioFormat format;
     if (bitdepth == 8) {

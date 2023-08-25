@@ -60,6 +60,7 @@ void figure_ballista_action(struct figure_t *f)
 
     switch (f->action_state) {
         case FIGURE_ACTION_BALLISTA_READY:
+        {
             struct map_point_t tile = { -1, -1 };
             if (f->is_shooting) {
                 f->attack_image_offset++;
@@ -81,6 +82,7 @@ void figure_ballista_action(struct figure_t *f)
                 f->is_shooting = 1;
             }
             break;
+        }
     }
     int dir = figure_image_direction(f);
     if (f->action_state == FIGURE_ACTION_BALLISTA_READY) {

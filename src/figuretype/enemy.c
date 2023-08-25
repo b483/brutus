@@ -55,6 +55,7 @@ static void melee_enemy_action(struct figure_t *f)
             }
             break;
         case FIGURE_ACTION_ENEMY_ENGAGED:
+        {
             struct figure_t *target_unit = melee_unit__set_closest_target(f);
             if (target_unit) {
                 f->destination_x = target_unit->x;
@@ -70,6 +71,7 @@ static void melee_enemy_action(struct figure_t *f)
                 f->action_state = FIGURE_ACTION_ENEMY_REGROUPING;
             }
             break;
+        }
     }
 }
 

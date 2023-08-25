@@ -131,7 +131,7 @@ extern struct city_data_t {
         } monthly;
     } taxes;
     struct {
-        int32_t population;
+        uint32_t population;
         int32_t population_last_year;
         int32_t school_age;
         int32_t academy_age;
@@ -154,7 +154,7 @@ extern struct city_data_t {
         int32_t total_all_years;
         int32_t total_years;
         int32_t average_per_year;
-        int32_t highest_ever;
+        uint32_t highest_ever;
         int32_t total_capacity;
         int32_t room_in_houses;
 
@@ -213,10 +213,10 @@ extern struct city_data_t {
         int32_t value;
     } health;
     struct {
-        int32_t culture;
-        int32_t prosperity;
-        int32_t peace;
-        int32_t favor;
+        uint32_t culture;
+        uint32_t prosperity;
+        uint32_t peace;
+        uint32_t favor;
         struct {
             int32_t theater;
             int32_t religion;
@@ -225,7 +225,7 @@ extern struct city_data_t {
             int32_t academy;
         } culture_points;
         int32_t prosperity_treasury_last_year;
-        int32_t prosperity_max;
+        uint32_t prosperity_max;
         int32_t peace_destroyed_buildings;
         int32_t peace_years_of_peace;
         int32_t peace_num_criminals;
@@ -233,7 +233,7 @@ extern struct city_data_t {
         int32_t peace_riot_cause;
         int32_t favor_salary_penalty;
         int32_t favor_ignored_request_penalty;
-        int32_t favor_last_year;
+        uint32_t favor_last_year;
         int32_t favor_change; // 0 = dropping, 1 = stalling, 2 = rising
 
         int32_t selected;
@@ -283,7 +283,7 @@ extern struct city_data_t {
     } festival;
     struct {
         int16_t space_in_warehouses[RESOURCE_TYPES_MAX];
-        int16_t stored_in_warehouses[RESOURCE_TYPES_MAX];
+        uint16_t stored_in_warehouses[RESOURCE_TYPES_MAX];
         int32_t space_in_workshops[6];
         int32_t stored_in_workshops[6];
         int16_t trade_status[RESOURCE_TYPES_MAX];

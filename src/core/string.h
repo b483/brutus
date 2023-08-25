@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-char *get_first_char_occurrence_in_string(const char *str, char c); // strchr substitute
+char *get_first_char_occurrence_in_string(char *str, char c); // strchr substitute
 
 /**
  * Checks if the two strings are equal

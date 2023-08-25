@@ -321,7 +321,7 @@ void city_population_yearly_update(void)
 
 void city_population_check_consistency(void)
 {
-    int people_in_houses = calculate_people_per_house_type();
+    unsigned int people_in_houses = calculate_people_per_house_type();
     if (people_in_houses < city_data.population.population) {
         remove_from_census(city_data.population.population - people_in_houses);
     }

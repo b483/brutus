@@ -1,6 +1,6 @@
 #include "core/string.h"
 
-char *get_first_char_occurrence_in_string(const char *str, char c)
+char *get_first_char_occurrence_in_string(char *str, char c)
 {
     while (*str) {
         if (*str == c) {

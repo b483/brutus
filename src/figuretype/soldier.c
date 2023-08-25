@@ -190,6 +190,7 @@ void figure_soldier_action(struct figure_t *f)
             }
             break;
         case FIGURE_ACTION_SOLDIER_MOPPING_UP:
+        {
             struct figure_t *target = melee_unit__set_closest_target(f);
             if (target) {
                 figure_movement_move_ticks(f, f->speed_multiplier);
@@ -203,6 +204,7 @@ void figure_soldier_action(struct figure_t *f)
                 deploy_legion_unit_to_formation_location(f, m);
             }
             break;
+        }
         case FIGURE_ACTION_SOLDIER_GOING_TO_DISTANT_BATTLE:
         {
             f->destination_x = scenario.exit_point.x;

@@ -25,9 +25,8 @@ int city_rating_selected_explanation(void)
 
 void city_ratings_reduce_prosperity_after_bailout(void)
 {
-    city_data.ratings.prosperity -= 3;
-    if (city_data.ratings.prosperity < 0) {
-        city_data.ratings.prosperity = 0;
+    if (city_data.ratings.prosperity >= 3) {
+        city_data.ratings.prosperity -= 3;
     }
     city_data.ratings.prosperity_explanation = 8;
 }

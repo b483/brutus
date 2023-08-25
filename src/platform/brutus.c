@@ -8,6 +8,7 @@
 #include "core/time.h"
 #include "game/game.h"
 #include "game/game.h"
+#include "graphics/graphics.h"
 #include "input/input.h"
 
 #include "SDL.h"
