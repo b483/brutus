@@ -1,6 +1,5 @@
 #include "soldier.h"
 
-#include "city/data.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"

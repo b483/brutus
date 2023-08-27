@@ -1,6 +1,5 @@
 #include "scenario_minimap.h"
 
-#include "city/view.h"
 #include "core/image.h"
 #include "graphics/graphics.h"
 #include "map/map.h"

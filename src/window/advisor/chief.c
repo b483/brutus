@@ -1,13 +1,6 @@
 #include "chief.h"
 
-#include "city/data.h"
-#include "city/finance.h"
-#include "city/health.h"
-#include "city/houses.h"
-#include "city/migration.h"
-#include "city/military.h"
-#include "city/resource.h"
-#include "city/sentiment.h"
+#include "city/city_new.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/figure.h"
@@ -62,15 +55,15 @@ static int draw_background(void)
     draw_title(106, 3);
     if (city_figures_total_invading_enemies() > 3) {
         lang_text_draw(61, 79, X_OFFSET, 106, FONT_NORMAL_GREEN);
-    } else if (city_migration_newcomers() >= 5) {
+    } else if (city_data.migration.newcomers >= 5) {
         lang_text_draw(61, 25, X_OFFSET, 106, FONT_NORMAL_GREEN);
     } else if (city_migration_no_room_for_immigrants()) {
         lang_text_draw(61, 18, X_OFFSET, 106, FONT_NORMAL_RED);
-    } else if (city_migration_percentage() >= 80) {
+    } else if (city_data.migration.percentage >= 80) {
         lang_text_draw(61, 25, X_OFFSET, 106, FONT_NORMAL_GREEN);
     } else {
         int text_id;
-        switch (city_migration_no_immigration_cause()) {
+        switch (city_data.migration.no_immigration_cause) {
             case NO_IMMIGRATION_LOW_WAGES: text_id = 19; break;
             case NO_IMMIGRATION_NO_JOBS: text_id = 20; break;
             case NO_IMMIGRATION_NO_FOOD: text_id = 21; break;
@@ -140,11 +133,11 @@ static int draw_background(void)
     draw_title(186, 6);
     if (city_data.figure.rioters) {
         lang_text_draw(61, 33, X_OFFSET, 186, FONT_NORMAL_RED);
-    } else if (city_sentiment_criminals() > 10) {
+    } else if (city_data.sentiment.criminals > 10) {
         lang_text_draw(61, 32, X_OFFSET, 186, FONT_NORMAL_RED);
-    } else if (city_sentiment_criminals()) {
+    } else if (city_data.sentiment.criminals) {
         lang_text_draw(61, 31, X_OFFSET, 186, FONT_NORMAL_RED);
-    } else if (city_sentiment_protesters()) {
+    } else if (city_data.sentiment.protesters) {
         lang_text_draw(61, 30, X_OFFSET, 186, FONT_NORMAL_RED);
     } else {
         lang_text_draw(61, 29, X_OFFSET, 186, FONT_NORMAL_GREEN);
@@ -159,7 +152,7 @@ static int draw_background(void)
     }
 
     // education
-    struct house_demands_t *demands = city_houses_demands();
+    struct house_demands_t *demands = &city_data.houses;
     draw_title(226, 8);
     if (demands->education == 1) {
         lang_text_draw(61, 39, X_OFFSET, 226, FONT_NORMAL_RED);
@@ -195,7 +188,7 @@ static int draw_background(void)
 
     // sentiment
     draw_title(286, 11);
-    int sentiment = city_sentiment();
+    int sentiment = city_data.sentiment.value;
     if (sentiment <= 0) {
         lang_text_draw(61, 50, X_OFFSET, 286, FONT_NORMAL_RED);
     } else if (sentiment >= 100) {

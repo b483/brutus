@@ -1,7 +1,6 @@
 #include "minimap.h"
 
 #include "building/building.h"
-#include "city/view.h"
 #include "core/image.h"
 #include "figure/figure.h"
 #include "figure/formation_legion.h"

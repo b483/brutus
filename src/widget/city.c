@@ -1,9 +1,6 @@
 #include "city.h"
 
-#include "city/data.h"
-#include "city/finance.h"
-#include "city/view.h"
-#include "city/warning.h"
+#include "city/city_new.h"
 #include "core/string.h"
 #include "figure/formation_legion.h"
 #include "game/game.h"

@@ -1,6 +1,5 @@
 #include "trade_prices.h"
 
-#include "city/resource.h"
 #include "graphics/graphics.h"
 
 static void draw_foreground(void)

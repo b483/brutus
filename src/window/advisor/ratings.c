@@ -1,7 +1,6 @@
 #include "ratings.h"
 
-#include "city/data.h"
-#include "city/ratings.h"
+#include "city/city_new.h"
 #include "core/image.h"
 #include "graphics/graphics.h"
 #include "scenario/scenario.h"
@@ -29,6 +28,22 @@ static void draw_rating_column(int x_offset, int y_offset, int value, int has_re
     }
     if (value >= 30 && has_reached) {
         image_draw(image_base + 2, x_offset - 6, y);
+    }
+}
+
+static int city_rating_selected_explanation(void)
+{
+    switch (city_data.ratings.selected) {
+        case SELECTED_RATING_CULTURE:
+            return city_data.ratings.culture_explanation;
+        case SELECTED_RATING_PROSPERITY:
+            return city_data.ratings.prosperity_explanation;
+        case SELECTED_RATING_PEACE:
+            return city_data.ratings.peace_explanation;
+        case SELECTED_RATING_FAVOR:
+            return city_data.ratings.favor_explanation;
+        default:
+            return 0;
     }
 }
 

@@ -1,12 +1,7 @@
 #include "crime.h"
 
 #include "building/building.h"
-#include "city/data.h"
-#include "city/finance.h"
-#include "city/message.h"
-#include "city/population.h"
-#include "city/ratings.h"
-#include "city/sentiment.h"
+#include "city/city_new.h"
 #include "core/image.h"
 #include "core/random.h"
 #include "figure/combat.h"
@@ -26,7 +21,7 @@ static void generate_rioter(struct building_t *b)
     if (!map_closest_road_within_radius(b->x, b->y, b->size, 4, &x_road, &y_road)) {
         return;
     }
-    city_sentiment_add_criminal();
+    city_data.sentiment.criminals++;
     int people_in_mob;
     if (city_data.population.population <= 150) {
         people_in_mob = 1;
@@ -61,7 +56,8 @@ static void generate_rioter(struct building_t *b)
         city_data.figure.rioters++;
     }
     destroy_on_fire(b, 0);
-    city_ratings_peace_record_rioter();
+    city_data.ratings.peace_num_rioters++;
+    city_data.ratings.peace_riot_cause = city_data.sentiment.low_mood_cause;
     city_sentiment_change_happiness(20);
     city_message_apply_sound_interval(MESSAGE_CAT_RIOT);
     city_message_post_with_popup_delay(MESSAGE_CAT_RIOT, MESSAGE_RIOT, b->type, map_grid_offset(x_road, y_road));
@@ -69,7 +65,7 @@ static void generate_rioter(struct building_t *b)
 
 static void generate_mugger(struct building_t *b)
 {
-    city_sentiment_add_criminal();
+    city_data.sentiment.criminals++;
     if (b->house_criminal_active < 2) {
         b->house_criminal_active = 2;
         int x_road, y_road;
@@ -78,7 +74,7 @@ static void generate_mugger(struct building_t *b)
             f->is_targetable = 1;
             f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->wait_ticks = 10 + (b->house_figure_generation_delay & 0xf);
-            city_ratings_peace_record_criminal();
+            city_data.ratings.peace_num_criminals++;
             if (city_data.finance.this_year.income.taxes > 20) {
                 int money_stolen = city_data.finance.this_year.income.taxes / 4;
                 if (money_stolen > 400) {
@@ -86,7 +82,7 @@ static void generate_mugger(struct building_t *b)
                 }
                 city_message_post(1, MESSAGE_THEFT, money_stolen, f->grid_offset);
                 city_data.finance.stolen_this_year += money_stolen;
-                city_finance_process_sundry(money_stolen);
+                city_finance_process_misc(money_stolen);
             }
         }
     }
@@ -94,7 +90,7 @@ static void generate_mugger(struct building_t *b)
 
 static void generate_protestor(struct building_t *b)
 {
-    city_sentiment_add_protester();
+    city_data.sentiment.protesters++;
     if (b->house_criminal_active < 1) {
         b->house_criminal_active = 1;
         int x_road, y_road;
@@ -103,7 +99,7 @@ static void generate_protestor(struct building_t *b)
             f->is_targetable = 1;
             f->terrain_usage = TERRAIN_USAGE_ROADS;
             f->wait_ticks = 10 + (b->house_figure_generation_delay & 0xf);
-            city_ratings_peace_record_criminal();
+            city_data.ratings.peace_num_criminals++;
         }
     }
 }
@@ -125,7 +121,7 @@ void figure_generate_criminals(void)
         }
     }
     if (min_building) {
-        int sentiment = city_sentiment();
+        int sentiment = city_data.sentiment.value;
         if (sentiment < 30) {
             if (random_byte() >= sentiment + 50) {
                 if (min_happiness <= 10) {

@@ -1,7 +1,7 @@
 #ifndef INPUT_INPUT_H
 #define INPUT_INPUT_H
 
-#include "city/view.h"
+#include "city/city_new.h"
 
 struct hotkey_mapping_t {
     int key;

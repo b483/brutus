@@ -1,10 +1,6 @@
 #include "city.h"
 
-#include "city/data.h"
-#include "city/message.h"
-#include "city/victory.h"
-#include "city/view.h"
-#include "city/warning.h"
+#include "city/city_new.h"
 #include "core/config.h"
 #include "figure/formation.h"
 #include "figure/formation_legion.h"

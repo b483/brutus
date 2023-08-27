@@ -1,7 +1,7 @@
 #include "resource.h"
 
 #include "building/building.h"
-#include "city/data.h"
+#include "city/city_new.h"
 #include "core/calc.h"
 #include "empire/object.h"
 #include "map/map.h"

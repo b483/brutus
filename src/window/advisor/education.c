@@ -1,17 +1,14 @@
 #include "education.h"
 
 #include "building/building.h"
-#include "city/culture.h"
-#include "city/data.h"
-#include "city/houses.h"
-#include "city/population.h"
+#include "city/city_new.h"
 #include "core/image.h"
 
 #define ADVISOR_HEIGHT 16
 
 static int get_education_advice(void)
 {
-    const struct house_demands_t *demands = city_houses_demands();
+    const struct house_demands_t *demands = &city_data.houses;
     if (demands->education == 1) {
         return demands->requiring.school ? 1 : 0;
     } else if (demands->education == 2) {

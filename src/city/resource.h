@@ -1,7 +1,6 @@
 #ifndef CITY_RESOURCE_H
 #define CITY_RESOURCE_H
 
-#include "city/constants.h"
 #include "core/buffer.h"
 
 #define RESOURCE_TYPES_MAX 16

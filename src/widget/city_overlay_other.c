@@ -1,12 +1,9 @@
 #include "city_overlay_other.h"
 
-#include "city/constants.h"
-#include "city/data.h"
-#include "city/finance.h"
+#include "city/city_new.h"
 #include "core/calc.h"
 #include "core/config.h"
 #include "core/image.h"
-#include "city/resource.h"
 #include "game/game.h"
 #include "graphics/graphics.h"
 #include "map/map.h"

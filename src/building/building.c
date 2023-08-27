@@ -1,18 +1,6 @@
 #include "building.h"
 
-#include "city/buildings.h"
-#include "city/culture.h"
-#include "city/data.h"
-#include "city/entertainment.h"
-#include "city/gods.h"
-#include "city/health.h"
-#include "city/message.h"
-#include "city/migration.h"
-#include "city/population.h"
-#include "city/ratings.h"
-#include "city/sentiment.h"
-#include "city/view.h"
-#include "city/warning.h"
+#include "city/city_new.h"
 #include "core/calc.h"
 #include "core/config.h"
 #include "core/image.h"
@@ -29,7 +17,6 @@
 #include "figuretype/migrant.h"
 #include "figuretype/trader.h"
 #include "figuretype/wall.h"
-#include "city/resource.h"
 #include "game/game.h"
 #include "map/map.h"
 #include "figuretype/missile.h"
@@ -941,13 +928,23 @@ static void building_clear_related_data(struct building_t *b)
         b->storage_id = 0;
     }
     if (b->type == BUILDING_SENATE) {
-        city_buildings_remove_senate(b);
+        if (b->grid_offset == city_data.building.senate_grid_offset) {
+            city_data.building.senate_grid_offset = 0;
+            city_data.building.senate_x = 0;
+            city_data.building.senate_y = 0;
+            city_data.building.senate_placed = 0;
+        }
     }
     if (b->type == BUILDING_DOCK) {
         city_data.building.working_docks--;
     }
     if (b->type == BUILDING_BARRACKS) {
-        city_buildings_remove_barracks(b);
+        if (b->grid_offset == city_data.building.barracks_grid_offset) {
+            city_data.building.barracks_grid_offset = 0;
+            city_data.building.barracks_x = 0;
+            city_data.building.barracks_y = 0;
+            city_data.building.barracks_placed = 0;
+        }
     }
     if (building_is_fort(b->type)) {
         city_data.military.total_legions--;
@@ -3095,11 +3092,22 @@ void building_construction_place(void)
                 break;
             case BUILDING_SENATE:
                 map_building_tiles_add(b->id, b->x, b->y, b->size, image_group(GROUP_BUILDING_SENATE), TERRAIN_BUILDING);
-                city_buildings_add_senate(b);
+                city_data.building.senate_placed = 1;
+                if (!city_data.building.senate_grid_offset) {
+                    city_data.building.senate_building_id = b->id;
+                    city_data.building.senate_x = b->x;
+                    city_data.building.senate_y = b->y;
+                    city_data.building.senate_grid_offset = b->grid_offset;
+                }
                 break;
             case BUILDING_BARRACKS:
                 map_building_tiles_add(b->id, b->x, b->y, b->size, image_group(GROUP_BUILDING_BARRACKS), TERRAIN_BUILDING);
-                city_buildings_add_barracks(b);
+                if (!city_data.building.barracks_grid_offset) {
+                    city_data.building.barracks_building_id = b->id;
+                    city_data.building.barracks_x = b->x;
+                    city_data.building.barracks_y = b->y;
+                    city_data.building.barracks_grid_offset = b->grid_offset;
+                }
                 break;
             case BUILDING_WAREHOUSE:
                 add_warehouse(b);
@@ -3365,9 +3373,13 @@ static void limit_hippodrome(void)
 void building_count_update(void)
 {
     clear_counters();
-    city_buildings_reset_dock_wharf_counters();
-    city_health_reset_hospital_workers();
-
+    city_data.building.working_wharfs = 0;
+    city_data.building.shipyard_boats_requested = 0;
+    for (int i = 0; i < 8; i++) {
+        city_data.building.working_dock_ids[i] = 0;
+    }
+    city_data.building.working_docks = 0;
+    city_data.health.num_hospital_workers = 0;
     for (int i = 1; i < MAX_BUILDINGS; i++) {
         struct building_t *b = &all_buildings[i];
         if (b->state != BUILDING_STATE_IN_USE || b->house_size) {
@@ -3391,7 +3403,7 @@ void building_count_update(void)
                 break;
             case BUILDING_HOSPITAL:
                 increase_count(type, b->num_workers > 0);
-                city_health_add_hospital_workers(b->num_workers);
+                city_data.health.num_hospital_workers += b->num_workers;
                 break;
                 // water
             case BUILDING_RESERVOIR:
@@ -3482,12 +3494,16 @@ void building_count_update(void)
                 // water-side
             case BUILDING_WHARF:
                 if (b->num_workers > 0) {
-                    city_buildings_add_working_wharf(!b->data.industry.fishing_boat_id);
+                    city_data.building.working_wharfs++;
+                    if (!b->data.industry.fishing_boat_id) {
+                        city_data.building.shipyard_boats_requested++;
+                    }
                 }
                 break;
             case BUILDING_DOCK:
                 if (b->num_workers > 0 && b->has_water_access) {
-                    city_buildings_add_working_dock(i);
+                    city_data.building.working_dock_ids[city_data.building.working_docks] = i;
+                    city_data.building.working_docks++;
                 }
                 break;
             default:
@@ -3838,7 +3854,22 @@ void building_destroy_by_enemy(int x, int y, int grid_offset)
     if (building_id > 0) {
         struct building_t *b = &all_buildings[building_id];
         if (b->state == BUILDING_STATE_IN_USE) {
-            city_ratings_peace_building_destroyed(b->type);
+            switch (b->type) {
+                case BUILDING_HOUSE_SMALL_TENT:
+                case BUILDING_HOUSE_LARGE_TENT:
+                case BUILDING_PREFECTURE:
+                case BUILDING_ENGINEERS_POST:
+                case BUILDING_WELL:
+                case BUILDING_GATEHOUSE:
+                case BUILDING_TOWER:
+                    break;
+                default:
+                    city_data.ratings.peace_destroyed_buildings++;
+                    break;
+            }
+            if (city_data.ratings.peace_destroyed_buildings >= 12) {
+                city_data.ratings.peace_destroyed_buildings = 12;
+            }
             building_destroy_by_collapse(b);
         }
     } else {
@@ -4643,7 +4674,8 @@ void building_figure_generate(void)
                                         horse2->speed_multiplier = 2;
 
                                         if (b->data.entertainment.days1 > 0) {
-                                            if (city_entertainment_show_message_hippodrome()) {
+                                            if (!city_data.entertainment.hippodrome_message_shown) {
+                                                city_data.entertainment.hippodrome_message_shown = 1;
                                                 city_message_post(1, MESSAGE_WORKING_HIPPODROME, 0, 0);
                                             }
                                         }
@@ -4700,7 +4732,8 @@ void building_figure_generate(void)
                                 }
 
                                 if (b->data.entertainment.days1 > 0 || b->data.entertainment.days2 > 0) {
-                                    if (city_entertainment_show_message_colosseum()) {
+                                    if (!city_data.entertainment.colosseum_message_shown) {
+                                        city_data.entertainment.colosseum_message_shown = 1;
                                         city_message_post(1, MESSAGE_WORKING_COLOSSEUM, 0, 0);
                                     }
                                 }
@@ -6166,7 +6199,7 @@ static int draw_employment_info(struct building_t *b, int consider_house_coverin
         text_id = 17; // no employees nearby
     } else if (b->houses_covered < 40) {
         text_id = 20; // poor access to employees
-    } else if (city_labor_category(b->labor_category)->workers_allocated <= 0) {
+    } else if (!city_data.labor.categories[b->labor_category].workers_allocated) {
         text_id = 18; // no people allocated
     } else {
         text_id = 19; // too few people allocated

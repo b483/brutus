@@ -1,6 +1,6 @@
 #include "labor_priority.h"
 
-#include "city/labor.h"
+#include "city/city_new.h"
 #include "graphics/graphics.h"
 
 static void button_set_priority(int new_priority, int param2);
@@ -32,7 +32,16 @@ static struct generic_button_t remove_priority_button[] = {
 static void init(int category)
 {
     data.category = category;
-    data.max_items = city_labor_max_selectable_priority(category);
+    data.max_items = 0;
+    for (int i = 0; i < 9; i++) {
+        if (city_data.labor.categories[i].priority > 0) {
+            data.max_items++;
+        }
+    }
+    if (data.max_items < 9 && !city_data.labor.categories[category].priority) {
+        // allow space for new priority
+        data.max_items++;
+    }
 }
 
 static void draw_foreground(void)

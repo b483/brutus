@@ -1,6 +1,5 @@
 #include "common.h"
 
-#include "city/view.h"
 #include "core/image.h"
 #include "widget/minimap.h"
 

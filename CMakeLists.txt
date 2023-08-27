@@ -98,27 +98,8 @@ set(BUILDING_FILES
     ${PROJECT_SOURCE_DIR}/src/building/building.c
 )
 set(CITY_FILES
-    ${PROJECT_SOURCE_DIR}/src/city/buildings.c
-    ${PROJECT_SOURCE_DIR}/src/city/culture.c
-    ${PROJECT_SOURCE_DIR}/src/city/data.c
-    ${PROJECT_SOURCE_DIR}/src/city/emperor.c
-    ${PROJECT_SOURCE_DIR}/src/city/entertainment.c
-    ${PROJECT_SOURCE_DIR}/src/city/finance.c
-    ${PROJECT_SOURCE_DIR}/src/city/gods.c
-    ${PROJECT_SOURCE_DIR}/src/city/health.c
-    ${PROJECT_SOURCE_DIR}/src/city/houses.c
-    ${PROJECT_SOURCE_DIR}/src/city/labor.c
-    ${PROJECT_SOURCE_DIR}/src/city/message.c
-    ${PROJECT_SOURCE_DIR}/src/city/migration.c
-    ${PROJECT_SOURCE_DIR}/src/city/military.c
-    ${PROJECT_SOURCE_DIR}/src/city/population.c
-    ${PROJECT_SOURCE_DIR}/src/city/ratings.c
+    ${PROJECT_SOURCE_DIR}/src/city/city_new.c
     ${PROJECT_SOURCE_DIR}/src/city/resource.c
-    ${PROJECT_SOURCE_DIR}/src/city/sentiment.c
-    ${PROJECT_SOURCE_DIR}/src/city/trade.c
-    ${PROJECT_SOURCE_DIR}/src/city/victory.c
-    ${PROJECT_SOURCE_DIR}/src/city/view.c
-    ${PROJECT_SOURCE_DIR}/src/city/warning.c
 )
 set(EMPIRE_FILES
     ${PROJECT_SOURCE_DIR}/src/empire/empire.c

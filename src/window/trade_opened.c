@@ -1,5 +1,6 @@
 #include "trade_opened.h"
 
+#include "city/city_new.h"
 #include "core/image_group.h"
 #include "empire/object.h"
 #include "graphics/graphics.h"

@@ -1,6 +1,5 @@
 #include "victory_dialog.h"
 
-#include "city/victory.h"
 #include "graphics/graphics.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"

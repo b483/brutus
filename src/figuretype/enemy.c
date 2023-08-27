@@ -1,7 +1,7 @@
 #include "enemy.h"
 
 #include "building/building.h"
-#include "city/data.h"
+#include "city/city_new.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"

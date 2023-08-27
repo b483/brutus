@@ -1,7 +1,5 @@
 #include "graphics.h"
 
-#include "city/view.h"
-#include "city/warning.h"
 #include "core/calc.h"
 #include "core/file.h"
 #include "core/image.h"

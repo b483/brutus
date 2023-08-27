@@ -1,8 +1,6 @@
 #include "editor/editor.h"
 
 #include "building/building.h"
-#include "city/view.h"
-#include "city/warning.h"
 #include "core/image.h"
 #include "core/lang.h"
 #include "core/random.h"

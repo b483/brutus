@@ -1,8 +1,6 @@
 #include "extra.h"
 
-#include "city/data.h"
-#include "city/population.h"
-#include "city/ratings.h"
+#include "city/city_new.h"
 #include "core/config.h"
 #include "core/lang.h"
 #include "core/string.h"

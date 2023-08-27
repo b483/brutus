@@ -1,7 +1,6 @@
 #include "market.h"
 
 #include "building/building.h"
-#include "city/resource.h"
 #include "core/image.h"
 #include "figure/combat.h"
 #include "figure/movement.h"

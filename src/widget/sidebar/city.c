@@ -1,8 +1,6 @@
 #include "city.h"
 
-#include "city/message.h"
-#include "city/view.h"
-#include "city/warning.h"
+#include "city/city_new.h"
 #include "core/image.h"
 #include "core/image_group.h"
 #include "game/game.h"

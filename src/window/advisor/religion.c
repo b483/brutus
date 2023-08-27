@@ -1,15 +1,13 @@
 #include "religion.h"
 
 #include "building/building.h"
-#include "city/data.h"
-#include "city/gods.h"
-#include "city/houses.h"
+#include "city/city_new.h"
 #include "core/image.h"
 #include "game/game.h"
 
 static int get_religion_advice(void)
 {
-    struct house_demands_t *demands = city_houses_demands();
+    struct house_demands_t *demands = &city_data.houses;
     if (city_data.religion.least_happy_god - 1 >= 0 && city_data.religion.gods[city_data.religion.least_happy_god - 1].wrath_bolts > 4) {
         return 6 + city_data.religion.least_happy_god - 1;
     } else if (demands->religion == 1) {

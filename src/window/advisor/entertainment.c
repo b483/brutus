@@ -1,11 +1,7 @@
 #include "entertainment.h"
 
 #include "building/building.h"
-#include "city/culture.h"
-#include "city/data.h"
-#include "city/entertainment.h"
-#include "city/gods.h"
-#include "city/houses.h"
+#include "city/city_new.h"
 #include "core/image.h"
 #include "graphics/graphics.h"
 #include "window/hold_festival.h"
@@ -26,7 +22,7 @@ static int focus_button_id;
 
 static int get_entertainment_advice(void)
 {
-    struct house_demands_t *demands = city_houses_demands();
+    struct house_demands_t *demands = &city_data.houses;
     if (demands->missing.entertainment > demands->missing.more_entertainment) {
         return 3;
     } else if (!demands->missing.more_entertainment) {

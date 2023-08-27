@@ -1,6 +1,6 @@
 #include "message_list.h"
 
-#include "city/message.h"
+#include "city/city_new.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "core/image_group.h"

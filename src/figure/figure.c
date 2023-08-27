@@ -1,9 +1,7 @@
 #include "figure/figure.h"
 
 #include "building/building.h"
-#include "city/data.h"
-#include "city/emperor.h"
-#include "city/view.h"
+#include "city/city_new.h"
 #include "core/image.h"
 #include "core/image_group.h"
 #include "core/random.h"

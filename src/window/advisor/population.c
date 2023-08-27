@@ -1,9 +1,6 @@
 #include "population.h"
 
-#include "city/data.h"
-#include "city/migration.h"
-#include "city/population.h"
-#include "city/resource.h"
+#include "city/city_new.h"
 #include "core/image.h"
 #include "game/game.h"
 #include "graphics/graphics.h"
@@ -50,6 +47,16 @@ static void get_min_max_month_year(int max_months, int *start_month, int *start_
         *end_month = (max_months + *start_month) % 12;
         *end_year = (max_months + *start_month) / 12 + *start_year;
     }
+}
+
+static int city_population_at_month(int max_months, int month)
+{
+    int start_offset = 0;
+    if (city_data.population.monthly.count > max_months) {
+        start_offset = city_data.population.monthly.count + 2400 - max_months;
+    }
+    int index = (start_offset + month) % 2400;
+    return city_data.population.monthly.values[index];
 }
 
 static void draw_history_graph(int full_size, int x, int y)
@@ -345,18 +352,17 @@ static int draw_background(void)
     text_draw_number(city_data.resource.food_types_available, '@', " ", 75 + width, 360, FONT_NORMAL_WHITE);
 
     // immigration
-    int newcomers = city_migration_newcomers();
-    if (newcomers >= 5) {
+    if (city_data.migration.newcomers >= 5) {
         lang_text_draw(55, 24, 75, 378, FONT_NORMAL_WHITE);
-        width = text_draw_number(newcomers, '@', " ", 75, 396, FONT_NORMAL_WHITE);
+        width = text_draw_number(city_data.migration.newcomers, '@', " ", 75, 396, FONT_NORMAL_WHITE);
         lang_text_draw(55, 17, 75 + width, 396, FONT_NORMAL_WHITE);
     } else if (city_migration_no_room_for_immigrants()) {
         lang_text_draw(55, 24, 75, 378, FONT_NORMAL_WHITE);
         lang_text_draw(55, 19, 75, 396, FONT_NORMAL_WHITE);
-    } else if (city_migration_percentage() < 80) {
+    } else if (city_data.migration.percentage < 80) {
         lang_text_draw(55, 25, 75, 378, FONT_NORMAL_WHITE);
         int text_id;
-        switch (city_migration_no_immigration_cause()) {
+        switch (city_data.migration.no_immigration_cause) {
             case NO_IMMIGRATION_LOW_WAGES: text_id = 20; break;
             case NO_IMMIGRATION_NO_JOBS: text_id = 21; break;
             case NO_IMMIGRATION_NO_FOOD: text_id = 22; break;
@@ -370,8 +376,8 @@ static int draw_background(void)
         }
     } else {
         lang_text_draw(55, 24, 75, 378, FONT_NORMAL_WHITE);
-        width = text_draw_number(newcomers, '@', " ", 75, 396, FONT_NORMAL_WHITE);
-        if (newcomers == 1) {
+        width = text_draw_number(city_data.migration.newcomers, '@', " ", 75, 396, FONT_NORMAL_WHITE);
+        if (city_data.migration.newcomers == 1) {
             lang_text_draw(55, 18, 75 + width, 396, FONT_NORMAL_WHITE);
         } else {
             lang_text_draw(55, 17, 75 + width, 396, FONT_NORMAL_WHITE);

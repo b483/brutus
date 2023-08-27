@@ -1,5 +1,7 @@
 #include "figure/trader.h"
 
+#include "city/resource.h"
+
 #include <string.h>
 
 #define MAX_TRADERS 100

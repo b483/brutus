@@ -1,10 +1,7 @@
 #include "scenario.h"
 
-#include "city/data.h"
-#include "city/labor.h"
-#include "city/message.h"
-#include "city/military.h"
-#include "city/population.h"
+#include "city/city_new.h"
+
 #include "core/calc.h"
 #include "core/image.h"
 #include "core/lang.h"
@@ -750,14 +747,19 @@ void process_random_event(void)
     switch (event) {
         case EVENT_ROME_RAISES_WAGES:
             if (scenario.random_events.raise_wages) {
-                if (city_labor_raise_wages_rome()) {
+                if (city_data.labor.wages_rome < 45) {
+                    city_data.labor.wages_rome += 1 + (random_byte_alt() & 3);
+                    if (city_data.labor.wages_rome > 45) {
+                        city_data.labor.wages_rome = 45;
+                    }
                     city_message_post(1, MESSAGE_ROME_RAISES_WAGES, 0, 0);
                 }
             }
             break;
         case EVENT_ROME_LOWERS_WAGES:
             if (scenario.random_events.lower_wages) {
-                if (city_labor_lower_wages_rome()) {
+                if (city_data.labor.wages_rome > 5) {
+                    city_data.labor.wages_rome -= 1 + (random_byte_alt() & 3);
                     city_message_post(1, MESSAGE_ROME_LOWERS_WAGES, 0, 0);
                 }
             }
@@ -882,7 +884,7 @@ void dispatch_imperial_request(int id)
     scenario.requests[id].months_to_comply = (random_byte() & 3) + 1;
     scenario.requests[id].visible = 0;
     if (scenario.requests[id].resource == RESOURCE_DENARII) {
-        city_finance_process_sundry(scenario.requests[id].amount);
+        city_finance_process_misc(scenario.requests[id].amount);
     } else if (scenario.requests[id].resource == RESOURCE_TROOPS) {
         city_population_remove_for_troop_request(scenario.requests[id].amount);
         building_warehouses_remove_resource(RESOURCE_WEAPONS, scenario.requests[id].amount);

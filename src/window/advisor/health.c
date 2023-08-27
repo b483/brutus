@@ -1,18 +1,14 @@
 #include "health.h"
 
 #include "building/building.h"
-#include "city/culture.h"
-#include "city/data.h"
-#include "city/health.h"
-#include "city/houses.h"
-#include "city/population.h"
+#include "city/city_new.h"
 #include "core/image.h"
 
 #define ADVISOR_HEIGHT 18
 
 static int get_health_advice(void)
 {
-    struct house_demands_t *demands = city_houses_demands();
+    struct house_demands_t *demands = &city_data.houses;
     switch (demands->health) {
         case 1:
             return demands->requiring.bathhouse ? 1 : 0;

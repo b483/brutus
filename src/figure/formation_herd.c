@@ -1,6 +1,6 @@
 #include "formation_herd.h"
 
-#include "city/data.h"
+#include "city/city_new.h"
 #include "figure/combat.h"
 #include "figure/figure.h"
 #include "figure/formation.h"

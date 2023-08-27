@@ -1,10 +1,10 @@
 #include "gift_to_emperor.h"
 
-#include "city/data.h"
+#include "core/calc.h"
 #include "graphics/graphics.h"
 #include "window/advisors.h"
 
-static void button_send_gift(int gift_id, int param2);
+static void button_send_gift(int gift_size, int param2);
 
 static struct generic_button_t buttons_gift_to_emperor[] = {
     {210, 180, 325, 15, button_send_gift, button_none, 0, 0},
@@ -77,11 +77,61 @@ static void handle_input(const struct mouse_t *m, const struct hotkeys_t *h)
     }
 }
 
-static void button_send_gift(int gift_id, __attribute__((unused)) int param2)
+static void button_send_gift(int gift_size, __attribute__((unused)) int param2)
 {
-    if (city_data.emperor.gifts[gift_id].cost <= city_data.emperor.personal_savings) {
-        city_data.emperor.selected_gift_size = gift_id;
-        city_emperor_send_gift();
+    if (city_data.emperor.gifts[gift_size].cost <= city_data.emperor.personal_savings) {
+
+        int cost = city_data.emperor.gifts[gift_size].cost;
+
+        if (cost <= city_data.emperor.personal_savings) {
+            if (city_data.emperor.gift_overdose_penalty <= 0) {
+                city_data.emperor.gift_overdose_penalty = 1;
+                if (gift_size == GIFT_MODEST) {
+                    city_data.ratings.favor = calc_bound(city_data.ratings.favor + 3, 0, 100);
+                } else if (gift_size == GIFT_GENEROUS) {
+                    city_data.ratings.favor = calc_bound(city_data.ratings.favor + 5, 0, 100);
+                } else if (gift_size == GIFT_LAVISH) {
+                    city_data.ratings.favor = calc_bound(city_data.ratings.favor + 10, 0, 100);
+                }
+            } else if (city_data.emperor.gift_overdose_penalty == 1) {
+                city_data.emperor.gift_overdose_penalty = 2;
+                if (gift_size == GIFT_MODEST) {
+                    city_data.ratings.favor = calc_bound(city_data.ratings.favor + 1, 0, 100);
+                } else if (gift_size == GIFT_GENEROUS) {
+                    city_data.ratings.favor = calc_bound(city_data.ratings.favor + 3, 0, 100);
+                } else if (gift_size == GIFT_LAVISH) {
+                    city_data.ratings.favor = calc_bound(city_data.ratings.favor + 5, 0, 100);
+                }
+            } else if (city_data.emperor.gift_overdose_penalty == 2) {
+                city_data.emperor.gift_overdose_penalty = 3;
+                if (gift_size == GIFT_MODEST) {
+                    city_data.ratings.favor = calc_bound(city_data.ratings.favor + 0, 0, 100);
+                } else if (gift_size == GIFT_GENEROUS) {
+                    city_data.ratings.favor = calc_bound(city_data.ratings.favor + 0, 0, 100);
+                } else if (gift_size == GIFT_LAVISH) {
+                    city_data.ratings.favor = calc_bound(city_data.ratings.favor + 3, 0, 100);
+                }
+            } else if (city_data.emperor.gift_overdose_penalty == 3) {
+                city_data.emperor.gift_overdose_penalty = 4;
+                if (gift_size == GIFT_MODEST) {
+                    city_data.ratings.favor = calc_bound(city_data.ratings.favor + 0, 0, 100);
+                } else if (gift_size == GIFT_GENEROUS) {
+                    city_data.ratings.favor = calc_bound(city_data.ratings.favor + 0, 0, 100);
+                } else if (gift_size == GIFT_LAVISH) {
+                    city_data.ratings.favor = calc_bound(city_data.ratings.favor + 1, 0, 100);
+                }
+            }
+            city_data.emperor.months_since_gift = 0;
+            // rotate gift type
+            city_data.emperor.gifts[gift_size].id++;
+            if (city_data.emperor.gifts[gift_size].id >= 4) {
+                city_data.emperor.gifts[gift_size].id = 0;
+            }
+            city_data.emperor.personal_savings -= cost;
+        }
+
+
+
         window_advisors_show(ADVISOR_IMPERIAL);
     }
 }

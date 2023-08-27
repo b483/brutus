@@ -1,8 +1,7 @@
 #include "water.h"
 
 #include "building/building.h"
-#include "city/gods.h"
-#include "city/message.h"
+#include "city/city_new.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "core/random.h"
@@ -58,7 +57,12 @@ void figure_flotsam_action(struct figure_t *f)
             if (f->wait_ticks <= 0) {
                 f->action_state = FIGURE_ACTION_FLOTSAM_FLOATING;
                 f->wait_ticks = 0;
-                if (!f->resource_id && city_god_neptune_create_shipwreck_flotsam()) {
+                int shipwreck_flotsam_created = 0;
+                if (city_data.religion.neptune_sank_ships) {
+                    city_data.religion.neptune_sank_ships = 0;
+                    shipwreck_flotsam_created = 1;
+                }
+                if (!f->resource_id && shipwreck_flotsam_created) {
                     f->min_max_seen = 1;
                 }
                 f->destination_x = scenario.river_exit_point.x;
@@ -278,7 +282,7 @@ void figure_fishing_boat_action(struct figure_t *f)
             figure_movement_move_ticks(f, 1);
             f->height_adjusted_ticks = 0;
             if (f->direction == DIR_FIGURE_AT_DESTINATION) {
-                struct map_point_t tile = {0};
+                struct map_point_t tile = { 0 };
 
                 if (map_figure_at(f->grid_offset) != f->id) {
                     for (int radius = 1; radius <= 5; radius++) {

@@ -1,13 +1,9 @@
 #include "hold_festival.h"
 
 #include "building/building.h"
-#include "city/constants.h"
-#include "city/data.h"
-#include "city/finance.h"
-#include "city/gods.h"
+#include "city/city_new.h"
 #include "core/image.h"
 #include "core/image_group.h"
-#include "city/resource.h"
 #include "graphics/graphics.h"
 #include "window/advisors.h"
 #include "window/message_dialog.h"
@@ -135,7 +131,7 @@ static void button_throw_festival(int size, int cost)
         city_data.festival.size = size;
         city_data.festival.cost = cost;
         city_data.festival.months_to_go = city_data.festival.size + 1;
-        city_finance_process_sundry(city_data.festival.cost);
+        city_finance_process_misc(city_data.festival.cost);
         if (city_data.festival.size == FESTIVAL_GRAND) {
             building_warehouses_remove_resource(RESOURCE_WINE, city_data.population.population / 500 + 1);
         }

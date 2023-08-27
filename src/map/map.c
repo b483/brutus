@@ -1,8 +1,7 @@
 #include "map.h"
 
 #include "building/building.h"
-#include "city/data.h"
-#include "city/view.h"
+#include "city/city_new.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "core/random.h"

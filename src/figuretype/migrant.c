@@ -1,7 +1,6 @@
 #include "migrant.h"
 
-#include "city/data.h"
-#include "city/population.h"
+#include "city/city_new.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"

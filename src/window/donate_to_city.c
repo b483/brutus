@@ -1,6 +1,6 @@
 #include "donate_to_city.h"
 
-#include "city/data.h"
+#include "city/city_new.h"
 #include "core/calc.h"
 #include "graphics/graphics.h"
 #include "window/advisors.h"

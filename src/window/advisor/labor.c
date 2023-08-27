@@ -1,7 +1,6 @@
 #include "labor.h"
 
-#include "city/data.h"
-#include "city/finance.h"
+#include "city/city_new.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "graphics/graphics.h"
@@ -77,17 +76,17 @@ static void draw_foreground(void)
     // Industry stats
     for (int i = 0; i < 9; i++) {
         button_border_draw(40, 77 + 25 * i, 560, 22, i == focus_button_id - 1);
-        struct labor_category_data_t *cat = city_labor_category(i);
-        if (cat->priority) {
+        struct labor_category_data_t *labor_category = &city_data.labor.categories[i];
+        if (labor_category->priority) {
             image_draw(image_group(GROUP_LABOR_PRIORITY_LOCK), 70, 80 + 25 * i);
-            text_draw_number(cat->priority, 0, 0, 90, 82 + 25 * i, FONT_NORMAL_WHITE);
+            text_draw_number(labor_category->priority, 0, 0, 90, 82 + 25 * i, FONT_NORMAL_WHITE);
         }
         lang_text_draw(50, i + 1, 170, 82 + 25 * i, FONT_NORMAL_WHITE);
-        text_draw_number(cat->workers_needed, 0, 0, 410, 82 + 25 * i, FONT_NORMAL_WHITE);
-        if (cat->workers_needed > cat->workers_allocated) {
-            text_draw_number(cat->workers_allocated, 0, 0, 510, 82 + 25 * i, FONT_NORMAL_RED);
+        text_draw_number(labor_category->workers_needed, 0, 0, 410, 82 + 25 * i, FONT_NORMAL_WHITE);
+        if (labor_category->workers_needed > labor_category->workers_allocated) {
+            text_draw_number(labor_category->workers_allocated, 0, 0, 510, 82 + 25 * i, FONT_NORMAL_RED);
         } else {
-            text_draw_number(cat->workers_allocated, 0, 0, 510, 82 + 25 * i, FONT_NORMAL_WHITE);
+            text_draw_number(labor_category->workers_allocated, 0, 0, 510, 82 + 25 * i, FONT_NORMAL_WHITE);
         }
     }
 

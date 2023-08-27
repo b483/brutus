@@ -1,5 +1,5 @@
-#ifndef GAME_SYSTEM_H
-#define GAME_SYSTEM_H
+#ifndef PLATFORM_BRUTUS_H
+#define PLATFORM_BRUTUS_H
 
 #include "input/input.h"
 

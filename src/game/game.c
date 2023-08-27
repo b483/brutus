@@ -1,19 +1,6 @@
 #include "game.h"
 
-#include "city/culture.h"
-#include "city/data.h"
-#include "city/gods.h"
-#include "city/health.h"
-#include "city/message.h"
-#include "city/migration.h"
-#include "city/military.h"
-#include "city/population.h"
-#include "city/ratings.h"
-#include "city/sentiment.h"
-#include "city/trade.h"
-#include "city/victory.h"
-#include "city/view.h"
-#include "city/warning.h"
+#include "city/city_new.h"
 #include "core/calc.h"
 #include "core/config.h"
 #include "core/file.h"
@@ -50,7 +37,6 @@
 #include "figuretype/trader.h"
 #include "figuretype/wall.h"
 #include "figuretype/water.h"
-#include "game/game.h"
 #include "platform/brutus.h"
 #include "scenario/scenario.h"
 #include "scenario/scenario.h"
@@ -62,6 +48,7 @@
 
 #include "SDL_mixer.h"
 
+#define MAX_HOUSE_LEVELS 20
 #define MAX_ANIM_TIMERS 51
 #define COMPRESS_BUFFER_SIZE 600000
 #define UNCOMPRESSED 0x80000000
@@ -1532,8 +1519,142 @@ void game_run(void)
             case 2: update_music(0); break;
             case 3: widget_minimap_invalidate(); break;
             case 4:
-                update_debt_state();
-                process_caesar_invasion();
+                // update debt state
+                if (city_data.finance.treasury >= 0) {
+                    city_data.emperor.months_in_debt = -1;
+                } else {
+                    if (city_data.emperor.debt_state == 0) {
+                        // provide bailout
+                        int rescue_loan = scenario.rescue_loan;
+                        city_finance_process_donation(rescue_loan);
+                        city_finance_calculate_totals();
+
+                        city_data.emperor.debt_state = 1;
+                        city_data.emperor.months_in_debt = 0;
+                        city_message_post(1, MESSAGE_CITY_IN_DEBT, 0, 0);
+                        if (city_data.ratings.prosperity >= 3) {
+                            city_data.ratings.prosperity -= 3;
+                        }
+                        city_data.ratings.prosperity_explanation = 8;
+                    } else if (city_data.emperor.debt_state == 1) {
+                        city_data.emperor.debt_state = 2;
+                        city_data.emperor.months_in_debt = 0;
+                        city_message_post(1, MESSAGE_CITY_IN_DEBT_AGAIN, 0, 0);
+                        city_data.ratings.favor = calc_bound(city_data.ratings.favor - 5, 0, 100);
+                    } else if (city_data.emperor.debt_state == 2) {
+                        if (city_data.emperor.months_in_debt == -1) {
+                            city_message_post(1, MESSAGE_CITY_IN_DEBT_AGAIN, 0, 0);
+                            city_data.emperor.months_in_debt = 0;
+                        }
+                        if (game_time_day() == 0) {
+                            city_data.emperor.months_in_debt++;
+                        }
+                        if (city_data.emperor.months_in_debt >= 12) {
+                            city_data.emperor.debt_state = 3;
+                            city_data.emperor.months_in_debt = 0;
+                            if (!city_data.figure.imperial_soldiers) {
+                                city_message_post(1, MESSAGE_CITY_STILL_IN_DEBT, 0, 0);
+                                city_data.ratings.favor = calc_bound(city_data.ratings.favor - 10, 0, 100);
+                            }
+                        }
+                    } else if (city_data.emperor.debt_state == 3) {
+                        if (city_data.emperor.months_in_debt == -1) {
+                            city_message_post(1, MESSAGE_CITY_STILL_IN_DEBT, 0, 0);
+                            city_data.emperor.months_in_debt = 0;
+                        }
+                        if (game_time_day() == 0) {
+                            city_data.emperor.months_in_debt++;
+                        }
+                        if (city_data.emperor.months_in_debt >= 12) {
+                            city_data.emperor.debt_state = 4;
+                            city_data.emperor.months_in_debt = 0;
+                            if (!city_data.figure.imperial_soldiers) {
+                                if (city_data.ratings.favor > 10) {
+                                    city_data.ratings.favor = 10;
+                                }
+                            }
+                        }
+                    }
+                }
+                // process caesar invasion
+                if (city_data.figure.imperial_soldiers && !city_data.emperor.invasion.from_editor) {
+                    // caesar invasion in progress
+                    city_data.emperor.invasion.duration_day_countdown--;
+                    if (city_data.ratings.favor >= 35 && city_data.emperor.invasion.duration_day_countdown < 176) {
+                        // pause legions
+                        for (int j = 0; j < MAX_ENEMY_FORMATIONS; j++) {
+                            if (enemy_formations[j].in_use == 1 && enemy_formations[j].figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY) {
+                                enemy_formations[j].wait_ticks_movement = 0;
+                            }
+                        }
+                    } else if (city_data.ratings.favor >= 22) {
+                        if (city_data.emperor.invasion.duration_day_countdown > 0) {
+                            // retreat
+                            for (int j = 0; j < MAX_ENEMY_FORMATIONS; j++) {
+                                if (enemy_formations[j].in_use && enemy_formations[j].figure_type == FIGURE_ENEMY_CAESAR_LEGIONARY) {
+                                    enemy_formations[j].morale = 0;
+                                }
+                            }
+                            if (!city_data.emperor.invasion.retreat_message_shown) {
+                                city_data.emperor.invasion.retreat_message_shown = 1;
+                                city_message_post(1, MESSAGE_CAESAR_ARMY_RETREAT, 0, 0);
+                            }
+                        } else if (city_data.emperor.invasion.duration_day_countdown == 0) {
+                            // a year has passed (11 months), siege goes on
+                            city_message_post(1, MESSAGE_CAESAR_ARMY_CONTINUE, 0, 0);
+                        }
+                    }
+                } else if (city_data.emperor.invasion.soldiers_killed && city_data.emperor.invasion.soldiers_killed >= city_data.emperor.invasion.size) {
+                    // player defeated caesar army
+                    city_data.emperor.invasion.size = 0;
+                    city_data.emperor.invasion.soldiers_killed = 0;
+                    if (!city_data.emperor.invasion.from_editor) {
+                        if (city_data.ratings.favor < 35) {
+                            city_data.ratings.favor = calc_bound(city_data.ratings.favor + 10, 0, 100);
+                            if (city_data.emperor.invasion.count < 2) {
+                                city_message_post(1, MESSAGE_CAESAR_RESPECT_1, 0, 0);
+                            } else if (city_data.emperor.invasion.count < 3) {
+                                city_message_post(1, MESSAGE_CAESAR_RESPECT_2, 0, 0);
+                            } else {
+                                city_message_post(1, MESSAGE_CAESAR_RESPECT_3, 0, 0);
+                            }
+                        }
+                    }
+                    if (city_data.emperor.invasion.from_editor) {
+                        city_data.emperor.invasion.from_editor = 0;
+                    }
+                } else if (city_data.emperor.invasion.days_until_invasion <= 0) {
+                    if (city_data.ratings.favor <= 10) {
+                        // warn player that caesar is angry and will invade in a year
+                        city_data.emperor.invasion.warnings_given++;
+                        city_data.emperor.invasion.days_until_invasion = 192;
+                        if (city_data.emperor.invasion.warnings_given <= 1) {
+                            city_message_post(1, MESSAGE_CAESAR_WRATH, 0, 0);
+                        }
+                    }
+                } else {
+                    city_data.emperor.invasion.days_until_invasion--;
+                    if (city_data.emperor.invasion.days_until_invasion == 0) {
+                        // invade!
+                        int size;
+                        if (city_data.emperor.invasion.count == 0) {
+                            size = 32;
+                        } else if (city_data.emperor.invasion.count == 1) {
+                            size = 64;
+                        } else if (city_data.emperor.invasion.count == 2) {
+                            size = 96;
+                        } else {
+                            size = 160;
+                        }
+                        if (start_invasion_by_caesar(size)) {
+                            city_data.emperor.invasion.count++;
+                            city_data.emperor.invasion.duration_day_countdown = 192;
+                            city_data.emperor.invasion.retreat_message_shown = 0;
+                            city_data.emperor.invasion.size = size;
+                            city_data.emperor.invasion.soldiers_killed = 0;
+                        }
+                    }
+                }
                 break;
             case 5: formation_update_all(); break;
             case 6: map_natives_check_land(); break;
@@ -1740,7 +1861,44 @@ void game_run(void)
             case 31: building_figure_generate(); break;
             case 32: city_trade_update(); break;
             case 33: building_count_update(); city_culture_update_coverage(); break;
-            case 34: distribute_treasury(); break;
+            case 34: // distribute treasury
+                int units = 5 * building_count_active(BUILDING_SENATE) + building_count_active(BUILDING_FORUM);
+                int amount_per_unit;
+                int remainder;
+                if (city_data.finance.treasury > 0 && units > 0) {
+                    amount_per_unit = city_data.finance.treasury / units;
+                    remainder = city_data.finance.treasury - units * amount_per_unit;
+                } else {
+                    amount_per_unit = 0;
+                    remainder = 0;
+                }
+
+                for (int j = 1; j < MAX_BUILDINGS; j++) {
+                    struct building_t *b = &all_buildings[j];
+                    if (b->state != BUILDING_STATE_IN_USE || b->house_size) {
+                        continue;
+                    }
+                    b->tax_income_or_storage = 0;
+                    if (b->num_workers <= 0) {
+                        continue;
+                    }
+                    switch (b->type) {
+                        // ordered based on importance: most important gets the remainder
+                        case BUILDING_SENATE:
+                            b->tax_income_or_storage = 5 * amount_per_unit + remainder;
+                            remainder = 0;
+                            break;
+                        case BUILDING_FORUM:
+                            if (remainder && !building_count_active(BUILDING_SENATE)) {
+                                b->tax_income_or_storage = amount_per_unit + remainder;
+                                remainder = 0;
+                            } else {
+                                b->tax_income_or_storage = amount_per_unit;
+                            }
+                            break;
+                    }
+                }
+                break;
             case 35: // decay culture 
                 for (int j = 1; j < MAX_BUILDINGS; j++) {
                     struct building_t *b = &all_buildings[j];
@@ -1851,8 +2009,27 @@ void game_run(void)
                 }
                 break;
             case 39: // evolve/devolve houses, consume goods
-                city_houses_reset_demands();
-                struct house_demands_t *demands = city_houses_demands();
+                city_data.houses.missing.fountain = 0;
+                city_data.houses.missing.well = 0;
+                city_data.houses.missing.entertainment = 0;
+                city_data.houses.missing.more_entertainment = 0;
+                city_data.houses.missing.education = 0;
+                city_data.houses.missing.more_education = 0;
+                city_data.houses.missing.religion = 0;
+                city_data.houses.missing.second_religion = 0;
+                city_data.houses.missing.third_religion = 0;
+                city_data.houses.missing.barber = 0;
+                city_data.houses.missing.bathhouse = 0;
+                city_data.houses.missing.clinic = 0;
+                city_data.houses.missing.hospital = 0;
+                city_data.houses.missing.food = 0;
+                // NB: second_wine purposely not cleared
+                city_data.houses.requiring.school = 0;
+                city_data.houses.requiring.library = 0;
+                city_data.houses.requiring.barber = 0;
+                city_data.houses.requiring.bathhouse = 0;
+                city_data.houses.requiring.clinic = 0;
+                city_data.houses.requiring.religion = 0;
                 int has_expanded = 0;
                 for (int j = 1; j < MAX_BUILDINGS; j++) {
                     struct building_t *b = &all_buildings[j];
@@ -1877,7 +2054,7 @@ void game_run(void)
                             building_totals_add_corrupted_house(1);
                             b->state = BUILDING_STATE_RUBBLE;
                         }
-                        has_expanded |= evolve_callback[b->type - BUILDING_HOUSE_SMALL_TENT](b, demands);
+                        has_expanded |= evolve_callback[b->type - BUILDING_HOUSE_SMALL_TENT](b, &city_data.houses);
                         if (game_time_day() == 0 || game_time_day() == 7) {
                             consume_resource(b, INVENTORY_POTTERY, house_properties[b->subtype.house_level].pottery);
                             consume_resource(b, INVENTORY_FURNITURE, house_properties[b->subtype.house_level].furniture);
@@ -1957,7 +2134,8 @@ void game_run(void)
                 }
                 break;
             case 44: // check fire/collapse
-                city_sentiment_reset_protesters_criminals();
+                city_data.sentiment.protesters = 0;
+                city_data.sentiment.criminals = 0;
                 int random_global = random_byte() & 7;
                 int max_id = building_get_highest_id();
                 for (int j = 1; j <= max_id; j++) {
@@ -2054,10 +2232,90 @@ void game_run(void)
             time_data.day++;
             if (time_data.day >= 16) { // advance month
                 time_data.day = 0;
-                city_migration_reset_newcomers();
+                city_data.migration.newcomers = 0;
                 city_health_update();
                 process_random_event();
-                city_finance_handle_month_change();
+                // collect monthly taxes
+                city_data.taxes.taxed_plebs = 0;
+                city_data.taxes.taxed_patricians = 0;
+                city_data.taxes.untaxed_plebs = 0;
+                city_data.taxes.untaxed_patricians = 0;
+                city_data.taxes.monthly.uncollected_plebs = 0;
+                city_data.taxes.monthly.collected_plebs = 0;
+                city_data.taxes.monthly.uncollected_patricians = 0;
+                city_data.taxes.monthly.collected_patricians = 0;
+                for (int j = 0; j < MAX_HOUSE_LEVELS; j++) {
+                    city_data.population.at_level[j] = 0;
+                }
+                for (int j = 1; j < MAX_BUILDINGS; j++) {
+                    struct building_t *b = &all_buildings[j];
+                    if (b->state != BUILDING_STATE_IN_USE || !b->house_size) {
+                        continue;
+                    }
+                    int is_patrician = b->subtype.house_level >= HOUSE_SMALL_VILLA;
+                    int population = b->house_population;
+                    city_data.population.at_level[b->subtype.house_level] += population;
+                    int tax = population * house_properties[b->subtype.house_level].tax_multiplier;
+                    if (b->house_tax_coverage) {
+                        if (is_patrician) {
+                            city_data.taxes.taxed_patricians += population;
+                            city_data.taxes.monthly.collected_patricians += tax;
+                        } else {
+                            city_data.taxes.taxed_plebs += population;
+                            city_data.taxes.monthly.collected_plebs += tax;
+                        }
+                        b->tax_income_or_storage += tax;
+                    } else {
+                        if (is_patrician) {
+                            city_data.taxes.untaxed_patricians += population;
+                            city_data.taxes.monthly.uncollected_patricians += tax;
+                        } else {
+                            city_data.taxes.untaxed_plebs += population;
+                            city_data.taxes.monthly.uncollected_plebs += tax;
+                        }
+                    }
+                }
+                int collected_patricians = calc_adjust_with_percentage(
+                    city_data.taxes.monthly.collected_patricians / 2,
+                    city_data.finance.tax_percentage);
+                int collected_plebs = calc_adjust_with_percentage(
+                    city_data.taxes.monthly.collected_plebs / 2,
+                    city_data.finance.tax_percentage);
+                int collected_total = collected_patricians + collected_plebs;
+                city_data.taxes.yearly.collected_patricians += collected_patricians;
+                city_data.taxes.yearly.collected_plebs += collected_plebs;
+                city_data.taxes.yearly.uncollected_patricians += calc_adjust_with_percentage(
+                    city_data.taxes.monthly.uncollected_patricians / 2,
+                    city_data.finance.tax_percentage);
+                city_data.taxes.yearly.uncollected_plebs += calc_adjust_with_percentage(
+                    city_data.taxes.monthly.uncollected_plebs / 2,
+                    city_data.finance.tax_percentage);
+
+                city_data.finance.treasury += collected_total;
+                int total_patricians = city_data.taxes.taxed_patricians + city_data.taxes.untaxed_patricians;
+                int total_plebs = city_data.taxes.taxed_plebs + city_data.taxes.untaxed_plebs;
+                city_data.taxes.percentage_taxed_patricians = calc_percentage(city_data.taxes.taxed_patricians, total_patricians);
+                city_data.taxes.percentage_taxed_plebs = calc_percentage(city_data.taxes.taxed_plebs, total_plebs);
+                city_data.taxes.percentage_taxed_people = calc_percentage(
+                    city_data.taxes.taxed_patricians + city_data.taxes.taxed_plebs,
+                    total_patricians + total_plebs);
+                // pay monthly wages
+                int wages = city_data.labor.wages * city_data.labor.workers_employed / 10 / 12;
+                city_data.finance.treasury -= wages;
+                city_data.finance.wages_so_far += wages;
+                city_data.finance.wage_rate_paid_this_year += city_data.labor.wages;
+                // pay monthly interest
+                if (city_data.finance.treasury < 0) {
+                    int interest = calc_adjust_with_percentage(-city_data.finance.treasury, 10) / 12;
+                    city_data.finance.treasury -= interest;
+                    city_data.finance.interest_so_far += interest;
+                }
+                // pay monthly salary
+                if (city_finance_can_afford(city_data.emperor.salary_amount)) {
+                    city_data.finance.salary_so_far += city_data.emperor.salary_amount;
+                    city_data.emperor.personal_savings += city_data.emperor.salary_amount;
+                    city_data.finance.treasury -= city_data.emperor.salary_amount;
+                }
                 city_resource_consume_food();
                 city_victory_update_months_to_govern();
                 update_legion_morale_monthly();
@@ -2075,7 +2333,103 @@ void game_run(void)
                     time_data.year++;
                     process_empire_expansion();
                     city_population_request_yearly_update();
-                    city_finance_handle_year_change();
+                    // reset taxes
+                    city_data.finance.last_year.income.taxes = city_data.taxes.yearly.collected_plebs + city_data.taxes.yearly.collected_patricians;
+                    city_data.taxes.yearly.collected_plebs = 0;
+                    city_data.taxes.yearly.collected_patricians = 0;
+                    city_data.taxes.yearly.uncollected_plebs = 0;
+                    city_data.taxes.yearly.uncollected_patricians = 0;
+                    // reset tax income in building list
+                    for (int j = 1; j < MAX_BUILDINGS; j++) {
+                        struct building_t *b = &all_buildings[j];
+                        if (b->state == BUILDING_STATE_IN_USE && b->house_size) {
+                            b->tax_income_or_storage = 0;
+                        }
+                    }
+                    // copy amounts to last year
+                    struct finance_overview_t *last_year = &city_data.finance.last_year;
+                    struct finance_overview_t *this_year = &city_data.finance.this_year;
+                    // wages
+                    last_year->expenses.wages = city_data.finance.wages_so_far;
+                    city_data.finance.wages_so_far = 0;
+                    city_data.finance.wage_rate_paid_last_year = city_data.finance.wage_rate_paid_this_year;
+                    city_data.finance.wage_rate_paid_this_year = 0;
+                    // import/export
+                    last_year->income.exports = this_year->income.exports;
+                    this_year->income.exports = 0;
+                    last_year->expenses.imports = this_year->expenses.imports;
+                    this_year->expenses.imports = 0;
+                    // construction
+                    last_year->expenses.construction = this_year->expenses.construction;
+                    this_year->expenses.construction = 0;
+                    // interest
+                    last_year->expenses.interest = city_data.finance.interest_so_far;
+                    city_data.finance.interest_so_far = 0;
+                    // salary
+                    city_data.finance.last_year.expenses.salary = city_data.finance.salary_so_far;
+                    city_data.finance.salary_so_far = 0;
+                    // sundries
+                    last_year->expenses.sundries = this_year->expenses.sundries;
+                    this_year->expenses.sundries = 0;
+                    city_data.finance.stolen_last_year = city_data.finance.stolen_this_year;
+                    city_data.finance.stolen_this_year = 0;
+                    // donations
+                    last_year->income.donated = this_year->income.donated;
+                    this_year->income.donated = 0;
+                    // pay tribute
+                    int income =
+                        last_year->income.donated +
+                        last_year->income.taxes +
+                        last_year->income.exports;
+                    int expenses =
+                        last_year->expenses.sundries +
+                        last_year->expenses.salary +
+                        last_year->expenses.interest +
+                        last_year->expenses.construction +
+                        last_year->expenses.wages +
+                        last_year->expenses.imports;
+                    city_data.finance.tribute_not_paid_last_year = 0;
+                    if (city_data.finance.treasury <= 0) {
+                        // city is in debt
+                        city_data.finance.tribute_not_paid_last_year = 1;
+                        city_data.finance.tribute_not_paid_total_years++;
+                        last_year->expenses.tribute = 0;
+                    } else if (income <= expenses) {
+                        // city made a loss: fixed tribute based on population
+                        city_data.finance.tribute_not_paid_total_years = 0;
+                        if (city_data.population.population > 2000) {
+                            last_year->expenses.tribute = 200;
+                        } else if (city_data.population.population > 1000) {
+                            last_year->expenses.tribute = 100;
+                        } else {
+                            last_year->expenses.tribute = 0;
+                        }
+                    } else {
+                        // city made a profit: tribute is max of: 25% of profit, fixed tribute based on population
+                        city_data.finance.tribute_not_paid_total_years = 0;
+                        if (city_data.population.population > 5000) {
+                            last_year->expenses.tribute = 500;
+                        } else if (city_data.population.population > 3000) {
+                            last_year->expenses.tribute = 400;
+                        } else if (city_data.population.population > 2000) {
+                            last_year->expenses.tribute = 300;
+                        } else if (city_data.population.population > 1000) {
+                            last_year->expenses.tribute = 225;
+                        } else if (city_data.population.population > 500) {
+                            last_year->expenses.tribute = 150;
+                        } else {
+                            last_year->expenses.tribute = 50;
+                        }
+                        int pct_profit = calc_adjust_with_percentage(income - expenses, 25);
+                        if (pct_profit > last_year->expenses.tribute) {
+                            last_year->expenses.tribute = pct_profit;
+                        }
+                    }
+                    city_data.finance.treasury -= last_year->expenses.tribute;
+                    city_data.finance.this_year.expenses.tribute = 0;
+                    last_year->balance = city_data.finance.treasury;
+                    last_year->income.total = income;
+                    last_year->expenses.total = last_year->expenses.tribute + expenses;
                     // reset yearly trade amounts
                     for (int j = 0; j < MAX_OBJECTS; j++) {
                         if (empire_objects[j].in_use && empire_objects[j].trade_route_open) {
@@ -2104,7 +2458,42 @@ void game_run(void)
                     city_data.population.monthly.next_index = 0;
                 }
                 ++city_data.population.monthly.count;
-                city_festival_update();
+                city_data.festival.months_since_festival++;
+                if (city_data.festival.first_festival_effect_months) {
+                    --city_data.festival.first_festival_effect_months;
+                }
+                if (city_data.festival.second_festival_effect_months) {
+                    --city_data.festival.second_festival_effect_months;
+                }
+                if (city_data.festival.size) {
+                    city_data.festival.months_to_go--;
+                    if (city_data.festival.months_to_go <= 0) {
+                        if (city_data.festival.first_festival_effect_months <= 0) {
+                            city_data.festival.first_festival_effect_months = 12;
+                            switch (city_data.festival.size) {
+                                case FESTIVAL_SMALL: city_sentiment_change_happiness(7); break;
+                                case FESTIVAL_LARGE: city_sentiment_change_happiness(9); break;
+                                case FESTIVAL_GRAND: city_sentiment_change_happiness(12); break;
+                            }
+                        } else if (city_data.festival.second_festival_effect_months <= 0) {
+                            city_data.festival.second_festival_effect_months = 12;
+                            switch (city_data.festival.size) {
+                                case FESTIVAL_SMALL: city_sentiment_change_happiness(2); break;
+                                case FESTIVAL_LARGE: city_sentiment_change_happiness(3); break;
+                                case FESTIVAL_GRAND: city_sentiment_change_happiness(5); break;
+                            }
+                        }
+                        city_data.festival.months_since_festival = 1;
+                        city_data.religion.gods[city_data.festival.god].months_since_festival = 0;
+                        switch (city_data.festival.size) {
+                            case FESTIVAL_SMALL: city_message_post(1, MESSAGE_SMALL_FESTIVAL, 0, 0); break;
+                            case FESTIVAL_LARGE: city_message_post(1, MESSAGE_LARGE_FESTIVAL, 0, 0); break;
+                            case FESTIVAL_GRAND: city_message_post(1, MESSAGE_GRAND_FESTIVAL, 0, 0); break;
+                        }
+                        city_data.festival.size = FESTIVAL_NONE;
+                        city_data.festival.months_to_go = 0;
+                    }
+                }
                 if (setting_monthly_autosave()) {
                     game_file_io_write_saved_game(SAVES_DIR_PATH, "autosave.sav");
                 }
@@ -2582,7 +2971,7 @@ static void init_savegame_data(void)
     state->legion_formations = create_savegame_piece(420);
     state->herd_formations = create_savegame_piece(560);
     state->enemy_formations = create_savegame_piece(7000);
-    state->city_data = create_savegame_piece(11584);
+    state->city_data = create_savegame_piece(11551);
     state->player_name = create_savegame_piece(24);
     state->buildings = create_savegame_piece(154000);
     state->city_view_orientation = create_savegame_piece(4);
@@ -2789,7 +3178,10 @@ int game_file_start_scenario(const char *scenario_selected)
     city_data_init_scenario();
     game_state_unpause();
     set_player_name_from_config();
-    city_emperor_init_scenario();
+    city_data.ratings.favor = scenario.initial_favor;
+    city_data.emperor.personal_savings = scenario.initial_personal_savings;
+    city_data.emperor.player_rank = scenario.player_rank;
+    city_emperor_set_salary_rank(city_data.emperor.player_rank);
     map_building_menu_items();
     city_message_init_scenario();
     return 1;

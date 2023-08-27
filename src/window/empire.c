@@ -1,8 +1,6 @@
 #include "empire.h"
 
-#include "city/data.h"
-#include "city/military.h"
-#include "city/warning.h"
+#include "city/city_new.h"
 #include "core/image.h"
 #include "core/image_group.h"
 #include "empire/empire.h"

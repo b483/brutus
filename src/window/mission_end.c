@@ -1,10 +1,6 @@
 #include "mission_end.h"
 
-#include "city/data.h"
-#include "city/finance.h"
-#include "city/population.h"
-#include "city/ratings.h"
-#include "city/victory.h"
+#include "city/city_new.h"
 #include "game/game.h"
 #include "graphics/graphics.h"
 #include "sound/sound.h"

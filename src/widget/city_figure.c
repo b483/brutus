@@ -1,6 +1,5 @@
 #include "city_figure.h"
 
-#include "city/view.h"
 #include "core/image.h"
 #include "figure/formation_legion.h"
 #include "figuretype/editor.h"

@@ -1,9 +1,7 @@
 #include "top_menu.h"
 
 #include "building/building.h"
-#include "city/data.h"
-#include "city/finance.h"
-#include "city/population.h"
+#include "city/city_new.h"
 #include "core/image.h"
 #include "game/game.h"
 #include "platform/brutus.h"

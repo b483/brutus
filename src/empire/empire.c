@@ -1,9 +1,5 @@
 #include "empire.h"
 
-#include "city/constants.h"
-#include "city/data.h"
-#include "city/population.h"
-#include "city/resource.h"
 #include "core/calc.h"
 #include "core/file.h"
 #include "empire/object.h"

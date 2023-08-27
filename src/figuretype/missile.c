@@ -1,6 +1,5 @@
 #include "missile.h"
 
-#include "city/view.h"
 #include "core/image.h"
 #include "figure/combat.h"
 #include "figure/formation_enemy.h"

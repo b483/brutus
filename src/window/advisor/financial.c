@@ -1,7 +1,6 @@
 #include "financial.h"
 
-#include "city/data.h"
-#include "city/finance.h"
+#include "city/city_new.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "graphics/graphics.h"

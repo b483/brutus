@@ -1,8 +1,8 @@
 #ifndef EMPIRE_OBJECT_H
 #define EMPIRE_OBJECT_H
 
-#include "core/buffer.h"
 #include "city/resource.h"
+#include "core/buffer.h"
 
 #define MAX_OBJECTS 200
 

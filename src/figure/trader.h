@@ -2,7 +2,6 @@
 #define FIGURE_TRADER_H
 
 #include "core/buffer.h"
-#include "city/resource.h"
 
 /**
  * @file

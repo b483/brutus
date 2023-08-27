@@ -1,7 +1,7 @@
 #include "sound.h"
 
 #include "building/building.h"
-#include "city/data.h"
+#include "city/city_new.h"
 #include "core/time.h"
 #include "figure/figure.h"
 #include "game/game.h"

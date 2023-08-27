@@ -1,10 +1,6 @@
 #include "imperial.h"
 
-#include "city/data.h"
-#include "city/finance.h"
-#include "city/military.h"
-#include "city/ratings.h"
-#include "city/resource.h"
+#include "city/city_new.h"
 #include "core/image.h"
 #include "empire/object.h"
 #include "figure/figure.h"

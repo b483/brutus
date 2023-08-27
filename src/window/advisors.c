@@ -1,16 +1,6 @@
 #include "advisors.h"
 
-#include "city/constants.h"
-#include "city/culture.h"
-#include "city/data.h"
-#include "city/finance.h"
-#include "city/houses.h"
-#include "city/labor.h"
-#include "city/migration.h"
-#include "city/military.h"
-#include "city/ratings.h"
-#include "city/resource.h"
-#include "city/warning.h"
+#include "city/city_new.h"
 #include "core/image.h"
 #include "core/image_group.h"
 #include "figure/formation.h"
@@ -119,9 +109,75 @@ static void init(void)
     city_data.finance.this_year.expenses.salary = city_data.finance.salary_so_far;
     city_finance_calculate_totals();
 
-    city_migration_determine_no_immigration_cause();
+    switch (city_data.sentiment.low_mood_cause) {
+        case LOW_MOOD_CAUSE_NO_FOOD:
+            city_data.migration.no_immigration_cause = 2;
+            break;
+        case LOW_MOOD_CAUSE_NO_JOBS:
+            city_data.migration.no_immigration_cause = 1;
+            break;
+        case LOW_MOOD_CAUSE_HIGH_TAXES:
+            city_data.migration.no_immigration_cause = 3;
+            break;
+        case LOW_MOOD_CAUSE_LOW_WAGES:
+            city_data.migration.no_immigration_cause = 0;
+            break;
+        case LOW_MOOD_CAUSE_MANY_TENTS:
+            city_data.migration.no_immigration_cause = 4;
+            break;
+        default:
+            city_data.migration.no_immigration_cause = 5;
+            break;
+    }
 
-    city_houses_calculate_culture_demands();
+    // health
+    city_data.houses.health = 0;
+    int max = 0;
+    if (city_data.houses.missing.bathhouse > max) {
+        city_data.houses.health = 1;
+        max = city_data.houses.missing.bathhouse;
+    }
+    if (city_data.houses.missing.barber > max) {
+        city_data.houses.health = 2;
+        max = city_data.houses.missing.barber;
+    }
+    if (city_data.houses.missing.clinic > max) {
+        city_data.houses.health = 3;
+        max = city_data.houses.missing.clinic;
+    }
+    if (city_data.houses.missing.hospital > max) {
+        city_data.houses.health = 4;
+    }
+    // education
+    city_data.houses.education = 0;
+    if (city_data.houses.missing.more_education > city_data.houses.missing.education) {
+        city_data.houses.education = 1; // schools(academies?)
+    } else if (city_data.houses.missing.more_education < city_data.houses.missing.education) {
+        city_data.houses.education = 2; // libraries
+    } else if (city_data.houses.missing.more_education || city_data.houses.missing.education) {
+        city_data.houses.education = 3; // more education
+    }
+    // entertainment
+    city_data.houses.entertainment = 0;
+    if (city_data.houses.missing.entertainment > city_data.houses.missing.more_entertainment) {
+        city_data.houses.entertainment = 1;
+    } else if (city_data.houses.missing.more_entertainment) {
+        city_data.houses.entertainment = 2;
+    }
+    // religion
+    city_data.houses.religion = 0;
+    max = 0;
+    if (city_data.houses.missing.religion > max) {
+        city_data.houses.religion = 1;
+        max = city_data.houses.missing.religion;
+    }
+    if (city_data.houses.missing.second_religion > max) {
+        city_data.houses.religion = 2;
+        max = city_data.houses.missing.second_religion;
+    }
+    if (city_data.houses.missing.third_religion > max) {
+        city_data.houses.religion = 3;
+    }
     city_culture_update_coverage();
 
     city_resource_calculate_food_stocks_and_supply_wheat();

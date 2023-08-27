@@ -1,8 +1,6 @@
 #include "trade.h"
 
-#include "city/data.h"
-#include "city/resource.h"
-#include "city/resource.h"
+#include "city/city_new.h"
 #include "core/image.h"
 #include "graphics/graphics.h"
 #include "window/empire.h"

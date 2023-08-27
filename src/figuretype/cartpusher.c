@@ -1,14 +1,12 @@
 #include "cartpusher.h"
 
 #include "building/building.h"
-#include "city/data.h"
-#include "city/resource.h"
+#include "city/city_new.h"
 #include "core/calc.h"
 #include "core/image.h"
 #include "figure/combat.h"
 #include "figure/movement.h"
 #include "figure/route.h"
-#include "city/resource.h"
 #include "map/map.h"
 #include "scenario/scenario.h"
 

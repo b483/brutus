@@ -1,9 +1,6 @@
 #include "city_building_ghost.h"
 
-#include "city/buildings.h"
-#include "city/data.h"
-#include "city/finance.h"
-#include "city/view.h"
+#include "city/city_new.h"
 #include "core/config.h"
 #include "core/image.h"
 #include "figure/formation_legion.h"
