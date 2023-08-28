@@ -20,15 +20,7 @@
 #include "widget/input_box.h"
 #include "widget/minimap.h"
 #include "widget/sidebar/common.h"
-#include "window/display_options.h"
-#include "window/file_dialog.h"
-#include "window/main_menu.h"
-#include "window/message_dialog.h"
-#include "window/numeric_input.h"
-#include "window/popup_dialog.h"
-#include "window/select_list.h"
-#include "window/sound_options.h"
-#include "window/speed_options.h"
+#include "window/window.h"
 
 #include <stdlib.h>
 

@@ -177,53 +177,7 @@ set(WIDGET_FILES
     ${PROJECT_SOURCE_DIR}/src/widget/sidebar/slide.c
 )
 set(WINDOW_FILES
-    ${PROJECT_SOURCE_DIR}/src/window/advisors.c
-    ${PROJECT_SOURCE_DIR}/src/window/advisor/chief.c
-    ${PROJECT_SOURCE_DIR}/src/window/advisor/education.c
-    ${PROJECT_SOURCE_DIR}/src/window/advisor/entertainment.c
-    ${PROJECT_SOURCE_DIR}/src/window/advisor/financial.c
-    ${PROJECT_SOURCE_DIR}/src/window/advisor/health.c
-    ${PROJECT_SOURCE_DIR}/src/window/advisor/imperial.c
-    ${PROJECT_SOURCE_DIR}/src/window/advisor/labor.c
-    ${PROJECT_SOURCE_DIR}/src/window/advisor/military.c
-    ${PROJECT_SOURCE_DIR}/src/window/advisor/population.c
-    ${PROJECT_SOURCE_DIR}/src/window/advisor/ratings.c
-    ${PROJECT_SOURCE_DIR}/src/window/advisor/religion.c
-    ${PROJECT_SOURCE_DIR}/src/window/advisor/trade.c
-    ${PROJECT_SOURCE_DIR}/src/window/build_menu.c
-    ${PROJECT_SOURCE_DIR}/src/window/cck_selection.c
-    ${PROJECT_SOURCE_DIR}/src/window/city.c
-    ${PROJECT_SOURCE_DIR}/src/window/config.c
-    ${PROJECT_SOURCE_DIR}/src/window/display_options.c
-    ${PROJECT_SOURCE_DIR}/src/window/donate_to_city.c
-    ${PROJECT_SOURCE_DIR}/src/window/empire.c
-    ${PROJECT_SOURCE_DIR}/src/window/file_dialog.c
-    ${PROJECT_SOURCE_DIR}/src/window/gift_to_emperor.c
-    ${PROJECT_SOURCE_DIR}/src/window/hold_festival.c
-    ${PROJECT_SOURCE_DIR}/src/window/hotkey_config.c
-    ${PROJECT_SOURCE_DIR}/src/window/hotkey_editor.c
-    ${PROJECT_SOURCE_DIR}/src/window/intermezzo.c
-    ${PROJECT_SOURCE_DIR}/src/window/intro_video.c
-    ${PROJECT_SOURCE_DIR}/src/window/labor_priority.c
-    ${PROJECT_SOURCE_DIR}/src/window/logo.c
-    ${PROJECT_SOURCE_DIR}/src/window/main_menu.c
-    ${PROJECT_SOURCE_DIR}/src/window/message_dialog.c
-    ${PROJECT_SOURCE_DIR}/src/window/message_list.c
-    ${PROJECT_SOURCE_DIR}/src/window/mission_briefing.c
-    ${PROJECT_SOURCE_DIR}/src/window/mission_end.c
-    ${PROJECT_SOURCE_DIR}/src/window/numeric_input.c
-    ${PROJECT_SOURCE_DIR}/src/window/overlay_menu.c
-    ${PROJECT_SOURCE_DIR}/src/window/plain_message_dialog.c
-    ${PROJECT_SOURCE_DIR}/src/window/popup_dialog.c
-    ${PROJECT_SOURCE_DIR}/src/window/resource_settings.c
-    ${PROJECT_SOURCE_DIR}/src/window/select_list.c
-    ${PROJECT_SOURCE_DIR}/src/window/set_salary.c
-    ${PROJECT_SOURCE_DIR}/src/window/sound_options.c
-    ${PROJECT_SOURCE_DIR}/src/window/speed_options.c
-    ${PROJECT_SOURCE_DIR}/src/window/trade_opened.c
-    ${PROJECT_SOURCE_DIR}/src/window/trade_prices.c
-    ${PROJECT_SOURCE_DIR}/src/window/victory_dialog.c
-    ${PROJECT_SOURCE_DIR}/src/window/victory_video.c
+    ${PROJECT_SOURCE_DIR}/src/window/window.c
 )
 set(EDITOR_FILES
     ${PROJECT_SOURCE_DIR}/src/editor/editor.c

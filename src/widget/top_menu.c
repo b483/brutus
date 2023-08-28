@@ -6,12 +6,7 @@
 #include "game/game.h"
 #include "platform/brutus.h"
 #include "widget/city.h"
-#include "window/city.h"
-#include "window/display_options.h"
-#include "window/file_dialog.h"
-#include "window/message_dialog.h"
-#include "window/sound_options.h"
-#include "window/speed_options.h"
+#include "window/window.h"
 
 enum {
     INFO_NONE = 0,

@@ -11,7 +11,7 @@
 #include "game/game.h"
 #include "graphics/graphics.h"
 #include "platform/brutus.h"
-#include "window/hotkey_editor.h"
+#include "window/window.h"
 
 #include "math.h"
 #include <string.h>

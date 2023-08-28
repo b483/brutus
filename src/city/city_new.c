@@ -17,10 +17,7 @@
 #include "scenario/scenario.h"
 #include "sound/sound.h"
 #include "widget/minimap.h"
-#include "window/build_menu.h"
-#include "window/message_dialog.h"
-#include "window/mission_end.h"
-#include "window/victory_dialog.h"
+#include "window/window.h"
 
 #include <string.h>
 

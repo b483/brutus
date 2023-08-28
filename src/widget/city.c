@@ -12,9 +12,7 @@
 #include "widget/city_with_overlay.h"
 #include "widget/city_without_overlay.h"
 #include "widget/minimap.h"
-#include "window/city.h"
-#include "window/main_menu.h"
-#include "window/popup_dialog.h"
+#include "window/window.h"
 
 static struct {
     struct map_tile_t current_tile;

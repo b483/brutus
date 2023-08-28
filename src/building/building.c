@@ -24,11 +24,7 @@
 #include "scenario/scenario.h"
 #include "sound/sound.h"
 #include "widget/city.h"
-#include "window/advisors.h"
-#include "window/build_menu.h"
-#include "window/city.h"
-#include "window/message_dialog.h"
-#include "window/popup_dialog.h"
+#include "window/window.h"
 
 #include <string.h>
 

@@ -1,8 +1,0 @@
-#ifndef WINDOW_PLAIN_MESSAGE_DIALOG_H
-#define WINDOW_PLAIN_MESSAGE_DIALOG_H
-
-#include <stdint.h>
-
-void window_plain_message_dialog_show(char *title, char *message);
-
-#endif // WINDOW_PLAIN_MESSAGE_DIALOG_H
