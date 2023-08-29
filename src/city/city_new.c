@@ -12,7 +12,7 @@
 #include "figure/formation_enemy.h"
 #include "figure/formation_legion.h"
 #include "figure/route.h"
-#include "figuretype/water.h"
+#include "figuretype/figuretype.h"
 #include "graphics/graphics.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
@@ -1385,6 +1385,26 @@ static void city_sentiment_set_max_happiness(int max)
             }
             b->sentiment.house_happiness = calc_bound(b->sentiment.house_happiness, 0, 100);
         }
+    }
+}
+
+static void figure_sink_all_ships(void)
+{
+    for (int i = 1; i < MAX_FIGURES; i++) {
+        struct figure_t *f = &figures[i];
+        if (!figure_is_alive(f)) {
+            continue;
+        }
+        if (f->type == FIGURE_TRADE_SHIP) {
+            all_buildings[f->destination_building_id].data.dock.trade_ship_id = 0;
+        } else if (f->type == FIGURE_FISHING_BOAT) {
+            all_buildings[f->building_id].data.industry.fishing_boat_id = 0;
+        } else {
+            continue;
+        }
+        f->building_id = 0;
+        f->type = FIGURE_SHIPWRECK;
+        f->wait_ticks = 0;
     }
 }
 

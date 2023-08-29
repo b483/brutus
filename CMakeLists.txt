@@ -119,22 +119,7 @@ set(FIGURE_FILES
     ${PROJECT_SOURCE_DIR}/src/figure/trader.c
 )
 set(FIGURETYPE_FILES
-    ${PROJECT_SOURCE_DIR}/src/figuretype/animal.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/cartpusher.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/crime.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/docker.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/editor.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/enemy.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/entertainer.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/maintenance.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/market.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/migrant.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/missile.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/service.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/soldier.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/trader.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/wall.c
-    ${PROJECT_SOURCE_DIR}/src/figuretype/water.c
+    ${PROJECT_SOURCE_DIR}/src/figuretype/figuretype.c
 )
 set(GAME_FILES
     ${PROJECT_SOURCE_DIR}/src/game/game.c

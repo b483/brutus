@@ -7,7 +7,7 @@
 #include "core/string.h"
 #include "core/time.h"
 #include "empire/empire.h"
-#include "figuretype/water.h"
+#include "figuretype/figuretype.h"
 #include "game/game.h"
 #include "graphics/graphics.h"
 #include "editor/editor.h"

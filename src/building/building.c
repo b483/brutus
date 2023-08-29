@@ -14,12 +14,9 @@
 #include "figure/movement.h"
 #include "figure/route.h"
 #include "figure/trader.h"
-#include "figuretype/migrant.h"
-#include "figuretype/trader.h"
-#include "figuretype/wall.h"
+#include "figuretype/figuretype.h"
 #include "game/game.h"
 #include "map/map.h"
-#include "figuretype/missile.h"
 #include "platform/brutus.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
@@ -3869,7 +3866,14 @@ void building_destroy_by_enemy(int x, int y, int grid_offset)
         }
     } else {
         if (map_terrain_is(grid_offset, TERRAIN_WALL)) {
-            figure_kill_tower_sentries_at(x, y);
+            for (int i = 0; i < MAX_FIGURES; i++) {
+                struct figure_t *f = &figures[i];
+                if (figure_is_alive(f) && f->type == FIGURE_TOWER_SENTRY) {
+                    if (calc_maximum_distance(f->x, f->y, x, y) <= 1) {
+                        figure_delete(f);
+                    }
+                }
+            }
         }
         map_building_tiles_set_rubble(0, x, y, 1);
     }
@@ -8821,7 +8825,32 @@ void window_building_info_show(int grid_offset)
                                         phrase_id = 11; // good trade
                                     }
                                 } else if (f->action_state == FIGURE_ACTION_TRADE_SHIP_MOORED) {
-                                    int state = figure_trade_ship_is_trading(f);
+                                    int state = TRADE_SHIP_NONE;
+                                    struct building_t *b = &all_buildings[f->destination_building_id];
+                                    if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_DOCK) {
+                                        state = TRADE_SHIP_BUYING;
+                                    } else {
+                                        for (int j = 0; j < 3; j++) {
+                                            struct figure_t *docker = &figures[b->data.dock.docker_ids[j]];
+                                            if (!b->data.dock.docker_ids[j] || !figure_is_alive(docker)) {
+                                                continue;
+                                            }
+                                            switch (docker->action_state) {
+                                                case FIGURE_ACTION_DOCKER_IMPORT_QUEUE:
+                                                case FIGURE_ACTION_DOCKER_IMPORT_GOING_TO_WAREHOUSE:
+                                                case FIGURE_ACTION_DOCKER_IMPORT_RETURNING:
+                                                case FIGURE_ACTION_DOCKER_IMPORT_AT_WAREHOUSE:
+                                                    state = TRADE_SHIP_BUYING;
+                                                    break;
+                                                case FIGURE_ACTION_DOCKER_EXPORT_QUEUE:
+                                                case FIGURE_ACTION_DOCKER_EXPORT_GOING_TO_WAREHOUSE:
+                                                case FIGURE_ACTION_DOCKER_EXPORT_RETURNING:
+                                                case FIGURE_ACTION_DOCKER_EXPORT_AT_WAREHOUSE:
+                                                    state = TRADE_SHIP_SELLING;
+                                                    break;
+                                            }
+                                        }
+                                    }
                                     if (state == TRADE_SHIP_BUYING) {
                                         phrase_id = 8; // buying goods
                                     } else if (state == TRADE_SHIP_SELLING) {

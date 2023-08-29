@@ -18,25 +18,12 @@
 #include "figure/formation_enemy.h"
 #include "figure/formation_herd.h"
 #include "figure/formation_legion.h"
+#include "figure/movement.h"
 #include "figure/name.h"
 #include "figure/route.h"
+#include "figure/sound.h"
 #include "figure/trader.h"
-#include "figuretype/animal.h"
-#include "figuretype/cartpusher.h"
-#include "figuretype/crime.h"
-#include "figuretype/docker.h"
-#include "figuretype/editor.h"
-#include "figuretype/enemy.h"
-#include "figuretype/entertainer.h"
-#include "figuretype/maintenance.h"
-#include "figuretype/market.h"
-#include "figuretype/migrant.h"
-#include "figuretype/missile.h"
-#include "figuretype/service.h"
-#include "figuretype/soldier.h"
-#include "figuretype/trader.h"
-#include "figuretype/wall.h"
-#include "figuretype/water.h"
+#include "figuretype/figuretype.h"
 #include "platform/brutus.h"
 #include "scenario/scenario.h"
 #include "scenario/scenario.h"
@@ -53,6 +40,47 @@
 #define MAX_TICKS_PER_FRAME 20
 #define MAX_DIR 4
 #define MAX_UNDO_BUILDINGS 50
+#define PREFECT_LEASH_RANGE 20
+#define MAP_FLAG_IMG_ID 2916
+
+static const int FLOTSAM_TYPE_0[] = { 0, 1, 2, 3, 4, 4, 4, 3, 2, 1, 0, 0 };
+static const int FLOTSAM_TYPE_12[] = { 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 3, 2, 1, 0, 0, 1, 1, 2, 2, 1, 1, 0, 0, 0 };
+static const int FLOTSAM_TYPE_3[] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+
+static const int BALLISTA_FIRING_OFFSETS[] = {
+    0, 1, 2, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
+static const int CLOUD_IMAGE_OFFSETS[] = {
+    0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2,
+    2, 2, 2, 2, 3, 3, 3, 4, 4, 5, 6, 7
+};
+
+static const int CRIMINAL_OFFSETS[] = {
+    0, 0, 1, 2, 3, 4, 5, 6, 7, 7, 6, 5, 4, 3, 2, 1
+};
+
+static const int CART_OFFSET_MULTIPLE_LOADS_FOOD[] = { 0, 0, 8, 16, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static const int CART_OFFSET_MULTIPLE_LOADS_NON_FOOD[] = { 0, 0, 0, 0, 0, 8, 0, 16, 24, 32, 40, 48, 56, 64, 72, 80 };
+static const int CART_OFFSET_8_LOADS_FOOD[] = { 0, 40, 48, 56, 0, 0, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+static const int SHEEP_IMAGE_OFFSETS[] = {
+    0,  0,  1,  1,  2,  2,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
+    3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
+    3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
+    3,  3,  3,  3,  4,  4,  5,  5, -1, -1, -1, -1, -1, -1, -1, -1
+};
+
+static const struct map_point_t SEAGULL_OFFSETS[] = {
+    {0, 0}, {0, -2}, {-2, 0}, {1, 2}, {2, 0}, {-3, 1}, {4, -3}, {-2, 4}, {0, 0}
+};
 
 static struct {
     uint32_t last_update;
@@ -1365,6 +1393,960 @@ static void consume_resource(struct building_t *b, int inventory, int amount)
     }
 }
 
+static int map_water_get_wharf_for_new_fishing_boat(struct figure_t *boat, struct map_point_t *tile)
+{
+    struct building_t *wharf = 0;
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_WHARF) {
+            int wharf_boat_id = b->data.industry.fishing_boat_id;
+            if (!wharf_boat_id || wharf_boat_id == boat->id) {
+                wharf = b;
+                break;
+            }
+        }
+    }
+    if (!wharf) {
+        return 0;
+    }
+    int dx, dy;
+    switch (wharf->data.industry.orientation) {
+        case 0: dx = 1; dy = -1; break;
+        case 1: dx = 2; dy = 1; break;
+        case 2: dx = 1; dy = 2; break;
+        default: dx = -1; dy = 1; break;
+    }
+    tile->x = wharf->x + dx;
+    tile->y = wharf->y + dy;
+    return wharf->id;
+}
+
+static int building_dock_get_queue_destination(struct map_point_t *tile)
+{
+    if (!city_data.building.working_docks) {
+        return 0;
+    }
+    // first queue position
+    for (int i = 0; i < 10; i++) {
+        int dock_id = city_data.building.working_dock_ids[i];
+        if (!dock_id) continue;
+        struct building_t *dock = &all_buildings[dock_id];
+        int dx, dy;
+        switch (dock->data.dock.orientation) {
+            case 0: dx = 2; dy = -2; break;
+            case 1: dx = 4; dy = 2; break;
+            case 2: dx = 2; dy = 4; break;
+            default: dx = -2; dy = 2; break;
+        }
+        tile->x = dock->x + dx;
+        tile->y = dock->y + dy;
+        if (!map_has_figure_at(map_grid_offset(tile->x, tile->y))) {
+            return dock_id;
+        }
+    }
+    // second queue position
+    for (int i = 0; i < 10; i++) {
+        int dock_id = city_data.building.working_dock_ids[i];
+        if (!dock_id) continue;
+        struct building_t *dock = &all_buildings[dock_id];
+        int dx, dy;
+        switch (dock->data.dock.orientation) {
+            case 0: dx = 2; dy = -3; break;
+            case 1: dx = 5; dy = 2; break;
+            case 2: dx = 2; dy = 5; break;
+            default: dx = -3; dy = 2; break;
+        }
+        tile->x = dock->x + dx;
+        tile->y = dock->y + dy;
+        if (!map_has_figure_at(map_grid_offset(tile->x, tile->y))) {
+            return dock_id;
+        }
+    }
+    return 0;
+}
+
+static int building_dock_get_free_destination(int ship_id, struct map_point_t *tile)
+{
+    if (!city_data.building.working_docks) {
+        return 0;
+    }
+    int dock_id = 0;
+    for (int i = 0; i < 10; i++) {
+        dock_id = city_data.building.working_dock_ids[i];
+        if (!dock_id) continue;
+        struct building_t *dock = &all_buildings[dock_id];
+        if (!dock->data.dock.trade_ship_id || dock->data.dock.trade_ship_id == ship_id) {
+            break;
+        }
+    }
+    // BUG: when 10 docks in city, always takes last one... regardless of whether it is free
+    if (dock_id <= 0) {
+        return 0;
+    }
+    struct building_t *dock = &all_buildings[dock_id];
+    int dx, dy;
+    switch (dock->data.dock.orientation) {
+        case 0: dx = 1; dy = -1; break;
+        case 1: dx = 3; dy = 1; break;
+        case 2: dx = 1; dy = 3; break;
+        default: dx = -1; dy = 1; break;
+    }
+    tile->x = dock->x + dx;
+    tile->y = dock->y + dy;
+    dock->data.dock.trade_ship_id = ship_id;
+    return dock_id;
+}
+
+static int get_closest_warehouse(const struct figure_t *f, int x, int y, int city_id, struct map_point_t *warehouse)
+{
+    int exportable[RESOURCE_TYPES_MAX];
+    int importable[RESOURCE_TYPES_MAX];
+    exportable[RESOURCE_NONE] = 0;
+    importable[RESOURCE_NONE] = 0;
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
+        exportable[r] = can_export_resource_to_trade_city(city_id, r);
+        if (f->trader_amount_bought >= 8) {
+            exportable[r] = 0;
+        }
+        if (city_id) {
+            importable[r] = can_import_resource_from_trade_city(city_id, r);
+        } else { // Don't import goods from native traders
+            importable[r] = 0;
+        }
+        if (f->loads_sold_or_carrying >= 8) {
+            importable[r] = 0;
+        }
+    }
+    int num_importable = 0;
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
+        if (importable[r]) {
+            num_importable++;
+        }
+    }
+    int min_distance = 10000;
+    struct building_t *min_building = 0;
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WAREHOUSE) {
+            continue;
+        }
+        if (!b->has_road_access) {
+            continue;
+        }
+        struct building_storage_t *s = building_storage_get(b->storage_id);
+        int num_imports_for_warehouse = 0;
+        for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
+            if (s->resource_state[r] != BUILDING_STORAGE_STATE_NOT_ACCEPTING
+                && can_import_resource_from_trade_city(city_id, r)) {
+                num_imports_for_warehouse++;
+            }
+        }
+        int distance_penalty = 32;
+        struct building_t *space = b;
+        for (int space_cnt = 0; space_cnt < 8; space_cnt++) {
+            space = &all_buildings[space->next_part_building_id];
+            if (space->id && exportable[space->subtype.warehouse_resource_id]) {
+                distance_penalty -= 4;
+            }
+            if (num_importable && num_imports_for_warehouse && !s->empty_all) {
+                for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
+                    int import_resource = city_trade_next_caravan_import_resource();
+                    if (s->resource_state[import_resource] != BUILDING_STORAGE_STATE_NOT_ACCEPTING) {
+                        break;
+                    }
+                }
+                int resource = city_data.trade.caravan_import_resource;
+                if (s->resource_state[resource] != BUILDING_STORAGE_STATE_NOT_ACCEPTING) {
+                    if (space->subtype.warehouse_resource_id == RESOURCE_NONE) {
+                        distance_penalty -= 16;
+                    }
+                    if (space->id && importable[space->subtype.warehouse_resource_id] && space->loads_stored < 4 &&
+                        space->subtype.warehouse_resource_id == resource) {
+                        distance_penalty -= 8;
+                    }
+                }
+            }
+        }
+        if (distance_penalty < 32) {
+            int distance = calc_maximum_distance(b->x, b->y, x, y);
+            distance += distance_penalty;
+            if (distance < min_distance) {
+                min_distance = distance;
+                min_building = b;
+            }
+        }
+    }
+    if (!min_building) {
+        return 0;
+    }
+    if (min_building->has_road_access == 1) {
+        warehouse->x = min_building->x;
+        warehouse->y = min_building->y;
+    } else if (!map_has_road_access(min_building->x, min_building->y, 3, warehouse)) {
+        return 0;
+    }
+    return min_building->id;
+}
+
+static void go_to_next_warehouse(struct figure_t *f, int x_src, int y_src)
+{
+    struct map_point_t dst;
+    int warehouse_id = get_closest_warehouse(f, x_src, y_src, f->empire_city_id, &dst);
+    if (warehouse_id) {
+        f->destination_building_id = warehouse_id;
+        f->action_state = FIGURE_ACTION_TRADE_CARAVAN_ARRIVING;
+        f->destination_x = dst.x;
+        f->destination_y = dst.y;
+    } else {
+        f->action_state = FIGURE_ACTION_TRADE_CARAVAN_LEAVING;
+        f->destination_x = scenario.exit_point.x;
+        f->destination_y = scenario.exit_point.y;
+    }
+}
+
+static int trader_get_buy_resource(int warehouse_id, int city_id)
+{
+    struct building_t *warehouse = &all_buildings[warehouse_id];
+    if (warehouse->type != BUILDING_WAREHOUSE) {
+        return RESOURCE_NONE;
+    }
+    struct building_t *space = warehouse;
+    for (int i = 0; i < 8; i++) {
+        space = &all_buildings[space->next_part_building_id];
+        if (space->id <= 0) {
+            continue;
+        }
+        int resource = space->subtype.warehouse_resource_id;
+        if (space->loads_stored > 0 && can_export_resource_to_trade_city(city_id, resource)) {
+            // update stocks
+            city_resource_remove_from_warehouse(resource, 1);
+            space->loads_stored--;
+            if (space->loads_stored <= 0) {
+                space->subtype.warehouse_resource_id = RESOURCE_NONE;
+            }
+            // update finances
+            city_finance_process_export(trade_prices[resource].sell);
+
+            // update graphics
+            building_warehouse_space_set_image(space, resource);
+            return resource;
+        }
+    }
+    return 0;
+}
+
+static void roamer_action(struct figure_t *f, int num_ticks)
+{
+    switch (f->action_state) {
+        case FIGURE_ACTION_ROAMING:
+            f->is_invisible = 0;
+            f->roam_length++;
+            if (f->roam_length >= figure_properties[f->type].max_roam_length) {
+                int x, y;
+                struct building_t *b = &all_buildings[f->building_id];
+                if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x, &y)) {
+                    f->action_state = FIGURE_ACTION_ROAMER_RETURNING;
+                    f->destination_x = x;
+                    f->destination_y = y;
+                    figure_route_remove(f);
+                    f->roam_length = 0;
+                } else {
+                    figure_delete(f);
+                    return;
+                }
+            }
+            figure_movement_roam_ticks(f, num_ticks);
+            break;
+        case FIGURE_ACTION_ROAMER_RETURNING:
+            figure_movement_move_ticks(f, num_ticks);
+            if (f->direction == DIR_FIGURE_AT_DESTINATION ||
+                f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                figure_delete(f);
+                return;
+            }
+            break;
+    }
+}
+
+static void culture_action(struct figure_t *f, int group)
+{
+    struct building_t *b = &all_buildings[f->building_id];
+    if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
+        figure_delete(f);
+        return;
+    }
+    figure_image_increase_offset(f, 12);
+    roamer_action(f, 1);
+    f->image_id = image_group(group) + figure_image_direction(f) + 8 * f->image_offset;
+}
+
+static void missile_hit_target(struct figure_t *projectile, struct figure_t *target)
+{
+    struct figure_t *shooter = &figures[projectile->building_id];
+    int damage_inflicted = (figure_properties[shooter->type].missile_attack_value + figure_properties[projectile->type].missile_attack_value) - figure_properties[target->type].missile_defense_value;
+    if (damage_inflicted < 0) {
+        damage_inflicted = 0;
+    }
+    if (projectile->type != FIGURE_BOLT
+        && ((target->type == FIGURE_FORT_LEGIONARY && legion_formations[target->formation_id].layout == FORMATION_TORTOISE)
+            || (target->type == FIGURE_ENEMY_CAESAR_LEGIONARY && enemy_formations[target->formation_id].layout == FORMATION_TORTOISE))
+            && target->figure_is_halted) {
+        damage_inflicted = 1;
+    }
+    int target_damage = damage_inflicted + target->damage;
+    if (target_damage <= figure_properties[target->type].max_damage) {
+        target->damage = target_damage;
+    } else { // kill target
+        target->damage = figure_properties[target->type].max_damage + 1;
+        target->is_corpse = 1;
+        target->is_targetable = 0;
+        target->wait_ticks = 0;
+        figure_play_die_sound(target);
+        if (figure_properties[target->type].is_player_legion_unit) {
+            update_formation_morale_after_death(&legion_formations[target->formation_id]);
+        } else {
+            update_formation_morale_after_death(&enemy_formations[target->formation_id]);
+        }
+        clear_targeting_on_unit_death(target);
+    }
+    if (figure_properties[target->type].is_player_legion_unit) {
+        legion_formations[target->formation_id].missile_attack_timeout = 6;
+    } else if (figure_properties[target->type].is_herd_animal) {
+        herd_formations[target->formation_id].missile_attack_timeout = 6;
+    } else if (figure_properties[target->type].is_enemy_unit || figure_properties[target->type].is_caesar_legion_unit) {
+        enemy_formations[target->formation_id].missile_attack_timeout = 6;
+    }
+    // clear targeting
+    shooter->target_figure_id = 0;
+    figure__remove_ranged_targeter_from_list(target, shooter);
+    figure_delete(projectile);
+}
+
+static int get_target_on_tile(struct figure_t *projectile)
+{
+    struct figure_t *shooter = &figures[projectile->building_id];
+    if (map_figures.items[projectile->grid_offset] > 0) {
+        int figure_id = map_figures.items[projectile->grid_offset];
+        while (figure_id) {
+            struct figure_t *target = &figures[figure_id];
+            if (figure_is_alive(target) && target->is_targetable) {
+                if (figure_properties[shooter->type].is_friendly_armed_unit || figure_properties[shooter->type].is_player_legion_unit) {
+                    if (is_valid_target_for_player_unit(target)) {
+                        return target->id;
+                    }
+                } else if (figure_properties[shooter->type].is_enemy_unit) {
+                    if (is_valid_target_for_enemy_unit(target)) {
+                        return target->id;
+                    }
+                }
+            }
+            figure_id = target->next_figure_id_on_same_tile;
+        }
+    }
+    return 0;
+}
+
+static int closest_house_with_room(int x, int y)
+{
+    int min_dist = 1000;
+    int min_building_id = 0;
+    int max_id = building_get_highest_id();
+    for (int i = 1; i <= max_id; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state == BUILDING_STATE_IN_USE && b->house_size
+            && b->house_population_room > 0) {
+            if (!b->immigrant_figure_id) {
+                int dist = calc_maximum_distance(x, y, b->x, b->y);
+                if (dist < min_dist) {
+                    min_dist = dist;
+                    min_building_id = i;
+                }
+            }
+        }
+    }
+    return min_building_id;
+}
+
+static void update_migrant_dir_and_image(struct figure_t *f)
+{
+    figure_image_increase_offset(f, 12);
+    f->image_id = image_group(GROUP_FIGURE_MIGRANT) + figure_image_direction(f) + 8 * f->image_offset;
+    if (f->action_state == FIGURE_ACTION_IMMIGRANT_ARRIVING || f->action_state == FIGURE_ACTION_EMIGRANT_LEAVING) {
+        int dir = figure_image_direction(f);
+        f->cart_image_id = image_group(GROUP_FIGURE_MIGRANT_CART) + dir;
+        figure_image_set_cart_offset(f, (dir + 4) % 8);
+    }
+}
+
+static int create_delivery_boy(int leader_id, struct figure_t *f)
+{
+    struct figure_t *boy = figure_create(FIGURE_DELIVERY_BOY, f->x, f->y, 0);
+    boy->is_targetable = 1;
+    boy->terrain_usage = TERRAIN_USAGE_ROADS;
+    boy->leading_figure_id = leader_id;
+    boy->collecting_item_id = f->collecting_item_id;
+    boy->building_id = f->building_id;
+    return boy->id;
+}
+
+static int fight_fire(struct figure_t *f)
+{
+    if (building_list_burning_size() <= 0) {
+        return 0;
+    }
+    switch (f->action_state) {
+        case FIGURE_ACTION_PREFECT_CREATED:
+        case FIGURE_ACTION_PREFECT_ENTERING_EXITING:
+        case FIGURE_ACTION_PREFECT_GOING_TO_FIRE:
+        case FIGURE_ACTION_PREFECT_AT_FIRE:
+            return 0;
+    }
+    f->wait_ticks_missile++;
+    if (f->wait_ticks_missile < 20) {
+        return 0;
+    }
+    int distance;
+    int ruin_id = 0;
+    int min_occupied_building_id = 0;
+    int min_occupied_dist = distance = 10000;
+    const int *burning = building_list_burning_items();
+    int burning_size = building_list_burning_size();
+    for (int i = 0; i < burning_size; i++) {
+        int building_id = burning[i];
+        struct building_t *b = &all_buildings[building_id];
+        if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_BURNING_RUIN && !b->ruin_has_plague) {
+            int dist = calc_maximum_distance(f->x, f->y, b->x, b->y);
+            if (b->figure_id4) {
+                if (dist < min_occupied_dist) {
+                    min_occupied_dist = dist;
+                    min_occupied_building_id = building_id;
+                }
+            } else if (dist < distance) {
+                distance = dist;
+                ruin_id = building_id;
+            }
+        }
+    }
+    if (!ruin_id && min_occupied_dist <= 2) {
+        ruin_id = min_occupied_building_id;
+        distance = 2;
+    }
+    if (ruin_id > 0 && distance <= 25) {
+        struct building_t *ruin = &all_buildings[ruin_id];
+        f->wait_ticks_missile = 0;
+        f->action_state = FIGURE_ACTION_PREFECT_GOING_TO_FIRE;
+        f->destination_x = ruin->road_access_x;
+        f->destination_y = ruin->road_access_y;
+        f->destination_building_id = ruin_id;
+        figure_route_remove(f);
+        ruin->figure_id4 = f->id;
+        return 1;
+    }
+    return 0;
+}
+
+static int determine_destination(int x, int y, int type1, int type2)
+{
+    int road_network = map_road_network_get(map_grid_offset(x, y));
+    building_list_small_clear();
+
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state != BUILDING_STATE_IN_USE) {
+            continue;
+        }
+        if (b->type != type1 && b->type != type2) {
+            continue;
+        }
+        if (b->road_network_id == road_network) {
+            if (b->type == BUILDING_HIPPODROME && b->prev_part_building_id) {
+                continue;
+            }
+            building_list_small_add(i);
+        }
+    }
+    int total_venues = building_list_small_size();
+    if (total_venues <= 0) {
+        return 0;
+    }
+    const int *venues = building_list_small_items();
+    int min_building_id = 0;
+    int min_distance = 10000;
+    for (int i = 0; i < total_venues; i++) {
+        struct building_t *b = &all_buildings[venues[i]];
+        int days_left;
+        if (b->type == type1) {
+            days_left = b->data.entertainment.days1;
+        } else if (b->type == type2) {
+            days_left = b->data.entertainment.days2;
+        } else {
+            days_left = 0;
+        }
+        int dist = days_left + calc_maximum_distance(x, y, b->x, b->y);
+        if (dist < min_distance) {
+            min_distance = dist;
+            min_building_id = venues[i];
+        }
+    }
+    return min_building_id;
+}
+
+static void shoot_enemy_missile(struct figure_t *f, struct map_point_t *tile)
+{
+    f->is_shooting = 1;
+    f->attack_image_offset = 1;
+    figure_create_missile(f, tile, figure_properties[f->type].missile_type);
+    if (figure_properties[f->type].missile_type == FIGURE_ARROW) {
+        play_sound_effect(SOUND_EFFECT_ARROW);
+    }
+    f->wait_ticks_missile = 0;
+    // clear targeting
+    figure__remove_ranged_targeter_from_list(&figures[f->target_figure_id], f);
+    f->target_figure_id = 0;
+}
+
+static void spawn_enemy(struct figure_t *f, struct formation_t *m)
+{
+    if (f->wait_ticks) {
+        f->wait_ticks--;
+        if (!f->wait_ticks) {
+            if (f->index_in_formation % 4 < 1) {
+                if (m->layout == FORMATION_ENEMY_MOB) {
+                    play_speech_file("wavs/drums.wav");
+                } else {
+                    play_speech_file("wavs/horn1.wav");
+                }
+            }
+            f->is_invisible = 0;
+            f->action_state = FIGURE_ACTION_ENEMY_ADVANCING;
+        }
+    }
+}
+
+static void ranged_enemy_action(struct figure_t *f)
+{
+    struct formation_t *m = &enemy_formations[f->formation_id];
+    struct map_point_t tile = { -1, -1 };
+    if (f->is_shooting) {
+        f->attack_image_offset++;
+        if (f->attack_image_offset > 100) {
+            f->attack_image_offset = 0;
+            f->is_shooting = 0;
+        }
+    } else {
+        f->wait_ticks_missile++;
+        if (f->wait_ticks_missile > 250) {
+            f->wait_ticks_missile = 250;
+        }
+    }
+    switch (f->action_state) {
+        case FIGURE_ACTION_ENEMY_SPAWNING:
+            spawn_enemy(f, m);
+            break;
+        case FIGURE_ACTION_ENEMY_REGROUPING:
+            map_figure_update(f);
+            f->image_offset = 0;
+            if (f->wait_ticks_missile > figure_properties[f->type].missile_delay && set_missile_target(f, &tile)) {
+                f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
+                shoot_enemy_missile(f, &tile);
+            }
+            break;
+        case FIGURE_ACTION_ENEMY_ADVANCING:
+            f->destination_x = m->destination_x + formation_layout_position_x(m->layout, f->index_in_formation);
+            f->destination_y = m->destination_y + formation_layout_position_y(m->layout, f->index_in_formation);
+            figure_movement_move_ticks(f, f->speed_multiplier);
+            if ((f->type == FIGURE_ENEMY_HUN_MOUNTED_ARCHER || f->type == FIGURE_ENEMY_GOTH_MOUNTED_ARCHER || f->type == FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER)
+            && f->wait_ticks_missile > figure_properties[f->type].missile_delay
+            && set_missile_target(f, &tile)) {
+                shoot_enemy_missile(f, &tile);
+            }
+            if (f->direction == DIR_FIGURE_AT_DESTINATION
+                || f->direction == DIR_FIGURE_REROUTE
+                || f->direction == DIR_FIGURE_LOST) {
+                figure_route_remove(f);
+                f->action_state = FIGURE_ACTION_ENEMY_REGROUPING;
+            }
+            break;
+        case FIGURE_ACTION_ENEMY_ENGAGED:
+            if (f->target_figure_id && calc_maximum_distance(f->x, f->y, f->destination_x, f->destination_y) < figure_properties[f->type].max_range) {
+                figure_route_remove(f);
+                f->destination_x = f->x;
+                f->destination_y = f->y;
+                f->image_offset = 0;
+                if (f->wait_ticks_missile > figure_properties[f->type].missile_delay && set_missile_target(f, &tile)) {
+                    f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
+                    shoot_enemy_missile(f, &tile);
+                    break;
+                }
+            } else {
+                figure_movement_move_ticks(f, f->speed_multiplier);
+                if (f->direction == DIR_FIGURE_AT_DESTINATION
+                    || f->direction == DIR_FIGURE_REROUTE
+                    || f->direction == DIR_FIGURE_LOST) {
+                    figure_route_remove(f);
+                    f->action_state = FIGURE_ACTION_ENEMY_REGROUPING;
+                }
+            }
+            break;
+    }
+}
+
+static void melee_enemy_action(struct figure_t *f)
+{
+    struct formation_t *m = &enemy_formations[f->formation_id];
+    switch (f->action_state) {
+        case FIGURE_ACTION_ENEMY_SPAWNING:
+            spawn_enemy(f, m);
+            break;
+        case FIGURE_ACTION_ENEMY_REGROUPING:
+            map_figure_update(f);
+            f->image_offset = 0;
+            break;
+        case FIGURE_ACTION_ENEMY_ADVANCING:
+            f->destination_x = m->destination_x + formation_layout_position_x(m->layout, f->index_in_formation);
+            f->destination_y = m->destination_y + formation_layout_position_y(m->layout, f->index_in_formation);
+            figure_movement_move_ticks(f, f->speed_multiplier);
+            if (f->direction == DIR_FIGURE_AT_DESTINATION
+                || f->direction == DIR_FIGURE_REROUTE
+                || f->direction == DIR_FIGURE_LOST) {
+                figure_route_remove(f);
+                f->action_state = FIGURE_ACTION_ENEMY_REGROUPING;
+            }
+            break;
+        case FIGURE_ACTION_ENEMY_ENGAGED:
+        {
+            struct figure_t *target_unit = melee_unit__set_closest_target(f);
+            if (target_unit) {
+                f->destination_x = target_unit->x;
+                f->destination_y = target_unit->y;
+                figure_movement_move_ticks(f, f->speed_multiplier);
+            } else {
+                figure_movement_move_ticks(f, f->speed_multiplier);
+            }
+            if (f->direction == DIR_FIGURE_AT_DESTINATION
+                || f->direction == DIR_FIGURE_REROUTE
+                || f->direction == DIR_FIGURE_LOST) {
+                figure_route_remove(f);
+                f->action_state = FIGURE_ACTION_ENEMY_REGROUPING;
+            }
+            break;
+        }
+    }
+}
+
+static void figure_editor_flag_action(struct figure_t *f)
+{
+    figure_image_increase_offset(f, 16);
+    f->image_id = MAP_FLAG_IMG_ID + f->image_offset / 2;
+    map_figure_delete(f);
+
+    struct map_point_t point = { 0, 0 };
+    int image_base = image_group(GROUP_FIGURE_MAP_FLAG_ICONS);
+    if (f->resource_id == MAP_FLAG_ENTRY) {
+        point.x = scenario.entry_point.x;
+        point.y = scenario.entry_point.y;
+        f->cart_image_id = image_base + 2;
+    } else if (f->resource_id == MAP_FLAG_EXIT) {
+        point.x = scenario.exit_point.x;
+        point.y = scenario.exit_point.y;
+        f->cart_image_id = image_base + 3;
+    } else if (f->resource_id == MAP_FLAG_RIVER_ENTRY) {
+        point.x = scenario.river_entry_point.x;
+        point.y = scenario.river_entry_point.y;
+        f->cart_image_id = image_base + 4;
+    } else if (f->resource_id == MAP_FLAG_RIVER_EXIT) {
+        point.x = scenario.river_exit_point.x;
+        point.y = scenario.river_exit_point.y;
+        f->cart_image_id = image_base + 5;
+    } else if (f->resource_id >= MAP_FLAG_EARTHQUAKE_MIN && f->resource_id <= MAP_FLAG_EARTHQUAKE_MAX) {
+        point = scenario.earthquake_points[f->resource_id - MAP_FLAG_EARTHQUAKE_MIN];
+        f->cart_image_id = image_base;
+    } else if (f->resource_id >= MAP_FLAG_INVASION_MIN && f->resource_id <= MAP_FLAG_INVASION_MAX) {
+        point = scenario.invasion_points[f->resource_id - MAP_FLAG_INVASION_MIN];
+        f->cart_image_id = image_base + 1;
+    } else if (f->resource_id >= MAP_FLAG_FISHING_MIN && f->resource_id <= MAP_FLAG_FISHING_MAX) {
+        point = scenario.fishing_points[f->resource_id - MAP_FLAG_FISHING_MIN];
+        f->cart_image_id = image_group(GROUP_FIGURE_FORT_STANDARD_ICONS) + 3;
+    } else if (f->resource_id >= MAP_FLAG_HERD_MIN && f->resource_id <= MAP_FLAG_HERD_MAX) {
+        point = scenario.herd_points[f->resource_id - MAP_FLAG_HERD_MIN];
+        f->cart_image_id = image_group(GROUP_FIGURE_FORT_STANDARD_ICONS) + 4;
+    }
+    f->x = point.x;
+    f->y = point.y;
+
+    f->grid_offset = map_grid_offset(f->x, f->y);
+    f->cross_country_x = 15 * f->x + 7;
+    f->cross_country_y = 15 * f->y + 7;
+    map_figure_add(f);
+}
+
+static void get_trade_center_location(const struct figure_t *f, int *x, int *y)
+{
+    if (city_data.building.trade_center_building_id) {
+        struct building_t *trade_center = &all_buildings[city_data.building.trade_center_building_id];
+        *x = trade_center->x;
+        *y = trade_center->y;
+    } else {
+        *x = f->x;
+        *y = f->y;
+    }
+}
+
+static int fetch_export_resource(struct figure_t *f, struct building_t *dock)
+{
+    int ship_id = dock->data.dock.trade_ship_id;
+    if (!ship_id) {
+        return 0;
+    }
+    struct figure_t *ship = &figures[ship_id];
+    if (ship->action_state != FIGURE_ACTION_TRADE_SHIP_MOORED || ship->trader_amount_bought >= 12) {
+        return 0;
+    }
+    int x, y;
+    get_trade_center_location(f, &x, &y);
+    struct map_point_t tile;
+    int exportable[RESOURCE_TYPES_MAX];
+    exportable[RESOURCE_NONE] = 0;
+    for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
+        exportable[r] = can_export_resource_to_trade_city(ship->empire_city_id, r);
+    }
+    int resource = city_trade_next_docker_export_resource();
+    for (int i = RESOURCE_WHEAT; i < RESOURCE_TYPES_MAX && !exportable[resource]; i++) {
+        resource = city_trade_next_docker_export_resource();
+    }
+    int min_building_id = 0;
+    if (exportable[resource]) {
+        int min_distance = 10000;
+        for (int i = 1; i < MAX_BUILDINGS; i++) {
+            struct building_t *b = &all_buildings[i];
+            if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WAREHOUSE) {
+                continue;
+            }
+            if (!b->has_road_access) {
+                continue;
+            }
+            if (b->road_network_id != dock->road_network_id) {
+                continue;
+            }
+            int distance_penalty = 32;
+            struct building_t *space = b;
+            for (int s = 0; s < 8; s++) {
+                space = &all_buildings[space->next_part_building_id];
+                if (space->id && space->subtype.warehouse_resource_id == resource && space->loads_stored > 0) {
+                    distance_penalty--;
+                }
+            }
+            if (distance_penalty < 32) {
+                int distance = calc_maximum_distance(b->x, b->y, x, y);
+                // prefer fuller warehouse
+                distance += distance_penalty;
+                if (distance < min_distance) {
+                    min_distance = distance;
+                    min_building_id = i;
+                }
+            }
+        }
+        if (min_building_id) {
+            struct building_t *min = &all_buildings[min_building_id];
+            if (map_has_road_access(min->x, min->y, 3, &tile) && min->has_road_access == 1) {
+                tile.x = min->x;
+                tile.y = min->y;
+            }
+        }
+    }
+    if (!min_building_id) {
+        return 0;
+    }
+    ship->trader_amount_bought++;
+    f->destination_building_id = min_building_id;
+    f->action_state = FIGURE_ACTION_DOCKER_EXPORT_GOING_TO_WAREHOUSE;
+    f->wait_ticks = 0;
+    f->destination_x = tile.x;
+    f->destination_y = tile.y;
+    f->resource_id = resource;
+    return 1;
+}
+
+static void generate_protestor(struct building_t *b)
+{
+    city_data.sentiment.protesters++;
+    if (b->house_criminal_active < 1) {
+        b->house_criminal_active = 1;
+        int x_road, y_road;
+        if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
+            struct figure_t *f = figure_create(FIGURE_PROTESTER, x_road, y_road, DIR_4_BOTTOM);
+            f->is_targetable = 1;
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
+            f->wait_ticks = 10 + (b->house_figure_generation_delay & 0xf);
+            city_data.ratings.peace_num_criminals++;
+        }
+    }
+}
+
+static void generate_mugger(struct building_t *b)
+{
+    city_data.sentiment.criminals++;
+    if (b->house_criminal_active < 2) {
+        b->house_criminal_active = 2;
+        int x_road, y_road;
+        if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
+            struct figure_t *f = figure_create(FIGURE_CRIMINAL, x_road, y_road, DIR_4_BOTTOM);
+            f->is_targetable = 1;
+            f->terrain_usage = TERRAIN_USAGE_ROADS;
+            f->wait_ticks = 10 + (b->house_figure_generation_delay & 0xf);
+            city_data.ratings.peace_num_criminals++;
+            if (city_data.finance.this_year.income.taxes > 20) {
+                int money_stolen = city_data.finance.this_year.income.taxes / 4;
+                if (money_stolen > 400) {
+                    money_stolen = 400 - random_byte() / 2;
+                }
+                city_message_post(1, MESSAGE_THEFT, money_stolen, f->grid_offset);
+                city_data.finance.stolen_this_year += money_stolen;
+                city_finance_process_misc(money_stolen);
+            }
+        }
+    }
+}
+
+static void remove_resource_from_warehouse(struct figure_t *f)
+{
+    if (figure_is_alive(f)) {
+        int err = building_warehouse_remove_resource(&all_buildings[f->building_id], f->resource_id, 1);
+        if (err) {
+            figure_delete(f);
+        }
+    }
+}
+
+static void building_workshop_add_raw_material(struct building_t *b)
+{
+    if (b->id > 0 && building_is_workshop(b->type)) {
+        b->loads_stored++; // BUG: any raw material accepted
+    }
+}
+
+static void reroute_cartpusher(struct figure_t *f)
+{
+    figure_route_remove(f);
+    if (terrain_land_citizen.items[f->grid_offset] != CITIZEN_2_PASSABLE_TERRAIN) {
+        f->action_state = FIGURE_ACTION_CARTPUSHER_INITIAL;
+    }
+    f->wait_ticks = 0;
+}
+
+static void update_image_cartpusher(struct figure_t *f)
+{
+    int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
+
+    f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + dir + 8 * f->image_offset;
+    if (f->cart_image_id) {
+        f->cart_image_id += dir;
+        figure_image_set_cart_offset(f, dir);
+        if (f->loads_sold_or_carrying >= 8) {
+            f->y_offset_cart -= 40;
+        }
+    }
+}
+
+static int building_granary_for_storing(int x, int y, int resource, int road_network_id, int force_on_stockpile, int *understaffed, struct map_point_t *dst)
+{
+    if (scenario.rome_supplies_wheat) {
+        return 0;
+    }
+    if (!resource_is_food(resource)) {
+        return 0;
+    }
+    if (city_data.resource.stockpiled[resource] && !force_on_stockpile) {
+        return 0;
+    }
+    int min_dist = INFINITE;
+    int min_building_id = 0;
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY) {
+            continue;
+        }
+        if (!b->has_road_access || b->road_network_id != road_network_id) {
+            continue;
+        }
+        if (calc_percentage(b->num_workers, building_properties[b->type].n_laborers) < 100) {
+            if (understaffed) {
+                *understaffed += 1;
+            }
+            continue;
+        }
+        struct building_storage_t *s = building_storage_get(b->storage_id);
+        if (s->resource_state[resource] == BUILDING_STORAGE_STATE_NOT_ACCEPTING || s->empty_all) {
+            continue;
+        }
+        if (b->data.granary.resource_stored[RESOURCE_NONE] >= ONE_LOAD) {
+            // there is room
+            int dist = calc_maximum_distance(b->x + 1, b->y + 1, x, y);
+            if (dist < min_dist) {
+                min_dist = dist;
+                min_building_id = i;
+            }
+        }
+    }
+    // deliver to center of granary
+    struct building_t *min = &all_buildings[min_building_id];
+    dst->x = min->x + 1;
+    dst->y = min->y + 1;
+    return min_building_id;
+}
+
+static int building_get_workshop_for_raw_material_with_room(int x, int y, int resource, int road_network_id, struct map_point_t *dst)
+{
+    if (city_data.resource.stockpiled[resource]) {
+        return 0;
+    }
+    int output_type = resource_to_workshop_type(resource);
+    if (output_type == WORKSHOP_NONE) {
+        return 0;
+    }
+    int min_dist = INFINITE;
+    struct building_t *min_building = 0;
+    for (int i = 1; i < MAX_BUILDINGS; i++) {
+        struct building_t *b = &all_buildings[i];
+        if (b->state != BUILDING_STATE_IN_USE || !building_is_workshop(b->type)) {
+            continue;
+        }
+        if (!b->has_road_access) {
+            continue;
+        }
+        if (b->subtype.workshop_type == output_type && b->road_network_id == road_network_id && b->loads_stored < 2) {
+            int dist = calc_maximum_distance(b->x, b->y, x, y);
+            if (b->loads_stored > 0) {
+                dist += 20;
+            }
+            if (dist < min_dist) {
+                min_dist = dist;
+                min_building = b;
+            }
+        }
+    }
+    if (min_building) {
+        dst->x = min_building->road_access_x;
+        dst->y = min_building->road_access_y;
+        return min_building->id;
+    }
+    return 0;
+}
+
+static void set_destination(struct figure_t *f, int action, int building_id, int x_dst, int y_dst)
+{
+    f->destination_building_id = building_id;
+    f->action_state = action;
+    f->wait_ticks = 0;
+    f->destination_x = x_dst;
+    f->destination_y = y_dst;
+}
+
+static void set_cart_graphic(struct figure_t *f)
+{
+    f->cart_image_id = EMPTY_CART_IMG_ID + resource_images[f->resource_id].cart_img_id + resource_image_offset(f->resource_id, RESOURCE_IMAGE_CART);
+}
+
 void game_run(void)
 {
     uint32_t now_millis = time_get_millis();
@@ -2188,7 +3170,91 @@ void game_run(void)
                     map_routing_update_land();
                 }
                 break;
-            case 45: figure_generate_criminals(); break;
+            case 45:
+            {
+                struct building_t *min_building = 0;
+                int min_happiness = 50;
+                max_id = building_get_highest_id();
+                for (int k = 1; k <= max_id; k++) {
+                    struct building_t *b = &all_buildings[k];
+                    if (b->state == BUILDING_STATE_IN_USE && b->house_size) {
+                        if (b->sentiment.house_happiness >= 50) {
+                            b->house_criminal_active = 0;
+                        } else if (b->sentiment.house_happiness < min_happiness) {
+                            min_happiness = b->sentiment.house_happiness;
+                            min_building = b;
+                        }
+                    }
+                }
+                if (min_building) {
+                    int sentiment = city_data.sentiment.value;
+                    if (sentiment < 30) {
+                        if (random_byte() >= sentiment + 50) {
+                            if (min_happiness <= 10) {
+                                int x_road, y_road;
+                                if (map_closest_road_within_radius(min_building->x, min_building->y, min_building->size, 4, &x_road, &y_road)) {
+                                    city_data.sentiment.criminals++;
+                                    int people_in_mob;
+                                    if (city_data.population.population <= 150) {
+                                        people_in_mob = 1;
+                                    } else if (city_data.population.population <= 300) {
+                                        people_in_mob = 2;
+                                    } else if (city_data.population.population <= 800) {
+                                        people_in_mob = 3;
+                                    } else if (city_data.population.population <= 1200) {
+                                        people_in_mob = 4;
+                                    } else if (city_data.population.population <= 2000) {
+                                        people_in_mob = 5;
+                                    } else {
+                                        people_in_mob = 6;
+                                    }
+                                    int x_target, y_target;
+                                    int target_building_id = formation_rioter_get_target_building(&x_target, &y_target);
+                                    for (int k = 0; k < people_in_mob; k++) {
+                                        struct figure_t *f = figure_create(FIGURE_RIOTER, x_road, y_road, DIR_4_BOTTOM);
+                                        f->is_targetable = 1;
+                                        f->action_state = FIGURE_ACTION_RIOTER_CREATED;
+                                        f->terrain_usage = TERRAIN_USAGE_ENEMY;
+                                        f->roam_length = 0;
+                                        f->wait_ticks = 10 + 4 * k;
+                                        if (target_building_id) {
+                                            f->destination_x = x_target;
+                                            f->destination_y = y_target;
+                                            f->destination_building_id = target_building_id;
+                                        }
+                                        city_data.figure.rioters++;
+                                    }
+                                    destroy_on_fire(min_building, 0);
+                                    city_data.ratings.peace_num_rioters++;
+                                    city_data.ratings.peace_riot_cause = city_data.sentiment.low_mood_cause;
+                                    city_sentiment_change_happiness(20);
+                                    city_message_apply_sound_interval(MESSAGE_CAT_RIOT);
+                                    city_message_post_with_popup_delay(MESSAGE_CAT_RIOT, MESSAGE_RIOT, min_building->type, map_grid_offset(x_road, y_road));
+                                }
+                            } else if (min_happiness < 30) {
+                                generate_mugger(min_building);
+                            } else if (min_happiness < 50) {
+                                generate_protestor(min_building);
+                            }
+                        }
+                    } else if (sentiment < 60) {
+                        if (random_byte() >= sentiment + 40) {
+                            if (min_happiness < 30) {
+                                generate_mugger(min_building);
+                            } else if (min_happiness < 50) {
+                                generate_protestor(min_building);
+                            }
+                        }
+                    } else {
+                        if (random_byte() >= sentiment + 20) {
+                            if (min_happiness < 50) {
+                                generate_protestor(min_building);
+                            }
+                        }
+                    }
+                }
+            }
+            break;
             case 46: // update wheat production
                 if (scenario.climate != CLIMATE_NORTHERN) {
                     for (int j = 1; j < MAX_BUILDINGS; j++) {
@@ -2517,151 +3583,3289 @@ void game_run(void)
             if (f->in_use) {
                 switch (f->type) {
                     case FIGURE_IMMIGRANT:
-                        figure_immigrant_action(f);
-                        break;
+                    {
+                        struct building_t *b = &all_buildings[f->immigrant_building_id];
+                        f->cart_image_id = 0;
+                        if (b->state != BUILDING_STATE_IN_USE || b->immigrant_figure_id != f->id || !b->house_size) {
+                            figure_delete(f);
+                            return;
+                        }
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_IMMIGRANT_CREATED:
+                                f->is_invisible = 1;
+                                f->wait_ticks--;
+                                if (f->wait_ticks <= 0) {
+                                    int x_road, y_road;
+                                    if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
+                                        f->action_state = FIGURE_ACTION_IMMIGRANT_ARRIVING;
+                                        f->destination_x = x_road;
+                                        f->destination_y = y_road;
+                                        f->roam_length = 0;
+                                    } else {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_IMMIGRANT_ARRIVING:
+                                f->is_invisible = 0;
+                                figure_movement_move_ticks(f, 1);
+                                switch (f->direction) {
+                                    case DIR_FIGURE_AT_DESTINATION:
+                                        f->action_state = FIGURE_ACTION_IMMIGRANT_ENTERING_HOUSE;
+                                        figure_movement_set_cross_country_destination(f, b->x, b->y);
+                                        f->roam_length = 0;
+                                        break;
+                                    case DIR_FIGURE_REROUTE:
+                                        figure_route_remove(f);
+                                        break;
+                                    case DIR_FIGURE_LOST:
+                                        b->immigrant_figure_id = 0;
+                                        figure_delete(f);
+                                        return;
+                                }
+                                break;
+                            case FIGURE_ACTION_IMMIGRANT_ENTERING_HOUSE:
+                                f->use_cross_country = 1;
+                                f->is_invisible = 1;
+                                if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
+                                    int max_people = house_properties[b->subtype.house_level].max_people;
+                                    if (b->house_is_merged) {
+                                        max_people *= 4;
+                                    }
+                                    int room = max_people - b->house_population;
+                                    if (room < 0) {
+                                        room = 0;
+                                    }
+                                    if (room < f->migrant_num_people) {
+                                        f->migrant_num_people = room;
+                                    }
+                                    if (!b->house_population) {
+                                        building_house_change_to(b, BUILDING_HOUSE_SMALL_TENT);
+                                    }
+                                    b->house_population += f->migrant_num_people;
+                                    b->house_population_room = max_people - b->house_population;
+                                    city_population_add(f->migrant_num_people);
+                                    b->immigrant_figure_id = 0;
+                                    figure_delete(f);
+                                    return;
+                                }
+                                f->is_invisible = f->in_building_wait_ticks ? 1 : 0;
+                                break;
+                        }
+                        update_migrant_dir_and_image(f);
+                    }
+                    break;
                     case FIGURE_EMIGRANT:
-                        figure_emigrant_action(f);
+                        f->cart_image_id = 0;
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_EMIGRANT_CREATED:
+                                f->is_invisible = 1;
+                                f->wait_ticks++;
+                                if (f->wait_ticks >= 5) {
+                                    int x_road, y_road;
+                                    if (!map_closest_road_within_radius(f->x, f->y, 1, 5, &x_road, &y_road)) {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                    f->action_state = FIGURE_ACTION_EMIGRANT_EXITING_HOUSE;
+                                    figure_movement_set_cross_country_destination(f, x_road, y_road);
+                                    f->roam_length = 0;
+                                }
+                                break;
+                            case FIGURE_ACTION_EMIGRANT_EXITING_HOUSE:
+                                f->use_cross_country = 1;
+                                f->is_invisible = 1;
+                                if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
+                                    f->action_state = FIGURE_ACTION_EMIGRANT_LEAVING;
+                                    f->destination_x = scenario.entry_point.x;
+                                    f->destination_y = scenario.entry_point.y;
+                                    f->roam_length = 0;
+                                    f->progress_on_tile = 15;
+                                }
+                                f->is_invisible = f->in_building_wait_ticks ? 1 : 0;
+                                break;
+                            case FIGURE_ACTION_EMIGRANT_LEAVING:
+                                f->use_cross_country = 0;
+                                f->is_invisible = 0;
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION ||
+                                    f->direction == DIR_FIGURE_REROUTE ||
+                                    f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                        }
+                        update_migrant_dir_and_image(f);
                         break;
                     case FIGURE_HOMELESS:
-                        figure_homeless_action(f);
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_HOMELESS_CREATED:
+                                f->image_offset = 0;
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 51) {
+                                    int building_id = closest_house_with_room(f->x, f->y);
+                                    if (building_id) {
+                                        struct building_t *b = &all_buildings[building_id];
+                                        int x_road, y_road;
+                                        if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
+                                            b->immigrant_figure_id = f->id;
+                                            f->immigrant_building_id = building_id;
+                                            f->action_state = FIGURE_ACTION_HOMELESS_GOING_TO_HOUSE;
+                                            f->destination_x = x_road;
+                                            f->destination_y = y_road;
+                                            f->roam_length = 0;
+                                        } else {
+                                            figure_delete(f);
+                                            return;
+                                        }
+                                    } else {
+                                        f->action_state = FIGURE_ACTION_HOMELESS_LEAVING;
+                                        f->destination_x = scenario.exit_point.x;
+                                        f->destination_y = scenario.exit_point.y;
+                                        f->roam_length = 0;
+                                        f->wait_ticks = 0;
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_HOMELESS_GOING_TO_HOUSE:
+                                f->is_invisible = 0;
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                                    all_buildings[f->immigrant_building_id].immigrant_figure_id = 0;
+                                    figure_delete(f);
+                                    return;
+                                } else if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    struct building_t *b = &all_buildings[f->immigrant_building_id];
+                                    f->action_state = FIGURE_ACTION_HOMELESS_ENTERING_HOUSE;
+                                    figure_movement_set_cross_country_destination(f, b->x, b->y);
+                                    f->roam_length = 0;
+                                }
+                                break;
+                            case FIGURE_ACTION_HOMELESS_ENTERING_HOUSE:
+                                f->use_cross_country = 1;
+                                f->is_invisible = 1;
+                                if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
+                                    struct building_t *b = &all_buildings[f->immigrant_building_id];
+                                    if (f->immigrant_building_id && building_is_house(b->type)) {
+                                        int max_people = house_properties[b->subtype.house_level].max_people;
+                                        if (b->house_is_merged) {
+                                            max_people *= 4;
+                                        }
+                                        int room = max_people - b->house_population;
+                                        if (room < 0) {
+                                            room = 0;
+                                        }
+                                        if (room < f->migrant_num_people) {
+                                            f->migrant_num_people = room;
+                                        }
+                                        if (!b->house_population) {
+                                            building_house_change_to(b, BUILDING_HOUSE_SMALL_TENT);
+                                        }
+                                        b->house_population += f->migrant_num_people;
+                                        b->house_population_room = max_people - b->house_population;
+                                        city_population_add_homeless(f->migrant_num_people);
+                                        b->immigrant_figure_id = 0;
+                                    }
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_HOMELESS_LEAVING:
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                }
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 30) {
+                                    f->wait_ticks = 0;
+                                    int building_id = closest_house_with_room(f->x, f->y);
+                                    if (building_id > 0) {
+                                        struct building_t *b = &all_buildings[building_id];
+                                        int x_road, y_road;
+                                        if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
+                                            b->immigrant_figure_id = f->id;
+                                            f->immigrant_building_id = building_id;
+                                            f->action_state = FIGURE_ACTION_HOMELESS_GOING_TO_HOUSE;
+                                            f->destination_x = x_road;
+                                            f->destination_y = y_road;
+                                            f->roam_length = 0;
+                                            figure_route_remove(f);
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+                        figure_image_increase_offset(f, 12);
+                        f->image_id = image_group(GROUP_FIGURE_HOMELESS) + figure_image_direction(f) + 8 * f->image_offset;
                         break;
                     case FIGURE_PATRICIAN:
-                        figure_patrician_action(f);
+                        if (all_buildings[f->building_id].state != BUILDING_STATE_IN_USE) {
+                            figure_delete(f);
+                            return;
+                        }
+                        roamer_action(f, 1);
+                        figure_image_increase_offset(f, 12);
+                        f->image_id = image_group(GROUP_FIGURE_PATRICIAN) + figure_image_direction(f) + 8 * f->image_offset;
                         break;
                     case FIGURE_CART_PUSHER:
-                        figure_cartpusher_action(f);
-                        break;
+                    {
+                        f->cart_image_id = 0;
+                        int road_network_id = map_road_network_get(f->grid_offset);
+                        struct building_t *b = &all_buildings[f->building_id];
+
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_CARTPUSHER_INITIAL:
+                                set_cart_graphic(f);
+                                if (!map_routing_citizen_is_passable(f->grid_offset)) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 30) {
+                                    struct map_point_t dst;
+                                    int understaffed_storages = 0;
+                                    // priority 1: warehouse if resource is on stockpile
+                                    int dst_building_id = building_warehouse_for_storing(0, f->x, f->y,
+                                        b->output_resource_id, road_network_id,
+                                        &understaffed_storages, &dst);
+                                    if (!city_data.resource.stockpiled[b->output_resource_id]) {
+                                        dst_building_id = 0;
+                                    }
+                                    if (dst_building_id) {
+                                        set_destination(f, FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_WAREHOUSE, dst_building_id, dst.x, dst.y);
+                                    } else {
+                                        // priority 2: accepting granary for food
+                                        dst_building_id = building_granary_for_storing(f->x, f->y,
+                                            b->output_resource_id, road_network_id, 0,
+                                            &understaffed_storages, &dst);
+                                        if (dst_building_id) {
+                                            set_destination(f, FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_GRANARY, dst_building_id, dst.x, dst.y);
+                                        } else {
+                                            // priority 3: workshop for raw material
+                                            dst_building_id = building_get_workshop_for_raw_material_with_room(f->x, f->y, b->output_resource_id, road_network_id, &dst);
+                                            if (dst_building_id) {
+                                                set_destination(f, FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_WORKSHOP, dst_building_id, dst.x, dst.y);
+                                            } else {
+                                                // priority 4: warehouse
+                                                dst_building_id = building_warehouse_for_storing(0, f->x, f->y,
+                                                    b->output_resource_id, road_network_id,
+                                                    &understaffed_storages, &dst);
+                                                if (dst_building_id) {
+                                                    set_destination(f, FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_WAREHOUSE, dst_building_id, dst.x, dst.y);
+                                                } else {
+                                                    // priority 5: granary forced when on stockpile
+                                                    dst_building_id = building_granary_for_storing(f->x, f->y,
+                                                        b->output_resource_id, road_network_id, 1,
+                                                        &understaffed_storages, &dst);
+                                                    if (dst_building_id) {
+                                                        set_destination(f, FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_GRANARY, dst_building_id, dst.x, dst.y);
+                                                    } else {
+                                                        // no one will accept
+                                                        f->wait_ticks = 0;
+                                                        // set cartpusher text
+                                                        f->min_max_seen = understaffed_storages ? 2 : 1;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_WAREHOUSE:
+                                set_cart_graphic(f);
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_CARTPUSHER_AT_WAREHOUSE;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    reroute_cartpusher(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_GRANARY:
+                                set_cart_graphic(f);
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_CARTPUSHER_AT_GRANARY;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    reroute_cartpusher(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    f->action_state = FIGURE_ACTION_CARTPUSHER_INITIAL;
+                                    f->wait_ticks = 0;
+                                }
+                                if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_WORKSHOP:
+                                set_cart_graphic(f);
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_CARTPUSHER_AT_WORKSHOP;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    reroute_cartpusher(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_CARTPUSHER_AT_WAREHOUSE:
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 10) {
+                                    if (building_warehouse_add_resource(&all_buildings[f->destination_building_id], f->resource_id)) {
+                                        f->action_state = FIGURE_ACTION_CARTPUSHER_RETURNING;
+                                        f->wait_ticks = 0;
+                                        f->destination_x = f->source_x;
+                                        f->destination_y = f->source_y;
+                                    } else {
+                                        figure_route_remove(f);
+                                        f->action_state = FIGURE_ACTION_CARTPUSHER_INITIAL;
+                                        f->wait_ticks = 0;
+                                    }
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_CARTPUSHER_AT_GRANARY:
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 5) {
+                                    if (building_granary_add_resource(&all_buildings[f->destination_building_id], f->resource_id, 1)) {
+                                        f->action_state = FIGURE_ACTION_CARTPUSHER_RETURNING;
+                                        f->wait_ticks = 0;
+                                        f->destination_x = f->source_x;
+                                        f->destination_y = f->source_y;
+                                    } else {
+                                        b = &all_buildings[f->building_id];
+                                        struct map_point_t dst;
+                                        // priority 1: accepting granary for food
+                                        int dst_building_id = building_granary_for_storing(f->x, f->y,
+                                            b->output_resource_id, road_network_id, 0,
+                                            0, &dst);
+                                        if (dst_building_id) {
+                                            set_destination(f, FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_GRANARY, dst_building_id, dst.x, dst.y);
+                                        } else {
+                                            // priority 2: warehouse
+                                            dst_building_id = building_warehouse_for_storing(0, f->x, f->y,
+                                                b->output_resource_id, road_network_id,
+                                                0, &dst);
+                                            if (dst_building_id) {
+                                                set_destination(f, FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_WAREHOUSE, dst_building_id, dst.x, dst.y);
+                                            } else {
+                                                // priority 3: granary
+                                                dst_building_id = building_granary_for_storing(f->x, f->y,
+                                                    b->output_resource_id, road_network_id, 1,
+                                                    0, &dst);
+                                                if (dst_building_id) {
+                                                    set_destination(f, FIGURE_ACTION_CARTPUSHER_DELIVERING_TO_GRANARY, dst_building_id, dst.x, dst.y);
+                                                } else {
+                                                    // no one will accept, stand idle
+                                                    f->wait_ticks = 0;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_CARTPUSHER_AT_WORKSHOP:
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 5) {
+                                    building_workshop_add_raw_material(&all_buildings[f->destination_building_id]);
+                                    f->action_state = FIGURE_ACTION_CARTPUSHER_RETURNING;
+                                    f->wait_ticks = 0;
+                                    f->destination_x = f->source_x;
+                                    f->destination_y = f->source_y;
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_CARTPUSHER_RETURNING:
+                                f->cart_image_id = EMPTY_CART_IMG_ID;
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    figure_delete(f);
+                                    return;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                        }
+                        figure_image_increase_offset(f, 12);
+                        update_image_cartpusher(f);
+                    }
+                    break;
                     case FIGURE_LABOR_SEEKER:
-                        figure_labor_seeker_action(f);
-                        break;
+                    {
+                        struct building_t *b = &all_buildings[f->building_id];
+                        if (b->state != BUILDING_STATE_IN_USE || b->figure_id2 != f->id) {
+                            figure_delete(f);
+                            return;
+                        }
+                        roamer_action(f, 1);
+                        figure_image_increase_offset(f, 12);
+                        f->image_id = image_group(GROUP_FIGURE_LABOR_SEEKER) + figure_image_direction(f) + 8 * f->image_offset;
+                    }
+                    break;
                     case FIGURE_BARBER:
-                        figure_barber_action(f);
+                        culture_action(f, GROUP_FIGURE_BARBER);
                         break;
                     case FIGURE_BATHHOUSE_WORKER:
-                        figure_bathhouse_worker_action(f);
+                        culture_action(f, GROUP_FIGURE_BATHHOUSE_WORKER);
                         break;
                     case FIGURE_DOCTOR:
                     case FIGURE_SURGEON:
-                        figure_doctor_action(f);
+                        culture_action(f, GROUP_FIGURE_DOCTOR_SURGEON);
                         break;
                     case FIGURE_PRIEST:
-                        figure_priest_action(f);
+                        culture_action(f, GROUP_FIGURE_PRIEST);
                         break;
-                    case FIGURE_SCHOOL_CHILD:
-                        figure_school_child_action(f);
+                    case FIGURE_SCHOOL_CHILD:\
+                    {
+                        struct building_t *b = &all_buildings[f->building_id];
+                        if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_SCHOOL) {
+                            figure_delete(f);
+                            return;
+                        }
+                        figure_image_increase_offset(f, 12);
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_ROAMING:
+                                f->is_invisible = 0;
+                                f->roam_length++;
+                                if (f->roam_length >= figure_properties[f->type].max_roam_length) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                figure_movement_roam_ticks(f, 2);
+                                break;
+                        }
+                        f->image_id = image_group(GROUP_FIGURE_SCHOOL_CHILD) + figure_image_direction(f) + 8 * f->image_offset;
                         break;
+                    }
                     case FIGURE_TEACHER:
-                        figure_teacher_action(f);
+                        culture_action(f, GROUP_FIGURE_TEACHER_LIBRARIAN);
                         break;
                     case FIGURE_LIBRARIAN:
-                        figure_librarian_action(f);
+                        culture_action(f, GROUP_FIGURE_TEACHER_LIBRARIAN);
                         break;
                     case FIGURE_MISSIONARY:
-                        figure_missionary_action(f);
+                    {
+                        struct building_t *b = &all_buildings[f->building_id];
+                        if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
+                            figure_delete(f);
+                            return;
+                        }
+                        roamer_action(f, 1);
+                        figure_image_increase_offset(f, 12);
+                        f->image_id = image_group(GROUP_FIGURE_MISSIONARY) + figure_image_direction(f) + 8 * f->image_offset;
                         break;
+                    }
                     case FIGURE_ACTOR:
                     case FIGURE_GLADIATOR:
                     case FIGURE_LION_TAMER:
                     case FIGURE_CHARIOTEER:
-                        figure_entertainer_action(f);
+                    {
+                        struct building_t *b = &all_buildings[f->building_id];
+                        f->cart_image_id = EMPTY_CART_IMG_ID;
+                        f->use_cross_country = 0;
+                        figure_image_increase_offset(f, 12);
+                        f->wait_ticks_missile++;
+                        if (f->wait_ticks_missile >= 120) {
+                            f->wait_ticks_missile = 0;
+                        }
+                        if (scenario.gladiator_revolt.state == EVENT_IN_PROGRESS && f->type == FIGURE_GLADIATOR) {
+                            if (f->action_state == FIGURE_ACTION_ENTERTAINER_GOING_TO_VENUE ||
+                                f->action_state == FIGURE_ACTION_ENTERTAINER_ROAMING ||
+                                f->action_state == FIGURE_ACTION_ENTERTAINER_RETURNING) {
+                                f->type = FIGURE_ENEMY_GLADIATOR;
+                                figure_route_remove(f);
+                                f->roam_length = 0;
+                                f->action_state = FIGURE_ACTION_NATIVE_CREATED;
+                                f->is_targetable = 1;
+                                f->terrain_usage = TERRAIN_USAGE_ANY;
+                                return;
+                            }
+                        }
+                        int speed_factor = f->type == FIGURE_CHARIOTEER ? 2 : 1;
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_ENTERTAINER_AT_SCHOOL_CREATED:
+                                f->is_invisible = 1;
+                                f->image_offset = 0;
+                                f->wait_ticks_missile = 0;
+                                f->wait_ticks--;
+                                if (f->wait_ticks <= 0) {
+                                    int x_road, y_road;
+                                    if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
+                                        f->action_state = FIGURE_ACTION_ENTERTAINER_EXITING_SCHOOL;
+                                        figure_movement_set_cross_country_destination(f, x_road, y_road);
+                                        f->roam_length = 0;
+                                    } else {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_ENTERTAINER_EXITING_SCHOOL:
+                                f->use_cross_country = 1;
+                                f->is_invisible = 1;
+                                if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
+                                    int dst_building_id = 0;
+                                    switch (f->type) {
+                                        case FIGURE_ACTOR:
+                                            dst_building_id = determine_destination(f->x, f->y, BUILDING_THEATER, BUILDING_AMPHITHEATER);
+                                            break;
+                                        case FIGURE_GLADIATOR:
+                                            dst_building_id = determine_destination(f->x, f->y, BUILDING_AMPHITHEATER, BUILDING_COLOSSEUM);
+                                            break;
+                                        case FIGURE_LION_TAMER:
+                                            dst_building_id = determine_destination(f->x, f->y, BUILDING_COLOSSEUM, 0);
+                                            break;
+                                        case FIGURE_CHARIOTEER:
+                                            dst_building_id = determine_destination(f->x, f->y, BUILDING_HIPPODROME, 0);
+                                            break;
+                                    }
+                                    if (dst_building_id) {
+                                        struct building_t *b_dst = &all_buildings[dst_building_id];
+                                        int x_road, y_road;
+                                        if (map_closest_road_within_radius(b_dst->x, b_dst->y, b_dst->size, 2, &x_road, &y_road)) {
+                                            f->destination_building_id = dst_building_id;
+                                            f->action_state = FIGURE_ACTION_ENTERTAINER_GOING_TO_VENUE;
+                                            f->destination_x = x_road;
+                                            f->destination_y = y_road;
+                                            f->roam_length = 0;
+                                        } else {
+                                            figure_delete(f);
+                                            return;
+                                        }
+                                    } else {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                }
+                                f->is_invisible = 1;
+                                break;
+                            case FIGURE_ACTION_ENTERTAINER_GOING_TO_VENUE:
+                            {
+                                f->is_invisible = 0;
+                                f->roam_length++;
+                                if (f->roam_length >= 3200) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                figure_movement_move_ticks(f, speed_factor);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    b = &all_buildings[f->destination_building_id];
+                                    if (b->type >= BUILDING_AMPHITHEATER && b->type <= BUILDING_COLOSSEUM) {
+                                        switch (f->type) {
+                                            case FIGURE_ACTOR:
+                                                b->data.entertainment.play++;
+                                                if (b->data.entertainment.play >= 5) {
+                                                    b->data.entertainment.play = 0;
+                                                }
+                                                if (b->type == BUILDING_THEATER) {
+                                                    b->data.entertainment.days1 = 32;
+                                                } else {
+                                                    b->data.entertainment.days2 = 32;
+                                                }
+                                                break;
+                                            case FIGURE_GLADIATOR:
+                                                if (b->type == BUILDING_AMPHITHEATER) {
+                                                    b->data.entertainment.days1 = 32;
+                                                } else {
+                                                    b->data.entertainment.days2 = 32;
+                                                }
+                                                break;
+                                            case FIGURE_LION_TAMER:
+                                            case FIGURE_CHARIOTEER:
+                                                b->data.entertainment.days1 = 32;
+                                                break;
+                                        }
+                                    }
+                                    figure_delete(f);
+                                    return;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            }
+                            case FIGURE_ACTION_ENTERTAINER_ROAMING:
+                                f->is_invisible = 0;
+                                f->roam_length++;
+                                if (f->roam_length >= figure_properties[f->type].max_roam_length) {
+                                    int x_road, y_road;
+                                    if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
+                                        f->action_state = FIGURE_ACTION_ENTERTAINER_RETURNING;
+                                        f->destination_x = x_road;
+                                        f->destination_y = y_road;
+                                    } else {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                }
+                                figure_movement_roam_ticks(f, speed_factor);
+                                break;
+                            case FIGURE_ACTION_ENTERTAINER_RETURNING:
+                                figure_movement_move_ticks(f, speed_factor);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION ||
+                                    f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                        }
+                        int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
+                        if (f->type == FIGURE_CHARIOTEER) {
+                            f->cart_image_id = 0;
+                            f->image_id = image_group(GROUP_FIGURE_CHARIOTEER) + dir + 8 * f->image_offset;
+                            return;
+                        }
+                        int image_id;
+                        if (f->type == FIGURE_ACTOR) {
+                            image_id = image_group(GROUP_FIGURE_ACTOR);
+                        } else if (f->type == FIGURE_GLADIATOR) {
+                            image_id = image_group(GROUP_FIGURE_GLADIATOR);
+                        } else if (f->type == FIGURE_LION_TAMER) {
+                            image_id = image_group(GROUP_FIGURE_LION_TAMER);
+                            if (f->wait_ticks_missile >= 96) {
+                                image_id = image_group(GROUP_FIGURE_LION_TAMER_WHIP);
+                            }
+                            f->cart_image_id = image_group(GROUP_FIGURE_LION);
+                        } else {
+                            return;
+                        }
+                        f->image_id = image_id + dir + 8 * f->image_offset;
+                        if (f->cart_image_id) {
+                            f->cart_image_id += dir + 8 * f->image_offset;
+                            figure_image_set_cart_offset(f, dir);
+                        }
                         break;
+                    }
                     case FIGURE_HIPPODROME_HORSES:
                         figure_hippodrome_horse_action(f);
                         break;
                     case FIGURE_TAX_COLLECTOR:
-                        figure_tax_collector_action(f);
+                    {
+                        struct building_t *b = &all_buildings[f->building_id];
+                        f->use_cross_country = 0;
+                        if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
+                            figure_delete(f);
+                            return;
+                        }
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_TAX_COLLECTOR_CREATED:
+                                f->is_invisible = 1;
+                                f->image_offset = 0;
+                                f->wait_ticks--;
+                                if (f->wait_ticks <= 0) {
+                                    int x_road, y_road;
+                                    if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
+                                        f->action_state = FIGURE_ACTION_TAX_COLLECTOR_ENTERING_EXITING;
+                                        figure_movement_set_cross_country_destination(f, x_road, y_road);
+                                        f->roam_length = 0;
+                                    } else {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_TAX_COLLECTOR_ENTERING_EXITING:
+                                f->use_cross_country = 1;
+                                f->is_invisible = 1;
+                                if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
+                                    if (map_building_at(f->grid_offset) == f->building_id) {
+                                        // returned to own building
+                                        figure_delete(f);
+                                        return;
+                                    } else {
+                                        f->action_state = FIGURE_ACTION_TAX_COLLECTOR_ROAMING;
+                                        figure_movement_init_roaming(f);
+                                        f->roam_length = 0;
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_TAX_COLLECTOR_ROAMING:
+                                f->is_invisible = 0;
+                                f->roam_length++;
+                                if (f->roam_length >= figure_properties[f->type].max_roam_length) {
+                                    int x_road, y_road;
+                                    if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
+                                        f->action_state = FIGURE_ACTION_TAX_COLLECTOR_RETURNING;
+                                        f->destination_x = x_road;
+                                        f->destination_y = y_road;
+                                    } else {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                }
+                                figure_movement_roam_ticks(f, 1);
+                                break;
+                            case FIGURE_ACTION_TAX_COLLECTOR_RETURNING:
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_TAX_COLLECTOR_ENTERING_EXITING;
+                                    figure_movement_set_cross_country_destination(f, b->x, b->y);
+                                    f->roam_length = 0;
+                                } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                        }
+                        figure_image_increase_offset(f, 12);
+                        f->image_id = image_group(GROUP_FIGURE_TAX_COLLECTOR) + figure_image_direction(f) + 8 * f->image_offset;
                         break;
+                    }
                     case FIGURE_ENGINEER:
-                        figure_engineer_action(f);
-                        break;
+                    {
+                        struct building_t *b = &all_buildings[f->building_id];
+                        f->use_cross_country = 0;
+                        if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
+                            figure_delete(f);
+                            return;
+                        }
+                        figure_image_increase_offset(f, 12);
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_ENGINEER_CREATED:
+                                f->is_invisible = 1;
+                                f->image_offset = 0;
+                                f->wait_ticks--;
+                                if (f->wait_ticks <= 0) {
+                                    int x_road, y_road;
+                                    if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
+                                        f->action_state = FIGURE_ACTION_ENGINEER_ENTERING_EXITING;
+                                        figure_movement_set_cross_country_destination(f, x_road, y_road);
+                                        f->roam_length = 0;
+                                    } else {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_ENGINEER_ENTERING_EXITING:
+                                f->use_cross_country = 1;
+                                f->is_invisible = 1;
+                                if (figure_movement_move_ticks_cross_country(f, 1) == 1) {
+                                    if (map_building_at(f->grid_offset) == f->building_id) {
+                                        // returned to own building
+                                        figure_delete(f);
+                                        return;
+                                    } else {
+                                        f->action_state = FIGURE_ACTION_ENGINEER_ROAMING;
+                                        figure_movement_init_roaming(f);
+                                        f->roam_length = 0;
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_ENGINEER_ROAMING:
+                                f->is_invisible = 0;
+                                f->roam_length++;
+                                if (f->roam_length >= figure_properties[f->type].max_roam_length) {
+                                    int x_road, y_road;
+                                    if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
+                                        f->action_state = FIGURE_ACTION_ENGINEER_RETURNING;
+                                        f->destination_x = x_road;
+                                        f->destination_y = y_road;
+                                    } else {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                }
+                                figure_movement_roam_ticks(f, 1);
+                                break;
+                            case FIGURE_ACTION_ENGINEER_RETURNING:
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_ENGINEER_ENTERING_EXITING;
+                                    figure_movement_set_cross_country_destination(f, b->x, b->y);
+                                    f->roam_length = 0;
+                                } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                        }
+                        f->image_id = image_group(GROUP_FIGURE_ENGINEER) + figure_image_direction(f) + 8 * f->image_offset;
+                    }
+                    break;
                     case FIGURE_FISHING_BOAT:
-                        figure_fishing_boat_action(f);
+                    {
+                        struct building_t *b = &all_buildings[f->building_id];
+                        if (b->state != BUILDING_STATE_IN_USE) {
+                            figure_delete(f);
+                            return;
+                        }
+                        if (f->action_state != FIGURE_ACTION_FISHING_BOAT_CREATED && b->data.industry.fishing_boat_id != f->id) {
+                            struct map_point_t tile;
+                            b = &all_buildings[map_water_get_wharf_for_new_fishing_boat(f, &tile)];
+                            if (b->id) {
+                                f->building_id = b->id;
+                                b->data.industry.fishing_boat_id = f->id;
+                                f->action_state = FIGURE_ACTION_FISHING_BOAT_GOING_TO_WHARF;
+                                f->destination_x = tile.x;
+                                f->destination_y = tile.y;
+                                f->source_x = tile.x;
+                                f->source_y = tile.y;
+                                figure_route_remove(f);
+                            } else {
+                                figure_delete(f);
+                                return;
+                            }
+                        }
+                        figure_image_increase_offset(f, 12);
+                        f->cart_image_id = 0;
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_FISHING_BOAT_CREATED:
+                                f->wait_ticks++;
+                                if (f->wait_ticks >= 50) {
+                                    f->wait_ticks = 0;
+                                    struct map_point_t tile;
+                                    int wharf_id = map_water_get_wharf_for_new_fishing_boat(f, &tile);
+                                    if (wharf_id) {
+                                        b->figure_id = 0; // remove from original building
+                                        f->building_id = wharf_id;
+                                        all_buildings[wharf_id].data.industry.fishing_boat_id = f->id;
+                                        f->action_state = FIGURE_ACTION_FISHING_BOAT_GOING_TO_WHARF;
+                                        f->destination_x = tile.x;
+                                        f->destination_y = tile.y;
+                                        f->source_x = tile.x;
+                                        f->source_y = tile.y;
+                                        figure_route_remove(f);
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_FISHING_BOAT_GOING_TO_FISH:
+                                figure_movement_move_ticks(f, 1);
+                                f->height_adjusted_ticks = 0;
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    struct map_point_t tile = { 0 };
+
+                                    if (map_figure_at(f->grid_offset) != f->id) {
+                                        for (int radius = 1; radius <= 5; radius++) {
+                                            int x_min, y_min, x_max, y_max;
+                                            map_grid_get_area(f->x, f->y, 1, radius, &x_min, &y_min, &x_max, &y_max);
+                                            for (int yy = y_min; yy <= y_max; yy++) {
+                                                for (int xx = x_min; xx <= x_max; xx++) {
+                                                    int grid_offset = map_grid_offset(xx, yy);
+                                                    if (!map_has_figure_at(grid_offset) && map_terrain_is(grid_offset, TERRAIN_WATER)) {
+                                                        tile.x = xx;
+                                                        tile.y = yy;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (tile.x) {
+                                        figure_route_remove(f);
+                                        f->destination_x = tile.x;
+                                        f->destination_y = tile.y;
+                                        f->direction = f->previous_tile_direction;
+                                    } else {
+                                        f->action_state = FIGURE_ACTION_FISHING_BOAT_FISHING;
+                                        f->wait_ticks = 0;
+                                    }
+                                } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                                    f->action_state = FIGURE_ACTION_FISHING_BOAT_AT_WHARF;
+                                    f->destination_x = f->source_x;
+                                    f->destination_y = f->source_y;
+                                }
+                                break;
+                            case FIGURE_ACTION_FISHING_BOAT_FISHING:
+                                f->wait_ticks++;
+                                if (f->wait_ticks >= 200) {
+                                    f->wait_ticks = 0;
+                                    f->action_state = FIGURE_ACTION_FISHING_BOAT_RETURNING_WITH_FISH;
+                                    f->destination_x = f->source_x;
+                                    f->destination_y = f->source_y;
+                                    figure_route_remove(f);
+                                }
+                                break;
+                            case FIGURE_ACTION_FISHING_BOAT_GOING_TO_WHARF:
+                                figure_movement_move_ticks(f, 1);
+                                f->height_adjusted_ticks = 0;
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_FISHING_BOAT_AT_WHARF;
+                                    f->wait_ticks = 0;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    // cannot reach grounds
+                                    city_message_post_with_message_delay(MESSAGE_CAT_FISHING_BLOCKED, 1, MESSAGE_FISHING_BOAT_BLOCKED, 12);
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_FISHING_BOAT_AT_WHARF:
+                            {
+                                int pct_workers = calc_percentage(b->num_workers, building_properties[b->type].n_laborers);
+                                int max_wait_ticks = 5 * (102 - pct_workers);
+                                if (b->data.industry.has_fish > 0) {
+                                    pct_workers = 0;
+                                }
+                                if (pct_workers > 0) {
+                                    f->wait_ticks++;
+                                    if (f->wait_ticks >= max_wait_ticks) {
+                                        f->wait_ticks = 0;
+                                        struct map_point_t tile;
+                                        int num_fishing_spots = 0;
+                                        for (int k = 0; k < MAX_FISH_POINTS; k++) {
+                                            if (scenario.fishing_points[k].x > 0) {
+                                                num_fishing_spots++;
+                                            }
+                                        }
+                                        if (num_fishing_spots) {
+                                            int min_dist = 10000;
+                                            int min_fish_id = 0;
+                                            for (int k = 0; k < MAX_FISH_POINTS; k++) {
+                                                if (scenario.fishing_points[k].x > 0) {
+                                                    int dist = calc_maximum_distance(f->x, f->y, scenario.fishing_points[k].x, scenario.fishing_points[k].y);
+                                                    if (dist < min_dist) {
+                                                        min_dist = dist;
+                                                        min_fish_id = k;
+                                                    }
+                                                }
+                                            }
+                                            if (min_dist < 10000) {
+                                                tile.x = scenario.fishing_points[min_fish_id].x;
+                                                tile.y = scenario.fishing_points[min_fish_id].y;
+                                                f->action_state = FIGURE_ACTION_FISHING_BOAT_GOING_TO_FISH;
+                                                f->destination_x = tile.x;
+                                                f->destination_y = tile.y;
+                                                figure_route_remove(f);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                            case FIGURE_ACTION_FISHING_BOAT_RETURNING_WITH_FISH:
+                                figure_movement_move_ticks(f, 1);
+                                f->height_adjusted_ticks = 0;
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_FISHING_BOAT_AT_WHARF;
+                                    f->wait_ticks = 0;
+                                    b->figure_spawn_delay = 1;
+                                    b->data.industry.has_fish++;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                        }
+                        int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
+                        if (f->action_state == FIGURE_ACTION_FISHING_BOAT_FISHING) {
+                            f->image_id = image_group(GROUP_FIGURE_SHIP) + dir + 16;
+                        } else {
+                            f->image_id = image_group(GROUP_FIGURE_SHIP) + dir + 8;
+                        }
                         break;
+                    }
                     case FIGURE_FISH_GULLS:
-                        figure_seagulls_action(f);
-                        break;
+                    {
+                        f->use_cross_country = 1;
+                        if (!(f->image_offset & 3) && figure_movement_move_ticks_cross_country(f, 1)) {
+                            f->progress_on_tile++;
+                            if (f->progress_on_tile > 8) {
+                                f->progress_on_tile = 0;
+                            }
+                            figure_movement_set_cross_country_destination(f,
+                                f->source_x + SEAGULL_OFFSETS[f->progress_on_tile].x,
+                                f->source_y + SEAGULL_OFFSETS[f->progress_on_tile].y);
+                        }
+                        if (f->id & 1) {
+                            figure_image_increase_offset(f, 54);
+                            f->image_id = image_group(GROUP_FIGURE_SEAGULLS) + f->image_offset / 3;
+                        } else {
+                            figure_image_increase_offset(f, 72);
+                            f->image_id = image_group(GROUP_FIGURE_SEAGULLS) + 18 + f->image_offset / 3;
+                        }
+                    }
+                    break;
                     case FIGURE_SHIPWRECK:
-                        figure_shipwreck_action(f);
+                        figure_image_increase_offset(f, 128);
+                        if (f->wait_ticks < 1000) {
+                            map_figure_delete(f);
+                            struct map_point_t tile = { 0 };
+                            if (!(map_terrain_is(f->grid_offset, TERRAIN_WATER) && map_figure_at(f->grid_offset) == f->id)) {
+                                for (int radius = 1; radius <= 5; radius++) {
+                                    int x_min, y_min, x_max, y_max;
+                                    map_grid_get_area(f->x, f->y, 1, radius, &x_min, &y_min, &x_max, &y_max);
+
+                                    for (int yy = y_min; yy <= y_max; yy++) {
+                                        for (int xx = x_min; xx <= x_max; xx++) {
+                                            int grid_offset = map_grid_offset(xx, yy);
+                                            if (!map_has_figure_at(grid_offset) || map_figure_at(grid_offset) == f->id) {
+                                                if (map_terrain_is(grid_offset, TERRAIN_WATER) &&
+                                                    map_terrain_is(map_grid_offset(xx, yy - 2), TERRAIN_WATER) &&
+                                                    map_terrain_is(map_grid_offset(xx, yy + 2), TERRAIN_WATER) &&
+                                                    map_terrain_is(map_grid_offset(xx - 2, yy), TERRAIN_WATER) &&
+                                                    map_terrain_is(map_grid_offset(xx + 2, yy), TERRAIN_WATER)) {
+                                                    f->x = tile.x;
+                                                    f->y = tile.y;
+                                                    f->grid_offset = map_grid_offset(f->x, f->y);
+                                                    f->cross_country_x = 15 * f->x + 7;
+                                                    f->cross_country_y = 15 * f->y + 7;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            map_figure_add(f);
+                            f->wait_ticks = 1000;
+                        }
+                        f->wait_ticks++;
+                        if (f->wait_ticks > 2000) {
+                            figure_delete(f);
+                            return;
+                        }
+                        f->image_id = image_group(GROUP_FIGURE_SHIPWRECK) + f->image_offset / 16;
                         break;
                     case FIGURE_DOCKER:
-                        figure_docker_action(f);
+                    {
+                        struct building_t *b = &all_buildings[f->building_id];
+                        figure_image_increase_offset(f, 12);
+                        f->cart_image_id = 0;
+                        if (b->state != BUILDING_STATE_IN_USE) {
+                            figure_delete(f);
+                            return;
+                        }
+                        if (b->type != BUILDING_DOCK && b->type != BUILDING_WHARF) {
+                            figure_delete(f);
+                            return;
+                        }
+                        if (b->data.dock.num_ships) {
+                            b->data.dock.num_ships--;
+                        }
+                        if (b->data.dock.trade_ship_id) {
+                            struct figure_t *ship = &figures[b->data.dock.trade_ship_id];
+                            if (!figure_is_alive(ship) || ship->type != FIGURE_TRADE_SHIP) {
+                                b->data.dock.trade_ship_id = 0;
+                            } else if (trader_has_traded_max(ship->trader_id)) {
+                                b->data.dock.trade_ship_id = 0;
+                            } else if (ship->action_state == FIGURE_ACTION_TRADE_SHIP_LEAVING) {
+                                b->data.dock.trade_ship_id = 0;
+                            }
+                        }
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_DOCKER_IDLING:
+                                f->resource_id = 0;
+                                f->cart_image_id = 0;
+                                int ship_id = b->data.dock.trade_ship_id;
+                                struct figure_t *ship = &figures[ship_id];
+                                int x, y;
+                                get_trade_center_location(f, &x, &y);
+                                struct map_point_t tile;
+                                int importable[16];
+                                importable[RESOURCE_NONE] = 0;
+                                for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
+                                    importable[r] = can_import_resource_from_trade_city(ship->empire_city_id, r);
+                                }
+                                int resource = city_trade_next_docker_import_resource();
+                                for (int k = RESOURCE_WHEAT; k < RESOURCE_TYPES_MAX && !importable[resource]; k++) {
+                                    resource = city_trade_next_docker_import_resource();
+                                }
+                                int min_building_id = 0;
+                                if (importable[resource]) {
+                                    int min_distance = 10000;
+                                    for (int l = 1; l < MAX_BUILDINGS; l++) {
+                                        b = &all_buildings[l];
+                                        if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_WAREHOUSE) {
+                                            continue;
+                                        }
+                                        if (!b->has_road_access) {
+                                            continue;
+                                        }
+                                        struct building_storage_t *storage = building_storage_get(b->storage_id);
+                                        if (storage->resource_state[resource] != BUILDING_STORAGE_STATE_NOT_ACCEPTING && !storage->empty_all) {
+                                            int distance_penalty = 32;
+                                            struct building_t *space = b;
+                                            for (int s = 0; s < 8; s++) {
+                                                space = &all_buildings[space->next_part_building_id];
+                                                if (space->id && space->subtype.warehouse_resource_id == RESOURCE_NONE) {
+                                                    distance_penalty -= 8;
+                                                }
+                                                if (space->id && space->subtype.warehouse_resource_id == resource && space->loads_stored < 4) {
+                                                    distance_penalty -= 4;
+                                                }
+                                            }
+                                            if (distance_penalty < 32) {
+                                                int distance = calc_maximum_distance(
+                                                    b->x, b->y, x, y);
+                                                // prefer emptier warehouse
+                                                distance += distance_penalty;
+                                                if (distance < min_distance) {
+                                                    min_distance = distance;
+                                                    min_building_id = l;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (min_building_id) {
+                                        struct building_t *min = &all_buildings[min_building_id];
+                                        if (map_has_road_access(min->x, min->y, 3, &tile) && min->has_road_access == 1) {
+                                            tile.x = min->x;
+                                            tile.y = min->y;
+                                        }
+                                    }
+                                }
+
+                                if (!ship_id || ship->action_state != FIGURE_ACTION_TRADE_SHIP_MOORED || !ship->loads_sold_or_carrying || !min_building_id) {
+                                    fetch_export_resource(f, b);
+                                } else {
+                                    ship->loads_sold_or_carrying--;
+                                    f->destination_building_id = min_building_id;
+                                    f->wait_ticks = 0;
+                                    f->action_state = FIGURE_ACTION_DOCKER_IMPORT_QUEUE;
+                                    f->destination_x = tile.x;
+                                    f->destination_y = tile.y;
+                                    f->resource_id = resource;
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_DOCKER_IMPORT_QUEUE:
+                                f->cart_image_id = 0;
+                                f->image_offset = 0;
+                                if (b->data.dock.queued_docker_id <= 0) {
+                                    b->data.dock.queued_docker_id = f->id;
+                                    f->wait_ticks = 0;
+                                }
+                                if (b->data.dock.queued_docker_id == f->id) {
+                                    b->data.dock.num_ships = 120;
+                                    f->wait_ticks++;
+                                    if (f->wait_ticks >= 80) {
+                                        f->action_state = FIGURE_ACTION_DOCKER_IMPORT_GOING_TO_WAREHOUSE;
+                                        f->wait_ticks = 0;
+                                        set_cart_graphic(f);
+                                        b->data.dock.queued_docker_id = 0;
+                                    }
+                                } else {
+                                    int has_queued_docker = 0;
+                                    for (int k = 0; k < 3; k++) {
+                                        if (b->data.dock.docker_ids[k]) {
+                                            struct figure_t *docker = &figures[b->data.dock.docker_ids[k]];
+                                            if (docker->id == b->data.dock.queued_docker_id && figure_is_alive(docker)) {
+                                                if (docker->action_state == FIGURE_ACTION_DOCKER_IMPORT_QUEUE ||
+                                                    docker->action_state == FIGURE_ACTION_DOCKER_EXPORT_QUEUE) {
+                                                    has_queued_docker = 1;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (!has_queued_docker) {
+                                        b->data.dock.queued_docker_id = 0;
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_DOCKER_EXPORT_QUEUE:
+                                set_cart_graphic(f);
+                                if (b->data.dock.queued_docker_id <= 0) {
+                                    b->data.dock.queued_docker_id = f->id;
+                                    f->wait_ticks = 0;
+                                }
+                                if (b->data.dock.queued_docker_id == f->id) {
+                                    b->data.dock.num_ships = 120;
+                                    f->wait_ticks++;
+                                    if (f->wait_ticks >= 80) {
+                                        f->action_state = FIGURE_ACTION_DOCKER_IDLING;
+                                        f->wait_ticks = 0;
+                                        f->image_id = 0;
+                                        f->cart_image_id = 0;
+                                        b->data.dock.queued_docker_id = 0;
+                                    }
+                                }
+                                f->wait_ticks++;
+                                if (f->wait_ticks >= 20) {
+                                    f->action_state = FIGURE_ACTION_DOCKER_IDLING;
+                                    f->wait_ticks = 0;
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_DOCKER_IMPORT_GOING_TO_WAREHOUSE:
+                                set_cart_graphic(f);
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_DOCKER_IMPORT_AT_WAREHOUSE;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_DOCKER_EXPORT_GOING_TO_WAREHOUSE:
+                                f->cart_image_id = EMPTY_CART_IMG_ID;
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_DOCKER_EXPORT_AT_WAREHOUSE;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_DOCKER_EXPORT_RETURNING:
+                                set_cart_graphic(f);
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_DOCKER_EXPORT_QUEUE;
+                                    f->wait_ticks = 0;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_DOCKER_IMPORT_RETURNING:
+                                set_cart_graphic(f);
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_DOCKER_IDLING;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_DOCKER_IMPORT_AT_WAREHOUSE:
+                                set_cart_graphic(f);
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 10) {
+                                    int trade_city_id;
+                                    if (b->data.dock.trade_ship_id) {
+                                        trade_city_id = figures[b->data.dock.trade_ship_id].empire_city_id;
+                                    } else {
+                                        trade_city_id = 0;
+                                    }
+
+                                    int try_import_resource = 0;
+                                    struct building_t *warehouse = &all_buildings[f->destination_building_id];
+                                    if (warehouse->type == BUILDING_WAREHOUSE) {
+                                        // try existing storage bay with the same resource
+                                        struct building_t *space = warehouse;
+                                        for (int k = 0; k < 8; k++) {
+                                            space = &all_buildings[space->next_part_building_id];
+                                            if (space->id > 0) {
+                                                if (space->loads_stored && space->loads_stored < 4 && space->subtype.warehouse_resource_id == f->resource_id) {
+                                                    empire_objects[trade_city_id].resource_sold[f->resource_id]++;
+                                                    building_warehouse_space_add_import(space, f->resource_id);
+                                                    try_import_resource = 1;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (!try_import_resource) {
+                                            // try unused storage bay
+                                            space = warehouse;
+                                            for (int k = 0; k < 8; k++) {
+                                                space = &all_buildings[space->next_part_building_id];
+                                                if (space->id > 0) {
+                                                    if (space->subtype.warehouse_resource_id == RESOURCE_NONE) {
+                                                        empire_objects[trade_city_id].resource_sold[f->resource_id]++;
+                                                        building_warehouse_space_add_import(space, f->resource_id);
+                                                        try_import_resource = 1;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (try_import_resource) {
+                                        int trader_id = figures[b->data.dock.trade_ship_id].trader_id;
+                                        trader_record_sold_resource(trader_id, f->resource_id);
+                                        f->action_state = FIGURE_ACTION_DOCKER_IMPORT_RETURNING;
+                                        f->wait_ticks = 0;
+                                        f->destination_x = f->source_x;
+                                        f->destination_y = f->source_y;
+                                        f->resource_id = 0;
+                                        fetch_export_resource(f, b);
+                                    } else {
+                                        f->action_state = FIGURE_ACTION_DOCKER_IMPORT_RETURNING;
+                                        f->destination_x = f->source_x;
+                                        f->destination_y = f->source_y;
+                                    }
+                                    f->wait_ticks = 0;
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_DOCKER_EXPORT_AT_WAREHOUSE:
+                                f->cart_image_id = EMPTY_CART_IMG_ID;
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 10) {
+                                    int trade_city_id;
+                                    if (b->data.dock.trade_ship_id) {
+                                        trade_city_id = figures[b->data.dock.trade_ship_id].empire_city_id;
+                                    } else {
+                                        trade_city_id = 0;
+                                    }
+                                    f->action_state = FIGURE_ACTION_DOCKER_IMPORT_RETURNING;
+                                    f->destination_x = f->source_x;
+                                    f->destination_y = f->source_y;
+                                    f->wait_ticks = 0;
+                                    struct building_t *warehouse = &all_buildings[f->destination_building_id];
+                                    int try_export_resource = 0;
+                                    if (warehouse->type == BUILDING_WAREHOUSE) {
+                                        struct building_t *space = warehouse;
+                                        for (int k = 0; k < 8; k++) {
+                                            space = &all_buildings[space->next_part_building_id];
+                                            if (space->id > 0) {
+                                                if (space->loads_stored && space->subtype.warehouse_resource_id == f->resource_id) {
+                                                    empire_objects[trade_city_id].resource_bought[f->resource_id]++;
+                                                    city_resource_remove_from_warehouse(f->resource_id, 1);
+                                                    space->loads_stored--;
+                                                    if (space->loads_stored <= 0) {
+                                                        space->subtype.warehouse_resource_id = RESOURCE_NONE;
+                                                    }
+                                                    city_finance_process_export(trade_prices[f->resource_id].sell);
+                                                    building_warehouse_space_set_image(space, f->resource_id);
+                                                    try_export_resource = 1;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (try_export_resource) {
+                                        int trader_id = figures[b->data.dock.trade_ship_id].trader_id;
+                                        trader_record_bought_resource(trader_id, f->resource_id);
+                                        f->action_state = FIGURE_ACTION_DOCKER_EXPORT_RETURNING;
+                                    } else {
+                                        fetch_export_resource(f, b);
+                                    }
+                                }
+                                f->image_offset = 0;
+                                break;
+                        }
+                        int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
+                        f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + dir + 8 * f->image_offset;
+                        if (f->cart_image_id) {
+                            f->cart_image_id += dir;
+                            figure_image_set_cart_offset(f, dir);
+                        } else {
+                            f->image_id = 0;
+                        }
                         break;
+                    }
                     case FIGURE_FLOTSAM:
                         if (scenario.river_exit_point.x != -1 && scenario.river_exit_point.y != -1) {
-                            figure_flotsam_action(f);
+                            f->is_invisible = 0;
+                            switch (f->action_state) {
+                                case FIGURE_ACTION_FLOTSAM_CREATED:
+                                    f->is_invisible = 1;
+                                    f->wait_ticks--;
+                                    if (f->wait_ticks <= 0) {
+                                        f->action_state = FIGURE_ACTION_FLOTSAM_FLOATING;
+                                        f->wait_ticks = 0;
+                                        int shipwreck_flotsam_created = 0;
+                                        if (city_data.religion.neptune_sank_ships) {
+                                            city_data.religion.neptune_sank_ships = 0;
+                                            shipwreck_flotsam_created = 1;
+                                        }
+                                        if (!f->resource_id && shipwreck_flotsam_created) {
+                                            f->min_max_seen = 1;
+                                        }
+                                        f->destination_x = scenario.river_exit_point.x;
+                                        f->destination_y = scenario.river_exit_point.y;
+                                    }
+                                    break;
+                                case FIGURE_ACTION_FLOTSAM_FLOATING:
+                                    if (f->flotsam_visible) {
+                                        f->flotsam_visible = 0;
+                                    } else {
+                                        f->flotsam_visible = 1;
+                                        f->wait_ticks++;
+                                        figure_movement_move_ticks(f, 1);
+                                        f->is_invisible = 0;
+                                        f->height_adjusted_ticks = 0;
+                                        if (f->direction == DIR_FIGURE_AT_DESTINATION ||
+                                            f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                                            f->action_state = FIGURE_ACTION_FLOTSAM_OFF_MAP;
+                                        }
+                                    }
+                                    break;
+                                case FIGURE_ACTION_FLOTSAM_OFF_MAP:
+                                    f->is_invisible = 1;
+                                    f->min_max_seen = 0;
+                                    f->action_state = FIGURE_ACTION_FLOTSAM_CREATED;
+                                    if (f->wait_ticks >= 400) {
+                                        f->wait_ticks = random_byte() & 7;
+                                    } else if (f->wait_ticks >= 200) {
+                                        f->wait_ticks = 50 + (random_byte() & 0xf);
+                                    } else if (f->wait_ticks >= 100) {
+                                        f->wait_ticks = 100 + (random_byte() & 0x1f);
+                                    } else if (f->wait_ticks >= 50) {
+                                        f->wait_ticks = 200 + (random_byte() & 0x3f);
+                                    } else {
+                                        f->wait_ticks = 300 + random_byte();
+                                    }
+                                    map_figure_delete(f);
+                                    f->x = scenario.river_entry_point.x;
+                                    f->y = scenario.river_entry_point.y;
+                                    f->grid_offset = map_grid_offset(f->x, f->y);
+                                    f->cross_country_x = 15 * f->x;
+                                    f->cross_country_y = 15 * f->y;
+                                    break;
+                            }
+                            if (f->resource_id == 0) {
+                                figure_image_increase_offset(f, 12);
+                                if (f->min_max_seen) {
+                                    f->image_id = image_group(GROUP_FIGURE_FLOTSAM_SHEEP) + FLOTSAM_TYPE_0[f->image_offset];
+                                } else {
+                                    f->image_id = image_group(GROUP_FIGURE_FLOTSAM_0) + FLOTSAM_TYPE_0[f->image_offset];
+                                }
+                            } else if (f->resource_id == 1) {
+                                figure_image_increase_offset(f, 24);
+                                f->image_id = image_group(GROUP_FIGURE_FLOTSAM_1) + FLOTSAM_TYPE_12[f->image_offset];
+                            } else if (f->resource_id == 2) {
+                                figure_image_increase_offset(f, 24);
+                                f->image_id = image_group(GROUP_FIGURE_FLOTSAM_2) + FLOTSAM_TYPE_12[f->image_offset];
+                            } else if (f->resource_id == 3) {
+                                figure_image_increase_offset(f, 24);
+                                if (FLOTSAM_TYPE_3[f->image_offset] == -1) {
+                                    f->image_id = 0;
+                                } else {
+                                    f->image_id = image_group(GROUP_FIGURE_FLOTSAM_3) + FLOTSAM_TYPE_3[f->image_offset];
+                                }
+                            }
                         }
                         break;
                     case FIGURE_BALLISTA:
-                        figure_ballista_action(f);
+                    {
+                        struct building_t *b = &all_buildings[f->building_id];
+                        f->is_invisible = 1;
+                        f->height_adjusted_ticks = 10;
+                        f->current_height = 45;
+                        if (b->state != BUILDING_STATE_IN_USE || b->figure_id4 != f->id) {
+                            figure_delete(f);
+                            return;
+                        }
+                        if (b->num_workers <= 0 || b->figure_id <= 0) {
+                            figure_delete(f);
+                            return;
+                        }
+                        map_figure_delete(f);
+                        switch (city_view_orientation()) {
+                            case DIR_0_TOP: f->x = b->x; f->y = b->y; break;
+                            case DIR_2_RIGHT: f->x = b->x + 1; f->y = b->y; break;
+                            case DIR_4_BOTTOM: f->x = b->x + 1; f->y = b->y + 1; break;
+                            case DIR_6_LEFT: f->x = b->x; f->y = b->y + 1; break;
+                        }
+                        f->grid_offset = map_grid_offset(f->x, f->y);
+                        map_figure_add(f);
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_BALLISTA_READY:
+                            {
+                                struct map_point_t tile = { -1, -1 };
+                                if (f->is_shooting) {
+                                    f->attack_image_offset++;
+                                    if (f->attack_image_offset > 100) {
+                                        f->attack_image_offset = 0;
+                                        f->is_shooting = 0;
+                                    }
+                                } else {
+                                    f->wait_ticks_missile++;
+                                    if (f->wait_ticks_missile > 250) {
+                                        f->wait_ticks_missile = 250;
+                                    }
+                                }
+                                if (f->wait_ticks_missile > figure_properties[f->type].missile_delay && set_missile_target(f, &tile)) {
+                                    f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
+                                    figure_create_missile(f, &tile, figure_properties[f->type].missile_type);
+                                    play_sound_effect(SOUND_EFFECT_BALLISTA_SHOOT);
+                                    f->wait_ticks_missile = 0;
+                                    f->is_shooting = 1;
+                                }
+                                break;
+                            }
+                        }
+                        int dir = figure_image_direction(f);
+                        if (f->action_state == FIGURE_ACTION_BALLISTA_READY) {
+                            f->image_id = image_group(GROUP_FIGURE_BALLISTA) + dir + 8 * BALLISTA_FIRING_OFFSETS[f->attack_image_offset / 4];
+                        } else {
+                            f->image_id = image_group(GROUP_FIGURE_BALLISTA) + dir;
+                        }
                         break;
+                    }
                     case FIGURE_BOLT:
-                        figure_bolt_action(f);
+                    {
+                        f->use_cross_country = 1;
+                        f->progress_on_tile++;
+                        int should_die = figure_movement_move_ticks_cross_country(f, 10);
+                        int target_id = get_target_on_tile(f);
+                        if (target_id) {
+                            struct figure_t *target = &figures[target_id];
+                            missile_hit_target(f, target);
+                            play_sound_effect(SOUND_EFFECT_BALLISTA_HIT_PERSON);
+                        }
+                        int dir = (16 + f->direction - 2 * city_view_orientation()) % 16;
+                        f->image_id = image_group(GROUP_FIGURE_MISSILE) + 32 + dir;
+                        if (f->progress_on_tile > 120) {
+                            figure_delete(f);
+                        }
+                        if (should_die || target_id) {
+                            play_sound_effect(SOUND_EFFECT_BALLISTA_HIT_GROUND);
+                            figure_delete(f);
+                        }
                         break;
+                    }
                     case FIGURE_TOWER_SENTRY:
                         figure_tower_sentry_action(f);
                         break;
                     case FIGURE_JAVELIN:
-                        figure_javelin_action(f);
+                    {
+                        f->use_cross_country = 1;
+                        f->progress_on_tile++;
+                        int should_die = figure_movement_move_ticks_cross_country(f, 4);
+                        int target_id = get_target_on_tile(f);
+                        if (target_id) {
+                            struct figure_t *target = &figures[target_id];
+                            missile_hit_target(f, target);
+                            play_sound_effect(SOUND_EFFECT_JAVELIN);
+                        }
+                        int dir = (16 + f->direction - 2 * city_view_orientation()) % 16;
+                        f->image_id = image_group(GROUP_FIGURE_MISSILE) + dir;
+                        if (should_die || target_id) {
+                            figure_delete(f);
+                        }
+                        if (f->progress_on_tile > 120) {
+                            figure_delete(f);
+                        }
                         break;
+                    }
                     case FIGURE_PREFECT:
-                        figure_prefect_action(f);
-                        break;
+                    {
+                        struct building_t *b = &all_buildings[f->building_id];
+                        if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
+                            figure_delete(f);
+                            return;
+                        }
+                        f->terrain_usage = TERRAIN_USAGE_ROADS;
+                        f->use_cross_country = 0;
+                        figure_image_increase_offset(f, 12);
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_PREFECT_CREATED:
+                                f->is_invisible = 1;
+                                f->image_offset = 0;
+                                f->wait_ticks--;
+                                if (f->wait_ticks <= 0) {
+                                    int x_road, y_road;
+                                    if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
+                                        f->action_state = FIGURE_ACTION_PREFECT_ENTERING_EXITING;
+                                        figure_movement_set_cross_country_destination(f, x_road, y_road);
+                                        f->roam_length = 0;
+                                    } else {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_PREFECT_ENTERING_EXITING:
+                                f->use_cross_country = 1;
+                                f->is_invisible = 1;
+                                if (figure_movement_move_ticks_cross_country(f, f->speed_multiplier) == 1) {
+                                    if (map_building_at(f->grid_offset) == f->building_id) {
+                                        // returned to own building
+                                        figure_delete(f);
+                                        return;
+                                    } else {
+                                        f->action_state = FIGURE_ACTION_PREFECT_ROAMING;
+                                        figure_movement_init_roaming(f);
+                                        f->roam_length = 0;
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_PREFECT_ROAMING:
+                                f->is_invisible = 0;
+                                struct figure_t *target = melee_unit__set_closest_target(f);
+                                if (target && calc_maximum_distance(f->x, f->y, b->x, b->y) < PREFECT_LEASH_RANGE) {
+                                    f->terrain_usage = TERRAIN_USAGE_ANY;
+                                    f->roam_length = figure_properties[f->type].max_roam_length;
+                                    f->prefect_recent_guard_duty = 1;
+                                    figure_movement_move_ticks(f, f->speed_multiplier);
+                                    if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                                        f->action_state = FIGURE_ACTION_PREFECT_RETURNING;
+                                    }
+                                    break;
+                                }
+                                if (fight_fire(f)) {
+                                    break;
+                                }
+                                f->roam_length++;
+                                if (f->roam_length >= figure_properties[f->type].max_roam_length) {
+                                    f->action_state = FIGURE_ACTION_PREFECT_RETURNING;
+                                }
+                                figure_movement_roam_ticks(f, f->speed_multiplier);
+                                break;
+                            case FIGURE_ACTION_PREFECT_RETURNING:
+                                if (f->prefect_recent_guard_duty) {
+                                    f->terrain_usage = TERRAIN_USAGE_ANY;
+                                }
+                                int x_road, y_road;
+                                if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
+                                    f->destination_x = x_road;
+                                    f->destination_y = y_road;
+                                    figure_route_remove(f);
+                                }
+                                figure_movement_move_ticks(f, f->speed_multiplier);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_PREFECT_ENTERING_EXITING;
+                                    figure_movement_set_cross_country_destination(f, b->x, b->y);
+                                    f->roam_length = 0;
+                                    f->prefect_recent_guard_duty = 0;
+                                    f->target_figure_id = 0;
+                                } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_PREFECT_GOING_TO_FIRE:
+                                f->terrain_usage = TERRAIN_USAGE_ANY;
+                                figure_movement_move_ticks(f, f->speed_multiplier);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_PREFECT_AT_FIRE;
+                                    figure_route_remove(f);
+                                    f->roam_length = 0;
+                                    f->wait_ticks = 50;
+                                } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_PREFECT_AT_FIRE:
+                                struct building_t *burn = &all_buildings[f->destination_building_id];
+                                int distance = calc_maximum_distance(f->x, f->y, burn->x, burn->y);
+                                if (burn->state == BUILDING_STATE_IN_USE && burn->type == BUILDING_BURNING_RUIN && distance < 2) {
+                                    burn->fire_duration = 32;
+                                    play_sound_effect(SOUND_EFFECT_FIRE_SPLASH);
+                                } else {
+                                    f->wait_ticks = 1;
+                                }
+                                f->attack_direction = calc_general_direction(f->x, f->y, burn->x, burn->y);
+                                if (f->attack_direction >= 8) {
+                                    f->attack_direction = 0;
+                                }
+                                f->wait_ticks--;
+                                if (f->wait_ticks <= 0) {
+                                    f->wait_ticks_missile = 20;
+                                    if (!fight_fire(f)) {
+                                        if (map_closest_road_within_radius(b->x, b->y, b->size, 2, &x_road, &y_road)) {
+                                            f->action_state = FIGURE_ACTION_PREFECT_RETURNING;
+                                            f->destination_x = x_road;
+                                            f->destination_y = y_road;
+                                            figure_route_remove(f);
+                                        } else {
+                                            figure_delete(f);
+                                            return;
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+                        // graphic id
+                        int dir;
+                        if (f->action_state == FIGURE_ACTION_PREFECT_AT_FIRE) {
+                            dir = f->attack_direction;
+                        } else if (f->direction < 8) {
+                            dir = f->direction;
+                        } else {
+                            dir = f->previous_tile_direction;
+                        }
+                        dir = figure_image_normalize_direction(dir);
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_PREFECT_GOING_TO_FIRE:
+                                f->image_id = image_group(GROUP_FIGURE_PREFECT_WITH_BUCKET) + dir + 8 * f->image_offset;
+                                break;
+                            case FIGURE_ACTION_PREFECT_AT_FIRE:
+                                f->image_id = image_group(GROUP_FIGURE_PREFECT_WITH_BUCKET) + dir + 96 + 8 * (f->image_offset / 2);
+                                break;
+                            default:
+                                f->image_id = image_group(GROUP_FIGURE_PREFECT) + dir + 8 * f->image_offset;
+                                break;
+                        }
+                    }
+                    break;
                     case FIGURE_FORT_STANDARD:
-                        figure_military_standard_action(f);
+                        figure_image_increase_offset(f, 16);
+                        f->image_id = image_group(GROUP_FIGURE_FORT_STANDARD_POLE) + 20 - legion_formations[f->formation_id].morale / 5;
+                        if (legion_formations[f->formation_id].figure_type == FIGURE_FORT_LEGIONARY) {
+                            f->cart_image_id = image_group(GROUP_FIGURE_FORT_FLAGS) + f->image_offset / 2;
+                        } else if (legion_formations[f->formation_id].figure_type == FIGURE_FORT_MOUNTED) {
+                            f->cart_image_id = image_group(GROUP_FIGURE_FORT_FLAGS) + 18 + f->image_offset / 2;
+                        } else {
+                            f->cart_image_id = image_group(GROUP_FIGURE_FORT_FLAGS) + 9 + f->image_offset / 2;
+                        }
                         break;
                     case FIGURE_FORT_JAVELIN:
                     case FIGURE_FORT_MOUNTED:
                     case FIGURE_FORT_LEGIONARY:
-                        figure_soldier_action(f);
+                    {
+                        figure_image_increase_offset(f, 12);
+                        struct formation_t *m = &legion_formations[f->formation_id];
+                        if (f->is_shooting) {
+                            f->attack_image_offset++;
+                            if (f->attack_image_offset > 100) {
+                                f->attack_image_offset = 0;
+                                f->is_shooting = 0;
+                            }
+                        } else {
+                            f->wait_ticks_missile++;
+                            if (f->wait_ticks_missile > 250) {
+                                f->wait_ticks_missile = 250;
+                            }
+                        }
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_SOLDIER_AT_REST:
+                                map_figure_update(f);
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_SOLDIER_GOING_TO_FORT:
+                                rout_unit(f);
+                                break;
+                            case FIGURE_ACTION_SOLDIER_RETURNING_TO_BARRACKS:
+                                figure_movement_move_ticks(f, f->speed_multiplier);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                }
+                                break;
+                            case FIGURE_ACTION_SOLDIER_GOING_TO_STANDARD:
+                                figure_movement_move_ticks(f, f->speed_multiplier);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
+                                    f->action_state = FIGURE_ACTION_SOLDIER_AT_STANDARD;
+                                    if (f->type == FIGURE_FORT_LEGIONARY && rand() % 100 == 1) {
+                                        play_sound_effect(SOUND_EFFECT_FORMATION_SHIELD);
+                                    }
+                                    if (m->layout == FORMATION_DOUBLE_LINE_1 || m->layout == FORMATION_SINGLE_LINE_1) {
+                                        if (m->standard_y < m->prev_standard_y) {
+                                            m->direction = DIR_0_TOP;
+                                        } else if (m->standard_y > m->prev_standard_y) {
+                                            m->direction = DIR_4_BOTTOM;
+                                        }
+                                    } else if (m->layout == FORMATION_DOUBLE_LINE_2 || m->layout == FORMATION_SINGLE_LINE_2) {
+                                        if (m->standard_x < m->prev_standard_x) {
+                                            m->direction = DIR_6_LEFT;
+                                        } else if (m->standard_x > m->prev_standard_x) {
+                                            m->direction = DIR_2_RIGHT;
+                                        }
+                                    } else if (m->layout == FORMATION_TORTOISE) {
+                                        int dx = (m->standard_x < m->prev_standard_x) ? (m->prev_standard_x - m->standard_x) : (m->standard_x - m->prev_standard_x);
+                                        int dy = (m->standard_y < m->prev_standard_y) ? (m->prev_standard_y - m->standard_y) : (m->standard_y - m->prev_standard_y);
+                                        if (dx > dy) {
+                                            if (m->standard_x < m->prev_standard_x) {
+                                                m->direction = DIR_6_LEFT;
+                                            } else if (m->standard_x > m->prev_standard_x) {
+                                                m->direction = DIR_2_RIGHT;
+                                            }
+                                        } else {
+                                            if (m->standard_y < m->prev_standard_y) {
+                                                m->direction = DIR_0_TOP;
+                                            } else if (m->standard_y > m->prev_standard_y) {
+                                                m->direction = DIR_4_BOTTOM;
+                                            }
+                                        }
+                                    }
+                                    m->prev_standard_x = m->standard_x;
+                                    m->prev_standard_y = m->standard_y;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                }
+                                break;
+                            case FIGURE_ACTION_SOLDIER_AT_STANDARD:
+                                f->image_offset = 0;
+                                map_figure_update(f);
+                                if (f->type == FIGURE_FORT_JAVELIN) {
+                                    struct map_point_t tile = { -1, -1 };
+                                    if (f->wait_ticks_missile > figure_properties[f->type].missile_delay && set_missile_target(f, &tile)) {
+                                        f->is_shooting = 1;
+                                        f->wait_ticks_missile = 0;
+                                        f->attack_image_offset = 1;
+                                        f->direction = calc_missile_shooter_direction(f->x, f->y, tile.x, tile.y);
+                                        figure_create_missile(f, &tile, figure_properties[f->type].missile_type);
+                                    } else {
+                                        if (!f->is_shooting) {
+                                            f->attack_image_offset = 0;
+                                        }
+                                    }
+                                } else if (f->type == FIGURE_FORT_LEGIONARY) {
+                                    // attack adjacent enemy
+                                    for (int k = 0; k < 8; k++) {
+                                        melee_attack_figure_at_offset(f, f->grid_offset + map_grid_direction_delta(k));
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_SOLDIER_GOING_TO_MILITARY_ACADEMY:
+                                f->is_military_trained = 1;
+                                if (f->type == FIGURE_FORT_MOUNTED) {
+                                    f->mounted_charge_ticks = 20;
+                                    f->mounted_charge_ticks_max = 20;
+                                }
+                                figure_movement_move_ticks(f, f->speed_multiplier);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    if (m->is_at_rest) {
+                                        f->action_state = FIGURE_ACTION_SOLDIER_GOING_TO_FORT;
+                                    } else {
+                                        deploy_legion_unit_to_formation_location(f, m);
+                                    }
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_SOLDIER_MOPPING_UP:
+                            {
+                                struct figure_t *target = melee_unit__set_closest_target(f);
+                                if (target) {
+                                    figure_movement_move_ticks(f, f->speed_multiplier);
+                                    if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                                        figure_route_remove(f);
+                                        f->action_state = FIGURE_ACTION_SOLDIER_AT_STANDARD;
+                                        f->target_figure_id = 0;
+                                    }
+                                } else {
+                                    f->image_offset = 0;
+                                    deploy_legion_unit_to_formation_location(f, m);
+                                }
+                                break;
+                            }
+                            case FIGURE_ACTION_SOLDIER_GOING_TO_DISTANT_BATTLE:
+                            {
+                                f->destination_x = scenario.exit_point.x;
+                                f->destination_y = scenario.exit_point.y;
+                                figure_movement_move_ticks(f, f->speed_multiplier);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->is_invisible = 1;
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            }
+                            case FIGURE_ACTION_SOLDIER_RETURNING_FROM_DISTANT_BATTLE:
+                                f->is_invisible = 0;
+                                f->destination_x = m->standard_x + formation_layout_position_x(FORMATION_AT_REST, f->index_in_formation);
+                                f->destination_y = m->standard_y + formation_layout_position_y(FORMATION_AT_REST, f->index_in_formation);
+                                f->destination_grid_offset = map_grid_offset(f->destination_x, f->destination_y);
+                                figure_movement_move_ticks(f, f->speed_multiplier);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_SOLDIER_AT_REST;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                        }
+                        int dir;
+                        if (f->is_shooting) {
+                            dir = f->direction;
+                            m->direction = f->direction;
+                        } else if (f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD) {
+                            dir = m->direction;
+                        } else if (f->direction < 8) {
+                            dir = f->direction;
+                        } else {
+                            dir = f->previous_tile_direction;
+                        }
+                        dir = figure_image_normalize_direction(dir);
+                        if (f->type == FIGURE_FORT_JAVELIN) {
+                            int image_id = image_group(GROUP_BUILDING_FORT_JAVELIN);
+                            if (f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD) {
+                                f->image_id = image_id + 96 + dir + 8 * MISSILE_LAUNCHER_OFFSETS[f->attack_image_offset / 2];
+                            } else {
+                                f->image_id = image_id + dir + 8 * f->image_offset;
+                            }
+                        } else if (f->type == FIGURE_FORT_MOUNTED) {
+                            int image_id = image_group(GROUP_FIGURE_FORT_MOUNTED);
+                            f->image_id = image_id + dir + 8 * f->image_offset;
+                        } else if (f->type == FIGURE_FORT_LEGIONARY) {
+                            int image_id = image_group(GROUP_BUILDING_FORT_LEGIONARY);
+                            if (f->action_state == FIGURE_ACTION_SOLDIER_AT_STANDARD) {
+                                if (f->figure_is_halted && m->layout == FORMATION_TORTOISE && m->missile_attack_timeout) {
+                                    f->image_id = image_id + dir + 144;
+                                } else {
+                                    f->image_id = image_id + dir;
+                                }
+                            } else {
+                                f->image_id = image_id + dir + 8 * f->image_offset;
+                            }
+                        }
                         break;
+                    }
                     case FIGURE_MARKET_BUYER:
-                        figure_market_buyer_action(f);
+                    {
+                        struct building_t *b = &all_buildings[f->building_id];
+                        if (b->state != BUILDING_STATE_IN_USE || b->figure_id2 != f->id) {
+                            figure_delete(f);
+                            return;
+                        }
+                        figure_image_increase_offset(f, 12);
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_MARKET_BUYER_GOING_TO_STORAGE:
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    if (f->collecting_item_id > 3) {
+                                        int resource;
+                                        switch (f->collecting_item_id) {
+                                            case INVENTORY_POTTERY: resource = RESOURCE_POTTERY; break;
+                                            case INVENTORY_FURNITURE: resource = RESOURCE_FURNITURE; break;
+                                            case INVENTORY_OIL: resource = RESOURCE_OIL; break;
+                                            case INVENTORY_WINE: resource = RESOURCE_WINE; break;
+                                            default:
+                                                figure_delete(f);
+                                                return;
+                                        }
+                                        struct building_t *warehouse = &all_buildings[f->destination_building_id];
+                                        int num_loads;
+                                        int stored = building_warehouse_get_amount(warehouse, resource);
+                                        if (stored < 2) {
+                                            num_loads = stored;
+                                        } else {
+                                            num_loads = 2;
+                                        }
+                                        if (num_loads <= 0) {
+                                            figure_delete(f);
+                                            return;
+                                        }
+                                        building_warehouse_remove_resource(warehouse, resource, num_loads);
+                                        // create delivery boys
+                                        int boy1 = create_delivery_boy(f->id, f);
+                                        if (num_loads > 1) {
+                                            create_delivery_boy(boy1, f);
+                                        }
+                                    } else {
+                                        int resource;
+                                        switch (f->collecting_item_id) {
+                                            case INVENTORY_WHEAT: resource = RESOURCE_WHEAT; break;
+                                            case INVENTORY_VEGETABLES: resource = RESOURCE_VEGETABLES; break;
+                                            case INVENTORY_FRUIT: resource = RESOURCE_FRUIT; break;
+                                            case INVENTORY_MEAT: resource = RESOURCE_MEAT; break;
+                                            default:
+                                                figure_delete(f);
+                                                return;
+                                        }
+                                        struct building_t *granary = &all_buildings[f->destination_building_id];
+                                        int max_units = (f->collecting_item_id == INVENTORY_WHEAT ? 800 : 600) - all_buildings[f->building_id].data.market.inventory[f->collecting_item_id];
+                                        int granary_units = granary->data.granary.resource_stored[resource];
+                                        int num_loads;
+                                        if (granary_units >= 800) {
+                                            num_loads = 8;
+                                        } else if (granary_units >= 700) {
+                                            num_loads = 7;
+                                        } else if (granary_units >= 600) {
+                                            num_loads = 6;
+                                        } else if (granary_units >= 500) {
+                                            num_loads = 5;
+                                        } else if (granary_units >= 400) {
+                                            num_loads = 4;
+                                        } else if (granary_units >= 300) {
+                                            num_loads = 3;
+                                        } else if (granary_units >= 200) {
+                                            num_loads = 2;
+                                        } else if (granary_units >= 100) {
+                                            num_loads = 1;
+                                        } else {
+                                            num_loads = 0;
+                                        }
+                                        if (num_loads > max_units / 100) {
+                                            num_loads = max_units / 100;
+                                        }
+                                        if (num_loads <= 0) {
+                                            figure_delete(f);
+                                            return;
+                                        }
+                                        building_granary_remove_resource(granary, resource, 100 * num_loads);
+                                        // create delivery boys
+                                        int previous_boy = f->id;
+                                        for (int k = 0; k < num_loads; k++) {
+                                            previous_boy = create_delivery_boy(previous_boy, f);
+                                        }
+                                    }
+                                    f->action_state = FIGURE_ACTION_MARKET_BUYER_RETURNING;
+                                    f->destination_x = f->source_x;
+                                    f->destination_y = f->source_y;
+                                } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                                    f->action_state = FIGURE_ACTION_MARKET_BUYER_RETURNING;
+                                    f->destination_x = f->source_x;
+                                    f->destination_y = f->source_y;
+                                    figure_route_remove(f);
+                                }
+                                break;
+                            case FIGURE_ACTION_MARKET_BUYER_RETURNING:
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                }
+                                break;
+                        }
+                        f->image_id = image_group(GROUP_FIGURE_MARKET_LADY) + figure_image_direction(f) + 8 * f->image_offset;
                         break;
+                    }
                     case FIGURE_MARKET_TRADER:
-                        figure_market_trader_action(f);
+                        struct building_t *market = &all_buildings[f->building_id];
+                        if (market->state != BUILDING_STATE_IN_USE || market->figure_id != f->id) {
+                            figure_delete(f);
+                            return;
+                        }
+                        if (f->action_state == FIGURE_ACTION_ROAMING) {
+                            // force return on out of stock
+                            int max_stock = 0;
+                            if (market->id > 0 && market->type == BUILDING_MARKET) {
+                                for (int k = INVENTORY_OIL; k <= INVENTORY_FURNITURE; k++) {
+                                    int stock = market->data.market.inventory[k];
+                                    if (stock > max_stock) {
+                                        max_stock = stock;
+                                    }
+                                }
+                            }
+                            int stock = building_market_get_max_food_stock(market) + max_stock;
+                            if (f->roam_length >= 96 && stock <= 0) {
+                                f->roam_length = figure_properties[f->type].max_roam_length;
+                            }
+                        }
+                        roamer_action(f, 1);
+                        figure_image_increase_offset(f, 12);
+                        f->image_id = image_group(GROUP_FIGURE_MARKET_LADY) + figure_image_direction(f) + 8 * f->image_offset;
                         break;
                     case FIGURE_DELIVERY_BOY:
-                        figure_delivery_boy_action(f);
+                    {
+                        f->is_invisible = 0;
+                        figure_image_increase_offset(f, 12);
+                        struct figure_t *leader = &figures[f->leading_figure_id];
+                        if (f->leading_figure_id <= 0) {
+                            figure_delete(f);
+                            return;
+                        } else {
+                            if (figure_is_alive(leader)) {
+                                if (leader->type == FIGURE_MARKET_BUYER || leader->type == FIGURE_DELIVERY_BOY) {
+                                    figure_movement_follow_ticks(f, 1);
+                                } else {
+                                    figure_delete(f);
+                                    return;
+                                }
+                            } else { // leader arrived at market, drop resource at market
+                                all_buildings[f->building_id].data.market.inventory[f->collecting_item_id] += 100;
+                                figure_delete(f);
+                                return;
+                            }
+                        }
+                        if (leader->is_invisible) {
+                            f->is_invisible = 1;
+                        }
+                        int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
+                        f->image_id = image_group(GROUP_FIGURE_DELIVERY_BOY) + dir + 8 * f->image_offset;
                         break;
+                    }
                     case FIGURE_WAREHOUSEMAN:
-                        figure_warehouseman_action(f);
-                        break;
+                    {
+                        f->terrain_usage = TERRAIN_USAGE_ROADS;
+                        figure_image_increase_offset(f, 12);
+                        f->cart_image_id = 0;
+                        int road_network_id = map_road_network_get(f->grid_offset);
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_WAREHOUSEMAN_CREATED:
+                            {
+                                struct building_t *b = &all_buildings[f->building_id];
+                                if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 2) {
+                                    if (all_buildings[f->building_id].type == BUILDING_GRANARY) {
+                                        struct map_point_t dst;
+                                        int dst_building_id;
+                                        struct building_t *granary = &all_buildings[f->building_id];
+                                        if (!f->resource_id) {
+                                            // getting granaryman
+                                            dst_building_id = building_granary_for_getting(granary, &dst);
+                                            if (dst_building_id) {
+                                                f->loads_sold_or_carrying = 0;
+                                                set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_GETTING_FOOD, dst_building_id, dst.x, dst.y);
+                                            } else {
+                                                figure_delete(f);
+                                            }
+                                            return;
+                                        }
+                                        // delivering resource
+                                        // priority 1: another granary
+                                        dst_building_id = building_granary_for_storing(f->x, f->y, f->resource_id, road_network_id, 0,
+                                            0, &dst);
+                                        if (dst_building_id) {
+                                            set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE, dst_building_id, dst.x, dst.y);
+                                            building_granary_remove_resource(granary, f->resource_id, 100);
+                                            return;
+                                        }
+                                        // priority 2: warehouse
+                                        dst_building_id = building_warehouse_for_storing(0, f->x, f->y,
+                                            f->resource_id, road_network_id, 0, &dst);
+                                        if (dst_building_id) {
+                                            set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE, dst_building_id, dst.x, dst.y);
+                                            building_granary_remove_resource(granary, f->resource_id, 100);
+                                            return;
+                                        }
+                                        // priority 3: granary even though resource is on stockpile
+                                        dst_building_id = building_granary_for_storing(f->x, f->y,
+                                            f->resource_id, road_network_id, 1, 0, &dst);
+                                        if (dst_building_id) {
+                                            set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE, dst_building_id, dst.x, dst.y);
+                                            building_granary_remove_resource(granary, f->resource_id, 100);
+                                            return;
+                                        }
+                                        // nowhere to go to: kill figure
+                                        figure_delete(f);
+                                    } else {
+                                        struct map_point_t dst;
+                                        int dst_building_id = 0;
+                                        if (!f->resource_id) {
+                                            // getting warehouseman
+                                            dst_building_id = building_warehouse_for_getting(
+                                                &all_buildings[f->building_id], f->collecting_item_id, &dst);
+                                            if (dst_building_id) {
+                                                f->loads_sold_or_carrying = 0;
+                                                set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_GETTING_RESOURCE, dst_building_id, dst.x, dst.y);
+                                                f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
+                                            } else {
+                                                figure_delete(f);
+                                            }
+                                            return;
+                                        }
+                                        // delivering resource
+                                        // priority 1: weapons to barracks
+                                        if (f->resource_id == RESOURCE_WEAPONS && !city_data.resource.stockpiled[RESOURCE_WEAPONS] && building_count_active(BUILDING_BARRACKS)) {
+                                            b = &all_buildings[city_data.building.barracks_building_id];
+                                            if (b->loads_stored < 5 && city_data.military.legionary_legions) {
+                                                if (map_has_road_access(b->x, b->y, b->size, &dst) && b->road_network_id == road_network_id) {
+                                                    dst_building_id = b->id;
+                                                }
+                                            }
+                                        }
+                                        if (dst_building_id) {
+                                            set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE, dst_building_id, dst.x, dst.y);
+                                            remove_resource_from_warehouse(f);
+                                            return;
+                                        }
+                                        // priority 2: raw materials to workshop
+                                        dst_building_id = building_get_workshop_for_raw_material_with_room(f->x, f->y, f->resource_id, road_network_id, &dst);
+                                        if (dst_building_id) {
+                                            set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE, dst_building_id, dst.x, dst.y);
+                                            remove_resource_from_warehouse(f);
+                                            return;
+                                        }
+                                        // priority 3: food to granary
+                                        dst_building_id = building_granary_for_storing(f->x, f->y, f->resource_id, road_network_id, 0, 0, &dst);
+                                        if (dst_building_id) {
+                                            set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE, dst_building_id, dst.x, dst.y);
+                                            remove_resource_from_warehouse(f);
+                                            return;
+                                        }
+                                        // priority 4: food to getting granary
+                                        if (!scenario.rome_supplies_wheat && resource_is_food(f->resource_id) && !city_data.resource.stockpiled[f->resource_id]) {
+                                            int min_dist = INFINITE;
+                                            int min_building_id = 0;
+                                            for (int k = 1; k < MAX_BUILDINGS; k++) {
+                                                b = &all_buildings[k];
+                                                if (b->state != BUILDING_STATE_IN_USE || b->type != BUILDING_GRANARY) {
+                                                    continue;
+                                                }
+                                                if (!b->has_road_access || b->road_network_id != road_network_id) {
+                                                    continue;
+                                                }
+                                                if (calc_percentage(b->num_workers, building_properties[b->type].n_laborers) < 100) {
+                                                    continue;
+                                                }
+                                                struct building_storage_t *s = building_storage_get(b->storage_id);
+                                                if (s->resource_state[f->resource_id] != BUILDING_STORAGE_STATE_GETTING || s->empty_all) {
+                                                    continue;
+                                                }
+                                                if (b->data.granary.resource_stored[RESOURCE_NONE] > ONE_LOAD) {
+                                                    // there is room
+                                                    int dist = calc_maximum_distance(b->x + 1, b->y + 1, f->x, f->y);
+                                                    if (dist < min_dist) {
+                                                        min_dist = dist;
+                                                        min_building_id = k;
+                                                    }
+                                                }
+                                            }
+                                            struct building_t *min = &all_buildings[min_building_id];
+                                            dst.x = min->x + 1;
+                                            dst.y = min->y + 1;
+                                            dst_building_id = min_building_id;
+                                            if (dst_building_id) {
+                                                set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE, dst_building_id, dst.x, dst.y);
+                                                remove_resource_from_warehouse(f);
+                                                return;
+                                            }
+                                        }
+                                        // priority 5: resource to other warehouse
+                                        dst_building_id = building_warehouse_for_storing(f->building_id, f->x, f->y, f->resource_id, road_network_id, 0, &dst);
+                                        if (dst_building_id) {
+                                            if (dst_building_id == f->building_id) {
+                                                figure_delete(f);
+                                            } else {
+                                                set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE, dst_building_id, dst.x, dst.y);
+                                                remove_resource_from_warehouse(f);
+                                            }
+                                            return;
+                                        }
+                                        // priority 6: raw material to well-stocked workshop
+                                        struct building_t *min_building = 0;
+                                        if (!city_data.resource.stockpiled[f->resource_id]) {
+                                            int output_type = resource_to_workshop_type(f->resource_id);
+                                            if (output_type != WORKSHOP_NONE) {
+                                                int min_dist = INFINITE;
+                                                for (int k = 1; k < MAX_BUILDINGS; k++) {
+                                                    b = &all_buildings[k];
+                                                    if (b->state != BUILDING_STATE_IN_USE || !building_is_workshop(b->type)) {
+                                                        continue;
+                                                    }
+                                                    if (!b->has_road_access) {
+                                                        continue;
+                                                    }
+                                                    if (b->subtype.workshop_type == output_type && b->road_network_id == road_network_id) {
+                                                        int dist = 10 * b->loads_stored +
+                                                            calc_maximum_distance(b->x, b->y, f->x, f->y);
+                                                        if (dist < min_dist) {
+                                                            min_dist = dist;
+                                                            min_building = b;
+                                                        }
+                                                    }
+                                                }
+                                                if (min_building) {
+                                                    dst.x = min_building->road_access_x;
+                                                    dst.y = min_building->road_access_y;
+                                                }
+                                            }
+                                        }
+                                        if (min_building->id) {
+                                            set_destination(f, FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE, min_building->id, dst.x, dst.y);
+                                            remove_resource_from_warehouse(f);
+                                            return;
+                                        }
+                                        // no destination: kill figure
+                                        figure_delete(f);
+                                    }
+                                }
+                                f->image_offset = 0;
+                                break;
+                            }
+                            case FIGURE_ACTION_WAREHOUSEMAN_DELIVERING_RESOURCE:
+                                if (f->loads_sold_or_carrying == 1) {
+                                    f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART_MULTIPLE_FOOD) +
+                                        8 * f->resource_id - 8 + resource_image_offset(f->resource_id, RESOURCE_IMAGE_FOOD_CART);
+                                } else {
+                                    set_cart_graphic(f);
+                                }
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_WAREHOUSEMAN_AT_DELIVERY_BUILDING;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_WAREHOUSEMAN_AT_DELIVERY_BUILDING:
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 4) {
+                                    struct building_t *b = &all_buildings[f->destination_building_id];
+                                    switch (b->type) {
+                                        case BUILDING_GRANARY:
+                                            building_granary_add_resource(b, f->resource_id, 0);
+                                            break;
+                                        case BUILDING_BARRACKS:
+                                            b->loads_stored++;
+                                            break;
+                                        case BUILDING_WAREHOUSE:
+                                        case BUILDING_WAREHOUSE_SPACE:
+                                            building_warehouse_add_resource(b, f->resource_id);
+                                            break;
+                                        default: // workshop
+                                            building_workshop_add_raw_material(b);
+                                            break;
+                                    }
+                                    // BUG: what if warehouse/granary is full and returns false?
+                                    f->action_state = FIGURE_ACTION_WAREHOUSEMAN_RETURNING_EMPTY;
+                                    f->wait_ticks = 0;
+                                    f->destination_x = f->source_x;
+                                    f->destination_y = f->source_y;
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_WAREHOUSEMAN_RETURNING_EMPTY:
+                                f->cart_image_id = EMPTY_CART_IMG_ID;
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                }
+                                break;
+                            case FIGURE_ACTION_WAREHOUSEMAN_GETTING_FOOD:
+                                f->cart_image_id = EMPTY_CART_IMG_ID;
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_WAREHOUSEMAN_AT_GRANARY;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_WAREHOUSEMAN_AT_GRANARY:
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 4) {
+                                    struct building_t *src = &all_buildings[f->destination_building_id];
+                                    struct building_t *dst = &all_buildings[f->building_id];
+                                    struct building_storage_t *s_src = building_storage_get(src->storage_id);
+                                    struct building_storage_t *s_dst = building_storage_get(dst->storage_id);
+                                    int max_amount = 0;
+                                    int max_resource = 0;
+                                    if (s_dst->resource_state[RESOURCE_WHEAT] == BUILDING_STORAGE_STATE_GETTING &&
+                                            s_src->resource_state[RESOURCE_WHEAT] != BUILDING_STORAGE_STATE_GETTING) {
+                                        if (src->data.granary.resource_stored[RESOURCE_WHEAT] > max_amount) {
+                                            max_amount = src->data.granary.resource_stored[RESOURCE_WHEAT];
+                                            max_resource = RESOURCE_WHEAT;
+                                        }
+                                    }
+                                    if (s_dst->resource_state[RESOURCE_VEGETABLES] == BUILDING_STORAGE_STATE_GETTING &&
+                                            s_src->resource_state[RESOURCE_VEGETABLES] != BUILDING_STORAGE_STATE_GETTING) {
+                                        if (src->data.granary.resource_stored[RESOURCE_VEGETABLES] > max_amount) {
+                                            max_amount = src->data.granary.resource_stored[RESOURCE_VEGETABLES];
+                                            max_resource = RESOURCE_VEGETABLES;
+                                        }
+                                    }
+                                    if (s_dst->resource_state[RESOURCE_FRUIT] == BUILDING_STORAGE_STATE_GETTING &&
+                                            s_src->resource_state[RESOURCE_FRUIT] != BUILDING_STORAGE_STATE_GETTING) {
+                                        if (src->data.granary.resource_stored[RESOURCE_FRUIT] > max_amount) {
+                                            max_amount = src->data.granary.resource_stored[RESOURCE_FRUIT];
+                                            max_resource = RESOURCE_FRUIT;
+                                        }
+                                    }
+                                    if (s_dst->resource_state[RESOURCE_MEAT] == BUILDING_STORAGE_STATE_GETTING &&
+                                            s_src->resource_state[RESOURCE_MEAT] != BUILDING_STORAGE_STATE_GETTING) {
+                                        if (src->data.granary.resource_stored[RESOURCE_MEAT] > max_amount) {
+                                            max_amount = src->data.granary.resource_stored[RESOURCE_MEAT];
+                                            max_resource = RESOURCE_MEAT;
+                                        }
+                                    }
+                                    if (max_amount > 800) {
+                                        max_amount = 800;
+                                    }
+                                    if (max_amount > dst->data.granary.resource_stored[RESOURCE_NONE]) {
+                                        max_amount = dst->data.granary.resource_stored[RESOURCE_NONE];
+                                    }
+                                    building_granary_remove_resource(src, max_resource, max_amount);
+                                    f->loads_sold_or_carrying = max_amount / UNITS_PER_LOAD;
+                                    f->resource_id = max_resource;
+                                    f->action_state = FIGURE_ACTION_WAREHOUSEMAN_RETURNING_WITH_FOOD;
+                                    f->wait_ticks = 0;
+                                    f->destination_x = f->source_x;
+                                    f->destination_y = f->source_y;
+                                    figure_route_remove(f);
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_WAREHOUSEMAN_RETURNING_WITH_FOOD:
+                                // update graphic
+                                if (f->loads_sold_or_carrying <= 0) {
+                                    f->cart_image_id = EMPTY_CART_IMG_ID;
+                                } else if (f->loads_sold_or_carrying == 1) {
+                                    set_cart_graphic(f);
+                                } else {
+                                    if (f->loads_sold_or_carrying >= 8) {
+                                        f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART_MULTIPLE_FOOD) +
+                                            CART_OFFSET_8_LOADS_FOOD[f->resource_id];
+                                    } else {
+                                        f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART_MULTIPLE_FOOD) +
+                                            CART_OFFSET_MULTIPLE_LOADS_FOOD[f->resource_id];
+                                    }
+                                    f->cart_image_id += resource_image_offset(f->resource_id, RESOURCE_IMAGE_FOOD_CART);
+                                }
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    for (int k = 0; k < f->loads_sold_or_carrying; k++) {
+                                        building_granary_add_resource(&all_buildings[f->building_id], f->resource_id, 0);
+                                    }
+                                    figure_delete(f);
+                                    return;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_WAREHOUSEMAN_GETTING_RESOURCE:
+                                f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
+                                f->cart_image_id = EMPTY_CART_IMG_ID;
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_WAREHOUSEMAN_AT_WAREHOUSE;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_WAREHOUSEMAN_AT_WAREHOUSE:
+                                f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 4) {
+                                    f->loads_sold_or_carrying = 0;
+                                    while (f->loads_sold_or_carrying < 4 && 0 == building_warehouse_remove_resource(
+                                        &all_buildings[f->destination_building_id], f->collecting_item_id, 1)) {
+                                        f->loads_sold_or_carrying++;
+                                    }
+                                    f->resource_id = f->collecting_item_id;
+                                    f->action_state = FIGURE_ACTION_WAREHOUSEMAN_RETURNING_WITH_RESOURCE;
+                                    f->wait_ticks = 0;
+                                    f->destination_x = f->source_x;
+                                    f->destination_y = f->source_y;
+                                    figure_route_remove(f);
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_WAREHOUSEMAN_RETURNING_WITH_RESOURCE:
+                                f->terrain_usage = TERRAIN_USAGE_PREFER_ROADS;
+                                // update graphic
+                                if (f->loads_sold_or_carrying <= 0) {
+                                    f->cart_image_id = EMPTY_CART_IMG_ID;
+                                } else if (f->loads_sold_or_carrying == 1) {
+                                    set_cart_graphic(f);
+                                } else {
+                                    if (f->resource_id == RESOURCE_WHEAT || f->resource_id == RESOURCE_VEGETABLES ||
+                                        f->resource_id == RESOURCE_FRUIT || f->resource_id == RESOURCE_MEAT) {
+                                        f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART_MULTIPLE_FOOD) +
+                                            CART_OFFSET_MULTIPLE_LOADS_FOOD[f->resource_id];
+                                    } else {
+                                        f->cart_image_id = image_group(GROUP_FIGURE_CARTPUSHER_CART_MULTIPLE_RESOURCE) +
+                                            CART_OFFSET_MULTIPLE_LOADS_NON_FOOD[f->resource_id];
+                                    }
+                                    f->cart_image_id += resource_image_offset(f->resource_id, RESOURCE_IMAGE_FOOD_CART);
+                                }
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    for (int k = 0; k < f->loads_sold_or_carrying; k++) {
+                                        building_warehouse_add_resource(&all_buildings[f->building_id], f->resource_id);
+                                    }
+                                    figure_delete(f);
+                                    return;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                        }
+                        update_image_cartpusher(f);
+                    }
+                    break;
                     case FIGURE_PROTESTER:
-                        figure_protestor_action(f);
-                        break;
+                    {
+                        figure_image_increase_offset(f, 64);
+                        f->wait_ticks++;
+                        if (f->wait_ticks > 200) {
+                            figure_delete(f);
+                            return;
+                        }
+                        f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + CRIMINAL_OFFSETS[f->image_offset / 4] + 104;
+                    }
+                    break;
                     case FIGURE_CRIMINAL:
-                        figure_criminal_action(f);
-                        break;
+                    {
+                        figure_image_increase_offset(f, 32);
+                        f->wait_ticks++;
+                        if (f->wait_ticks > 200) {
+                            figure_delete(f);
+                            return;
+                        }
+                        f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + CRIMINAL_OFFSETS[f->image_offset / 2] + 104;
+                    }
+                    break;
                     case FIGURE_RIOTER:
-                        figure_rioter_action(f);
-                        break;
+                    {
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_RIOTER_CREATED:
+                                figure_image_increase_offset(f, 32);
+                                f->wait_ticks++;
+                                if (f->wait_ticks >= 160) {
+                                    f->action_state = FIGURE_ACTION_RIOTER_MOVING;
+                                    int x_tile, y_tile;
+                                    int building_id = formation_rioter_get_target_building(&x_tile, &y_tile);
+                                    if (building_id) {
+                                        f->destination_x = x_tile;
+                                        f->destination_y = y_tile;
+                                        f->destination_building_id = building_id;
+                                        figure_route_remove(f);
+                                    } else {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_RIOTER_MOVING:
+                                figure_image_increase_offset(f, 12);
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    int x_tile, y_tile;
+                                    int building_id = formation_rioter_get_target_building(&x_tile, &y_tile);
+                                    if (building_id) {
+                                        f->destination_x = x_tile;
+                                        f->destination_y = y_tile;
+                                        f->destination_building_id = building_id;
+                                        figure_route_remove(f);
+                                    } else {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                                    f->action_state = FIGURE_ACTION_RIOTER_CREATED;
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_ATTACK) {
+                                    if (f->image_offset > 12) {
+                                        f->image_offset = 0;
+                                    }
+                                }
+                                break;
+                        }
+                        int dir;
+                        if (f->direction == DIR_FIGURE_ATTACK) {
+                            dir = f->attack_direction;
+                        } else if (f->direction < 8) {
+                            dir = f->direction;
+                        } else {
+                            dir = f->previous_tile_direction;
+                        }
+                        dir = figure_image_normalize_direction(dir);
+
+                        if (f->direction == DIR_FIGURE_ATTACK) {
+                            f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + 104 + CRIMINAL_OFFSETS[f->image_offset % 16];
+                        } else if (f->action_state == FIGURE_ACTION_RIOTER_MOVING) {
+                            f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + dir + 8 * f->image_offset;
+                        } else {
+                            f->image_id = image_group(GROUP_FIGURE_CRIMINAL) + 104 + CRIMINAL_OFFSETS[f->image_offset / 2];
+                        }
+                    }
+                    break;
                     case FIGURE_TRADE_CARAVAN:
-                        figure_trade_caravan_action(f);
+                        f->is_invisible = 0;
+                        figure_image_increase_offset(f, 12);
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_TRADE_CARAVAN_CREATED:
+                                f->is_invisible = 1;
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 20) {
+                                    f->wait_ticks = 0;
+                                    int x_base, y_base;
+                                    if (city_data.building.trade_center_building_id) {
+                                        struct building_t *trade_center = &all_buildings[city_data.building.trade_center_building_id];
+                                        x_base = trade_center->x;
+                                        y_base = trade_center->y;
+                                    } else {
+                                        x_base = f->x;
+                                        y_base = f->y;
+                                    }
+                                    go_to_next_warehouse(f, x_base, y_base);
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_TRADE_CARAVAN_ARRIVING:
+                                figure_movement_move_ticks(f, 1);
+                                switch (f->direction) {
+                                    case DIR_FIGURE_AT_DESTINATION:
+                                        f->action_state = FIGURE_ACTION_TRADE_CARAVAN_TRADING;
+                                        break;
+                                    case DIR_FIGURE_REROUTE:
+                                        figure_route_remove(f);
+                                        break;
+                                    case DIR_FIGURE_LOST:
+                                        figure_delete(f);
+                                        return;
+                                }
+                                if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_TRADE_CARAVAN_TRADING:
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 10) {
+                                    f->wait_ticks = 0;
+                                    int move_on = 0;
+                                    if (figure_trade_caravan_can_buy(f, f->destination_building_id, f->empire_city_id)) {
+                                        int resource = trader_get_buy_resource(f->destination_building_id, f->empire_city_id);
+                                        if (resource) {
+                                            empire_objects[f->empire_city_id].resource_bought[resource]++;
+                                            trader_record_bought_resource(f->trader_id, resource);
+                                            f->trader_amount_bought++;
+                                        } else {
+                                            move_on++;
+                                        }
+                                    } else {
+                                        move_on++;
+                                    }
+                                    if (figure_trade_caravan_can_sell(f, f->destination_building_id, f->empire_city_id)) {
+                                        int resource = RESOURCE_NONE;
+                                        struct building_t *warehouse = &all_buildings[f->destination_building_id];
+                                        if (warehouse->type == BUILDING_WAREHOUSE) {
+                                            int resource_to_import = city_data.trade.caravan_import_resource;
+                                            int imp = RESOURCE_WHEAT;
+                                            while (imp < RESOURCE_TYPES_MAX && !can_import_resource_from_trade_city(f->empire_city_id, resource_to_import)) {
+                                                imp++;
+                                                resource_to_import = city_trade_next_caravan_import_resource();
+                                            }
+                                            if (imp < RESOURCE_TYPES_MAX) {
+                                                // add to existing bay with room
+                                                struct building_t *space = warehouse;
+                                                for (int k = 0; k < 8; k++) {
+                                                    space = &all_buildings[space->next_part_building_id];
+                                                    if (space->id > 0 && space->loads_stored > 0 && space->loads_stored < 4 &&
+                                                        space->subtype.warehouse_resource_id == resource_to_import) {
+                                                        building_warehouse_space_add_import(space, resource_to_import);
+                                                        city_trade_next_caravan_import_resource();
+                                                        resource = resource_to_import;
+                                                        break;
+                                                    }
+                                                }
+                                                if (!resource) {
+                                                    // add to empty bay
+                                                    space = warehouse;
+                                                    for (int k = 0; k < 8; k++) {
+                                                        space = &all_buildings[space->next_part_building_id];
+                                                        if (space->id > 0 && !space->loads_stored) {
+                                                            building_warehouse_space_add_import(space, resource_to_import);
+                                                            city_trade_next_caravan_import_resource();
+                                                            resource = resource_to_import;
+                                                        }
+                                                    }
+                                                    if (!resource) {
+                                                        // find another importable resource that can be added to this warehouse
+                                                        for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
+                                                            resource_to_import = city_trade_next_caravan_backup_import_resource();
+                                                            if (can_import_resource_from_trade_city(f->empire_city_id, resource_to_import)) {
+                                                                space = warehouse;
+                                                                for (int k = 0; k < 8; k++) {
+                                                                    space = &all_buildings[space->next_part_building_id];
+                                                                    if (space->id > 0 && space->loads_stored < 4
+                                                                        && space->subtype.warehouse_resource_id == resource_to_import) {
+                                                                        building_warehouse_space_add_import(space, resource_to_import);
+                                                                        resource = resource_to_import;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (resource) {
+                                            empire_objects[f->empire_city_id].resource_sold[resource]++;
+                                            trader_record_sold_resource(f->trader_id, resource);
+                                            f->loads_sold_or_carrying++;
+                                        } else {
+                                            move_on++;
+                                        }
+                                    } else {
+                                        move_on++;
+                                    }
+                                    if (move_on == 2) {
+                                        go_to_next_warehouse(f, f->x, f->y);
+                                    }
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_TRADE_CARAVAN_LEAVING:
+                                figure_movement_move_ticks(f, 1);
+                                switch (f->direction) {
+                                    case DIR_FIGURE_AT_DESTINATION:
+                                        f->action_state = FIGURE_ACTION_TRADE_CARAVAN_CREATED;
+                                        figure_delete(f);
+                                        return;
+                                    case DIR_FIGURE_REROUTE:
+                                        figure_route_remove(f);
+                                        break;
+                                    case DIR_FIGURE_LOST:
+                                        figure_delete(f);
+                                        return;
+                                }
+                                break;
+                        }
+                        int dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
+                        f->image_id = image_group(GROUP_FIGURE_TRADE_CARAVAN) + dir + 8 * f->image_offset;
                         break;
                     case FIGURE_TRADE_CARAVAN_DONKEY:
-                        figure_trade_caravan_donkey_action(f);
+                    {
+                        f->is_invisible = 0;
+                        figure_image_increase_offset(f, 12);
+                        struct figure_t *leader = &figures[f->leading_figure_id];
+                        if (f->leading_figure_id <= 0) {
+                            figure_delete(f);
+                            return;
+                        } else {
+                            if (leader->type != FIGURE_TRADE_CARAVAN && leader->type != FIGURE_TRADE_CARAVAN_DONKEY) {
+                                figure_delete(f);
+                                return;
+                            } else {
+                                figure_movement_follow_ticks(f, 1);
+                            }
+                        }
+                        if (leader->is_invisible) {
+                            f->is_invisible = 1;
+                        }
+                        dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
+                        f->image_id = image_group(GROUP_FIGURE_TRADE_CARAVAN) + dir + 8 * f->image_offset;
                         break;
+                    }
                     case FIGURE_TRADE_SHIP:
-                        figure_trade_ship_action(f);
+                        f->is_invisible = 0;
+                        figure_image_increase_offset(f, 12);
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_TRADE_SHIP_CREATED:
+                                f->loads_sold_or_carrying = 12;
+                                f->trader_amount_bought = 0;
+                                f->is_invisible = 1;
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 20) {
+                                    f->wait_ticks = 0;
+                                    struct map_point_t tile;
+                                    int dock_id = building_dock_get_free_destination(f->id, &tile);
+                                    if (dock_id) {
+                                        f->destination_building_id = dock_id;
+                                        f->action_state = FIGURE_ACTION_TRADE_SHIP_GOING_TO_DOCK;
+                                        f->destination_x = tile.x;
+                                        f->destination_y = tile.y;
+                                    } else if (building_dock_get_queue_destination(&tile)) {
+                                        f->action_state = FIGURE_ACTION_TRADE_SHIP_GOING_TO_DOCK_QUEUE;
+                                        f->destination_x = tile.x;
+                                        f->destination_y = tile.y;
+                                    } else {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_TRADE_SHIP_GOING_TO_DOCK:
+                                figure_movement_move_ticks(f, 1);
+                                f->height_adjusted_ticks = 0;
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_TRADE_SHIP_MOORED;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    if (!city_message_get_category_count(MESSAGE_CAT_BLOCKED_DOCK)) {
+                                        city_message_post(1, MESSAGE_NAVIGATION_IMPOSSIBLE, 0, 0);
+                                        city_message_increase_category_count(MESSAGE_CAT_BLOCKED_DOCK);
+                                    }
+                                    return;
+                                }
+                                if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
+                                    f->action_state = FIGURE_ACTION_TRADE_SHIP_LEAVING;
+                                    f->wait_ticks = 0;
+                                    f->destination_x = scenario.river_exit_point.x;
+                                    f->destination_y = scenario.river_exit_point.y;
+                                }
+                                break;
+                            case FIGURE_ACTION_TRADE_SHIP_MOORED:
+                            {
+                                int trade_ship_done_trading = 1;
+                                struct building_t *b = &all_buildings[f->destination_building_id];
+                                if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_DOCK && b->num_workers > 0) {
+                                    for (int k = 0; k < 3; k++) {
+                                        if (b->data.dock.docker_ids[k]) {
+                                            struct figure_t *docker = &figures[b->data.dock.docker_ids[k]];
+                                            if (figure_is_alive(docker) && docker->action_state != FIGURE_ACTION_DOCKER_IDLING) {
+                                                trade_ship_done_trading = 0;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                int trade_ship_lost_queue = 1;
+                                if (b->state == BUILDING_STATE_IN_USE && b->type == BUILDING_DOCK && b->num_workers > 0 && b->data.dock.trade_ship_id == f->id) {
+                                    trade_ship_lost_queue = 0;
+                                }
+                                if (trade_ship_lost_queue) {
+                                    f->trade_ship_failed_dock_attempts = 0;
+                                    f->action_state = FIGURE_ACTION_TRADE_SHIP_LEAVING;
+                                    f->wait_ticks = 0;
+                                    f->destination_x = scenario.river_entry_point.x;
+                                    f->destination_y = scenario.river_entry_point.y;
+                                } else if (trade_ship_done_trading) {
+                                    f->trade_ship_failed_dock_attempts = 0;
+                                    f->action_state = FIGURE_ACTION_TRADE_SHIP_LEAVING;
+                                    f->wait_ticks = 0;
+                                    f->destination_x = scenario.river_entry_point.x;
+                                    f->destination_y = scenario.river_entry_point.y;
+                                    struct building_t *dst = &all_buildings[f->destination_building_id];
+                                    dst->data.dock.queued_docker_id = 0;
+                                    dst->data.dock.num_ships = 0;
+                                }
+                                switch (all_buildings[f->destination_building_id].data.dock.orientation) {
+                                    case 0: f->direction = DIR_2_RIGHT; break;
+                                    case 1: f->direction = DIR_4_BOTTOM; break;
+                                    case 2: f->direction = DIR_6_LEFT; break;
+                                    default:f->direction = DIR_0_TOP; break;
+                                }
+                                f->image_offset = 0;
+                                city_message_reset_category_count(MESSAGE_CAT_BLOCKED_DOCK);
+                                break;
+                            }
+                            case FIGURE_ACTION_TRADE_SHIP_GOING_TO_DOCK_QUEUE:
+                                figure_movement_move_ticks(f, 1);
+                                f->height_adjusted_ticks = 0;
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_TRADE_SHIP_ANCHORED;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_TRADE_SHIP_ANCHORED:
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 40) {
+                                    struct map_point_t tile;
+                                    int dock_id = building_dock_get_free_destination(f->id, &tile);
+                                    if (dock_id) {
+                                        f->destination_building_id = dock_id;
+                                        f->action_state = FIGURE_ACTION_TRADE_SHIP_GOING_TO_DOCK;
+                                        f->destination_x = tile.x;
+                                        f->destination_y = tile.y;
+                                    } else if (map_figure_at(f->grid_offset) != f->id &&
+                                        building_dock_get_queue_destination(&tile)) {
+                                        f->action_state = FIGURE_ACTION_TRADE_SHIP_GOING_TO_DOCK_QUEUE;
+                                        f->destination_x = tile.x;
+                                        f->destination_y = tile.y;
+                                    }
+                                    f->wait_ticks = 0;
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_TRADE_SHIP_LEAVING:
+                                figure_movement_move_ticks(f, 1);
+                                f->height_adjusted_ticks = 0;
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_TRADE_SHIP_CREATED;
+                                    figure_delete(f);
+                                    return;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                        }
+                        dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
+                        f->image_id = image_group(GROUP_FIGURE_SHIP) + dir;
                         break;
                     case FIGURE_INDIGENOUS_NATIVE:
-                        figure_indigenous_native_action(f);
-                        break;
+                    {
+                        struct building_t *b = &all_buildings[f->building_id];
+                        if (b->state != BUILDING_STATE_IN_USE || b->figure_id != f->id) {
+                            figure_delete(f);
+                            return;
+                        }
+                        figure_image_increase_offset(f, 12);
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_NATIVE_GOING_TO_MEETING_CENTER:
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_NATIVE_RETURNING_FROM_MEETING;
+                                    f->destination_x = f->source_x;
+                                    f->destination_y = f->source_y;
+                                } else if (f->direction == DIR_FIGURE_REROUTE || f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_NATIVE_RETURNING_FROM_MEETING:
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION ||
+                                    f->direction == DIR_FIGURE_REROUTE ||
+                                    f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_NATIVE_CREATED:
+                            {
+                                f->image_offset = 0;
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 10 + (f->id & 3)) {
+                                    f->wait_ticks = 0;
+                                    if (city_data.military.native_attack_duration) {
+                                        f->action_state = FIGURE_ACTION_NATIVE_ATTACKING;
+                                        struct building_t *min_building = 0;
+                                        int min_distance = 10000;
+                                        for (int k = 1; k < MAX_BUILDINGS; k++) {
+                                            b = &all_buildings[k];
+                                            if (b->state != BUILDING_STATE_IN_USE) {
+                                                continue;
+                                            }
+                                            switch (b->type) {
+                                                case BUILDING_MISSION_POST:
+                                                case BUILDING_FORT_LEGIONARIES:
+                                                case BUILDING_FORT_JAVELIN:
+                                                case BUILDING_FORT_MOUNTED:
+                                                case BUILDING_FORT_GROUND:
+                                                case BUILDING_NATIVE_HUT:
+                                                case BUILDING_NATIVE_CROPS:
+                                                case BUILDING_NATIVE_MEETING:
+                                                case BUILDING_WAREHOUSE:
+                                                    break;
+                                                default:
+                                                {
+                                                    int distance = calc_maximum_distance(city_data.building.main_native_meeting.x, city_data.building.main_native_meeting.y, b->x, b->y);
+                                                    if (distance < min_distance) {
+                                                        min_building = b;
+                                                        min_distance = distance;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (min_building) {
+                                            f->destination_x = min_building->x;
+                                            f->destination_y = min_building->y;
+                                        }
+                                    } else {
+                                        int x_tile, y_tile;
+                                        struct building_t *meeting = &all_buildings[b->subtype.native_meeting_center_id];
+                                        if (map_terrain_get_adjacent_road_or_clear_land(
+                                            meeting->x, meeting->y, meeting->size, &x_tile, &y_tile)) {
+                                            f->action_state = FIGURE_ACTION_NATIVE_GOING_TO_MEETING_CENTER;
+                                            f->destination_x = x_tile;
+                                            f->destination_y = y_tile;
+                                        }
+                                    }
+                                    figure_route_remove(f);
+                                }
+                                break;
+                            }
+                            case FIGURE_ACTION_NATIVE_ATTACKING:
+                                f->terrain_usage = TERRAIN_USAGE_ENEMY;
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION ||
+                                    f->direction == DIR_FIGURE_REROUTE ||
+                                    f->direction == DIR_FIGURE_LOST) {
+                                    f->action_state = FIGURE_ACTION_NATIVE_CREATED;
+                                }
+                                break;
+                        }
+                        dir = get_direction(f);
+                        if (f->action_state == FIGURE_ACTION_NATIVE_ATTACKING) {
+                            f->image_id = 297 + dir + 8 * f->image_offset;
+                        } else {
+                            f->image_id = 201 + dir + 8 * f->image_offset;
+                        }
+                    }
+                    break;
                     case FIGURE_NATIVE_TRADER:
-                        figure_native_trader_action(f);
+                        f->is_invisible = 0;
+                        figure_image_increase_offset(f, 12);
+                        f->cart_image_id = 0;
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_NATIVE_TRADER_GOING_TO_WAREHOUSE:
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION) {
+                                    f->action_state = FIGURE_ACTION_NATIVE_TRADER_AT_WAREHOUSE;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                } else if (f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                if (all_buildings[f->destination_building_id].state != BUILDING_STATE_IN_USE) {
+                                    figure_delete(f);
+                                    return;
+                                }
+                                break;
+                            case FIGURE_ACTION_NATIVE_TRADER_RETURNING:
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
+                                    figure_delete(f);
+                                    return;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                }
+                                break;
+                            case FIGURE_ACTION_NATIVE_TRADER_CREATED:
+                                f->is_invisible = 1;
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 10) {
+                                    f->wait_ticks = 0;
+                                    struct map_point_t tile;
+                                    int building_id = get_closest_warehouse(f, f->x, f->y, 0, &tile);
+                                    if (building_id) {
+                                        f->action_state = FIGURE_ACTION_NATIVE_TRADER_GOING_TO_WAREHOUSE;
+                                        f->destination_building_id = building_id;
+                                        f->destination_x = tile.x;
+                                        f->destination_y = tile.y;
+                                    } else {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                }
+                                f->image_offset = 0;
+                                break;
+                            case FIGURE_ACTION_NATIVE_TRADER_AT_WAREHOUSE:
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 10) {
+                                    f->wait_ticks = 0;
+                                    if (figure_trade_caravan_can_buy(f, f->destination_building_id, 0)) {
+                                        int resource = trader_get_buy_resource(f->destination_building_id, 0);
+                                        trader_record_bought_resource(f->trader_id, resource);
+                                        f->trader_amount_bought += 3;
+                                    } else {
+                                        struct map_point_t tile;
+                                        int building_id = get_closest_warehouse(f, f->x, f->y, 0, &tile);
+                                        if (building_id) {
+                                            f->action_state = FIGURE_ACTION_NATIVE_TRADER_GOING_TO_WAREHOUSE;
+                                            f->destination_building_id = building_id;
+                                            f->destination_x = tile.x;
+                                            f->destination_y = tile.y;
+                                        } else {
+                                            f->action_state = FIGURE_ACTION_NATIVE_TRADER_RETURNING;
+                                            f->destination_x = f->source_x;
+                                            f->destination_y = f->source_y;
+                                        }
+                                    }
+                                }
+                                f->image_offset = 0;
+                                break;
+                        }
+                        dir = figure_image_normalize_direction(f->direction < 8 ? f->direction : f->previous_tile_direction);
+                        f->image_id = image_group(GROUP_FIGURE_CARTPUSHER) + dir + 8 * f->image_offset;
+                        f->cart_image_id = image_group(GROUP_FIGURE_MIGRANT_CART) + 8 + 8 * f->resource_id;
+                        if (f->cart_image_id) {
+                            f->cart_image_id += dir;
+                            figure_image_set_cart_offset(f, dir);
+                        }
                         break;
                     case FIGURE_WOLF:
-                        figure_wolf_action(f);
-                        break;
+                    {
+                        struct formation_t *m = &herd_formations[f->formation_id];
+                        figure_image_increase_offset(f, 12);
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_HERD_ANIMAL_AT_REST:
+                                // replenish wolf pack
+                                if (m->num_figures < m->max_figures) {
+                                    m->wolf_spawn_delay++;
+                                    if (m->wolf_spawn_delay > 1500) {
+                                        int spawn_location_x = m->destination_x + HERD_FORMATION_LAYOUT_POSITION_X_OFFSETS[WOLF_PACK_SIZE - 1];
+                                        int spawn_location_y = m->destination_y + HERD_FORMATION_LAYOUT_POSITION_Y_OFFSETS[WOLF_PACK_SIZE - 1];
+                                        if (!map_terrain_is(map_grid_offset(spawn_location_x, spawn_location_y), TERRAIN_IMPASSABLE)) {
+                                            struct figure_t *wolf = figure_create(m->figure_type, spawn_location_x, spawn_location_y, f->direction);
+                                            wolf->action_state = FIGURE_ACTION_HERD_ANIMAL_AT_REST;
+                                            wolf->formation_id = m->id;
+                                            m->wolf_spawn_delay = 0;
+                                        }
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_HERD_ANIMAL_MOVING:
+                            {
+                                struct figure_t *target = melee_unit__set_closest_target(f);
+                                if (target) {
+                                    figure_movement_move_ticks(f, 2);
+                                    random_generate_next();
+                                    if (random_byte() < 3) {
+                                        play_sound_effect(SOUND_EFFECT_WOLF_HOWL);
+                                    }
+                                    break;
+                                } else {
+                                    figure_movement_move_ticks(f, 2);
+                                    if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
+                                        f->direction = f->previous_tile_direction;
+                                        f->action_state = FIGURE_ACTION_HERD_ANIMAL_AT_REST;
+                                        break;
+                                    } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                        figure_route_remove(f);
+                                        break;
+                                    } else if (f->routing_path_current_tile > MAX_WOLF_ROAM_DISTANCE * 2) {
+                                        figure_route_remove(f);
+                                        m->destination_x = f->x;
+                                        m->destination_y = f->y;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        dir = figure_image_direction(f);
+                        if (f->action_state == FIGURE_ACTION_HERD_ANIMAL_AT_REST) {
+                            f->image_id = image_group(GROUP_FIGURE_WOLF) + 152 + dir;
+                        } else {
+                            f->image_id = image_group(GROUP_FIGURE_WOLF) + dir + 8 * f->image_offset;
+                        }
+                    }
+                    break;
                     case FIGURE_SHEEP:
-                        figure_sheep_action(f);
-                        break;
+                    {
+                        figure_image_increase_offset(f, 6);
+                        struct formation_t *m = &herd_formations[f->formation_id];
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_HERD_ANIMAL_AT_REST:
+                                f->wait_ticks++;
+                                break;
+                            case FIGURE_ACTION_HERD_ANIMAL_MOVING:
+                                figure_movement_move_ticks(f, 2);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
+                                    f->direction = f->previous_tile_direction;
+                                    f->action_state = FIGURE_ACTION_HERD_ANIMAL_AT_REST;
+                                    f->wait_ticks = f->id & 0x1f;
+                                    break;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                    break;
+                                } else if (f->routing_path_current_tile > MAX_SHEEP_ROAM_DISTANCE * 2) {
+                                    figure_route_remove(f);
+                                    m->destination_x = f->x;
+                                    m->destination_y = f->y;
+                                }
+                                break;
+                        }
+                        dir = figure_image_direction(f);
+                        if (f->action_state == FIGURE_ACTION_HERD_ANIMAL_AT_REST) {
+                            if (f->id & 3) {
+                                f->image_id = image_group(GROUP_FIGURE_SHEEP) + 48 + dir + 8 * SHEEP_IMAGE_OFFSETS[f->wait_ticks & 0x3f];
+                            } else {
+                                f->image_id = image_group(GROUP_FIGURE_SHEEP) + 96 + dir;
+                            }
+                        } else {
+                            f->image_id = image_group(GROUP_FIGURE_SHEEP) + dir + 8 * f->image_offset;
+                        }
+                    }
+                    break;
                     case FIGURE_ZEBRA:
-                        figure_zebra_action(f);
-                        break;
+                    {
+                        figure_image_increase_offset(f, 12);
+                        struct formation_t *m = &herd_formations[f->formation_id];
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_HERD_ANIMAL_AT_REST:
+                                break;
+                            case FIGURE_ACTION_HERD_ANIMAL_MOVING:
+                                figure_movement_move_ticks(f, 2);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION || f->direction == DIR_FIGURE_LOST) {
+                                    f->direction = f->previous_tile_direction;
+                                    f->action_state = FIGURE_ACTION_HERD_ANIMAL_AT_REST;
+                                    break;
+                                } else if (f->direction == DIR_FIGURE_REROUTE) {
+                                    figure_route_remove(f);
+                                    break;
+                                } else if (f->routing_path_current_tile > MAX_SHEEP_ROAM_DISTANCE * 2) {
+                                    figure_route_remove(f);
+                                    m->destination_x = f->x;
+                                    m->destination_y = f->y;
+                                }
+                                break;
+                        }
+                        dir = figure_image_direction(f);
+                        if (f->action_state == FIGURE_ACTION_HERD_ANIMAL_AT_REST) {
+                            f->image_id = image_group(GROUP_FIGURE_ZEBRA) + dir;
+                        } else {
+                            f->image_id = image_group(GROUP_FIGURE_ZEBRA) + dir + 8 * f->image_offset;
+                        }
+                    }
+                    break;
                     case FIGURE_ENEMY_GLADIATOR:
-                        figure_enemy_gladiator_action(f);
-                        break;
+                    {
+                        figure_image_increase_offset(f, 12);
+                        if (scenario.gladiator_revolt.state == EVENT_FINISHED) {
+                            // end of gladiator revolt: kill gladiators
+                            f->is_corpse = 1;
+                            f->is_targetable = 0;
+                            f->wait_ticks = 0;
+                            f->direction = 0;
+                            clear_targeting_on_unit_death(f);
+                        }
+                        switch (f->action_state) {
+                            case FIGURE_ACTION_NATIVE_CREATED:
+                                f->image_offset = 0;
+                                f->wait_ticks++;
+                                if (f->wait_ticks > 10 + (f->id & 3)) {
+                                    f->wait_ticks = 0;
+                                    f->action_state = FIGURE_ACTION_NATIVE_ATTACKING;
+                                    int x_tile, y_tile;
+                                    int building_id = formation_rioter_get_target_building(&x_tile, &y_tile);
+                                    if (building_id) {
+                                        f->destination_x = x_tile;
+                                        f->destination_y = y_tile;
+                                        f->destination_building_id = building_id;
+                                        figure_route_remove(f);
+                                    } else {
+                                        figure_delete(f);
+                                        return;
+                                    }
+                                }
+                                break;
+                            case FIGURE_ACTION_NATIVE_ATTACKING:
+                                f->terrain_usage = TERRAIN_USAGE_ENEMY;
+                                figure_movement_move_ticks(f, 1);
+                                if (f->direction == DIR_FIGURE_AT_DESTINATION ||
+                                    f->direction == DIR_FIGURE_REROUTE ||
+                                    f->direction == DIR_FIGURE_LOST) {
+                                    f->action_state = FIGURE_ACTION_NATIVE_CREATED;
+                                }
+                                break;
+                        }
+                        dir = get_direction(f);
+                        f->image_id = image_group(GROUP_FIGURE_GLADIATOR) + dir + 8 * f->image_offset;
+                    }
+                    break;
                     case FIGURE_ENEMY_BARBARIAN_SWORDSMAN:
                     case FIGURE_ENEMY_CARTHAGINIAN_SWORDSMAN:
                     case FIGURE_ENEMY_BRITON_SWORDSMAN:
@@ -2682,16 +6886,36 @@ void game_run(void)
                     case FIGURE_ENEMY_IBERIAN_SWORDSMAN:
                     case FIGURE_ENEMY_JUDEAN_SWORDSMAN:
                     case FIGURE_ENEMY_SELEUCID_SWORDSMAN:
-                        figure_enemy_swordsman_action(f);
-                        break;
+                    {
+                        figure_image_increase_offset(f, 12);
+                        melee_enemy_action(f);
+                        dir = get_direction(f);
+                        int image_id;
+                        if (f->enemy_image_group == ENEMY_IMG_TYPE_BARBARIAN) {
+                            image_id = 297;
+                        } else {
+                            image_id = 449;
+                        }
+                        f->image_id = image_id + dir + 8 * f->image_offset;
+                    }
+                    break;
                     case FIGURE_ENEMY_CARTHAGINIAN_ELEPHANT:
-                        figure_enemy_elephant_action(f);
-                        break;
+                    {
+                        figure_image_increase_offset(f, 12);
+                        ranged_enemy_action(f);
+                        f->image_id = 601 + get_direction(f) + 8 * f->image_offset;
+                    }
+                    break;
                     case FIGURE_ENEMY_BRITON_CHARIOT:
                     case FIGURE_ENEMY_CELT_CHARIOT:
                     case FIGURE_ENEMY_PICT_CHARIOT:
-                        figure_enemy_chariot_action(f);
-                        break;
+                    {
+                        figure_image_increase_offset(f, 12);
+                        melee_enemy_action(f);
+                        dir = get_direction(f);
+                        f->image_id = 601 + dir + 8 * f->image_offset;
+                    }
+                    break;
                     case FIGURE_ENEMY_EGYPTIAN_CAMEL:
                     case FIGURE_ENEMY_ETRUSCAN_SPEAR_THROWER:
                     case FIGURE_ENEMY_SAMNITE_SPEAR_THROWER:
@@ -2701,33 +6925,104 @@ void game_run(void)
                     case FIGURE_ENEMY_IBERIAN_SPEAR_THROWER:
                     case FIGURE_ENEMY_JUDEAN_SPEAR_THROWER:
                     case FIGURE_ENEMY_SELEUCID_SPEAR_THROWER:
-                        figure_enemy_heavy_ranged_action(f);
-                        break;
+                    {
+                        figure_image_increase_offset(f, 12);
+                        ranged_enemy_action(f);
+                        dir = get_direction(f);
+                        if (f->action_state == FIGURE_ACTION_ENEMY_REGROUPING) {
+                            f->image_id = 697 + dir + 8 * MISSILE_LAUNCHER_OFFSETS[f->attack_image_offset / 2];
+                        } else {
+                            f->image_id = 601 + dir + 8 * f->image_offset;
+                        }
+                    }
+                    break;
                     case FIGURE_ENEMY_NUMIDIAN_SPEAR_THROWER:
-                        figure_enemy_light_ranged_spearman_action(f);
-                        break;
+                    {
+                        figure_image_increase_offset(f, 12);
+                        ranged_enemy_action(f);
+                        dir = get_direction(f);
+                        if (f->action_state == FIGURE_ACTION_ENEMY_REGROUPING) {
+                            f->image_id = 545 + dir + 8 * MISSILE_LAUNCHER_OFFSETS[f->attack_image_offset / 2];
+                        } else {
+                            f->image_id = 449 + dir + 8 * f->image_offset;
+                        }
+                    }
+                    break;
                     case FIGURE_ENEMY_GAUL_AXEMAN:
                     case FIGURE_ENEMY_HELVETIUS_AXEMAN:
-                        figure_enemy_axeman_action(f);
-                        break;
+                    {
+                        figure_image_increase_offset(f, 12);
+                        melee_enemy_action(f);
+                        dir = get_direction(f);
+                        f->image_id = 601 + dir + 8 * f->image_offset;
+                    }
+                    break;
                     case FIGURE_ENEMY_HUN_MOUNTED_ARCHER:
                     case FIGURE_ENEMY_GOTH_MOUNTED_ARCHER:
                     case FIGURE_ENEMY_VISIGOTH_MOUNTED_ARCHER:
-                        figure_enemy_mounted_archer_action(f);
-                        break;
+                    {
+                        figure_image_increase_offset(f, 12);
+                        ranged_enemy_action(f);
+                        dir = get_direction(f);
+                        if (f->action_state == FIGURE_ACTION_ENEMY_REGROUPING) {
+                            f->image_id = 697 + dir + 8 * MISSILE_LAUNCHER_OFFSETS[f->attack_image_offset / 2];
+                        } else {
+                            f->image_id = 601 + dir + 8 * f->image_offset;
+                        }
+                    }
+                    break;
                     case FIGURE_ENEMY_CAESAR_JAVELIN:
                     case FIGURE_ENEMY_CAESAR_MOUNTED:
                     case FIGURE_ENEMY_CAESAR_LEGIONARY:
-                        figure_enemy_caesar_legionary_action(f);
+                        figure_image_increase_offset(f, 12);
+                        melee_enemy_action(f);
+                        dir = get_direction(f);
+                        int img_group_base_id = image_group(GROUP_FIGURE_CAESAR_LEGIONARY);
+
+                        if (f->direction == DIR_FIGURE_ATTACK) {
+                            f->image_id = img_group_base_id + dir + 8 * ((f->attack_image_offset - 12) / 2);
+                        }
+                        if (f->figure_is_halted && enemy_formations[f->formation_id].missile_attack_timeout) {
+                            f->image_id = img_group_base_id + 144 + dir + 8 * f->image_offset;
+                        } else {
+                            f->image_id = img_group_base_id + 48 + dir + 8 * f->image_offset;
+                        }
                         break;
                     case FIGURE_ARROW:
-                        figure_arrow_action(f);
+                        f->use_cross_country = 1;
+                        f->progress_on_tile++;
+                        int should_die = figure_movement_move_ticks_cross_country(f, 8);
+                        int target_id = get_target_on_tile(f);
+                        if (target_id) {
+                            struct figure_t *target = &figures[target_id];
+                            missile_hit_target(f, target);
+                            play_sound_effect(SOUND_EFFECT_ARROW_HIT);
+                        }
+                        dir = (16 + f->direction - 2 * city_view_orientation()) % 16;
+                        f->image_id = image_group(GROUP_FIGURE_MISSILE) + 16 + dir;
+                        if (f->progress_on_tile > 120) {
+                            figure_delete(f);
+                        }
+                        if (should_die || target_id) {
+                            figure_delete(f);
+                        }
                         break;
                     case FIGURE_MAP_FLAG:
                         figure_editor_flag_action(f);
                         break;
                     case FIGURE_EXPLOSION:
-                        figure_explosion_cloud_action(f);
+                        f->use_cross_country = 1;
+                        f->progress_on_tile++;
+                        if (f->progress_on_tile > 44) {
+                            figure_delete(f);
+                            return;
+                        }
+                        figure_movement_move_ticks_cross_country(f, f->speed_multiplier);
+                        if (f->progress_on_tile < 48) {
+                            f->image_id = image_group(GROUP_FIGURE_EXPLOSION) + CLOUD_IMAGE_OFFSETS[f->progress_on_tile / 2];
+                        } else {
+                            f->image_id = image_group(GROUP_FIGURE_EXPLOSION) + 7;
+                        }
                         break;
                     default:
                         break;
@@ -2797,7 +7092,9 @@ static void prepare_map_for_editing(int map_is_new)
         empire_object_our_city_set_resources_sell();
     }
     figure_init_scenario();
-    figure_create_editor_flags();
+    for (int id = MAP_FLAG_MIN; id < MAP_FLAG_MAX; id++) {
+        figure_create(FIGURE_MAP_FLAG, -1, -1, 0)->resource_id = id;
+    }
     figure_create_flotsam();
     map_tiles_update_all_elevation();
     map_tiles_update_all_earthquake();
@@ -3154,7 +7451,18 @@ int game_file_start_scenario(const char *scenario_selected)
     map_tiles_update_all_aqueducts(0);
     map_natives_init();
     city_view_init();
-    figure_create_fishing_points();
+    for (int i = 0; i < MAX_FISH_POINTS; i++) {
+        if (scenario.fishing_points[i].x > 0) {
+            random_generate_next();
+            struct figure_t *fish = figure_create(FIGURE_FISH_GULLS, scenario.fishing_points[i].x, scenario.fishing_points[i].y, DIR_0_TOP);
+            fish->terrain_usage = TERRAIN_USAGE_ANY;
+            fish->image_offset = random_byte() & 0x1f;
+            fish->progress_on_tile = random_byte() & 7;
+            figure_movement_set_cross_country_direction(fish,
+                fish->cross_country_x, fish->cross_country_y,
+                15 * fish->destination_x, 15 * fish->destination_y, 0);
+        }
+    }
     create_herds();
     figure_create_flotsam();
     map_routing_update_all();

@@ -1,7 +1,8 @@
 #include "service.h"
 
 #include "building/building.h"
-#include "figuretype/crime.h"
+#include "city/city_new.h"
+#include "figuretype/figuretype.h"
 #include "map/map.h"
 
 #define MAX_COVERAGE 96
@@ -422,10 +423,37 @@ int figure_service_provide_coverage(struct figure_t *f)
             break;
         }
         case FIGURE_RIOTER:
-            if (figure_rioter_collapse_building(f) == 1) {
+        {
+            for (int dir = 0; dir < 8; dir += 2) {
+                int grid_offset = f->grid_offset + map_grid_direction_delta(dir);
+                if (!map_building_at(grid_offset)) {
+                    continue;
+                }
+                b = &all_buildings[map_building_at(grid_offset)];
+                switch (b->type) {
+                    case BUILDING_WAREHOUSE_SPACE:
+                    case BUILDING_WAREHOUSE:
+                    case BUILDING_FORT_GROUND:
+                    case BUILDING_FORT_LEGIONARIES:
+                    case BUILDING_FORT_JAVELIN:
+                    case BUILDING_FORT_MOUNTED:
+                    case BUILDING_BURNING_RUIN:
+                        continue;
+                }
+                if (b->house_size && b->subtype.house_level < HOUSE_SMALL_CASA) {
+                    continue;
+                }
+                city_message_apply_sound_interval(MESSAGE_CAT_RIOT_COLLAPSE);
+                city_message_post(0, MESSAGE_DESTROYED_BUILDING, b->type, f->grid_offset);
+                city_message_increase_category_count(MESSAGE_CAT_RIOT_COLLAPSE);
+                destroy_on_fire(b, 0);
+                f->action_state = FIGURE_ACTION_RIOTER_CREATED;
+                f->wait_ticks = 0;
+                f->direction = dir;
                 return 1;
             }
             break;
+        }
     }
     if (f->building_id) {
         b = &all_buildings[f->building_id];

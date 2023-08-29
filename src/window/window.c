@@ -13,7 +13,7 @@
 #include "editor/editor.h"
 #include "empire/empire.h"
 #include "figure/formation_legion.h"
-#include "figuretype/editor.h"
+#include "figuretype/figuretype.h"
 #include "game/game.h"
 #include "graphics/graphics.h"
 #include "platform/brutus.h"
