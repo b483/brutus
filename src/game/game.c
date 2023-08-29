@@ -2428,7 +2428,7 @@ void game_run(void)
                     last_year->income.total = income;
                     last_year->expenses.total = last_year->expenses.tribute + expenses;
                     // reset yearly trade amounts
-                    for (int j = 0; j < MAX_OBJECTS; j++) {
+                    for (int j = 0; j < MAX_EMPIRE_OBJECTS; j++) {
                         if (empire_objects[j].in_use && empire_objects[j].trade_route_open) {
                             for (int r = RESOURCE_WHEAT; r < RESOURCE_TYPES_MAX; r++) {
                                 empire_objects[j].resource_bought[r] = 0;

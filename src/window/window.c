@@ -12,7 +12,6 @@
 #include "core/time.h"
 #include "editor/editor.h"
 #include "empire/empire.h"
-#include "empire/object.h"
 #include "figure/formation_legion.h"
 #include "figuretype/editor.h"
 #include "game/game.h"
@@ -7791,7 +7790,7 @@ static void draw_foreground_empire_window_data(void)
     empire_window_data.y_draw_offset = empire_window_data.y_min + 16;
     empire_adjust_scroll(&empire_window_data.x_draw_offset, &empire_window_data.y_draw_offset);
     image_draw(image_group(GROUP_EMPIRE_MAP), empire_window_data.x_draw_offset, empire_window_data.y_draw_offset);
-    for (int i = 0; i < MAX_OBJECTS; i++) {
+    for (int i = 0; i < MAX_EMPIRE_OBJECTS; i++) {
         if (empire_objects[i].in_use) {
             // don't draw trade routes that aren't open
             if (empire_objects[i].type == EMPIRE_OBJECT_LAND_TRADE_ROUTE || empire_objects[i].type == EMPIRE_OBJECT_SEA_TRADE_ROUTE) {

@@ -11,7 +11,6 @@
 #include "game/game.h"
 #include "graphics/graphics.h"
 #include "editor/editor.h"
-#include "empire/object.h"
 #include "input/input.h"
 #include "map/map.h"
 #include "scenario/scenario.h"
@@ -1348,7 +1347,7 @@ static void draw_foreground_editor_empire(void)
     empire_editor_y_draw_offset = empire_editor_y_min + 16;
     empire_adjust_scroll(&empire_editor_x_draw_offset, &empire_editor_y_draw_offset);
     image_draw(image_group(GROUP_EDITOR_EMPIRE_MAP), empire_editor_x_draw_offset, empire_editor_y_draw_offset);
-    for (int i = 0; i < MAX_OBJECTS; i++) {
+    for (int i = 0; i < MAX_EMPIRE_OBJECTS; i++) {
         if (empire_objects[i].in_use) {
             // don't draw trade route if trade city switched to non-trade city
             if (empire_objects[i].type == EMPIRE_OBJECT_LAND_TRADE_ROUTE || empire_objects[i].type == EMPIRE_OBJECT_SEA_TRADE_ROUTE) {
@@ -1464,7 +1463,7 @@ static void handle_input_editor_empire(const struct mouse_t *m, const struct hot
         if (!selected_empire_object_editor
         || !selected_empire_object_editor->in_use
         || (selected_empire_object_editor->type == EMPIRE_OBJECT_ORNAMENT && selected_empire_object_editor->image_id != 3323)) {
-            for (int i = 0; i < MAX_OBJECTS; i++) {
+            for (int i = 0; i < MAX_EMPIRE_OBJECTS; i++) {
                 if (!empire_objects[i].in_use) {
                     empire_objects[i].in_use = 1;
                     empire_objects[i].image_id = 3323;
@@ -4155,7 +4154,7 @@ static void set_route_id(int index)
 static void create_route_names(void)
 {
     demand_routes_num_routes = 0;
-    for (int i = 0; i < MAX_OBJECTS; i++) {
+    for (int i = 0; i < MAX_EMPIRE_OBJECTS; i++) {
         struct empire_object_t *object = &empire_objects[i];
         if (object && (object->city_type == EMPIRE_CITY_TRADE || object->city_type == EMPIRE_CITY_FUTURE_TRADE)) {
             if (object->resource_sell_limit[scenario.demand_changes[id_demand_route].resource] || object->resource_buy_limit[scenario.demand_changes[id_demand_route].resource]) {

@@ -3,7 +3,7 @@
 #include "building/building.h"
 #include "city/city_new.h"
 #include "core/calc.h"
-#include "empire/object.h"
+#include "empire/empire.h"
 #include "map/map.h"
 #include "scenario/scenario.h"
 

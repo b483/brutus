@@ -4,7 +4,7 @@
 #include "city/city_new.h"
 #include "core/calc.h"
 #include "core/image.h"
-#include "empire/object.h"
+#include "empire/empire.h"
 #include "figure/combat.h"
 #include "figure/movement.h"
 #include "figure/route.h"

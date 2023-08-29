@@ -8,7 +8,7 @@
 #include "core/random.h"
 #include "core/string.h"
 #include "core/time.h"
-#include "empire/object.h"
+#include "empire/empire.h"
 #include "figure/formation_enemy.h"
 #include "figure/formation_legion.h"
 #include "figure/route.h"
@@ -2967,7 +2967,7 @@ int city_migration_no_room_for_immigrants(void)
 
 void city_military_determine_distant_battle_city(void)
 {
-    for (int i = 0; i < MAX_OBJECTS; i++) {
+    for (int i = 0; i < MAX_EMPIRE_OBJECTS; i++) {
         if (empire_objects[i].in_use && empire_objects[i].city_type == EMPIRE_CITY_VULNERABLE_ROMAN) {
             city_data.distant_battle.city = i;
         }
@@ -3930,7 +3930,7 @@ void city_trade_update(void)
     // Wine types
     city_data.resource.wine_types_available = building_count_industry_total(RESOURCE_WINE) > 0 ? 1 : 0;
     if (city_data.resource.trade_status[RESOURCE_WINE] == TRADE_STATUS_IMPORT) {
-        for (int i = 0; i < MAX_OBJECTS; i++) {
+        for (int i = 0; i < MAX_EMPIRE_OBJECTS; i++) {
             if (empire_objects[i].in_use
                 && empire_objects[i].trade_route_open
                 && empire_objects[i].resource_sell_limit[RESOURCE_WINE]) {
@@ -3950,7 +3950,7 @@ void city_trade_update(void)
         city_data.trade.sea_trade_problem_duration = 0;
     }
 
-    for (int i = 1; i < MAX_OBJECTS; i++) {
+    for (int i = 1; i < MAX_EMPIRE_OBJECTS; i++) {
         if (!empire_objects[i].in_use || !empire_objects[i].trade_route_open) {
             continue;
         }

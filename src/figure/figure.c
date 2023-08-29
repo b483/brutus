@@ -5,7 +5,7 @@
 #include "core/image.h"
 #include "core/image_group.h"
 #include "core/random.h"
-#include "empire/object.h"
+#include "empire/empire.h"
 #include "figure/formation_enemy.h"
 #include "figure/formation_herd.h"
 #include "figure/formation_legion.h"

@@ -1,7 +1,6 @@
 #ifndef WINDOW_WINDOW_H
 #define WINDOW_WINDOW_H
 
-#include "empire/object.h"
 #include "graphics/graphics.h"
 #include "input/input.h"
 

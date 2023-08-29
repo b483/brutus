@@ -7,7 +7,7 @@
 #include "core/random.h"
 #include "core/string.h"
 #include "core/time.h"
-#include "empire/object.h"
+#include "empire/empire.h"
 #include "figure/figure.h"
 #include "figure/formation_herd.h"
 #include "figure/formation_legion.h"
@@ -2760,7 +2760,7 @@ void building_construction_place(void)
             if (city_data.resource.stored_in_warehouses[finished_good] <= 0 && city_data.resource.stored_in_warehouses[raw_resource] <= 0) {
                 show(warning_resource_needed);
                 int empire_offers_resource = 0;
-                for (int i = 0; i < MAX_OBJECTS; i++) {
+                for (int i = 0; i < MAX_EMPIRE_OBJECTS; i++) {
                     if (empire_objects[i].in_use
                         && empire_objects[i].city_type == EMPIRE_CITY_TRADE
                         && empire_objects[i].resource_sell_limit[raw_resource]) {

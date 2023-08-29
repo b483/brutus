@@ -7,7 +7,7 @@
 #include "core/lang.h"
 #include "core/random.h"
 #include "core/string.h"
-#include "empire/object.h"
+#include "empire/empire.h"
 #include "figure/figure.h"
 #include "figure/formation.h"
 #include "figure/formation_enemy.h"
@@ -619,7 +619,7 @@ void process_empire_expansion(void)
         return;
     }
 
-    for (int i = 0; i < MAX_OBJECTS; i++) {
+    for (int i = 0; i < MAX_EMPIRE_OBJECTS; i++) {
         if (!empire_objects[i].in_use || empire_objects[i].type != EMPIRE_OBJECT_CITY) {
             continue;
         }
