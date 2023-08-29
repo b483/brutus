@@ -16,10 +16,6 @@
 #include "map/map.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
-#include "widget/city_figure.h"
-#include "widget/input_box.h"
-#include "widget/minimap.h"
-#include "widget/sidebar/common.h"
 #include "window/window.h"
 
 #include <stdlib.h>

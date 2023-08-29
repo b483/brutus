@@ -41,7 +41,6 @@
 #include "scenario/scenario.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
-#include "widget/minimap.h"
 #include "window/window.h"
 
 #include "SDL_mixer.h"

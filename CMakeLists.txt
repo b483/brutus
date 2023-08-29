@@ -155,27 +155,6 @@ set(GRAPHICS_FILES
 set(SOUND_FILES
     ${PROJECT_SOURCE_DIR}/src/sound/sound.c
 )
-set(WIDGET_FILES
-    ${PROJECT_SOURCE_DIR}/src/widget/city.c
-    ${PROJECT_SOURCE_DIR}/src/widget/city_bridge.c
-    ${PROJECT_SOURCE_DIR}/src/widget/city_building_ghost.c
-    ${PROJECT_SOURCE_DIR}/src/widget/city_figure.c
-    ${PROJECT_SOURCE_DIR}/src/widget/city_overlay_education.c
-    ${PROJECT_SOURCE_DIR}/src/widget/city_overlay_entertainment.c
-    ${PROJECT_SOURCE_DIR}/src/widget/city_overlay_health.c
-    ${PROJECT_SOURCE_DIR}/src/widget/city_overlay_other.c
-    ${PROJECT_SOURCE_DIR}/src/widget/city_overlay_risks.c
-    ${PROJECT_SOURCE_DIR}/src/widget/city_with_overlay.c
-    ${PROJECT_SOURCE_DIR}/src/widget/city_without_overlay.c
-    ${PROJECT_SOURCE_DIR}/src/widget/input_box.c
-    ${PROJECT_SOURCE_DIR}/src/widget/minimap.c
-    ${PROJECT_SOURCE_DIR}/src/widget/scenario_minimap.c
-    ${PROJECT_SOURCE_DIR}/src/widget/top_menu.c
-    ${PROJECT_SOURCE_DIR}/src/widget/sidebar/city.c
-    ${PROJECT_SOURCE_DIR}/src/widget/sidebar/common.c
-    ${PROJECT_SOURCE_DIR}/src/widget/sidebar/extra.c
-    ${PROJECT_SOURCE_DIR}/src/widget/sidebar/slide.c
-)
 set(WINDOW_FILES
     ${PROJECT_SOURCE_DIR}/src/window/window.c
 )
@@ -197,7 +176,6 @@ set(SOURCE_FILES
     ${SCENARIO_FILES}
     ${GRAPHICS_FILES}
     ${SOUND_FILES}
-    ${WIDGET_FILES}
     ${WINDOW_FILES}
     ${EDITOR_FILES}
     ${PROJECT_SOURCE_DIR}/res/brutus.rc

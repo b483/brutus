@@ -16,7 +16,6 @@
 #include "graphics/graphics.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
-#include "widget/minimap.h"
 #include "window/window.h"
 
 #include <string.h>
@@ -4691,11 +4690,7 @@ void city_view_foreach_valid_map_tile(map_callback *callback1, map_callback *cal
     }
 }
 
-void city_view_foreach_minimap_tile(
-    int x_offset, int y_offset,
-    int absolute_x, int absolute_y,
-    int width_tiles, int height_tiles,
-    map_callback *callback)
+void city_view_foreach_minimap_tile(int x_offset, int y_offset, int absolute_x, int absolute_y, int width_tiles, int height_tiles, map_callback *callback)
 {
     int odd = 0;
     int y_abs = absolute_y - 4;

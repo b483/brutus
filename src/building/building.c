@@ -23,7 +23,6 @@
 #include "platform/brutus.h"
 #include "scenario/scenario.h"
 #include "sound/sound.h"
-#include "widget/city.h"
 #include "window/window.h"
 
 #include <string.h>

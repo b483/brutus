@@ -16,7 +16,6 @@ enum {
     MAP_FLAG_FISHING_MAX = 30,
     MAP_FLAG_HERD_MIN = 31,
     MAP_FLAG_HERD_MAX = 38,
-
     MAP_FLAG_MIN = 1,
     MAP_FLAG_MAX = 39,
 };

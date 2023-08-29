@@ -12,7 +12,7 @@
 #include "map/map.h"
 #include "platform/brutus.h"
 #include "sound/sound.h"
-#include "widget/city_without_overlay.h"
+#include "window/window.h"
 
 #include <stdio.h>
 #include <stdlib.h>

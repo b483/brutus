@@ -2,12 +2,20 @@
 #define WINDOW_WINDOW_H
 
 #include "empire/object.h"
+#include "graphics/graphics.h"
 #include "input/input.h"
 
 #define BUILD_MENU_BUTTONS_COUNT 12
 #define MAX_ITEMS_PER_BUILD_MENU 11
-
 #define MAX_ITEMS_PER_SUBMENU 6
+#define NO_COLUMN -1
+#define SIDEBAR_COLLAPSED_WIDTH 42
+#define SIDEBAR_EXPANDED_WIDTH 162
+#define SIDEBAR_MAIN_SECTION_HEIGHT 450
+#define SIDEBAR_FILLER_Y_OFFSET (SIDEBAR_MAIN_SECTION_HEIGHT + TOP_MENU_HEIGHT)
+#define MINIMAP_WIDTH 146
+#define MINIMAP_HEIGHT 111
+
 
 enum {
     MENU_VACANT_HOUSE = 0,
@@ -81,6 +89,11 @@ enum {
     POPUP_DIALOG_EDITOR_QUIT_WITHOUT_SAVING = 20,
 };
 
+enum {
+    SLIDE_DIRECTION_IN = 0,
+    SLIDE_DIRECTION_OUT = 1
+};
+
 struct advisor_window_type_t {
     /**
      * @return height of the advisor in blocks of 16px
@@ -89,8 +102,6 @@ struct advisor_window_type_t {
     void (*draw_foreground)(void);
     int (*handle_mouse)(const struct mouse_t *m);
 };
-
-extern const int BUILDING_MENU_SUBMENU_ITEM_MAPPING[BUILD_MENU_BUTTONS_COUNT][MAX_ITEMS_PER_BUILD_MENU][MAX_ITEMS_PER_SUBMENU];
 
 struct submenu_t {
     int building_id;
@@ -104,6 +115,32 @@ struct build_menu_t {
 };
 
 extern struct build_menu_t build_menus[BUILD_MENU_BUTTONS_COUNT];
+
+struct city_overlay_t {
+    int type;
+    int column_type;
+    int (*show_building)(const struct building_t *b);
+    int (*show_figure)(const struct figure_t *f);
+    int (*get_column_height)(const struct building_t *b);
+    void (*draw_custom_footprint)(int x, int y, int grid_offset);
+    void (*draw_custom_top)(int x, int y, int grid_offset);
+};
+
+struct pixel_coordinate_t {
+    int x;
+    int y;
+};
+
+struct input_box_t {
+    int x;
+    int y;
+    int width_blocks;
+    int height_blocks;
+    int font;
+    int allow_punctuation;
+    char *text;
+    int text_length;
+};
 
 void window_advisors_show(int advisor);
 
@@ -132,8 +169,6 @@ void window_city_return(void);
 void window_display_options_show(void (*close_callback)(void));
 
 void window_empire_show(void);
-
-extern char *too_many_files_string;
 
 void window_file_dialog_show(int type, int dialog_type);
 
@@ -172,5 +207,35 @@ void window_sound_options_show(int from_editor);
 void window_speed_options_show(int from_editor);
 
 void window_victory_dialog_show(void);
+
+int sidebar_common_get_x_offset_expanded(void);
+
+void sidebar_common_draw_relief(int x_offset, int y_offset, int image, int is_collapsed);
+
+typedef void (*back_sidebar_draw_function)(void);
+typedef back_sidebar_draw_function slide_finished_function;
+typedef void (*front_sidebar_draw_function)(int x_offset);
+
+void city_draw_figure(struct figure_t *f, int x, int y, int hover);
+
+void city_without_overlay_draw(int selected_figure_id, struct pixel_coordinate_t *figure_coord, const struct map_tile_t *tile);
+
+void widget_city_draw(void);
+void widget_city_draw_for_figure(int figure_id, struct pixel_coordinate_t *coord);
+
+void update_city_view_coords(int x, int y, struct map_tile_t *tile);
+
+void scroll_map(const struct mouse_t *m);
+
+void input_box_start(struct input_box_t *box);
+void input_box_stop(struct input_box_t *box);
+
+void input_box_draw(const struct input_box_t *box);
+
+void widget_minimap_invalidate(void);
+
+void widget_minimap_draw(int x_offset, int y_offset, int width, int height, int force);
+
+int widget_minimap_handle_mouse(const struct mouse_t *m);
 
 #endif
