@@ -1,0 +1,1 @@
+gcc src/brutus.c -o build/brutus.exe -I"ext/SDL2/SDL2-2.26.2/x86_64-w64-mingw32/include/SDL2" -I"ext/SDL2/SDL2_mixer-2.6.2/x86_64-w64-mingw32/include/SDL2" "build/SDL2.dll" "build/SDL2_mixer.dll" "res/brutus.res" -mwindows -std=c17 -Wall -Wextra -Wpedantic -Wno-discarded-qualifiers -O3

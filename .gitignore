@@ -3,19 +3,10 @@
 *.kdev4
 .vs
 .vscode
-/CMakeSettings.json*
-/CMakePresets.json*
-
-# Generated resources
-src/platform/version.c
-res/version.rc
-res/version.txt
 
 # Build output and data directories
-/build*/
-/release
+/build/
 out/
-cmake-build-debug
-/data
 ext/SDL2/*/
-ext/mpg123*
+
+debug_build.bat

@@ -1,5 +1,4 @@
-#include "brutus.h"
-
+#define SDL_MAIN_HANDLED
 #include "SDL.h"
 #include "SDL_mixer.h"
 
@@ -5239,7 +5238,7 @@ static struct {
 } top_menu_data;
 
 static struct {
-    int population;
+    uint32_t population;
     int treasury;
     int month;
 } drawn;
@@ -7763,7 +7762,7 @@ static int last_items_cleared;
 static int tower_sentry_request = 0;
 // end ints
 
-static FILE *log_file = 0;
+static FILE *log_file;
 
 noreturn static void handler(int sig)
 {
@@ -9690,21 +9689,20 @@ static void draw_figure_city(struct figure_t *f, int x, int y, int highlight)
                 draw_figure_with_cart(f, x, y);
                 break;
             case FIGURE_HIPPODROME_HORSES:
-                int val = f->wait_ticks_missile;
                 switch (view_data.orientation) {
                     case DIR_0_TOP:
                         x += 10;
-                        if (val <= 10) {
+                        if (f->wait_ticks_missile <= 10) {
                             y -= 2;
-                        } else if (val <= 11) {
+                        } else if (f->wait_ticks_missile <= 11) {
                             y -= 10;
-                        } else if (val <= 12) {
+                        } else if (f->wait_ticks_missile <= 12) {
                             y -= 18;
-                        } else if (val <= 13) {
+                        } else if (f->wait_ticks_missile <= 13) {
                             y -= 16;
-                        } else if (val <= 20) {
+                        } else if (f->wait_ticks_missile <= 20) {
                             y -= 14;
-                        } else if (val <= 21) {
+                        } else if (f->wait_ticks_missile <= 21) {
                             y -= 10;
                         } else {
                             y -= 2;
@@ -9712,18 +9710,18 @@ static void draw_figure_city(struct figure_t *f, int x, int y, int highlight)
                         break;
                     case DIR_2_RIGHT:
                         x -= 10;
-                        if (val <= 9) {
+                        if (f->wait_ticks_missile <= 9) {
                             y -= 12;
-                        } else if (val <= 10) {
+                        } else if (f->wait_ticks_missile <= 10) {
                             y += 4;
-                        } else if (val <= 11) {
+                        } else if (f->wait_ticks_missile <= 11) {
                             x -= 5;
                             y += 2;
-                        } else if (val <= 13) {
+                        } else if (f->wait_ticks_missile <= 13) {
                             x -= 5;
-                        } else if (val <= 20) {
+                        } else if (f->wait_ticks_missile <= 20) {
                             y -= 2;
-                        } else if (val <= 21) {
+                        } else if (f->wait_ticks_missile <= 21) {
                             y -= 6;
                         } else {
                             y -= 12;
@@ -9731,19 +9729,19 @@ static void draw_figure_city(struct figure_t *f, int x, int y, int highlight)
                         /* fall through */
                     case DIR_4_BOTTOM:
                         x += 20;
-                        if (val <= 9) {
+                        if (f->wait_ticks_missile <= 9) {
                             y += 4;
-                        } else if (val <= 10) {
+                        } else if (f->wait_ticks_missile <= 10) {
                             x += 10;
                             y += 4;
-                        } else if (val <= 11) {
+                        } else if (f->wait_ticks_missile <= 11) {
                             x += 10;
                             y -= 4;
-                        } else if (val <= 13) {
+                        } else if (f->wait_ticks_missile <= 13) {
                             y -= 6;
-                        } else if (val <= 20) {
+                        } else if (f->wait_ticks_missile <= 20) {
                             y -= 12;
-                        } else if (val <= 21) {
+                        } else if (f->wait_ticks_missile <= 21) {
                             y -= 10;
                         } else {
                             y -= 2;
@@ -9751,17 +9749,17 @@ static void draw_figure_city(struct figure_t *f, int x, int y, int highlight)
                         break;
                     case DIR_6_LEFT:
                         x -= 10;
-                        if (val <= 9) {
+                        if (f->wait_ticks_missile <= 9) {
                             y -= 12;
-                        } else if (val <= 10) {
+                        } else if (f->wait_ticks_missile <= 10) {
                             y += 4;
-                        } else if (val <= 11) {
+                        } else if (f->wait_ticks_missile <= 11) {
                             y += 2;
-                        } else if (val <= 13) {
+                        } else if (f->wait_ticks_missile <= 13) {
                             // no change
-                        } else if (val <= 20) {
+                        } else if (f->wait_ticks_missile <= 20) {
                             y -= 2;
-                        } else if (val <= 21) {
+                        } else if (f->wait_ticks_missile <= 21) {
                             y -= 6;
                         } else {
                             y -= 12;
@@ -11439,13 +11437,15 @@ static void city_building_ghost_draw(struct map_tile_t *tile)
             return;
         case BUILDING_LOW_BRIDGE:
         case BUILDING_SHIP_BRIDGE:
-            int length, direction;
+        {
+            int length = 0;
+            int direction = 0;
             int end_grid_offset = 0;
             int grid_offset = map_grid_offset(tile->x, tile->y);
             bridge.end_grid_offset = 0;
             bridge.direction_grid_delta = 0;
-            bridge.length = length = 0;
-            bridge.direction = direction = 0;
+            bridge.length = 0;
+            bridge.direction = 0;
             if (!map_terrain_is(grid_offset, TERRAIN_WATER)) {
                 end_grid_offset = 0;
             } else if (map_terrain_is(grid_offset, TERRAIN_ROAD | TERRAIN_BUILDING)) {
@@ -11563,6 +11563,7 @@ static void city_building_ghost_draw(struct map_tile_t *tile)
                 construction_data.cost_preview = building_properties[type].cost * length;
             }
             break;
+        }
         case BUILDING_SHIPYARD:
         case BUILDING_WHARF:
             if (map_water_determine_orientation_size2(tile->x, tile->y, 1, &dir_absolute, &dir_relative)) {
@@ -20099,20 +20100,19 @@ static int game_file_start_scenario(char *scenario_selected)
             }
             int random_bit = random.items[grid_offset] & 1;
             int type;
-            int image_id = images.items[grid_offset];
-            if (image_id == scenario.native_images.hut) {
+            if (images.items[grid_offset] == scenario.native_images.hut) {
                 type = BUILDING_NATIVE_HUT;
                 images.items[grid_offset] = native_image;
-            } else if (image_id == scenario.native_images.hut + 1) {
+            } else if (images.items[grid_offset] == scenario.native_images.hut + 1) {
                 type = BUILDING_NATIVE_HUT;
                 images.items[grid_offset] = native_image + 1;
-            } else if (image_id == scenario.native_images.meeting) {
+            } else if (images.items[grid_offset] == scenario.native_images.meeting) {
                 type = BUILDING_NATIVE_MEETING;
                 images.items[grid_offset] = native_image + 2;
                 images.items[grid_offset + map_grid_delta(1, 0)] = native_image + 2;
                 images.items[grid_offset + map_grid_delta(0, 1)] = native_image + 2;
                 images.items[grid_offset + map_grid_delta(1, 1)] = native_image + 2;
-            } else if (image_id == scenario.native_images.crops) {
+            } else if (images.items[grid_offset] == scenario.native_images.crops) {
                 type = BUILDING_NATIVE_CROPS;
                 images.items[grid_offset] = image_data_s.group_image_ids[GROUP_BUILDING_FARM_CROPS] + random_bit;
             } else if (image_data_s.group_image_ids[GROUP_EDITOR_BUILDING_NATIVE] - 4) {
@@ -20193,8 +20193,8 @@ static int game_file_start_scenario(char *scenario_selected)
     }
     for (int i = 0; i < MAX_HERD_POINTS; i++) {
         if (scenario.herd_points[i].x > -1) {
-            int herd_type;
-            int num_animals;
+            int herd_type = FIGURE_NONE;
+            int num_animals = 0;
             switch (scenario.climate) {
                 case CLIMATE_NORTHERN:
                     herd_type = FIGURE_WOLF;
@@ -24635,20 +24635,19 @@ static void prepare_map_for_editing(int map_is_new)
                 continue;
             }
             int type;
-            int image_id = images.items[grid_offset];
-            if (image_id == scenario.native_images.hut) {
+            if (images.items[grid_offset] == scenario.native_images.hut) {
                 type = BUILDING_NATIVE_HUT;
                 images.items[grid_offset] = native_image;
-            } else if (image_id == scenario.native_images.hut + 1) {
+            } else if (images.items[grid_offset] == scenario.native_images.hut + 1) {
                 type = BUILDING_NATIVE_HUT;
                 images.items[grid_offset] = native_image + 1;
-            } else if (image_id == scenario.native_images.meeting) {
+            } else if (images.items[grid_offset] == scenario.native_images.meeting) {
                 type = BUILDING_NATIVE_MEETING;
                 images.items[grid_offset] = native_image + 2;
                 images.items[grid_offset + map_grid_delta(1, 0)] = native_image + 2;
                 images.items[grid_offset + map_grid_delta(0, 1)] = native_image + 2;
                 images.items[grid_offset + map_grid_delta(1, 1)] = native_image + 2;
-            } else if (image_id == scenario.native_images.crops) {
+            } else if (images.items[grid_offset] == scenario.native_images.crops) {
                 type = BUILDING_NATIVE_CROPS;
                 images.items[grid_offset] = image_data_s.group_image_ids[GROUP_EDITOR_BUILDING_CROPS];
             } else if (image_data_s.group_image_ids[GROUP_EDITOR_BUILDING_NATIVE] - 4) {
@@ -28322,7 +28321,7 @@ static int widget_top_menu_handle_input(struct mouse_t *m, struct hotkeys_t *h)
             return 1;
         }
         if (m->right.went_up) {
-            int type;
+            int type = INFO_NONE;
             if (m->y < 4 || m->y >= 18) {
                 type = INFO_NONE;
             } else if (m->x > top_menu_data.offset_funds && m->x < top_menu_data.offset_funds + 128) {
@@ -29326,7 +29325,7 @@ static int map_routing_calculate_distances_for_building(int type, int x, int y)
         // not open land, can only if:
         // - aqueduct should be placed, and:
         // - land is a reservoir building OR an aqueduct
-        if (!type != ROUTED_BUILDING_ROAD) {
+        if (type != ROUTED_BUILDING_ROAD) {
             can_place_init_road_or_aqueduct = 0;
         } else if (map_terrain_is(source_offset, TERRAIN_AQUEDUCT)) {
             can_place_init_road_or_aqueduct = 1;
@@ -37646,7 +37645,7 @@ static void walk_ticks(struct figure_t *f, int num_ticks, int roaming_enabled)
                         break;
                     }
                 }
-                int path_length;
+                int path_length = 0;
                 if (path_id) {
                     if (figure_properties[f->type].is_boat) {
                         if (figure_properties[f->type].is_boat == 2) { // flotsam
@@ -37700,12 +37699,14 @@ static void walk_ticks(struct figure_t *f, int num_ticks, int roaming_enabled)
                                 }
                                 break;
                             case TERRAIN_USAGE_WALLS:
+                            {
                                 int src_offset = map_grid_offset(f->x, f->y);
                                 int dst_offset = map_grid_offset(f->destination_x, f->destination_y);
                                 stats.total_routes_calculated++;
                                 route_queue(src_offset, dst_offset, callback_travel_walls);
                                 can_travel = routing_distance.items[dst_offset] != 0;
                                 break;
+                            }
                             case TERRAIN_USAGE_ANIMAL:
                                 can_travel = map_routing_noncitizen_can_travel_over_land(f->x, f->y, f->destination_x, f->destination_y, -1, 5000);
                                 break;
@@ -41057,8 +41058,8 @@ static void game_run(void)
                         if (herd_formations[k].in_use && herd_formations[k].num_figures) {
                             struct formation_t *m = &herd_formations[k];
                             int random_factor = rand();
-                            int roam_distance;
-                            int roam_delay;
+                            int roam_distance = 0;
+                            int roam_delay = 0;
                             switch (m->figure_type) {
                                 case FIGURE_WOLF:
                                     roam_distance = (random_factor % MAX_WOLF_ROAM_DISTANCE) >= MAX_WOLF_ROAM_DISTANCE / 2 ? (random_factor % MAX_WOLF_ROAM_DISTANCE) : MAX_WOLF_ROAM_DISTANCE;
@@ -43461,6 +43462,7 @@ static void game_run(void)
             }
             break;
             case 34: // distribute treasury
+            {
                 int units = 5 * count_data.buildings[BUILDING_SENATE].active + count_data.buildings[BUILDING_FORUM].active;
                 int amount_per_unit;
                 int remainder;
@@ -43498,6 +43500,7 @@ static void game_run(void)
                     }
                 }
                 break;
+            }
             case 35: // decay culture 
                 for (int j = 1; j < MAX_BUILDINGS; j++) {
                     struct building_t *b = &all_buildings[j];
@@ -47497,6 +47500,7 @@ static void game_run(void)
                                 }
                                 break;
                             case FIGURE_ACTION_PREFECT_AT_FIRE:
+                            {
                                 struct building_t *burn = &all_buildings[f->destination_building_id];
                                 int distance = calc_maximum_distance(f->x, f->y, burn->x, burn->y);
                                 if (burn->state == BUILDING_STATE_IN_USE && burn->type == BUILDING_BURNING_RUIN && distance < 2) {
@@ -47525,6 +47529,7 @@ static void game_run(void)
                                     }
                                 }
                                 break;
+                            }
                         }
                         // graphic id
                         int dir;
@@ -47877,6 +47882,7 @@ static void game_run(void)
                         break;
                     }
                     case FIGURE_MARKET_TRADER:
+                    {
                         struct building_t *market = &all_buildings[f->building_id];
                         if (market->state != BUILDING_STATE_IN_USE || market->figure_id != f->id) {
                             figure_delete(f);
@@ -47902,6 +47908,7 @@ static void game_run(void)
                         figure_image_increase_offset(f, 12);
                         f->image_id = image_data_s.group_image_ids[GROUP_FIGURE_MARKET_LADY] + figure_image_direction(f) + 8 * f->image_offset;
                         break;
+                    }
                     case FIGURE_DELIVERY_BOY:
                     {
                         f->is_invisible = 0;
@@ -50941,7 +50948,7 @@ static void init_cursors(int scale_percentage)
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) // actually SDL_main
 {
     signal(SIGSEGV, handler);
-    log_file = fopen("brutus-log.txt", "wt");
+    log_file = fopen("brutus_log.txt", "wt");
     SDL_LogSetOutputFunction(write_log, 0);
     if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) != 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize SDL: %s", SDL_GetError());
@@ -55368,9 +55375,8 @@ static void widget_scenario_minimap_draw(int x_offset, int y_offset, int width, 
 
 static void draw_version_string(void)
 {
-    char version_string[100] = "Brutus v";
+    char version_string[100] = "Brutus v1.00";
     int text_y = screen_data.height - 30;
-    string_copy(string_from_ascii(system_version()), version_string + string_length(version_string), 99);
     int text_width = text_get_width(version_string, FONT_SMALL_PLAIN);
     if (text_y <= 500 && (screen_data.width - 640) / 2 < text_width + 18) {
         graphics_draw_rect(10, text_y, text_width + 14, 20, COLOR_BLACK);
@@ -58432,7 +58438,7 @@ static void show_editor_edit_earthquake(int id, __attribute__((unused)) int para
         handle_input_edit_earthquake,
     };
     id_edit_earthquake = id;
-    for (int i = 0; i <= MAX_EARTHQUAKE_POINTS; i++) {
+    for (int i = 0; i < MAX_EARTHQUAKE_POINTS; i++) {
         earthquake_point_names[i] = earthquakes_strings[i + 2];
     }
     window_show(&window);
@@ -59692,7 +59698,7 @@ static void handle_input_city(struct mouse_t *m, struct hotkeys_t *h)
             minimap_data.refresh_requested = 1;
         }
     }
-    int is_cancel_construction_button;
+    int is_cancel_construction_button = 0;
     if (construction_data.type) {
         int city_x, city_y, width, height;
         city_view_get_viewport(&city_x, &city_y, &width, &height);
