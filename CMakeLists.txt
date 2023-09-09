@@ -15,8 +15,7 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
         -Wenum-conversion -Warray-bounds=2 -Wattribute-alias=2 -Wduplicated-branches -Wduplicated-cond -Wtrampolines -Wshadow=compatible-local
         -Wunsafe-loop-optimizations -Wbad-function-cast -Wcast-align -Wwrite-strings -Wdangling-else -Wdate-time -Wlogical-op
         -Waggregate-return -Wno-aggressive-loop-optimizations -Wmissing-prototypes -Wmissing-declarations -Wopenmp-simd -Wpacked -Wredundant-decls
-        -Wnested-externs -Winline -Winvalid-pch -Wvector-operation-performance -Wdisabled-optimization -Wstrict-prototypes -Werror
-        -fanalyzer)
+        -Wnested-externs -Winline -Winvalid-pch -Wvector-operation-performance -Wdisabled-optimization -Wstrict-prototypes -Werror)
 elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
     add_compile_options(-Wall -Wextra -Wno-sign-compare)
 endif()
@@ -79,89 +78,8 @@ set(PLATFORM_FILES
     ${PROJECT_SOURCE_DIR}/src/platform/version.c
 )
 
-set(CORE_FILES
-    ${PROJECT_SOURCE_DIR}/src/core/buffer.c
-    ${PROJECT_SOURCE_DIR}/src/core/calc.c
-    ${PROJECT_SOURCE_DIR}/src/core/config.c
-    ${PROJECT_SOURCE_DIR}/src/core/file.c
-    ${PROJECT_SOURCE_DIR}/src/core/hotkey_config.c
-    ${PROJECT_SOURCE_DIR}/src/core/image.c
-    ${PROJECT_SOURCE_DIR}/src/core/lang.c
-    ${PROJECT_SOURCE_DIR}/src/core/random.c
-    ${PROJECT_SOURCE_DIR}/src/core/smacker.c
-    ${PROJECT_SOURCE_DIR}/src/core/speed.c
-    ${PROJECT_SOURCE_DIR}/src/core/string.c
-    ${PROJECT_SOURCE_DIR}/src/core/time.c
-)
-
-set(BUILDING_FILES
-    ${PROJECT_SOURCE_DIR}/src/building/building.c
-)
-set(CITY_FILES
-    ${PROJECT_SOURCE_DIR}/src/city/city_new.c
-    ${PROJECT_SOURCE_DIR}/src/city/resource.c
-)
-set(EMPIRE_FILES
-    ${PROJECT_SOURCE_DIR}/src/empire/empire.c
-)
-set(FIGURE_FILES
-    ${PROJECT_SOURCE_DIR}/src/figure/combat.c
-    ${PROJECT_SOURCE_DIR}/src/figure/figure.c
-    ${PROJECT_SOURCE_DIR}/src/figure/formation.c
-    ${PROJECT_SOURCE_DIR}/src/figure/formation_enemy.c
-    ${PROJECT_SOURCE_DIR}/src/figure/formation_herd.c
-    ${PROJECT_SOURCE_DIR}/src/figure/formation_legion.c
-    ${PROJECT_SOURCE_DIR}/src/figure/movement.c
-    ${PROJECT_SOURCE_DIR}/src/figure/name.c
-    ${PROJECT_SOURCE_DIR}/src/figure/route.c
-    ${PROJECT_SOURCE_DIR}/src/figure/service.c
-    ${PROJECT_SOURCE_DIR}/src/figure/sound.c
-    ${PROJECT_SOURCE_DIR}/src/figure/trader.c
-)
-set(FIGURETYPE_FILES
-    ${PROJECT_SOURCE_DIR}/src/figuretype/figuretype.c
-)
-set(GAME_FILES
-    ${PROJECT_SOURCE_DIR}/src/game/game.c
-)
-set(INPUT_FILES
-    ${PROJECT_SOURCE_DIR}/src/input/input.c
-)
-set(MAP_FILES
-    ${PROJECT_SOURCE_DIR}/src/map/map.c
-)
-set(SCENARIO_FILES
-    ${PROJECT_SOURCE_DIR}/src/scenario/scenario.c
-)
-set(GRAPHICS_FILES
-    ${PROJECT_SOURCE_DIR}/src/graphics/graphics.c
-)
-set(SOUND_FILES
-    ${PROJECT_SOURCE_DIR}/src/sound/sound.c
-)
-set(WINDOW_FILES
-    ${PROJECT_SOURCE_DIR}/src/window/window.c
-)
-set(EDITOR_FILES
-    ${PROJECT_SOURCE_DIR}/src/editor/editor.c
-)
-
 set(SOURCE_FILES
     ${PLATFORM_FILES}
-    ${CORE_FILES}
-    ${BUILDING_FILES}
-    ${CITY_FILES}
-    ${EMPIRE_FILES}
-    ${FIGURE_FILES}
-    ${FIGURETYPE_FILES}
-    ${GAME_FILES}
-    ${INPUT_FILES}
-    ${MAP_FILES}
-    ${SCENARIO_FILES}
-    ${GRAPHICS_FILES}
-    ${SOUND_FILES}
-    ${WINDOW_FILES}
-    ${EDITOR_FILES}
     ${PROJECT_SOURCE_DIR}/res/brutus.rc
 )
 

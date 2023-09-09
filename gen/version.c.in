@@ -5,7 +5,7 @@
 #define BRUTUS_VERSION "@PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@"
 #define BRUTUS_VERSION_SUFFIX "@VERSION_REVISION@"
 
-const char *system_version(void)
+char *system_version(void)
 {
     return BRUTUS_VERSION BRUTUS_VERSION_SUFFIX;
 }
