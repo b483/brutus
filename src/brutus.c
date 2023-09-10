@@ -22,7 +22,120 @@ typedef void (*back_sidebar_draw_function)(void);
 typedef back_sidebar_draw_function slide_finished_function;
 typedef void (*front_sidebar_draw_function)(int x_offset);
 
+#define DIR_PATH_MAX 255
+#define MAX_READ_LINE_LENGTH 100
+enum {
+    FONT_NORMAL_PLAIN,
+    FONT_NORMAL_BLACK,
+    FONT_NORMAL_WHITE,
+    FONT_NORMAL_RED,
+    FONT_LARGE_PLAIN,
+    FONT_LARGE_BLACK,
+    FONT_LARGE_BROWN,
+    FONT_SMALL_PLAIN,
+    FONT_NORMAL_GREEN,
+    FONT_NORMAL_BROWN,
+    FONT_TYPES_MAX
+};
+struct input_box_t {
+    int x;
+    int y;
+    int width_blocks;
+    int height_blocks;
+    int font;
+    int allow_punctuation;
+    char *text;
+    int text_length;
+};
+
+// settings data
 #define SETTINGS_MAX_ENTRIES 17
+enum {
+    SETTINGS_FULLSCREEN,
+    SETTINGS_WINDOW_WIDTH,
+    SETTINGS_WINDOW_HEIGHT,
+    SETTINGS_SOUND_EFFECTS_ENABLED,
+    SETTINGS_SOUND_EFFECTS_VOLUME,
+    SETTINGS_MUSIC_ENABLED,
+    SETTINGS_MUSIC_VOLUME,
+    SETTINGS_SPEECH_ENABLED,
+    SETTINGS_SPEECH_VOLUME,
+    SETTINGS_CITY_SOUNDS_ENABLED,
+    SETTINGS_CITY_SOUNDS_VOLUME,
+    SETTINGS_GAME_SPEED,
+    SETTINGS_SCROLL_SPEED,
+    SETTINGS_MONTHLY_AUTOSAVE_ENABLED,
+    SETTINGS_WARNINGS_ENABLED,
+    SETTINGS_VICTORY_VIDEO,
+    SETTINGS_LAST_ADVISOR,
+};
+enum {
+    ADVISOR_NONE = 0,
+    ADVISOR_LABOR = 1,
+    ADVISOR_MILITARY = 2,
+    ADVISOR_IMPERIAL = 3,
+    ADVISOR_RATINGS = 4,
+    ADVISOR_TRADE = 5,
+    ADVISOR_POPULATION = 6,
+    ADVISOR_HEALTH = 7,
+    ADVISOR_EDUCATION = 8,
+    ADVISOR_ENTERTAINMENT = 9,
+    ADVISOR_RELIGION = 10,
+    ADVISOR_FINANCIAL = 11,
+    ADVISOR_CHIEF = 12
+};
+static char settings_strings_file[][25] = {
+    "fullscreen", // 0
+    "window_width", // 1
+    "window_height", // 2
+    "sound_effects_enabled", // 3
+    "sound_effects_volume", // 4
+    "music_enabled", // 5
+    "music_volume", // 6
+    "speech_enabled", // 7
+    "speech_volume", // 8
+    "city_sounds_enabled", // 9
+    "city_sounds_volume", // 10
+    "game_speed", // 11
+    "scroll_speed", // 12
+    "monthly_autosave_enabled", // 13
+    "warnings_enabled", // 14
+    "victory_video_switch", // 15
+    "last_advisor", // 16
+};
+static int settings_values[SETTINGS_MAX_ENTRIES] = {
+    0, 1280, 800, 1, 50, 1, 50, 1, 50, 1, 50, 80, 90, 0, 1, 0, ADVISOR_CHIEF
+};
+
+// configs data
+#define MAX_PLAYER_NAME_LENGTH 24
+#define CONFIGS_MAX_ENTRIES 6
+enum {
+    CONFIG_UI_SIDEBAR_INFO,
+    CONFIG_UI_SHOW_INTRO_VIDEO,
+    CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING,
+    CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG,
+    CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE,
+    CONFIG_UI_HIGHLIGHT_LEGIONS,
+};
+static char CONFIGS_FILE_PATH[DIR_PATH_MAX]; // the path to "brutus.configs" within the Brutus directory
+static char configs_player_name[MAX_PLAYER_NAME_LENGTH] = "BRUTUS";
+static struct input_box_t player_name_input = { 144, 56, 18, 2, FONT_NORMAL_WHITE, 0, configs_player_name, MAX_PLAYER_NAME_LENGTH };
+struct configs_strings_t {
+    char *strings_file[CONFIGS_MAX_ENTRIES];
+    char *strings_ui[CONFIGS_MAX_ENTRIES];
+};
+static struct configs_strings_t configs_strings = {
+    {"ui_sidebar_info", "ui_show_intro_video", "ui_disable_mouse_edge_scrolling", "ui_disable_map_drag", "ui_visual_feedback_on_delete", "ui_highlight_legions"},
+    {"Extra information in the control panel", "Play intro videos", "Disable map scrolling on window edge", "Disable right click to drag the map", "Improve visual feedback when clearing land", "Highlight legion on cursor hover"}
+};
+static int configs_values[CONFIGS_MAX_ENTRIES] = {
+    0, 0, 0, 0, 0, 0
+};
+
+
+
+
 
 #define INTPTR(d) (*(int*)(d))
 #define MSG_SIZE 1000
@@ -38,7 +151,6 @@ typedef void (*front_sidebar_draw_function)(int x_offset);
 #define MINIMAP_HEIGHT 111
 #define CHANNEL_FILENAME_MAX 32
 #define MAX_INVASION_WARNINGS 101
-#define MAX_PLAYER_NAME 24
 #define MAX_SCENARIO_NAME 65
 #define MAX_BRIEF_DESCRIPTION 32
 #define MAX_BRIEFING 2500
@@ -117,9 +229,6 @@ typedef void (*front_sidebar_draw_function)(int x_offset);
 #define SPEED_CHANGE_IMMEDIATE 0
 #define MAX_NUM_FILES 128
 #define FILE_NAME_MAX 64
-#define DIR_PATH_MAX 255
-#define CONFIG_STRING_VALUE_MAX 32
-#define MAX_PLAYER_NAME_LENGTH 24
 #define RESOURCE_TYPES_MAX 16
 #define FOOD_TYPES_MAX 7
 #define COIN_IMAGE_ID 1202
@@ -171,19 +280,9 @@ typedef void (*front_sidebar_draw_function)(int x_offset);
 #define MAX_FILE_WINDOW_TEXT_WIDTH (18 * BLOCK_SIZE)
 #define MAX_WIDTH 2032
 #define MAX_HEIGHT 1136
-#define MAX_WIDGETS 13
 #define NUM_VISIBLE_ITEMS 16
-#define NUM_BOTTOM_BUTTONS_WINDOW_CONFIG 4
 #define ITEM_Y_OFFSET 60
 #define ITEM_HEIGHT 24
-#define CHECKBOX_CHECK_SIZE 20
-#define CHECKBOX_HEIGHT 20
-#define CHECKBOX_WIDTH 560
-#define CHECKBOX_TEXT_WIDTH CHECKBOX_WIDTH - CHECKBOX_CHECK_SIZE - 15
-#define NUMERICAL_RANGE_X 20
-#define NUMERICAL_SLIDER_X 50
-#define NUMERICAL_SLIDER_PADDING 2
-#define NUMERICAL_DOT_SIZE 20
 #define MAX_SCENARIOS 15
 #define MENU_X_OFFSET_BUILD_MENU 258
 #define MENU_Y_OFFSET_BUILD_MENU 110
@@ -330,7 +429,6 @@ typedef void (*front_sidebar_draw_function)(int x_offset);
 #define ENEMY_DATA_SIZE 2400000
 #define SCRATCH_DATA_SIZE 12100000
 #define NAME_SIZE 32
-#define MAX_LINE 100
 #define MAX_MAPPINGS HOTKEY_MAX_ITEMS * 2
 #define F_OK 0
 #define access _access
@@ -503,21 +601,6 @@ enum {
     BUILDING_STORAGE_STATE_ACCEPTING = 0,
     BUILDING_STORAGE_STATE_NOT_ACCEPTING = 1,
     BUILDING_STORAGE_STATE_GETTING = 2
-};
-enum {
-    ADVISOR_NONE = 0,
-    ADVISOR_LABOR = 1,
-    ADVISOR_MILITARY = 2,
-    ADVISOR_IMPERIAL = 3,
-    ADVISOR_RATINGS = 4,
-    ADVISOR_TRADE = 5,
-    ADVISOR_POPULATION = 6,
-    ADVISOR_HEALTH = 7,
-    ADVISOR_EDUCATION = 8,
-    ADVISOR_ENTERTAINMENT = 9,
-    ADVISOR_RELIGION = 10,
-    ADVISOR_FINANCIAL = 11,
-    ADVISOR_CHIEF = 12
 };
 enum {
     LOW_MOOD_CAUSE_NONE = 0,
@@ -843,40 +926,6 @@ enum {
     RESOURCE_IMAGE_CART = 1,
     RESOURCE_IMAGE_FOOD_CART = 2,
     RESOURCE_IMAGE_ICON = 3
-};
-enum {
-    SETTINGS_FULLSCREEN,
-    SETTINGS_WINDOW_WIDTH,
-    SETTINGS_WINDOW_HEIGHT,
-    SETTINGS_SOUND_EFFECTS_ENABLED,
-    SETTINGS_SOUND_EFFECTS_VOLUME,
-    SETTINGS_MUSIC_ENABLED,
-    SETTINGS_MUSIC_VOLUME,
-    SETTINGS_SPEECH_ENABLED,
-    SETTINGS_SPEECH_VOLUME,
-    SETTINGS_CITY_SOUNDS_ENABLED,
-    SETTINGS_CITY_SOUNDS_VOLUME,
-    SETTINGS_GAME_SPEED,
-    SETTINGS_SCROLL_SPEED,
-    SETTINGS_MONTHLY_AUTOSAVE_ENABLED,
-    SETTINGS_WARNINGS_ENABLED,
-    SETTINGS_VICTORY_VIDEO,
-    SETTINGS_LAST_ADVISOR,
-};
-enum {
-    CONFIG_SCREEN_DISPLAY_SCALE,
-    CONFIG_SCREEN_CURSOR_SCALE,
-    CONFIG_UI_SIDEBAR_INFO,
-    CONFIG_UI_SHOW_INTRO_VIDEO,
-    CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING,
-    CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG,
-    CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE,
-    CONFIG_UI_HIGHLIGHT_LEGIONS,
-    CONFIG_MAX_ENTRIES
-};
-enum {
-    CONFIG_STRING_PLAYER_NAME,
-    CONFIG_STRING_MAX_ENTRIES
 };
 enum {
     HOTKEY_ARROW_UP,
@@ -1656,19 +1705,6 @@ enum {
     CLIP_INVISIBLE
 };
 enum {
-    FONT_NORMAL_PLAIN,
-    FONT_NORMAL_BLACK,
-    FONT_NORMAL_WHITE,
-    FONT_NORMAL_RED,
-    FONT_LARGE_PLAIN,
-    FONT_LARGE_BLACK,
-    FONT_LARGE_BROWN,
-    FONT_SMALL_PLAIN,
-    FONT_NORMAL_GREEN,
-    FONT_NORMAL_BROWN,
-    FONT_TYPES_MAX
-};
-enum {
     WINDOW_LOGO,
     WINDOW_MAIN_MENU,
     WINDOW_CONFIG,
@@ -2110,19 +2146,6 @@ enum {
     INTERMEZZO_WON = 2,
 };
 enum {
-    TYPE_NONE,
-    TYPE_SPACE,
-    TYPE_HEADER,
-    TYPE_INPUT_BOX,
-    TYPE_CHECKBOX,
-    TYPE_NUMERICAL_DESC,
-    TYPE_NUMERICAL_RANGE
-};
-enum {
-    RANGE_DISPLAY_SCALE,
-    RANGE_CURSOR_SCALE
-};
-enum {
     INFO_NONE = 0,
     INFO_FUNDS = 1,
     INFO_POPULATION = 2,
@@ -2431,26 +2454,6 @@ enum {
 // end enums
 
 // start chars
-static char settings_file_strings[][25] = {
-    "fullscreen", // 0
-    "window_width", // 1
-    "window_height", // 2
-    "sound_effects_enabled", // 3
-    "sound_effects_volume", // 4
-    "music_enabled", // 5
-    "music_volume", // 6
-    "speech_enabled", // 7
-    "speech_volume", // 8
-    "city_sounds_enabled", // 9
-    "city_sounds_volume", // 10
-    "game_speed", // 11
-    "scroll_speed", // 12
-    "monthly_autosave_enabled", // 13
-    "warnings_enabled", // 14
-    "victory_video_switch", // 15
-    "last_advisor", // 16
-};
-static char CONFIGS_FILE_PATH[DIR_PATH_MAX]; // the path to "brutus.configs" within the Brutus directory
 static char HOTKEY_CONFIGS_FILE_PATH[DIR_PATH_MAX]; // the path to "brutus.hconfigs" within the Brutus directory
 static char MAPS_DIR_PATH[DIR_PATH_MAX]; // the path to the /maps folder in the Brutus directory
 static char SETTINGS_FILE_PATH[DIR_PATH_MAX]; // the path to "brutus.settings" within the Brutus directory
@@ -2549,24 +2552,6 @@ static char EDITOR_FILES[MAX_EDITOR_FILES][32] = {
     "c3map_south.sg2",
     "c3map_south.555",
     "map_panels.555"
-};
-static char *config_bottom_button_strings[] = {
-    "Configure hotkeys", // 0
-    "Reset defaults", // 1
-    "Cancel", // 2
-    "OK", // 3
-};
-static char *config_widget_strings[] = {
-    "Player name:",
-    "Display scale:",
-    "Cursor scale:",
-    "User interface changes",
-    "Extra information in the control panel",
-    "Play intro videos",
-    "Disable map scrolling on window edge",
-    "Disable right click to drag the map",
-    "Improve visual feedback when clearing land",
-    "Highlight legion on cursor hover",
 };
 static char *too_many_files_string = "Too many files. Showing 128.";
 static char *submenu_strings[] = {
@@ -3089,22 +3074,6 @@ static char *ini_keys_hotkey_config[] = {
     "build_granary",
     "build_warehouse",
 };
-// Keep this in the same order as the config_keys in config.h
-static char *ini_keys_config[] = {
-    "screen_display_scale",
-    "screen_cursor_scale",
-    "ui_sidebar_info",
-    "ui_show_intro_video",
-    "ui_disable_mouse_edge_scrolling",
-    "ui_disable_map_drag",
-    "ui_visual_feedback_on_delete",
-    "ui_highlight_legions",
-};
-static char *ini_string_keys[] = {
-    "player_name",
-};
-static char string_values[CONFIG_STRING_MAX_ENTRIES][CONFIG_STRING_VALUE_MAX];
-static char default_string_values[CONFIG_STRING_MAX_ENTRIES][CONFIG_STRING_VALUE_MAX];
 static char *resource_strings[] = {
 "No resource", // RESOURCE_NONE
 "Wheat", // RESOURCE_WHEAT
@@ -3634,15 +3603,15 @@ struct map_point_t {
     int y;
 };
 static struct map_point_t bookmarks[MAX_BOOKMARKS];
-static   struct map_point_t CLOUD_DIRECTION[] = {
+static struct map_point_t CLOUD_DIRECTION[] = {
     {0, -6}, {-2, -5}, {-4, -4}, {-5, -2}, {-6, 0}, {-5, -2}, {-4, -4}, {-2, -5},
     {0, -6}, {-2, -5}, {-4, -4}, {-5, -2}, {-6, 0}, {-5, -2}, {-4, -4}, {-2, -5}
 };
-static   struct map_point_t HORSE_DESTINATION_1[] = {
+static struct map_point_t HORSE_DESTINATION_1[] = {
     {2, 1}, {3, 1}, {4, 1}, {5, 1}, {6, 1}, {7, 1}, {8, 1}, {9, 1}, {10, 1}, {11, 1}, {12, 2},
     {12, 3}, {11, 3}, {10, 3}, {9, 3}, {8, 3}, {7, 3}, {6, 3}, {5, 3}, {4, 3}, {3, 3}, {2, 2}
 };
-static   struct map_point_t HORSE_DESTINATION_2[] = {
+static struct map_point_t HORSE_DESTINATION_2[] = {
     {12, 3}, {11, 3}, {10, 3}, {9, 3}, {8, 3}, {7, 3}, {6, 3}, {5, 3}, {4, 3}, {3, 3}, {2, 2},
     {2, 1}, {3, 1}, {4, 1}, {5, 1}, {6, 1}, {7, 1}, {8, 1}, {9, 1}, {10, 1}, {11, 1}, {12, 2}
 };
@@ -5059,7 +5028,7 @@ struct scenario_t {
 static struct scenario_t scenario;
 
 struct scenario_settings_t {
-    char player_name[MAX_PLAYER_NAME];
+    char player_name[MAX_PLAYER_NAME_LENGTH];
 };
 static struct scenario_settings_t scenario_settings;
 
@@ -5096,17 +5065,6 @@ static struct city_overlay_t *overlay = 0;
 struct pixel_coordinate_t {
     int x;
     int y;
-};
-
-struct input_box_t {
-    int x;
-    int y;
-    int width_blocks;
-    int height_blocks;
-    int font;
-    int allow_punctuation;
-    char *text;
-    int text_length;
 };
 static struct input_box_t scenario_description_input = {
     90, 16, 20, 2, FONT_NORMAL_WHITE, 1,
@@ -5622,45 +5580,10 @@ static struct hotkey_widget_t hotkey_widgets[] = {
     {HOTKEY_BUILD_WAREHOUSE},
 };
 
-struct numerical_range_widget_t {
-    int width_blocks;
-    int min;
-    int max;
-    int step;
-    int *value;
-};
-
-struct config_widget_t {
-    int type;
-    int subtype;
-    char *(*get_display_text)(void);
-    int enabled;
-};
-
-static struct numerical_range_widget_t scale_ranges[] = {
-    {30, 50, 500, 5, 0},
-    {30, 100, 200, 50, 0}
-};
-
 static struct {
-    struct config_widget_t *widgets[MAX_WIDGETS];
-    int num_widgets;
     int focus_button;
     int bottom_focus_button;
-    struct {
-        int original_value;
-        int new_value;
-        int (*change_action)(int key);
-    } config_values[CONFIG_MAX_ENTRIES];
-    struct {
-        char original_value[CONFIG_STRING_VALUE_MAX];
-        char new_value[CONFIG_STRING_VALUE_MAX];
-        int (*change_action)(int key);
-    } config_string_values[CONFIG_STRING_MAX_ENTRIES];
-    int active_numerical_range;
 } window_config_data;
-
-static struct input_box_t player_name_input = { 125, 50, 20, 2, FONT_NORMAL_WHITE, 0, window_config_data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value, MAX_PLAYER_NAME_LENGTH };
 
 static struct {
     int selected_menu;
@@ -7726,12 +7649,6 @@ static int CHAIN_SIZE[64] = {
     49,   50,   51,   52,   53,   54,   55,   56,
     57,   58,   59,  128,  256,  512, 1024, 2048
 };
-static int settings_values[SETTINGS_MAX_ENTRIES];
-static int values[CONFIG_MAX_ENTRIES];
-static int default_values[CONFIG_MAX_ENTRIES] = {
-    [CONFIG_SCREEN_DISPLAY_SCALE] = 100,
-    [CONFIG_SCREEN_CURSOR_SCALE] = 100
-};
 static int SENTIMENT_PER_TAX_RATE[26] = {
     3, 2, 2, 2, 1, 1, 1, 0, 0, -1,
     -2, -2, -3, -3, -3, -5, -5, -5, -5, -6,
@@ -8229,18 +8146,6 @@ static void graphics_fill_rect(int x, int y, int width, int height, color_t colo
     }
 }
 
-static   char *string_from_ascii(char *str)
-{
-    char *s = str;
-    while (*s) {
-        if (*s & 0x80) {
-            return 0;
-        }
-        s++;
-    }
-    return (char *) str;
-}
-
 static void string_copy(char *src, char *dst, int maxlength)
 {
     int length = 0;
@@ -8279,7 +8184,7 @@ static void show_saved_notice(char *filename)
 {
     char notice_text[FILE_NAME_MAX] = "Screenshot saved: ";
     int prefix_length = string_length("Screenshot saved: ");
-    string_copy(string_from_ascii(filename), &notice_text[prefix_length], FILE_NAME_MAX - prefix_length);
+    string_copy(filename, &notice_text[prefix_length], FILE_NAME_MAX - prefix_length);
     city_warning_show_custom(notice_text);
 }
 
@@ -8653,7 +8558,7 @@ static void map_building_tiles_mark_deleting(int grid_offset)
 
 static int city_building_ghost_mark_deleting(struct map_tile_t *tile)
 {
-    if (!values[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE]) {
+    if (!configs_values[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE]) {
         return 0;
     }
     int construction_type = construction_data.type;
@@ -11754,7 +11659,7 @@ static void deletion_draw_remaining(int x, int y, int grid_offset)
 static void city_without_overlay_draw(int selected_figure_id, struct pixel_coordinate_t *figure_coord, struct map_tile_t *tile)
 {
     int highlighted_formation = -1;
-    if (values[CONFIG_UI_HIGHLIGHT_LEGIONS]) {
+    if (configs_values[CONFIG_UI_HIGHLIGHT_LEGIONS]) {
         highlighted_formation = formation_legion_at_grid_offset(tile->grid_offset);
         if (highlighted_formation > -1) {
             if (selected_legion_formation > -1 && highlighted_formation != selected_legion_formation) {
@@ -16229,7 +16134,7 @@ static int is_problem_cartpusher(int figure_id)
 
 static int draw_building_as_deleted_1(struct building_t *b)
 {
-    if (!values[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE]) {
+    if (!configs_values[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE]) {
         return 0;
     }
     b = building_main(b);
@@ -16997,7 +16902,7 @@ static int terrain_on_desirability_overlay(void)
 
 static int has_deleted_building(int grid_offset)
 {
-    if (!values[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE]) {
+    if (!configs_values[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE]) {
         return 0;
     }
     struct building_t *b = &all_buildings[map_building_at(grid_offset)];
@@ -20285,7 +20190,7 @@ static int game_file_start_scenario(char *scenario_selected)
     image_load_climate(scenario.climate, 0, 0);
     city_data_init_scenario();
     state_data.paused = 0;
-    string_copy(string_values[CONFIG_STRING_PLAYER_NAME], scenario_settings.player_name, MAX_PLAYER_NAME);
+    string_copy(configs_player_name, scenario_settings.player_name, MAX_PLAYER_NAME_LENGTH);
     city_data.ratings.favor = scenario.initial_favor;
     city_data.emperor.personal_savings = scenario.initial_personal_savings;
     city_data.emperor.player_rank = scenario.player_rank;
@@ -21110,7 +21015,7 @@ static int game_file_io_write_saved_game(char *dir, char *filename)
 {
     init_savegame_data();
     SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Saving game", filename, 0));
-    buffer_write_raw(savegame_data.state.player_name, scenario_settings.player_name, MAX_PLAYER_NAME);
+    buffer_write_raw(savegame_data.state.player_name, scenario_settings.player_name, MAX_PLAYER_NAME_LENGTH);
     map_image_save_state(savegame_data.state.image_grid);
     for (int i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
         buffer_write_u16(savegame_data.state.building_grid, buildings_grid.items[i]);
@@ -23547,7 +23452,7 @@ static int scroll_get_delta(struct mouse_t *m, struct pixel_view_coordinates_t *
             // NOTE: using <= width/height (instead of <) to compensate for rounding
             // errors caused by scaling the display. SDL adds a 1px border to either
             // the right or the bottom when the aspect ratio does not match exactly.
-            if (((!values[CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING]) || scroll_data.limits.active) &&
+            if (((!configs_values[CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING]) || scroll_data.limits.active) &&
                 (x >= 0 && x <= width && y >= 0 && y <= height)) {
                 if (x < border) {
                     left = 1;
@@ -24726,7 +24631,7 @@ static void button_ok_cancel(int is_ok, __attribute__((unused)) int param2)
                 }
             }
             fclose(fp);
-            buffer_read_raw(savegame_data.state.player_name, scenario_settings.player_name, MAX_PLAYER_NAME);
+            buffer_read_raw(savegame_data.state.player_name, scenario_settings.player_name, MAX_PLAYER_NAME_LENGTH);
             map_image_load_state(savegame_data.state.image_grid);
             for (int i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
                 buildings_grid.items[i] = buffer_read_u16(savegame_data.state.building_grid);
@@ -26539,7 +26444,7 @@ static void draw_foreground_city(void)
             }
             text_draw_number_colored(cost, '@', " ", x + 58 + 1, y + 1, FONT_NORMAL_PLAIN, COLOR_BLACK);
             text_draw_number_colored(cost, '@', " ", x + 58, y, FONT_NORMAL_PLAIN, color);
-            int width = -text_get_width(string_from_ascii("  "), FONT_SMALL_PLAIN);
+            int width = -text_get_width("  ", FONT_SMALL_PLAIN);
             width += text_draw_number_colored(size_x, '@', "x", x - 15 + 1, y + 25 + 1, FONT_SMALL_PLAIN, COLOR_BLACK);
             text_draw_number_colored(size_x, '@', "x", x - 15, y + 25, FONT_SMALL_PLAIN, COLOR_FONT_YELLOW);
             text_draw_number_colored(size_y, '@', " ", x - 15 + width + 1, y + 25 + 1, FONT_SMALL_PLAIN, COLOR_BLACK);
@@ -29193,7 +29098,7 @@ static int game_undo_start_build(int type)
 
 static void scroll_drag_start(void)
 {
-    if (scroll_data.drag.active || values[CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG]) {
+    if (scroll_data.drag.active || configs_values[CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG]) {
         return;
     }
     scroll_data.drag.active = 1;
@@ -30113,7 +30018,7 @@ static void draw_sidebar_remainder(int x_offset, int is_collapsed)
     extra_widget_data.x_offset = x_offset;
     extra_widget_data.y_offset = SIDEBAR_FILLER_Y_OFFSET;
     extra_widget_data.width = width;
-    if (extra_widget_data.is_collapsed || !values[CONFIG_UI_SIDEBAR_INFO] || SIDEBAR_EXTRA_DISPLAY_ALL == SIDEBAR_EXTRA_DISPLAY_NONE) {
+    if (extra_widget_data.is_collapsed || !configs_values[CONFIG_UI_SIDEBAR_INFO] || SIDEBAR_EXTRA_DISPLAY_ALL == SIDEBAR_EXTRA_DISPLAY_NONE) {
         extra_widget_data.info_to_display = SIDEBAR_EXTRA_DISPLAY_NONE;
     } else {
         if (available_height >= EXTRA_INFO_HEIGHT_GAME_SPEED) {
@@ -49949,11 +49854,9 @@ static void config_save(void)
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Unable to write configuration file", CONFIGS_FILE_PATH, 0));
         return;
     }
-    for (int i = 0; i < CONFIG_MAX_ENTRIES; i++) {
-        fprintf(fp, "%s=%d\n", ini_keys_config[i], values[i]);
-    }
-    for (int i = 0; i < CONFIG_STRING_MAX_ENTRIES; i++) {
-        fprintf(fp, "%s=%s\n", ini_string_keys[i], string_values[i]);
+    fprintf(fp, "%s=%s\n", "player_name", configs_player_name);
+    for (int i = 0; i < CONFIGS_MAX_ENTRIES; i++) {
+        fprintf(fp, "%s=%d\n", configs_strings.strings_file[i], configs_values[i]);
     }
     fclose(fp);
 }
@@ -49986,7 +49889,7 @@ static void main_loop(void)
         FILE *fp_settings = fopen(SETTINGS_FILE_PATH, "wt");
         if (fp_settings) {
             for (int i = 0; i < SETTINGS_MAX_ENTRIES; i++) {
-                fprintf(fp_settings, "%s=%d\n", settings_file_strings[i], settings_values[i]);
+                fprintf(fp_settings, "%s=%d\n", settings_strings_file[i], settings_values[i]);
             }
             fclose(fp_settings);
         } else {
@@ -50065,9 +49968,9 @@ static void load_file(void)
     if (!fp) {
         return;
     }
-    char line_buffer[MAX_LINE];
+    char line_buffer[MAX_READ_LINE_LENGTH];
     char *line;
-    while ((line = fgets(line_buffer, MAX_LINE, fp))) {
+    while ((line = fgets(line_buffer, MAX_READ_LINE_LENGTH, fp))) {
         // Remove newline from string
         size_t size = string_length(line);
         while (size > 0 && (line[size - 1] == '\n' || line[size - 1] == '\r')) {
@@ -50885,7 +50788,7 @@ static void window_logo_show(int show_patch_message)
         window_plain_message_dialog_show("Patch 1.0.1.0 not installed", "Your Caesar 3 installation does not have the 1.0.1.0 patch installed.\n\
         You can download the patch from : https://github.com/bvschaik/julius/wiki/Patches.\nContinue at your own risk.");
     }
-    if (values[CONFIG_UI_SHOW_INTRO_VIDEO]) {
+    if (configs_values[CONFIG_UI_SHOW_INTRO_VIDEO]) {
         current_video = 0;
         started = 0;
         window.id = WINDOW_INTRO_VIDEO;
@@ -50959,7 +50862,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
     char *executable_path = SDL_GetBasePath();
     char data_text_file_path[DIR_PATH_MAX] = { 0 }; // the path to "data_dir.txt" within the Brutus directory
     if (executable_path) {
-        if (string_length(executable_path) < DIR_PATH_MAX - string_length("brutus.hconfigs")) {
+        if (string_length(executable_path) < DIR_PATH_MAX - string_length("brutus_settings.txt")) {
             string_copy(executable_path, data_text_file_path, DIR_PATH_MAX - 1);
             strcat(data_text_file_path, "data_dir.txt");
             string_copy(executable_path, SETTINGS_FILE_PATH, DIR_PATH_MAX - 1);
@@ -50980,6 +50883,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
         SDL_Log("Brutus directory not found, exiting");
         exit(1);
     }
+    // set/check path to game files
     char game_data_path[DIR_PATH_MAX] = { 0 }; // the path to the folder where c3.exe is located
     FILE *fp_data = fopen(data_text_file_path, "r");
     if (fp_data) {
@@ -51011,31 +50915,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
     _mkdir(MAPS_DIR_PATH);
     _mkdir(SAVES_DIR_PATH);
     SDL_Log("Loading game from %s", game_data_path);
-    // load settings defaults
-    settings_values[SETTINGS_FULLSCREEN] = 0;
-    settings_values[SETTINGS_WINDOW_WIDTH] = 1280;
-    settings_values[SETTINGS_WINDOW_HEIGHT] = 800;
-    settings_values[SETTINGS_SOUND_EFFECTS_ENABLED] = 1;
-    settings_values[SETTINGS_SOUND_EFFECTS_VOLUME] = 50;
-    settings_values[SETTINGS_MUSIC_ENABLED] = 1;
-    settings_values[SETTINGS_MUSIC_VOLUME] = 50;
-    settings_values[SETTINGS_SPEECH_ENABLED] = 1;
-    settings_values[SETTINGS_SPEECH_VOLUME] = 50;
-    settings_values[SETTINGS_CITY_SOUNDS_ENABLED] = 1;
-    settings_values[SETTINGS_CITY_SOUNDS_VOLUME] = 50;
-    settings_values[SETTINGS_GAME_SPEED] = 80;
-    settings_values[SETTINGS_SCROLL_SPEED] = 90;
-    settings_values[SETTINGS_MONTHLY_AUTOSAVE_ENABLED] = 0;
-    settings_values[SETTINGS_WARNINGS_ENABLED] = 1;
-    settings_values[SETTINGS_VICTORY_VIDEO] = 0;
-    settings_values[SETTINGS_LAST_ADVISOR] = ADVISOR_CHIEF;
-    // load saved settings
+    // load settings from file (defaults already loaded on program start)
     FILE *fp_settings = fopen(SETTINGS_FILE_PATH, "rt");
     if (fp_settings) {
-        char line_buffer[MAX_LINE];
+        char line_buffer[MAX_READ_LINE_LENGTH];
         char *line;
         int line_counter = 0;
-        while ((line = fgets(line_buffer, MAX_LINE, fp_settings))) {
+        while ((line = fgets(line_buffer, MAX_READ_LINE_LENGTH, fp_settings))) {
             // Remove newline from string
             size_t size = string_length(line);
             while (size > 0 && (line[size - 1] == '\n' || line[size - 1] == '\r')) {
@@ -51044,7 +50930,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
             char *equals = get_first_char_occurrence_in_string(line, '=');
             if (equals) {
                 *equals = 0;
-                if (string_equals(settings_file_strings[line_counter], line)) {
+                if (string_equals(settings_strings_file[line_counter], line)) {
                     settings_values[line_counter] = atoi(&equals[1]);
                 }
             }
@@ -51052,17 +50938,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
         }
         fclose(fp_settings);
     }
-    // load saved configs
-    for (int i = 0; i < CONFIG_MAX_ENTRIES; ++i) {
-        values[i] = default_values[i];
-    }
-    string_copy("BRUTUS", string_values[CONFIG_STRING_PLAYER_NAME], CONFIG_STRING_VALUE_MAX - 1);
-    string_copy(string_values[CONFIG_STRING_PLAYER_NAME], scenario_settings.player_name, MAX_PLAYER_NAME);
+    // load configs from file (defaults already loaded on program start)
     FILE *fp_configs = fopen(CONFIGS_FILE_PATH, "rt");
     if (fp_configs) {
-        char line_buffer[MAX_LINE];
+        char line_buffer[MAX_READ_LINE_LENGTH];
         char *line;
-        while ((line = fgets(line_buffer, MAX_LINE, fp_configs))) {
+        int line_counter = 0;
+        while ((line = fgets(line_buffer, MAX_READ_LINE_LENGTH, fp_configs))) {
             // Remove newline from string
             size_t size = string_length(line);
             while (size > 0 && (line[size - 1] == '\n' || line[size - 1] == '\r')) {
@@ -51071,27 +50953,22 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
             char *equals = get_first_char_occurrence_in_string(line, '=');
             if (equals) {
                 *equals = 0;
-                for (int i = 0; i < CONFIG_MAX_ENTRIES; i++) {
-                    if (string_equals(ini_keys_config[i], line)) {
-                        int value = atoi(&equals[1]);
-                        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Config key", ini_keys_config[i], value));
-                        values[i] = value;
-                        break;
-                    }
+                if (string_equals("player_name", line)) {
+                    char *value = &equals[1];
+                    string_copy(value, configs_player_name, MAX_PLAYER_NAME_LENGTH);
+                    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("player_name", value, 0));
+                    continue;
                 }
-                for (int i = 0; i < CONFIG_STRING_MAX_ENTRIES; i++) {
-                    if (string_equals(ini_string_keys[i], line)) {
-                        char *value = &equals[1];
-                        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Config key", ini_string_keys[i], 0));
-                        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Config value", value, 0));
-                        string_copy(value, string_values[i], CONFIG_STRING_VALUE_MAX - 1);
-                        break;
-                    }
+                if (string_equals(configs_strings.strings_file[line_counter], line)) {
+                    int value = atoi(&equals[1]);
+                    configs_values[line_counter] = value;
+                    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Config key", configs_strings.strings_file[line_counter], value));
+                    line_counter++;
                 }
             }
         }
         fclose(fp_configs);
-        string_copy(string_values[CONFIG_STRING_PLAYER_NAME], scenario_settings.player_name, MAX_PLAYER_NAME);
+        string_copy(configs_player_name, scenario_settings.player_name, MAX_PLAYER_NAME_LENGTH);
     }
     memset(hotkey_config_data.default_mappings, 0, sizeof(hotkey_config_data.default_mappings));
     // Arrow keys
@@ -51203,11 +51080,11 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
     random_data.iv2 = 0x72641663;
     srand(time(0));
 
-    if (!create_screen("Caesar III", values[CONFIG_SCREEN_DISPLAY_SCALE])) {
+    if (!create_screen("Caesar III", 100)) {
         SDL_Log("Exiting: SDL create window failed");
         exit(-2);
     }
-    init_cursors(values[CONFIG_SCREEN_CURSOR_SCALE]);
+    init_cursors(100);
     current_time = SDL_GetTicks();
     for (int i = 0; i < ENEMY_FILES_COUNT; i++) {
         image_data_s.enemy_data[i] = (color_t *) malloc(ENEMY_DATA_SIZE);
@@ -51409,7 +51286,7 @@ static int clear_land_confirmed(int measure_only, int x_start, int y_start, int 
     int x_min, x_max, y_min, y_max;
     map_grid_start_end_to_area(x_start, y_start, x_end, y_end, &x_min, &y_min, &x_max, &y_max);
 
-    int visual_feedback_on_delete = values[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE];
+    int visual_feedback_on_delete = configs_values[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE];
 
     for (int y = y_min; y <= y_max; y++) {
         for (int x = x_min; x <= x_max; x++) {
@@ -56296,313 +56173,91 @@ static void button_hotkeys(__attribute__((unused)) int param1, __attribute__((un
 
 static void button_reset_defaults_window_config(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    for (int i = 0; i < CONFIG_MAX_ENTRIES; ++i) {
-        window_config_data.config_values[i].new_value = default_values[i];
-    }
-    for (int i = 0; i < CONFIG_STRING_MAX_ENTRIES; ++i) {
-        string_copy(default_string_values[i], window_config_data.config_string_values[i].new_value, CONFIG_STRING_VALUE_MAX - 1);
-    }
+    string_copy("BRUTUS", configs_player_name, MAX_PLAYER_NAME_LENGTH);
+    configs_values[CONFIG_UI_SIDEBAR_INFO] = 1;
+    configs_values[CONFIG_UI_SHOW_INTRO_VIDEO] = 0;
+    configs_values[CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING] = 0;
+    configs_values[CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG] = 0;
+    configs_values[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE] = 1;
+    configs_values[CONFIG_UI_HIGHLIGHT_LEGIONS] = 1;
     window_invalidate();
 }
 
-static void button_close_window_config(int save, __attribute__((unused)) int param2)
-{
-    if (!save) {
-        for (int i = 0; i < CONFIG_MAX_ENTRIES; i++) {
-            window_config_data.config_values[i].new_value = window_config_data.config_values[i].original_value;
-        }
-        for (int i = 0; i < CONFIG_STRING_MAX_ENTRIES; i++) {
-            // memcpy required to fix warning on Switch build
-            memcpy(window_config_data.config_string_values[i].new_value,
-                window_config_data.config_string_values[i].original_value, CONFIG_STRING_VALUE_MAX - 1);
-        }
-        window_main_menu_show(0);
-        return;
-    }
-    int apply_changed_configs = 1;
-    for (int i = 0; i < CONFIG_MAX_ENTRIES; ++i) {
-        if (window_config_data.config_values[i].original_value != window_config_data.config_values[i].new_value) {
-            if (!window_config_data.config_values[i].change_action(i)) {
-                apply_changed_configs = 0;
-                break;
-            }
-        }
-    }
-    if (apply_changed_configs) {
-        for (int i = 0; i < CONFIG_STRING_MAX_ENTRIES; ++i) {
-            if (!string_equals(window_config_data.config_string_values[i].original_value, window_config_data.config_string_values[i].new_value)) {
-                if (!window_config_data.config_string_values[i].change_action(i)) {
-                    apply_changed_configs = 0;
-                    break;
-                }
-            }
-        }
-    }
-    if (apply_changed_configs) {
-        input_box_stop(&player_name_input);
-        string_copy(window_config_data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value, scenario_settings.player_name, MAX_PLAYER_NAME);
-    }
-    config_save();
-    window_main_menu_show(0);
-}
-
-static struct generic_button_t bottom_buttons_window_config[NUM_BOTTOM_BUTTONS_WINDOW_CONFIG] = {
-    {20, 480, 180, 30, button_hotkeys, button_none, 0, 0},
-    {230, 480, 180, 30, button_reset_defaults_window_config, button_none, 0, 0},
-    {415, 480, 100, 30, button_close_window_config, button_none, 0, 0},
-    {520, 480, 100, 30, button_close_window_config, button_none, 1, 0},
+static struct generic_button_t bottom_buttons_window_config[] = {
+    {51, 320, 180, 30, button_hotkeys, button_none, 0, 0},
+    {281, 320, 180, 30, button_reset_defaults_window_config, button_none, 0, 0},
 };
-
-static void on_scroll_window_config(void)
-{
-    window_invalidate();
-}
-
-static struct scrollbar_type_t scrollbar_window_config = { 580, ITEM_Y_OFFSET, ITEM_HEIGHT * NUM_VISIBLE_ITEMS, on_scroll_window_config, 4, 0, 0, 0, 0, 0 };
 
 static void draw_background_window_config(void)
 {
-    int width, height;
-    SDL_GetWindowSize(SDL.window, &width, &height);
-    int max_scale = get_max_scale_percentage(width, height);
-    scale_ranges[RANGE_DISPLAY_SCALE].max = max_scale;
-    if (*scale_ranges[RANGE_DISPLAY_SCALE].value > max_scale) {
-        *scale_ranges[RANGE_DISPLAY_SCALE].value = max_scale;
-    }
     graphics_clear_screen();
     image_draw_fullscreen_background(image_data_s.group_image_ids[GROUP_INTERMEZZO_BACKGROUND] + 16);
     draw_version_string();
     set_translation(screen_data.dialog_offset.x, screen_data.dialog_offset.y);
-    outer_panel_draw(0, 0, 40, 33);
-    text_draw_centered("Brutus configuration options", 16, 16, 608, FONT_LARGE_BLACK, 0);
-    int drawn = 0;
-    for (int i = 0; i < NUM_VISIBLE_ITEMS && i < window_config_data.num_widgets; i++) {
-        struct config_widget_t *w = window_config_data.widgets[i + scrollbar_window_config.scroll_position];
-        int y = ITEM_Y_OFFSET + ITEM_HEIGHT * i;
-        if (w->type == TYPE_HEADER) {
-            text_draw(config_widget_strings[drawn + scrollbar_window_config.scroll_position], 20, y, FONT_NORMAL_BLACK, 0);
-            drawn++;
-        } else if (w->type == TYPE_CHECKBOX) {
-            if (window_config_data.config_values[w->subtype].new_value) {
-                text_draw(string_from_ascii("x"), 20 + 6, y + 3, FONT_NORMAL_BLACK, 0);
-            }
-            static char buffer[1000];
-            string_copy(config_widget_strings[drawn + scrollbar_window_config.scroll_position], buffer, 1000);
-            text_ellipsize(buffer, FONT_NORMAL_BLACK, CHECKBOX_TEXT_WIDTH);
-            text_draw(buffer, 50, y + 5, FONT_NORMAL_BLACK, 0);
-            drawn++;
-        } else if (w->type == TYPE_INPUT_BOX) {
-            text_draw(config_widget_strings[drawn + scrollbar_window_config.scroll_position], 20, y + 6, FONT_NORMAL_BLACK, 0);
-            drawn++;
-        } else if (w->type == TYPE_NUMERICAL_RANGE) {
-            struct numerical_range_widget_t *ww = &scale_ranges[w->subtype];
-            text_draw(w->get_display_text(), NUMERICAL_RANGE_X, y + 6, FONT_NORMAL_BLACK, 0);
-            inner_panel_draw(NUMERICAL_RANGE_X + NUMERICAL_SLIDER_X, y + 4, ww->width_blocks, 1);
-            width = ww->width_blocks * BLOCK_SIZE - NUMERICAL_SLIDER_PADDING * 2 - NUMERICAL_DOT_SIZE;
-            int scroll_position = (*ww->value - ww->min) * width / (ww->max - ww->min);
-            image_draw(image_data_s.group_image_ids[GROUP_PANEL_BUTTON] + 37, NUMERICAL_RANGE_X + NUMERICAL_SLIDER_X + NUMERICAL_SLIDER_PADDING + scroll_position, y + 2);
-        } else if (w->type == TYPE_NUMERICAL_DESC) {
-            text_draw(config_widget_strings[drawn + scrollbar_window_config.scroll_position], 20, y + 10, FONT_NORMAL_BLACK, 0);
-            drawn++;
+    outer_panel_draw(0, 0, 32, 24);
+    text_draw_centered("Brutus configuration options", 0, 16, 512, FONT_LARGE_BLACK, 0);
+    int x_offset = 32;
+    text_draw("Player name:", x_offset, 64, FONT_NORMAL_BLACK, 0);
+    // draw checkbox configs
+    for (int i = 0; i < CONFIGS_MAX_ENTRIES; i++) {
+        int y = 128 + ITEM_HEIGHT * i;
+        button_border_draw(x_offset, y, 22, 22, window_config_data.focus_button == i + 1);
+        if (configs_values[i]) {
+            text_draw("x", x_offset + 7, y + 4, FONT_NORMAL_BLACK, 0);
         }
+        text_draw(configs_strings.strings_ui[i], x_offset + 32, y + 4, FONT_NORMAL_BLACK, 0);
     }
-
-    for (int i = 0; i < NUM_BOTTOM_BUTTONS_WINDOW_CONFIG; i++) {
-        text_draw_centered(config_bottom_button_strings[i], bottom_buttons_window_config[i].x, bottom_buttons_window_config[i].y + 9, bottom_buttons_window_config[i].width, FONT_NORMAL_BLACK, 0);
+    // draw bottom buttons
+    for (int i = 0; i < 2; i++) {
+        button_border_draw(bottom_buttons_window_config[i].x, bottom_buttons_window_config[i].y,
+            bottom_buttons_window_config[i].width, bottom_buttons_window_config[i].height, window_config_data.bottom_focus_button == i + 1);
     }
-
+    text_draw_centered("Configure hotkeys", bottom_buttons_window_config[0].x, bottom_buttons_window_config[0].y + 9, bottom_buttons_window_config[0].width, FONT_NORMAL_BLACK, 0);
+    text_draw_centered("Reset defaults", bottom_buttons_window_config[1].x, bottom_buttons_window_config[1].y + 9, bottom_buttons_window_config[1].width, FONT_NORMAL_BLACK, 0);
     set_translation(0, 0);
 }
 
 static void draw_foreground_window_config(void)
 {
     set_translation(screen_data.dialog_offset.x, screen_data.dialog_offset.y);
-
-    for (int i = 0; i < NUM_VISIBLE_ITEMS && i < window_config_data.num_widgets; i++) {
-        struct config_widget_t *w = window_config_data.widgets[i + scrollbar_window_config.scroll_position];
-        int y = ITEM_Y_OFFSET + ITEM_HEIGHT * i;
-        if (w->type == TYPE_CHECKBOX) {
-            button_border_draw(20, y, CHECKBOX_CHECK_SIZE, CHECKBOX_CHECK_SIZE, window_config_data.focus_button == i + 1);
-        } else if (w->type == TYPE_INPUT_BOX) {
-            input_box_draw(&player_name_input);
-        }
-    }
-
-    for (int i = 0; i < NUM_BOTTOM_BUTTONS_WINDOW_CONFIG; i++) {
-        button_border_draw(bottom_buttons_window_config[i].x, bottom_buttons_window_config[i].y,
-            bottom_buttons_window_config[i].width, bottom_buttons_window_config[i].height, window_config_data.bottom_focus_button == i + 1);
-    }
-
-    if (window_config_data.num_widgets > NUM_VISIBLE_ITEMS) {
-        inner_panel_draw(scrollbar_window_config.x + 4, scrollbar_window_config.y + 28, 2, scrollbar_window_config.height / BLOCK_SIZE - 3);
-        scrollbar_draw(&scrollbar_window_config);
-    }
-
+    input_box_draw(&player_name_input);
     set_translation(0, 0);
-}
-
-static int input_box_is_mouse_inside_input(struct mouse_t *m, struct input_box_t *box)
-{
-    return m->x >= box->x && m->x < box->x + box->width_blocks * BLOCK_SIZE &&
-        m->y >= box->y && m->y < box->y + box->height_blocks * BLOCK_SIZE;
-}
-
-static int numerical_range_handle_mouse(struct mouse_t *m, int x, int y, int numerical_range_id)
-{
-    struct numerical_range_widget_t *w = &scale_ranges[numerical_range_id - 1];
-    int is_numerical_range = 0;
-    if (x + NUMERICAL_SLIDER_X <= m->x && x + w->width_blocks * BLOCK_SIZE + NUMERICAL_SLIDER_X >= m->x && y <= m->y && y + 16 > m->y) {
-        is_numerical_range = 1;
-    }
-    if (window_config_data.active_numerical_range) {
-        if (window_config_data.active_numerical_range != numerical_range_id) {
-            return 0;
-        }
-        if (!m->left.is_down) {
-            window_config_data.active_numerical_range = 0;
-            return 0;
-        }
-    } else if (!m->left.went_down
-    || !is_numerical_range) {
-        return 0;
-    }
-    int slider_width = w->width_blocks * BLOCK_SIZE - NUMERICAL_SLIDER_PADDING * 2 - NUMERICAL_DOT_SIZE;
-    int pixels_per_pct = slider_width / (w->max - w->min);
-    int dot_position = m->x - x - NUMERICAL_SLIDER_X - NUMERICAL_DOT_SIZE / 2 + pixels_per_pct / 2;
-
-    int exact_value = calc_bound(w->min + dot_position * (w->max - w->min) / slider_width, w->min, w->max);
-    int left_step_value = (exact_value / w->step) * w->step;
-    int right_step_value = calc_bound(left_step_value + w->step, w->min, w->max);
-    int closest_step_value = (exact_value - left_step_value) < (right_step_value - exact_value) ?
-        left_step_value : right_step_value;
-    if (closest_step_value != *w->value) {
-        *w->value = closest_step_value;
-        window_data.refresh_on_draw = 1;
-    }
-    window_config_data.active_numerical_range = numerical_range_id;
-    return 1;
 }
 
 static void handle_input_window_config(struct mouse_t *m, struct hotkeys_t *h)
 {
     struct mouse_t *m_dialog = mouse_in_dialog(m);
-    if (window_config_data.active_numerical_range) {
-        numerical_range_handle_mouse(m_dialog, NUMERICAL_RANGE_X, 0, window_config_data.active_numerical_range);
+    if (generic_buttons_handle_mouse(m_dialog, 0, 0, bottom_buttons_window_config, sizeof(bottom_buttons_window_config) / sizeof(struct generic_button_t), &window_config_data.bottom_focus_button)) {
         return;
     }
-    if (scrollbar_handle_mouse(&scrollbar_window_config, m_dialog)) {
-        return;
-    }
-
-    if (m->left.went_up && input_box_is_mouse_inside_input(m_dialog, &player_name_input)) {
-        input_box_start(&player_name_input);
-    }
-    if (m->left.went_up && !input_box_is_mouse_inside_input(m_dialog, &player_name_input)) {
-        input_box_stop(&player_name_input);
-        string_copy(window_config_data.config_string_values[CONFIG_STRING_PLAYER_NAME].new_value, scenario_settings.player_name, MAX_PLAYER_NAME);
-    }
-
-    int handled = 0;
+    window_invalidate();
     window_config_data.focus_button = 0;
-
-    for (int i = 0; i < NUM_VISIBLE_ITEMS && i < window_config_data.num_widgets; i++) {
-        struct config_widget_t *w = window_config_data.widgets[i + scrollbar_window_config.scroll_position];
-        int y = ITEM_Y_OFFSET + ITEM_HEIGHT * i;
-        if (w->type == TYPE_CHECKBOX) {
-            int focus = 0;
-            if (20 <= m_dialog->x && 20 + CHECKBOX_WIDTH > m_dialog->x && y <= m_dialog->y && y + CHECKBOX_HEIGHT > m_dialog->y) {
-                focus = 1;
-                if (m_dialog->left.went_up) {
-                    window_config_data.config_values[w->subtype].new_value = 1 - window_config_data.config_values[w->subtype].new_value;
-                    window_invalidate();
-                    handled |= 1;
-                } else {
-                    handled |= 0;
-                }
+    for (int i = 0; i < CONFIGS_MAX_ENTRIES; i++) {
+        int y = 128 + ITEM_HEIGHT * i;
+        if (m_dialog->x >= 32 && m_dialog->x <= 32 + 22 && m_dialog->y >= y && m_dialog->y <= y + 22) {
+            window_config_data.focus_button = i + 1;
+            if (m_dialog->left.went_up) {
+                configs_values[i] = configs_values[i] ? 0 : 1;
+                return;
             }
-            if (focus) {
-                window_config_data.focus_button = i + 1;
-            }
-        } else if (w->type == TYPE_NUMERICAL_RANGE) {
-            handled |= numerical_range_handle_mouse(m_dialog, NUMERICAL_RANGE_X, y, w->subtype + 1);
         }
     }
-
-    handled |= generic_buttons_handle_mouse(m_dialog, 0, 0,
-        bottom_buttons_window_config, NUM_BOTTOM_BUTTONS_WINDOW_CONFIG, &window_config_data.bottom_focus_button);
-
-    if (!handled && (m->right.went_up || h->escape_pressed)) {
+    if (m->left.went_up) {
+        if (m_dialog->x >= player_name_input.x && m_dialog->x < player_name_input.x + player_name_input.width_blocks * BLOCK_SIZE &&
+            m_dialog->y >= player_name_input.y && m_dialog->y < player_name_input.y + player_name_input.height_blocks * BLOCK_SIZE) { // mouse is inside input box
+            input_box_start(&player_name_input);
+            return;
+        } else {
+            input_box_stop(&player_name_input);
+            string_copy(configs_player_name, scenario_settings.player_name, MAX_PLAYER_NAME_LENGTH);
+            return;
+        }
+    }
+    if (m->right.went_up || h->escape_pressed) {
+        config_save();
         window_main_menu_show(0);
     }
 }
-
-static int config_change_string_basic(int key)
-{
-    string_copy(window_config_data.config_string_values[key].new_value, string_values[key], CONFIG_STRING_VALUE_MAX - 1);
-    string_copy(window_config_data.config_string_values[key].new_value, window_config_data.config_string_values[key].original_value, CONFIG_STRING_VALUE_MAX - 1);
-    return 1;
-}
-
-static int config_change_basic(int key)
-{
-    values[key] = window_config_data.config_values[key].new_value;
-    window_config_data.config_values[key].original_value = window_config_data.config_values[key].new_value;
-    return 1;
-}
-
-static int config_change_display_scale(int key)
-{
-    int width, height;
-    SDL_GetWindowSize(SDL.window, &width, &height);
-    set_scale_percentage(window_config_data.config_values[key].new_value, width, height);
-    resize_screen(width, height);
-    window_config_data.config_values[key].new_value = scale_percentage;
-    config_change_basic(key);
-    return 1;
-}
-
-static int config_change_cursor_scale(int key)
-{
-    config_change_basic(key);
-    init_cursors(window_config_data.config_values[key].new_value);
-    return 1;
-}
-
-static char *percentage_string(char *string, int percentage)
-{
-    int offset = string_from_int(string, percentage, 0);
-    string[offset] = '%';
-    string[offset + 1] = 0;
-    return string;
-}
-
-static   char *display_text_display_scale(void)
-{
-    static char value[10];
-    return percentage_string(value, window_config_data.config_values[CONFIG_SCREEN_DISPLAY_SCALE].new_value);
-}
-
-static   char *display_text_cursor_scale(void)
-{
-    static char value[10];
-    return percentage_string(value, window_config_data.config_values[CONFIG_SCREEN_CURSOR_SCALE].new_value);
-}
-
-static struct config_widget_t all_widgets[MAX_WIDGETS] = {
-    {TYPE_INPUT_BOX, 0, 0, 0},
-    {TYPE_NUMERICAL_DESC, RANGE_DISPLAY_SCALE, 0, 0},
-    {TYPE_NUMERICAL_RANGE, RANGE_DISPLAY_SCALE, display_text_display_scale, 0},
-    {TYPE_NUMERICAL_DESC, RANGE_CURSOR_SCALE, 0, 0},
-    {TYPE_NUMERICAL_RANGE, RANGE_CURSOR_SCALE, display_text_cursor_scale, 0},
-    {TYPE_SPACE, 0, 0, 0},
-    {TYPE_HEADER, 0, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_SIDEBAR_INFO, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_SHOW_INTRO_VIDEO, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE, 0, 0},
-    {TYPE_CHECKBOX, CONFIG_UI_HIGHLIGHT_LEGIONS, 0, 0},
-};
 
 static void window_config_show(void)
 {
@@ -56612,39 +56267,6 @@ static void window_config_show(void)
         draw_foreground_window_config,
         handle_input_window_config,
     };
-    if (!window_config_data.config_values[0].change_action) {
-        for (int i = 0; i < CONFIG_MAX_ENTRIES; ++i) {
-            window_config_data.config_values[i].change_action = config_change_basic;
-        }
-        for (int i = 0; i < CONFIG_STRING_MAX_ENTRIES; ++i) {
-            window_config_data.config_string_values[i].change_action = config_change_string_basic;
-        }
-        window_config_data.config_values[CONFIG_SCREEN_DISPLAY_SCALE].change_action = config_change_display_scale;
-        window_config_data.config_values[CONFIG_SCREEN_CURSOR_SCALE].change_action = config_change_cursor_scale;
-        scale_ranges[RANGE_DISPLAY_SCALE].value = &window_config_data.config_values[CONFIG_SCREEN_DISPLAY_SCALE].new_value;
-        scale_ranges[RANGE_CURSOR_SCALE].value = &window_config_data.config_values[CONFIG_SCREEN_CURSOR_SCALE].new_value;
-    }
-    for (int i = 0; i < CONFIG_MAX_ENTRIES; i++) {
-        window_config_data.config_values[i].original_value = values[i];
-        window_config_data.config_values[i].new_value = values[i];
-    }
-    for (int i = 0; i < CONFIG_STRING_MAX_ENTRIES; i++) {
-        char *value = string_values[i];
-        string_copy(value, window_config_data.config_string_values[i].original_value, CONFIG_STRING_VALUE_MAX - 1);
-        string_copy(value, window_config_data.config_string_values[i].new_value, CONFIG_STRING_VALUE_MAX - 1);
-    }
-    for (int i = 0; i < MAX_WIDGETS; i++) {
-        if (all_widgets[i].type) {
-            all_widgets[i].enabled = 1;
-        }
-    }
-    window_config_data.num_widgets = 0;
-    for (int i = 0; i < MAX_WIDGETS; i++) {
-        if (all_widgets[i].enabled) {
-            window_config_data.widgets[window_config_data.num_widgets++] = &all_widgets[i];
-        }
-    }
-    scrollbar_init(&scrollbar_window_config, 0, window_config_data.num_widgets - NUM_VISIBLE_ITEMS);
     window_show(&window);
 }
 
