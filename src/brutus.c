@@ -23,7 +23,7 @@ typedef back_sidebar_draw_function slide_finished_function;
 typedef void (*front_sidebar_draw_function)(int x_offset);
 
 #define DIR_PATH_MAX 255
-#define MAX_READ_LINE_LENGTH 100
+#define MAX_FILE_LINE_LENGTH 100
 enum {
     FONT_NORMAL_PLAIN,
     FONT_NORMAL_BLACK,
@@ -37,6 +37,7 @@ enum {
     FONT_NORMAL_BROWN,
     FONT_TYPES_MAX
 };
+static char *reset_defaults_string = "Reset defaults";
 struct input_box_t {
     int x;
     int y;
@@ -49,7 +50,6 @@ struct input_box_t {
 };
 
 // settings data
-#define SETTINGS_MAX_ENTRIES 17
 enum {
     SETTINGS_FULLSCREEN,
     SETTINGS_WINDOW_WIDTH,
@@ -68,6 +68,7 @@ enum {
     SETTINGS_WARNINGS_ENABLED,
     SETTINGS_VICTORY_VIDEO,
     SETTINGS_LAST_ADVISOR,
+    SETTINGS_MAX_ENTRIES
 };
 enum {
     ADVISOR_NONE = 0,
@@ -84,32 +85,32 @@ enum {
     ADVISOR_FINANCIAL = 11,
     ADVISOR_CHIEF = 12
 };
-static char settings_strings_file[][25] = {
-    "fullscreen", // 0
-    "window_width", // 1
-    "window_height", // 2
-    "sound_effects_enabled", // 3
-    "sound_effects_volume", // 4
-    "music_enabled", // 5
-    "music_volume", // 6
-    "speech_enabled", // 7
-    "speech_volume", // 8
-    "city_sounds_enabled", // 9
-    "city_sounds_volume", // 10
-    "game_speed", // 11
-    "scroll_speed", // 12
-    "monthly_autosave_enabled", // 13
-    "warnings_enabled", // 14
-    "victory_video_switch", // 15
-    "last_advisor", // 16
+struct config_pair_t {
+    char *config_string;
+    int config_value;
 };
-static int settings_values[SETTINGS_MAX_ENTRIES] = {
-    0, 1280, 800, 1, 50, 1, 50, 1, 50, 1, 50, 80, 90, 0, 1, 0, ADVISOR_CHIEF
+static struct config_pair_t settings[SETTINGS_MAX_ENTRIES] = {
+    {"fullscreen", 0},
+    {"window_width", 1280},
+    {"window_height", 800},
+    {"sound_effects_enabled", 1},
+    {"sound_effects_volume", 50},
+    {"music_enabled", 1},
+    {"music_volume", 50},
+    {"speech_enabled", 1},
+    {"speech_volume", 50},
+    {"city_sounds_enabled", 1},
+    {"city_sounds_volume", 50},
+    {"game_speed", 80},
+    {"scroll_speed", 90},
+    {"monthly_autosave_enabled", 0},
+    {"warnings_enabled", 1},
+    {"victory_video_switch", 0},
+    {"last_advisor", ADVISOR_CHIEF},
 };
 
 // configs data
 #define MAX_PLAYER_NAME_LENGTH 24
-#define CONFIGS_MAX_ENTRIES 6
 enum {
     CONFIG_UI_SIDEBAR_INFO,
     CONFIG_UI_SHOW_INTRO_VIDEO,
@@ -117,25 +118,295 @@ enum {
     CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG,
     CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE,
     CONFIG_UI_HIGHLIGHT_LEGIONS,
+    CONFIGS_MAX_ENTRIES
 };
 static char CONFIGS_FILE_PATH[DIR_PATH_MAX]; // the path to "brutus.configs" within the Brutus directory
 static char configs_player_name[MAX_PLAYER_NAME_LENGTH] = "BRUTUS";
 static struct input_box_t player_name_input = { 144, 56, 18, 2, FONT_NORMAL_WHITE, 0, configs_player_name, MAX_PLAYER_NAME_LENGTH };
-struct configs_strings_t {
-    char *strings_file[CONFIGS_MAX_ENTRIES];
-    char *strings_ui[CONFIGS_MAX_ENTRIES];
+static struct config_pair_t configs[CONFIGS_MAX_ENTRIES] = {
+    {"Extra information in the control panel", 1},
+    {"Play intro videos", 0},
+    {"Disable map scrolling on window edge", 0},
+    {"Disable right click to drag the map", 0},
+    {"Improve visual feedback when clearing land", 1},
+    {"Highlight legion on cursor hover", 1}
 };
-static struct configs_strings_t configs_strings = {
-    {"ui_sidebar_info", "ui_show_intro_video", "ui_disable_mouse_edge_scrolling", "ui_disable_map_drag", "ui_visual_feedback_on_delete", "ui_highlight_legions"},
-    {"Extra information in the control panel", "Play intro videos", "Disable map scrolling on window edge", "Disable right click to drag the map", "Improve visual feedback when clearing land", "Highlight legion on cursor hover"}
+static char *configs_player_name_string = "Player name";
+static struct {
+    int focus_button;
+    int bottom_focus_button;
+} window_config_data;
+
+// hotkey configs data
+#define HOTKEY_CONFIGS_NUM_VISIBLE_OPTIONS 20
+#define HOTKEY_CONFIGS_NUM_HEADERS 8
+#define HOTKEY_X_OFFSET_1 285
+#define HOTKEY_BTN_WIDTH 230
+#define HOTKEY_BTN_HEIGHT 22
+enum {
+    HOTKEY_ARROW_UP,
+    HOTKEY_ARROW_DOWN,
+    HOTKEY_ARROW_LEFT,
+    HOTKEY_ARROW_RIGHT,
+    HOTKEY_TOGGLE_FULLSCREEN,
+    HOTKEY_RESET_WINDOW,
+    HOTKEY_SAVE_SCREENSHOT,
+    HOTKEY_SAVE_CITY_SCREENSHOT,
+    HOTKEY_LOAD_FILE,
+    HOTKEY_SAVE_FILE,
+    HOTKEY_DECREASE_GAME_SPEED,
+    HOTKEY_INCREASE_GAME_SPEED,
+    HOTKEY_TOGGLE_PAUSE,
+    HOTKEY_ROTATE_MAP_LEFT,
+    HOTKEY_ROTATE_MAP_RIGHT,
+    HOTKEY_REPLAY_MAP,
+    HOTKEY_CYCLE_LEGION,
+    HOTKEY_RETURN_LEGIONS_TO_FORT,
+    HOTKEY_SHOW_LAST_ADVISOR,
+    HOTKEY_SHOW_EMPIRE_MAP,
+    HOTKEY_SHOW_MESSAGES,
+    HOTKEY_GO_TO_PROBLEM,
+    HOTKEY_SHOW_OVERLAY_WATER,
+    HOTKEY_SHOW_OVERLAY_FIRE,
+    HOTKEY_SHOW_OVERLAY_DAMAGE,
+    HOTKEY_SHOW_OVERLAY_CRIME,
+    HOTKEY_SHOW_OVERLAY_PROBLEMS,
+    HOTKEY_GO_TO_BOOKMARK_1,
+    HOTKEY_GO_TO_BOOKMARK_2,
+    HOTKEY_GO_TO_BOOKMARK_3,
+    HOTKEY_GO_TO_BOOKMARK_4,
+    HOTKEY_SET_BOOKMARK_1,
+    HOTKEY_SET_BOOKMARK_2,
+    HOTKEY_SET_BOOKMARK_3,
+    HOTKEY_SET_BOOKMARK_4,
+    HOTKEY_EDITOR_TOGGLE_BATTLE_INFO,
+    HOTKEY_CHEAT_MONEY,
+    HOTKEY_CHEAT_INVASION,
+    HOTKEY_CHEAT_VICTORY,
+    HOTKEY_BUILD_CLONE,
+    HOTKEY_CYCLE_BUILDINGS,
+    HOTKEY_CYCLE_BUILDINGS_REVERSE,
+    HOTKEY_UNDO,
+    HOTKEY_BUILD_VACANT_HOUSE,
+    HOTKEY_BUILD_CLEAR_LAND,
+    HOTKEY_BUILD_ROAD,
+    HOTKEY_BUILD_RESERVOIR,
+    HOTKEY_BUILD_AQUEDUCT,
+    HOTKEY_BUILD_FOUNTAIN,
+    HOTKEY_BUILD_WELL,
+    HOTKEY_BUILD_DOCTOR,
+    HOTKEY_BUILD_BATHHOUSE,
+    HOTKEY_BUILD_BARBER,
+    HOTKEY_BUILD_HOSPITAL,
+    HOTKEY_BUILD_SMALL_TEMPLE_CERES,
+    HOTKEY_BUILD_SMALL_TEMPLE_NEPTUNE,
+    HOTKEY_BUILD_SMALL_TEMPLE_MERCURY,
+    HOTKEY_BUILD_SMALL_TEMPLE_MARS,
+    HOTKEY_BUILD_SMALL_TEMPLE_VENUS,
+    HOTKEY_BUILD_LARGE_TEMPLE_CERES,
+    HOTKEY_BUILD_LARGE_TEMPLE_NEPTUNE,
+    HOTKEY_BUILD_LARGE_TEMPLE_MERCURY,
+    HOTKEY_BUILD_LARGE_TEMPLE_MARS,
+    HOTKEY_BUILD_LARGE_TEMPLE_VENUS,
+    HOTKEY_BUILD_ORACLE,
+    HOTKEY_BUILD_SCHOOL,
+    HOTKEY_BUILD_LIBRARY,
+    HOTKEY_BUILD_ACADEMY,
+    HOTKEY_BUILD_MISSION_POST,
+    HOTKEY_BUILD_THEATER,
+    HOTKEY_BUILD_ACTOR_COLONY,
+    HOTKEY_BUILD_AMPHITHEATER,
+    HOTKEY_BUILD_GLADIATOR_SCHOOL,
+    HOTKEY_BUILD_LION_HOUSE,
+    HOTKEY_BUILD_COLOSSEUM,
+    HOTKEY_BUILD_CHARIOT_MAKER,
+    HOTKEY_BUILD_HIPPODROME,
+    HOTKEY_BUILD_GARDENS,
+    HOTKEY_BUILD_PLAZA,
+    HOTKEY_BUILD_SMALL_STATUE,
+    HOTKEY_BUILD_MEDIUM_STATUE,
+    HOTKEY_BUILD_LARGE_STATUE,
+    HOTKEY_BUILD_GOVERNORS_HOUSE,
+    HOTKEY_BUILD_GOVERNORS_VILLA,
+    HOTKEY_BUILD_GOVERNORS_PALACE,
+    HOTKEY_BUILD_FORUM,
+    HOTKEY_BUILD_SENATE,
+    HOTKEY_BUILD_TRIUMPHAL_ARCH,
+    HOTKEY_BUILD_ENGINEERS_POST,
+    HOTKEY_BUILD_LOW_BRIDGE,
+    HOTKEY_BUILD_SHIP_BRIDGE,
+    HOTKEY_BUILD_SHIPYARD,
+    HOTKEY_BUILD_WHARF,
+    HOTKEY_BUILD_DOCK,
+    HOTKEY_BUILD_PREFECTURE,
+    HOTKEY_BUILD_WALL,
+    HOTKEY_BUILD_TOWER,
+    HOTKEY_BUILD_GATEHOUSE,
+    HOTKEY_BUILD_FORT_LEGIONARIES,
+    HOTKEY_BUILD_FORT_JAVELIN,
+    HOTKEY_BUILD_FORT_MOUNTED,
+    HOTKEY_BUILD_BARRACKS,
+    HOTKEY_BUILD_MILITARY_ACADEMY,
+    HOTKEY_BUILD_WHEAT_FARM,
+    HOTKEY_BUILD_VEGETABLE_FARM,
+    HOTKEY_BUILD_FRUIT_FARM,
+    HOTKEY_BUILD_PIG_FARM,
+    HOTKEY_BUILD_OLIVE_FARM,
+    HOTKEY_BUILD_VINES_FARM,
+    HOTKEY_BUILD_CLAY_PIT,
+    HOTKEY_BUILD_TIMBER_YARD,
+    HOTKEY_BUILD_MARBLE_QUARRY,
+    HOTKEY_BUILD_IRON_MINE,
+    HOTKEY_BUILD_OIL_WORKSHOP,
+    HOTKEY_BUILD_WINE_WORKSHOP,
+    HOTKEY_BUILD_POTTERY_WORKSHOP,
+    HOTKEY_BUILD_FURNITURE_WORKSHOP,
+    HOTKEY_BUILD_WEAPONS_WORKSHOP,
+    HOTKEY_BUILD_MARKET,
+    HOTKEY_BUILD_GRANARY,
+    HOTKEY_BUILD_WAREHOUSE,
+    HOTKEY_MAX_ITEMS
 };
-static int configs_values[CONFIGS_MAX_ENTRIES] = {
-    0, 0, 0, 0, 0, 0
+static char HOTKEY_CONFIGS_FILE_PATH[DIR_PATH_MAX]; // the path to "brutus.hconfigs" within the Brutus directory
+static int is_scrolling_up;
+static int is_scrolling_down;
+static int is_scrolling_left;
+static int is_scrolling_right;
+static int hotkey_button_action_index;
+static int hotkey_button_modifiers;
+static int hotkey_button_key;
+struct hotkey_mapping_t {
+    char *action_name;
+    int sdl_mods;
+    int sdl_key;
 };
-
-
-
-
+static struct hotkey_mapping_t hotkey_mappings[HOTKEY_MAX_ITEMS] = {
+    {"Up", 0, 0},
+    {"Down", 0, 0},
+    {"Left", 0, 0},
+    {"Right", 0, 0},
+    {"Toggle fullscreen", 0, 0},
+    {"Reset window", 0, 0},
+    {"Save screenshot", 0, 0},
+    {"Save full city screenshot", 0, 0},
+    {"Load file", 0, 0},
+    {"Save file", 0, 0},
+    {"Decrease game speed", 0, 0},
+    {"Increase game speed", 0, 0},
+    {"Toggle pause", 0, 0},
+    {"Rotate map left", 0, 0},
+    {"Rotate map right", 0, 0},
+    {"Replay map", 0, 0},
+    {"Cycle through legions", 0, 0},
+    {"Return legions to fort", 0, 0},
+    {"Show last advisor", 0, 0},
+    {"Show empire map", 0, 0},
+    {"Show messages", 0, 0},
+    {"Go to problem", 0, 0},
+    {"Show water overlay", 0, 0},
+    {"Show fire overlay", 0, 0},
+    {"Damage overlay", 0, 0},
+    {"Crime overlay", 0, 0},
+    {"Problems overlay", 0, 0},
+    {"Go to bookmark 1", 0, 0},
+    {"Go to bookmark 2", 0, 0},
+    {"Go to bookmark 3", 0, 0},
+    {"Go to bookmark 4", 0, 0},
+    {"Set bookmark 1", 0, 0},
+    {"Set bookmark 2", 0, 0},
+    {"Set bookmark 3", 0, 0},
+    {"Set bookmark 4", 0, 0},
+    {"Toggle battle info", 0, 0},
+    {"Cheat: money", 0, 0},
+    {"Cheat: invasion", 0, 0},
+    {"Cheat: victory", 0, 0},
+    {"Clone building under cursor", 0, 0},
+    {"Cycle through buildings", 0, 0},
+    {"Cycle back through buildings", 0, 0},
+    {"Undo last building", 0, 0},
+    {"Housing", 0, 0},
+    {"Clear Land", 0, 0},
+    {"Road", 0, 0},
+    {"Reservoir", 0, 0},
+    {"Aqueduct", 0, 0},
+    {"Fountain", 0, 0},
+    {"Well", 0, 0},
+    {"Doctor", 0, 0},
+    {"Bathhouse", 0, 0},
+    {"Barber", 0, 0},
+    {"Hospital", 0, 0},
+    {"Small Temple: Ceres", 0, 0},
+    {"Small Temple: Neptune", 0, 0},
+    {"Small Temple: Mercury", 0, 0},
+    {"Small Temple: Mars", 0, 0},
+    {"Small Temple: Venus", 0, 0},
+    {"Large Temple: Ceres", 0, 0},
+    {"Large Temple: Neptune", 0, 0},
+    {"Large Temple: Mercury", 0, 0},
+    {"Large Temple: Mars", 0, 0},
+    {"Large Temple: Venus", 0, 0},
+    {"Oracle", 0, 0},
+    {"School", 0, 0},
+    {"Library", 0, 0},
+    {"Academy", 0, 0},
+    {"Mission Post", 0, 0},
+    {"Theater", 0, 0},
+    {"Actor Colony", 0, 0},
+    {"Amphitheater", 0, 0},
+    {"Gladiator School", 0, 0},
+    {"Lion House", 0, 0},
+    {"Colosseum", 0, 0},
+    {"Chariot Maker", 0, 0},
+    {"Hippodrome", 0, 0},
+    {"Gardens", 0, 0},
+    {"Plaza", 0, 0},
+    {"Small Statue", 0, 0},
+    {"Medium Statue", 0, 0},
+    {"Large Statue", 0, 0},
+    {"Governors House", 0, 0},
+    {"Governors Villa", 0, 0},
+    {"Governors Palace", 0, 0},
+    {"Forum", 0, 0},
+    {"Senate", 0, 0},
+    {"Triumphal Arch", 0, 0},
+    {"Engineers Post", 0, 0},
+    {"Low Bridge", 0, 0},
+    {"Ship Bridge", 0, 0},
+    {"Shipyard", 0, 0},
+    {"Wharf", 0, 0},
+    {"Dock", 0, 0},
+    {"Prefecture", 0, 0},
+    {"Wall", 0, 0},
+    {"Tower", 0, 0},
+    {"Gatehouse", 0, 0},
+    {"Fort: Legionaries", 0, 0},
+    {"Fort: Javelin", 0, 0},
+    {"Fort: Mounted", 0, 0},
+    {"Barracks", 0, 0},
+    {"Military Academy", 0, 0},
+    {"Wheat Farm", 0, 0},
+    {"Vegetable Farm", 0, 0},
+    {"Fruit Farm", 0, 0},
+    {"Pig Farm", 0, 0},
+    {"Olive Farm", 0, 0},
+    {"Vines Farm", 0, 0},
+    {"Clay Pit", 0, 0},
+    {"Timber Yard", 0, 0},
+    {"Marble Quarry", 0, 0},
+    {"Iron Mine", 0, 0},
+    {"Oil Workshop", 0, 0},
+    {"Wine Workshop", 0, 0},
+    {"Pottery Workshop", 0, 0},
+    {"Furniture Workshop", 0, 0},
+    {"Weapons Workshop", 0, 0},
+    {"Market", 0, 0},
+    {"Granary", 0, 0},
+    {"Warehouse", 0, 0},
+};
+static struct {
+    int focus_button;
+    int bottom_focus_button;
+} hotkey_config_window_data;
 
 #define INTPTR(d) (*(int*)(d))
 #define MSG_SIZE 1000
@@ -266,16 +537,7 @@ static int configs_values[CONFIGS_MAX_ENTRIES] = {
 #define MAX_BUTTONS_MAIN_MENU 5
 #define NUM_INTRO_VIDEOS 3
 #define DISPLAY_TIME_MILLIS 1000
-#define NUM_BOTTOM_BUTTONS_HOTKEY_EDITOR_WINDOW 2
-#define HOTKEY_HEADER -1
-#define TR_NONE -1
 #define GROUP_BUILDINGS 28
-#define NUM_VISIBLE_OPTIONS 14
-#define NUM_BOTTOM_BUTTONS_HOTKEY_CONFIG_WINDOW 3
-#define HOTKEY_X_OFFSET_1 270
-#define HOTKEY_X_OFFSET_2 420
-#define HOTKEY_BTN_WIDTH 150
-#define HOTKEY_BTN_HEIGHT 22
 #define NUM_FILES_IN_VIEW 12
 #define MAX_FILE_WINDOW_TEXT_WIDTH (18 * BLOCK_SIZE)
 #define MAX_WIDTH 2032
@@ -332,8 +594,6 @@ static int configs_values[CONFIGS_MAX_ENTRIES] = {
 #define MOUSE_BORDER 5
 #define TOUCH_BORDER 100
 #define SCROLL_DRAG_MIN_DELTA 4
-#define SCROLL_KEY_PRESSED 1
-#define SCROLL_KEY_MAX_VALUE 30000.0f
 #define PRESSED_EFFECT_MILLIS 100
 #define PRESSED_REPEAT_INITIAL_MILLIS 300
 #define PRESSED_REPEAT_MILLIS 50
@@ -429,7 +689,6 @@ static int configs_values[CONFIGS_MAX_ENTRIES] = {
 #define ENEMY_DATA_SIZE 2400000
 #define SCRATCH_DATA_SIZE 12100000
 #define NAME_SIZE 32
-#define MAX_MAPPINGS HOTKEY_MAX_ITEMS * 2
 #define F_OK 0
 #define access _access
 #define TIE 10
@@ -926,130 +1185,6 @@ enum {
     RESOURCE_IMAGE_CART = 1,
     RESOURCE_IMAGE_FOOD_CART = 2,
     RESOURCE_IMAGE_ICON = 3
-};
-enum {
-    HOTKEY_ARROW_UP,
-    HOTKEY_ARROW_DOWN,
-    HOTKEY_ARROW_LEFT,
-    HOTKEY_ARROW_RIGHT,
-    HOTKEY_TOGGLE_FULLSCREEN,
-    HOTKEY_RESET_WINDOW,
-    HOTKEY_SAVE_SCREENSHOT,
-    HOTKEY_SAVE_CITY_SCREENSHOT,
-    HOTKEY_LOAD_FILE,
-    HOTKEY_SAVE_FILE,
-    HOTKEY_DECREASE_GAME_SPEED,
-    HOTKEY_INCREASE_GAME_SPEED,
-    HOTKEY_TOGGLE_PAUSE,
-    HOTKEY_ROTATE_MAP_LEFT,
-    HOTKEY_ROTATE_MAP_RIGHT,
-    HOTKEY_REPLAY_MAP,
-    HOTKEY_CYCLE_LEGION,
-    HOTKEY_RETURN_LEGIONS_TO_FORT,
-    HOTKEY_SHOW_LAST_ADVISOR,
-    HOTKEY_SHOW_EMPIRE_MAP,
-    HOTKEY_SHOW_MESSAGES,
-    HOTKEY_GO_TO_PROBLEM,
-    HOTKEY_BUILD_CLONE,
-    HOTKEY_CYCLE_BUILDINGS,
-    HOTKEY_CYCLE_BUILDINGS_REVERSE,
-    HOTKEY_UNDO,
-    HOTKEY_BUILD_VACANT_HOUSE,
-    HOTKEY_BUILD_CLEAR_LAND,
-    HOTKEY_BUILD_ROAD,
-    HOTKEY_BUILD_RESERVOIR,
-    HOTKEY_BUILD_AQUEDUCT,
-    HOTKEY_BUILD_FOUNTAIN,
-    HOTKEY_BUILD_WELL,
-    HOTKEY_BUILD_DOCTOR,
-    HOTKEY_BUILD_BATHHOUSE,
-    HOTKEY_BUILD_BARBER,
-    HOTKEY_BUILD_HOSPITAL,
-    HOTKEY_BUILD_SMALL_TEMPLE_CERES,
-    HOTKEY_BUILD_SMALL_TEMPLE_NEPTUNE,
-    HOTKEY_BUILD_SMALL_TEMPLE_MERCURY,
-    HOTKEY_BUILD_SMALL_TEMPLE_MARS,
-    HOTKEY_BUILD_SMALL_TEMPLE_VENUS,
-    HOTKEY_BUILD_LARGE_TEMPLE_CERES,
-    HOTKEY_BUILD_LARGE_TEMPLE_NEPTUNE,
-    HOTKEY_BUILD_LARGE_TEMPLE_MERCURY,
-    HOTKEY_BUILD_LARGE_TEMPLE_MARS,
-    HOTKEY_BUILD_LARGE_TEMPLE_VENUS,
-    HOTKEY_BUILD_ORACLE,
-    HOTKEY_BUILD_SCHOOL,
-    HOTKEY_BUILD_LIBRARY,
-    HOTKEY_BUILD_ACADEMY,
-    HOTKEY_BUILD_MISSION_POST,
-    HOTKEY_BUILD_THEATER,
-    HOTKEY_BUILD_ACTOR_COLONY,
-    HOTKEY_BUILD_AMPHITHEATER,
-    HOTKEY_BUILD_GLADIATOR_SCHOOL,
-    HOTKEY_BUILD_LION_HOUSE,
-    HOTKEY_BUILD_COLOSSEUM,
-    HOTKEY_BUILD_CHARIOT_MAKER,
-    HOTKEY_BUILD_HIPPODROME,
-    HOTKEY_BUILD_GARDENS,
-    HOTKEY_BUILD_PLAZA,
-    HOTKEY_BUILD_SMALL_STATUE,
-    HOTKEY_BUILD_MEDIUM_STATUE,
-    HOTKEY_BUILD_LARGE_STATUE,
-    HOTKEY_BUILD_GOVERNORS_HOUSE,
-    HOTKEY_BUILD_GOVERNORS_VILLA,
-    HOTKEY_BUILD_GOVERNORS_PALACE,
-    HOTKEY_BUILD_FORUM,
-    HOTKEY_BUILD_SENATE,
-    HOTKEY_BUILD_TRIUMPHAL_ARCH,
-    HOTKEY_BUILD_ENGINEERS_POST,
-    HOTKEY_BUILD_LOW_BRIDGE,
-    HOTKEY_BUILD_SHIP_BRIDGE,
-    HOTKEY_BUILD_SHIPYARD,
-    HOTKEY_BUILD_WHARF,
-    HOTKEY_BUILD_DOCK,
-    HOTKEY_BUILD_PREFECTURE,
-    HOTKEY_BUILD_WALL,
-    HOTKEY_BUILD_TOWER,
-    HOTKEY_BUILD_GATEHOUSE,
-    HOTKEY_BUILD_FORT_LEGIONARIES,
-    HOTKEY_BUILD_FORT_JAVELIN,
-    HOTKEY_BUILD_FORT_MOUNTED,
-    HOTKEY_BUILD_BARRACKS,
-    HOTKEY_BUILD_MILITARY_ACADEMY,
-    HOTKEY_BUILD_WHEAT_FARM,
-    HOTKEY_BUILD_VEGETABLE_FARM,
-    HOTKEY_BUILD_FRUIT_FARM,
-    HOTKEY_BUILD_PIG_FARM,
-    HOTKEY_BUILD_OLIVE_FARM,
-    HOTKEY_BUILD_VINES_FARM,
-    HOTKEY_BUILD_CLAY_PIT,
-    HOTKEY_BUILD_TIMBER_YARD,
-    HOTKEY_BUILD_MARBLE_QUARRY,
-    HOTKEY_BUILD_IRON_MINE,
-    HOTKEY_BUILD_OIL_WORKSHOP,
-    HOTKEY_BUILD_WINE_WORKSHOP,
-    HOTKEY_BUILD_POTTERY_WORKSHOP,
-    HOTKEY_BUILD_FURNITURE_WORKSHOP,
-    HOTKEY_BUILD_WEAPONS_WORKSHOP,
-    HOTKEY_BUILD_MARKET,
-    HOTKEY_BUILD_GRANARY,
-    HOTKEY_BUILD_WAREHOUSE,
-    HOTKEY_SHOW_OVERLAY_WATER,
-    HOTKEY_SHOW_OVERLAY_FIRE,
-    HOTKEY_SHOW_OVERLAY_DAMAGE,
-    HOTKEY_SHOW_OVERLAY_CRIME,
-    HOTKEY_SHOW_OVERLAY_PROBLEMS,
-    HOTKEY_GO_TO_BOOKMARK_1,
-    HOTKEY_GO_TO_BOOKMARK_2,
-    HOTKEY_GO_TO_BOOKMARK_3,
-    HOTKEY_GO_TO_BOOKMARK_4,
-    HOTKEY_SET_BOOKMARK_1,
-    HOTKEY_SET_BOOKMARK_2,
-    HOTKEY_SET_BOOKMARK_3,
-    HOTKEY_SET_BOOKMARK_4,
-    HOTKEY_EDITOR_TOGGLE_BATTLE_INFO,
-    HOTKEY_CHEAT_MONEY,
-    HOTKEY_CHEAT_INVASION,
-    HOTKEY_CHEAT_VICTORY,
-    HOTKEY_MAX_ITEMS
 };
 enum {
     GROUP_TERRAIN_BLACK = 1,
@@ -1784,111 +1919,6 @@ enum {
     CURSOR_MAX,
 };
 enum {
-    KEY_TYPE_NONE = 0,
-    KEY_TYPE_A,
-    KEY_TYPE_B,
-    KEY_TYPE_C,
-    KEY_TYPE_D,
-    KEY_TYPE_E,
-    KEY_TYPE_F,
-    KEY_TYPE_G,
-    KEY_TYPE_H,
-    KEY_TYPE_I,
-    KEY_TYPE_J,
-    KEY_TYPE_K,
-    KEY_TYPE_L,
-    KEY_TYPE_M,
-    KEY_TYPE_N,
-    KEY_TYPE_O,
-    KEY_TYPE_P,
-    KEY_TYPE_Q,
-    KEY_TYPE_R,
-    KEY_TYPE_S,
-    KEY_TYPE_T,
-    KEY_TYPE_U,
-    KEY_TYPE_V,
-    KEY_TYPE_W,
-    KEY_TYPE_X,
-    KEY_TYPE_Y,
-    KEY_TYPE_Z,
-    KEY_TYPE_1,
-    KEY_TYPE_2,
-    KEY_TYPE_3,
-    KEY_TYPE_4,
-    KEY_TYPE_5,
-    KEY_TYPE_6,
-    KEY_TYPE_7,
-    KEY_TYPE_8,
-    KEY_TYPE_9,
-    KEY_TYPE_0,
-    KEY_TYPE_MINUS,
-    KEY_TYPE_EQUALS,
-    KEY_TYPE_ENTER,
-    KEY_TYPE_ESCAPE,
-    KEY_TYPE_BACKSPACE,
-    KEY_TYPE_TAB,
-    KEY_TYPE_CAPSLOCK,
-    KEY_TYPE_SPACE,
-    KEY_TYPE_LEFTBRACKET,
-    KEY_TYPE_RIGHTBRACKET,
-    KEY_TYPE_BACKSLASH,
-    KEY_TYPE_SEMICOLON,
-    KEY_TYPE_APOSTROPHE,
-    KEY_TYPE_GRAVE,
-    KEY_TYPE_COMMA,
-    KEY_TYPE_PERIOD,
-    KEY_TYPE_SLASH,
-    KEY_TYPE_F1,
-    KEY_TYPE_F2,
-    KEY_TYPE_F3,
-    KEY_TYPE_F4,
-    KEY_TYPE_F5,
-    KEY_TYPE_F6,
-    KEY_TYPE_F7,
-    KEY_TYPE_F8,
-    KEY_TYPE_F9,
-    KEY_TYPE_F10,
-    KEY_TYPE_F11,
-    KEY_TYPE_F12,
-    KEY_TYPE_INSERT,
-    KEY_TYPE_DELETE,
-    KEY_TYPE_HOME,
-    KEY_TYPE_END,
-    KEY_TYPE_PAGEUP,
-    KEY_TYPE_PAGEDOWN,
-    // arrow keys
-    KEY_TYPE_RIGHT,
-    KEY_TYPE_LEFT,
-    KEY_TYPE_DOWN,
-    KEY_TYPE_UP,
-    // keypad keys
-    KEY_TYPE_KP_1,
-    KEY_TYPE_KP_2,
-    KEY_TYPE_KP_3,
-    KEY_TYPE_KP_4,
-    KEY_TYPE_KP_5,
-    KEY_TYPE_KP_6,
-    KEY_TYPE_KP_7,
-    KEY_TYPE_KP_8,
-    KEY_TYPE_KP_9,
-    KEY_TYPE_KP_0,
-    KEY_TYPE_KP_PERIOD,
-    KEY_TYPE_KP_PLUS,
-    KEY_TYPE_KP_MINUS,
-    KEY_TYPE_KP_MULTIPLY,
-    KEY_TYPE_KP_DIVIDE,
-    // the key next to left shift on ISO (Non-US) keyboards, usually \ or <
-    KEY_TYPE_NON_US,
-    KEY_TYPE_MAX_ITEMS
-};
-enum {
-    KEY_MOD_NONE = 0,
-    KEY_MOD_SHIFT = 1,
-    KEY_MOD_CTRL = 2,
-    KEY_MOD_ALT = 4,
-    KEY_MOD_GUI = 8,
-};
-enum {
     SCROLL_NONE = 0,
     SCROLL_UP = -1,
     SCROLL_DOWN = 1
@@ -2300,12 +2330,6 @@ enum {
     SYSTEM_DOUBLE_CLICK = 4
 };
 enum {
-    KEY_STATE_UNPRESSED = 0,
-    KEY_STATE_PRESSED = 1,
-    KEY_STATE_HELD = 2,
-    KEY_STATE_AXIS = 3
-};
-enum {
     FULL_CITY_SCREENSHOT = 0,
     DISPLAY_SCREENSHOT = 1
 };
@@ -2454,91 +2478,10 @@ enum {
 // end enums
 
 // start chars
-static char HOTKEY_CONFIGS_FILE_PATH[DIR_PATH_MAX]; // the path to "brutus.hconfigs" within the Brutus directory
 static char MAPS_DIR_PATH[DIR_PATH_MAX]; // the path to the /maps folder in the Brutus directory
 static char SETTINGS_FILE_PATH[DIR_PATH_MAX]; // the path to "brutus.settings" within the Brutus directory
 char SAVES_DIR_PATH[DIR_PATH_MAX]; // the path to the /saves folder in the Brutus directory
 static char log_buffer[MSG_SIZE];
-static char *key_display_names[KEY_TYPE_MAX_ITEMS] = {
-    "", "A", "B", "C", "D", "E", "F", "G", "H", "I",
-    "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S",
-    "T", "U", "V", "W", "X", "Y", "Z", "1", "2", "3",
-    "4", "5", "6", "7", "8", "9", "0", "-", "=", "Enter",
-    "Esc", "Backspace", "Tab", "Space", "Left bracket", "Right bracket", "Backslash", ";", "'", "Backtick",
-    ",", ".", "/", "F1", "F2", "F3", "F4", "F5", "F6", "F7",
-    "F8", "F9", "F10", "F11", "F12", "Insert", "Delete", "Home", "End", "PageUp",
-    "PageDown", "Right", "Left", "Down", "Up",
-    "Keypad 1", "Keypad 2", "Keypad 3", "Keypad 4", "Keypad 5",
-    "Keypad 6", "Keypad 7", "Keypad 8", "Keypad 9", "Keypad 0",
-    "Keypad .", "Keypad +", "Keypad -", "Keypad *", "Keypad /", "NonUS"
-};
-static char *hotkey_strings[] = {
-    "Brutus hotkey configuration", // 0
-    "Hotkey", // 1
-    "Alternative", // 2
-    "Reset defaults", // 3
-    "Cancel", // 4
-    "OK", // 5
-};
-static char *hotkey_widget_strings[] = {
-    "Arrow keys", // 0
-    "Up", // 1
-    "Down", // 2
-    "Left", // 3
-    "Right", // 4
-    "Global hotkeys", // 5
-    "Toggle fullscreen", // 6
-    "Reset window", // 7
-    "Save screenshot", // 8
-    "Save full city screenshot", // 9
-    "Load file", // 10
-    "Save file", // 11
-    "City hotkeys", // 12
-    "Decrease game speed", // 13
-    "Increase game speed", // 14
-    "Toggle pause", // 15
-    "Rotate map left", // 16
-    "Rotate map right", // 17
-    "Replay map", // 18
-    "Cycle through legions", // 19
-    "Return legions to fort", // 20
-    "Show last advisor", // 21
-    "Show empire map", // 22
-    "Show messages", // 23
-    "Go to problem", // 24
-    "Overlays", // 25
-    "Show water overlay", // 26
-    "Show fire overlay", // 27
-    "Damage overlay", // 28
-    "Crime overlay", // 29
-    "Problems overlay", // 30
-    "City map bookmarks", // 31
-    "Go to bookmark 1", // 32
-    "Go to bookmark 2", // 33
-    "Go to bookmark 3", // 34
-    "Go to bookmark 4", // 35
-    "Set bookmark 1", // 36
-    "Set bookmark 2", // 37
-    "Set bookmark 3", // 38
-    "Set bookmark 4", // 39
-    "Editor", // 40
-    "Toggle battle info", // 41
-    "Cheats", // 42
-    "Cheat: money", // 43
-    "Cheat: invasion", // 44
-    "Cheat: victory", // 45
-    "Construction hotkeys", // 46
-    "Clone building under cursor", // 47
-    "Cycle through buildings", // 48
-    "Cycle back through buildings", // 49
-    "Undo last building", // 50
-    "Housing", // 51
-};
-static char *hotkey_editor_bottom_button_strings[] = {
-    "Press new hotkey", // 0
-    "Cancel", // 1
-    "OK", // 2
-};
 static char SOUND_FILE_LOSE[] = "wavs/lose_game.wav";
 static char SOUND_FILE_WIN[] = "wavs/actors_great1.wav";
 static char *intro_videos[NUM_INTRO_VIDEOS] = { "smk/logo.smk", "smk/intro.smk", "smk/credits.smk" };
@@ -2583,18 +2526,6 @@ static   char mp3_tracks[][32] = {
     "mp3/Combat_Short.mp3",
     "mp3/Combat_Long.mp3",
     "mp3/setup.mp3"
-};
-static char *key_names[KEY_TYPE_MAX_ITEMS] = {
-    "", "A", "B", "C", "D", "E", "F", "G", "H", "I",
-    "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S",
-    "T", "U", "V", "W", "X", "Y", "Z", "1", "2", "3",
-    "4", "5", "6", "7", "8", "9", "0", "-", "=", "Enter",
-    "Esc", "Backspace", "Tab", "Space", "[", "]", "\\", ";", "'", "`",
-    ",", ".", "/", "F1", "F2", "F3", "F4", "F5", "F6", "F7",
-    "F8", "F9", "F10", "F11", "F12", "Insert", "Delete", "Home", "End", "PageUp",
-    "PageDown", "Right", "Left", "Down", "Up",
-    "Kp1", "Kp2", "Kp3", "Kp4", "Kp5", "Kp6", "Kp7", "Kp8", "Kp9", "Kp0",
-    "Kp.", "Kp+", "Kp-", "Kp*", "Kp/", "NonUS"
 };
 static char tmp_line_text[200];
 static char filename_formats[][32] = {
@@ -2949,130 +2880,6 @@ static char ENEMY_GRAPHICS_555[ENEMY_FILES_COUNT][NAME_SIZE] = {
    "North African.555",
    "Persians.555",
    "Phoenician.555",
-};
-// Keep this in the same order as the actions in hotkey_config.h
-static char *ini_keys_hotkey_config[] = {
-    "arrow_up",
-    "arrow_down",
-    "arrow_left",
-    "arrow_right",
-    "toggle_fullscreen",
-    "reset_window",
-    "save_screenshot",
-    "save_city_screenshot",
-    "load_file",
-    "save_file",
-    "decrease_game_speed",
-    "increase_game_speed",
-    "toggle_pause",
-    "rotate_map_left",
-    "rotate_map_right",
-    "replay_map",
-    "cycle_legion",
-    "return_legions_to_fort",
-    "show_last_advisor",
-    "show_empire_map",
-    "show_messages",
-    "go_to_problem",
-    "show_overlay_water",
-    "show_overlay_fire",
-    "show_overlay_damage",
-    "show_overlay_crime",
-    "show_overlay_problems",
-    "go_to_bookmark_1",
-    "go_to_bookmark_2",
-    "go_to_bookmark_3",
-    "go_to_bookmark_4",
-    "set_bookmark_1",
-    "set_bookmark_2",
-    "set_bookmark_3",
-    "set_bookmark_4",
-    "editor_toggle_battle_info",
-    "cheat money",
-    "cheat invasion",
-    "cheat victory",
-    "clone_building",
-    "cycle_buildings",
-    "cycle_buildings_reverse",
-    "undo",
-    "build_vacant_house",
-    "build_clear_land",
-    "build_road",
-    "build_reservoir",
-    "build_aqueduct",
-    "build_fountain",
-    "build_well",
-    "build_doctor",
-    "build_bathhouse",
-    "build_barber",
-    "build_hospital",
-    "build_small_temple_ceres",
-    "build_small_temple_neptune",
-    "build_small_temple_mercury",
-    "build_small_temple_mars",
-    "build_small_temple_venus",
-    "build_large_temple_ceres",
-    "build_large_temple_neptune",
-    "build_large_temple_mercury",
-    "build_large_temple_mars",
-    "build_large_temple_venus",
-    "build_oracle",
-    "build_school",
-    "build_library",
-    "build_academy",
-    "build_mission_post",
-    "build_theater",
-    "build_actor_colony",
-    "build_amphitheater",
-    "build_gladiator_school",
-    "build_lion_house",
-    "build_colosseum",
-    "build_chariot_maker",
-    "build_hippodrome",
-    "build_gardens",
-    "build_plaza",
-    "build_small_statue",
-    "build_medium_statue",
-    "build_large_statue",
-    "build_governor's house",
-    "build_governor's villa",
-    "build_governor's palace",
-    "build_forum",
-    "build_senate",
-    "build_triumphal_arch",
-    "build_engineers_post",
-    "build_low_bridge",
-    "build_ship_bridge",
-    "build_shipyard",
-    "build_wharf",
-    "build_dock",
-    "build_prefecture",
-    "build_wall",
-    "build_tower",
-    "build_gatehouse",
-    "build_fort_legionaries",
-    "build_fort_javelin",
-    "build_fort_mounted",
-    "build_barracks",
-    "build_military_academy",
-    "build_wheat_farm",
-    "build_vegetable_farm",
-    "build_fruit_farm",
-    "build_pig_farm",
-    "build_olive_farm",
-    "build_vines_farm",
-    "build_clay_pit",
-    "build_timber_yard",
-    "build_marble_quarry",
-    "build_iron_mine",
-    "build_oil_workshop",
-    "build_wine_workshop",
-    "build_pottery_workshop",
-    "build_furniture_workshop",
-    "build_weapons_workshop",
-    "build_market",
-    "build_granary",
-    "build_warehouse",
 };
 static char *resource_strings[] = {
 "No resource", // RESOURCE_NONE
@@ -3528,39 +3335,6 @@ struct mouse_t {
 };
 static struct mouse_t mouse_data;
 static struct mouse_t dialog;
-
-struct hotkeys_t {
-    // fixed keys with multiple functions
-    int enter_pressed;
-    int escape_pressed;
-    // keys with specific function
-    int load_file;
-    int save_file;
-    int decrease_game_speed;
-    int increase_game_speed;
-    int toggle_pause;
-    int rotate_map_left;
-    int rotate_map_right;
-    int replay_map;
-    int cycle_legion;
-    int return_legions_to_fort;
-    int show_last_advisor;
-    int show_empire_map;
-    int show_messages;
-    int go_to_problem;
-    int clone_building;
-    int cycle_buildings;
-    int cycle_buildings_reverse;
-    int undo;
-    int building;
-    int show_overlay;
-    int go_to_bookmark;
-    int set_bookmark;
-    int toggle_editor_battle_info;
-    int cheat_money;
-    int cheat_invasion;
-    int cheat_victory;
-};
 
 struct formation_t {
     int id;
@@ -4809,13 +4583,7 @@ struct window_type_t {
     int id;
     void (*draw_background)(void);
     void (*draw_foreground)(void);
-    void (*handle_input)(struct mouse_t *m, struct hotkeys_t *h);
-};
-
-struct hotkey_mapping_t {
-    int key;
-    int modifiers;
-    int action;
+    void (*handle_input)(struct mouse_t *m);
 };
 
 struct cursor_t {
@@ -5375,15 +5143,6 @@ static struct {
 } victory_video_data;
 
 static struct {
-    int action;
-    int index;
-    int key;
-    int modifiers;
-    void (*callback)(int, int, int, int);
-    int focus_button;
-} hotkey_editor_window_data;
-
-static struct {
     int type;
     void (*callback)(void);
     uint32_t start_time;
@@ -5419,16 +5178,6 @@ static struct input_box_t file_name_input = { 144, 80, 20, 2, FONT_NORMAL_WHITE,
 static struct file_type_data_t saved_game_data = { "sav", {0} };
 static struct file_type_data_t file_type_scenario_data = { "map", {0} };
 
-struct hotkey_widget_t {
-    int action;
-};
-
-static struct {
-    int focus_button;
-    int bottom_focus_button;
-    struct hotkey_mapping_t mappings[HOTKEY_MAX_ITEMS][2];
-} hotkey_config_window_data;
-
 static struct {
     int focus_button_id;
     void (*close_callback)(void);
@@ -5447,143 +5196,6 @@ static struct {
     int focus_button_id;
     int focus_resource;
 } empire_window_data;
-
-static struct hotkey_widget_t hotkey_widgets[] = {
-    {HOTKEY_HEADER},
-    {HOTKEY_ARROW_UP},
-    {HOTKEY_ARROW_DOWN},
-    {HOTKEY_ARROW_LEFT},
-    {HOTKEY_ARROW_RIGHT},
-    {HOTKEY_HEADER},
-    {HOTKEY_TOGGLE_FULLSCREEN},
-    {HOTKEY_RESET_WINDOW},
-    {HOTKEY_SAVE_SCREENSHOT},
-    {HOTKEY_SAVE_CITY_SCREENSHOT},
-    {HOTKEY_LOAD_FILE},
-    {HOTKEY_SAVE_FILE},
-    {HOTKEY_HEADER},
-    {HOTKEY_DECREASE_GAME_SPEED},
-    {HOTKEY_INCREASE_GAME_SPEED},
-    {HOTKEY_TOGGLE_PAUSE},
-    {HOTKEY_ROTATE_MAP_LEFT},
-    {HOTKEY_ROTATE_MAP_RIGHT},
-    {HOTKEY_REPLAY_MAP},
-    {HOTKEY_CYCLE_LEGION},
-    {HOTKEY_RETURN_LEGIONS_TO_FORT},
-    {HOTKEY_SHOW_LAST_ADVISOR},
-    {HOTKEY_SHOW_EMPIRE_MAP},
-    {HOTKEY_SHOW_MESSAGES},
-    {HOTKEY_GO_TO_PROBLEM},
-    {HOTKEY_HEADER},
-    {HOTKEY_SHOW_OVERLAY_WATER},
-    {HOTKEY_SHOW_OVERLAY_FIRE},
-    {HOTKEY_SHOW_OVERLAY_DAMAGE},
-    {HOTKEY_SHOW_OVERLAY_CRIME},
-    {HOTKEY_SHOW_OVERLAY_PROBLEMS},
-    {HOTKEY_HEADER},
-    {HOTKEY_GO_TO_BOOKMARK_1},
-    {HOTKEY_GO_TO_BOOKMARK_2},
-    {HOTKEY_GO_TO_BOOKMARK_3},
-    {HOTKEY_GO_TO_BOOKMARK_4},
-    {HOTKEY_SET_BOOKMARK_1},
-    {HOTKEY_SET_BOOKMARK_2},
-    {HOTKEY_SET_BOOKMARK_3},
-    {HOTKEY_SET_BOOKMARK_4},
-    {HOTKEY_HEADER},
-    {HOTKEY_EDITOR_TOGGLE_BATTLE_INFO},
-    {HOTKEY_HEADER},
-    {HOTKEY_CHEAT_MONEY},
-    {HOTKEY_CHEAT_INVASION},
-    {HOTKEY_CHEAT_VICTORY},
-    {HOTKEY_HEADER},
-    {HOTKEY_BUILD_CLONE},
-    {HOTKEY_CYCLE_BUILDINGS},
-    {HOTKEY_CYCLE_BUILDINGS_REVERSE},
-    {HOTKEY_UNDO},
-    {HOTKEY_BUILD_VACANT_HOUSE},
-    {HOTKEY_BUILD_CLEAR_LAND},
-    {HOTKEY_BUILD_ROAD},
-    {HOTKEY_BUILD_RESERVOIR},
-    {HOTKEY_BUILD_AQUEDUCT},
-    {HOTKEY_BUILD_FOUNTAIN},
-    {HOTKEY_BUILD_WELL},
-    {HOTKEY_BUILD_BARBER},
-    {HOTKEY_BUILD_BATHHOUSE},
-    {HOTKEY_BUILD_DOCTOR},
-    {HOTKEY_BUILD_HOSPITAL},
-    {HOTKEY_BUILD_SMALL_TEMPLE_CERES},
-    {HOTKEY_BUILD_SMALL_TEMPLE_NEPTUNE},
-    {HOTKEY_BUILD_SMALL_TEMPLE_MERCURY},
-    {HOTKEY_BUILD_SMALL_TEMPLE_MARS},
-    {HOTKEY_BUILD_SMALL_TEMPLE_VENUS},
-    {HOTKEY_BUILD_LARGE_TEMPLE_CERES},
-    {HOTKEY_BUILD_LARGE_TEMPLE_NEPTUNE},
-    {HOTKEY_BUILD_LARGE_TEMPLE_MERCURY},
-    {HOTKEY_BUILD_LARGE_TEMPLE_MARS},
-    {HOTKEY_BUILD_LARGE_TEMPLE_VENUS},
-    {HOTKEY_BUILD_ORACLE},
-    {HOTKEY_BUILD_SCHOOL},
-    {HOTKEY_BUILD_ACADEMY},
-    {HOTKEY_BUILD_LIBRARY},
-    {HOTKEY_BUILD_MISSION_POST},
-    {HOTKEY_BUILD_THEATER},
-    {HOTKEY_BUILD_AMPHITHEATER},
-    {HOTKEY_BUILD_COLOSSEUM},
-    {HOTKEY_BUILD_HIPPODROME},
-    {HOTKEY_BUILD_GLADIATOR_SCHOOL},
-    {HOTKEY_BUILD_LION_HOUSE},
-    {HOTKEY_BUILD_ACTOR_COLONY},
-    {HOTKEY_BUILD_CHARIOT_MAKER},
-    {HOTKEY_BUILD_FORUM},
-    {HOTKEY_BUILD_SENATE},
-    {HOTKEY_BUILD_GOVERNORS_HOUSE},
-    {HOTKEY_BUILD_GOVERNORS_VILLA},
-    {HOTKEY_BUILD_GOVERNORS_PALACE},
-    {HOTKEY_BUILD_SMALL_STATUE},
-    {HOTKEY_BUILD_MEDIUM_STATUE},
-    {HOTKEY_BUILD_LARGE_STATUE},
-    {HOTKEY_BUILD_TRIUMPHAL_ARCH},
-    {HOTKEY_BUILD_GARDENS},
-    {HOTKEY_BUILD_PLAZA},
-    {HOTKEY_BUILD_ENGINEERS_POST},
-    {HOTKEY_BUILD_LOW_BRIDGE},
-    {HOTKEY_BUILD_SHIP_BRIDGE},
-    {HOTKEY_BUILD_SHIPYARD},
-    {HOTKEY_BUILD_DOCK},
-    {HOTKEY_BUILD_WHARF},
-    {HOTKEY_BUILD_WALL},
-    {HOTKEY_BUILD_TOWER},
-    {HOTKEY_BUILD_GATEHOUSE},
-    {HOTKEY_BUILD_PREFECTURE},
-    {HOTKEY_BUILD_FORT_LEGIONARIES},
-    {HOTKEY_BUILD_FORT_JAVELIN},
-    {HOTKEY_BUILD_FORT_MOUNTED},
-    {HOTKEY_BUILD_MILITARY_ACADEMY},
-    {HOTKEY_BUILD_BARRACKS},
-    {HOTKEY_BUILD_WHEAT_FARM},
-    {HOTKEY_BUILD_VEGETABLE_FARM},
-    {HOTKEY_BUILD_FRUIT_FARM},
-    {HOTKEY_BUILD_OLIVE_FARM},
-    {HOTKEY_BUILD_VINES_FARM},
-    {HOTKEY_BUILD_PIG_FARM},
-    {HOTKEY_BUILD_CLAY_PIT},
-    {HOTKEY_BUILD_MARBLE_QUARRY},
-    {HOTKEY_BUILD_IRON_MINE},
-    {HOTKEY_BUILD_TIMBER_YARD},
-    {HOTKEY_BUILD_WINE_WORKSHOP},
-    {HOTKEY_BUILD_OIL_WORKSHOP},
-    {HOTKEY_BUILD_WEAPONS_WORKSHOP},
-    {HOTKEY_BUILD_FURNITURE_WORKSHOP},
-    {HOTKEY_BUILD_POTTERY_WORKSHOP},
-    {HOTKEY_BUILD_MARKET},
-    {HOTKEY_BUILD_GRANARY},
-    {HOTKEY_BUILD_WAREHOUSE},
-};
-
-static struct {
-    int focus_button;
-    int bottom_focus_button;
-} window_config_data;
 
 static struct {
     int selected_menu;
@@ -5987,21 +5599,9 @@ static struct {
     int index[6][7];
 } desirability_data;
 
-struct key_t {
-    int state;
-    int value;
-    uint32_t last_change;
-};
-
 static struct {
     int is_scrolling;
     int constant_input;
-    struct {
-        struct key_t up;
-        struct key_t down;
-        struct key_t left;
-        struct key_t right;
-    } arrow_key;
     struct {
         int active;
         int has_started;
@@ -6030,11 +5630,11 @@ struct modifier_name_t {
     char *name;
 };
 static struct modifier_name_t modifier_names[] = {
-    {KEY_MOD_CTRL, "Ctrl"},
-    {KEY_MOD_ALT, "Alt"},
-    {KEY_MOD_GUI, "Gui"},
-    {KEY_MOD_SHIFT, "Shift"},
-    {KEY_MOD_NONE, 0}
+    {KMOD_CTRL, "Ctrl"},
+    {KMOD_ALT, "Alt"},
+    {KMOD_GUI, "Gui"},
+    {KMOD_SHIFT, "Shift"},
+    {KMOD_NONE, 0}
 };
 
 static struct cursor_t ARROW[] = {
@@ -6387,35 +5987,6 @@ static struct cursor_t SHOVEL[] = {
         "    #########                                             "
     }
 };
-
-struct hotkey_definition_t {
-    int *action;
-    int value;
-    int key;
-    int modifiers;
-    int repeatable;
-};
-
-struct arrow_definition_t {
-    void (*action)(int is_down);
-    int key;
-};
-
-struct global_hotkeys_t {
-    int toggle_fullscreen;
-    int reset_window;
-    int save_screenshot;
-    int save_city_screenshot;
-};
-
-static struct {
-    struct global_hotkeys_t global_hotkey_state;
-    struct hotkeys_t hotkey_state;
-    struct hotkey_definition_t *definitions;
-    int num_definitions;
-    struct arrow_definition_t *arrows;
-    int num_arrows;
-} hotkey_data;
 
 static struct {
     int capture;
@@ -6865,12 +6436,6 @@ static struct {
     color_t *font_data;
     uint8_t *tmp_data;
 } image_data_s = { .current_climate = -1 };
-
-static struct {
-    struct hotkey_mapping_t default_mappings[HOTKEY_MAX_ITEMS][2];
-    struct hotkey_mapping_t mappings[MAX_MAPPINGS];
-    int num_mappings;
-} hotkey_config_data;
 
 static struct {
     struct resource_list_t resource_list;
@@ -8163,7 +7728,7 @@ static void string_copy(char *src, char *dst, int maxlength)
 
 static void city_warning_show_custom(char *text)
 {
-    if (!settings_values[SETTINGS_WARNINGS_ENABLED]) {
+    if (!settings[SETTINGS_WARNINGS_ENABLED].config_value) {
         return;
     }
     struct warning *w = 0;
@@ -8403,7 +7968,7 @@ static void screen_set_resolution(int width, int height)
     window_invalidate();
 }
 
-static   char *build_message(char *msg, char *param_str, int param_int)
+static char *build_message(char *msg, char *param_str, int param_int)
 {
     int index = 0;
     index += snprintf(&log_buffer[index], MSG_SIZE - index, "%s", msg);
@@ -8558,7 +8123,7 @@ static void map_building_tiles_mark_deleting(int grid_offset)
 
 static int city_building_ghost_mark_deleting(struct map_tile_t *tile)
 {
-    if (!configs_values[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE]) {
+    if (!configs[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE].config_value) {
         return 0;
     }
     int construction_type = construction_data.type;
@@ -11659,7 +11224,7 @@ static void deletion_draw_remaining(int x, int y, int grid_offset)
 static void city_without_overlay_draw(int selected_figure_id, struct pixel_coordinate_t *figure_coord, struct map_tile_t *tile)
 {
     int highlighted_formation = -1;
-    if (configs_values[CONFIG_UI_HIGHLIGHT_LEGIONS]) {
+    if (configs[CONFIG_UI_HIGHLIGHT_LEGIONS].config_value) {
         highlighted_formation = formation_legion_at_grid_offset(tile->grid_offset);
         if (highlighted_formation > -1) {
             if (selected_legion_formation > -1 && highlighted_formation != selected_legion_formation) {
@@ -11726,9 +11291,6 @@ static void graphics_reset_clip_rectangle(void)
 static void graphics_save_screenshot(int full_city)
 {
     if (full_city) {
-        if (window_data.current_window->id != WINDOW_CITY && window_data.current_window->id != WINDOW_CITY_MILITARY) {
-            return;
-        }
         struct pixel_view_coordinates_t original_camera_pixels;
         original_camera_pixels.x = view_data.camera.tile.x * TILE_WIDTH_PIXELS + view_data.camera.pixel.x;
         original_camera_pixels.y = view_data.camera.tile.y * HALF_TILE_HEIGHT_PIXELS + view_data.camera.pixel.y;
@@ -11901,19 +11463,6 @@ static void game_draw(void)
 {
     update_button_state(&mouse_data.left);
     update_button_state(&mouse_data.right);
-    if (hotkey_data.global_hotkey_state.reset_window) {
-        system_resize(1280, 800);
-        post_event(USER_EVENT_CENTER_WINDOW);
-    }
-    if (hotkey_data.global_hotkey_state.toggle_fullscreen) {
-        post_event(settings_values[SETTINGS_FULLSCREEN] ? USER_EVENT_WINDOWED : USER_EVENT_FULLSCREEN);
-    }
-    if (hotkey_data.global_hotkey_state.save_screenshot) {
-        graphics_save_screenshot(0);
-    }
-    if (hotkey_data.global_hotkey_state.save_city_screenshot) {
-        graphics_save_screenshot(1);
-    }
     struct window_type_t *w = window_data.current_window;
     if (window_data.refresh_on_draw) {
         w->draw_background();
@@ -11921,8 +11470,7 @@ static void game_draw(void)
         window_data.refresh_immediate = 0;
     }
     w->draw_foreground();
-    struct hotkeys_t *h = &hotkey_data.hotkey_state;
-    w->handle_input(&mouse_data, h);
+    w->handle_input(&mouse_data);
     if (window_data.current_window->id != WINDOW_CITY && window_data.current_window->id != WINDOW_EDITOR_MAP) {
         city_warning_clear_all();
     } else {
@@ -12044,7 +11592,7 @@ static void game_draw(void)
         default:
             break;
     }
-    if (settings_values[SETTINGS_CITY_SOUNDS_ENABLED] && !(data_channels.channels[channel].chunk && Mix_Playing(channel))) {
+    if (settings[SETTINGS_CITY_SOUNDS_ENABLED].config_value && !(data_channels.channels[channel].chunk && Mix_Playing(channel))) {
         int left_pan;
         int right_pan;
         switch (direction) {
@@ -12072,7 +11620,7 @@ static void game_draw(void)
             struct sound_channel_t *ch = &data_channels.channels[channel];
             if (load_channel(ch)) {
                 Mix_SetPanning(channel, left_pan * 255 / 100, right_pan * 255 / 100);
-                set_channel_volume(channel, settings_values[SETTINGS_CITY_SOUNDS_VOLUME]);
+                set_channel_volume(channel, settings[SETTINGS_CITY_SOUNDS_VOLUME].config_value);
                 Mix_PlayChannel(channel, ch->chunk, 0);
             }
         }
@@ -14498,7 +14046,7 @@ static int city_message_get_text_id(int message_type)
 
 static void play_sound_effect(int effect)
 {
-    if (!settings_values[SETTINGS_SOUND_EFFECTS_ENABLED]) {
+    if (!settings[SETTINGS_SOUND_EFFECTS_ENABLED].config_value) {
         return;
     }
     if (data_channels.channels[effect].chunk && Mix_Playing(effect)) {
@@ -14507,7 +14055,7 @@ static void play_sound_effect(int effect)
     if (data_channels.initialized) {
         struct sound_channel_t *ch = &data_channels.channels[effect];
         if (load_channel(ch)) {
-            set_channel_volume(effect, settings_values[SETTINGS_SOUND_EFFECTS_VOLUME]);
+            set_channel_volume(effect, settings[SETTINGS_SOUND_EFFECTS_VOLUME].config_value);
             Mix_PlayChannel(effect, ch->chunk, 0);
         }
     }
@@ -15414,8 +14962,8 @@ static void play_track(int track)
     if (track <= TRACK_NONE || track >= TRACK_MAX) {
         return;
     }
-    if (!play_music(mp3_tracks[track], settings_values[SETTINGS_MUSIC_VOLUME])) {
-        play_music(tracks[track], settings_values[SETTINGS_MUSIC_VOLUME]);
+    if (!play_music(mp3_tracks[track], settings[SETTINGS_MUSIC_VOLUME].config_value)) {
+        play_music(tracks[track], settings[SETTINGS_MUSIC_VOLUME].config_value);
     }
     sound_data.current_track = track;
 }
@@ -15426,7 +14974,7 @@ static void update_music(int force)
         --sound_data.next_check;
         return;
     }
-    if (!settings_values[SETTINGS_MUSIC_ENABLED]) {
+    if (!settings[SETTINGS_MUSIC_ENABLED].config_value) {
         return;
     }
     int track;
@@ -15726,7 +15274,7 @@ static void reset_input(void)
 static void noop(void)
 {}
 
-static void noop_input(__attribute__((unused))   struct mouse_t *m, __attribute__((unused))   struct hotkeys_t *h)
+static void noop_input(__attribute__((unused)) struct mouse_t *m)
 {}
 
 static void window_show(struct window_type_t *window)
@@ -16134,7 +15682,7 @@ static int is_problem_cartpusher(int figure_id)
 
 static int draw_building_as_deleted_1(struct building_t *b)
 {
-    if (!configs_values[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE]) {
+    if (!configs[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE].config_value) {
         return 0;
     }
     b = building_main(b);
@@ -16902,7 +16450,7 @@ static int terrain_on_desirability_overlay(void)
 
 static int has_deleted_building(int grid_offset)
 {
-    if (!configs_values[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE]) {
+    if (!configs[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE].config_value) {
         return 0;
     }
     struct building_t *b = &all_buildings[map_building_at(grid_offset)];
@@ -20435,7 +19983,7 @@ static int image_buttons_handle_mouse(struct mouse_t *m, int x, int y, struct im
     return 0;
 }
 
-static   struct mouse_t *mouse_in_dialog(struct mouse_t *m)
+static struct mouse_t *mouse_in_dialog(struct mouse_t *m)
 {
     dialog.left = m->left;
     dialog.right = m->right;
@@ -20447,16 +19995,13 @@ static   struct mouse_t *mouse_in_dialog(struct mouse_t *m)
     return &dialog;
 }
 
-static void handle_input_popup_dialog(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_popup_dialog(struct mouse_t *m)
 {
     if (popup_dialog_data.has_buttons && image_buttons_handle_mouse(mouse_in_dialog(m), 80, 80, popup_dialog_buttons, sizeof(popup_dialog_buttons) / sizeof(struct image_button_t), 0)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         button_cancel_popup_dialog(0, 0);
-    }
-    if (h->enter_pressed) {
-        confirm_popup_dialog();
     }
 }
 
@@ -22957,16 +22502,13 @@ static int generic_buttons_handle_mouse(struct mouse_t *m, int x, int y, struct 
     }
 }
 
-static void handle_input_numeric_input(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_numeric_input(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(m, numeric_input_data.x, numeric_input_data.y, buttons_numeric_input, 12, &numeric_input_data.focus_button_id)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         close_numeric_input();
-    }
-    if (h->enter_pressed) {
-        input_accept_numeric_input();
     }
 }
 
@@ -23363,31 +22905,6 @@ static void draw_foreground_editor_empire(void)
     }
 }
 
-static int get_arrow_key_value(struct key_t *arrow)
-{
-    if (arrow->state == KEY_STATE_AXIS) {
-        return arrow->value;
-    }
-    return arrow->state != KEY_STATE_UNPRESSED;
-}
-
-static int set_arrow_input(struct key_t *arrow, struct key_t *opposite_arrow, float *modifier)
-{
-    if (get_arrow_key_value(arrow) && (!opposite_arrow || opposite_arrow->value == 0)) {
-        if (arrow->state == KEY_STATE_AXIS) {
-            scroll_data.constant_input = 1;
-            int value = get_arrow_key_value(arrow);
-            if (value == SCROLL_KEY_PRESSED) {
-                *modifier = 1.0f;
-            } else {
-                *modifier = fminf(arrow->value / SCROLL_KEY_MAX_VALUE, 1.0f);
-            }
-        }
-        return 1;
-    }
-    return 0;
-}
-
 static int speed_get_current_direction(struct speed_type_t *speed)
 {
     if (!speed->current_speed) {
@@ -23424,7 +22941,7 @@ static int scroll_get_delta(struct mouse_t *m, struct pixel_view_coordinates_t *
         int is_inside_window = m->is_inside_window;
         int width = screen_data.width;
         int height = screen_data.height;
-        if (settings_values[SETTINGS_FULLSCREEN] && m->x < width && m->y < height) {
+        if (settings[SETTINGS_FULLSCREEN].config_value && m->x < width && m->y < height) {
             // For Windows 10, in fullscreen mode, on HiDPI screens, this is needed
             // to get scrolling to work
             is_inside_window = 1;
@@ -23452,7 +22969,7 @@ static int scroll_get_delta(struct mouse_t *m, struct pixel_view_coordinates_t *
             // NOTE: using <= width/height (instead of <) to compensate for rounding
             // errors caused by scaling the display. SDL adds a 1px border to either
             // the right or the bottom when the aspect ratio does not match exactly.
-            if (((!configs_values[CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING]) || scroll_data.limits.active) &&
+            if (((!configs[CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING].config_value) || scroll_data.limits.active) &&
                 (x >= 0 && x <= width && y >= 0 && y <= height)) {
                 if (x < border) {
                     left = 1;
@@ -23469,12 +22986,6 @@ static int scroll_get_delta(struct mouse_t *m, struct pixel_view_coordinates_t *
                     scroll_data.speed.modifier_y = 1 - (height - y) / (float) border;
                 }
             }
-            // keyboard/joystick arrow keys
-            left |= set_arrow_input(&scroll_data.arrow_key.left, 0, &scroll_data.speed.modifier_x);
-            right |= set_arrow_input(&scroll_data.arrow_key.right, &scroll_data.arrow_key.left, &scroll_data.speed.modifier_x);
-            top |= set_arrow_input(&scroll_data.arrow_key.up, 0, &scroll_data.speed.modifier_y);
-            bottom |= set_arrow_input(&scroll_data.arrow_key.down, &scroll_data.arrow_key.up, &scroll_data.speed.modifier_y);
-
             if (scroll_data.constant_input) {
                 if (!scroll_data.speed.modifier_x) {
                     scroll_data.speed.modifier_x = scroll_data.speed.modifier_y;
@@ -23515,7 +23026,7 @@ static int scroll_get_delta(struct mouse_t *m, struct pixel_view_coordinates_t *
             int dir_x = DIRECTION_X[direction];
             int dir_y = DIRECTION_Y[direction];
             int y_fraction = type == SCROLL_TYPE_CITY ? 2 : 1;
-            int max_speed = SCROLL_STEP[type][calc_bound((100 - settings_values[SETTINGS_SCROLL_SPEED]) / 10, 0, 10)];
+            int max_speed = SCROLL_STEP[type][calc_bound((100 - settings[SETTINGS_SCROLL_SPEED].config_value) / 10, 0, 10)];
             int max_speed_x = max_speed * dir_x;
             int max_speed_y = (max_speed / y_fraction) * dir_y;
             if (!scroll_data.constant_input) {
@@ -23639,17 +23150,11 @@ static struct empire_object_t *empire_select_object(int x, int y)
     return min_obj_id ? &empire_objects[min_obj_id] : 0; // first object is not empty
 }
 
-static void handle_input_editor_empire(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_editor_empire(struct mouse_t *m)
 {
     struct pixel_view_coordinates_t position;
     if (scroll_get_delta(m, &position, SCROLL_TYPE_EMPIRE)) {
         empire_scroll_map(position.x, position.y);
-    }
-    if (h->toggle_editor_battle_info) {
-        empire_editor_show_battle_objects = !empire_editor_show_battle_objects;
-    }
-    if (h->show_empire_map) {
-        show_editor_map();
     }
     if (arrow_buttons_handle_mouse(m, empire_editor_x_min, empire_editor_y_max, arrow_buttons_empire, 2, 0)) {
         return;
@@ -23696,11 +23201,11 @@ static void handle_input_editor_empire(struct mouse_t *m, struct hotkeys_t *h)
                 }
             }
         }
-        if (m->right.went_up || h->escape_pressed) {
+        if (m->right.went_up) {
             selected_empire_object_editor = 0;
             window_invalidate();
         }
-    } else if (m->right.went_up || h->escape_pressed) {
+    } else if (m->right.went_up) {
         show_editor_map();
     }
 }
@@ -24155,13 +23660,12 @@ static struct generic_button_t build_menu_buttons_editor[] = {
     {0, 360, 160, 20, button_menu_item, button_none, 15, 0}
 };
 
-static void handle_input_build_menu_editor(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_build_menu_editor(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(m, get_sidebar_x_offset() - MENU_X_OFFSET, 180 + MENU_Y_OFFSET, build_menu_buttons_editor, num_items_build_menu, &focus_button_id_build_menu)) {
         return;
     }
     if (m->right.went_up
-    || h->escape_pressed
     || (m->left.went_up
         && (m->x < get_sidebar_x_offset() - MENU_X_OFFSET - MENU_CLICK_MARGIN || m->x > get_sidebar_x_offset() + MENU_CLICK_MARGIN
             || m->y < 180 + MENU_Y_OFFSET - MENU_CLICK_MARGIN || m->y > 180 + MENU_Y_OFFSET + MENU_CLICK_MARGIN + MENU_ITEM_HEIGHT * num_items_build_menu)) // click outside menu
@@ -24232,7 +23736,7 @@ static void sidebar_common_draw_relief(int x_offset, int y_offset, int image, in
 
 static void button_fullscreen(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    post_event(settings_values[SETTINGS_FULLSCREEN] ? USER_EVENT_WINDOWED : USER_EVENT_FULLSCREEN);
+    post_event(settings[SETTINGS_FULLSCREEN].config_value ? USER_EVENT_WINDOWED : USER_EVENT_FULLSCREEN);
 }
 
 static void button_reset_window(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
@@ -24259,7 +23763,7 @@ static void draw_foreground_display_options(void)
     lang_text_draw_centered(42, 0, 128, 94, 224, FONT_LARGE_BLACK);
 
     // Full screen/Windowed screen
-    lang_text_draw_centered(42, settings_values[SETTINGS_FULLSCREEN] ? 2 : 1, 128, 140, 224, FONT_NORMAL_GREEN);
+    lang_text_draw_centered(42, settings[SETTINGS_FULLSCREEN].config_value ? 2 : 1, 128, 140, 224, FONT_NORMAL_GREEN);
 
     // Reset resolution
     text_draw_centered("Reset window", 128, 164, 224, FONT_NORMAL_GREEN, COLOR_BLACK);
@@ -24267,12 +23771,12 @@ static void draw_foreground_display_options(void)
     set_translation(0, 0);
 }
 
-static void handle_input_display_options(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_display_options(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, display_top_menu_buttons, sizeof(display_top_menu_buttons) / (sizeof(struct generic_button_t)), &display_options_data.focus_button_id)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         display_options_data.close_callback();
     }
 }
@@ -24320,24 +23824,24 @@ static void button_toggle_sound_options(int type, __attribute__((unused)) int pa
 {
     switch (type) {
         case SOUND_MUSIC:
-            settings_values[SETTINGS_MUSIC_ENABLED] = settings_values[SETTINGS_MUSIC_ENABLED] ? 0 : 1;
-            if (settings_values[SETTINGS_MUSIC_ENABLED]) {
+            settings[SETTINGS_MUSIC_ENABLED].config_value = settings[SETTINGS_MUSIC_ENABLED].config_value ? 0 : 1;
+            if (settings[SETTINGS_MUSIC_ENABLED].config_value) {
                 update_music(1);
             } else {
                 stop_music();
             }
             break;
         case SOUND_SPEECH:
-            settings_values[SETTINGS_SPEECH_ENABLED] = settings_values[SETTINGS_SPEECH_ENABLED] ? 0 : 1;
-            if (!settings_values[SETTINGS_SPEECH_ENABLED]) {
+            settings[SETTINGS_SPEECH_ENABLED].config_value = settings[SETTINGS_SPEECH_ENABLED].config_value ? 0 : 1;
+            if (!settings[SETTINGS_SPEECH_ENABLED].config_value) {
                 stop_sound_channel(SOUND_CHANNEL_SPEECH);
             }
             break;
         case SOUND_EFFECTS:
-            settings_values[SETTINGS_SOUND_EFFECTS_ENABLED] = settings_values[SETTINGS_SOUND_EFFECTS_ENABLED] ? 0 : 1;
+            settings[SETTINGS_SOUND_EFFECTS_ENABLED].config_value = settings[SETTINGS_SOUND_EFFECTS_ENABLED].config_value ? 0 : 1;
             break;
         case SOUND_CITY:
-            settings_values[SETTINGS_CITY_SOUNDS_ENABLED] = settings_values[SETTINGS_CITY_SOUNDS_ENABLED] ? 0 : 1;
+            settings[SETTINGS_CITY_SOUNDS_ENABLED].config_value = settings[SETTINGS_CITY_SOUNDS_ENABLED].config_value ? 0 : 1;
             break;
     }
 }
@@ -24351,30 +23855,30 @@ static struct generic_button_t buttons_sound_options[] = {
 
 static void arrow_button_music(int value, __attribute__((unused)) int param2)
 {
-    settings_values[SETTINGS_MUSIC_VOLUME] = calc_bound(settings_values[SETTINGS_MUSIC_VOLUME] + value, 0, 100);
-    Mix_VolumeMusic(settings_values[SETTINGS_MUSIC_VOLUME] * SDL_MIX_MAXVOLUME / 100);
+    settings[SETTINGS_MUSIC_VOLUME].config_value = calc_bound(settings[SETTINGS_MUSIC_VOLUME].config_value + value, 0, 100);
+    Mix_VolumeMusic(settings[SETTINGS_MUSIC_VOLUME].config_value * SDL_MIX_MAXVOLUME / 100);
 
 }
 
 static void arrow_button_speech(int value, __attribute__((unused)) int param2)
 {
-    settings_values[SETTINGS_SPEECH_VOLUME] = calc_bound(settings_values[SETTINGS_SPEECH_VOLUME] + value, 0, 100);
-    set_channel_volume(SOUND_CHANNEL_SPEECH, settings_values[SETTINGS_SPEECH_VOLUME]);
+    settings[SETTINGS_SPEECH_VOLUME].config_value = calc_bound(settings[SETTINGS_SPEECH_VOLUME].config_value + value, 0, 100);
+    set_channel_volume(SOUND_CHANNEL_SPEECH, settings[SETTINGS_SPEECH_VOLUME].config_value);
 }
 
 static void arrow_button_effects(int value, __attribute__((unused)) int param2)
 {
-    settings_values[SETTINGS_SOUND_EFFECTS_VOLUME] = calc_bound(settings_values[SETTINGS_SOUND_EFFECTS_VOLUME] + value, 0, 100);
+    settings[SETTINGS_SOUND_EFFECTS_VOLUME].config_value = calc_bound(settings[SETTINGS_SOUND_EFFECTS_VOLUME].config_value + value, 0, 100);
     for (int i = SOUND_CHANNEL_EFFECTS_MIN; i <= SOUND_CHANNEL_EFFECTS_MAX; i++) {
-        set_channel_volume(i, settings_values[SETTINGS_SOUND_EFFECTS_VOLUME]);
+        set_channel_volume(i, settings[SETTINGS_SOUND_EFFECTS_VOLUME].config_value);
     }
 }
 
 static void arrow_button_city(int value, __attribute__((unused)) int param2)
 {
-    settings_values[SETTINGS_CITY_SOUNDS_VOLUME] = calc_bound(settings_values[SETTINGS_CITY_SOUNDS_VOLUME] + value, 0, 100);
+    settings[SETTINGS_CITY_SOUNDS_VOLUME].config_value = calc_bound(settings[SETTINGS_CITY_SOUNDS_VOLUME].config_value + value, 0, 100);
     for (int i = SOUND_CHANNEL_CITY_MIN; i <= SOUND_CHANNEL_CITY_MAX; i++) {
-        set_channel_volume(i, settings_values[SETTINGS_CITY_SOUNDS_VOLUME]);
+        set_channel_volume(i, settings[SETTINGS_CITY_SOUNDS_VOLUME].config_value);
     }
 }
 
@@ -24408,14 +23912,14 @@ static void draw_foreground_sound_options(void)
     lang_text_draw_centered(46, 0, 96, 92, 288, FONT_LARGE_BLACK);     // title
     lang_text_draw(46, 10, 112, 142, FONT_SMALL_PLAIN);
     lang_text_draw(46, 11, 336, 142, FONT_SMALL_PLAIN);
-    lang_text_draw_centered(46, settings_values[SETTINGS_MUSIC_ENABLED] ? 2 : 1, 64, 166, 224, FONT_NORMAL_GREEN);
-    text_draw_percentage(settings_values[SETTINGS_MUSIC_VOLUME], 374, 166, FONT_NORMAL_PLAIN);
-    lang_text_draw_centered(46, settings_values[SETTINGS_SPEECH_ENABLED] ? 4 : 3, 64, 196, 224, FONT_NORMAL_GREEN);
-    text_draw_percentage(settings_values[SETTINGS_SPEECH_VOLUME], 374, 196, FONT_NORMAL_PLAIN);
-    lang_text_draw_centered(46, settings_values[SETTINGS_SOUND_EFFECTS_ENABLED] ? 6 : 5, 64, 226, 224, FONT_NORMAL_GREEN);
-    text_draw_percentage(settings_values[SETTINGS_SOUND_EFFECTS_VOLUME], 374, 226, FONT_NORMAL_PLAIN);
-    lang_text_draw_centered(46, settings_values[SETTINGS_CITY_SOUNDS_ENABLED] ? 8 : 7, 64, 256, 224, FONT_NORMAL_GREEN);
-    text_draw_percentage(settings_values[SETTINGS_CITY_SOUNDS_VOLUME], 374, 256, FONT_NORMAL_PLAIN);
+    lang_text_draw_centered(46, settings[SETTINGS_MUSIC_ENABLED].config_value ? 2 : 1, 64, 166, 224, FONT_NORMAL_GREEN);
+    text_draw_percentage(settings[SETTINGS_MUSIC_VOLUME].config_value, 374, 166, FONT_NORMAL_PLAIN);
+    lang_text_draw_centered(46, settings[SETTINGS_SPEECH_ENABLED].config_value ? 4 : 3, 64, 196, 224, FONT_NORMAL_GREEN);
+    text_draw_percentage(settings[SETTINGS_SPEECH_VOLUME].config_value, 374, 196, FONT_NORMAL_PLAIN);
+    lang_text_draw_centered(46, settings[SETTINGS_SOUND_EFFECTS_ENABLED].config_value ? 6 : 5, 64, 226, 224, FONT_NORMAL_GREEN);
+    text_draw_percentage(settings[SETTINGS_SOUND_EFFECTS_VOLUME].config_value, 374, 226, FONT_NORMAL_PLAIN);
+    lang_text_draw_centered(46, settings[SETTINGS_CITY_SOUNDS_ENABLED].config_value ? 8 : 7, 64, 256, 224, FONT_NORMAL_GREEN);
+    text_draw_percentage(settings[SETTINGS_CITY_SOUNDS_VOLUME].config_value, 374, 256, FONT_NORMAL_PLAIN);
     arrow_buttons_draw(208, 60, arrow_buttons_sound_options, sizeof(arrow_buttons_sound_options) / sizeof(struct arrow_button_t));
     set_translation(0, 0);
 }
@@ -25837,7 +25341,7 @@ static void scroll_to_typed_text(void)
     }
 }
 
-static void handle_input_file_dialog(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_file_dialog(struct mouse_t *m)
 {
     file_dialog_data.double_click = m->left.double_click;
     if (keyboard_data.accepted) {
@@ -25851,7 +25355,7 @@ static void handle_input_file_dialog(struct mouse_t *m, struct hotkeys_t *h)
         scrollbar_handle_mouse(&scrollbar_file_dialog, m_dialog)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         input_box_stop(&file_name_input);
         window_go_back();
     }
@@ -26002,14 +25506,14 @@ static void top_menu_options_display(__attribute__((unused)) int param)
     window_display_options_show(window_city_return);
 }
 
-static void handle_input_sound_options(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_sound_options(struct mouse_t *m)
 {
     struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_sound_options, 6, &sound_options_data.focus_button_id) ||
         arrow_buttons_handle_mouse(m_dialog, 208, 60, arrow_buttons_sound_options, sizeof(arrow_buttons_sound_options) / sizeof(struct arrow_button_t), 0)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         if (sound_options_data.from_editor) {
             show_editor_map();
         } else {
@@ -26095,14 +25599,14 @@ static struct menu_bar_item_t top_menu[] = {
 
 static void top_menu_options_autosave(__attribute__((unused)) int param)
 {
-    settings_values[SETTINGS_MONTHLY_AUTOSAVE_ENABLED] = settings_values[SETTINGS_MONTHLY_AUTOSAVE_ENABLED] ? 0 : 1;
-    menu_update_text(&top_menu[INDEX_OPTIONS], 3, settings_values[SETTINGS_MONTHLY_AUTOSAVE_ENABLED] ? 51 : 52);
+    settings[SETTINGS_MONTHLY_AUTOSAVE_ENABLED].config_value = settings[SETTINGS_MONTHLY_AUTOSAVE_ENABLED].config_value ? 0 : 1;
+    menu_update_text(&top_menu[INDEX_OPTIONS], 3, settings[SETTINGS_MONTHLY_AUTOSAVE_ENABLED].config_value ? 51 : 52);
 }
 
 static void top_menu_help_warnings(__attribute__((unused)) int param)
 {
-    settings_values[SETTINGS_WARNINGS_ENABLED] = settings_values[SETTINGS_WARNINGS_ENABLED] ? 0 : 1;
-    menu_update_text(&top_menu[INDEX_HELP], 1, settings_values[SETTINGS_WARNINGS_ENABLED] ? 6 : 5);
+    settings[SETTINGS_WARNINGS_ENABLED].config_value = settings[SETTINGS_WARNINGS_ENABLED].config_value ? 0 : 1;
+    menu_update_text(&top_menu[INDEX_HELP], 1, settings[SETTINGS_WARNINGS_ENABLED].config_value ? 6 : 5);
 }
 
 static void lang_text_draw_month_year_max_width(int month, int year, int x_offset, int y_offset, int box_width, int font, color_t color)
@@ -26232,7 +25736,7 @@ static int update_extra_info(int is_background)
 {
     int changed = 0;
     if (extra_widget_data.info_to_display & SIDEBAR_EXTRA_DISPLAY_GAME_SPEED) {
-        changed |= update_extra_info_value(settings_values[SETTINGS_GAME_SPEED], &extra_widget_data.game_speed);
+        changed |= update_extra_info_value(settings[SETTINGS_GAME_SPEED].config_value, &extra_widget_data.game_speed);
     }
     if (extra_widget_data.info_to_display & SIDEBAR_EXTRA_DISPLAY_UNEMPLOYMENT) {
         changed |= update_extra_info_value(city_data.labor.unemployment_percentage, &extra_widget_data.unemployment_percentage);
@@ -26316,21 +25820,21 @@ static void draw_extra_info_panel(void)
 
 static void setting_decrease_game_speed(void)
 {
-    if (settings_values[SETTINGS_GAME_SPEED] > 100) {
-        settings_values[SETTINGS_GAME_SPEED] -= 100;
+    if (settings[SETTINGS_GAME_SPEED].config_value > 100) {
+        settings[SETTINGS_GAME_SPEED].config_value -= 100;
     } else {
-        settings_values[SETTINGS_GAME_SPEED] = calc_bound(settings_values[SETTINGS_GAME_SPEED] - 10, 10, 100);
+        settings[SETTINGS_GAME_SPEED].config_value = calc_bound(settings[SETTINGS_GAME_SPEED].config_value - 10, 10, 100);
     }
 }
 
 static void setting_increase_game_speed(void)
 {
-    if (settings_values[SETTINGS_GAME_SPEED] >= 100) {
-        if (settings_values[SETTINGS_GAME_SPEED] < 500) {
-            settings_values[SETTINGS_GAME_SPEED] += 100;
+    if (settings[SETTINGS_GAME_SPEED].config_value >= 100) {
+        if (settings[SETTINGS_GAME_SPEED].config_value < 500) {
+            settings[SETTINGS_GAME_SPEED].config_value += 100;
         }
     } else {
-        settings_values[SETTINGS_GAME_SPEED] = calc_bound(settings_values[SETTINGS_GAME_SPEED] + 10, 10, 100);
+        settings[SETTINGS_GAME_SPEED].config_value = calc_bound(settings[SETTINGS_GAME_SPEED].config_value + 10, 10, 100);
     }
 }
 
@@ -27855,205 +27359,6 @@ static int start_invasion(int enemy_type, int amount, int invasion_point, int en
 static void window_advisors_show(int advisor);
 static void window_empire_show(void);
 static void window_message_list_show(void);
-static void handle_hotkeys_city(struct hotkeys_t *h)
-{
-    if (h->load_file) {
-        window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_LOAD);
-    }
-    if (h->save_file) {
-        window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_SAVE);
-    }
-    if (h->decrease_game_speed) {
-        setting_decrease_game_speed();
-    }
-    if (h->increase_game_speed) {
-        setting_increase_game_speed();
-    }
-    if (h->toggle_pause) {
-        state_data.paused = state_data.paused ? 0 : 1;
-        city_warning_clear_all();
-    }
-    if (h->rotate_map_left) {
-        game_orientation_rotate_left();
-        window_invalidate();
-    }
-    if (h->rotate_map_right) {
-        game_orientation_rotate_right();
-        window_invalidate();
-    }
-    if (h->replay_map) {
-        replay_map();
-    }
-    if (h->cycle_legion) {
-        if (city_data.military.total_legions) {
-            int selectable_legions_count = 0;
-            for (int i = 0; i < MAX_LEGIONS; i++) {
-                struct formation_t *m = &legion_formations[i];
-                if (m->in_use && !m->in_distant_battle && m->num_figures && m->morale > ROUT_MORALE_THRESHOLD) {
-                    selectable_legions_count++;
-                }
-            }
-            // handle wrap around and index mismatches caused by fort delete/recreate, formation rout/destruction, allocation to distant battle
-            if (current_selected_legion_index >= selectable_legions_count) {
-                current_selected_legion_index = 0;
-            }
-            int next_available_legion_index = 0;
-            for (int i = 0; i < MAX_LEGIONS; i++) {
-                struct formation_t *m = &legion_formations[i];
-                if (m->in_use && !m->in_distant_battle && m->num_figures && m->morale > ROUT_MORALE_THRESHOLD) {
-                    if (next_available_legion_index == current_selected_legion_index) {
-                        window_city_military_show(m->id);
-                        current_selected_legion_index++;
-                        return;
-                    }
-                    next_available_legion_index++;
-                }
-            }
-        }
-    }
-    if (h->return_legions_to_fort) {
-        for (int i = 0; i < MAX_LEGIONS; i++) {
-            if (legion_formations[i].in_use && !legion_formations[i].in_distant_battle) {
-                return_legion_formation_home(&legion_formations[i]);
-            }
-        }
-    }
-    if (h->show_last_advisor) {
-        window_advisors_show(settings_values[SETTINGS_LAST_ADVISOR]);
-    }
-    if (h->show_empire_map) {
-        window_empire_show();
-    }
-    if (h->show_messages) {
-        window_message_list_show();
-    }
-    if (h->go_to_problem) {
-        button_go_to_problem(0, 0);
-    }
-    if (h->clone_building) {
-        int type = BUILDING_NONE;
-        if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_BUILDING) {
-            int building_id = map_building_at(widget_city_data.current_tile.grid_offset);
-            if (building_id) {
-                struct building_t *b = building_main(&all_buildings[building_id]);
-                int clone_type = b->type;
-                if (building_is_house(clone_type)) {
-                    type = BUILDING_HOUSE_VACANT_LOT;
-                } else {
-                    type = clone_type;
-                }
-            }
-        } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_AQUEDUCT) {
-            type = BUILDING_AQUEDUCT;
-        } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_WALL) {
-            type = BUILDING_WALL;
-        } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_GARDEN) {
-            type = BUILDING_GARDENS;
-        } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_ROAD) {
-            if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_WATER) {
-                if (sprite.items[widget_city_data.current_tile.grid_offset] > 6) {
-                    type = BUILDING_SHIP_BRIDGE;
-                } else {
-                    type = BUILDING_LOW_BRIDGE;
-                }
-            } else if (bitfields_grid.items[widget_city_data.current_tile.grid_offset] & BIT_PLAZA_OR_EARTHQUAKE) {
-                type = BUILDING_PLAZA;
-            } else {
-                type = BUILDING_ROAD;
-            }
-        }
-        if (type) {
-            set_construction_building_type(type);
-        }
-    }
-    if (h->cycle_buildings) {
-        int last_building_type_selected = construction_data.type;
-        if (last_building_type_selected < BUILDING_RESERVOIR) {
-            last_building_type_selected = BUILDING_RESERVOIR;
-        } else {
-            last_building_type_selected++;
-        }
-        while (last_building_type_selected <= BUILDING_WAREHOUSE) {
-            if (last_building_type_selected == BUILDING_TRIUMPHAL_ARCH) {
-                if (!city_data.building.triumphal_arches_available) {
-                    last_building_type_selected++;
-                }
-            }
-            if (scenario.allowed_buildings[last_building_type_selected]) {
-                set_construction_building_type(last_building_type_selected);
-                break;
-            }
-            last_building_type_selected++;
-        }
-    }
-    if (h->cycle_buildings_reverse) {
-        int last_building_type_selected = construction_data.type;
-        if (last_building_type_selected < BUILDING_RESERVOIR) {
-            last_building_type_selected = BUILDING_WAREHOUSE;
-        } else {
-            last_building_type_selected--;
-        }
-        while (last_building_type_selected >= BUILDING_RESERVOIR) {
-            if (last_building_type_selected == BUILDING_TRIUMPHAL_ARCH) {
-                if (!city_data.building.triumphal_arches_available) {
-                    last_building_type_selected--;
-                }
-            }
-            if (scenario.allowed_buildings[last_building_type_selected]) {
-                set_construction_building_type(last_building_type_selected);
-                break;
-            }
-            last_building_type_selected--;
-        }
-    }
-    if (h->undo) {
-        game_undo_perform();
-    }
-    if (h->building) {
-        if (h->building == BUILDING_CLEAR_LAND
-        || (h->building == BUILDING_TRIUMPHAL_ARCH && city_data.building.triumphal_arches_available && scenario.allowed_buildings[h->building])
-        || (h->building != BUILDING_TRIUMPHAL_ARCH && scenario.allowed_buildings[h->building])) {
-            set_construction_building_type(h->building);
-        }
-    }
-    if (h->show_overlay) {
-        if (state_data.current_overlay == h->show_overlay) {
-            game_state_set_overlay(OVERLAY_NONE);
-        } else {
-            game_state_set_overlay(h->show_overlay);
-        }
-        select_city_overlay();
-        window_invalidate();
-    }
-    if (h->go_to_bookmark) {
-        if (h->go_to_bookmark - 1 >= 0 && h->go_to_bookmark - 1 < MAX_BOOKMARKS) {
-            int x = bookmarks[h->go_to_bookmark - 1].x;
-            int y = bookmarks[h->go_to_bookmark - 1].y;
-            if (x > -1 && map_grid_offset(x, y) > -1) {
-                city_view_set_camera(x, y);
-                window_invalidate();
-            }
-        }
-    }
-    if (h->set_bookmark) {
-        if (h->set_bookmark - 1 >= 0 && h->set_bookmark - 1 < MAX_BOOKMARKS) {
-            city_view_get_camera(&bookmarks[h->set_bookmark - 1].x, &bookmarks[h->set_bookmark - 1].y);
-        }
-    }
-    if (h->cheat_money) {
-        if (city_data.finance.treasury < 50000) {
-            city_data.finance.treasury += 1000;
-            city_data.finance.cheated_money += 1000;
-        }
-        window_invalidate();
-    }
-    if (h->cheat_invasion) {
-        city_message_post(1, MESSAGE_ENEMY_ARMY_ATTACK, 0, start_invasion(rand() % (ENEMY_TYPE_MAX_COUNT + 1), 160, MAX_INVASION_POINTS, FORMATION_ATTACK_RANDOM));
-    }
-    if (h->cheat_victory) {
-        victory_data.force_win = 1;
-    }
-}
 
 static int menu_bar_handle_mouse(struct mouse_t *m, struct menu_bar_item_t *items, int num_items, int *focus_menu_id)
 {
@@ -28179,19 +27484,19 @@ static void draw_foreground_top_menu(void)
     }
 }
 
-static int widget_top_menu_handle_input(struct mouse_t *m, struct hotkeys_t *h);
-static void handle_input_top_menu(struct mouse_t *m, struct hotkeys_t *h)
+static int widget_top_menu_handle_input(struct mouse_t *m);
+static void handle_input_top_menu(struct mouse_t *m)
 {
-    widget_top_menu_handle_input(m, h);
+    widget_top_menu_handle_input(m);
 }
 
-static int widget_top_menu_handle_input(struct mouse_t *m, struct hotkeys_t *h)
+static int widget_top_menu_handle_input(struct mouse_t *m)
 {
     if (widget_city_data.capture_input) {
         return 0;
     }
     if (top_menu_data.open_sub_menu) {
-        if (m->right.went_up || h->escape_pressed) {
+        if (m->right.went_up) {
             clear_state_top_menu();
             window_go_back();
             return 1;
@@ -28220,8 +27525,8 @@ static int widget_top_menu_handle_input(struct mouse_t *m, struct hotkeys_t *h)
                 handle_input_top_menu,
             };
             top_menu[INDEX_OPTIONS].items[0].hidden = 0;
-            menu_update_text(&top_menu[INDEX_OPTIONS], 3, settings_values[SETTINGS_MONTHLY_AUTOSAVE_ENABLED] ? 51 : 52);
-            menu_update_text(&top_menu[INDEX_HELP], 1, settings_values[SETTINGS_WARNINGS_ENABLED] ? 6 : 5);
+            menu_update_text(&top_menu[INDEX_OPTIONS], 3, settings[SETTINGS_MONTHLY_AUTOSAVE_ENABLED].config_value ? 51 : 52);
+            menu_update_text(&top_menu[INDEX_HELP], 1, settings[SETTINGS_WARNINGS_ENABLED].config_value ? 6 : 5);
             window_show(&window);
             return 1;
         }
@@ -28364,7 +27669,7 @@ static void scroll_map(struct mouse_t *m)
 
 static void play_speech_file(char *filename)
 {
-    if (!settings_values[SETTINGS_SPEECH_ENABLED]) {
+    if (!settings[SETTINGS_SPEECH_ENABLED].config_value) {
         return;
     }
     stop_sound_channel(SOUND_CHANNEL_SPEECH);
@@ -28373,7 +27678,7 @@ static void play_speech_file(char *filename)
             stop_sound_channel(SOUND_CHANNEL_SPEECH);
             data_channels.channels[SOUND_CHANNEL_SPEECH].chunk = load_chunk(filename);
             if (data_channels.channels[SOUND_CHANNEL_SPEECH].chunk) {
-                set_channel_volume(SOUND_CHANNEL_SPEECH, settings_values[SETTINGS_SPEECH_VOLUME]);
+                set_channel_volume(SOUND_CHANNEL_SPEECH, settings[SETTINGS_SPEECH_VOLUME].config_value);
                 Mix_PlayChannel(SOUND_CHANNEL_SPEECH, data_channels.channels[SOUND_CHANNEL_SPEECH].chunk, 0);
             }
         }
@@ -28467,10 +27772,9 @@ static void deploy_legion_unit_to_formation_location(struct figure_t *legion_uni
     }
 }
 
-static void handle_input_military(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_military(struct mouse_t *m)
 {
-    handle_hotkeys_city(h);
-    if (widget_top_menu_handle_input(m, h)) {
+    if (widget_top_menu_handle_input(m)) {
         return;
     }
     struct map_tile_t *tile = &widget_city_data.current_tile;
@@ -28479,7 +27783,7 @@ static void handle_input_military(struct mouse_t *m, struct hotkeys_t *h)
         return;
     }
     scroll_map(m);
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         widget_city_data.capture_input = 0;
         city_warning_clear_all();
         window_city_show();
@@ -28556,9 +27860,9 @@ static void arrow_button_game(int is_down, __attribute__((unused)) int param2)
 static void arrow_button_scroll(int is_down, __attribute__((unused)) int param2)
 {
     if (is_down) {
-        settings_values[SETTINGS_SCROLL_SPEED] = calc_bound(settings_values[SETTINGS_SCROLL_SPEED] - 10, 0, 100);
+        settings[SETTINGS_SCROLL_SPEED].config_value = calc_bound(settings[SETTINGS_SCROLL_SPEED].config_value - 10, 0, 100);
     } else {
-        settings_values[SETTINGS_SCROLL_SPEED] = calc_bound(settings_values[SETTINGS_SCROLL_SPEED] + 10, 0, 100);
+        settings[SETTINGS_SCROLL_SPEED].config_value = calc_bound(settings[SETTINGS_SCROLL_SPEED].config_value + 10, 0, 100);
     }
 }
 
@@ -28579,22 +27883,22 @@ static void draw_foreground_speed_options(void)
     lang_text_draw_centered(45, 0, 96, 92, 288, FONT_LARGE_BLACK);
     // game speed
     lang_text_draw(45, 2, 112, 146, FONT_NORMAL_PLAIN);
-    text_draw_percentage(settings_values[SETTINGS_GAME_SPEED], 328, 146, FONT_NORMAL_PLAIN);
+    text_draw_percentage(settings[SETTINGS_GAME_SPEED].config_value, 328, 146, FONT_NORMAL_PLAIN);
     // scroll speed
     lang_text_draw(45, 3, 112, 182, FONT_NORMAL_PLAIN);
-    text_draw_percentage(settings_values[SETTINGS_SCROLL_SPEED], 328, 182, FONT_NORMAL_PLAIN);
+    text_draw_percentage(settings[SETTINGS_SCROLL_SPEED].config_value, 328, 182, FONT_NORMAL_PLAIN);
 
     arrow_buttons_draw(160, 40, arrow_buttons_speed_options, sizeof(arrow_buttons_speed_options) / sizeof(struct arrow_button_t));
     set_translation(0, 0);
 }
 
-static void handle_input_speed_options(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_speed_options(struct mouse_t *m)
 {
     struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (arrow_buttons_handle_mouse(m_dialog, 160, 40, arrow_buttons_speed_options, sizeof(arrow_buttons_speed_options) / sizeof(struct arrow_button_t), 0)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         if (speed_options_data.from_editor) {
             show_editor_map();
         } else {
@@ -28613,8 +27917,8 @@ static void window_speed_options_show(int from_editor)
     };
     speed_options_data.focus_button_id = 0;
     speed_options_data.from_editor = from_editor;
-    speed_options_data.original_game_speed = settings_values[SETTINGS_GAME_SPEED];
-    speed_options_data.original_scroll_speed = settings_values[SETTINGS_SCROLL_SPEED];
+    speed_options_data.original_game_speed = settings[SETTINGS_GAME_SPEED].config_value;
+    speed_options_data.original_scroll_speed = settings[SETTINGS_SCROLL_SPEED].config_value;
     window_show(&window);
 }
 
@@ -29098,7 +28402,7 @@ static int game_undo_start_build(int type)
 
 static void scroll_drag_start(void)
 {
-    if (scroll_data.drag.active || configs_values[CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG]) {
+    if (scroll_data.drag.active || configs[CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG].config_value) {
         return;
     }
     scroll_data.drag.active = 1;
@@ -29674,10 +28978,10 @@ static void add_terrain_at(int x, int y)
 }
 
 static void show_editor_top_menu_window(void);
-static void handle_input_top_menu_editor(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_top_menu_editor(struct mouse_t *m)
 {
     if (open_sub_menu_top_menu_editor) {
-        if (m->right.went_up || h->escape_pressed) {
+        if (m->right.went_up) {
             clear_state();
             window_go_back();
             return;
@@ -29703,20 +29007,8 @@ static void handle_input_top_menu_editor(struct mouse_t *m, struct hotkeys_t *h)
     }
 }
 
-static void handle_input_editor_map(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_editor_map(struct mouse_t *m)
 {
-    if (h->load_file) {
-        window_file_dialog_show(FILE_TYPE_SCENARIO, FILE_DIALOG_LOAD);
-        return;
-    }
-    if (h->save_file) {
-        window_file_dialog_show(FILE_TYPE_SCENARIO, FILE_DIALOG_SAVE);
-        return;
-    }
-    if (h->show_empire_map) {
-        show_editor_empire(0, 0);
-        return;
-    }
     if (widget_minimap_handle_mouse(m)) {
         return;
     }
@@ -29746,14 +29038,6 @@ static void handle_input_editor_map(struct mouse_t *m, struct hotkeys_t *h)
         } else {
             editor_tool_deactivate();
             end_editor_tool_use(tile);
-        }
-    }
-    if (h->escape_pressed) {
-        if (tool_data.active) {
-            editor_tool_deactivate();
-            end_editor_tool_use(tile);
-        } else {
-            request_exit_editor();
         }
     }
     if (tool_data.active && tile->grid_offset) {
@@ -29829,7 +29113,7 @@ static void handle_input_editor_map(struct mouse_t *m, struct hotkeys_t *h)
         }
     }
     scroll_map(m);
-    handle_input_top_menu_editor(m, h);
+    handle_input_top_menu_editor(m);
 }
 
 static void show_editor_map(void)
@@ -29956,7 +29240,7 @@ static struct generic_button_t build_menu_buttons[MAX_ITEMS_PER_BUILD_MENU] = {
     {0, 240, 256, 20, button_submenu_or_building, button_none, 10, 0},
 };
 
-static void handle_input_build_menu(struct mouse_t *m, struct hotkeys_t *h);
+static void handle_input_build_menu(struct mouse_t *m);
 
 static void button_build_city_widget(int menu, __attribute__((unused)) int param2)
 {
@@ -30018,7 +29302,7 @@ static void draw_sidebar_remainder(int x_offset, int is_collapsed)
     extra_widget_data.x_offset = x_offset;
     extra_widget_data.y_offset = SIDEBAR_FILLER_Y_OFFSET;
     extra_widget_data.width = width;
-    if (extra_widget_data.is_collapsed || !configs_values[CONFIG_UI_SIDEBAR_INFO] || SIDEBAR_EXTRA_DISPLAY_ALL == SIDEBAR_EXTRA_DISPLAY_NONE) {
+    if (extra_widget_data.is_collapsed || !configs[CONFIG_UI_SIDEBAR_INFO].config_value || SIDEBAR_EXTRA_DISPLAY_ALL == SIDEBAR_EXTRA_DISPLAY_NONE) {
         extra_widget_data.info_to_display = SIDEBAR_EXTRA_DISPLAY_NONE;
     } else {
         if (available_height >= EXTRA_INFO_HEIGHT_GAME_SPEED) {
@@ -30228,7 +29512,7 @@ static struct generic_button_t submenu_buttons[] = {
     {0, 216, 160, 24, button_submenu_item_overlay_menu, button_none, 9, 0},
 };
 
-static void handle_input_overlay_menu(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_overlay_menu(struct mouse_t *m)
 {
     int x_offset = get_sidebar_x_offset_overlay_menu();
     int handled = 0;
@@ -30250,7 +29534,7 @@ static void handle_input_overlay_menu(struct mouse_t *m, struct hotkeys_t *h)
             m, x_offset - SUBMENU_X_OFFSET, MENU_Y_OFFSET_OVERLAY_MENU + MENU_ITEM_HEIGHT * overlay_menu_data.selected_menu,
             submenu_buttons, overlay_menu_data.num_submenu_items, &overlay_menu_data.submenu_focus_button_id);
     }
-    if (!handled && (m->right.went_up || h->escape_pressed)) {
+    if (!handled && (m->right.went_up)) {
         if (overlay_menu_data.keep_submenu_open) {
             close_submenu();
         } else {
@@ -30293,7 +29577,7 @@ static struct image_button_t buttons_overlays_collapse_sidebar[] = {
     {4, 3, 117, 31, IB_NORMAL, 93, 0, button_overlay_city_widget, button_help_city_widget, 0, MESSAGE_DIALOG_OVERLAYS, 1, 0, 0, 0}
 };
 
-static void handle_input_city(struct mouse_t *m, struct hotkeys_t *h);
+static void handle_input_city(struct mouse_t *m);
 static void window_city_show(void)
 {
     if (selected_legion_formation > -1) {
@@ -31464,9 +30748,9 @@ static struct generic_button_t buttons_festival_size[] = {
     {100, 243, 448, 26, button_throw_festival, button_none, 3, 0},
 };
 
-static void handle_input_hold_festival(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_hold_festival(struct mouse_t *m)
 {
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         window_advisors_show(ADVISOR_ENTERTAINMENT);
         return;
     }
@@ -32747,9 +32031,9 @@ static struct generic_button_t buttons_donate_to_city[] = {
     {384, 257, 120, 20, button_donate, button_none, 0, 0},
 };
 
-static void handle_input_donate_to_city(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_donate_to_city(struct mouse_t *m)
 {
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         window_advisors_show(ADVISOR_IMPERIAL);
         return;
     }
@@ -32872,9 +32156,9 @@ static struct generic_button_t buttons_set_salary[] = {
     {196, 296, 250, 15, button_set_salary_set_salary, button_none, 10, 0},
 };
 
-static void handle_input_set_salary(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_set_salary(struct mouse_t *m)
 {
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         window_advisors_show(ADVISOR_IMPERIAL);
         return;
     }
@@ -32998,9 +32282,9 @@ static struct generic_button_t buttons_gift_to_emperor[] = {
     {210, 220, 325, 15, button_send_gift, button_none, 2, 0},
 };
 
-static void handle_input_gift_to_emperor(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_gift_to_emperor(struct mouse_t *m)
 {
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         window_advisors_show(ADVISOR_IMPERIAL);
         return;
     }
@@ -33070,12 +32354,12 @@ static void draw_foreground_trade_opened(void)
     set_translation(0, 0);
 }
 
-static void handle_input_trade_opened(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_trade_opened(struct mouse_t *m)
 {
     if (image_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, image_buttons_trade_opened, 2, 0)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         window_empire_show();
     }
 }
@@ -33432,7 +32716,7 @@ static void draw_foreground_empire_window_data(void)
     }
 }
 
-static void handle_input_empire_window_data(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_empire_window_data(struct mouse_t *m)
 {
     struct pixel_view_coordinates_t position;
     if (scroll_get_delta(m, &position, SCROLL_TYPE_EMPIRE)) {
@@ -33454,17 +32738,6 @@ static void handle_input_empire_window_data(struct mouse_t *m, struct hotkeys_t 
         empire_window_data.focus_button_id = 3;
     }
     button_id = 0;
-
-    if (h->show_last_advisor) {
-        window_advisors_show(settings_values[SETTINGS_LAST_ADVISOR]);
-        return;
-    }
-
-    if (h->show_empire_map) {
-        window_city_show();
-        return;
-    }
-
     if (m->left.went_up
     && !(m->x < empire_window_data.x_min + 16 || m->x >= empire_window_data.x_max - 16 || // is outside map
         m->y < empire_window_data.y_min + 16 || m->y >= empire_window_data.y_max - 120)) {
@@ -33504,7 +32777,7 @@ static void handle_input_empire_window_data(struct mouse_t *m, struct hotkeys_t 
             }
         }
         // allow de-selection only for objects that are currently selected/drawn
-        if (m->right.went_up || h->escape_pressed) {
+        if (m->right.went_up) {
             switch (empire_window_data.selected_object->type) {
                 case EMPIRE_OBJECT_CITY:
                     empire_window_data.selected_object = 0;
@@ -33532,7 +32805,7 @@ static void handle_input_empire_window_data(struct mouse_t *m, struct hotkeys_t 
                     window_go_back();
             }
         }
-    } else if (m->right.went_up || h->escape_pressed) {
+    } else if (m->right.went_up) {
         window_go_back();
         if (window_data.current_window->id == WINDOW_TRADE_OPENED) {
             window_city_show();
@@ -34212,9 +33485,9 @@ static void draw_foreground_labor_priority(void)
     set_translation(0, 0);
 }
 
-static void handle_input_labor_priority(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_labor_priority(struct mouse_t *m)
 {
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         window_go_back();
         return;
     }
@@ -34741,9 +34014,9 @@ static void draw_foreground_trade_prices(void)
     set_translation(0, 0);
 }
 
-static void handle_input_trade_prices(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_trade_prices(struct mouse_t *m)
 {
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         window_go_back();
         return;
     }
@@ -35462,7 +34735,7 @@ static struct advisor_window_type_t *(*sub_advisors[])(void) = {
 static void set_advisor(int advisor)
 {
     current_advisor = advisor;
-    settings_values[SETTINGS_LAST_ADVISOR] = advisor;
+    settings[SETTINGS_LAST_ADVISOR].config_value = advisor;
     if (sub_advisors[current_advisor]) {
         current_advisor_window = sub_advisors[current_advisor]();
     } else {
@@ -35749,7 +35022,7 @@ static void update_peace_explanation(void)
     city_data.ratings.peace_explanation = reason;
 }
 
-static void handle_input_advisors(struct mouse_t *m, struct hotkeys_t *h);
+static void handle_input_advisors(struct mouse_t *m);
 static void window_advisors_show(int advisor)
 {
     struct window_type_t window = {
@@ -36236,7 +35509,7 @@ static void draw_foreground_message_dialog(void)
     set_translation(0, 0);
 }
 
-static void handle_input_message_dialog(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_message_dialog(struct mouse_t *m)
 {
     message_dialog_data.focus_button_id = 0;
     struct mouse_t *m_dialog = mouse_in_dialog(m);
@@ -36295,7 +35568,7 @@ static void handle_input_message_dialog(struct mouse_t *m, struct hotkeys_t *h)
             }
         }
     }
-    if (!handled && (m->right.went_up || h->escape_pressed)) {
+    if (!handled && (m->right.went_up)) {
         button_close_message_dialog(0, 0);
     }
 }
@@ -36320,7 +35593,7 @@ static void custom_music_callback(__attribute__((unused)) void *dummy, Uint8 *st
     }
     SDL_MixAudioFormat(stream, mix_buffer,
         custom_music.dst_format, bytes_copied,
-        settings_values[SETTINGS_SOUND_EFFECTS_VOLUME] * SDL_MIX_MAXVOLUME / 100);
+        settings[SETTINGS_SOUND_EFFECTS_VOLUME].config_value * SDL_MIX_MAXVOLUME / 100);
     free(mix_buffer);
 }
 
@@ -36663,7 +35936,7 @@ static int video_start(char *filename)
     data_video.video.micros_per_frame = micros_per_frame;
 
     data_video.audio.has_audio = 0;
-    if (settings_values[SETTINGS_SOUND_EFFECTS_ENABLED]) {
+    if (settings[SETTINGS_SOUND_EFFECTS_ENABLED].config_value) {
         int has_track, channels, bitdepth, rate;
         smacker_get_audio_info(data_video.s, 0, &has_track, &channels, &bitdepth, &rate);
         if (has_track) {
@@ -40124,7 +39397,7 @@ static void draw_background_intermezzo(void)
     }
 }
 
-static void handle_input_intermezzo(struct mouse_t *m, __attribute__((unused))   struct hotkeys_t *h)
+static void handle_input_intermezzo(struct mouse_t *m)
 {
     if (m->right.went_up || current_time - intermezzo_data.start_time > (intermezzo_data.type ? DISPLAY_TIME_MILLIS : 300)) {
         intermezzo_data.callback();
@@ -40183,17 +39456,22 @@ static void draw_background_mission_end(void)
     set_translation(0, 0);
 }
 
-static void handle_input_mission_end(struct mouse_t *m, struct hotkeys_t *h)
+static void close_mission_end_window(void)
 {
-    if (m->right.went_up || h->escape_pressed) {
-        stop_music();
-        stop_sound_channel(SOUND_CHANNEL_SPEECH);
-        city_data.mission.has_won = 0;
-        city_data.mission.continue_months_left = 0;
-        city_data.mission.continue_months_chosen = 0;
-        undo_data.available = 0;
-        game_state_reset_overlay();
-        window_main_menu_show(1);
+    stop_music();
+    stop_sound_channel(SOUND_CHANNEL_SPEECH);
+    city_data.mission.has_won = 0;
+    city_data.mission.continue_months_left = 0;
+    city_data.mission.continue_months_chosen = 0;
+    undo_data.available = 0;
+    game_state_reset_overlay();
+    window_main_menu_show(1);
+}
+
+static void handle_input_mission_end(struct mouse_t *m)
+{
+    if (m->right.went_up) {
+        close_mission_end_window();
     }
 }
 
@@ -40242,7 +39520,7 @@ static void video_draw_fullscreen(void)
     }
 }
 
-static void handle_input_victory_video(struct mouse_t *m, __attribute__((unused))   struct hotkeys_t *h)
+static void handle_input_victory_video(struct mouse_t *m)
 {
     if (m->left.went_up || m->right.went_up || data_video.is_ended) {
         video_stop();
@@ -40338,7 +39616,7 @@ static struct generic_button_t victory_buttons[] = {
     {32, 176, 480, 20, button_continue_governing, button_none, 60, 0},
 };
 
-static void handle_input_victory_dialog(struct mouse_t *m, __attribute__((unused))   struct hotkeys_t *h)
+static void handle_input_victory_dialog(struct mouse_t *m)
 {
     generic_buttons_handle_mouse(mouse_in_dialog(m), 48, 128, victory_buttons, 3, &focus_button_id_victory_dialog);
 }
@@ -40373,15 +39651,15 @@ static void game_run(void)
         case WINDOW_MILITARY_MENU:
         case WINDOW_BUILD_MENU:
         {
-            if (settings_values[SETTINGS_GAME_SPEED] < 10) {
+            if (settings[SETTINGS_GAME_SPEED].config_value < 10) {
                 return;
-            } else if (settings_values[SETTINGS_GAME_SPEED] <= 100) {
-                millis_per_tick = MILLIS_PER_TICK_PER_SPEED[settings_values[SETTINGS_GAME_SPEED] / 10];
+            } else if (settings[SETTINGS_GAME_SPEED].config_value <= 100) {
+                millis_per_tick = MILLIS_PER_TICK_PER_SPEED[settings[SETTINGS_GAME_SPEED].config_value / 10];
             } else {
-                if (settings_values[SETTINGS_GAME_SPEED] > 500) {
-                    settings_values[SETTINGS_GAME_SPEED] = 500;
+                if (settings[SETTINGS_GAME_SPEED].config_value > 500) {
+                    settings[SETTINGS_GAME_SPEED].config_value = 500;
                 }
-                millis_per_tick = MILLIS_PER_HYPER_SPEED[settings_values[SETTINGS_GAME_SPEED] / 100];
+                millis_per_tick = MILLIS_PER_HYPER_SPEED[settings[SETTINGS_GAME_SPEED].config_value / 100];
             }
             break;
         }
@@ -44844,7 +44122,7 @@ static void game_run(void)
                         city_data.festival.months_to_go = 0;
                     }
                 }
-                if (settings_values[SETTINGS_MONTHLY_AUTOSAVE_ENABLED]) {
+                if (settings[SETTINGS_MONTHLY_AUTOSAVE_ENABLED].config_value) {
                     game_file_io_write_saved_game(SAVES_DIR_PATH, "autosave.sav");
                 }
             }
@@ -44975,8 +44253,8 @@ static void game_run(void)
                 if (city_data.mission.victory_message_shown) {
                     mouse_data.left.went_up = 0;
                     mouse_data.right.went_up = 0;
-                    settings_values[SETTINGS_VICTORY_VIDEO] = settings_values[SETTINGS_VICTORY_VIDEO] ? 0 : 1;
-                    if (settings_values[SETTINGS_VICTORY_VIDEO]) {
+                    settings[SETTINGS_VICTORY_VIDEO].config_value = settings[SETTINGS_VICTORY_VIDEO].config_value ? 0 : 1;
+                    if (settings[SETTINGS_VICTORY_VIDEO].config_value) {
                         window_victory_video_show("smk/victory_balcony.smk", 400, 292, show_intermezzo);
                     } else {
                         window_victory_video_show("smk/victory_senate.smk", 400, 292, show_intermezzo);
@@ -49273,43 +48551,43 @@ static void update_screen(void)
     SDL_RenderCopy(SDL.renderer, SDL.texture, 0, 0);
 }
 
-// #ifdef DRAW_FPS
-// static struct {
-//     int frame_count;
-//     int last_fps;
-//     Uint32 last_update_time;
-// } fps;
-// static void run_and_draw(void)
-// {
-//     uint32_t time_before_run = SDL_GetTicks();
-//     current_time = time_before_run;
+#if 0
+static struct {
+    int frame_count;
+    int last_fps;
+    Uint32 last_update_time;
+} fps;
+static void run_and_draw(void)
+{
+    uint32_t time_before_run = SDL_GetTicks();
+    current_time = time_before_run;
 
-//     game_run();
-//     Uint32 time_between_run_and_draw = SDL_GetTicks();
-//     game_draw();
-//     Uint32 time_after_draw = SDL_GetTicks();
+    game_run();
+    Uint32 time_between_run_and_draw = SDL_GetTicks();
+    game_draw();
+    Uint32 time_after_draw = SDL_GetTicks();
 
-//     fps.frame_count++;
-//     if (time_after_draw - fps.last_update_time > 1000) {
-//         fps.last_fps = fps.frame_count;
-//         fps.last_update_time = time_after_draw;
-//         fps.frame_count = 0;
-//     }
-//     if (window_data.current_window->id == WINDOW_CITY || window_data.current_window->id WINDOW_CITY_MILITARY || window_data.current_window->id == WINDOW_SLIDING_SIDEBAR) {
-//         int y_offset = 24;
-//         int y_offset_text = y_offset + 5;
-//         graphics_fill_rect(0, y_offset, 100, 20, COLOR_WHITE);
-//         text_draw_number_colored(fps.last_fps,
-//             'f', "", 5, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
-//         text_draw_number_colored(time_between_run_and_draw - time_before_run,
-//             'g', "", 40, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
-//         text_draw_number_colored(time_after_draw - time_between_run_and_draw,
-//             'd', "", 70, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
-//     }
-//     update_screen();
-//     SDL_RenderPresent(SDL.renderer);
-// }
-// #else
+    fps.frame_count++;
+    if (time_after_draw - fps.last_update_time > 1000) {
+        fps.last_fps = fps.frame_count;
+        fps.last_update_time = time_after_draw;
+        fps.frame_count = 0;
+    }
+    if (window_data.current_window->id == WINDOW_CITY || window_data.current_window->id WINDOW_CITY_MILITARY || window_data.current_window->id == WINDOW_SLIDING_SIDEBAR) {
+        int y_offset = 24;
+        int y_offset_text = y_offset + 5;
+        graphics_fill_rect(0, y_offset, 100, 20, COLOR_WHITE);
+        text_draw_number_colored(fps.last_fps,
+            'f', "", 5, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
+        text_draw_number_colored(time_between_run_and_draw - time_before_run,
+            'g', "", 40, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
+        text_draw_number_colored(time_after_draw - time_between_run_and_draw,
+            'd', "", 70, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
+}
+    update_screen();
+    SDL_RenderPresent(SDL.renderer);
+}
+#else
 static void run_and_draw(void)
 {
     current_time = SDL_GetTicks();
@@ -49318,7 +48596,7 @@ static void run_and_draw(void)
     update_screen();
     SDL_RenderPresent(SDL.renderer);
 }
-// #endif
+#endif
 
 static void handle_mouse_button(SDL_MouseButtonEvent *event, int is_down)
 {
@@ -49354,10 +48632,10 @@ static void destroy_screen_texture(void)
 
 static void setting_set_display(int fullscreen, int width, int height)
 {
-    settings_values[SETTINGS_FULLSCREEN] = fullscreen;
+    settings[SETTINGS_FULLSCREEN].config_value = fullscreen;
     if (!fullscreen) {
-        settings_values[SETTINGS_WINDOW_WIDTH] = width;
-        settings_values[SETTINGS_WINDOW_HEIGHT] = height;
+        settings[SETTINGS_WINDOW_WIDTH].config_value = width;
+        settings[SETTINGS_WINDOW_HEIGHT].config_value = height;
     }
 }
 
@@ -49375,7 +48653,7 @@ static int resize_screen(int pixel_width, int pixel_height)
 
     SDL_RenderSetLogicalSize(SDL.renderer, logical_width, logical_height);
 
-    setting_set_display(settings_values[SETTINGS_FULLSCREEN], logical_width, logical_height);
+    setting_set_display(settings[SETTINGS_FULLSCREEN].config_value, logical_width, logical_height);
     SDL.texture = SDL_CreateTexture(SDL.renderer,
         SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
         logical_width, logical_height);
@@ -49408,7 +48686,7 @@ static void handle_window_event(SDL_WindowEvent *event, int *window_active)
             break;
         case SDL_WINDOWEVENT_MOVED:
             SDL_Log("Window move to coordinates x: %d y: %d\n", (int) event->data1, (int) event->data2);
-            if (!settings_values[SETTINGS_FULLSCREEN]) {
+            if (!settings[SETTINGS_FULLSCREEN].config_value) {
                 window_pos.x = event->data1;
                 window_pos.y = event->data2;
                 window_pos.centered = 0;
@@ -49423,123 +48701,6 @@ static void handle_window_event(SDL_WindowEvent *event, int *window_active)
             *window_active = 0;
             break;
     }
-}
-
-static int get_key_from_scancode(SDL_Scancode scancode)
-{
-    switch (scancode) {
-        case SDL_SCANCODE_A: return KEY_TYPE_A;
-        case SDL_SCANCODE_B: return KEY_TYPE_B;
-        case SDL_SCANCODE_C: return KEY_TYPE_C;
-        case SDL_SCANCODE_D: return KEY_TYPE_D;
-        case SDL_SCANCODE_E: return KEY_TYPE_E;
-        case SDL_SCANCODE_F: return KEY_TYPE_F;
-        case SDL_SCANCODE_G: return KEY_TYPE_G;
-        case SDL_SCANCODE_H: return KEY_TYPE_H;
-        case SDL_SCANCODE_I: return KEY_TYPE_I;
-        case SDL_SCANCODE_J: return KEY_TYPE_J;
-        case SDL_SCANCODE_K: return KEY_TYPE_K;
-        case SDL_SCANCODE_L: return KEY_TYPE_L;
-        case SDL_SCANCODE_M: return KEY_TYPE_M;
-        case SDL_SCANCODE_N: return KEY_TYPE_N;
-        case SDL_SCANCODE_O: return KEY_TYPE_O;
-        case SDL_SCANCODE_P: return KEY_TYPE_P;
-        case SDL_SCANCODE_Q: return KEY_TYPE_Q;
-        case SDL_SCANCODE_R: return KEY_TYPE_R;
-        case SDL_SCANCODE_S: return KEY_TYPE_S;
-        case SDL_SCANCODE_T: return KEY_TYPE_T;
-        case SDL_SCANCODE_U: return KEY_TYPE_U;
-        case SDL_SCANCODE_V: return KEY_TYPE_V;
-        case SDL_SCANCODE_W: return KEY_TYPE_W;
-        case SDL_SCANCODE_X: return KEY_TYPE_X;
-        case SDL_SCANCODE_Y: return KEY_TYPE_Y;
-        case SDL_SCANCODE_Z: return KEY_TYPE_Z;
-        case SDL_SCANCODE_1: return KEY_TYPE_1;
-        case SDL_SCANCODE_2: return KEY_TYPE_2;
-        case SDL_SCANCODE_3: return KEY_TYPE_3;
-        case SDL_SCANCODE_4: return KEY_TYPE_4;
-        case SDL_SCANCODE_5: return KEY_TYPE_5;
-        case SDL_SCANCODE_6: return KEY_TYPE_6;
-        case SDL_SCANCODE_7: return KEY_TYPE_7;
-        case SDL_SCANCODE_8: return KEY_TYPE_8;
-        case SDL_SCANCODE_9: return KEY_TYPE_9;
-        case SDL_SCANCODE_0: return KEY_TYPE_0;
-        case SDL_SCANCODE_RETURN: return KEY_TYPE_ENTER;
-        case SDL_SCANCODE_ESCAPE: return KEY_TYPE_ESCAPE;
-        case SDL_SCANCODE_BACKSPACE: return KEY_TYPE_BACKSPACE;
-        case SDL_SCANCODE_TAB: return KEY_TYPE_TAB;
-        case SDL_SCANCODE_SPACE: return KEY_TYPE_SPACE;
-        case SDL_SCANCODE_MINUS: return KEY_TYPE_MINUS;
-        case SDL_SCANCODE_EQUALS: return KEY_TYPE_EQUALS;
-        case SDL_SCANCODE_LEFTBRACKET: return KEY_TYPE_LEFTBRACKET;
-        case SDL_SCANCODE_RIGHTBRACKET: return KEY_TYPE_RIGHTBRACKET;
-        case SDL_SCANCODE_BACKSLASH: return KEY_TYPE_BACKSLASH;
-        case SDL_SCANCODE_SEMICOLON: return KEY_TYPE_SEMICOLON;
-        case SDL_SCANCODE_APOSTROPHE: return KEY_TYPE_APOSTROPHE;
-        case SDL_SCANCODE_GRAVE: return KEY_TYPE_GRAVE;
-        case SDL_SCANCODE_COMMA: return KEY_TYPE_COMMA;
-        case SDL_SCANCODE_PERIOD: return KEY_TYPE_PERIOD;
-        case SDL_SCANCODE_SLASH: return KEY_TYPE_SLASH;
-        case SDL_SCANCODE_CAPSLOCK: return KEY_TYPE_CAPSLOCK;
-        case SDL_SCANCODE_F1: return KEY_TYPE_F1;
-        case SDL_SCANCODE_F2: return KEY_TYPE_F2;
-        case SDL_SCANCODE_F3: return KEY_TYPE_F3;
-        case SDL_SCANCODE_F4: return KEY_TYPE_F4;
-        case SDL_SCANCODE_F5: return KEY_TYPE_F5;
-        case SDL_SCANCODE_F6: return KEY_TYPE_F6;
-        case SDL_SCANCODE_F7: return KEY_TYPE_F7;
-        case SDL_SCANCODE_F8: return KEY_TYPE_F8;
-        case SDL_SCANCODE_F9: return KEY_TYPE_F9;
-        case SDL_SCANCODE_F10: return KEY_TYPE_F10;
-        case SDL_SCANCODE_F11: return KEY_TYPE_F11;
-        case SDL_SCANCODE_F12: return KEY_TYPE_F12;
-        case SDL_SCANCODE_INSERT: return KEY_TYPE_INSERT;
-        case SDL_SCANCODE_HOME: return KEY_TYPE_HOME;
-        case SDL_SCANCODE_PAGEUP: return KEY_TYPE_PAGEUP;
-        case SDL_SCANCODE_DELETE: return KEY_TYPE_DELETE;
-        case SDL_SCANCODE_END: return KEY_TYPE_END;
-        case SDL_SCANCODE_PAGEDOWN: return KEY_TYPE_PAGEDOWN;
-        case SDL_SCANCODE_RIGHT: return KEY_TYPE_RIGHT;
-        case SDL_SCANCODE_LEFT: return KEY_TYPE_LEFT;
-        case SDL_SCANCODE_DOWN: return KEY_TYPE_DOWN;
-        case SDL_SCANCODE_UP: return KEY_TYPE_UP;
-        case SDL_SCANCODE_KP_ENTER: return KEY_TYPE_ENTER;
-        case SDL_SCANCODE_KP_1: return KEY_TYPE_KP_1;
-        case SDL_SCANCODE_KP_2: return KEY_TYPE_KP_2;
-        case SDL_SCANCODE_KP_3: return KEY_TYPE_KP_3;
-        case SDL_SCANCODE_KP_4: return KEY_TYPE_KP_4;
-        case SDL_SCANCODE_KP_5: return KEY_TYPE_KP_5;
-        case SDL_SCANCODE_KP_6: return KEY_TYPE_KP_6;
-        case SDL_SCANCODE_KP_7: return KEY_TYPE_KP_7;
-        case SDL_SCANCODE_KP_8: return KEY_TYPE_KP_8;
-        case SDL_SCANCODE_KP_9: return KEY_TYPE_KP_9;
-        case SDL_SCANCODE_KP_0: return KEY_TYPE_KP_0;
-        case SDL_SCANCODE_KP_PERIOD: return KEY_TYPE_KP_PERIOD;
-        case SDL_SCANCODE_KP_PLUS: return KEY_TYPE_KP_PLUS;
-        case SDL_SCANCODE_KP_MINUS: return KEY_TYPE_KP_MINUS;
-        case SDL_SCANCODE_KP_MULTIPLY: return KEY_TYPE_KP_MULTIPLY;
-        case SDL_SCANCODE_KP_DIVIDE: return KEY_TYPE_KP_DIVIDE;
-        case SDL_SCANCODE_NONUSBACKSLASH: return KEY_TYPE_NON_US;
-        default: return KEY_TYPE_NONE;
-    }
-}
-
-static int get_modifier(int mod)
-{
-    int key_mod = KEY_MOD_NONE;
-    if (mod & KMOD_SHIFT) {
-        key_mod |= KEY_MOD_SHIFT;
-    }
-    if (mod & KMOD_CTRL) {
-        key_mod |= KEY_MOD_CTRL;
-    }
-    if (mod & KMOD_ALT) {
-        key_mod |= KEY_MOD_ALT;
-    }
-    if (mod & KMOD_GUI) {
-        key_mod |= KEY_MOD_GUI;
-    }
-    return key_mod;
 }
 
 static void center_window(void)
@@ -49582,18 +48743,383 @@ static void remove_current_char(void)
 
 static void setting_window(int *width, int *height)
 {
-    *width = settings_values[SETTINGS_WINDOW_WIDTH];
-    *height = settings_values[SETTINGS_WINDOW_HEIGHT];
+    *width = settings[SETTINGS_WINDOW_WIDTH].config_value;
+    *height = settings[SETTINGS_WINDOW_HEIGHT].config_value;
 }
 
+static void button_hotkeys(__attribute__((unused)) int param1, __attribute__((unused)) int param2);
 static void button_close_hotkey_editor_window(int ok, __attribute__((unused)) int param2)
 {
-    // destroy window before callback call, because there may appear another popup window
-    // by design new popup window can't be showed over another popup window
-    window_go_back();
     if (ok) {
-        hotkey_editor_window_data.callback(hotkey_editor_window_data.action, hotkey_editor_window_data.index, hotkey_editor_window_data.key, hotkey_editor_window_data.modifiers);
+        // clear conflicting mappings
+        for (int i = 0; i < HOTKEY_MAX_ITEMS; i++) {
+            if (hotkey_mappings[i].sdl_mods == hotkey_button_modifiers && hotkey_mappings[i].sdl_key == hotkey_button_key) {
+                hotkey_mappings[i].sdl_mods = KMOD_NONE;
+                hotkey_mappings[i].sdl_key = 0;
+            }
+        }
+        // set new mapping
+        hotkey_mappings[hotkey_button_action_index].sdl_mods = hotkey_button_modifiers;
+        hotkey_mappings[hotkey_button_action_index].sdl_key = hotkey_button_key;
     }
+    hotkey_button_modifiers = 0;
+    hotkey_button_key = 0;
+    window_go_back();
+}
+
+static void stop_briefing_box_input(void)
+{
+    input_box_stop(&scenario_briefing_input);
+    if (!string_equals(scenario.briefing, briefing)) {
+        string_copy(briefing, scenario.briefing, MAX_BRIEFING);
+        scenario.is_saved = 0;
+    }
+}
+
+static void close_plain_message_dialog(void)
+{
+    window_go_back();
+}
+
+static void play_intro_music(void)
+{
+    if (settings[SETTINGS_MUSIC_ENABLED].config_value) {
+        play_track(TRACK_INTRO);
+    }
+}
+
+static void window_mission_briefing_show(void);
+static void button_start_scenario(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
+{
+    if (game_file_start_scenario(cck_selection_data.selected_scenario_filename)) {
+        update_music(1);
+        window_mission_briefing_show();
+    }
+}
+
+static void save_hotkey_configs(void)
+{
+    FILE *fp_hotkey_configs = fopen(HOTKEY_CONFIGS_FILE_PATH, "wt");
+    if (fp_hotkey_configs) {
+        for (int i = 0; i < HOTKEY_MAX_ITEMS; i++) {
+            char name[MAX_FILE_LINE_LENGTH] = { 0 };
+            if (hotkey_mappings[i].sdl_mods) {
+                for (int k = 0; k < 4; k++) {
+                    if (hotkey_mappings[i].sdl_mods & modifier_names[k].modifier) {
+                        strcat(name, modifier_names[k].name);
+                        strcat(name, "_");
+                    }
+                }
+            }
+            strcat(name, SDL_GetKeyName(hotkey_mappings[i].sdl_key));
+            fprintf(fp_hotkey_configs, "%s=%s\n", hotkey_mappings[i].action_name, name);
+        }
+        fclose(fp_hotkey_configs);
+    } else {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Unable to write hotkey configuration file", HOTKEY_CONFIGS_FILE_PATH, 0));
+    }
+}
+
+static void save_configs(void)
+{
+    FILE *fp = fopen(CONFIGS_FILE_PATH, "wt");
+    if (!fp) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Unable to write configuration file", CONFIGS_FILE_PATH, 0));
+        return;
+    }
+    fprintf(fp, "%s=%s\n", configs_player_name_string, configs_player_name);
+    for (int i = 0; i < CONFIGS_MAX_ENTRIES; i++) {
+        fprintf(fp, "%s=%d\n", configs[i].config_string, configs[i].config_value);
+    }
+    fclose(fp);
+}
+
+static void sort_editor_requests(void)
+{
+    for (int i = 0; i < MAX_REQUESTS; i++) {
+        for (int j = MAX_REQUESTS - 1; j > 0; j--) {
+            if (scenario.requests[j].resource) {
+                // if no previous request scheduled, move current back until first; if previous request is later than current, swap
+                if (!scenario.requests[j - 1].resource || scenario.requests[j - 1].year > scenario.requests[j].year
+                || (scenario.requests[j - 1].year == scenario.requests[j].year && scenario.requests[j - 1].month > scenario.requests[j].month)) {
+                    struct request_t tmp = scenario.requests[j];
+                    scenario.requests[j] = scenario.requests[j - 1];
+                    scenario.requests[j - 1] = tmp;
+                }
+            }
+        }
+    }
+    scenario.is_saved = 0;
+}
+
+static void scenario_editor_sort_custom_messages(void)
+{
+    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
+        for (int j = MAX_EDITOR_CUSTOM_MESSAGES - 1; j > 0; j--) {
+            if (scenario.editor_custom_messages[j].enabled) {
+                // if no previous custom message scheduled, move current back until first; if previous custom message is later than current, swap
+                if (!scenario.editor_custom_messages[j - 1].enabled || scenario.editor_custom_messages[j - 1].year > scenario.editor_custom_messages[j].year
+                || (scenario.editor_custom_messages[j - 1].year == scenario.editor_custom_messages[j].year && scenario.editor_custom_messages[j - 1].month > scenario.editor_custom_messages[j].month)) {
+                    struct editor_custom_messages_t tmp = scenario.editor_custom_messages[j];
+                    scenario.editor_custom_messages[j] = scenario.editor_custom_messages[j - 1];
+                    scenario.editor_custom_messages[j - 1] = tmp;
+                }
+            }
+        }
+    }
+    scenario.is_saved = 0;
+}
+
+static void show_editor_custom_messages(void);
+
+static void draw_foreground_starting_conditions(void)
+{
+    set_translation(screen_data.dialog_offset.x, screen_data.dialog_offset.y);
+    outer_panel_draw(0, 0, 30, 24);
+    lang_text_draw_centered(44, 88, 0, 16, 480, FONT_LARGE_BLACK);
+    // Initial rank
+    lang_text_draw(44, 108, 32, 57, FONT_NORMAL_BLACK);
+    button_border_draw(262, 48, 200, 30, focus_button_id_starting_conditions == 1);
+    lang_text_draw_centered(32, scenario.player_rank, 262, 57, 200, FONT_NORMAL_BLACK);
+    // Adjust the start date
+    lang_text_draw(44, 89, 32, 97, FONT_NORMAL_BLACK);
+    button_border_draw(262, 88, 200, 30, focus_button_id_starting_conditions == 2);
+    lang_text_draw_year(scenario.start_year, 330, 97, FONT_NORMAL_BLACK);
+    // Initial favor
+    text_draw("Initial favor", 32, 137, FONT_NORMAL_BLACK, COLOR_BLACK);
+    button_border_draw(262, 128, 200, 30, focus_button_id_starting_conditions == 3);
+    text_draw_number_centered(scenario.initial_favor, 262, 137, 200, FONT_NORMAL_BLACK);
+    // Initial funds
+    lang_text_draw(44, 39, 32, 177, FONT_NORMAL_BLACK);
+    button_border_draw(262, 168, 200, 30, focus_button_id_starting_conditions == 4);
+    text_draw_number_centered(scenario.initial_funds, 262, 177, 200, FONT_NORMAL_BLACK);
+    // Rescue loan
+    lang_text_draw(44, 68, 32, 217, FONT_NORMAL_BLACK);
+    button_border_draw(262, 208, 200, 30, focus_button_id_starting_conditions == 5);
+    text_draw_number_centered(scenario.rescue_loan, 262, 217, 200, FONT_NORMAL_BLACK);
+    // Initial personal savings
+    text_draw("Initial personal savings", 32, 257, FONT_NORMAL_BLACK, COLOR_BLACK);
+    button_border_draw(262, 248, 200, 30, focus_button_id_starting_conditions == 6);
+    text_draw_number_centered(scenario.initial_personal_savings, 262, 257, 200, FONT_NORMAL_BLACK);
+    // Rome supplies wheat?
+    lang_text_draw(44, 43, 32, 297, FONT_NORMAL_BLACK);
+    button_border_draw(262, 288, 200, 30, focus_button_id_starting_conditions == 7);
+    lang_text_draw_centered(18, scenario.rome_supplies_wheat, 262, 297, 200, FONT_NORMAL_BLACK);
+    // Flotsam on?
+    lang_text_draw(44, 80, 32, 337, FONT_NORMAL_BLACK);
+    button_border_draw(262, 328, 200, 30, focus_button_id_starting_conditions == 8);
+    lang_text_draw_centered(18, scenario.flotsam_enabled, 262, 337, 200, FONT_NORMAL_BLACK);
+    set_translation(0, 0);
+}
+
+static void handle_input_starting_conditions(struct mouse_t *m);
+static void show_editor_starting_conditions(void)
+{
+    struct window_type_t window = {
+        WINDOW_EDITOR_STARTING_CONDITIONS,
+        window_editor_map_draw_all,
+        draw_foreground_starting_conditions,
+        handle_input_starting_conditions,
+    };
+    window_show(&window);
+}
+
+static void show_editor_requests(void);
+
+static void scenario_editor_sort_earthquakes(void)
+{
+    for (int i = 0; i < MAX_EARTHQUAKES; i++) {
+        for (int j = MAX_EARTHQUAKES - 1; j > 0; j--) {
+            if (scenario.earthquakes[j].state) {
+                // if no previous earthquake scheduled, move current back until first; if previous earthquake is later than current, swap
+                if (!scenario.earthquakes[j - 1].state || scenario.earthquakes[j - 1].year > scenario.earthquakes[j].year
+                || (scenario.earthquakes[j - 1].year == scenario.earthquakes[j].year && scenario.earthquakes[j - 1].month > scenario.earthquakes[j].month)) {
+                    struct earthquake_t tmp = scenario.earthquakes[j];
+                    scenario.earthquakes[j] = scenario.earthquakes[j - 1];
+                    scenario.earthquakes[j - 1] = tmp;
+                }
+            }
+        }
+    }
+    scenario.is_saved = 0;
+}
+
+static void show_editor_earthquakes(void);
+
+static void sort_editor_invasions(void)
+{
+    for (int i = 0; i < MAX_INVASIONS; i++) {
+        for (int j = MAX_INVASIONS - 1; j > 0; j--) {
+            if (scenario.invasions[j].type) {
+                // if no previous invasion scheduled, move current back until first; if previous invasion is later than current, swap
+                if (!scenario.invasions[j - 1].type || scenario.invasions[j - 1].year_offset > scenario.invasions[j].year_offset
+                || (scenario.invasions[j - 1].year_offset == scenario.invasions[j].year_offset && scenario.invasions[j - 1].month > scenario.invasions[j].month)) {
+                    struct invasion_t tmp = scenario.invasions[j];
+                    scenario.invasions[j] = scenario.invasions[j - 1];
+                    scenario.invasions[j - 1] = tmp;
+                }
+            }
+        }
+    }
+    scenario.is_saved = 0;
+}
+
+static void show_editor_invasions(void);
+
+static void sort_editor_price_changes(void)
+{
+    for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
+        for (int j = MAX_PRICE_CHANGES - 1; j > 0; j--) {
+            if (scenario.price_changes[j].resource) {
+                // if no previous price change scheduled, move current back until first; if previous price change is later than current, swap
+                if (!scenario.price_changes[j - 1].resource || scenario.price_changes[j - 1].year > scenario.price_changes[j].year
+                || (scenario.price_changes[j - 1].year == scenario.price_changes[j].year && scenario.price_changes[j - 1].month > scenario.price_changes[j].month)) {
+                    struct price_change_t tmp = scenario.price_changes[j];
+                    scenario.price_changes[j] = scenario.price_changes[j - 1];
+                    scenario.price_changes[j - 1] = tmp;
+                }
+            }
+        }
+    }
+    scenario.is_saved = 0;
+}
+
+static void sort_editor_demand_changes(void)
+{
+    for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
+        for (int j = MAX_DEMAND_CHANGES - 1; j > 0; j--) {
+            if (scenario.demand_changes[j].resource && scenario.demand_changes[j].trade_city_id) {
+                // if no previous demand change scheduled, move current back until first; if previous demand change is later than current, swap
+                if (!scenario.demand_changes[j - 1].resource || !scenario.demand_changes[j - 1].trade_city_id || scenario.demand_changes[j - 1].year > scenario.demand_changes[j].year
+                || (scenario.demand_changes[j - 1].year == scenario.demand_changes[j].year && scenario.demand_changes[j - 1].month > scenario.demand_changes[j].month)) {
+                    struct demand_change_t tmp = scenario.demand_changes[j];
+                    scenario.demand_changes[j] = scenario.demand_changes[j - 1];
+                    scenario.demand_changes[j - 1] = tmp;
+                }
+            }
+        }
+    }
+    scenario.is_saved = 0;
+}
+
+static void stop_brief_description_box_input(void)
+{
+    input_box_stop(&scenario_description_input);
+    if (!string_equals(scenario.brief_description, brief_description)) {
+        string_copy(brief_description, scenario.brief_description, MAX_BRIEF_DESCRIPTION);
+        scenario.is_saved = 0;
+    }
+}
+
+static void show_editor_price_changes(void);
+
+static void show_editor_demand_changes(void);
+
+static void button_close_message_list(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
+{
+    window_city_show();
+}
+
+static void handle_overlay_hotkey(int overlay)
+{
+    if (state_data.current_overlay == overlay) {
+        game_state_set_overlay(OVERLAY_NONE);
+    } else {
+        game_state_set_overlay(overlay);
+    }
+    select_city_overlay();
+    window_invalidate();
+}
+
+static void handle_go_to_bookmark_hotkey(int bookmark)
+{
+    if (bookmark - 1 >= 0 && bookmark - 1 < MAX_BOOKMARKS) {
+        int x = bookmarks[bookmark - 1].x;
+        int y = bookmarks[bookmark - 1].y;
+        if (x > -1 && map_grid_offset(x, y) > -1) {
+            city_view_set_camera(x, y);
+            window_invalidate();
+        }
+    }
+}
+
+static void handle_set_bookmark_hotkey(int bookmark)
+{
+    if (bookmark - 1 >= 0 && bookmark - 1 < MAX_BOOKMARKS) {
+        city_view_get_camera(&bookmarks[bookmark - 1].x, &bookmarks[bookmark - 1].y);
+    }
+}
+
+static void handle_set_building_hotkey(int building)
+{
+    if (building == BUILDING_CLEAR_LAND
+    || (building == BUILDING_TRIUMPHAL_ARCH && city_data.building.triumphal_arches_available && scenario.allowed_buildings[building])
+    || (building != BUILDING_TRIUMPHAL_ARCH && scenario.allowed_buildings[building])) {
+        set_construction_building_type(building);
+    }
+}
+
+static void scroll_map_arrow_keys(void)
+{
+    if (is_scrolling_up) {
+        view_data.camera.pixel.y -= settings[SETTINGS_SCROLL_SPEED].config_value / 10;
+        while (view_data.camera.pixel.y < 0) {
+            view_data.camera.tile.y -= 2;
+            view_data.camera.pixel.y += TILE_HEIGHT_PIXELS;
+        }
+    }
+    if (is_scrolling_down) {
+        view_data.camera.pixel.y += settings[SETTINGS_SCROLL_SPEED].config_value / 10;
+        while (view_data.camera.pixel.y >= TILE_HEIGHT_PIXELS) {
+            view_data.camera.tile.y += 2;
+            view_data.camera.pixel.y -= TILE_HEIGHT_PIXELS;
+        }
+    }
+    if (is_scrolling_left) {
+        view_data.camera.pixel.x -= settings[SETTINGS_SCROLL_SPEED].config_value / 10;
+        while (view_data.camera.pixel.x < 0) {
+            view_data.camera.tile.x--;
+            view_data.camera.pixel.x += TILE_WIDTH_PIXELS;
+        }
+    }
+    if (is_scrolling_right) {
+        view_data.camera.pixel.x += settings[SETTINGS_SCROLL_SPEED].config_value / 10;
+        while (view_data.camera.pixel.x >= TILE_WIDTH_PIXELS) {
+            view_data.camera.tile.x++;
+            view_data.camera.pixel.x -= TILE_WIDTH_PIXELS;
+        }
+    }
+    check_camera_boundaries();
+    for (int i = 0; i < MAX_CITY_SOUNDS_CHANNELS; i++) {
+        for (int d = 0; d < 5; d++) {
+            channels[i].direction_views[d] = 0;
+        }
+        channels[i].total_views /= 2;
+    }
+    return;
+}
+
+static void stop_intro_video(void)
+{
+    video_stop();
+    graphics_clear_screen();
+    while (current_video < NUM_INTRO_VIDEOS) {
+        if (video_start(intro_videos[current_video++])) {
+            video_init(0);
+            started = 1;
+            return;
+        }
+    }
+    play_intro_music();
+    window_go_back();
+}
+
+static void close_mission_briefing_window(void)
+{
+    rich_text_reset(0);
+    stop_sound_channel(SOUND_CHANNEL_SPEECH);
+    update_music(1);
+    window_city_show();
 }
 
 static void handle_event(SDL_Event *event)
@@ -49603,15 +49129,23 @@ static void handle_event(SDL_Event *event)
             handle_window_event(&event->window, &data.active);
             break;
         case SDL_KEYDOWN:
-            // handle keyboard input keys
+        {
+            // clear unused mods such as numpad, capslock, etc.
+            int key_mod = KMOD_NONE;
+            if (event->key.keysym.mod & KMOD_SHIFT) {
+                key_mod |= KMOD_SHIFT;
+            }
+            if (event->key.keysym.mod & KMOD_CTRL) {
+                key_mod |= KMOD_CTRL;
+            }
+            if (event->key.keysym.mod & KMOD_ALT) {
+                key_mod |= KMOD_ALT;
+            }
+            if (event->key.keysym.mod & KMOD_GUI) {
+                key_mod |= KMOD_GUI;
+            }
+            // handle text cursor position keys and enter/exit
             switch (event->key.keysym.sym) {
-                case SDLK_RETURN:
-                case SDLK_KP_ENTER:
-                    // only send enter if no modifier is also down
-                    if ((event->key.keysym.mod & (KMOD_CTRL | KMOD_ALT | KMOD_GUI)) == 0) {
-                        keyboard_data.accepted = 1;
-                    }
-                    break;
                 case SDLK_BACKSPACE:
                     if (keyboard_data.capture && keyboard_data.cursor_position > 0) {
                         keyboard_data.cursor_position--;
@@ -49626,16 +49160,14 @@ static void handle_event(SDL_Event *event)
                     }
                     break;
                 case SDLK_LEFT:
-                    keyboard_left();
+                    if (keyboard_data.capture && keyboard_data.cursor_position) {
+                        keyboard_left();
+                    }
                     break;
                 case SDLK_RIGHT:
-                    keyboard_right();
-                    break;
-                case SDLK_UP:
-                    keyboard_left();
-                    break;
-                case SDLK_DOWN:
-                    keyboard_right();
+                    if (keyboard_data.capture && keyboard_data.cursor_position < keyboard_data.length) {
+                        keyboard_right();
+                    }
                     break;
                 case SDLK_HOME:
                     if (keyboard_data.capture) {
@@ -49649,56 +49181,803 @@ static void handle_event(SDL_Event *event)
                         update_viewport(0);
                     }
                     break;
-                case SDLK_AC_BACK:
-                    event->key.keysym.scancode = SDL_SCANCODE_ESCAPE;
+                case SDLK_RETURN:
+                case SDLK_KP_ENTER:
+                    // use as "confirm" without modifiers -> can use as hotkey with modifiers
+                    if (key_mod == KMOD_NONE) {
+                        switch (window_data.current_window->id) {
+                            case WINDOW_LOGO:
+                                window_main_menu_show(0);
+                                break;
+                            case WINDOW_INTRO_VIDEO:
+                                stop_intro_video();
+                                break;
+                            case WINDOW_HOTKEY_EDITOR:
+                                button_close_hotkey_editor_window(1, 0);
+                                break;
+                            case WINDOW_POPUP_DIALOG:
+                                confirm_popup_dialog();
+                                break;
+                            case WINDOW_NUMERIC_INPUT:
+                                input_accept_numeric_input();
+                                break;
+                            case WINDOW_PLAIN_MESSAGE_DIALOG:
+                                close_plain_message_dialog();
+                                break;
+                            case WINDOW_MISSION_BRIEFING:
+                                close_mission_briefing_window();
+                                break;
+                            case WINDOW_CCK_SELECTION:
+                                button_start_scenario(0, 0);
+                                break;
+                        }
+                        keyboard_data.accepted = 1;
+                    }
+                    break;
+                case SDLK_ESCAPE:
+                    switch (window_data.current_window->id) {
+                        case WINDOW_LOGO:
+                        case WINDOW_MAIN_MENU:
+                            post_event(USER_EVENT_QUIT);
+                            break;
+                        case WINDOW_EDITOR_STARTING_CONDITIONS:
+                        case WINDOW_EDITOR_WIN_CRITERIA:
+                        case WINDOW_EDITOR_SPECIAL_EVENTS:
+                        case WINDOW_EDITOR_REQUESTS:
+                        case WINDOW_EDITOR_CUSTOM_MESSAGES:
+                        case WINDOW_EDITOR_EARTHQUAKES:
+                        case WINDOW_EDITOR_INVASIONS:
+                        case WINDOW_EDITOR_PRICE_CHANGES:
+                        case WINDOW_EDITOR_DEMAND_CHANGES:
+                            show_editor_attributes();
+                            break;
+                        case WINDOW_LABOR_PRIORITY:
+                        case WINDOW_TRADE_PRICES:
+                        case WINDOW_RESOURCE_SETTINGS:
+                        case WINDOW_SELECT_LIST:
+                            window_go_back();
+                            break;
+                        case WINDOW_POPUP_DIALOG:
+                            button_cancel_popup_dialog(0, 0);
+                            break;
+                        case WINDOW_NUMERIC_INPUT:
+                            close_numeric_input();
+                            break;
+                        case WINDOW_EDITOR_EMPIRE:
+                            if (selected_empire_object_editor && selected_empire_object_editor->type == EMPIRE_OBJECT_CITY) {
+                                selected_empire_object_editor = 0;
+                                window_invalidate();
+                            } else {
+                                show_editor_map();
+                            }
+                            break;
+                        case WINDOW_EDITOR_BUILD_MENU:
+                            selected_submenu_build_menu = MENU_NONE;
+                            show_editor_map();
+                            break;
+                        case WINDOW_DISPLAY_OPTIONS:
+                            display_options_data.close_callback();
+                            break;
+                        case WINDOW_FILE_DIALOG:
+                            input_box_stop(&file_name_input);
+                            window_go_back();
+                            break;
+                        case WINDOW_SOUND_OPTIONS:
+                            if (sound_options_data.from_editor) {
+                                show_editor_map();
+                            } else {
+                                window_city_return();
+                            }
+                            break;
+                        case WINDOW_TOP_MENU:
+                            if (top_menu_data.open_sub_menu) {
+                                clear_state_top_menu();
+                                window_go_back();
+                            }
+                            break;
+                        case WINDOW_CITY_MILITARY:
+                            widget_city_data.capture_input = 0;
+                            city_warning_clear_all();
+                            window_city_show();
+                            break;
+                        case WINDOW_SPEED_OPTIONS:
+                            if (speed_options_data.from_editor) {
+                                show_editor_map();
+                            } else {
+                                window_city_return();
+                            }
+                            break;
+                        case WINDOW_EDITOR_TOP_MENU:
+                            if (open_sub_menu_top_menu_editor) {
+                                clear_state();
+                                window_go_back();
+                            }
+                            break;
+                        case WINDOW_EDITOR_MAP:
+                            if (tool_data.active) {
+                                editor_tool_deactivate();
+                                end_editor_tool_use(&current_tile);
+                            } else {
+                                request_exit_editor();
+                            }
+                            break;
+                        case WINDOW_OVERLAY_MENU:
+                            if (overlay_menu_data.keep_submenu_open) {
+                                close_submenu();
+                            } else {
+                                window_city_show();
+                            }
+                            break;
+                        case WINDOW_HOLD_FESTIVAL:
+                            window_advisors_show(ADVISOR_ENTERTAINMENT);
+                            break;
+                        case WINDOW_DONATE_TO_CITY:
+                            window_advisors_show(ADVISOR_IMPERIAL);
+                            break;
+                        case WINDOW_SET_SALARY:
+                            window_advisors_show(ADVISOR_IMPERIAL);
+                            break;
+                        case WINDOW_GIFT_TO_EMPEROR:
+                            window_advisors_show(ADVISOR_IMPERIAL);
+                            break;
+                        case WINDOW_TRADE_OPENED:
+                            window_empire_show();
+                            break;
+                        case WINDOW_EMPIRE:
+                            if (empire_window_data.selected_object) {
+                                switch (empire_window_data.selected_object->type) {
+                                    case EMPIRE_OBJECT_CITY:
+                                        empire_window_data.selected_object = 0;
+                                        window_invalidate();
+                                        break;
+                                    case EMPIRE_OBJECT_ROMAN_ARMY:
+                                        if (city_military_distant_battle_roman_army_is_traveling()) {
+                                            if (city_data.distant_battle.roman_months_traveled == empire_window_data.selected_object->distant_battle_travel_months) {
+                                                empire_window_data.selected_object = 0;
+                                                window_invalidate();
+                                                break;
+                                            }
+                                        }
+                                        /* fall through */
+                                    case EMPIRE_OBJECT_ENEMY_ARMY:
+                                        if (city_data.distant_battle.months_until_battle) {
+                                            if (city_data.distant_battle.enemy_months_traveled == empire_window_data.selected_object->distant_battle_travel_months) {
+                                                empire_window_data.selected_object = 0;
+                                                window_invalidate();
+                                                break;
+                                            }
+                                        }
+                                        /* fall through */
+                                    default:
+                                        window_go_back();
+                                }
+                            } else {
+                                window_go_back();
+                                if (window_data.current_window->id == WINDOW_TRADE_OPENED) {
+                                    window_city_show();
+                                }
+                            }
+                            break;
+                        case WINDOW_MESSAGE_DIALOG:
+                            button_close_message_dialog(0, 0);
+                            break;
+                        case WINDOW_MISSION_END:
+                            close_mission_end_window();
+                            break;
+                        case WINDOW_PLAIN_MESSAGE_DIALOG:
+                            close_plain_message_dialog();
+                            break;
+                        case WINDOW_ADVISORS:
+                            window_city_show();
+                            break;
+                        case WINDOW_MISSION_BRIEFING:
+                            close_mission_briefing_window();
+                            break;
+                        case WINDOW_BUILDING_INFO:
+                            window_city_show();
+                            break;
+                        case WINDOW_CCK_SELECTION:
+                            window_main_menu_show(0);
+                            break;
+                        case WINDOW_EDITOR_BRIEFING:
+                            stop_briefing_box_input();
+                            rich_text_reset(0);
+                            show_editor_attributes();
+                            break;
+                        case WINDOW_HOTKEY_CONFIG:
+                            save_hotkey_configs();
+                            window_config_show();
+                            break;
+                        case WINDOW_HOTKEY_EDITOR:
+                            button_close_hotkey_editor_window(0, 0);
+                            break;
+                        case WINDOW_CONFIG:
+                            save_configs();
+                            window_main_menu_show(0);
+                            break;
+                        case WINDOW_EDITOR_START_YEAR:
+                            show_editor_starting_conditions();
+                            break;
+                        case WINDOW_EDITOR_ALLOWED_BUILDINGS:
+                            empire_object_our_city_set_resources_sell();
+                            show_editor_attributes();
+                            break;
+                        case WINDOW_EDITOR_EDIT_REQUEST:
+                            sort_editor_requests();
+                            show_editor_requests();
+                            break;
+                        case WINDOW_EDITOR_EDIT_CUSTOM_MESSAGE:
+                            if (custom_message_category == CUSTOM_MESSAGE_ATTRIBUTES) {
+                                input_box_stop(&editor_custom_message_input_video_file);
+                                if (!string_equals(scenario.editor_custom_messages[custom_message_id].video_file, editor_custom_message_video_file)) {
+                                    string_copy(editor_custom_message_video_file, scenario.editor_custom_messages[custom_message_id].video_file, MAX_CUSTOM_MESSAGE_VIDEO_TEXT);
+                                }
+                            } else if (custom_message_category == CUSTOM_MESSAGE_TITLE) {
+                                input_box_stop(&editor_custom_message_input_title);
+                                if (!string_equals(scenario.editor_custom_messages[custom_message_id].title, editor_custom_message_title)) {
+                                    string_copy(editor_custom_message_title, scenario.editor_custom_messages[custom_message_id].title, MAX_CUSTOM_MESSAGE_TITLE);
+                                }
+                            } else if (custom_message_category == CUSTOM_MESSAGE_TEXT) {
+                                input_box_stop(&editor_custom_message_input_text);
+                                if (!string_equals(scenario.editor_custom_messages[custom_message_id].text, editor_custom_message_text)) {
+                                    string_copy(editor_custom_message_text, scenario.editor_custom_messages[custom_message_id].text, MAX_CUSTOM_MESSAGE_TEXT);
+                                }
+                                rich_text_reset(0);
+                            }
+                            scenario_editor_sort_custom_messages();
+                            show_editor_custom_messages();
+                            break;
+                        case WINDOW_EDITOR_EDIT_EARTHQUAKE:
+                            scenario_editor_sort_earthquakes();
+                            show_editor_earthquakes();
+                            break;
+                        case WINDOW_EDITOR_EDIT_INVASION:
+                            sort_editor_invasions();
+                            show_editor_invasions();
+                            break;
+                        case WINDOW_EDITOR_EDIT_PRICE_CHANGE:
+                            sort_editor_price_changes();
+                            show_editor_price_changes();
+                            break;
+                        case WINDOW_EDITOR_EDIT_DEMAND_CHANGE:
+                            sort_editor_demand_changes();
+                            show_editor_demand_changes();
+                            break;
+                        case WINDOW_EDITOR_ATTRIBUTES:
+                            stop_brief_description_box_input();
+                            show_editor_map();
+                            break;
+                        case WINDOW_CITY:
+                            if (construction_data.type) {
+                                building_construction_cancel();
+                                window_data.refresh_on_draw = 1;
+                            } else {
+                                window_popup_dialog_show(POPUP_DIALOG_QUIT, confirm_exit_to_main_menu, 1);
+                            }
+                            break;
+                        case WINDOW_BUILD_MENU:
+                            build_menu_data.selected_menu = MENU_NONE;
+                            build_menu_data.selected_submenu = MENU_NONE;
+                            window_city_show();
+                            break;
+                        case WINDOW_MESSAGE_LIST:
+                            button_close_message_list(0, 0);
+                            break;
+                    }
                     break;
             }
-            // handle struct hotkeys_t
-            int key = get_key_from_scancode(event->key.keysym.scancode);
-            int modifiers = get_modifier(event->key.keysym.mod);
+            // save mods and key for hotkey assignment drawing purposes
             if (window_data.current_window->id == WINDOW_HOTKEY_EDITOR) {
-                if (key == KEY_TYPE_ENTER && modifiers == KEY_MOD_NONE) {
-                    button_close_hotkey_editor_window(1, 0);
-                } else if (key == KEY_TYPE_ESCAPE && modifiers == KEY_MOD_NONE) {
-                    button_close_hotkey_editor_window(0, 0);
-                } else {
-                    if (key != KEY_TYPE_NONE) {
-                        hotkey_editor_window_data.key = key;
-                    }
-                    hotkey_editor_window_data.modifiers = modifiers;
+                if (key_mod) {
+                    hotkey_button_modifiers |= key_mod;
+                } else { // prevent assigning mod to key
+                    hotkey_button_key = event->key.keysym.sym;
                 }
-            } else if (key != KEY_TYPE_NONE) {
-                int found_action = 0;
-                for (int i = 0; i < hotkey_data.num_definitions; i++) {
-                    struct hotkey_definition_t *def = &hotkey_data.definitions[i];
-                    if (def->key == key && def->modifiers == modifiers && (!event->key.repeat || def->repeatable)) {
-                        *(def->action) = def->value;
-                        found_action = 1;
-                    }
-                }
-                if (!found_action) {
-                    for (int i = 0; i < hotkey_data.num_arrows; i++) {
-                        struct arrow_definition_t *arrow = &hotkey_data.arrows[i];
-                        if (arrow->key == key) {
-                            arrow->action(1);
+            } else { // prevent hotkey from activating during assignment
+                // handle hotkey actions
+                for (int i = 0; i < HOTKEY_MAX_ITEMS; i++) {
+                    if (event->key.keysym.sym == hotkey_mappings[i].sdl_key
+                    && key_mod == hotkey_mappings[i].sdl_mods) {
+                        // action found, fulfill
+                        switch (i) {
+                            case HOTKEY_ARROW_UP:
+                                is_scrolling_up = 1;
+                                break;
+                            case HOTKEY_ARROW_DOWN:
+                                is_scrolling_down = 1;
+                                break;
+                            case HOTKEY_ARROW_LEFT:
+                                is_scrolling_left = 1;
+                                break;
+                            case HOTKEY_ARROW_RIGHT:
+                                is_scrolling_right = 1;
+                                break;
+                            case HOTKEY_TOGGLE_FULLSCREEN:
+                                post_event(settings[SETTINGS_FULLSCREEN].config_value ? USER_EVENT_WINDOWED : USER_EVENT_FULLSCREEN);
+                                break;
+                            case HOTKEY_RESET_WINDOW:
+                                system_resize(1280, 800);
+                                post_event(USER_EVENT_CENTER_WINDOW);
+                                break;
+                            case HOTKEY_SAVE_SCREENSHOT:
+                                graphics_save_screenshot(0);
+                                break;
+                            case HOTKEY_SAVE_CITY_SCREENSHOT:
+                                if (window_data.current_window->id == WINDOW_CITY || window_data.current_window->id == WINDOW_CITY_MILITARY) {
+                                    graphics_save_screenshot(1);
+                                }
+                                break;
+                            case HOTKEY_LOAD_FILE:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_MAIN_MENU:
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_LOAD);
+                                        break;
+                                    case WINDOW_EDITOR_MAP:
+                                        window_file_dialog_show(FILE_TYPE_SCENARIO, FILE_DIALOG_LOAD);
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_SAVE_FILE:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_MAIN_MENU:
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_SAVE);
+                                        break;
+                                    case WINDOW_EDITOR_MAP:
+                                        window_file_dialog_show(FILE_TYPE_SCENARIO, FILE_DIALOG_SAVE);
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_DECREASE_GAME_SPEED:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        setting_decrease_game_speed();
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_INCREASE_GAME_SPEED:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        setting_increase_game_speed();
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_TOGGLE_PAUSE:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        state_data.paused = state_data.paused ? 0 : 1;
+                                        city_warning_clear_all();
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_ROTATE_MAP_LEFT:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        game_orientation_rotate_left();
+                                        window_invalidate();
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_ROTATE_MAP_RIGHT:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        game_orientation_rotate_right();
+                                        window_invalidate();
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_REPLAY_MAP:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        replay_map();
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_CYCLE_LEGION:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        if (city_data.military.total_legions) {
+                                            int selectable_legions_count = 0;
+                                            for (int i = 0; i < MAX_LEGIONS; i++) {
+                                                struct formation_t *m = &legion_formations[i];
+                                                if (m->in_use && !m->in_distant_battle && m->num_figures && m->morale > ROUT_MORALE_THRESHOLD) {
+                                                    selectable_legions_count++;
+                                                }
+                                            }
+                                            // handle wrap around and index mismatches caused by fort delete/recreate, formation rout/destruction, allocation to distant battle
+                                            if (current_selected_legion_index >= selectable_legions_count) {
+                                                current_selected_legion_index = 0;
+                                            }
+                                            int next_available_legion_index = 0;
+                                            for (int i = 0; i < MAX_LEGIONS; i++) {
+                                                struct formation_t *m = &legion_formations[i];
+                                                if (m->in_use && !m->in_distant_battle && m->num_figures && m->morale > ROUT_MORALE_THRESHOLD) {
+                                                    if (next_available_legion_index == current_selected_legion_index) {
+                                                        window_city_military_show(m->id);
+                                                        current_selected_legion_index++;
+                                                        return;
+                                                    }
+                                                    next_available_legion_index++;
+                                                }
+                                            }
+                                        }
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_RETURN_LEGIONS_TO_FORT:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        for (int i = 0; i < MAX_LEGIONS; i++) {
+                                            if (legion_formations[i].in_use && !legion_formations[i].in_distant_battle) {
+                                                return_legion_formation_home(&legion_formations[i]);
+                                            }
+                                        }
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_SHOW_LAST_ADVISOR:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                    case WINDOW_EMPIRE:
+                                        window_advisors_show(settings[SETTINGS_LAST_ADVISOR].config_value);
+                                        break;
+                                    case WINDOW_ADVISORS:
+                                        window_city_show();
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_SHOW_EMPIRE_MAP:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        window_empire_show();
+                                        break;
+                                    case WINDOW_EMPIRE:
+                                        window_city_show();
+                                        break;
+                                    case WINDOW_EDITOR_MAP:
+                                        show_editor_empire(0, 0);
+                                        break;
+                                    case WINDOW_EDITOR_EMPIRE:
+                                        show_editor_map();
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_SHOW_MESSAGES:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        window_message_list_show();
+                                        break;
+                                    case WINDOW_MESSAGE_LIST:
+                                        window_city_show();
+                                }
+                                break;
+                            case HOTKEY_GO_TO_PROBLEM:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        button_go_to_problem(0, 0);
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_SHOW_OVERLAY_WATER:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        handle_overlay_hotkey(OVERLAY_WATER);
+                                }
+                                break;
+                            case HOTKEY_SHOW_OVERLAY_FIRE:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        handle_overlay_hotkey(OVERLAY_FIRE);
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_SHOW_OVERLAY_DAMAGE:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        handle_overlay_hotkey(OVERLAY_DAMAGE);
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_SHOW_OVERLAY_CRIME:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        handle_overlay_hotkey(OVERLAY_CRIME);
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_SHOW_OVERLAY_PROBLEMS:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        handle_overlay_hotkey(OVERLAY_PROBLEMS);
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_GO_TO_BOOKMARK_1:
+                            case HOTKEY_GO_TO_BOOKMARK_2:
+                            case HOTKEY_GO_TO_BOOKMARK_3:
+                            case HOTKEY_GO_TO_BOOKMARK_4:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        handle_go_to_bookmark_hotkey(i - HOTKEY_GO_TO_BOOKMARK_1 + 1);
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_SET_BOOKMARK_1:
+                            case HOTKEY_SET_BOOKMARK_2:
+                            case HOTKEY_SET_BOOKMARK_3:
+                            case HOTKEY_SET_BOOKMARK_4:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        handle_set_bookmark_hotkey(i - HOTKEY_SET_BOOKMARK_1 + 1);
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_EDITOR_TOGGLE_BATTLE_INFO:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_EDITOR_EMPIRE:
+                                        empire_editor_show_battle_objects = !empire_editor_show_battle_objects;
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_CHEAT_MONEY:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        if (city_data.finance.treasury < 50000) {
+                                            city_data.finance.treasury += 1000;
+                                            city_data.finance.cheated_money += 1000;
+                                        }
+                                        window_invalidate();
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_CHEAT_INVASION:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        city_message_post(1, MESSAGE_ENEMY_ARMY_ATTACK, 0, start_invasion(rand() % (ENEMY_TYPE_MAX_COUNT + 1), 160, MAX_INVASION_POINTS, FORMATION_ATTACK_RANDOM));
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_CHEAT_VICTORY:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        victory_data.force_win = 1;
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_BUILD_CLONE:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_BUILDING) {
+                                            int building_id = map_building_at(widget_city_data.current_tile.grid_offset);
+                                            if (building_id) {
+                                                struct building_t *b = building_main(&all_buildings[building_id]);
+                                                if (building_is_house(b->type)) {
+                                                    set_construction_building_type(BUILDING_HOUSE_VACANT_LOT);
+                                                } else {
+                                                    set_construction_building_type(b->type);
+                                                }
+                                            }
+                                        } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_AQUEDUCT) {
+                                            set_construction_building_type(BUILDING_AQUEDUCT);
+                                        } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_WALL) {
+                                            set_construction_building_type(BUILDING_WALL);
+                                        } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_GARDEN) {
+                                            set_construction_building_type(BUILDING_GARDENS);
+                                        } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_ROAD) {
+                                            if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_WATER) {
+                                                if (sprite.items[widget_city_data.current_tile.grid_offset] > 6) {
+                                                    set_construction_building_type(BUILDING_SHIP_BRIDGE);
+                                                } else {
+                                                    set_construction_building_type(BUILDING_LOW_BRIDGE);
+                                                }
+                                            } else if (bitfields_grid.items[widget_city_data.current_tile.grid_offset] & BIT_PLAZA_OR_EARTHQUAKE) {
+                                                set_construction_building_type(BUILDING_PLAZA);
+                                            } else {
+                                                set_construction_building_type(BUILDING_ROAD);
+                                            }
+                                        }
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_CYCLE_BUILDINGS:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                    {
+                                        int last_building_type_selected = construction_data.type;
+                                        if (last_building_type_selected < BUILDING_RESERVOIR) {
+                                            last_building_type_selected = BUILDING_RESERVOIR;
+                                        } else {
+                                            last_building_type_selected++;
+                                        }
+                                        while (last_building_type_selected <= BUILDING_WAREHOUSE) {
+                                            if (last_building_type_selected == BUILDING_TRIUMPHAL_ARCH) {
+                                                if (!city_data.building.triumphal_arches_available) {
+                                                    last_building_type_selected++;
+                                                }
+                                            }
+                                            if (scenario.allowed_buildings[last_building_type_selected]) {
+                                                set_construction_building_type(last_building_type_selected);
+                                                break;
+                                            }
+                                            last_building_type_selected++;
+                                        }
+                                        break;
+                                    }
+                                }
+                                break;
+                            case HOTKEY_CYCLE_BUILDINGS_REVERSE:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                    {
+                                        int last_building_type_selected = construction_data.type;
+                                        if (last_building_type_selected < BUILDING_RESERVOIR) {
+                                            last_building_type_selected = BUILDING_WAREHOUSE;
+                                        } else {
+                                            last_building_type_selected--;
+                                        }
+                                        while (last_building_type_selected >= BUILDING_RESERVOIR) {
+                                            if (last_building_type_selected == BUILDING_TRIUMPHAL_ARCH) {
+                                                if (!city_data.building.triumphal_arches_available) {
+                                                    last_building_type_selected--;
+                                                }
+                                            }
+                                            if (scenario.allowed_buildings[last_building_type_selected]) {
+                                                set_construction_building_type(last_building_type_selected);
+                                                break;
+                                            }
+                                            last_building_type_selected--;
+                                        }
+                                        break;
+                                    }
+                                }
+                                break;
+                            case HOTKEY_UNDO:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        game_undo_perform();
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_BUILD_VACANT_HOUSE:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        handle_set_building_hotkey(BUILDING_HOUSE_VACANT_LOT);
+                                        break;
+                                }
+                                break;
+                            case HOTKEY_BUILD_CLEAR_LAND:
+                            case HOTKEY_BUILD_ROAD:
+                            case HOTKEY_BUILD_RESERVOIR:
+                            case HOTKEY_BUILD_AQUEDUCT:
+                            case HOTKEY_BUILD_FOUNTAIN:
+                            case HOTKEY_BUILD_WELL:
+                            case HOTKEY_BUILD_DOCTOR:
+                            case HOTKEY_BUILD_BATHHOUSE:
+                            case HOTKEY_BUILD_BARBER:
+                            case HOTKEY_BUILD_HOSPITAL:
+                            case HOTKEY_BUILD_SMALL_TEMPLE_CERES:
+                            case HOTKEY_BUILD_SMALL_TEMPLE_NEPTUNE:
+                            case HOTKEY_BUILD_SMALL_TEMPLE_MERCURY:
+                            case HOTKEY_BUILD_SMALL_TEMPLE_MARS:
+                            case HOTKEY_BUILD_SMALL_TEMPLE_VENUS:
+                            case HOTKEY_BUILD_LARGE_TEMPLE_CERES:
+                            case HOTKEY_BUILD_LARGE_TEMPLE_NEPTUNE:
+                            case HOTKEY_BUILD_LARGE_TEMPLE_MERCURY:
+                            case HOTKEY_BUILD_LARGE_TEMPLE_MARS:
+                            case HOTKEY_BUILD_LARGE_TEMPLE_VENUS:
+                            case HOTKEY_BUILD_ORACLE:
+                            case HOTKEY_BUILD_SCHOOL:
+                            case HOTKEY_BUILD_LIBRARY:
+                            case HOTKEY_BUILD_ACADEMY:
+                            case HOTKEY_BUILD_MISSION_POST:
+                            case HOTKEY_BUILD_THEATER:
+                            case HOTKEY_BUILD_ACTOR_COLONY:
+                            case HOTKEY_BUILD_AMPHITHEATER:
+                            case HOTKEY_BUILD_GLADIATOR_SCHOOL:
+                            case HOTKEY_BUILD_LION_HOUSE:
+                            case HOTKEY_BUILD_COLOSSEUM:
+                            case HOTKEY_BUILD_CHARIOT_MAKER:
+                            case HOTKEY_BUILD_HIPPODROME:
+                            case HOTKEY_BUILD_GARDENS:
+                            case HOTKEY_BUILD_PLAZA:
+                            case HOTKEY_BUILD_SMALL_STATUE:
+                            case HOTKEY_BUILD_MEDIUM_STATUE:
+                            case HOTKEY_BUILD_LARGE_STATUE:
+                            case HOTKEY_BUILD_GOVERNORS_HOUSE:
+                            case HOTKEY_BUILD_GOVERNORS_VILLA:
+                            case HOTKEY_BUILD_GOVERNORS_PALACE:
+                            case HOTKEY_BUILD_FORUM:
+                            case HOTKEY_BUILD_SENATE:
+                            case HOTKEY_BUILD_TRIUMPHAL_ARCH:
+                            case HOTKEY_BUILD_ENGINEERS_POST:
+                            case HOTKEY_BUILD_LOW_BRIDGE:
+                            case HOTKEY_BUILD_SHIP_BRIDGE:
+                            case HOTKEY_BUILD_SHIPYARD:
+                            case HOTKEY_BUILD_WHARF:
+                            case HOTKEY_BUILD_DOCK:
+                            case HOTKEY_BUILD_PREFECTURE:
+                            case HOTKEY_BUILD_WALL:
+                            case HOTKEY_BUILD_TOWER:
+                            case HOTKEY_BUILD_GATEHOUSE:
+                            case HOTKEY_BUILD_FORT_LEGIONARIES:
+                            case HOTKEY_BUILD_FORT_JAVELIN:
+                            case HOTKEY_BUILD_FORT_MOUNTED:
+                            case HOTKEY_BUILD_BARRACKS:
+                            case HOTKEY_BUILD_MILITARY_ACADEMY:
+                            case HOTKEY_BUILD_WHEAT_FARM:
+                            case HOTKEY_BUILD_VEGETABLE_FARM:
+                            case HOTKEY_BUILD_FRUIT_FARM:
+                            case HOTKEY_BUILD_PIG_FARM:
+                            case HOTKEY_BUILD_OLIVE_FARM:
+                            case HOTKEY_BUILD_VINES_FARM:
+                            case HOTKEY_BUILD_CLAY_PIT:
+                            case HOTKEY_BUILD_TIMBER_YARD:
+                            case HOTKEY_BUILD_MARBLE_QUARRY:
+                            case HOTKEY_BUILD_IRON_MINE:
+                            case HOTKEY_BUILD_OIL_WORKSHOP:
+                            case HOTKEY_BUILD_WINE_WORKSHOP:
+                            case HOTKEY_BUILD_POTTERY_WORKSHOP:
+                            case HOTKEY_BUILD_FURNITURE_WORKSHOP:
+                            case HOTKEY_BUILD_WEAPONS_WORKSHOP:
+                            case HOTKEY_BUILD_MARKET:
+                            case HOTKEY_BUILD_GRANARY:
+                            case HOTKEY_BUILD_WAREHOUSE:
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_CITY:
+                                    case WINDOW_CITY_MILITARY:
+                                        handle_set_building_hotkey(i - BUILDING_CLEAR_LAND);
+                                        break;
+                                }
+                                break;
                         }
+                        break;
                     }
                 }
             }
             break;
+        }
         case SDL_KEYUP:
-            if (window_data.current_window->id == WINDOW_HOTKEY_EDITOR) {
-                // update modifiers as long as we don't have a proper keypress
-                if (hotkey_editor_window_data.key == KEY_TYPE_NONE && get_key_from_scancode(event->key.keysym.scancode) == KEY_TYPE_NONE) {
-                    hotkey_editor_window_data.modifiers = get_modifier(event->key.keysym.mod);
-                }
-            } else if (get_key_from_scancode(event->key.keysym.scancode) != KEY_TYPE_NONE) {
-                for (int i = 0; i < hotkey_data.num_arrows; i++) {
-                    struct arrow_definition_t *arrow = &hotkey_data.arrows[i];
-                    if (arrow->key == get_key_from_scancode(event->key.keysym.scancode)) {
-                        arrow->action(0);
-                    }
-                }
+            if (event->key.keysym.sym == SDLK_UP) {
+                is_scrolling_up = 0;
+            }
+            if (event->key.keysym.sym == SDLK_DOWN) {
+                is_scrolling_down = 0;
+            }
+            if (event->key.keysym.sym == SDLK_LEFT) {
+                is_scrolling_left = 0;
+            }
+            if (event->key.keysym.sym == SDLK_RIGHT) {
+                is_scrolling_right = 0;
             }
             break;
         case SDL_TEXTINPUT:
@@ -49773,7 +50052,7 @@ static void handle_event(SDL_Event *event)
                 int pixel_width = scale_logical_to_pixels(INTPTR(event->user.data1));
                 int pixel_height = scale_logical_to_pixels(INTPTR(event->user.data2));
                 int display = SDL_GetWindowDisplayIndex(SDL.window);
-                if (settings_values[SETTINGS_FULLSCREEN]) {
+                if (settings[SETTINGS_FULLSCREEN].config_value) {
                     SDL_SetWindowFullscreen(SDL.window, 0);
                 } else {
                     SDL_GetWindowPosition(SDL.window, &window_pos.x, &window_pos.y);
@@ -49826,7 +50105,6 @@ static void handle_event(SDL_Event *event)
                 center_window();
             }
             break;
-
         default:
             break;
     }
@@ -49847,27 +50125,13 @@ static void destroy_screen(void)
     }
 }
 
-static void config_save(void)
-{
-    FILE *fp = fopen(CONFIGS_FILE_PATH, "wt");
-    if (!fp) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Unable to write configuration file", CONFIGS_FILE_PATH, 0));
-        return;
-    }
-    fprintf(fp, "%s=%s\n", "player_name", configs_player_name);
-    for (int i = 0; i < CONFIGS_MAX_ENTRIES; i++) {
-        fprintf(fp, "%s=%d\n", configs_strings.strings_file[i], configs_values[i]);
-    }
-    fclose(fp);
-}
-
 static void main_loop(void)
 {
     SDL_Event event;
     // On Windows, if ctrl + alt + del is pressed during fullscreen, the rendering context may be lost for a few frames
     // after restoring the window, preventing the texture from being recreated. This forces an attempt to recreate the
     // texture every frame to bypass that issue.
-    if (!SDL.texture && SDL.renderer && settings_values[SETTINGS_FULLSCREEN]) {
+    if (!SDL.texture && SDL.renderer && settings[SETTINGS_FULLSCREEN].config_value) {
         SDL_DisplayMode mode;
         SDL_GetWindowDisplayMode(SDL.window, &mode);
         screen_set_resolution(scale_pixels_to_logical(mode.w), scale_pixels_to_logical(mode.h));
@@ -49879,6 +50143,7 @@ static void main_loop(void)
     while (SDL_PollEvent(&event)) {
         handle_event(&event);
     }
+    scroll_map_arrow_keys();
     if (data.quit) {
         SDL_Log("Exiting game");
         if (data_video.is_playing) {
@@ -49889,13 +50154,13 @@ static void main_loop(void)
         FILE *fp_settings = fopen(SETTINGS_FILE_PATH, "wt");
         if (fp_settings) {
             for (int i = 0; i < SETTINGS_MAX_ENTRIES; i++) {
-                fprintf(fp_settings, "%s=%d\n", settings_strings_file[i], settings_values[i]);
+                fprintf(fp_settings, "%s=%d\n", settings[i].config_string, settings[i].config_value);
             }
             fclose(fp_settings);
         } else {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Unable to write settings file", SETTINGS_FILE_PATH, 0));
         }
-        config_save();
+        save_configs();
         if (data_channels.initialized) {
             for (int i = 0; i < MAX_DEVICE_CHANNELS; i++) {
                 stop_sound_channel(i);
@@ -49942,14 +50207,6 @@ static   struct font_definition_t DEFINITIONS_DEFAULT[] = {
     {FONT_NORMAL_BROWN, 1206, 6, 0, 11, image_y_offset_default}
 };
 
-static void hotkey_config_add_mapping(struct hotkey_mapping_t *mapping)
-{
-    if (hotkey_config_data.num_mappings < MAX_MAPPINGS) {
-        hotkey_config_data.mappings[hotkey_config_data.num_mappings] = *mapping;
-        hotkey_config_data.num_mappings++;
-    }
-}
-
 static char *get_first_char_occurrence_in_string(char *str, char c)
 {
     while (*str) {
@@ -49961,622 +50218,102 @@ static char *get_first_char_occurrence_in_string(char *str, char c)
     return 0;
 }
 
-static void load_file(void)
+static void set_default_configs(void)
 {
-    hotkey_config_data.num_mappings = 0;
-    FILE *fp = fopen(HOTKEY_CONFIGS_FILE_PATH, "rt");
-    if (!fp) {
-        return;
-    }
-    char line_buffer[MAX_READ_LINE_LENGTH];
-    char *line;
-    while ((line = fgets(line_buffer, MAX_READ_LINE_LENGTH, fp))) {
-        // Remove newline from string
-        size_t size = string_length(line);
-        while (size > 0 && (line[size - 1] == '\n' || line[size - 1] == '\r')) {
-            line[--size] = 0;
-        }
-        char *equals = get_first_char_occurrence_in_string(line, '=');
-        if (!equals) {
-            continue;
-        }
-        *equals = 0;
-        char *value = &equals[1];
-        for (int i = 0; i < HOTKEY_MAX_ITEMS; i++) {
-            if (string_equals(ini_keys_hotkey_config[i], line)) {
-                struct hotkey_mapping_t mapping;
-                int key_combination_from_name = 1;
-                char editable_name[100] = { 0 };
-                string_copy(value, editable_name, 99);
-                mapping.key = KEY_TYPE_NONE;
-                mapping.modifiers = KEY_MOD_NONE;
-                char *token = strtok(editable_name, " ");
-                while (token) {
-                    if (token[0]) {
-                        int mod = KEY_MOD_NONE;
-                        for (struct modifier_name_t *modname = modifier_names; modname->modifier; modname++) {
-                            if (string_equals(modname->name, token)) {
-                                mod = modname->modifier;
-                            }
-                        }
-                        if (mod != KEY_MOD_NONE) {
-                            mapping.modifiers |= mod;
-                        } else {
-                            mapping.key = KEY_TYPE_NONE;
-                            for (int l = 1; l < KEY_TYPE_MAX_ITEMS; l++) {
-                                if (string_equals(key_names[l], token)) {
-                                    mapping.key = l;
-                                    break;
-                                }
-                            }
-                            if (mapping.key == KEY_TYPE_NONE) {
-                                key_combination_from_name = 0;
-                                break;
-                            }
-                        }
-                    }
-                    token = strtok(0, " ");
-                }
-                if (mapping.key == KEY_TYPE_NONE) {
-                    key_combination_from_name = 0;
-                }
-                if (key_combination_from_name) {
-                    mapping.action = i;
-                    hotkey_config_add_mapping(&mapping);
-                }
-                break;
-            }
-        }
-    }
-    fclose(fp);
+    string_copy("BRUTUS", configs_player_name, MAX_PLAYER_NAME_LENGTH);
+    configs[CONFIG_UI_SIDEBAR_INFO].config_value = 1;
+    configs[CONFIG_UI_SHOW_INTRO_VIDEO].config_value = 0;
+    configs[CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING].config_value = 0;
+    configs[CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG].config_value = 0;
+    configs[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE].config_value = 1;
+    configs[CONFIG_UI_HIGHLIGHT_LEGIONS].config_value = 1;
 }
 
-static void set_arrow_key(struct key_t *arrow, int value)
+static void set_mapping(int action, int mods, int hotkey)
 {
-    int state = KEY_STATE_AXIS;
-    if (!value) {
-        state = KEY_STATE_UNPRESSED;
-    }
-    if (value == SCROLL_KEY_PRESSED) {
-        state = KEY_STATE_PRESSED;
-    }
-    if (state != KEY_STATE_AXIS && state != KEY_STATE_UNPRESSED &&
-        arrow->state != KEY_STATE_AXIS && arrow->state != KEY_STATE_UNPRESSED) {
-        return;
-    }
-    // Key should retain axis state even if its value is zero
-    if (arrow->state != KEY_STATE_AXIS || state != KEY_STATE_UNPRESSED) {
-        arrow->state = state;
-    }
-    arrow->value = value;
-    arrow->last_change = current_time;
+    hotkey_mappings[action].sdl_mods = mods;
+    hotkey_mappings[action].sdl_key = hotkey;
 }
 
-static void scroll_arrow_up(int value)
+static void set_default_hotkeys(void)
 {
-    set_arrow_key(&scroll_data.arrow_key.up, value);
-}
-
-static void scroll_arrow_down(int value)
-{
-    set_arrow_key(&scroll_data.arrow_key.down, value);
-}
-
-static void scroll_arrow_left(int value)
-{
-    set_arrow_key(&scroll_data.arrow_key.left, value);
-}
-
-static void scroll_arrow_right(int value)
-{
-    set_arrow_key(&scroll_data.arrow_key.right, value);
-}
-
-static void hotkey_install_mapping(struct hotkey_mapping_t *mappings, int num_mappings)
-{
-    int total_definitions = 2; // Enter and ESC are fixed hotkeys
-    int total_arrows = 0;
-    for (int i = 0; i < num_mappings; i++) {
-        int action = mappings[i].action;
-        if (action == HOTKEY_ARROW_UP || action == HOTKEY_ARROW_DOWN ||
-            action == HOTKEY_ARROW_LEFT || action == HOTKEY_ARROW_RIGHT) {
-            total_arrows++;
-        } else {
-            total_definitions++;
-        }
-    }
-    if (!total_arrows) {
-        return;
-    }
-    free(hotkey_data.definitions);
-    free(hotkey_data.arrows);
-    hotkey_data.num_definitions = 0;
-    hotkey_data.num_arrows = 0;
-    hotkey_data.definitions = malloc(sizeof(struct hotkey_definition_t) * total_definitions);
-    hotkey_data.arrows = malloc(sizeof(struct arrow_definition_t) * total_arrows);
-    if (!hotkey_data.definitions || !hotkey_data.arrows) {
-        free(hotkey_data.definitions);
-        free(hotkey_data.arrows);
-        return;
-    }
-    // Fixed keys: Escape and Enter
-    hotkey_data.definitions[0].action = &hotkey_data.hotkey_state.enter_pressed;
-    hotkey_data.definitions[0].key = KEY_TYPE_ENTER;
-    hotkey_data.definitions[0].modifiers = 0;
-    hotkey_data.definitions[0].repeatable = 0;
-    hotkey_data.definitions[0].value = 1;
-    hotkey_data.definitions[1].action = &hotkey_data.hotkey_state.escape_pressed;
-    hotkey_data.definitions[1].key = KEY_TYPE_ESCAPE;
-    hotkey_data.definitions[1].modifiers = 0;
-    hotkey_data.definitions[1].repeatable = 0;
-    hotkey_data.definitions[1].value = 1;
-    hotkey_data.num_definitions = 2;
-    for (int i = 0; i < num_mappings; i++) {
-        int action = mappings[i].action;
-        if (action == HOTKEY_ARROW_UP || action == HOTKEY_ARROW_DOWN ||
-            action == HOTKEY_ARROW_LEFT || action == HOTKEY_ARROW_RIGHT) {
-            struct arrow_definition_t *arrow = &hotkey_data.arrows[hotkey_data.num_arrows];
-            arrow->key = mappings[i].key;
-            switch (mappings[i].action) {
-                case HOTKEY_ARROW_UP:
-                    arrow->action = scroll_arrow_up;
-                    break;
-                case HOTKEY_ARROW_DOWN:
-                    arrow->action = scroll_arrow_down;
-                    break;
-                case HOTKEY_ARROW_LEFT:
-                    arrow->action = scroll_arrow_left;
-                    break;
-                case HOTKEY_ARROW_RIGHT:
-                    arrow->action = scroll_arrow_right;
-                    break;
-                default:
-                    arrow->action = 0;
-                    break;
-            }
-            if (arrow->action) {
-                hotkey_data.num_arrows++;
-            }
-        } else {
-            struct hotkey_definition_t *def = &hotkey_data.definitions[hotkey_data.num_definitions];
-            def->key = mappings[i].key;
-            def->modifiers = mappings[i].modifiers;
-            def->value = 1;
-            def->repeatable = 0;
-            switch (mappings[i].action) {
-                case HOTKEY_TOGGLE_FULLSCREEN:
-                    def->action = &hotkey_data.global_hotkey_state.toggle_fullscreen;
-                    break;
-                case HOTKEY_RESET_WINDOW:
-                    def->action = &hotkey_data.global_hotkey_state.reset_window;
-                    break;
-                case HOTKEY_SAVE_SCREENSHOT:
-                    def->action = &hotkey_data.global_hotkey_state.save_screenshot;
-                    break;
-                case HOTKEY_SAVE_CITY_SCREENSHOT:
-                    def->action = &hotkey_data.global_hotkey_state.save_city_screenshot;
-                    break;
-                case HOTKEY_LOAD_FILE:
-                    def->action = &hotkey_data.hotkey_state.load_file;
-                    break;
-                case HOTKEY_SAVE_FILE:
-                    def->action = &hotkey_data.hotkey_state.save_file;
-                    break;
-                case HOTKEY_DECREASE_GAME_SPEED:
-                    def->action = &hotkey_data.hotkey_state.decrease_game_speed;
-                    def->repeatable = 1;
-                    break;
-                case HOTKEY_INCREASE_GAME_SPEED:
-                    def->action = &hotkey_data.hotkey_state.increase_game_speed;
-                    def->repeatable = 1;
-                    break;
-                case HOTKEY_TOGGLE_PAUSE:
-                    def->action = &hotkey_data.hotkey_state.toggle_pause;
-                    break;
-                case HOTKEY_ROTATE_MAP_LEFT:
-                    def->action = &hotkey_data.hotkey_state.rotate_map_left;
-                    break;
-                case HOTKEY_ROTATE_MAP_RIGHT:
-                    def->action = &hotkey_data.hotkey_state.rotate_map_right;
-                    break;
-                case HOTKEY_REPLAY_MAP:
-                    def->action = &hotkey_data.hotkey_state.replay_map;
-                    break;
-                case HOTKEY_CYCLE_LEGION:
-                    def->action = &hotkey_data.hotkey_state.cycle_legion;
-                    break;
-                case HOTKEY_RETURN_LEGIONS_TO_FORT:
-                    def->action = &hotkey_data.hotkey_state.return_legions_to_fort;
-                    break;
-                case HOTKEY_SHOW_LAST_ADVISOR:
-                    def->action = &hotkey_data.hotkey_state.show_last_advisor;
-                    break;
-                case HOTKEY_SHOW_EMPIRE_MAP:
-                    def->action = &hotkey_data.hotkey_state.show_empire_map;
-                    break;
-                case HOTKEY_SHOW_MESSAGES:
-                    def->action = &hotkey_data.hotkey_state.show_messages;
-                    break;
-                case HOTKEY_GO_TO_PROBLEM:
-                    def->action = &hotkey_data.hotkey_state.go_to_problem;
-                    break;
-                case HOTKEY_SHOW_OVERLAY_WATER:
-                    def->action = &hotkey_data.hotkey_state.show_overlay;
-                    def->value = OVERLAY_WATER;
-                    break;
-                case HOTKEY_SHOW_OVERLAY_FIRE:
-                    def->action = &hotkey_data.hotkey_state.show_overlay;
-                    def->value = OVERLAY_FIRE;
-                    break;
-                case HOTKEY_SHOW_OVERLAY_DAMAGE:
-                    def->action = &hotkey_data.hotkey_state.show_overlay;
-                    def->value = OVERLAY_DAMAGE;
-                    break;
-                case HOTKEY_SHOW_OVERLAY_CRIME:
-                    def->action = &hotkey_data.hotkey_state.show_overlay;
-                    def->value = OVERLAY_CRIME;
-                    break;
-                case HOTKEY_SHOW_OVERLAY_PROBLEMS:
-                    def->action = &hotkey_data.hotkey_state.show_overlay;
-                    def->value = OVERLAY_PROBLEMS;
-                    break;
-                case HOTKEY_GO_TO_BOOKMARK_1:
-                    def->action = &hotkey_data.hotkey_state.go_to_bookmark;
-                    def->value = 1;
-                    break;
-                case HOTKEY_GO_TO_BOOKMARK_2:
-                    def->action = &hotkey_data.hotkey_state.go_to_bookmark;
-                    def->value = 2;
-                    break;
-                case HOTKEY_GO_TO_BOOKMARK_3:
-                    def->action = &hotkey_data.hotkey_state.go_to_bookmark;
-                    def->value = 3;
-                    break;
-                case HOTKEY_GO_TO_BOOKMARK_4:
-                    def->action = &hotkey_data.hotkey_state.go_to_bookmark;
-                    def->value = 4;
-                    break;
-                case HOTKEY_SET_BOOKMARK_1:
-                    def->action = &hotkey_data.hotkey_state.set_bookmark;
-                    def->value = 1;
-                    break;
-                case HOTKEY_SET_BOOKMARK_2:
-                    def->action = &hotkey_data.hotkey_state.set_bookmark;
-                    def->value = 2;
-                    break;
-                case HOTKEY_SET_BOOKMARK_3:
-                    def->action = &hotkey_data.hotkey_state.set_bookmark;
-                    def->value = 3;
-                    break;
-                case HOTKEY_SET_BOOKMARK_4:
-                    def->action = &hotkey_data.hotkey_state.set_bookmark;
-                    def->value = 4;
-                    break;
-                case HOTKEY_EDITOR_TOGGLE_BATTLE_INFO:
-                    def->action = &hotkey_data.hotkey_state.toggle_editor_battle_info;
-                    break;
-                case HOTKEY_CHEAT_MONEY:
-                    def->action = &hotkey_data.hotkey_state.cheat_money;
-                    def->repeatable = 1;
-                    break;
-                case HOTKEY_CHEAT_INVASION:
-                    def->action = &hotkey_data.hotkey_state.cheat_invasion;
-                    break;
-                case HOTKEY_CHEAT_VICTORY:
-                    def->action = &hotkey_data.hotkey_state.cheat_victory;
-                    break;
-                case HOTKEY_BUILD_CLONE:
-                    def->action = &hotkey_data.hotkey_state.clone_building;
-                    break;
-                case HOTKEY_CYCLE_BUILDINGS:
-                    def->action = &hotkey_data.hotkey_state.cycle_buildings;
-                    def->repeatable = 1;
-                    break;
-                case HOTKEY_CYCLE_BUILDINGS_REVERSE:
-                    def->action = &hotkey_data.hotkey_state.cycle_buildings_reverse;
-                    def->repeatable = 1;
-                    break;
-                case HOTKEY_UNDO:
-                    def->action = &hotkey_data.hotkey_state.undo;
-                    break;
-                case HOTKEY_BUILD_VACANT_HOUSE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_HOUSE_VACANT_LOT;
-                    break;
-                case HOTKEY_BUILD_CLEAR_LAND:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_CLEAR_LAND;
-                    break;
-                case HOTKEY_BUILD_ROAD:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_ROAD;
-                    break;
-                case HOTKEY_BUILD_RESERVOIR:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_RESERVOIR;
-                    break;
-                case HOTKEY_BUILD_AQUEDUCT:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_AQUEDUCT;
-                    break;
-                case HOTKEY_BUILD_FOUNTAIN:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_FOUNTAIN;
-                    break;
-                case HOTKEY_BUILD_WELL:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_WELL;
-                    break;
-                case HOTKEY_BUILD_BARBER:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_BARBER;
-                    break;
-                case HOTKEY_BUILD_BATHHOUSE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_BATHHOUSE;
-                    break;
-                case HOTKEY_BUILD_DOCTOR:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_DOCTOR;
-                    break;
-                case HOTKEY_BUILD_HOSPITAL:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_HOSPITAL;
-                    break;
-                case HOTKEY_BUILD_SMALL_TEMPLE_CERES:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_SMALL_TEMPLE_CERES;
-                    break;
-                case HOTKEY_BUILD_LARGE_TEMPLE_CERES:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_LARGE_TEMPLE_CERES;
-                    break;
-                case HOTKEY_BUILD_ORACLE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_ORACLE;
-                    break;
-                case HOTKEY_BUILD_SCHOOL:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_SCHOOL;
-                    break;
-                case HOTKEY_BUILD_ACADEMY:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_ACADEMY;
-                    break;
-                case HOTKEY_BUILD_LIBRARY:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_LIBRARY;
-                    break;
-                case HOTKEY_BUILD_MISSION_POST:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_MISSION_POST;
-                    break;
-                case HOTKEY_BUILD_THEATER:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_THEATER;
-                    break;
-                case HOTKEY_BUILD_AMPHITHEATER:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_AMPHITHEATER;
-                    break;
-                case HOTKEY_BUILD_COLOSSEUM:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_COLOSSEUM;
-                    break;
-                case HOTKEY_BUILD_HIPPODROME:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_HIPPODROME;
-                    break;
-                case HOTKEY_BUILD_GLADIATOR_SCHOOL:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_GLADIATOR_SCHOOL;
-                    break;
-                case HOTKEY_BUILD_LION_HOUSE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_LION_HOUSE;
-                    break;
-                case HOTKEY_BUILD_ACTOR_COLONY:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_ACTOR_COLONY;
-                    break;
-                case HOTKEY_BUILD_CHARIOT_MAKER:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_CHARIOT_MAKER;
-                    break;
-                case HOTKEY_BUILD_FORUM:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_FORUM;
-                    break;
-                case HOTKEY_BUILD_SENATE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_SENATE;
-                    break;
-                case HOTKEY_BUILD_GOVERNORS_HOUSE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_GOVERNORS_HOUSE;
-                    break;
-                case HOTKEY_BUILD_GOVERNORS_VILLA:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_GOVERNORS_VILLA;
-                    break;
-                case HOTKEY_BUILD_GOVERNORS_PALACE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_GOVERNORS_PALACE;
-                    break;
-                case HOTKEY_BUILD_SMALL_STATUE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_SMALL_STATUE;
-                    break;
-                case HOTKEY_BUILD_MEDIUM_STATUE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_MEDIUM_STATUE;
-                    break;
-                case HOTKEY_BUILD_LARGE_STATUE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_LARGE_STATUE;
-                    break;
-                case HOTKEY_BUILD_GARDENS:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_GARDENS;
-                    break;
-                case HOTKEY_BUILD_PLAZA:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_PLAZA;
-                    break;
-                case HOTKEY_BUILD_ENGINEERS_POST:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_ENGINEERS_POST;
-                    break;
-                case HOTKEY_BUILD_LOW_BRIDGE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_LOW_BRIDGE;
-                    break;
-                case HOTKEY_BUILD_SHIP_BRIDGE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_SHIP_BRIDGE;
-                    break;
-                case HOTKEY_BUILD_SHIPYARD:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_SHIPYARD;
-                    break;
-                case HOTKEY_BUILD_DOCK:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_DOCK;
-                    break;
-                case HOTKEY_BUILD_WHARF:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_WHARF;
-                    break;
-                case HOTKEY_BUILD_WALL:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_WALL;
-                    break;
-                case HOTKEY_BUILD_TOWER:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_TOWER;
-                    break;
-                case HOTKEY_BUILD_GATEHOUSE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_GATEHOUSE;
-                    break;
-                case HOTKEY_BUILD_PREFECTURE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_PREFECTURE;
-                    break;
-                case HOTKEY_BUILD_FORT_LEGIONARIES:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_FORT_LEGIONARIES;
-                    break;
-                case HOTKEY_BUILD_FORT_JAVELIN:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_FORT_JAVELIN;
-                    break;
-                case HOTKEY_BUILD_FORT_MOUNTED:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_FORT_MOUNTED;
-                    break;
-                case HOTKEY_BUILD_MILITARY_ACADEMY:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_MILITARY_ACADEMY;
-                    break;
-                case HOTKEY_BUILD_BARRACKS:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_BARRACKS;
-                    break;
-                case HOTKEY_BUILD_WHEAT_FARM:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_WHEAT_FARM;
-                    break;
-                case HOTKEY_BUILD_VEGETABLE_FARM:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_VEGETABLE_FARM;
-                    break;
-                case HOTKEY_BUILD_FRUIT_FARM:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_FRUIT_FARM;
-                    break;
-                case HOTKEY_BUILD_OLIVE_FARM:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_OLIVE_FARM;
-                    break;
-                case HOTKEY_BUILD_VINES_FARM:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_VINES_FARM;
-                    break;
-                case HOTKEY_BUILD_PIG_FARM:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_PIG_FARM;
-                    break;
-                case HOTKEY_BUILD_CLAY_PIT:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_CLAY_PIT;
-                    break;
-                case HOTKEY_BUILD_MARBLE_QUARRY:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_MARBLE_QUARRY;
-                    break;
-                case HOTKEY_BUILD_IRON_MINE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_IRON_MINE;
-                    break;
-                case HOTKEY_BUILD_TIMBER_YARD:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_TIMBER_YARD;
-                    break;
-                case HOTKEY_BUILD_WINE_WORKSHOP:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_WINE_WORKSHOP;
-                    break;
-                case HOTKEY_BUILD_OIL_WORKSHOP:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_OIL_WORKSHOP;
-                    break;
-                case HOTKEY_BUILD_WEAPONS_WORKSHOP:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_WEAPONS_WORKSHOP;
-                    break;
-                case HOTKEY_BUILD_FURNITURE_WORKSHOP:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_FURNITURE_WORKSHOP;
-                    break;
-                case HOTKEY_BUILD_POTTERY_WORKSHOP:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_POTTERY_WORKSHOP;
-                    break;
-                case HOTKEY_BUILD_MARKET:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_MARKET;
-                    break;
-                case HOTKEY_BUILD_GRANARY:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_GRANARY;
-                    break;
-                case HOTKEY_BUILD_WAREHOUSE:
-                    def->action = &hotkey_data.hotkey_state.building;
-                    def->value = BUILDING_WAREHOUSE;
-                    break;
-                default:
-                    def->action = 0;
-            }
-            if (def->action) {
-                hotkey_data.num_definitions++;
-            }
-        }
-    }
-}
-
-static void set_mapping(int key, int modifiers, int action)
-{
-    struct hotkey_mapping_t *mapping = &hotkey_config_data.default_mappings[action][0];
-    if (mapping->key) {
-        mapping = &hotkey_config_data.default_mappings[action][1];
-    }
-    if (mapping->key) {
-        return;
-    }
-    mapping->key = key;
-    mapping->modifiers = modifiers;
-    mapping->action = action;
+    // Arrow keys
+    set_mapping(HOTKEY_ARROW_UP, KMOD_NONE, SDLK_UP);
+    set_mapping(HOTKEY_ARROW_DOWN, KMOD_NONE, SDLK_DOWN);
+    set_mapping(HOTKEY_ARROW_LEFT, KMOD_NONE, SDLK_LEFT);
+    set_mapping(HOTKEY_ARROW_RIGHT, KMOD_NONE, SDLK_RIGHT);
+    // Global hotkeys
+    set_mapping(HOTKEY_TOGGLE_FULLSCREEN, KMOD_ALT, SDLK_RETURN);
+    set_mapping(HOTKEY_RESET_WINDOW, KMOD_CTRL, SDLK_RETURN);
+    set_mapping(HOTKEY_SAVE_SCREENSHOT, KMOD_CTRL, SDLK_LEFTBRACKET);
+    set_mapping(HOTKEY_SAVE_CITY_SCREENSHOT, KMOD_CTRL, SDLK_RIGHTBRACKET);
+    set_mapping(HOTKEY_LOAD_FILE, KMOD_CTRL, SDLK_l);
+    set_mapping(HOTKEY_SAVE_FILE, KMOD_CTRL, SDLK_s);
+    // City hotkeys
+    set_mapping(HOTKEY_DECREASE_GAME_SPEED, KMOD_NONE, SDLK_KP_MINUS);
+    set_mapping(HOTKEY_INCREASE_GAME_SPEED, KMOD_NONE, SDLK_KP_PLUS);
+    set_mapping(HOTKEY_TOGGLE_PAUSE, KMOD_NONE, SDLK_p);
+    set_mapping(HOTKEY_ROTATE_MAP_LEFT, KMOD_NONE, SDLK_HOME);
+    set_mapping(HOTKEY_ROTATE_MAP_RIGHT, KMOD_NONE, SDLK_END);
+    set_mapping(HOTKEY_REPLAY_MAP, KMOD_CTRL, SDLK_r);
+    set_mapping(HOTKEY_CYCLE_LEGION, KMOD_NONE, SDLK_SPACE);
+    set_mapping(HOTKEY_RETURN_LEGIONS_TO_FORT, KMOD_NONE, SDLK_b);
+    set_mapping(HOTKEY_SHOW_LAST_ADVISOR, KMOD_NONE, SDLK_1);
+    set_mapping(HOTKEY_SHOW_EMPIRE_MAP, KMOD_NONE, SDLK_2);
+    set_mapping(HOTKEY_SHOW_MESSAGES, KMOD_NONE, SDLK_BACKQUOTE);
+    set_mapping(HOTKEY_GO_TO_PROBLEM, KMOD_ALT, SDLK_BACKQUOTE);
+    // Overlays
+    set_mapping(HOTKEY_SHOW_OVERLAY_WATER, KMOD_SHIFT, SDLK_w);
+    set_mapping(HOTKEY_SHOW_OVERLAY_FIRE, KMOD_SHIFT, SDLK_f);
+    set_mapping(HOTKEY_SHOW_OVERLAY_DAMAGE, KMOD_SHIFT, SDLK_d);
+    set_mapping(HOTKEY_SHOW_OVERLAY_CRIME, KMOD_SHIFT, SDLK_c);
+    set_mapping(HOTKEY_SHOW_OVERLAY_PROBLEMS, KMOD_SHIFT, SDLK_r);
+    // City map bookmarks
+    set_mapping(HOTKEY_GO_TO_BOOKMARK_1, KMOD_NONE, SDLK_F1);
+    set_mapping(HOTKEY_GO_TO_BOOKMARK_2, KMOD_NONE, SDLK_F2);
+    set_mapping(HOTKEY_GO_TO_BOOKMARK_3, KMOD_NONE, SDLK_F3);
+    set_mapping(HOTKEY_GO_TO_BOOKMARK_4, KMOD_NONE, SDLK_F4);
+    set_mapping(HOTKEY_SET_BOOKMARK_1, KMOD_CTRL, SDLK_F1);
+    set_mapping(HOTKEY_SET_BOOKMARK_2, KMOD_CTRL, SDLK_F2);
+    set_mapping(HOTKEY_SET_BOOKMARK_3, KMOD_CTRL, SDLK_F3);
+    set_mapping(HOTKEY_SET_BOOKMARK_4, KMOD_CTRL, SDLK_F4);
+    // Editor
+    set_mapping(HOTKEY_EDITOR_TOGGLE_BATTLE_INFO, KMOD_CTRL, SDLK_a);
+    // Cheats
+    set_mapping(HOTKEY_CHEAT_MONEY, KMOD_CTRL, SDLK_COMMA);
+    set_mapping(HOTKEY_CHEAT_INVASION, KMOD_CTRL, SDLK_PERIOD);
+    set_mapping(HOTKEY_CHEAT_VICTORY, KMOD_CTRL, SDLK_SLASH);
+    // Construction hotkeys
+    set_mapping(HOTKEY_BUILD_CLONE, KMOD_ALT, SDLK_q);
+    set_mapping(HOTKEY_CYCLE_BUILDINGS, KMOD_NONE, SDLK_TAB);
+    set_mapping(HOTKEY_CYCLE_BUILDINGS_REVERSE, KMOD_SHIFT, SDLK_TAB);
+    set_mapping(HOTKEY_UNDO, KMOD_CTRL, SDLK_z);
+    set_mapping(HOTKEY_BUILD_VACANT_HOUSE, KMOD_NONE, SDLK_q);
+    set_mapping(HOTKEY_BUILD_CLEAR_LAND, KMOD_NONE, SDLK_w);
+    set_mapping(HOTKEY_BUILD_ROAD, KMOD_NONE, SDLK_e);
+    set_mapping(HOTKEY_BUILD_RESERVOIR, KMOD_NONE, SDLK_r);
+    set_mapping(HOTKEY_BUILD_FOUNTAIN, KMOD_ALT, SDLK_r);
+    set_mapping(HOTKEY_BUILD_DOCTOR, KMOD_ALT, SDLK_s);
+    set_mapping(HOTKEY_BUILD_BATHHOUSE, KMOD_NONE, SDLK_f);
+    set_mapping(HOTKEY_BUILD_BARBER, KMOD_NONE, SDLK_g);
+    set_mapping(HOTKEY_BUILD_SMALL_TEMPLE_CERES, KMOD_NONE, SDLK_s);
+    set_mapping(HOTKEY_BUILD_SCHOOL, KMOD_ALT, SDLK_d);
+    set_mapping(HOTKEY_BUILD_LIBRARY, KMOD_NONE, SDLK_g);
+    set_mapping(HOTKEY_BUILD_THEATER, KMOD_NONE, SDLK_d);
+    set_mapping(HOTKEY_BUILD_AMPHITHEATER, KMOD_ALT, SDLK_f);
+    set_mapping(HOTKEY_BUILD_LION_HOUSE, KMOD_ALT, SDLK_z);
+    set_mapping(HOTKEY_BUILD_COLOSSEUM, KMOD_NONE, SDLK_z);
+    set_mapping(HOTKEY_BUILD_GARDENS, KMOD_ALT, SDLK_w);
+    set_mapping(HOTKEY_BUILD_PLAZA, KMOD_ALT, SDLK_e);
+    set_mapping(HOTKEY_BUILD_FORUM, KMOD_NONE, SDLK_t);
+    set_mapping(HOTKEY_BUILD_ENGINEERS_POST, KMOD_NONE, SDLK_a);
+    set_mapping(HOTKEY_BUILD_PREFECTURE, KMOD_ALT, SDLK_a);
+    set_mapping(HOTKEY_BUILD_WHEAT_FARM, KMOD_ALT, SDLK_x);
+    set_mapping(HOTKEY_BUILD_CLAY_PIT, KMOD_NONE, SDLK_c);
+    set_mapping(HOTKEY_BUILD_WINE_WORKSHOP, KMOD_ALT, SDLK_c);
+    set_mapping(HOTKEY_BUILD_MARKET, KMOD_NONE, SDLK_x);
+    set_mapping(HOTKEY_BUILD_GRANARY, KMOD_NONE, SDLK_v);
+    set_mapping(HOTKEY_BUILD_WAREHOUSE, KMOD_ALT, SDLK_v);
 }
 
 static int get_max_scale_percentage(int pixel_width, int pixel_height)
@@ -50616,8 +50353,7 @@ static int create_screen(char *title, int display_scale_percentage)
     set_scale_percentage(display_scale_percentage, 0, 0);
 
     int width, height;
-    int fullscreen = settings_values[SETTINGS_FULLSCREEN];
-    if (fullscreen) {
+    if (settings[SETTINGS_FULLSCREEN].config_value) {
         SDL_DisplayMode mode;
         SDL_GetDesktopDisplayMode(0, &mode);
         width = mode.w;
@@ -50631,12 +50367,12 @@ static int create_screen(char *title, int display_scale_percentage)
     destroy_screen();
 
     SDL_Log("Creating screen %d x %d, %s, driver: %s", width, height,
-        fullscreen ? "fullscreen" : "windowed", SDL_GetCurrentVideoDriver());
+        settings[SETTINGS_FULLSCREEN].config_value ? "fullscreen" : "windowed", SDL_GetCurrentVideoDriver());
     Uint32 flags = SDL_WINDOW_RESIZABLE;
 
     flags |= SDL_WINDOW_ALLOW_HIGHDPI;
 
-    if (fullscreen) {
+    if (settings[SETTINGS_FULLSCREEN].config_value) {
         flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
     SDL.window = SDL_CreateWindow(title,
@@ -50659,7 +50395,7 @@ static int create_screen(char *title, int display_scale_percentage)
         }
     }
 
-    if (fullscreen && SDL_GetNumVideoDisplays() > 1) {
+    if (settings[SETTINGS_FULLSCREEN].config_value && SDL_GetNumVideoDisplays() > 1) {
         SDL_SetWindowGrab(SDL.window, SDL_TRUE);
     }
 
@@ -50680,18 +50416,14 @@ static void draw_background_logo(void)
     graphics_clear_screen();
     set_translation(screen_data.dialog_offset.x, screen_data.dialog_offset.y);
     image_draw(image_data_s.group_image_ids[GROUP_LOGO], 0, 0);
-    lang_text_draw_centered_colored(13, 7, 160, 462, 320, FONT_NORMAL_PLAIN, COLOR_WHITE);
     set_translation(0, 0);
 }
 
-static void handle_input_logo(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_logo(struct mouse_t *m)
 {
     if (m->left.went_up || m->right.went_up) {
         window_main_menu_show(0);
         return;
-    }
-    if (h->escape_pressed) {
-        post_event(USER_EVENT_QUIT);
     }
 }
 
@@ -50702,11 +50434,6 @@ static void draw_background_plain_message_dialog(void)
     text_draw_centered(plain_message_dialog_data.title, 80, 100, 480, FONT_LARGE_BLACK, 0);
     text_draw_multiline(plain_message_dialog_data.message, 100, 140, 450, FONT_NORMAL_BLACK, 0);
     set_translation(0, 0);
-}
-
-static void close_plain_message_dialog(void)
-{
-    window_go_back();
 }
 
 static void button_ok_plain_message_dialog(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
@@ -50725,12 +50452,12 @@ static void draw_foreground_plain_message_dialog(void)
     set_translation(0, 0);
 }
 
-static void handle_input_plain_message_dialog(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_plain_message_dialog(struct mouse_t *m)
 {
     if (image_buttons_handle_mouse(mouse_in_dialog(m), 80, 80, buttons_plain_message_dialog, 1, 0)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed || h->enter_pressed) {
+    if (m->right.went_up) {
         close_plain_message_dialog();
     }
 }
@@ -50750,27 +50477,10 @@ static void window_plain_message_dialog_show(char *title, char *message)
     }
 }
 
-static void play_intro_music(void)
+static void handle_input_intro_video(struct mouse_t *m)
 {
-    if (settings_values[SETTINGS_MUSIC_ENABLED]) {
-        play_track(TRACK_INTRO);
-    }
-}
-
-static void handle_input_intro_video(struct mouse_t *m, struct hotkeys_t *h)
-{
-    if (!started || m->left.went_up || m->right.went_up || data_video.is_ended || h->enter_pressed) {
-        video_stop();
-        graphics_clear_screen();
-        while (current_video < NUM_INTRO_VIDEOS) {
-            if (video_start(intro_videos[current_video++])) {
-                video_init(0);
-                started = 1;
-                return;
-            }
-        }
-        play_intro_music();
-        window_go_back();
+    if (!started || m->left.went_up || m->right.went_up || data_video.is_ended) {
+        stop_intro_video();
     }
 }
 
@@ -50788,7 +50498,7 @@ static void window_logo_show(int show_patch_message)
         window_plain_message_dialog_show("Patch 1.0.1.0 not installed", "Your Caesar 3 installation does not have the 1.0.1.0 patch installed.\n\
         You can download the patch from : https://github.com/bvschaik/julius/wiki/Patches.\nContinue at your own risk.");
     }
-    if (configs_values[CONFIG_UI_SHOW_INTRO_VIDEO]) {
+    if (configs[CONFIG_UI_SHOW_INTRO_VIDEO].config_value) {
         current_video = 0;
         started = 0;
         window.id = WINDOW_INTRO_VIDEO;
@@ -50848,6 +50558,14 @@ static void init_cursors(int scale_percentage)
     set_cursor(cursor_data.current_shape);
 }
 
+static void remove_newline_from_string(char *str)
+{
+    size_t size = string_length(str);
+    while (size > 0 && (str[size - 1] == '\n' || str[size - 1] == '\r')) {
+        str[--size] = 0;
+    }
+}
+
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) // actually SDL_main
 {
     signal(SIGSEGV, handler);
@@ -50862,7 +50580,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
     char *executable_path = SDL_GetBasePath();
     char data_text_file_path[DIR_PATH_MAX] = { 0 }; // the path to "data_dir.txt" within the Brutus directory
     if (executable_path) {
-        if (string_length(executable_path) < DIR_PATH_MAX - string_length("brutus_settings.txt")) {
+        if (string_length(executable_path) < DIR_PATH_MAX - string_length("brutus_hotkey_configs.txt")) {
             string_copy(executable_path, data_text_file_path, DIR_PATH_MAX - 1);
             strcat(data_text_file_path, "data_dir.txt");
             string_copy(executable_path, SETTINGS_FILE_PATH, DIR_PATH_MAX - 1);
@@ -50870,7 +50588,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
             string_copy(executable_path, CONFIGS_FILE_PATH, DIR_PATH_MAX - 1);
             strcat(CONFIGS_FILE_PATH, "brutus_configs.txt");
             string_copy(executable_path, HOTKEY_CONFIGS_FILE_PATH, DIR_PATH_MAX - 1);
-            strcat(HOTKEY_CONFIGS_FILE_PATH, "brutus.hconfigs");
+            strcat(HOTKEY_CONFIGS_FILE_PATH, "brutus_hotkey_configs.txt");
             string_copy(executable_path, MAPS_DIR_PATH, DIR_PATH_MAX - 1);
             strcat(MAPS_DIR_PATH, "maps");
             string_copy(executable_path, SAVES_DIR_PATH, DIR_PATH_MAX - 1);
@@ -50915,158 +50633,93 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
     _mkdir(MAPS_DIR_PATH);
     _mkdir(SAVES_DIR_PATH);
     SDL_Log("Loading game from %s", game_data_path);
+    char line_buffer[MAX_FILE_LINE_LENGTH];
+    char *line;
+    int line_counter = 0;
     // load settings from file (defaults already loaded on program start)
     FILE *fp_settings = fopen(SETTINGS_FILE_PATH, "rt");
     if (fp_settings) {
-        char line_buffer[MAX_READ_LINE_LENGTH];
-        char *line;
-        int line_counter = 0;
-        while ((line = fgets(line_buffer, MAX_READ_LINE_LENGTH, fp_settings))) {
-            // Remove newline from string
-            size_t size = string_length(line);
-            while (size > 0 && (line[size - 1] == '\n' || line[size - 1] == '\r')) {
-                line[--size] = 0;
-            }
+        // assumes line order matches settings order
+        while ((line = fgets(line_buffer, MAX_FILE_LINE_LENGTH, fp_settings))) {
+            remove_newline_from_string(line);
             char *equals = get_first_char_occurrence_in_string(line, '=');
             if (equals) {
                 *equals = 0;
-                if (string_equals(settings_strings_file[line_counter], line)) {
-                    settings_values[line_counter] = atoi(&equals[1]);
+                if (string_equals(settings[line_counter].config_string, line)) {
+                    settings[line_counter].config_value = atoi(&equals[1]);
                 }
             }
             line_counter++;
         }
         fclose(fp_settings);
     }
-    // load configs from file (defaults already loaded on program start)
+    // load configs from file if available (if not, use pre-loaded defaults)
     FILE *fp_configs = fopen(CONFIGS_FILE_PATH, "rt");
     if (fp_configs) {
-        char line_buffer[MAX_READ_LINE_LENGTH];
-        char *line;
-        int line_counter = 0;
-        while ((line = fgets(line_buffer, MAX_READ_LINE_LENGTH, fp_configs))) {
-            // Remove newline from string
-            size_t size = string_length(line);
-            while (size > 0 && (line[size - 1] == '\n' || line[size - 1] == '\r')) {
-                line[--size] = 0;
-            }
+        line_counter = 0;
+        // assumes line order matches configs order
+        while ((line = fgets(line_buffer, MAX_FILE_LINE_LENGTH, fp_configs))) {
+            remove_newline_from_string(line);
             char *equals = get_first_char_occurrence_in_string(line, '=');
             if (equals) {
                 *equals = 0;
-                if (string_equals("player_name", line)) {
+                if (string_equals(configs_player_name_string, line)) {
                     char *value = &equals[1];
                     string_copy(value, configs_player_name, MAX_PLAYER_NAME_LENGTH);
-                    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("player_name", value, 0));
+                    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message(configs_player_name_string, value, 0));
                     continue;
                 }
-                if (string_equals(configs_strings.strings_file[line_counter], line)) {
+                if (string_equals(configs[line_counter].config_string, line)) {
                     int value = atoi(&equals[1]);
-                    configs_values[line_counter] = value;
-                    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Config key", configs_strings.strings_file[line_counter], value));
+                    configs[line_counter].config_value = value;
+                    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Config key", configs[line_counter].config_string, value));
                     line_counter++;
                 }
             }
         }
         fclose(fp_configs);
         string_copy(configs_player_name, scenario_settings.player_name, MAX_PLAYER_NAME_LENGTH);
+    } else {
+        set_default_configs();
     }
-    memset(hotkey_config_data.default_mappings, 0, sizeof(hotkey_config_data.default_mappings));
-    // Arrow keys
-    set_mapping(KEY_TYPE_UP, KEY_MOD_NONE, HOTKEY_ARROW_UP);
-    set_mapping(KEY_TYPE_DOWN, KEY_MOD_NONE, HOTKEY_ARROW_DOWN);
-    set_mapping(KEY_TYPE_LEFT, KEY_MOD_NONE, HOTKEY_ARROW_LEFT);
-    set_mapping(KEY_TYPE_RIGHT, KEY_MOD_NONE, HOTKEY_ARROW_RIGHT);
-    set_mapping(KEY_TYPE_KP_8, KEY_MOD_NONE, HOTKEY_ARROW_UP);
-    set_mapping(KEY_TYPE_KP_2, KEY_MOD_NONE, HOTKEY_ARROW_DOWN);
-    set_mapping(KEY_TYPE_KP_4, KEY_MOD_NONE, HOTKEY_ARROW_LEFT);
-    set_mapping(KEY_TYPE_KP_6, KEY_MOD_NONE, HOTKEY_ARROW_RIGHT);
-    // Global hotkeys
-    set_mapping(KEY_TYPE_ENTER, KEY_MOD_ALT, HOTKEY_TOGGLE_FULLSCREEN);
-    set_mapping(KEY_TYPE_ENTER, KEY_MOD_CTRL, HOTKEY_RESET_WINDOW);
-    set_mapping(KEY_TYPE_LEFTBRACKET, KEY_MOD_CTRL, HOTKEY_SAVE_SCREENSHOT);
-    set_mapping(KEY_TYPE_RIGHTBRACKET, KEY_MOD_CTRL, HOTKEY_SAVE_CITY_SCREENSHOT);
-    set_mapping(KEY_TYPE_L, KEY_MOD_CTRL, HOTKEY_LOAD_FILE);
-    set_mapping(KEY_TYPE_S, KEY_MOD_CTRL, HOTKEY_SAVE_FILE);
-    // City hotkeys
-    set_mapping(KEY_TYPE_1, KEY_MOD_ALT, HOTKEY_DECREASE_GAME_SPEED);
-    set_mapping(KEY_TYPE_2, KEY_MOD_ALT, HOTKEY_INCREASE_GAME_SPEED);
-    set_mapping(KEY_TYPE_KP_MINUS, KEY_MOD_NONE, HOTKEY_DECREASE_GAME_SPEED);
-    set_mapping(KEY_TYPE_KP_PLUS, KEY_MOD_NONE, HOTKEY_INCREASE_GAME_SPEED);
-    set_mapping(KEY_TYPE_P, KEY_MOD_NONE, HOTKEY_TOGGLE_PAUSE);
-    set_mapping(KEY_TYPE_CAPSLOCK, KEY_MOD_NONE, HOTKEY_TOGGLE_PAUSE);
-    set_mapping(KEY_TYPE_HOME, KEY_MOD_NONE, HOTKEY_ROTATE_MAP_LEFT);
-    set_mapping(KEY_TYPE_END, KEY_MOD_NONE, HOTKEY_ROTATE_MAP_RIGHT);
-    set_mapping(KEY_TYPE_R, KEY_MOD_CTRL, HOTKEY_REPLAY_MAP);
-    set_mapping(KEY_TYPE_SPACE, KEY_MOD_NONE, HOTKEY_CYCLE_LEGION);
-    set_mapping(KEY_TYPE_B, KEY_MOD_NONE, HOTKEY_RETURN_LEGIONS_TO_FORT);
-    set_mapping(KEY_TYPE_1, KEY_MOD_NONE, HOTKEY_SHOW_LAST_ADVISOR);
-    set_mapping(KEY_TYPE_2, KEY_MOD_NONE, HOTKEY_SHOW_EMPIRE_MAP);
-    set_mapping(KEY_TYPE_GRAVE, KEY_MOD_NONE, HOTKEY_SHOW_MESSAGES);
-    set_mapping(KEY_TYPE_GRAVE, KEY_MOD_ALT, HOTKEY_GO_TO_PROBLEM);
-    // Overlays
-    set_mapping(KEY_TYPE_W, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_WATER);
-    set_mapping(KEY_TYPE_F, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_FIRE);
-    set_mapping(KEY_TYPE_D, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_DAMAGE);
-    set_mapping(KEY_TYPE_C, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_CRIME);
-    set_mapping(KEY_TYPE_R, KEY_MOD_SHIFT, HOTKEY_SHOW_OVERLAY_PROBLEMS);
-    // City map bookmarks
-    set_mapping(KEY_TYPE_F1, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_1);
-    set_mapping(KEY_TYPE_F2, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_2);
-    set_mapping(KEY_TYPE_F3, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_3);
-    set_mapping(KEY_TYPE_F4, KEY_MOD_NONE, HOTKEY_GO_TO_BOOKMARK_4);
-    set_mapping(KEY_TYPE_F1, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_1);
-    set_mapping(KEY_TYPE_F2, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_2);
-    set_mapping(KEY_TYPE_F3, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_3);
-    set_mapping(KEY_TYPE_F4, KEY_MOD_CTRL, HOTKEY_SET_BOOKMARK_4);
-    // Editor
-    set_mapping(KEY_TYPE_A, KEY_MOD_CTRL, HOTKEY_EDITOR_TOGGLE_BATTLE_INFO);
-    // Cheats
-    set_mapping(KEY_TYPE_COMMA, KEY_MOD_CTRL, HOTKEY_CHEAT_MONEY);
-    set_mapping(KEY_TYPE_PERIOD, KEY_MOD_CTRL, HOTKEY_CHEAT_INVASION);
-    set_mapping(KEY_TYPE_SLASH, KEY_MOD_CTRL, HOTKEY_CHEAT_VICTORY);
-    // Construction hotkeys
-    set_mapping(KEY_TYPE_Q, KEY_MOD_ALT, HOTKEY_BUILD_CLONE);
-    set_mapping(KEY_TYPE_TAB, KEY_MOD_NONE, HOTKEY_CYCLE_BUILDINGS);
-    set_mapping(KEY_TYPE_TAB, KEY_MOD_SHIFT, HOTKEY_CYCLE_BUILDINGS_REVERSE);
-    set_mapping(KEY_TYPE_Z, KEY_MOD_CTRL, HOTKEY_UNDO);
-    set_mapping(KEY_TYPE_Q, KEY_MOD_NONE, HOTKEY_BUILD_VACANT_HOUSE);
-    set_mapping(KEY_TYPE_W, KEY_MOD_NONE, HOTKEY_BUILD_CLEAR_LAND);
-    set_mapping(KEY_TYPE_E, KEY_MOD_NONE, HOTKEY_BUILD_ROAD);
-    set_mapping(KEY_TYPE_R, KEY_MOD_NONE, HOTKEY_BUILD_RESERVOIR);
-    set_mapping(KEY_TYPE_R, KEY_MOD_ALT, HOTKEY_BUILD_FOUNTAIN);
-    set_mapping(KEY_TYPE_S, KEY_MOD_ALT, HOTKEY_BUILD_DOCTOR);
-    set_mapping(KEY_TYPE_F, KEY_MOD_NONE, HOTKEY_BUILD_BATHHOUSE);
-    set_mapping(KEY_TYPE_G, KEY_MOD_ALT, HOTKEY_BUILD_BARBER);
-    set_mapping(KEY_TYPE_S, KEY_MOD_NONE, HOTKEY_BUILD_SMALL_TEMPLE_CERES);
-    set_mapping(KEY_TYPE_D, KEY_MOD_ALT, HOTKEY_BUILD_SCHOOL);
-    set_mapping(KEY_TYPE_G, KEY_MOD_NONE, HOTKEY_BUILD_LIBRARY);
-    set_mapping(KEY_TYPE_D, KEY_MOD_NONE, HOTKEY_BUILD_THEATER);
-    set_mapping(KEY_TYPE_F, KEY_MOD_ALT, HOTKEY_BUILD_AMPHITHEATER);
-    set_mapping(KEY_TYPE_Z, KEY_MOD_ALT, HOTKEY_BUILD_LION_HOUSE);
-    set_mapping(KEY_TYPE_Z, KEY_MOD_NONE, HOTKEY_BUILD_COLOSSEUM);
-    set_mapping(KEY_TYPE_W, KEY_MOD_ALT, HOTKEY_BUILD_GARDENS);
-    set_mapping(KEY_TYPE_E, KEY_MOD_ALT, HOTKEY_BUILD_PLAZA);
-    set_mapping(KEY_TYPE_T, KEY_MOD_NONE, HOTKEY_BUILD_FORUM);
-    set_mapping(KEY_TYPE_A, KEY_MOD_NONE, HOTKEY_BUILD_ENGINEERS_POST);
-    set_mapping(KEY_TYPE_A, KEY_MOD_ALT, HOTKEY_BUILD_PREFECTURE);
-    set_mapping(KEY_TYPE_X, KEY_MOD_ALT, HOTKEY_BUILD_WHEAT_FARM);
-    set_mapping(KEY_TYPE_C, KEY_MOD_NONE, HOTKEY_BUILD_CLAY_PIT);
-    set_mapping(KEY_TYPE_C, KEY_MOD_ALT, HOTKEY_BUILD_WINE_WORKSHOP);
-    set_mapping(KEY_TYPE_X, KEY_MOD_NONE, HOTKEY_BUILD_MARKET);
-    set_mapping(KEY_TYPE_V, KEY_MOD_NONE, HOTKEY_BUILD_GRANARY);
-    set_mapping(KEY_TYPE_V, KEY_MOD_ALT, HOTKEY_BUILD_WAREHOUSE);
-    load_file();
-    if (hotkey_config_data.num_mappings == 0) {
-        hotkey_config_data.num_mappings = 0;
-        for (int action = 0; action < HOTKEY_MAX_ITEMS; action++) {
-            for (int index = 0; index < 2; index++) {
-                if (hotkey_config_data.default_mappings[action][index].key) {
-                    hotkey_config_add_mapping(&hotkey_config_data.default_mappings[action][index]);
+    // load hotkey configs from file if available
+    FILE *fp_hotkey_configs = fopen(HOTKEY_CONFIGS_FILE_PATH, "rt");
+    if (fp_hotkey_configs) {
+        line_counter = 0;
+        // assumes line order matches hotkey configs order
+        while ((line = fgets(line_buffer, MAX_FILE_LINE_LENGTH, fp_hotkey_configs))) {
+            remove_newline_from_string(line);
+            char *equals = get_first_char_occurrence_in_string(line, '=');
+            if (!equals) {
+                continue;
+            }
+            *equals = 0;
+            if (string_equals(hotkey_mappings[line_counter].action_name, line)) {
+                char editable_name[MAX_FILE_LINE_LENGTH] = { 0 };
+                string_copy(&equals[1], editable_name, MAX_FILE_LINE_LENGTH);
+                char *token = strtok(editable_name, "_");
+                int modifiers = KMOD_NONE;
+                while (token) {
+                    for (int i = 0; i < 4; i++) {
+                        if (string_equals(token, modifier_names[i].name)) {
+                            modifiers |= modifier_names[i].modifier;
+                        }
+                    }
+                    int key = SDL_GetKeyFromName(token);
+                    if (key) {
+                        set_mapping(line_counter, modifiers, key);
+                        break;
+                    }
+                    token = strtok(0, "_");
                 }
             }
+            line_counter++;
         }
+        fclose(fp_hotkey_configs);
+    } else {
+        set_default_hotkeys();
     }
-    hotkey_install_mapping(hotkey_config_data.mappings, hotkey_config_data.num_mappings);
+
     state_data.paused = 0;
     if (!lang_load(0)) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("'c3.eng' or 'c3_mm.eng' files not found or too large.", 0, 0));
@@ -51165,13 +50818,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
         }
     }
     for (int i = SOUND_CHANNEL_CITY_MIN; i <= SOUND_CHANNEL_CITY_MAX; i++) {
-        set_channel_volume(i, settings_values[SETTINGS_CITY_SOUNDS_VOLUME]);
+        set_channel_volume(i, settings[SETTINGS_CITY_SOUNDS_VOLUME].config_value);
     }
     for (int i = SOUND_CHANNEL_EFFECTS_MIN; i <= SOUND_CHANNEL_EFFECTS_MAX; i++) {
-        set_channel_volume(i, settings_values[SETTINGS_SOUND_EFFECTS_VOLUME]);
+        set_channel_volume(i, settings[SETTINGS_SOUND_EFFECTS_VOLUME].config_value);
     }
-    Mix_VolumeMusic(settings_values[SETTINGS_MUSIC_VOLUME] * SDL_MIX_MAXVOLUME / 100);
-    set_channel_volume(SOUND_CHANNEL_SPEECH, settings_values[SETTINGS_SPEECH_VOLUME]);
+    Mix_VolumeMusic(settings[SETTINGS_MUSIC_VOLUME].config_value * SDL_MIX_MAXVOLUME / 100);
+    set_channel_volume(SOUND_CHANNEL_SPEECH, settings[SETTINGS_SPEECH_VOLUME].config_value);
     game_state_init();
     // Without patch, the difficulty option string does not exist and
     // getting it "falls through" to the next text group
@@ -51190,14 +50843,6 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
         main_loop();
     }
     return 0;
-}
-
-static int align_bulding_type_index_to_strings(int building_type_index)
-{
-    if (building_type_index >= BUILDING_HOUSE_SMALL_TENT) {
-        building_type_index += MAX_HOUSE_TYPES;
-    }
-    return building_type_index;
 }
 
 static struct building_t *get_deletable_building(int grid_offset)
@@ -51286,7 +50931,7 @@ static int clear_land_confirmed(int measure_only, int x_start, int y_start, int 
     int x_min, x_max, y_min, y_max;
     map_grid_start_end_to_area(x_start, y_start, x_end, y_end, &x_min, &y_min, &x_max, &y_max);
 
-    int visual_feedback_on_delete = configs_values[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE];
+    int visual_feedback_on_delete = configs[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE].config_value;
 
     for (int y = y_min; y <= y_max; y++) {
         for (int x = x_min; x <= x_max; x++) {
@@ -52817,9 +52462,9 @@ static void draw_foreground_resource_settings(void)
     set_translation(0, 0);
 }
 
-static void handle_input_resource_settings(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_resource_settings(struct mouse_t *m)
 {
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         window_go_back();
         return;
     }
@@ -52882,16 +52527,8 @@ static struct generic_button_t advisor_buttons[] = {
     {588, 1, 40, 40, button_change_advisor, button_none, 0, 0},
 };
 
-static void handle_input_advisors(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_advisors(struct mouse_t *m)
 {
-    if (h->show_last_advisor) {
-        window_city_show();
-        return;
-    }
-    if (h->show_empire_map) {
-        window_empire_show();
-        return;
-    }
     struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (generic_buttons_handle_mouse(m_dialog, 0, 440, advisor_buttons, sizeof(advisor_buttons) / sizeof(struct generic_button_t), &focus_button_id_advisors)) {
         return;
@@ -52904,7 +52541,7 @@ static void handle_input_advisors(struct mouse_t *m, struct hotkeys_t *h)
     if (current_advisor_window->handle_mouse && current_advisor_window->handle_mouse(m_dialog)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         window_city_show();
         return;
     }
@@ -52912,7 +52549,7 @@ static void handle_input_advisors(struct mouse_t *m, struct hotkeys_t *h)
 
 static void button_advisors_city_widget(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    window_advisors_show(settings_values[SETTINGS_LAST_ADVISOR]);
+    window_advisors_show(settings[SETTINGS_LAST_ADVISOR].config_value);
 }
 
 static void button_empire_city_widget(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
@@ -52979,14 +52616,11 @@ static void draw_background_mission_briefing(void)
     set_translation(0, 0);
 }
 
-static void handle_input_mission_briefing(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_mission_briefing(struct mouse_t *m)
 {
     scrollbar_handle_mouse(&scrollbar, mouse_in_dialog(m));
-    if (m->right.went_up || h->escape_pressed || h->enter_pressed) {
-        rich_text_reset(0);
-        stop_sound_channel(SOUND_CHANNEL_SPEECH);
-        update_music(1);
-        window_city_show();
+    if (m->right.went_up) {
+        close_mission_briefing_window();
         return;
     }
 }
@@ -55051,7 +54685,7 @@ static void draw_foreground_building_info(void)
     }
 }
 
-static void handle_input_building_info(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_building_info(struct mouse_t *m)
 {
     int handled = 0;
     // general buttons
@@ -55111,16 +54745,8 @@ static void handle_input_building_info(struct mouse_t *m, struct hotkeys_t *h)
             }
         }
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         window_city_show();
-    }
-}
-
-static void button_start_scenario(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
-{
-    if (game_file_start_scenario(cck_selection_data.selected_scenario_filename)) {
-        update_music(1);
-        window_mission_briefing_show();
     }
 }
 
@@ -55385,7 +55011,7 @@ static void draw_foreground_cck(void)
     set_translation(0, 0);
 }
 
-static void handle_input_cck(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_cck(struct mouse_t *m)
 {
     struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (scrollbar_handle_mouse(&scrollbar_cck, m_dialog)) {
@@ -55400,11 +55026,7 @@ static void handle_input_cck(struct mouse_t *m, struct hotkeys_t *h)
     if (generic_buttons_handle_mouse(m_dialog, 0, 0, file_buttons_cck, MAX_SCENARIOS, &cck_selection_data.focus_button_id)) {
         return;
     }
-    if (h->enter_pressed) {
-        button_start_scenario(0, 0);
-        return;
-    }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         window_main_menu_show(0);
     }
 }
@@ -55499,17 +55121,11 @@ static void draw_foreground_main_menu(void)
     set_translation(0, 0);
 }
 
-static void handle_input_main_menu(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_main_menu(struct mouse_t *m)
 {
     struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_main_menu, MAX_BUTTONS_MAIN_MENU, &focus_button_id_main_menu)) {
         return;
-    }
-    if (h->escape_pressed) {
-        post_event(USER_EVENT_QUIT);
-    }
-    if (h->load_file) {
-        window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_LOAD);
     }
 }
 
@@ -55525,24 +55141,6 @@ static void window_main_menu_show(int restart_music)
         handle_input_main_menu,
     };
     window_show(&window);
-}
-
-static void stop_brief_description_box_input(void)
-{
-    input_box_stop(&scenario_description_input);
-    if (!string_equals(scenario.brief_description, brief_description)) {
-        string_copy(brief_description, scenario.brief_description, MAX_BRIEF_DESCRIPTION);
-        scenario.is_saved = 0;
-    }
-}
-
-static void stop_briefing_box_input(void)
-{
-    input_box_stop(&scenario_briefing_input);
-    if (!string_equals(scenario.briefing, briefing)) {
-        string_copy(briefing, scenario.briefing, MAX_BRIEFING);
-        scenario.is_saved = 0;
-    }
 }
 
 static void start_briefing_box_input(void)
@@ -55590,10 +55188,10 @@ static void draw_foreground_briefing(void)
     set_translation(0, 0);
 }
 
-static void handle_input_briefing(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_briefing(struct mouse_t *m)
 {
     struct mouse_t *m_dialog = mouse_in_dialog(m);
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         stop_briefing_box_input();
         rich_text_reset(0);
         show_editor_attributes();
@@ -55694,7 +55292,7 @@ static void draw_foreground_select_list(void)
     }
 }
 
-static void handle_input_select_list(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_select_list(struct mouse_t *m)
 {
     if (select_list_data.num_items > MAX_ITEMS_PER_LIST) {
         int items_first = items_in_first_list();
@@ -55711,7 +55309,7 @@ static void handle_input_select_list(struct mouse_t *m, struct hotkeys_t *h)
             return;
         }
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         window_go_back();
     }
 }
@@ -55733,207 +55331,92 @@ static void window_select_list_show(int x, int y, int group, int num_items, void
     window_show(&window);
 }
 
-static void set_hotkey(int action, int index, int key, int modifiers)
-{
-    // clear conflicting mappings
-    for (int i = 0; i < HOTKEY_MAX_ITEMS; i++) {
-        for (int j = 0; j < 2; j++) {
-            if (hotkey_config_window_data.mappings[i][j].key == key && hotkey_config_window_data.mappings[i][j].modifiers == modifiers) {
-                hotkey_config_window_data.mappings[i][j].key = KEY_TYPE_NONE;
-                hotkey_config_window_data.mappings[i][j].modifiers = KEY_MOD_NONE;
-            }
-        }
-    }
-    // set new mapping
-    hotkey_config_window_data.mappings[action][index].key = key;
-    hotkey_config_window_data.mappings[action][index].modifiers = modifiers;
-}
-
-static struct generic_button_t bottom_buttons_hotkey_editor_window[] = {
-    {192, 228, 120, 24, button_close_hotkey_editor_window, button_none, 0, 0},
-    {328, 228, 120, 24, button_close_hotkey_editor_window, button_none, 1, 0},
-};
-
 static void draw_background_hotkey_editor_window(void)
 {
     window_draw_underlying_window();
     set_translation(screen_data.dialog_offset.x, screen_data.dialog_offset.y);
     outer_panel_draw(128, 128, 24, 9);
-    text_draw_centered(hotkey_editor_bottom_button_strings[0], 136, 144, 376, FONT_LARGE_BLACK, 0);
-    for (int i = 0; i < NUM_BOTTOM_BUTTONS_HOTKEY_EDITOR_WINDOW; i++) {
-        struct generic_button_t *btn = &bottom_buttons_hotkey_editor_window[i];
-        text_draw_centered(hotkey_editor_bottom_button_strings[i + 1], btn->x, btn->y + 6, btn->width, FONT_NORMAL_BLACK, 0);
-    }
+    text_draw_centered("Press new hotkey", 128, 144, 384, FONT_LARGE_BLACK, 0);
+    text_draw_centered("Enter to confirm", 128, 232, 384, FONT_NORMAL_BLACK, 0);
     set_translation(0, 0);
 }
 
-static   char *key_combination_display_name(int key, int modifiers)
+static void adjust_key_display_name(char **key_name)
 {
-    static char result[100];
-    result[0] = 0;
-    if (modifiers & KEY_MOD_CTRL) {
-        strcat(result, "Ctrl");
-        strcat(result, " ");
+    // adjust for chars that the internal font can't display
+    switch (**key_name) {
+        case '[':
+            *key_name = "Left bracket";
+            break;
+        case ']':
+            *key_name = "Right bracket";
+            break;
+        case '\\':
+            *key_name = "Backslash";
+            break;
+        case '`':
+            *key_name = "Backtick";
+            break;
+        case '~':
+            *key_name = "Tilde";
+            break;
+        case '#':
+            *key_name = "Hash";
+            break;
+        case '$':
+            *key_name = "Dollar";
+            break;
+        case '&':
+            *key_name = "Ampersand";
+            break;
+        case '<':
+            *key_name = "Less than";
+            break;
+        case '>':
+            *key_name = "Greater than";
+            break;
+        case '@':
+            *key_name = "At-sign";
+            break;
+        case '^':
+            *key_name = "Caret";
+            break;
+        case '_':
+            *key_name = "Underscore";
+            break;
+        case '|':
+            *key_name = "Pipe";
+            break;
+        case '{':
+            *key_name = "Left curly brace";
+            break;
+        case '}':
+            *key_name = "Right curly brace";
+            break;
     }
-    if (modifiers & KEY_MOD_ALT) {
-        strcat(result, "Alt");
-        strcat(result, " ");
-    }
-    if (modifiers & KEY_MOD_GUI) {
-        strcat(result, "Gui");
-        strcat(result, " ");
-    }
-    if (modifiers & KEY_MOD_SHIFT) {
-        strcat(result, "Shift");
-        strcat(result, " ");
-    }
-    // Modifiers are easy, now for key name...
-    SDL_Scancode scan_code;
-    switch (key) {
-        case KEY_TYPE_A: scan_code = SDL_SCANCODE_A; break;
-        case KEY_TYPE_B: scan_code = SDL_SCANCODE_B; break;
-        case KEY_TYPE_C: scan_code = SDL_SCANCODE_C; break;
-        case KEY_TYPE_D: scan_code = SDL_SCANCODE_D; break;
-        case KEY_TYPE_E: scan_code = SDL_SCANCODE_E; break;
-        case KEY_TYPE_F: scan_code = SDL_SCANCODE_F; break;
-        case KEY_TYPE_G: scan_code = SDL_SCANCODE_G; break;
-        case KEY_TYPE_H: scan_code = SDL_SCANCODE_H; break;
-        case KEY_TYPE_I: scan_code = SDL_SCANCODE_I; break;
-        case KEY_TYPE_J: scan_code = SDL_SCANCODE_J; break;
-        case KEY_TYPE_K: scan_code = SDL_SCANCODE_K; break;
-        case KEY_TYPE_L: scan_code = SDL_SCANCODE_L; break;
-        case KEY_TYPE_M: scan_code = SDL_SCANCODE_M; break;
-        case KEY_TYPE_N: scan_code = SDL_SCANCODE_N; break;
-        case KEY_TYPE_O: scan_code = SDL_SCANCODE_O; break;
-        case KEY_TYPE_P: scan_code = SDL_SCANCODE_P; break;
-        case KEY_TYPE_Q: scan_code = SDL_SCANCODE_Q; break;
-        case KEY_TYPE_R: scan_code = SDL_SCANCODE_R; break;
-        case KEY_TYPE_S: scan_code = SDL_SCANCODE_S; break;
-        case KEY_TYPE_T: scan_code = SDL_SCANCODE_T; break;
-        case KEY_TYPE_U: scan_code = SDL_SCANCODE_U; break;
-        case KEY_TYPE_V: scan_code = SDL_SCANCODE_V; break;
-        case KEY_TYPE_W: scan_code = SDL_SCANCODE_W; break;
-        case KEY_TYPE_X: scan_code = SDL_SCANCODE_X; break;
-        case KEY_TYPE_Y: scan_code = SDL_SCANCODE_Y; break;
-        case KEY_TYPE_Z: scan_code = SDL_SCANCODE_Z; break;
-        case KEY_TYPE_1: scan_code = SDL_SCANCODE_1; break;
-        case KEY_TYPE_2: scan_code = SDL_SCANCODE_2; break;
-        case KEY_TYPE_3: scan_code = SDL_SCANCODE_3; break;
-        case KEY_TYPE_4: scan_code = SDL_SCANCODE_4; break;
-        case KEY_TYPE_5: scan_code = SDL_SCANCODE_5; break;
-        case KEY_TYPE_6: scan_code = SDL_SCANCODE_6; break;
-        case KEY_TYPE_7: scan_code = SDL_SCANCODE_7; break;
-        case KEY_TYPE_8: scan_code = SDL_SCANCODE_8; break;
-        case KEY_TYPE_9: scan_code = SDL_SCANCODE_9; break;
-        case KEY_TYPE_0: scan_code = SDL_SCANCODE_0; break;
-        case KEY_TYPE_ENTER: scan_code = SDL_SCANCODE_RETURN; break;
-        case KEY_TYPE_ESCAPE: scan_code = SDL_SCANCODE_ESCAPE; break;
-        case KEY_TYPE_BACKSPACE: scan_code = SDL_SCANCODE_BACKSPACE; break;
-        case KEY_TYPE_TAB: scan_code = SDL_SCANCODE_TAB; break;
-        case KEY_TYPE_SPACE: scan_code = SDL_SCANCODE_SPACE; break;
-        case KEY_TYPE_MINUS: scan_code = SDL_SCANCODE_MINUS; break;
-        case KEY_TYPE_EQUALS: scan_code = SDL_SCANCODE_EQUALS; break;
-        case KEY_TYPE_LEFTBRACKET: scan_code = SDL_SCANCODE_LEFTBRACKET; break;
-        case KEY_TYPE_RIGHTBRACKET: scan_code = SDL_SCANCODE_RIGHTBRACKET; break;
-        case KEY_TYPE_BACKSLASH: scan_code = SDL_SCANCODE_BACKSLASH; break;
-        case KEY_TYPE_SEMICOLON: scan_code = SDL_SCANCODE_SEMICOLON; break;
-        case KEY_TYPE_APOSTROPHE: scan_code = SDL_SCANCODE_APOSTROPHE; break;
-        case KEY_TYPE_GRAVE: scan_code = SDL_SCANCODE_GRAVE; break;
-        case KEY_TYPE_COMMA: scan_code = SDL_SCANCODE_COMMA; break;
-        case KEY_TYPE_PERIOD: scan_code = SDL_SCANCODE_PERIOD; break;
-        case KEY_TYPE_SLASH: scan_code = SDL_SCANCODE_SLASH; break;
-        case KEY_TYPE_CAPSLOCK: scan_code = SDL_SCANCODE_CAPSLOCK; break;
-        case KEY_TYPE_F1: scan_code = SDL_SCANCODE_F1; break;
-        case KEY_TYPE_F2: scan_code = SDL_SCANCODE_F2; break;
-        case KEY_TYPE_F3: scan_code = SDL_SCANCODE_F3; break;
-        case KEY_TYPE_F4: scan_code = SDL_SCANCODE_F4; break;
-        case KEY_TYPE_F5: scan_code = SDL_SCANCODE_F5; break;
-        case KEY_TYPE_F6: scan_code = SDL_SCANCODE_F6; break;
-        case KEY_TYPE_F7: scan_code = SDL_SCANCODE_F7; break;
-        case KEY_TYPE_F8: scan_code = SDL_SCANCODE_F8; break;
-        case KEY_TYPE_F9: scan_code = SDL_SCANCODE_F9; break;
-        case KEY_TYPE_F10: scan_code = SDL_SCANCODE_F10; break;
-        case KEY_TYPE_F11: scan_code = SDL_SCANCODE_F11; break;
-        case KEY_TYPE_F12: scan_code = SDL_SCANCODE_F12; break;
-        case KEY_TYPE_INSERT: scan_code = SDL_SCANCODE_INSERT; break;
-        case KEY_TYPE_HOME: scan_code = SDL_SCANCODE_HOME; break;
-        case KEY_TYPE_PAGEUP: scan_code = SDL_SCANCODE_PAGEUP; break;
-        case KEY_TYPE_DELETE: scan_code = SDL_SCANCODE_DELETE; break;
-        case KEY_TYPE_END: scan_code = SDL_SCANCODE_END; break;
-        case KEY_TYPE_PAGEDOWN: scan_code = SDL_SCANCODE_PAGEDOWN; break;
-        case KEY_TYPE_RIGHT: scan_code = SDL_SCANCODE_RIGHT; break;
-        case KEY_TYPE_LEFT: scan_code = SDL_SCANCODE_LEFT; break;
-        case KEY_TYPE_DOWN: scan_code = SDL_SCANCODE_DOWN; break;
-        case KEY_TYPE_UP: scan_code = SDL_SCANCODE_UP; break;
-        case KEY_TYPE_KP_1: scan_code = SDL_SCANCODE_KP_1; break;
-        case KEY_TYPE_KP_2: scan_code = SDL_SCANCODE_KP_2; break;
-        case KEY_TYPE_KP_3: scan_code = SDL_SCANCODE_KP_3; break;
-        case KEY_TYPE_KP_4: scan_code = SDL_SCANCODE_KP_4; break;
-        case KEY_TYPE_KP_5: scan_code = SDL_SCANCODE_KP_5; break;
-        case KEY_TYPE_KP_6: scan_code = SDL_SCANCODE_KP_6; break;
-        case KEY_TYPE_KP_7: scan_code = SDL_SCANCODE_KP_7; break;
-        case KEY_TYPE_KP_8: scan_code = SDL_SCANCODE_KP_8; break;
-        case KEY_TYPE_KP_9: scan_code = SDL_SCANCODE_KP_9; break;
-        case KEY_TYPE_KP_0: scan_code = SDL_SCANCODE_KP_0; break;
-        case KEY_TYPE_KP_PERIOD: scan_code = SDL_SCANCODE_KP_PERIOD; break;
-        case KEY_TYPE_KP_PLUS: scan_code = SDL_SCANCODE_KP_PLUS; break;
-        case KEY_TYPE_KP_MINUS: scan_code = SDL_SCANCODE_KP_MINUS; break;
-        case KEY_TYPE_KP_MULTIPLY: scan_code = SDL_SCANCODE_KP_MULTIPLY; break;
-        case KEY_TYPE_KP_DIVIDE: scan_code = SDL_SCANCODE_KP_DIVIDE; break;
-        case KEY_TYPE_NON_US: scan_code = SDL_SCANCODE_NONUSBACKSLASH; break;
-        default: scan_code = SDL_SCANCODE_UNKNOWN; break;
-    }
-    char *key_name = SDL_GetKeyName(SDL_GetKeyFromScancode(scan_code));
-    if ((key_name[0] & 0x80) == 0) {
-        // Special cases where we know the key is not displayable using the internal font
-        switch (key_name[0]) {
-            case '[': key_name = "Left bracket"; break;
-            case ']': key_name = "Right bracket"; break;
-            case '\\': key_name = "Backslash"; break;
-            case '`': key_name = "Backtick"; break;
-            case '~': key_name = "Tilde"; break;
-            case '#': key_name = "Hash"; break;
-            case '$': key_name = "Dollar"; break;
-            case '&': key_name = "Ampersand"; break;
-            case '<': key_name = "Less than"; break;
-            case '>': key_name = "Greater than"; break;
-            case '@': key_name = "At-sign"; break;
-            case '^': key_name = "Caret"; break;
-            case '_': key_name = "Underscore"; break;
-            case '|': key_name = "Pipe"; break;
-            case '{': key_name = "Left curly brace"; break;
-            case '}': key_name = "Right curly brace"; break;
-            case '\0': key_name = key_display_names[key];
-        }
-        strcat(result, key_name);
-    } else if (font_letter_id(&font_data.font_definitions[FONT_NORMAL_BLACK], key_name) >= 0) {
-        strcat(result, key_name);
-    } else {
-        strcat(result, "? (");
-        strcat(result, key_display_names[key]);
-        strcat(result, ")");
-    }
-    return result;
 }
 
 static void draw_foreground_hotkey_editor_window(void)
 {
     set_translation(screen_data.dialog_offset.x, screen_data.dialog_offset.y);
     inner_panel_draw(192, 184, 16, 2);
-    text_draw_centered(key_combination_display_name(hotkey_editor_window_data.key, hotkey_editor_window_data.modifiers), 192, 193, 256, FONT_NORMAL_WHITE, 0);
-    for (int i = 0; i < NUM_BOTTOM_BUTTONS_HOTKEY_EDITOR_WINDOW; i++) {
-        struct generic_button_t *btn = &bottom_buttons_hotkey_editor_window[i];
-        button_border_draw(btn->x, btn->y, btn->width, btn->height, hotkey_editor_window_data.focus_button == i + 1);
+    char hotkey_name[100] = { 0 };
+    for (int j = 0; j < 4; j++) {
+        if (hotkey_button_modifiers & modifier_names[j].modifier) {
+            strcat(hotkey_name, modifier_names[j].name);
+            strcat(hotkey_name, " ");
+        }
     }
+    char *key_name = SDL_GetKeyName(hotkey_button_key);
+    adjust_key_display_name(&key_name);
+    strcat(hotkey_name, key_name);
+    text_draw_centered(hotkey_name, 192, 193, 256, FONT_NORMAL_WHITE, 0);
     set_translation(0, 0);
 }
 
-static void handle_input_hotkey_editor_window(struct mouse_t *m, __attribute__((unused))   struct hotkeys_t *h)
+static void handle_input_hotkey_editor_window(struct mouse_t *m)
 {
-    struct mouse_t *m_dialog = mouse_in_dialog(m);
-    int handled = 0;
-    handled |= generic_buttons_handle_mouse(m_dialog, 0, 0, bottom_buttons_hotkey_editor_window, NUM_BOTTOM_BUTTONS_HOTKEY_EDITOR_WINDOW, &hotkey_editor_window_data.focus_button);
-    if (!handled && m->right.went_up) {
+    if (m->right.went_up) {
         button_close_hotkey_editor_window(0, 0);
     }
 }
@@ -55943,114 +55426,80 @@ static void on_scroll_hotkey_config_window(void)
     window_invalidate();
 }
 
-static struct scrollbar_type_t scrollbar_hotkey_config_window = { 580, 72, 352, on_scroll_hotkey_config_window, 0, 0, 0, 0, 0, 0 };
+static struct scrollbar_type_t scrollbar_hotkey_config_window = { 540, -18, 525, on_scroll_hotkey_config_window, 0, 0, 0, 0, 0, 0 };
 
-static void button_hotkey(int row, int is_alternative)
+static void button_hotkey(int row, __attribute__((unused)) int param2)
 {
-    struct hotkey_widget_t *widget = &hotkey_widgets[row + scrollbar_hotkey_config_window.scroll_position];
-    if (widget->action == HOTKEY_HEADER) {
-        return;
+    hotkey_button_action_index = row + scrollbar_hotkey_config_window.scroll_position;
+    // account for header rows
+    if (row + scrollbar_hotkey_config_window.scroll_position >= 0) {
+        hotkey_button_action_index--;
+    }
+    if (row + scrollbar_hotkey_config_window.scroll_position >= 5) {
+        hotkey_button_action_index--;
+    }
+    if (row + scrollbar_hotkey_config_window.scroll_position >= 12) {
+        hotkey_button_action_index--;
+    }
+    if (row + scrollbar_hotkey_config_window.scroll_position >= 25) {
+        hotkey_button_action_index--;
+    }
+    if (row + scrollbar_hotkey_config_window.scroll_position >= 31) {
+        hotkey_button_action_index--;
+    }
+    if (row + scrollbar_hotkey_config_window.scroll_position >= 40) {
+        hotkey_button_action_index--;
+    }
+    if (row + scrollbar_hotkey_config_window.scroll_position >= 42) {
+        hotkey_button_action_index--;
+    }
+    if (row + scrollbar_hotkey_config_window.scroll_position >= 46) {
+        hotkey_button_action_index--;
     }
     struct window_type_t window = {
-    WINDOW_HOTKEY_EDITOR,
-    draw_background_hotkey_editor_window,
-    draw_foreground_hotkey_editor_window,
-    handle_input_hotkey_editor_window,
+        WINDOW_HOTKEY_EDITOR,
+        draw_background_hotkey_editor_window,
+        draw_foreground_hotkey_editor_window,
+        handle_input_hotkey_editor_window,
     };
-    hotkey_editor_window_data.action = widget->action;
-    hotkey_editor_window_data.index = is_alternative;
-    hotkey_editor_window_data.callback = set_hotkey;
-    hotkey_editor_window_data.key = KEY_TYPE_NONE;
-    hotkey_editor_window_data.modifiers = KEY_MOD_NONE;
-    hotkey_editor_window_data.focus_button = 0;
     window_show(&window);
 }
 
 static struct generic_button_t hotkey_buttons[] = {
-    {HOTKEY_X_OFFSET_1, 80 + 24 * 0, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 0, 0},
-    {HOTKEY_X_OFFSET_2, 80 + 24 * 0, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 0, 1},
-    {HOTKEY_X_OFFSET_1, 80 + 24 * 1, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 1, 0},
-    {HOTKEY_X_OFFSET_2, 80 + 24 * 1, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 1, 1},
-    {HOTKEY_X_OFFSET_1, 80 + 24 * 2, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 2, 0},
-    {HOTKEY_X_OFFSET_2, 80 + 24 * 2, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 2, 1},
-    {HOTKEY_X_OFFSET_1, 80 + 24 * 3, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 3, 0},
-    {HOTKEY_X_OFFSET_2, 80 + 24 * 3, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 3, 1},
-    {HOTKEY_X_OFFSET_1, 80 + 24 * 4, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 4, 0},
-    {HOTKEY_X_OFFSET_2, 80 + 24 * 4, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 4, 1},
-    {HOTKEY_X_OFFSET_1, 80 + 24 * 5, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 5, 0},
-    {HOTKEY_X_OFFSET_2, 80 + 24 * 5, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 5, 1},
-    {HOTKEY_X_OFFSET_1, 80 + 24 * 6, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 6, 0},
-    {HOTKEY_X_OFFSET_2, 80 + 24 * 6, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 6, 1},
-    {HOTKEY_X_OFFSET_1, 80 + 24 * 7, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 7, 0},
-    {HOTKEY_X_OFFSET_2, 80 + 24 * 7, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 7, 1},
-    {HOTKEY_X_OFFSET_1, 80 + 24 * 8, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 8, 0},
-    {HOTKEY_X_OFFSET_2, 80 + 24 * 8, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 8, 1},
-    {HOTKEY_X_OFFSET_1, 80 + 24 * 9, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 9, 0},
-    {HOTKEY_X_OFFSET_2, 80 + 24 * 9, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 9, 1},
-    {HOTKEY_X_OFFSET_1, 80 + 24 * 10, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 10, 0},
-    {HOTKEY_X_OFFSET_2, 80 + 24 * 10, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 10, 1},
-    {HOTKEY_X_OFFSET_1, 80 + 24 * 11, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 11, 0},
-    {HOTKEY_X_OFFSET_2, 80 + 24 * 11, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 11, 1},
-    {HOTKEY_X_OFFSET_1, 80 + 24 * 12, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 12, 0},
-    {HOTKEY_X_OFFSET_2, 80 + 24 * 12, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 12, 1},
-    {HOTKEY_X_OFFSET_1, 80 + 24 * 13, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 13, 0},
-    {HOTKEY_X_OFFSET_2, 80 + 24 * 13, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 13, 1},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 0, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 0, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 1, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 1, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 2, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 2, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 3, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 3, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 4, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 4, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 5, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 5, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 6, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 6, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 7, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 7, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 8, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 8, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 9, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 9, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 10, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 10, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 11, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 11, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 12, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 12, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 13, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 13, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 14, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 14, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 15, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 15, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 16, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 16, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 17, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 17, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 18, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 18, 0},
+    {HOTKEY_X_OFFSET_1, 4 + 24 * 19, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT, button_hotkey, button_none, 19, 0},
 };
 
 static void button_reset_defaults_hotkey_config_window(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     for (int action = 0; action < HOTKEY_MAX_ITEMS; action++) {
-        for (int index = 0; index < 2; index++) {
-            if (index < 0 || index >= 2 || (int) action < 0 || action >= HOTKEY_MAX_ITEMS) {
-                continue;
-            } else {
-                hotkey_config_window_data.mappings[action][index] = hotkey_config_data.default_mappings[action][index];
-            }
-        }
+        hotkey_mappings[action].sdl_mods = 0;
+        hotkey_mappings[action].sdl_key = 0;
     }
+    set_default_hotkeys();
     window_invalidate();
 }
 
-static void button_close_hotkey_config_window(int save, __attribute__((unused)) int param2)
-{
-    if (!save) {
-        window_go_back();
-        return;
-    }
-    hotkey_config_data.num_mappings = 0;
-    for (int action = 0; action < HOTKEY_MAX_ITEMS; action++) {
-        for (int index = 0; index < 2; index++) {
-            if (hotkey_config_window_data.mappings[action][index].key != KEY_TYPE_NONE) {
-                hotkey_config_add_mapping(&hotkey_config_window_data.mappings[action][index]);
-            }
-        }
-    }
-    hotkey_install_mapping(hotkey_config_data.mappings, hotkey_config_data.num_mappings);
-    FILE *fp = fopen(HOTKEY_CONFIGS_FILE_PATH, "wt");
-    if (!fp) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Unable to write hotkey configuration file", HOTKEY_CONFIGS_FILE_PATH, 0));
-        return;
-    }
-    for (int i = 0; i < hotkey_config_data.num_mappings; i++) {
-        static char name[100];
-        name[0] = 0;
-        for (struct modifier_name_t *modname = modifier_names; modname->modifier; modname++) {
-            if (hotkey_config_data.mappings[i].modifiers & modname->modifier) {
-                strcat(name, modname->name);
-                strcat(name, " ");
-            }
-        }
-        strcat(name, key_names[hotkey_config_data.mappings[i].key]);
-        fprintf(fp, "%s=%s\n", ini_keys_hotkey_config[hotkey_config_data.mappings[i].action], name);
-    }
-    fclose(fp);
-    window_go_back();
-}
-
 static struct generic_button_t bottom_buttons_hotkey_config_window[] = {
-    {230, 430, 180, 30, button_reset_defaults_hotkey_config_window, button_none, 0, 0},
-    {415, 430, 100, 30, button_close_hotkey_config_window, button_none, 0, 0},
-    {520, 430, 100, 30, button_close_hotkey_config_window, button_none, 1, 0},
+    {230, 515, 180, 30, button_reset_defaults_hotkey_config_window, button_none, 0, 0},
 };
 
 static void draw_background_hotkey_config_window(void)
@@ -56059,45 +55508,88 @@ static void draw_background_hotkey_config_window(void)
     image_draw_fullscreen_background(image_data_s.group_image_ids[GROUP_INTERMEZZO_BACKGROUND] + 16);
     draw_version_string();
     set_translation(screen_data.dialog_offset.x, screen_data.dialog_offset.y);
-    outer_panel_draw(0, 0, 40, 30);
-    text_draw_centered(hotkey_strings[0], 16, 16, 608, FONT_LARGE_BLACK, 0);
-    text_draw_centered(hotkey_strings[1], HOTKEY_X_OFFSET_1, 55, HOTKEY_BTN_WIDTH, FONT_NORMAL_BLACK, 0);
-    text_draw_centered(hotkey_strings[2], HOTKEY_X_OFFSET_2, 55, HOTKEY_BTN_WIDTH, FONT_NORMAL_BLACK, 0);
-    inner_panel_draw(20, 72, 35, 22);
-    int y_base = 80;
-    for (int i = 0; i < NUM_VISIBLE_OPTIONS; i++) {
+    int x_base = -25;
+    outer_panel_draw(x_base, -100, 40, 42);
+    text_draw_centered("Brutus hotkey configuration", x_base, -76, 640, FONT_LARGE_BLACK, 0);
+    inner_panel_draw(x_base + 32, -20, 36, 33);
+    int string_align_index = 0;
+    for (int i = 0; i < HOTKEY_CONFIGS_NUM_VISIBLE_OPTIONS; i++) {
         int current_pos = i + scrollbar_hotkey_config_window.scroll_position;
-        struct hotkey_widget_t *widget = &hotkey_widgets[current_pos];
-        int text_offset = y_base + 6 + 24 * i;
-        if (current_pos == 0 || current_pos == 5 || current_pos == 12 || current_pos == 25
-        || current_pos == 31 || current_pos == 40 || current_pos == 42 || current_pos == 46) { // headers
-            text_draw(hotkey_widget_strings[current_pos], 32, text_offset, FONT_NORMAL_WHITE, 0);
-        } else {
-            if (current_pos <= 51) { // number of entries in hotkey_widget_strings
-                text_draw(hotkey_widget_strings[current_pos], 32, text_offset, FONT_NORMAL_GREEN, 0);
-            } else {
-                int building_index = align_bulding_type_index_to_strings(current_pos - 50);
-                text_draw(all_buildings_strings[building_index], 32, text_offset, FONT_NORMAL_GREEN, 0); // reuse building strings
-            }
-            struct hotkey_mapping_t *mapping1 = &hotkey_config_window_data.mappings[widget->action][0];
-            if (mapping1->key) {
-                char *keyname = key_combination_display_name(mapping1->key, mapping1->modifiers);
-                graphics_set_clip_rectangle(HOTKEY_X_OFFSET_1, text_offset, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT);
-                text_draw_centered(keyname, HOTKEY_X_OFFSET_1 + 3, text_offset, HOTKEY_BTN_WIDTH - 6, FONT_NORMAL_WHITE, 0);
-                graphics_reset_clip_rectangle();
-            }
-            struct hotkey_mapping_t *mapping2 = &hotkey_config_window_data.mappings[widget->action][1];
-            if (mapping2->key) {
-                graphics_set_clip_rectangle(HOTKEY_X_OFFSET_2, text_offset, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT);
-                char *keyname = key_combination_display_name(mapping2->key, mapping2->modifiers);
-                text_draw_centered(keyname, HOTKEY_X_OFFSET_2 + 3, text_offset, HOTKEY_BTN_WIDTH - 6, FONT_NORMAL_WHITE, 0);
-                graphics_reset_clip_rectangle();
+        int y_text_offset = 9 + 24 * i;
+        if (current_pos >= 0) {
+            string_align_index = 1;
+            if (current_pos == 0) {
+                text_draw("Arrow keys", x_base + 48, y_text_offset, FONT_NORMAL_WHITE, 0);
+                continue;
             }
         }
+        if (current_pos >= 5) {
+            string_align_index = 2;
+            if (current_pos == 5) {
+                text_draw("Global hotkeys", x_base + 48, y_text_offset, FONT_NORMAL_WHITE, 0);
+                continue;
+            }
+        }
+        if (current_pos >= 12) {
+            string_align_index = 3;
+            if (current_pos == 12) {
+                text_draw("City hotkeys", x_base + 48, y_text_offset, FONT_NORMAL_WHITE, 0);
+                continue;
+            }
+        }
+        if (current_pos >= 25) {
+            string_align_index = 4;
+            if (current_pos == 25) {
+                text_draw("Overlays", x_base + 48, y_text_offset, FONT_NORMAL_WHITE, 0);
+                continue;
+            }
+        }
+        if (current_pos >= 31) {
+            string_align_index = 5;
+            if (current_pos == 31) {
+                text_draw("City map bookmarks", x_base + 48, y_text_offset, FONT_NORMAL_WHITE, 0);
+                continue;
+            }
+        }
+        if (current_pos >= 40) {
+            string_align_index = 6;
+            if (current_pos == 40) {
+                text_draw("Editor", x_base + 48, y_text_offset, FONT_NORMAL_WHITE, 0);
+                continue;
+            }
+        }
+        if (current_pos >= 42) {
+            string_align_index = 7;
+            if (current_pos == 42) {
+                text_draw("Cheats", x_base + 48, y_text_offset, FONT_NORMAL_WHITE, 0);
+                continue;
+            }
+        }
+        if (current_pos >= 46) {
+            string_align_index = 8;
+            if (current_pos == 46) {
+                text_draw("Construction hotkeys", x_base + 48, y_text_offset, FONT_NORMAL_WHITE, 0);
+                continue;
+            }
+        }
+        text_draw(hotkey_mappings[current_pos - string_align_index].action_name, x_base + 56, y_text_offset, FONT_NORMAL_GREEN, 0);
+        if (hotkey_mappings[current_pos - string_align_index].sdl_key) {
+            char hotkey_name[100] = { 0 };
+            for (int j = 0; j < 4; j++) {
+                if (hotkey_mappings[current_pos - string_align_index].sdl_mods & modifier_names[j].modifier) {
+                    strcat(hotkey_name, modifier_names[j].name);
+                    strcat(hotkey_name, " ");
+                }
+            }
+            char *key_name = SDL_GetKeyName(hotkey_mappings[current_pos - string_align_index].sdl_key);
+            adjust_key_display_name(&key_name);
+            strcat(hotkey_name, key_name);
+            graphics_set_clip_rectangle(HOTKEY_X_OFFSET_1, y_text_offset, HOTKEY_BTN_WIDTH, HOTKEY_BTN_HEIGHT);
+            text_draw_centered(hotkey_name, HOTKEY_X_OFFSET_1 + 3, y_text_offset, HOTKEY_BTN_WIDTH - 6, FONT_NORMAL_WHITE, 0);
+            graphics_reset_clip_rectangle();
+        }
     }
-    for (int i = 0; i < NUM_BOTTOM_BUTTONS_HOTKEY_CONFIG_WINDOW; i++) {
-        text_draw_centered(hotkey_strings[i + 3], bottom_buttons_hotkey_config_window[i].x, bottom_buttons_hotkey_config_window[i].y + 9, bottom_buttons_hotkey_config_window[i].width, FONT_NORMAL_BLACK, 0);
-    }
+    text_draw_centered(reset_defaults_string, bottom_buttons_hotkey_config_window[0].x, bottom_buttons_hotkey_config_window[0].y + 9, bottom_buttons_hotkey_config_window[0].width, FONT_NORMAL_BLACK, 0);
     set_translation(0, 0);
 }
 
@@ -56105,51 +55597,41 @@ static void draw_foreground_hotkey_config_window(void)
 {
     set_translation(screen_data.dialog_offset.x, screen_data.dialog_offset.y);
     scrollbar_draw(&scrollbar_hotkey_config_window);
-    for (int i = 0; i < NUM_VISIBLE_OPTIONS; i++) {
-        struct hotkey_widget_t *widget = &hotkey_widgets[i + scrollbar_hotkey_config_window.scroll_position];
-        if (widget->action != HOTKEY_HEADER) {
-            struct generic_button_t *btn = &hotkey_buttons[2 * i];
-            button_border_draw(btn->x, btn->y, btn->width, btn->height, hotkey_config_window_data.focus_button == 1 + 2 * i);
-            btn++;
-            button_border_draw(btn->x, btn->y, btn->width, btn->height, hotkey_config_window_data.focus_button == 2 + 2 * i);
+    for (int i = 0; i < HOTKEY_CONFIGS_NUM_VISIBLE_OPTIONS; i++) {
+        int current_pos = i + scrollbar_hotkey_config_window.scroll_position;
+        switch (current_pos) {
+            case 0:
+            case 5:
+            case 12:
+            case 25:
+            case 31:
+            case 40:
+            case 42:
+            case 46:
+                continue; // headers
+            default:
+                button_border_draw(hotkey_buttons[i].x, hotkey_buttons[i].y, hotkey_buttons[i].width, hotkey_buttons[i].height, hotkey_config_window_data.focus_button == i + 1);
+                break;
         }
     }
-    for (int i = 0; i < NUM_BOTTOM_BUTTONS_HOTKEY_CONFIG_WINDOW; i++) {
-        button_border_draw(bottom_buttons_hotkey_config_window[i].x, bottom_buttons_hotkey_config_window[i].y,
-            bottom_buttons_hotkey_config_window[i].width, bottom_buttons_hotkey_config_window[i].height,
-            hotkey_config_window_data.bottom_focus_button == i + 1);
-    }
+    button_border_draw(bottom_buttons_hotkey_config_window[0].x, bottom_buttons_hotkey_config_window[0].y,
+        bottom_buttons_hotkey_config_window[0].width, bottom_buttons_hotkey_config_window[0].height,
+        hotkey_config_window_data.bottom_focus_button == 1);
     set_translation(0, 0);
 }
 
-static void handle_input_hotkey_config_window(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_hotkey_config_window(struct mouse_t *m)
 {
     struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (scrollbar_handle_mouse(&scrollbar_hotkey_config_window, m_dialog)) {
         return;
     }
-    int handled = 0;
-    handled |= generic_buttons_handle_mouse(m_dialog, 0, 0,
-        hotkey_buttons, NUM_VISIBLE_OPTIONS * 2, &hotkey_config_window_data.focus_button);
-    handled |= generic_buttons_handle_mouse(m_dialog, 0, 0,
-        bottom_buttons_hotkey_config_window, NUM_BOTTOM_BUTTONS_HOTKEY_CONFIG_WINDOW, &hotkey_config_window_data.bottom_focus_button);
-    if (!handled && (m->right.went_up || h->escape_pressed)) {
+    generic_buttons_handle_mouse(m_dialog, 0, 0, hotkey_buttons, sizeof(hotkey_buttons) / sizeof(struct generic_button_t), &hotkey_config_window_data.focus_button);
+    generic_buttons_handle_mouse(m_dialog, 0, 0, bottom_buttons_hotkey_config_window, 1, &hotkey_config_window_data.bottom_focus_button);
+    if (m->right.went_up) {
+        save_hotkey_configs();
         window_config_show();
     }
-}
-
-static   struct hotkey_mapping_t *hotkey_for_action(int action, int index)
-{
-    int num = 0;
-    for (int i = 0; i < hotkey_config_data.num_mappings; i++) {
-        if (hotkey_config_data.mappings[i].action == action) {
-            if (num == index) {
-                return &hotkey_config_data.mappings[i];
-            }
-            num++;
-        }
-    }
-    return 0;
 }
 
 static void button_hotkeys(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
@@ -56160,26 +55642,13 @@ static void button_hotkeys(__attribute__((unused)) int param1, __attribute__((un
         draw_foreground_hotkey_config_window,
         handle_input_hotkey_config_window,
     };
-    scrollbar_init(&scrollbar_hotkey_config_window, 0, sizeof(hotkey_widgets) / sizeof(struct hotkey_widget_t) - NUM_VISIBLE_OPTIONS);
-    for (int i = 0; i < HOTKEY_MAX_ITEMS; i++) {
-        struct hotkey_mapping_t empty = { KEY_TYPE_NONE, KEY_MOD_NONE, i };
-        struct hotkey_mapping_t *mapping = hotkey_for_action(i, 0);
-        hotkey_config_window_data.mappings[i][0] = mapping ? *mapping : empty;
-        mapping = hotkey_for_action(i, 1);
-        hotkey_config_window_data.mappings[i][1] = mapping ? *mapping : empty;
-    }
+    scrollbar_init(&scrollbar_hotkey_config_window, 0, HOTKEY_MAX_ITEMS + HOTKEY_CONFIGS_NUM_HEADERS - HOTKEY_CONFIGS_NUM_VISIBLE_OPTIONS);
     window_show(&window);
 }
 
 static void button_reset_defaults_window_config(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    string_copy("BRUTUS", configs_player_name, MAX_PLAYER_NAME_LENGTH);
-    configs_values[CONFIG_UI_SIDEBAR_INFO] = 1;
-    configs_values[CONFIG_UI_SHOW_INTRO_VIDEO] = 0;
-    configs_values[CONFIG_UI_DISABLE_MOUSE_EDGE_SCROLLING] = 0;
-    configs_values[CONFIG_UI_DISABLE_RIGHT_CLICK_MAP_DRAG] = 0;
-    configs_values[CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE] = 1;
-    configs_values[CONFIG_UI_HIGHLIGHT_LEGIONS] = 1;
+    set_default_configs();
     window_invalidate();
 }
 
@@ -56202,10 +55671,10 @@ static void draw_background_window_config(void)
     for (int i = 0; i < CONFIGS_MAX_ENTRIES; i++) {
         int y = 128 + ITEM_HEIGHT * i;
         button_border_draw(x_offset, y, 22, 22, window_config_data.focus_button == i + 1);
-        if (configs_values[i]) {
+        if (configs[i].config_value) {
             text_draw("x", x_offset + 7, y + 4, FONT_NORMAL_BLACK, 0);
         }
-        text_draw(configs_strings.strings_ui[i], x_offset + 32, y + 4, FONT_NORMAL_BLACK, 0);
+        text_draw(configs[i].config_string, x_offset + 32, y + 4, FONT_NORMAL_BLACK, 0);
     }
     // draw bottom buttons
     for (int i = 0; i < 2; i++) {
@@ -56213,7 +55682,7 @@ static void draw_background_window_config(void)
             bottom_buttons_window_config[i].width, bottom_buttons_window_config[i].height, window_config_data.bottom_focus_button == i + 1);
     }
     text_draw_centered("Configure hotkeys", bottom_buttons_window_config[0].x, bottom_buttons_window_config[0].y + 9, bottom_buttons_window_config[0].width, FONT_NORMAL_BLACK, 0);
-    text_draw_centered("Reset defaults", bottom_buttons_window_config[1].x, bottom_buttons_window_config[1].y + 9, bottom_buttons_window_config[1].width, FONT_NORMAL_BLACK, 0);
+    text_draw_centered(reset_defaults_string, bottom_buttons_window_config[1].x, bottom_buttons_window_config[1].y + 9, bottom_buttons_window_config[1].width, FONT_NORMAL_BLACK, 0);
     set_translation(0, 0);
 }
 
@@ -56224,7 +55693,7 @@ static void draw_foreground_window_config(void)
     set_translation(0, 0);
 }
 
-static void handle_input_window_config(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_window_config(struct mouse_t *m)
 {
     struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (generic_buttons_handle_mouse(m_dialog, 0, 0, bottom_buttons_window_config, sizeof(bottom_buttons_window_config) / sizeof(struct generic_button_t), &window_config_data.bottom_focus_button)) {
@@ -56237,7 +55706,7 @@ static void handle_input_window_config(struct mouse_t *m, struct hotkeys_t *h)
         if (m_dialog->x >= 32 && m_dialog->x <= 32 + 22 && m_dialog->y >= y && m_dialog->y <= y + 22) {
             window_config_data.focus_button = i + 1;
             if (m_dialog->left.went_up) {
-                configs_values[i] = configs_values[i] ? 0 : 1;
+                configs[i].config_value = configs[i].config_value ? 0 : 1;
                 return;
             }
         }
@@ -56253,8 +55722,8 @@ static void handle_input_window_config(struct mouse_t *m, struct hotkeys_t *h)
             return;
         }
     }
-    if (m->right.went_up || h->escape_pressed) {
-        config_save();
+    if (m->right.went_up) {
+        save_configs();
         window_main_menu_show(0);
     }
 }
@@ -56358,64 +55827,12 @@ static void draw_foreground_start_year(void)
     set_translation(0, 0);
 }
 
-static void draw_foreground_starting_conditions(void)
-{
-    set_translation(screen_data.dialog_offset.x, screen_data.dialog_offset.y);
-    outer_panel_draw(0, 0, 30, 24);
-    lang_text_draw_centered(44, 88, 0, 16, 480, FONT_LARGE_BLACK);
-    // Initial rank
-    lang_text_draw(44, 108, 32, 57, FONT_NORMAL_BLACK);
-    button_border_draw(262, 48, 200, 30, focus_button_id_starting_conditions == 1);
-    lang_text_draw_centered(32, scenario.player_rank, 262, 57, 200, FONT_NORMAL_BLACK);
-    // Adjust the start date
-    lang_text_draw(44, 89, 32, 97, FONT_NORMAL_BLACK);
-    button_border_draw(262, 88, 200, 30, focus_button_id_starting_conditions == 2);
-    lang_text_draw_year(scenario.start_year, 330, 97, FONT_NORMAL_BLACK);
-    // Initial favor
-    text_draw("Initial favor", 32, 137, FONT_NORMAL_BLACK, COLOR_BLACK);
-    button_border_draw(262, 128, 200, 30, focus_button_id_starting_conditions == 3);
-    text_draw_number_centered(scenario.initial_favor, 262, 137, 200, FONT_NORMAL_BLACK);
-    // Initial funds
-    lang_text_draw(44, 39, 32, 177, FONT_NORMAL_BLACK);
-    button_border_draw(262, 168, 200, 30, focus_button_id_starting_conditions == 4);
-    text_draw_number_centered(scenario.initial_funds, 262, 177, 200, FONT_NORMAL_BLACK);
-    // Rescue loan
-    lang_text_draw(44, 68, 32, 217, FONT_NORMAL_BLACK);
-    button_border_draw(262, 208, 200, 30, focus_button_id_starting_conditions == 5);
-    text_draw_number_centered(scenario.rescue_loan, 262, 217, 200, FONT_NORMAL_BLACK);
-    // Initial personal savings
-    text_draw("Initial personal savings", 32, 257, FONT_NORMAL_BLACK, COLOR_BLACK);
-    button_border_draw(262, 248, 200, 30, focus_button_id_starting_conditions == 6);
-    text_draw_number_centered(scenario.initial_personal_savings, 262, 257, 200, FONT_NORMAL_BLACK);
-    // Rome supplies wheat?
-    lang_text_draw(44, 43, 32, 297, FONT_NORMAL_BLACK);
-    button_border_draw(262, 288, 200, 30, focus_button_id_starting_conditions == 7);
-    lang_text_draw_centered(18, scenario.rome_supplies_wheat, 262, 297, 200, FONT_NORMAL_BLACK);
-    // Flotsam on?
-    lang_text_draw(44, 80, 32, 337, FONT_NORMAL_BLACK);
-    button_border_draw(262, 328, 200, 30, focus_button_id_starting_conditions == 8);
-    lang_text_draw_centered(18, scenario.flotsam_enabled, 262, 337, 200, FONT_NORMAL_BLACK);
-    set_translation(0, 0);
-}
-
-static void handle_input_starting_conditions(struct mouse_t *m, struct hotkeys_t *h);
-static void show_editor_starting_conditions(void)
-{
-    struct window_type_t window = {
-        WINDOW_EDITOR_STARTING_CONDITIONS,
-        window_editor_map_draw_all,
-        draw_foreground_starting_conditions,
-        handle_input_starting_conditions,
-    };
-    window_show(&window);
-}
-
-static void handle_input_start_year(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_start_year(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_start_year, 2, &focus_button_id_start_year)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         show_editor_starting_conditions();
     }
 }
@@ -56503,12 +55920,12 @@ static struct generic_button_t buttons_starting_conditions[] = {
     {262, 328, 200, 30, button_flotsam, button_none, 0, 0},
 };
 
-static void handle_input_starting_conditions(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_starting_conditions(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_starting_conditions, sizeof(buttons_starting_conditions) / sizeof(struct generic_button_t), &focus_button_id_starting_conditions)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         show_editor_attributes();
     }
 }
@@ -56721,12 +56138,12 @@ static void draw_foreground_win_criteria(void)
     set_translation(0, 0);
 }
 
-static void handle_input_win_criteria(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_win_criteria(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_win_criteria, sizeof(buttons_win_criteria) / sizeof(struct generic_button_t), &focus_button_id_win_criteria)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         show_editor_attributes();
     }
 }
@@ -56750,10 +56167,10 @@ static void button_win_criteria(__attribute__((unused)) int param1, __attribute_
 
 static void toggle_allowed_building(int id, __attribute__((unused)) int param2)
 {
-    // sync with building types index
-    int building_index = align_bulding_type_index_to_strings(id);
-
-    scenario.allowed_buildings[building_index] = !scenario.allowed_buildings[building_index];
+    if (id > 1) {
+        id += MAX_HOUSE_TYPES;
+    }
+    scenario.allowed_buildings[id] = !scenario.allowed_buildings[id];
     scenario.is_saved = 0;
 }
 
@@ -56862,7 +56279,7 @@ static void draw_foreground_allowed_buildings(void)
             y = 50 + 20 * (i - 60);
         }
         button_border_draw(x, y, 190, 20, focus_button_id_allowed_buildings == i + 1);
-        int building_index = align_bulding_type_index_to_strings(i + 1);
+        int building_index = i + 1 > 2 ? i + 1 + MAX_HOUSE_TYPES : i + 1;
         if (scenario.allowed_buildings[building_index]) {
             text_draw_centered(all_buildings_strings[building_index], x, y + 5, 190, FONT_NORMAL_BLACK, 0);
         } else {
@@ -56874,12 +56291,12 @@ static void draw_foreground_allowed_buildings(void)
     set_translation(0, 0);
 }
 
-static void handle_input_allowed_buildings(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_allowed_buildings(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_allowed_buildings, MAX_ALLOWED_BUILDINGS, &focus_button_id_allowed_buildings)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         empire_object_our_city_set_resources_sell();
         show_editor_attributes();
     }
@@ -57044,12 +56461,12 @@ static void draw_foreground_special_events(void)
     set_translation(0, 0);
 }
 
-static void handle_input_special_events(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_special_events(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_special_events, sizeof(buttons_special_events) / sizeof(struct generic_button_t), &focus_button_id_special_events)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         show_editor_attributes();
     }
 }
@@ -57168,25 +56585,6 @@ static void button_favor_request(__attribute__((unused)) int param1, __attribute
     window_numeric_input_show(screen_data.dialog_offset.x + 140, screen_data.dialog_offset.y + 215, 3, 100, set_favor_request);
 }
 
-static void sort_editor_requests(void)
-{
-    for (int i = 0; i < MAX_REQUESTS; i++) {
-        for (int j = MAX_REQUESTS - 1; j > 0; j--) {
-            if (scenario.requests[j].resource) {
-                // if no previous request scheduled, move current back until first; if previous request is later than current, swap
-                if (!scenario.requests[j - 1].resource || scenario.requests[j - 1].year > scenario.requests[j].year
-                || (scenario.requests[j - 1].year == scenario.requests[j].year && scenario.requests[j - 1].month > scenario.requests[j].month)) {
-                    struct request_t tmp = scenario.requests[j];
-                    scenario.requests[j] = scenario.requests[j - 1];
-                    scenario.requests[j - 1] = tmp;
-                }
-            }
-        }
-    }
-    scenario.is_saved = 0;
-}
-
-static void show_editor_requests(void);
 static void button_delete_edit_request(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario.requests[id_edit_request].year = 1;
@@ -57268,12 +56666,12 @@ static void draw_foreground_edit_request(void)
     set_translation(0, 0);
 }
 
-static void handle_input_edit_request(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_edit_request(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_request, sizeof(buttons_edit_request) / sizeof(struct generic_button_t), &focus_button_id_edit_request)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         sort_editor_requests();
         show_editor_requests();
     }
@@ -57375,12 +56773,12 @@ static void draw_foreground_requests(void)
     set_translation(0, 0);
 }
 
-static void handle_input_requests(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_requests(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_requests, sizeof(buttons_requests) / sizeof(struct generic_button_t), &focus_button_id_requests)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         show_editor_attributes();
     }
 }
@@ -57437,25 +56835,6 @@ static void button_enabled_custom_msg(__attribute__((unused)) int param1, __attr
     scenario.editor_custom_messages[custom_message_id].enabled = !scenario.editor_custom_messages[custom_message_id].enabled;
 }
 
-static void scenario_editor_sort_custom_messages(void)
-{
-    for (int i = 0; i < MAX_EDITOR_CUSTOM_MESSAGES; i++) {
-        for (int j = MAX_EDITOR_CUSTOM_MESSAGES - 1; j > 0; j--) {
-            if (scenario.editor_custom_messages[j].enabled) {
-                // if no previous custom message scheduled, move current back until first; if previous custom message is later than current, swap
-                if (!scenario.editor_custom_messages[j - 1].enabled || scenario.editor_custom_messages[j - 1].year > scenario.editor_custom_messages[j].year
-                || (scenario.editor_custom_messages[j - 1].year == scenario.editor_custom_messages[j].year && scenario.editor_custom_messages[j - 1].month > scenario.editor_custom_messages[j].month)) {
-                    struct editor_custom_messages_t tmp = scenario.editor_custom_messages[j];
-                    scenario.editor_custom_messages[j] = scenario.editor_custom_messages[j - 1];
-                    scenario.editor_custom_messages[j - 1] = tmp;
-                }
-            }
-        }
-    }
-    scenario.is_saved = 0;
-}
-
-static void show_editor_custom_messages(void);
 static void button_reset_message(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario.editor_custom_messages[custom_message_id].year = 1;
@@ -57587,9 +56966,9 @@ static void draw_foreground_edit_custom_msg(void)
     set_translation(0, 0);
 }
 
-static void handle_input_edit_custom_msg(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_edit_custom_msg(struct mouse_t *m)
 {
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         if (custom_message_category == CUSTOM_MESSAGE_ATTRIBUTES) {
             input_box_stop(&editor_custom_message_input_video_file);
             if (!string_equals(scenario.editor_custom_messages[custom_message_id].video_file, editor_custom_message_video_file)) {
@@ -57855,7 +57234,7 @@ static void draw_foreground_custom_messages(void)
     set_translation(0, 0);
 }
 
-static void handle_input_custom_messages(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_custom_messages(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_attributes, sizeof(buttons_attributes) / sizeof(struct generic_button_t), &focus_button_id_attr_custom_messages)) {
         return;
@@ -57866,7 +57245,7 @@ static void handle_input_custom_messages(struct mouse_t *m, struct hotkeys_t *h)
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_custom_message_text, sizeof(buttons_custom_message_text) / sizeof(struct generic_button_t), &focus_button_id_text_custom_messages)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         show_editor_attributes();
     }
 }
@@ -57953,25 +57332,6 @@ static void button_earthquake_point(__attribute__((unused)) int param1, __attrib
     window_select_list_show_text(screen_data.dialog_offset.x + 330, screen_data.dialog_offset.y + 165, earthquake_point_names, MAX_EARTHQUAKE_POINTS, set_earthquake_point);
 }
 
-static void scenario_editor_sort_earthquakes(void)
-{
-    for (int i = 0; i < MAX_EARTHQUAKES; i++) {
-        for (int j = MAX_EARTHQUAKES - 1; j > 0; j--) {
-            if (scenario.earthquakes[j].state) {
-                // if no previous earthquake scheduled, move current back until first; if previous earthquake is later than current, swap
-                if (!scenario.earthquakes[j - 1].state || scenario.earthquakes[j - 1].year > scenario.earthquakes[j].year
-                || (scenario.earthquakes[j - 1].year == scenario.earthquakes[j].year && scenario.earthquakes[j - 1].month > scenario.earthquakes[j].month)) {
-                    struct earthquake_t tmp = scenario.earthquakes[j];
-                    scenario.earthquakes[j] = scenario.earthquakes[j - 1];
-                    scenario.earthquakes[j - 1] = tmp;
-                }
-            }
-        }
-    }
-    scenario.is_saved = 0;
-}
-
-static void show_editor_earthquakes(void);
 static void button_delete_earthquake(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario.earthquakes[id_edit_earthquake].state = 0;
@@ -58040,12 +57400,12 @@ static void draw_foreground_edit_earthquake(void)
     set_translation(0, 0);
 }
 
-static void handle_input_edit_earthquake(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_edit_earthquake(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_earthquake, sizeof(buttons_edit_earthquake) / sizeof(struct generic_button_t), &focus_button_id_edit_earthquake)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         scenario_editor_sort_earthquakes();
         show_editor_earthquakes();
     }
@@ -58105,12 +57465,12 @@ static void draw_foreground_earthquakes(void)
     set_translation(0, 0);
 }
 
-static void handle_input_earthquakes(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_earthquakes(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_earthquake, sizeof(buttons_earthquake) / sizeof(struct generic_button_t), &focus_button_id_earthquakes)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         show_editor_attributes();
     }
 }
@@ -58214,25 +57574,6 @@ static void button_attack_type(__attribute__((unused)) int param1, __attribute__
     }
 }
 
-static void sort_editor_invasions(void)
-{
-    for (int i = 0; i < MAX_INVASIONS; i++) {
-        for (int j = MAX_INVASIONS - 1; j > 0; j--) {
-            if (scenario.invasions[j].type) {
-                // if no previous invasion scheduled, move current back until first; if previous invasion is later than current, swap
-                if (!scenario.invasions[j - 1].type || scenario.invasions[j - 1].year_offset > scenario.invasions[j].year_offset
-                || (scenario.invasions[j - 1].year_offset == scenario.invasions[j].year_offset && scenario.invasions[j - 1].month > scenario.invasions[j].month)) {
-                    struct invasion_t tmp = scenario.invasions[j];
-                    scenario.invasions[j] = scenario.invasions[j - 1];
-                    scenario.invasions[j - 1] = tmp;
-                }
-            }
-        }
-    }
-    scenario.is_saved = 0;
-}
-
-static void show_editor_invasions(void);
 static void button_delete_invasion(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario.invasions[id_edit_invasion].year_offset = 1;
@@ -58315,12 +57656,12 @@ static void draw_foreground_edit_invasion(void)
     set_translation(0, 0);
 }
 
-static void handle_input_edit_invasion(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_edit_invasion(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_invasion, sizeof(buttons_edit_invasion) / sizeof(struct generic_button_t), &focus_button_id_edit_invasion)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         sort_editor_invasions();
         show_editor_invasions();
     }
@@ -58432,12 +57773,12 @@ static void draw_foreground_invasions(void)
     set_translation(0, 0);
 }
 
-static void handle_input_invasions(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_invasions(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_invasions, sizeof(buttons_invasions) / sizeof(struct generic_button_t), &focus_button_id_invasions)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         show_editor_attributes();
     }
 }
@@ -58510,25 +57851,6 @@ static void button_amount_price_change(__attribute__((unused)) int param1, __att
     window_numeric_input_show(screen_data.dialog_offset.x + 330, screen_data.dialog_offset.y + 125, 2, 99, set_amount_price_change);
 }
 
-static void sort_editor_price_changes(void)
-{
-    for (int i = 0; i < MAX_PRICE_CHANGES; i++) {
-        for (int j = MAX_PRICE_CHANGES - 1; j > 0; j--) {
-            if (scenario.price_changes[j].resource) {
-                // if no previous price change scheduled, move current back until first; if previous price change is later than current, swap
-                if (!scenario.price_changes[j - 1].resource || scenario.price_changes[j - 1].year > scenario.price_changes[j].year
-                || (scenario.price_changes[j - 1].year == scenario.price_changes[j].year && scenario.price_changes[j - 1].month > scenario.price_changes[j].month)) {
-                    struct price_change_t tmp = scenario.price_changes[j];
-                    scenario.price_changes[j] = scenario.price_changes[j - 1];
-                    scenario.price_changes[j - 1] = tmp;
-                }
-            }
-        }
-    }
-    scenario.is_saved = 0;
-}
-
-static void show_editor_price_changes(void);
 static void button_delete_price_change(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     scenario.price_changes[id_edit_price_change].year = 1;
@@ -58593,12 +57915,12 @@ static void draw_foreground_edit_price_change(void)
     set_translation(0, 0);
 }
 
-static void handle_input_edit_price_change(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_edit_price_change(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_price_change, sizeof(buttons_edit_price_change) / sizeof(struct generic_button_t), &focus_button_id_edit_price_change)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         sort_editor_price_changes();
         show_editor_price_changes();
     }
@@ -58700,12 +58022,12 @@ static void draw_foreground_price_changes(void)
     set_translation(0, 0);
 }
 
-static void handle_input_price_changes(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_price_changes(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_price_changes, sizeof(buttons_price_changes) / sizeof(struct generic_button_t), &focus_button_id_price_changes)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         show_editor_attributes();
     }
 }
@@ -58808,24 +58130,6 @@ static void button_toggle_rise_demand_change(__attribute__((unused)) int param1,
     scenario.demand_changes[id_demand_route].is_rise = !scenario.demand_changes[id_demand_route].is_rise;
 }
 
-static void sort_editor_demand_changes(void)
-{
-    for (int i = 0; i < MAX_DEMAND_CHANGES; i++) {
-        for (int j = MAX_DEMAND_CHANGES - 1; j > 0; j--) {
-            if (scenario.demand_changes[j].resource && scenario.demand_changes[j].trade_city_id) {
-                // if no previous demand change scheduled, move current back until first; if previous demand change is later than current, swap
-                if (!scenario.demand_changes[j - 1].resource || !scenario.demand_changes[j - 1].trade_city_id || scenario.demand_changes[j - 1].year > scenario.demand_changes[j].year
-                || (scenario.demand_changes[j - 1].year == scenario.demand_changes[j].year && scenario.demand_changes[j - 1].month > scenario.demand_changes[j].month)) {
-                    struct demand_change_t tmp = scenario.demand_changes[j];
-                    scenario.demand_changes[j] = scenario.demand_changes[j - 1];
-                    scenario.demand_changes[j - 1] = tmp;
-                }
-            }
-        }
-    }
-    scenario.is_saved = 0;
-}
-
 static void draw_foreground_demand_changes(void)
 {
     set_translation(screen_data.dialog_offset.x, screen_data.dialog_offset.y);
@@ -58862,7 +58166,7 @@ static void draw_foreground_demand_changes(void)
     set_translation(0, 0);
 }
 
-static void handle_input_demand_changes(struct mouse_t *m, struct hotkeys_t *h);
+static void handle_input_demand_changes(struct mouse_t *m);
 static void show_editor_demand_changes(void)
 {
     struct window_type_t window = {
@@ -58942,12 +58246,12 @@ static void draw_foreground_edit_demand_change(void)
     set_translation(0, 0);
 }
 
-static void handle_input_edit_demand_change(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_edit_demand_change(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_edit_demand_change, sizeof(buttons_edit_demand_change) / sizeof(struct generic_button_t), &focus_button_id_demand_route)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         sort_editor_demand_changes();
         show_editor_demand_changes();
     }
@@ -59009,12 +58313,12 @@ static struct generic_button_t buttons_demand_changes[] = {
     {600, 318, 290, 25, show_editor_edit_demand_change, button_none, 39, 0},
 };
 
-static void handle_input_demand_changes(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_demand_changes(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(mouse_in_dialog(m), 0, 0, buttons_demand_changes, sizeof(buttons_demand_changes) / sizeof(struct generic_button_t), &focus_button_id_demand_changes)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         show_editor_attributes();
     }
 }
@@ -59148,7 +58452,7 @@ static void draw_foreground_attributes(void)
     set_translation(0, 0);
 }
 
-static void handle_input_attributes(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_attributes(struct mouse_t *m)
 {
     struct mouse_t *m_dialog = mouse_in_dialog(m);
     if (generic_buttons_handle_mouse(m_dialog, 0, 0, buttons_editor_attributes, sizeof(buttons_editor_attributes) / sizeof(struct generic_button_t), &focus_button_id_attributes) ||
@@ -59156,7 +58460,7 @@ static void handle_input_attributes(struct mouse_t *m, struct hotkeys_t *h)
         image_buttons_handle_mouse(m, screen_data.width - SIDEBAR_EXPANDED_WIDTH, 24, buttons_build, 1, 0)) {
         return;
     }
-    if (m->right.went_up || h->escape_pressed) {
+    if (m->right.went_up) {
         stop_brief_description_box_input();
         show_editor_map();
     }
@@ -59226,11 +58530,10 @@ static struct image_button_t buttons_build_expanded[] = {
     {113, 421, 39, 26, IB_BUILD, GROUP_ARROW_MESSAGE_PROBLEMS, 22, button_go_to_problem, button_none, 0, 0, 1, 0, 0, 0},
 };
 
-static void handle_input_city(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_city(struct mouse_t *m)
 {
-    handle_hotkeys_city(h);
     if (!construction_data.in_progress) {
-        if (widget_top_menu_handle_input(m, h)) {
+        if (widget_top_menu_handle_input(m)) {
             return;
         }
         if (widget_city_data.capture_input) {
@@ -59257,14 +58560,6 @@ static void handle_input_city(struct mouse_t *m, struct hotkeys_t *h)
         }
     }
     scroll_map(m);
-    if (h->escape_pressed) {
-        if (construction_data.type) {
-            building_construction_cancel();
-            window_data.refresh_on_draw = 1;
-        } else {
-            window_popup_dialog_show(POPUP_DIALOG_QUIT, confirm_exit_to_main_menu, 1);
-        }
-    }
     struct map_tile_t *tile = &widget_city_data.current_tile;
     update_city_view_coords(m->x, m->y, tile);
     construction_data.draw_as_constructing = 0;
@@ -60057,7 +59352,7 @@ static void handle_input_city(struct mouse_t *m, struct hotkeys_t *h)
     }
 }
 
-static void handle_input_build_menu(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_build_menu(struct mouse_t *m)
 {
     if (generic_buttons_handle_mouse(m, get_sidebar_x_offset_build_menu() - MENU_X_OFFSET_BUILD_MENU,
         build_menu_data.y_offset + MENU_Y_OFFSET_BUILD_MENU, build_menu_buttons, build_menu_data.num_items_to_draw, &build_menu_data.focus_button_id)) {
@@ -60068,7 +59363,7 @@ static void handle_input_build_menu(struct mouse_t *m, struct hotkeys_t *h)
     } else {
         image_buttons_handle_mouse(m, screen_data.width - SIDEBAR_EXPANDED_WIDTH, 24, buttons_build_expanded, sizeof(buttons_build_expanded) / sizeof(struct image_button_t), 0);
     }
-    if (m->right.went_up || h->escape_pressed
+    if (m->right.went_up
     || (m->left.went_up && // click outside build menu
         (m->x < get_sidebar_x_offset_build_menu() - MENU_X_OFFSET_BUILD_MENU - MENU_CLICK_MARGIN ||
             m->x > get_sidebar_x_offset_build_menu() + MENU_CLICK_MARGIN ||
@@ -60077,7 +59372,6 @@ static void handle_input_build_menu(struct mouse_t *m, struct hotkeys_t *h)
         build_menu_data.selected_menu = MENU_NONE;
         build_menu_data.selected_submenu = MENU_NONE;
         window_city_show();
-        return;
     }
 }
 
@@ -60106,11 +59400,6 @@ static void draw_number_of_messages(int x_offset)
 static void button_help_message_list(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_message_dialog_show(MESSAGE_DIALOG_MESSAGES, window_city_draw_all);
-}
-
-static void button_close_message_list(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
-{
-    window_city_show();
 }
 
 static void on_scroll_message_list(void);
@@ -60236,11 +59525,8 @@ static void draw_foreground_message_list(void)
     set_translation(0, 0);
 }
 
-static void handle_input_message_list(struct mouse_t *m, struct hotkeys_t *h)
+static void handle_input_message_list(struct mouse_t *m)
 {
-    if (h->show_messages) {
-        window_city_show();
-    }
     struct mouse_t *m_dialog = mouse_in_dialog(m);
     int old_button_id = message_list_data.focus_button_id;
     message_list_data.focus_button_id = 0;
@@ -60267,7 +59553,7 @@ static void handle_input_message_list(struct mouse_t *m, struct hotkeys_t *h)
     if (button_id && old_button_id != button_id) {
         window_invalidate();
     }
-    if (!handled && (m->right.went_up || h->escape_pressed)) {
+    if (!handled && (m->right.went_up)) {
         button_close_message_list(0, 0);
     }
 }
