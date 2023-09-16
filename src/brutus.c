@@ -15,13 +15,46 @@
 #include <stdio.h>
 #include <time.h>
 
-typedef uint32_t color_t;
 typedef struct smacker_t *smacker;
 typedef void (map_callback)(int x, int y, int grid_offset);
 typedef void (*back_sidebar_draw_function)(void);
 typedef back_sidebar_draw_function slide_finished_function;
 typedef void (*front_sidebar_draw_function)(int x_offset);
 
+#define COLOR_BLACK 0x000000
+#define COLOR_RED 0xff0000
+#define COLOR_WHITE 0xffffff
+#define COLOR_SG2_TRANSPARENT 0xf700ff
+#define COLOR_TOOLTIP 0x424242
+#define COLOR_SIDEBAR 0xbdb592
+#define COLOR_FONT_RED COLOR_RED
+#define COLOR_FONT_BLUE 0x0055ff
+#define COLOR_FONT_YELLOW 0xe7e75a
+#define COLOR_FONT_ORANGE 0xff5a08
+#define COLOR_FONT_ORANGE_LIGHT 0xffa500
+#define COLOR_FONT_LIGHT_GRAY 0xb3b3b3
+#define COLOR_INSET_LIGHT 0xffffff
+#define COLOR_INSET_DARK 0x848484
+#define COLOR_MASK_NONE 0xffffff
+#define COLOR_MASK_RED 0xff0818
+#define COLOR_MASK_GREEN 0x18ff18
+#define COLOR_MASK_BLUE 0x663377ff
+#define COLOR_MASK_LEGION_HIGHLIGHT 0x66ff3300
+#define COLOR_MINIMAP_VIEWPORT 0xe7e75a
+#define COLOR_MINIMAP_DARK 0x424242
+#define COLOR_MINIMAP_LIGHT 0xc6c6c6
+#define COLOR_MINIMAP_SOLDIER 0xf70000
+#define COLOR_MINIMAP_SELECTED_SOLDIER 0xffffff
+#define COLOR_MINIMAP_ENEMY_CENTRAL 0x7b0000
+#define COLOR_MINIMAP_ENEMY_NORTHERN 0x1800ff
+#define COLOR_MINIMAP_ENEMY_DESERT 0x08007b
+#define COLOR_MOUSE_DARK_GRAY 0x3f3f3f
+#define COLOR_MOUSE_MEDIUM_GRAY 0x737373
+#define COLOR_MOUSE_LIGHT_GRAY 0xb3b3b3
+#define ALPHA_TRANSPARENT 0x00000000
+#define ALPHA_OPAQUE 0xff000000
+#define ALPHA_FONT_SEMI_TRANSPARENT 0x99000000
+#define ALPHA_MASK_SEMI_TRANSPARENT 0x48000000
 #define DIR_PATH_MAX 255
 #define MAX_FILE_LINE_LENGTH 100
 enum {
@@ -38,6 +71,7 @@ enum {
     FONT_TYPES_MAX
 };
 static char *reset_defaults_string = "Reset defaults";
+static int game_active = 1;
 struct input_box_t {
     int x;
     int y;
@@ -408,7 +442,410 @@ static struct {
     int bottom_focus_button;
 } hotkey_config_window_data;
 
-#define INTPTR(d) (*(int*)(d))
+// random pool data
+#define MAX_RANDOM 100
+static struct {
+    uint32_t iv1;
+    uint32_t iv2;
+    int8_t random1_7bit;
+    int16_t random1_15bit;
+    int8_t random2_7bit;
+    int pool_index;
+    int32_t pool[MAX_RANDOM];
+} random_data;
+
+// file text data
+#define FILE_TEXT_ENG "c3.eng"
+#define FILE_MM_ENG "c3_mm.eng"
+#define FILE_EDITOR_TEXT_ENG "c3_map.eng"
+#define FILE_EDITOR_MM_ENG "c3_map_mm.eng"
+#define MAX_TEXT_ENTRIES 1000
+#define MAX_TEXT_DATA 200000
+#define MAX_MESSAGE_ENTRIES 400
+#define MAX_MESSAGE_DATA 460000
+
+// mouse cursor data
+enum {
+    CURSOR_ARROW = 0,
+    CURSOR_SHOVEL = 1,
+    CURSOR_SWORD = 2,
+    CURSOR_MAX,
+};
+static uint32_t mouse_colors[] = {
+    ALPHA_TRANSPARENT,
+    ALPHA_TRANSPARENT,
+    ALPHA_TRANSPARENT,
+    ALPHA_OPAQUE | COLOR_BLACK,
+    ALPHA_OPAQUE | COLOR_MOUSE_DARK_GRAY,
+    ALPHA_OPAQUE | COLOR_MOUSE_MEDIUM_GRAY,
+    ALPHA_OPAQUE | COLOR_MOUSE_LIGHT_GRAY,
+    ALPHA_OPAQUE | COLOR_WHITE
+};
+struct cursor_t {
+    int hotspot_x;
+    int hotspot_y;
+    int width;
+    int height;
+    char *data;
+};
+static struct cursor_t ARROW[] = {
+    {
+        0, 0, 13, 21,
+        "#            "
+        "##           "
+        "#'#          "
+        "#''#         "
+        "#'''#        "
+        "#''''#       "
+        "#'''''#      "
+        "#''''''#     "
+        "#'''''''#    "
+        "#''''''''#   "
+        "#'''''''''#  "
+        "#''''''''''# "
+        "#''''''######"
+        "#'''#''#     "
+        "#''# #''#    "
+        "#'#  #''#    "
+        "##    #''#   "
+        "#     #''#   "
+        "       #''#  "
+        "       #''#  "
+        "        ##   "
+    }
+};
+static struct cursor_t SWORD[] = {
+    {
+        0, 0, 22, 22,
+        "#####                 "
+        "#'''##                "
+        "#''''##               "
+        "#'''''##              "
+        "##'''''##             "
+        " ##'''''##            "
+        "  ##'''''##           "
+        "   ##'''''##          "
+        "    ##'''''##         "
+        "     ##'''''##        "
+        "      ##'''''##       "
+        "       ##'''''##      "
+        "        ##'''''#####  "
+        "         ##'''''#''#  "
+        "          ##'''#'''#  "
+        "           ##'#'''##  "
+        "            ##'''###  "
+        "            #'''##'###"
+        "            #''##''''#"
+        "            ######'''#"
+        "                 #''##"
+        "                 #### "
+    },
+};
+static struct cursor_t SHOVEL[] = {
+    {
+        1, 26, 28, 28,
+        "                       ##   "
+        "                      ####  "
+        "                     ##'### "
+        "                     #'''###"
+        "                     ##'''##"
+        "                    ####'## "
+        "                   ##'####  "
+        "                  ##'##     "
+        "                 ##'##      "
+        "                ##'##       "
+        "               ##'##        "
+        "              ##'##         "
+        "             ##'##          "
+        "       #    ##'##           "
+        "      #### ##'##            "
+        "     #''####'##             "
+        "    #''''##'##              "
+        "   #''''##'##               "
+        "  #''''#''####              "
+        " #''''#'''#'##              "
+        "#''''#'''#'''##             "
+        "#'''''''#''''#              "
+        "#''''''#''''#               "
+        "#''''''''''#                "
+        "#'''''''''#                 "
+        "#''''''''#                  "
+        " #'''''##                   "
+        "  #####                     "
+    },
+};
+struct {
+    SDL_Cursor *cursors[CURSOR_MAX];
+    SDL_Surface *surfaces[CURSOR_MAX];
+    int current_shape;
+} cursor_data;
+
+// image data
+#define MAIN_ENTRIES 10000
+#define ENEMY_FILES_COUNT 11
+#define ENTRY_SIZE 64
+#define ENEMY_ENTRIES 801
+#define ENEMY_INDEX_SIZE ENTRY_SIZE * ENEMY_ENTRIES
+#define HEADER_SIZE_ENEMY_FILES 20680
+#define EMPIRE_IMAGE_DATA_SIZE 8000000 // 2000w*1000h*4bytes (16bit converted to 32bit)
+enum {
+    CLIMATE_NORTHERN = 0,
+    CLIMATE_CENTRAL = 1,
+    CLIMATE_DESERT = 2,
+};
+static char *MAIN_GRAPHICS_SG2[] = {
+    "c3_north.sg2",
+    "c3.sg2",
+    "c3_south.sg2"
+};
+static char *MAIN_GRAPHICS_555[] = {
+    "c3_north.555",
+    "c3.555",
+    "c3_south.555"
+};
+static char *EDITOR_GRAPHICS_SG2[] = {
+    "c3map_north.sg2",
+    "c3map.sg2",
+    "c3map_south.sg2"
+};
+static char *EDITOR_GRAPHICS_555[] = {
+    "c3map_north.555",
+    "c3map.555",
+    "c3map_south.555"
+};
+static char *ENEMY_GRAPHICS_SG2[] = {
+    "carthage.sg2", // used for barbarians
+    "carthage.sg2",
+    "celts.sg2",
+    "egyptians.sg2",
+    "Etruscan.sg2",
+    "Gaul.sg2",
+    "goths.sg2",
+    "Greek.sg2",
+    "North African.sg2",
+    "Persians.sg2",
+    "Phoenician.sg2",
+};
+static char *ENEMY_GRAPHICS_555[] = {
+   "carthage.555", // used for barbarians
+   "carthage.555",
+   "celts.555",
+   "egyptians.555",
+   "Etruscan.555",
+   "Gaul.555",
+   "goths.555",
+   "Greek.555",
+   "North African.555",
+   "Persians.555",
+   "Phoenician.555",
+};
+struct image_t {
+    int width;
+    int height;
+    int num_animation_sprites;
+    int sprite_offset_x;
+    int sprite_offset_y;
+    int animation_can_reverse;
+    int animation_speed_id;
+    struct {
+        int type;
+        int is_fully_compressed;
+        int is_external;
+        int has_compressed_part;
+        int bitmap_id;
+        int offset;
+        int data_length;
+        int uncompressed_length;
+    } draw;
+};
+static struct {
+    int current_climate;
+    int is_editor;
+    int fonts_enabled;
+    int font_base_offset;
+    uint16_t group_image_ids[300];
+    char bitmaps[100][200];
+    struct image_t main[MAIN_ENTRIES];
+    struct image_t enemy[ENEMY_FILES_COUNT][ENEMY_ENTRIES];
+    struct image_t *font;
+    uint32_t *main_data;
+    uint32_t *empire_data;
+    uint32_t *enemy_data[ENEMY_FILES_COUNT];
+    uint32_t *font_data;
+    uint8_t *tmp_data;
+} image_data_s = { .current_climate = -1 };
+
+// sound data
+#define AUDIO_RATE 22050
+enum {
+    SOUND_CHANNEL_SPEECH = 0,
+    // user interface effects
+    SOUND_CHANNEL_EFFECTS_MIN = 1,
+    SOUND_CHANNEL_EFFECTS_MAX = 44,
+    // city sounds (from buildings)
+    SOUND_CHANNEL_CITY_MIN = 45,
+    SOUND_CHANNEL_CITY_MAX = 150,
+    SOUND_CHANNEL_MAX = SOUND_CHANNEL_CITY_MAX + 1
+};
+static Mix_Music *music_channel;
+struct sound_channel_t {
+    char *filename;
+    Mix_Chunk *chunk;
+};
+static struct sound_channel_t sound_channels[SOUND_CHANNEL_MAX] = {
+{"", 0}, // speech channel 
+{"wavs/panel1.wav", 0},
+{"wavs/panel3.wav", 0},
+{"wavs/icon1.wav", 0},
+{"wavs/build1.wav", 0},
+{"wavs/explod1.wav", 0},
+{"wavs/fanfare.wav", 0},
+{"wavs/fanfare2.wav", 0},
+{"wavs/arrow.wav", 0},
+{"wavs/arrow_hit.wav", 0},
+{"wavs/axe.wav", 0},
+{"wavs/ballista.wav", 0},
+{"wavs/ballista_hit_ground.wav", 0},
+{"wavs/ballista_hit_person.wav", 0},
+{"wavs/club.wav", 0},
+{"wavs/camel1.wav", 0},
+{"wavs/elephant.wav", 0},
+{"wavs/elephant_hit.wav", 0},
+{"wavs/elephant_die.wav", 0},
+{"wavs/horse.wav", 0},
+{"wavs/horse2.wav", 0},
+{"wavs/horse_mov.wav", 0},
+{"wavs/javelin.wav", 0},
+{"wavs/lion_attack.wav", 0},
+{"wavs/lion_die.wav", 0},
+{"wavs/horn3.wav", 0},
+{"wavs/sword.wav", 0},
+{"wavs/sword_swing.wav", 0},
+{"wavs/sword_light.wav", 0},
+{"wavs/spear_attack.wav", 0},
+{"wavs/wolf_attack.wav", 0},
+{"wavs/wolf_attack2.wav", 0},
+{"wavs/wolf_die.wav", 0},
+{"wavs/die1.wav", 0},
+{"wavs/die2.wav", 0},
+{"wavs/die4.wav", 0},
+{"wavs/die10.wav", 0},
+{"wavs/die3.wav", 0},
+{"wavs/die5.wav", 0},
+{"wavs/die8.wav", 0},
+{"wavs/die9.wav", 0},
+{"wavs/sheep_die.wav", 0},
+{"wavs/zebra_die.wav", 0},
+{"wavs/wolf_howl.wav", 0},
+{"wavs/fire_splash.wav", 0},
+{"wavs/formation_shield.wav", 0},
+{"wavs/house_slum1.wav", 0}, // start of city sounds 
+{"wavs/house_slum2.wav", 0},
+{"wavs/house_slum3.wav", 0},
+{"wavs/house_slum4.wav", 0},
+{"wavs/house_poor1.wav", 0},
+{"wavs/house_poor2.wav", 0},
+{"wavs/house_poor3.wav", 0},
+{"wavs/house_poor4.wav", 0},
+{"wavs/house_mid1.wav", 0},
+{"wavs/house_mid2.wav", 0},
+{"wavs/house_mid3.wav", 0},
+{"wavs/house_mid4.wav", 0},
+{"wavs/house_good1.wav", 0},
+{"wavs/house_good2.wav", 0},
+{"wavs/house_good3.wav", 0},
+{"wavs/house_good4.wav", 0},
+{"wavs/house_posh1.wav", 0},
+{"wavs/house_posh2.wav", 0},
+{"wavs/house_posh3.wav", 0},
+{"wavs/house_posh4.wav", 0},
+{"wavs/empty_land1.wav", 0},
+{"wavs/resevoir.wav", 0},
+{"wavs/aquaduct.wav", 0}, // same as river.wav 
+{"wavs/fountain.wav", 0},
+{"wavs/well.wav", 0},
+{"wavs/barber.wav", 0},
+{"wavs/baths.wav", 0},
+{"wavs/clinic.wav", 0},
+{"wavs/hospital.wav", 0},
+{"wavs/temp_farm.wav", 0},
+{"wavs/temp_ship.wav", 0},
+{"wavs/temple_ship.wav", 0},
+{"wavs/temp_comm.wav", 0},
+{"wavs/temp_war.wav", 0},
+{"wavs/temple_war.wav", 0},
+{"wavs/temp_love.wav", 0},
+{"wavs/oracle.wav", 0},
+{"wavs/school.wav", 0},
+{"wavs/academy.wav", 0},
+{"wavs/library.wav", 0},
+{"wavs/theatre.wav", 0},
+{"wavs/ampitheatre.wav", 0},
+{"wavs/colloseum.wav", 0},
+{"wavs/hippodrome.wav", 0},
+{"wavs/glad_pit.wav", 0},
+{"wavs/lion_pit.wav", 0},
+{"wavs/art_pit.wav", 0},
+{"wavs/char_pit.wav", 0},
+{"wavs/forum.wav", 0},
+{"wavs/senate.wav", 0},
+{"wavs/palace.wav", 0},
+{"wavs/statue.wav", 0},
+{"wavs/gardens1.wav", 0}, // same as emptyland1.wav
+{"wavs/gardens2.wav", 0}, // same as emptyland2.wav 
+{"wavs/gardens3.wav", 0}, // same as emptyland3.wav 
+{"wavs/gardens4.wav", 0}, // same as emptyland4.wav
+{"wavs/shipyard.wav", 0},
+{"wavs/shipyard1.wav", 0},
+{"wavs/shipyard2.wav", 0},
+{"wavs/dock.wav", 0},
+{"wavs/dock1.wav", 0},
+{"wavs/dock2.wav", 0},
+{"wavs/wharf.wav", 0},
+{"wavs/wharf1.wav", 0},
+{"wavs/wharf2.wav", 0},
+{"wavs/tower1.wav", 0},
+{"wavs/tower2.wav", 0},
+{"wavs/tower3.wav", 0},
+{"wavs/tower4.wav", 0},
+{"wavs/fort1.wav", 0},
+{"wavs/fort2.wav", 0},
+{"wavs/fort3.wav", 0},
+{"wavs/fort4.wav", 0},
+{"wavs/mil_acad.wav", 0},
+{"wavs/barracks.wav", 0},
+{"wavs/wheat.wav", 0},
+{"wavs/wheat_farm.wav", 0},
+{"wavs/veg_farm.wav", 0},
+{"wavs/figs_farm.wav", 0},
+{"wavs/olives_farm.wav", 0},
+{"wavs/vines_farm.wav", 0},
+{"wavs/meat_farm.wav", 0},
+{"wavs/clay_pit.wav", 0},
+{"wavs/quarry.wav", 0},
+{"wavs/mine.wav", 0},
+{"wavs/lumber_mill.wav", 0},
+{"wavs/wine_workshop.wav", 0},
+{"wavs/oil_workshop.wav", 0},
+{"wavs/weap_workshop.wav", 0},
+{"wavs/weapons_workshop.wav", 0},
+{"wavs/furn_workshop.wav", 0},
+{"wavs/furniture_workshop.wav", 0},
+{"wavs/pott_workshop.wav", 0},
+{"wavs/pottery_workshop.wav", 0},
+{"wavs/market1.wav", 0},
+{"wavs/market2.wav", 0},
+{"wavs/market3.wav", 0},
+{"wavs/market4.wav", 0},
+{"wavs/granary.wav", 0},
+{"wavs/granary1.wav", 0},
+{"wavs/granary2.wav", 0},
+{"wavs/warehouse.wav", 0},
+{"wavs/warehouse1.wav", 0},
+{"wavs/warehouse2.wav", 0},
+{"wavs/burning_ruin.wav", 0},
+};
+
 #define MSG_SIZE 1000
 #define BUILD_MENU_BUTTONS_COUNT 12
 #define MAX_ITEMS_PER_BUILD_MENU 11
@@ -420,7 +857,6 @@ static struct {
 #define SIDEBAR_FILLER_Y_OFFSET (SIDEBAR_MAIN_SECTION_HEIGHT + TOP_MENU_HEIGHT)
 #define MINIMAP_WIDTH 146
 #define MINIMAP_HEIGHT 111
-#define CHANNEL_FILENAME_MAX 32
 #define MAX_INVASION_WARNINGS 101
 #define MAX_SCENARIO_NAME 65
 #define MAX_BRIEF_DESCRIPTION 32
@@ -441,41 +877,6 @@ static struct {
 #define MAX_HERD_POINTS 8
 #define MAX_FISH_POINTS 8
 #define OFFSET(x,y) (x + GRID_SIZE * y)
-#define COLOR_BLACK 0x000000
-#define COLOR_RED 0xff0000
-#define COLOR_WHITE 0xffffff
-#define COLOR_SG2_TRANSPARENT 0xf700ff
-#define COLOR_TOOLTIP 0x424242
-#define COLOR_SIDEBAR 0xbdb592
-#define COLOR_FONT_RED COLOR_RED
-#define COLOR_FONT_BLUE 0x0055ff
-#define COLOR_FONT_YELLOW 0xe7e75a
-#define COLOR_FONT_ORANGE 0xff5a08
-#define COLOR_FONT_ORANGE_LIGHT 0xffa500
-#define COLOR_FONT_LIGHT_GRAY 0xb3b3b3
-#define COLOR_INSET_LIGHT 0xffffff
-#define COLOR_INSET_DARK 0x848484
-#define COLOR_MASK_NONE 0xffffff
-#define COLOR_MASK_RED 0xff0818
-#define COLOR_MASK_GREEN 0x18ff18
-#define COLOR_MASK_BLUE 0x663377ff
-#define COLOR_MASK_LEGION_HIGHLIGHT 0x66ff3300
-#define COLOR_MINIMAP_VIEWPORT 0xe7e75a
-#define COLOR_MINIMAP_DARK 0x424242
-#define COLOR_MINIMAP_LIGHT 0xc6c6c6
-#define COLOR_MINIMAP_SOLDIER 0xf70000
-#define COLOR_MINIMAP_SELECTED_SOLDIER 0xffffff
-#define COLOR_MINIMAP_ENEMY_CENTRAL 0x7b0000
-#define COLOR_MINIMAP_ENEMY_NORTHERN 0x1800ff
-#define COLOR_MINIMAP_ENEMY_DESERT 0x08007b
-#define COLOR_MINIMAP_WOLF COLOR_BLACK
-#define COLOR_MOUSE_DARK_GRAY 0x3f3f3f
-#define COLOR_MOUSE_MEDIUM_GRAY 0x737373
-#define COLOR_MOUSE_LIGHT_GRAY 0xb3b3b3
-#define ALPHA_OPAQUE 0xff000000
-#define ALPHA_FONT_SEMI_TRANSPARENT 0x99000000
-#define ALPHA_MASK_SEMI_TRANSPARENT 0x48000000
-#define ALPHA_TRANSPARENT 0x00000000
 #define BLOCK_SIZE 16
 #define TOP_MENU_HEIGHT 24
 #define MAX_FORMATION_FIGURES 16
@@ -574,11 +975,6 @@ static struct {
 #define EXTRA_INFO_VERTICAL_PADDING 8
 #define MINIMAP_Y_OFFSET 59
 #define MAX_CITY_SOUNDS_CHANNELS 70
-#define MAX_DEVICE_CHANNELS 151
-#define AUDIO_RATE 22050
-#define AUDIO_FORMAT AUDIO_S16
-#define AUDIO_CHANNELS 2
-#define AUDIO_BUFFERS 1024
 #define MAX_ENEMY_TYPES_PER_ARMY 3
 #define MAX_BOOKMARKS 4
 #define MAX_TILES_TERRAIN 8
@@ -662,33 +1058,6 @@ static struct {
 #define BLOCK_MONO 0
 #define BLOCK_FULL 1
 #define BLOCK_SOLID 3
-#define MAX_RANDOM 100
-#define MAX_TEXT_ENTRIES 1000
-#define MAX_TEXT_DATA 200000
-#define MIN_TEXT_SIZE (28 + MAX_TEXT_ENTRIES * 8)
-#define MAX_TEXT_SIZE (MIN_TEXT_SIZE + MAX_TEXT_DATA)
-#define MAX_MESSAGE_ENTRIES 400
-#define MAX_MESSAGE_DATA 460000
-#define MIN_MESSAGE_SIZE 32024
-#define MAX_MESSAGE_SIZE (MIN_MESSAGE_SIZE + MAX_MESSAGE_DATA)
-#define BUFFER_SIZE 400000
-#define FILE_TEXT_ENG "c3.eng"
-#define FILE_MM_ENG "c3_mm.eng"
-#define FILE_EDITOR_TEXT_ENG "c3_map.eng"
-#define FILE_EDITOR_MM_ENG "c3_map_mm.eng"
-#define HEADER_SIZE_EMPIRE 20680
-#define ENTRY_SIZE 64
-#define MAIN_ENTRIES 10000
-#define ENEMY_ENTRIES 801
-#define MAIN_INDEX_SIZE 660680
-#define ENEMY_INDEX_OFFSET HEADER_SIZE_EMPIRE
-#define ENEMY_INDEX_SIZE ENTRY_SIZE * ENEMY_ENTRIES
-#define ENEMY_FILES_COUNT 11
-#define MAIN_DATA_SIZE 30000000
-#define EMPIRE_IMAGE_DATA_SIZE 8000000 // 2000*1000*4
-#define ENEMY_DATA_SIZE 2400000
-#define SCRATCH_DATA_SIZE 12100000
-#define NAME_SIZE 32
 #define F_OK 0
 #define access _access
 #define TIE 10
@@ -710,12 +1079,6 @@ static struct {
 #define MARGIN_POSITION 16
 #define SOUND_FILENAME_MAX 32
 
-// start enums
-enum {
-    CURSOR_SCALE_1 = 0,
-    CURSOR_SCALE_1_5 = 1,
-    CURSOR_SCALE_2 = 2,
-};
 enum {
     BUILDING_NONE = 0,
     BUILDING_HOUSE_VACANT_LOT = 1,
@@ -1913,12 +2276,6 @@ enum {
     WINDOW_EDITOR_EDIT_DEMAND_CHANGE,
 };
 enum {
-    CURSOR_ARROW = 0,
-    CURSOR_SHOVEL = 1,
-    CURSOR_SWORD = 2,
-    CURSOR_MAX,
-};
-enum {
     SCROLL_NONE = 0,
     SCROLL_UP = -1,
     SCROLL_DOWN = 1
@@ -1997,11 +2354,6 @@ enum {
     EDGE_X2Y2 = 18
 };
 enum {
-    CLIMATE_NORTHERN = 0,
-    CLIMATE_CENTRAL = 1,
-    CLIMATE_DESERT = 2,
-};
-enum {
     EVENT_DISABLED = 0,
     EVENT_NOT_STARTED = 1,
     EVENT_IN_PROGRESS = 2,
@@ -2020,16 +2372,6 @@ enum {
     REQUEST_STATE_DISPATCHED_LATE = 3,
     REQUEST_STATE_IGNORED = 4,
     REQUEST_STATE_RECEIVED = 5
-};
-enum {
-    SOUND_CHANNEL_SPEECH = 0,
-    // user interface effects
-    SOUND_CHANNEL_EFFECTS_MIN = 1,
-    SOUND_CHANNEL_EFFECTS_MAX = 44,
-    // city sounds (from buildings)
-    SOUND_CHANNEL_CITY_MIN = 45,
-    SOUND_CHANNEL_CITY_MAX = 150,
-    SOUND_CHANNEL_MAX = SOUND_CHANNEL_CITY_MAX + 1
 };
 enum {
     SOUND_DIRECTION_LEFT = 0,
@@ -2147,13 +2489,6 @@ enum {
 enum {
     SLIDE_DIRECTION_IN = 0,
     SLIDE_DIRECTION_OUT = 1
-};
-enum {
-    USER_EVENT_QUIT,
-    USER_EVENT_RESIZE,
-    USER_EVENT_FULLSCREEN,
-    USER_EVENT_WINDOWED,
-    USER_EVENT_CENTER_WINDOW,
 };
 enum {
     IB_NORMAL = 4,
@@ -2516,7 +2851,7 @@ static   char tracks[][32] = {
     "wavs/Combat_Long.wav",
     "wavs/setup.wav"
 };
-static   char mp3_tracks[][32] = {
+static char mp3_tracks[][32] = {
     "",
     "mp3/ROME1.mp3",
     "mp3/ROME2.mp3",
@@ -2551,161 +2886,6 @@ static char CHAR_TO_FONT_IMAGE_DEFAULT[] = {
     0x00, 0x6C, 0x7A, 0x78, 0x79, 0x79, 0x7B, 0x00, 0x00, 0x7E, 0x7C, 0x7D, 0x6B, 0x33, 0x00, 0x68,
     0x53, 0x52, 0x54, 0x51, 0x51, 0x00, 0x67, 0x65, 0x57, 0x56, 0x58, 0x55, 0x5B, 0x5A, 0x5C, 0x59,
     0x00, 0x66, 0x5F, 0x5E, 0x60, 0x60, 0x5D, 0x00, 0x00, 0x63, 0x62, 0x64, 0x61, 0x19, 0x00, 0x19,
-};
-
-static char sound_channel_filenames[SOUND_CHANNEL_MAX][CHANNEL_FILENAME_MAX] = {
-    "", // speech channel
-    "wavs/panel1.wav",
-    "wavs/panel3.wav",
-    "wavs/icon1.wav",
-    "wavs/build1.wav",
-    "wavs/explod1.wav",
-    "wavs/fanfare.wav",
-    "wavs/fanfare2.wav",
-    "wavs/arrow.wav",
-    "wavs/arrow_hit.wav",
-    "wavs/axe.wav",
-    "wavs/ballista.wav",
-    "wavs/ballista_hit_ground.wav",
-    "wavs/ballista_hit_person.wav",
-    "wavs/club.wav",
-    "wavs/camel1.wav",
-    "wavs/elephant.wav",
-    "wavs/elephant_hit.wav",
-    "wavs/elephant_die.wav",
-    "wavs/horse.wav",
-    "wavs/horse2.wav",
-    "wavs/horse_mov.wav",
-    "wavs/javelin.wav",
-    "wavs/lion_attack.wav",
-    "wavs/lion_die.wav",
-    "wavs/horn3.wav",
-    "wavs/sword.wav",
-    "wavs/sword_swing.wav",
-    "wavs/sword_light.wav",
-    "wavs/spear_attack.wav",
-    "wavs/wolf_attack.wav",
-    "wavs/wolf_attack2.wav",
-    "wavs/wolf_die.wav",
-    "wavs/die1.wav",
-    "wavs/die2.wav",
-    "wavs/die4.wav",
-    "wavs/die10.wav",
-    "wavs/die3.wav",
-    "wavs/die5.wav",
-    "wavs/die8.wav",
-    "wavs/die9.wav",
-    "wavs/sheep_die.wav",
-    "wavs/zebra_die.wav",
-    "wavs/wolf_howl.wav",
-    "wavs/fire_splash.wav",
-    "wavs/formation_shield.wav",
-    // city sounds
-    "wavs/house_slum1.wav",
-    "wavs/house_slum2.wav",
-    "wavs/house_slum3.wav",
-    "wavs/house_slum4.wav",
-    "wavs/house_poor1.wav",
-    "wavs/house_poor2.wav",
-    "wavs/house_poor3.wav",
-    "wavs/house_poor4.wav",
-    "wavs/house_mid1.wav",
-    "wavs/house_mid2.wav",
-    "wavs/house_mid3.wav",
-    "wavs/house_mid4.wav",
-    "wavs/house_good1.wav",
-    "wavs/house_good2.wav",
-    "wavs/house_good3.wav",
-    "wavs/house_good4.wav",
-    "wavs/house_posh1.wav",
-    "wavs/house_posh2.wav",
-    "wavs/house_posh3.wav",
-    "wavs/house_posh4.wav",
-    "wavs/empty_land1.wav",
-    "wavs/resevoir.wav",
-    "wavs/aquaduct.wav", // same as river.wav
-    "wavs/fountain.wav",
-    "wavs/well.wav",
-    "wavs/barber.wav",
-    "wavs/baths.wav",
-    "wavs/clinic.wav",
-    "wavs/hospital.wav",
-    "wavs/temp_farm.wav",
-    "wavs/temp_ship.wav",
-    "wavs/temple_ship.wav",
-    "wavs/temp_comm.wav",
-    "wavs/temp_war.wav",
-    "wavs/temple_war.wav",
-    "wavs/temp_love.wav",
-    "wavs/oracle.wav",
-    "wavs/school.wav",
-    "wavs/academy.wav",
-    "wavs/library.wav",
-    "wavs/theatre.wav",
-    "wavs/ampitheatre.wav",
-    "wavs/colloseum.wav",
-    "wavs/hippodrome.wav",
-    "wavs/glad_pit.wav",
-    "wavs/lion_pit.wav",
-    "wavs/art_pit.wav",
-    "wavs/char_pit.wav",
-    "wavs/forum.wav",
-    "wavs/senate.wav",
-    "wavs/palace.wav",
-    "wavs/statue.wav",
-    "wavs/gardens1.wav", // same as emptyland1.wav
-    "wavs/gardens2.wav", // same as emptyland2.wav
-    "wavs/gardens3.wav", // same as emptyland3.wav
-    "wavs/gardens4.wav", // same as emptyland4.wav
-    "wavs/shipyard.wav",
-    "wavs/shipyard1.wav",
-    "wavs/shipyard2.wav",
-    "wavs/dock.wav",
-    "wavs/dock1.wav",
-    "wavs/dock2.wav",
-    "wavs/wharf.wav",
-    "wavs/wharf1.wav",
-    "wavs/wharf2.wav",
-    "wavs/tower1.wav",
-    "wavs/tower2.wav",
-    "wavs/tower3.wav",
-    "wavs/tower4.wav",
-    "wavs/fort1.wav",
-    "wavs/fort2.wav",
-    "wavs/fort3.wav",
-    "wavs/fort4.wav",
-    "wavs/mil_acad.wav",
-    "wavs/barracks.wav",
-    "wavs/wheat.wav",
-    "wavs/wheat_farm.wav",
-    "wavs/veg_farm.wav",
-    "wavs/figs_farm.wav",
-    "wavs/olives_farm.wav",
-    "wavs/vines_farm.wav",
-    "wavs/meat_farm.wav",
-    "wavs/clay_pit.wav",
-    "wavs/quarry.wav",
-    "wavs/mine.wav",
-    "wavs/lumber_mill.wav",
-    "wavs/wine_workshop.wav",
-    "wavs/oil_workshop.wav",
-    "wavs/weap_workshop.wav",
-    "wavs/weapons_workshop.wav",
-    "wavs/furn_workshop.wav",
-    "wavs/furniture_workshop.wav",
-    "wavs/pott_workshop.wav",
-    "wavs/pottery_workshop.wav",
-    "wavs/market1.wav",
-    "wavs/market2.wav",
-    "wavs/market3.wav",
-    "wavs/market4.wav",
-    "wavs/granary.wav",
-    "wavs/granary1.wav",
-    "wavs/granary2.wav",
-    "wavs/warehouse.wav",
-    "wavs/warehouse1.wav",
-    "wavs/warehouse2.wav",
-    "wavs/burning_ruin.wav",
 };
 static char *editor_sidebar_menu_label_strings[] = {
     "Grass",
@@ -2834,53 +3014,6 @@ static char *enemy_type_names[ENEMY_TYPE_MAX_COUNT];
 static char route_display_names[MAX_DEMAND_ROUTES][DEMAND_ROUTE_MAX_NAME_LENGTH] = { {"None available"} };
 static char *demand_routes_route_names[MAX_DEMAND_ROUTES];
 static char brief_description[MAX_BRIEF_DESCRIPTION];
-static char MAIN_GRAPHICS_SG2[][NAME_SIZE] = {
-    "c3_north.sg2",
-    "c3.sg2",
-    "c3_south.sg2"
-};
-static char MAIN_GRAPHICS_555[][NAME_SIZE] = {
-    "c3_north.555",
-    "c3.555",
-    "c3_south.555"
-};
-static char EDITOR_GRAPHICS_SG2[][NAME_SIZE] = {
-    "c3map_north.sg2",
-    "c3map.sg2",
-    "c3map_south.sg2"
-};
-static char EDITOR_GRAPHICS_555[][NAME_SIZE] = {
-    "c3map_north.555",
-    "c3map.555",
-    "c3map_south.555"
-};
-static char EMPIRE_555[NAME_SIZE] = "The_empire.555";
-static char ENEMY_GRAPHICS_SG2[ENEMY_FILES_COUNT][NAME_SIZE] = {
-    "carthage.sg2", // used for barbarians
-    "carthage.sg2",
-    "celts.sg2",
-    "egyptians.sg2",
-    "Etruscan.sg2",
-    "Gaul.sg2",
-    "goths.sg2",
-    "Greek.sg2",
-    "North African.sg2",
-    "Persians.sg2",
-    "Phoenician.sg2",
-};
-static char ENEMY_GRAPHICS_555[ENEMY_FILES_COUNT][NAME_SIZE] = {
-   "carthage.555", // used for barbarians
-   "carthage.555",
-   "celts.555",
-   "egyptians.555",
-   "Etruscan.555",
-   "Gaul.555",
-   "goths.555",
-   "Greek.555",
-   "North African.555",
-   "Persians.555",
-   "Phoenician.555",
-};
 static char *resource_strings[] = {
 "No resource", // RESOURCE_NONE
 "Wheat", // RESOURCE_WHEAT
@@ -4166,26 +4299,6 @@ struct dir_listing {
 };
 static struct dir_listing listing;
 
-struct image_t {
-    int width;
-    int height;
-    int num_animation_sprites;
-    int sprite_offset_x;
-    int sprite_offset_y;
-    int animation_can_reverse;
-    int animation_speed_id;
-    struct {
-        int type;
-        int is_fully_compressed;
-        int is_external;
-        int has_compressed_part;
-        int bitmap_id;
-        int offset;
-        int data_length;
-        int uncompressed_length;
-    } draw;
-};
-
 struct lang_message_image {
     int id; /**< ID of the image */
     int x; /**< X offset */
@@ -4586,14 +4699,6 @@ struct window_type_t {
     void (*handle_input)(struct mouse_t *m);
 };
 
-struct cursor_t {
-    int hotspot_x;
-    int hotspot_y;
-    int width;
-    int height;
-    char *data;
-};
-
 struct grid_u8_t {
     uint8_t items[GRID_SIZE * GRID_SIZE];
 };
@@ -4847,18 +4952,6 @@ static struct input_box_t editor_custom_message_input_title = { -68, 64, 17, 2, 
 static struct input_box_t editor_custom_message_input_text = { -68, 64, 46, 2, FONT_NORMAL_WHITE, 1, editor_custom_message_text, MAX_CUSTOM_MESSAGE_TEXT };
 
 struct {
-    int active;
-    int quit;
-} data = { 1, 0 };
-
-struct {
-    SDL_Cursor *cursors[CURSOR_MAX];
-    SDL_Surface *surfaces[CURSOR_MAX];
-    int current_shape;
-    int current_scale;
-} cursor_data;
-
-struct {
     int x;
     int y;
     int enabled;
@@ -4870,12 +4963,6 @@ struct {
     SDL_Texture *texture;
     SDL_Texture *cursors[CURSOR_MAX];
 } SDL;
-
-struct {
-    int x;
-    int y;
-    int centered;
-} window_pos = { 0, 0, 1 };
 
 struct {
     int WIDTH;
@@ -4922,8 +5009,8 @@ static struct {
     int y_offset;
     int width;
     int height;
-    color_t enemy_color;
-    color_t *cache;
+    uint32_t enemy_color;
+    uint32_t *cache;
     struct {
         int x;
         int y;
@@ -4979,8 +5066,8 @@ static struct {
 } scenario_minimap_data;
 
 struct tile_color_t {
-    color_t left;
-    color_t right;
+    uint32_t left;
+    uint32_t right;
 };
 
 struct tile_color_set_t {
@@ -5214,17 +5301,6 @@ static struct {
     char selected_scenario_display[FILE_NAME_MAX];
     struct dir_listing *scenarios;
 } cck_selection_data;
-
-struct sound_channel_t {
-    char *filename;
-    Mix_Chunk *chunk;
-};
-
-static struct {
-    int initialized;
-    Mix_Music *music;
-    struct sound_channel_t channels[MAX_DEVICE_CHANNELS];
-} data_channels;
 
 static struct {
     SDL_AudioFormat dst_format;
@@ -5637,357 +5713,6 @@ static struct modifier_name_t modifier_names[] = {
     {KMOD_NONE, 0}
 };
 
-static struct cursor_t ARROW[] = {
-    {
-        0, 0, 13, 21,
-        "#            "
-        "##           "
-        "#'#          "
-        "#''#         "
-        "#'''#        "
-        "#''''#       "
-        "#'''''#      "
-        "#''''''#     "
-        "#'''''''#    "
-        "#''''''''#   "
-        "#'''''''''#  "
-        "#''''''''''# "
-        "#''''''######"
-        "#'''#''#     "
-        "#''# #''#    "
-        "#'#  #''#    "
-        "##    #''#   "
-        "#     #''#   "
-        "       #''#  "
-        "       #''#  "
-        "        ##   "
-    },
-    {
-        0, 0, 18, 30,
-        "#                 "
-        "##                "
-        "#&#               "
-        "#'&#              "
-        "#''&#             "
-        "#'''&#            "
-        "#''''&#           "
-        "#'''''&#          "
-        "#''''''&#         "
-        "#'''''''&#        "
-        "#''''''''&#       "
-        "#'''''''''&#      "
-        "#''''''''''&#     "
-        "#'''''''''''&#    "
-        "#''''''''''''&#   "
-        "#'''''''''''''&#  "
-        "#''''''''''''''&# "
-        "#'''''''''''''''$#"
-        "#'''''''&#########"
-        "#''''$%''$        "
-        "#'''$##&'&#       "
-        "#''$#  $''%#      "
-        "#&#    #&''#      "
-        "##      #''%#     "
-        "#       #%''#     "
-        "         #''&#    "
-        "         #%''$    "
-        "          #&'&#   "
-        "           $'&#   "
-        "           ###    "
-    },
-    {
-        0, 0, 24, 40,
-        "#                       "
-        "##                      "
-        "#&#                     "
-        "#'&#                    "
-        "#''&#                   "
-        "#'''&#                  "
-        "#''''&#                 "
-        "#'''''&#                "
-        "#''''''&#               "
-        "#'''''''&#              "
-        "#''''''''&#             "
-        "#'''''''''&#            "
-        "#''''''''''&#           "
-        "#'''''''''''&#          "
-        "#''''''''''''&#         "
-        "#'''''''''''''&#        "
-        "#''''''''''''''&#       "
-        "#'''''''''''''''&#      "
-        "#''''''''''''''''&#     "
-        "#'''''''''''''''''&#    "
-        "#''''''''''''''''''&#   "
-        "#'''''''''''''''''''&#  "
-        "#''''''''''''''''''''&# "
-        "#'''''''''''''''''''''&#"
-        "#''''''''''&############"
-        "#''''''&&'''$           "
-        "#'''''&##'''&#          "
-        "#''''&# #%'''%#         "
-        "#''''#   #''''#         "
-        "#'''#    #%'''%#        "
-        "#''#      #&'''#        "
-        "#'$#       $'''&#       "
-        "#$#        #&'''$       "
-        "##          #'''&#      "
-        "#           #%'''%#     "
-        "             #''''#     "
-        "             #%'''%#    "
-        "              #&'''#    "
-        "               $'&$#    "
-        "               ###      "
-    }
-};
-
-static struct cursor_t SWORD[] = {
-    {
-        0, 0, 22, 22,
-        "#####                 "
-        "#'''##                "
-        "#''''##               "
-        "#'''''##              "
-        "##'''''##             "
-        " ##'''''##            "
-        "  ##'''''##           "
-        "   ##'''''##          "
-        "    ##'''''##         "
-        "     ##'''''##        "
-        "      ##'''''##       "
-        "       ##'''''##      "
-        "        ##'''''#####  "
-        "         ##'''''#''#  "
-        "          ##'''#'''#  "
-        "           ##'#'''##  "
-        "            ##'''###  "
-        "            #'''##'###"
-        "            #''##''''#"
-        "            ######'''#"
-        "                 #''##"
-        "                 #### "
-    },
-    {
-        0, 0, 34, 34,
-        "######                            "
-        "#%&&&##                           "
-        "#&'''&##                          "
-        "#&''''&##                         "
-        "#&'''''&##                        "
-        "##&'''''&##                       "
-        " ##&'''''&##                      "
-        "  ##&'''''&##                     "
-        "   ##&'''''&##                    "
-        "    ##&'''''&##                   "
-        "     ##&'''''&##                  "
-        "      ##&'''''&##                 "
-        "       ##&'''''&##                "
-        "        ##&'''''&##               "
-        "         ##&'''''&##              "
-        "          ##&'''''&##             "
-        "           ##&'''''&##            "
-        "            ##&'''''&##           "
-        "             ##&'''''&##          "
-        "              ##&'''''&########   "
-        "               ##&''''''&##&&$#   "
-        "                ##&''''&##&''$#   "
-        "                 ##&''&##&''&##   "
-        "                  ##%&##&''&###   "
-        "                   #&##&''&####   "
-        "                   ###&''&#####   "
-        "                   ##&''&###%$### "
-        "                   #&''&###%'%$$##"
-        "                   #&'&###%'''''$#"
-        "                   #$$####$%''''$#"
-        "                   ########$'''&##"
-        "                          #$''&#  "
-        "                          ##$$##  "
-        "                           ####   "
-    },
-    {
-        0, 0, 46, 44,
-        "########                                      "
-        "#%%%%%%##                                     "
-        "#%'''''&##                                    "
-        "#%''''''&##                                   "
-        "#%'''''''%##                                  "
-        "#%''''''''%##                                 "
-        "#%'''''''''%##                                "
-        "##%'''''''''%##                               "
-        " ##%'''''''''%##                              "
-        "  ##%'''''''''%##                             "
-        "   ##%'''''''''%##                            "
-        "    ##%'''''''''%##                           "
-        "     ##%'''''''''%##                          "
-        "      ##%'''''''''%##                         "
-        "       ##%'''''''''%##                        "
-        "        ##%'''''''''%##                       "
-        "         ##%'''''''''%##                      "
-        "          ##%'''''''''%##                     "
-        "           ##%'''''''''%##                    "
-        "            ##%'''''''''%##                   "
-        "             ##%'''''''''%##                  "
-        "              ##%'''''''''%##                 "
-        "               ##%'''''''''%##                "
-        "                ##%'''''''''%##               "
-        "                 ##%'''''''''%##              "
-        "                  ##%'''''''''%##########     "
-        "                   ##%'''''''''%$$##$$$##     "
-        "                    ##%''''''''''%#%'''$#     "
-        "                     ##%''''''''%#%''''$#     "
-        "                      ##%''''''%#%'''''$#     "
-        "                       ##%''''%#%'''''%##     "
-        "                        ##%''%#%'''''%###     "
-        "                         #$'%#%'''''%####     "
-        "                         #$%#%'''''%#####     "
-        "                         ###%'''''%###%$#     "
-        "                         ##%'''''%###%'$####  "
-        "                         #$'''''%###%''%$$$## "
-        "                         #$''''%###%'''''''$##"
-        "                         #$'''%###%''''''''$##"
-        "                         ##$$$####$$%'''''''$#"
-        "                         ###########$''''$####"
-        "                                   #$'''$&#   "
-        "                                    #$''$#    "
-        "                                     #####    "
-    }
-};
-
-static struct cursor_t SHOVEL[] = {
-    {
-        1, 26, 28, 28,
-        "                       ##   "
-        "                      ####  "
-        "                     ##'### "
-        "                     #'''###"
-        "                     ##'''##"
-        "                    ####'## "
-        "                   ##'####  "
-        "                  ##'##     "
-        "                 ##'##      "
-        "                ##'##       "
-        "               ##'##        "
-        "              ##'##         "
-        "             ##'##          "
-        "       #    ##'##           "
-        "      #### ##'##            "
-        "     #''####'##             "
-        "    #''''##'##              "
-        "   #''''##'##               "
-        "  #''''#'#####              "
-        " #''''#'''#'##              "
-        " #'''#'''#'''##             "
-        "#'''''''#''''#              "
-        "#''''''#''''#               "
-        "#''''''''''#                "
-        "#'''''''''#                 "
-        "#''''''''#                  "
-        " #'''''##                   "
-        "  #####                     "
-    },
-    {
-        2, 39, 44, 41,
-        "                                   ####     "
-        "                                 #######    "
-        "                                ##%&#####   "
-        "                               ##&''$#####  "
-        "                               #$'''''$#### "
-        "                               #$''''''$####"
-        "                               ##&''''''%## "
-        "                              ####&''''$##  "
-        "                             ##$''##&&&$#   "
-        "                            ##$'''$#####    "
-        "                           ##$'''$##        "
-        "                          ##$'''$##         "
-        "                         ##$'''$##          "
-        "                        ##$'''$##           "
-        "                       ##$'''$##            "
-        "                      ##$'''$##             "
-        "                     ##$'''$##              "
-        "                    ##$'''$##               "
-        "         ###       ##$'''$##                "
-        "        ##$##     ##$'''$##                 "
-        "       ##%'%##   ##$'''$##                  "
-        "      ##%'''%## ##$'''$##                   "
-        "     ##%'''''%##%''''$##                    "
-        "    ##%''''''%#$''''$##                     "
-        "   ##%''''''%#$''''$##                      "
-        "  ##%''''''%#$#%''$##                       "
-        "  #$''''''%#%'%#$###                        "
-        "  #&'''''%#%'''$#%%##                       "
-        " ##'''''%#%'''%#%''%##                      "
-        " #$''''%#%'''%#%''''%##                     "
-        " #&''''%%'''%#%''''''$#                     "
-        " #&''''''''%#%''''''%##                     "
-        "##''''''''%#%''''''%##                      "
-        "#$''''''''%%''''''%##                       "
-        "#$'''''''''''''''%##                        "
-        "#$''''''''''''''%##                         "
-        "#$'''''''''''''%##                          "
-        "##'''''''''''&$##                           "
-        " #%''''''''&$###                            "
-        " ##%&''&%$###                               "
-        "  #########                                 "
-    },
-    {
-        3, 52, 58, 55,
-        "                                               ##         "
-        "                                             ######       "
-        "                                            ###&#####     "
-        "                                           ##$''&#####    "
-        "                                          ##$''''&#####   "
-        "                                         ##$'''''''$####  "
-        "                                         ##$''''''''$#### "
-        "                                         ##$'''''''''$####"
-        "                                         ##$''''''''''$###"
-        "                                         ###%'''''''''$## "
-        "                                        ##%%#%''''''&##   "
-        "                                       ##&''%#%''''&##    "
-        "                                      ##&''''%#$$$$##     "
-        "                                     ##&''''%#######      "
-        "                                    ##&''''&###           "
-        "                                   ##&''''&##             "
-        "                                  ##&''''&##              "
-        "                                 ##&''''&##               "
-        "                                ##&''''&##                "
-        "                               ##&''''&##                 "
-        "                              ##&''''&##                  "
-        "                             ##&''''&##                   "
-        "                            ##&''''&##                    "
-        "                           ##&''''&##                     "
-        "             ##           ##&''''&##                      "
-        "            ####         ##&''''&##                       "
-        "           ##%%##       ##&''''&##                        "
-        "          ##%''%##     ##&''''&##                         "
-        "         ##%''''%##   ##&''''&##                          "
-        "        ##%''''''%## ##%''''&##                           "
-        "       ##%''''''''%##%'''''&##                            "
-        "      ##%'''''''''%#$'''''&##                             "
-        "     ##%'''''''''%#%'''''&##                              "
-        "    ##%'''''''''%##%''''%##                               "
-        "   ##%'''''''''%#%%#%''$##                                "
-        "   #$'''''''''%#%''%#%%###                                "
-        "   #&''''''''%#%''''%##%%##                               "
-        "  ##''''''''%#%'''''%#%''%##                              "
-        "  #%'''''''%#%'''''%#%''''%##                             "
-        "  #&''''''%#%'''''%#%''''''%##                            "
-        "  #''''''&#%'''''%#%''''''''%##                           "
-        " #$'''''''&'''''%#%'''''''''%##                           "
-        " #%''''''''''''%#%'''''''''%##                            "
-        " #&'''''''''''%#%'''''''''%##                             "
-        " #&''''''''''&#%'''''''''%##                              "
-        " #''''''''''''&'''''''''%##                               "
-        " #'''''''''''''''''''''%##                                "
-        "##''''''''''''''''''''%##                                 "
-        " #'''''''''''''''''''%##                                  "
-        " #&'''''''''''''''''%##                                   "
-        " #&'''''''''''''''&$##                                    "
-        " #$'''''''''''''&$###                                     "
-        "  #%'''''''''&%###                                        "
-        "   #$%&&&&%$####                                          "
-        "    #########                                             "
-    }
-};
-
 static struct {
     int capture;
     int accepted;
@@ -6092,12 +5817,7 @@ static struct {
 } links[MAX_LINKS];
 
 static struct {
-    char *font_mapping;
-    struct font_definition_t *font_definitions;
-} font_data;
-
-static struct {
-    color_t *pixels;
+    uint32_t *pixels;
     int width;
     int height;
 } canvas;
@@ -6399,17 +6119,6 @@ struct smacker_t {
 };
 
 static struct {
-    uint32_t iv1;
-    uint32_t iv2;
-    int8_t random1_7bit;
-    int16_t random1_15bit;
-    int8_t random2_7bit;
-    int16_t random2_15bit;
-    int pool_index;
-    int32_t pool[MAX_RANDOM];
-} random_data;
-
-static struct {
     struct {
         int32_t offset;
         int32_t in_use;
@@ -6419,23 +6128,6 @@ static struct {
     struct lang_message_t message_entries[MAX_MESSAGE_ENTRIES];
     char message_data[MAX_MESSAGE_DATA];
 } lang_data;
-
-static struct {
-    int current_climate;
-    int is_editor;
-    int fonts_enabled;
-    int font_base_offset;
-    uint16_t group_image_ids[300];
-    char bitmaps[100][200];
-    struct image_t main[MAIN_ENTRIES];
-    struct image_t enemy[ENEMY_FILES_COUNT][ENEMY_ENTRIES];
-    struct image_t *font;
-    color_t *main_data;
-    color_t *empire_data;
-    color_t *enemy_data[ENEMY_FILES_COUNT];
-    color_t *font_data;
-    uint8_t *tmp_data;
-} image_data_s = { .current_climate = -1 };
 
 static struct {
     struct resource_list_t resource_list;
@@ -6573,7 +6265,7 @@ static struct {
 } distribution_data = { 0, 0, 0, 0 };
 
 static struct {
-    color_t figure_images[7][48 * 48];
+    uint32_t figure_images[7][48 * 48];
     int focus_button_id;
     struct building_info_context_t *context_for_callback;
 } building_figures_data;
@@ -6688,18 +6380,7 @@ static int HERD_FORMATION_LAYOUT_POSITION_Y_OFFSETS[MAX_FORMATION_FIGURES] = {
     0, 1, -1, 1, 0, 1, 1, -1, 2, 0, 3, 5, 4, 0, 3, 2
 };
 static int selected_legion_formation;
-static   color_t mouse_colors[] = {
-    ALPHA_TRANSPARENT,
-    ALPHA_TRANSPARENT,
-    ALPHA_TRANSPARENT,
-    ALPHA_OPAQUE | COLOR_BLACK,
-    ALPHA_OPAQUE | COLOR_MOUSE_DARK_GRAY,
-    ALPHA_OPAQUE | COLOR_MOUSE_MEDIUM_GRAY,
-    ALPHA_OPAQUE | COLOR_MOUSE_LIGHT_GRAY,
-    ALPHA_OPAQUE | COLOR_WHITE
-};
-static int scale_percentage = 100;
-static   int ADJACENT_OFFSETS[2][4][7] = {
+static int ADJACENT_OFFSETS[2][4][7] = {
     {
         {OFFSET(-1, 0), OFFSET(-1, -1), OFFSET(-1, -2), OFFSET(0, -2), OFFSET(1, -2)},
         {OFFSET(0, -1), OFFSET(1, -1), OFFSET(2, -1), OFFSET(2, 0), OFFSET(2, 1)},
@@ -6758,7 +6439,7 @@ static int FORT_GROUND_X_VIEW_OFFSETS[4] = { 120, 90, -120, -90 };
 static int FORT_GROUND_Y_VIEW_OFFSETS[4] = { 30, -75, -60, 45 };
 static int HIPPODROME_X_VIEW_OFFSETS[4] = { 150, 150, -150, -150 };
 static int HIPPODROME_Y_VIEW_OFFSETS[4] = { 75, -75, -75, 75 };
-static color_t ENEMY_COLOR_BY_CLIMATE[] = {
+static uint32_t ENEMY_COLOR_BY_CLIMATE[] = {
     COLOR_MINIMAP_ENEMY_CENTRAL,
     COLOR_MINIMAP_ENEMY_NORTHERN,
     COLOR_MINIMAP_ENEMY_DESERT
@@ -7276,28 +6957,6 @@ static void write_log(__attribute__((unused)) void *userdata, __attribute__((unu
     }
 }
 
-static void post_event(int code)
-{
-    SDL_Event event;
-    event.user.type = SDL_USEREVENT;
-    event.user.code = code;
-    SDL_PushEvent(&event);
-}
-
-static void system_resize(int width, int height)
-{
-    static int s_width;
-    static int s_height;
-    s_width = width;
-    s_height = height;
-    SDL_Event event;
-    event.user.type = SDL_USEREVENT;
-    event.user.code = USER_EVENT_RESIZE;
-    event.user.data1 = &s_width;
-    event.user.data2 = &s_height;
-    SDL_PushEvent(&event);
-}
-
 static int string_from_int(char *dst, int value, int force_plus_sign)
 {
     int total_chars = 0;
@@ -7363,13 +7022,13 @@ static int number_to_string(char *str, int value, char prefix, char *postfix)
 
 static int font_letter_id(struct font_definition_t *def, char *str)
 {
-    if (!font_data.font_mapping[(uint8_t) *str]) {
+    if (!CHAR_TO_FONT_IMAGE_DEFAULT[(uint8_t) *str]) {
         return -1;
     }
-    return font_data.font_mapping[(uint8_t) *str] + def->image_offset - 1;
+    return CHAR_TO_FONT_IMAGE_DEFAULT[(uint8_t) *str] + def->image_offset - 1;
 }
 
-static   struct image_t *image_letter(int letter_id)
+static struct image_t *image_letter(int letter_id)
 {
     return &image_data_s.main[image_data_s.group_image_ids[GROUP_FONT] + letter_id];
 
@@ -7458,12 +7117,12 @@ static   struct clip_info_t *graphics_get_clip_info(int x, int y, int width, int
     return &clip;
 }
 
-static color_t *graphics_get_pixel(int x, int y)
+static uint32_t *graphics_get_pixel(int x, int y)
 {
     return &canvas.pixels[(translation.y + y) * canvas.width + (translation.x + x)];
 }
 
-static void draw_compressed_set(struct image_t *img, color_t *data, int x_offset, int y_offset, int height, color_t color)
+static void draw_compressed_set(struct image_t *img, uint32_t *data, int x_offset, int y_offset, int height, uint32_t color)
 {
     struct clip_info_t *clip = graphics_get_clip_info(x_offset, y_offset, img->width, height);
     if (!clip || !clip->is_visible) {
@@ -7474,7 +7133,7 @@ static void draw_compressed_set(struct image_t *img, color_t *data, int x_offset
     for (int y = 0; y < height - clip->clipped_pixels_bottom; y++) {
         int x = 0;
         while (x < img->width) {
-            color_t b = *data;
+            uint32_t b = *data;
             data++;
             if (b == 255) {
                 // transparent pixels to skip
@@ -7485,7 +7144,7 @@ static void draw_compressed_set(struct image_t *img, color_t *data, int x_offset
                 x += b;
             } else {
                 data += b;
-                color_t *dst = graphics_get_pixel(x_offset + x, y_offset + y);
+                uint32_t *dst = graphics_get_pixel(x_offset + x, y_offset + y);
                 if (unclipped) {
                     x += b;
                     while (b) {
@@ -7508,7 +7167,7 @@ static void draw_compressed_set(struct image_t *img, color_t *data, int x_offset
     }
 }
 
-static void draw_compressed(struct image_t *img, color_t *data, int x_offset, int y_offset, int height)
+static void draw_compressed(struct image_t *img, uint32_t *data, int x_offset, int y_offset, int height)
 {
     struct clip_info_t *clip = graphics_get_clip_info(x_offset, y_offset, img->width, height);
     if (!clip || !clip->is_visible) {
@@ -7519,7 +7178,7 @@ static void draw_compressed(struct image_t *img, color_t *data, int x_offset, in
     for (int y = 0; y < height - clip->clipped_pixels_bottom; y++) {
         int x = 0;
         while (x < img->width) {
-            color_t b = *data;
+            uint32_t b = *data;
             data++;
             if (b == 255) {
                 // transparent pixels to skip
@@ -7530,12 +7189,12 @@ static void draw_compressed(struct image_t *img, color_t *data, int x_offset, in
                 x += b;
             } else {
                 // number of concrete pixels
-                color_t *pixels = data;
+                uint32_t *pixels = data;
                 data += b;
-                color_t *dst = graphics_get_pixel(x_offset + x, y_offset + y);
+                uint32_t *dst = graphics_get_pixel(x_offset + x, y_offset + y);
                 if (unclipped) {
                     x += b;
-                    memcpy(dst, pixels, b * sizeof(color_t));
+                    memcpy(dst, pixels, b * sizeof(uint32_t));
                 } else {
                     while (b) {
                         if (x >= clip->clipped_pixels_left && x < img->width - clip->clipped_pixels_right) {
@@ -7552,7 +7211,7 @@ static void draw_compressed(struct image_t *img, color_t *data, int x_offset, in
     }
 }
 
-static void draw_uncompressed(struct image_t *img, color_t *data, int x_offset, int y_offset, color_t color, int type)
+static void draw_uncompressed(struct image_t *img, uint32_t *data, int x_offset, int y_offset, uint32_t color, int type)
 {
     struct clip_info_t *clip = graphics_get_clip_info(x_offset, y_offset, img->width, img->height);
     if (!clip || !clip->is_visible) {
@@ -7561,7 +7220,7 @@ static void draw_uncompressed(struct image_t *img, color_t *data, int x_offset, 
     data += img->width * clip->clipped_pixels_top;
     for (int y = clip->clipped_pixels_top; y < img->height - clip->clipped_pixels_bottom; y++) {
         data += clip->clipped_pixels_left;
-        color_t *dst = graphics_get_pixel(x_offset + clip->clipped_pixels_left, y_offset + y);
+        uint32_t *dst = graphics_get_pixel(x_offset + clip->clipped_pixels_left, y_offset + y);
         int x_max = img->width - clip->clipped_pixels_right;
         if (type == DRAW_TYPE_NONE) {
             if (img->draw.type == IMAGE_TYPE_WITH_TRANSPARENCY || img->draw.is_external) { // can be transparent
@@ -7573,7 +7232,7 @@ static void draw_uncompressed(struct image_t *img, color_t *data, int x_offset, 
                 }
             } else {
                 int num_pixels = x_max - clip->clipped_pixels_left;
-                memcpy(dst, data, num_pixels * sizeof(color_t));
+                memcpy(dst, data, num_pixels * sizeof(uint32_t));
                 data += num_pixels;
             }
         } else if (type == DRAW_TYPE_SET) {
@@ -7600,12 +7259,12 @@ static void draw_uncompressed(struct image_t *img, color_t *data, int x_offset, 
         } else if (type == DRAW_TYPE_BLEND_ALPHA) {
             for (int x = clip->clipped_pixels_left; x < x_max; x++, dst++) {
                 if (*data != COLOR_SG2_TRANSPARENT) {
-                    color_t alpha = COMPONENT(*data, 24);
+                    uint32_t alpha = COMPONENT(*data, 24);
                     if (alpha == 255) {
                         *dst = color;
                     } else {
-                        color_t s = color;
-                        color_t d = *dst;
+                        uint32_t s = color;
+                        uint32_t d = *dst;
                         *dst = MIX_RB(s, d, alpha) | MIX_G(s, d, alpha);
                     }
                 }
@@ -7616,11 +7275,11 @@ static void draw_uncompressed(struct image_t *img, color_t *data, int x_offset, 
     }
 }
 
-static void image_draw_letter(int letter_id, int x, int y, color_t color)
+static void image_draw_letter(int letter_id, int x, int y, uint32_t color)
 {
     struct image_t *img = image_letter(letter_id);
     int image_id = image_data_s.group_image_ids[GROUP_FONT] + letter_id;
-    color_t *data = &image_data_s.main_data[image_data_s.main[image_id].draw.offset];
+    uint32_t *data = &image_data_s.main_data[image_data_s.main[image_id].draw.offset];
     if (!data) {
         return;
     }
@@ -7636,9 +7295,34 @@ static void image_draw_letter(int letter_id, int x, int y, color_t color)
     }
 }
 
-static int text_draw(char *str, int x, int y, int font, color_t color)
+static int image_y_offset_default(uint8_t c, int image_height, int line_height)
 {
-    struct font_definition_t *def = &font_data.font_definitions[font];
+    int offset = image_height - line_height;
+    if (offset < 0) {
+        offset = 0;
+    }
+    if (c < 0x80 || c == 0xE7) {
+        offset = 0;
+    }
+    return offset;
+}
+
+static struct font_definition_t DEFINITIONS_DEFAULT[] = {
+    {FONT_NORMAL_PLAIN, 0, 6, 1, 11, image_y_offset_default},
+    {FONT_NORMAL_BLACK, 134, 6, 0, 11, image_y_offset_default},
+    {FONT_NORMAL_WHITE, 268, 6, 0, 11, image_y_offset_default},
+    {FONT_NORMAL_RED, 402, 6, 0, 11, image_y_offset_default},
+    {FONT_LARGE_PLAIN, 536, 8, 1, 23, image_y_offset_default},
+    {FONT_LARGE_BLACK, 670, 8, 0, 23, image_y_offset_default},
+    {FONT_LARGE_BROWN, 804, 8, 0, 24, image_y_offset_default},
+    {FONT_SMALL_PLAIN, 938, 4, 1, 9, image_y_offset_default},
+    {FONT_NORMAL_GREEN, 1072, 6, 0, 11, image_y_offset_default},
+    {FONT_NORMAL_BROWN, 1206, 6, 0, 11, image_y_offset_default}
+};
+
+static int text_draw(char *str, int x, int y, int font, uint32_t color)
+{
+    struct font_definition_t *def = &DEFINITIONS_DEFAULT[font];
 
     int length = string_length(str);
     if (input_cursor.capture) {
@@ -7680,14 +7364,14 @@ static int text_draw(char *str, int x, int y, int font, color_t color)
     return current_x - x;
 }
 
-static int text_draw_number_colored(int value, char prefix, char *postfix, int x_offset, int y_offset, int font, color_t color)
+static int text_draw_number_colored(int value, char prefix, char *postfix, int x_offset, int y_offset, int font, uint32_t color)
 {
     char str[NUMBER_BUFFER_LENGTH];
     number_to_string(str, value, prefix, postfix);
     return text_draw(str, x_offset, y_offset, font, color);
 }
 
-static void graphics_draw_horizontal_line(int x1, int x2, int y, color_t color)
+static void graphics_draw_horizontal_line(int x1, int x2, int y, uint32_t color)
 {
     if (y < clip_rectangle.y_start || y >= clip_rectangle.y_end) {
         return;
@@ -7696,15 +7380,15 @@ static void graphics_draw_horizontal_line(int x1, int x2, int y, color_t color)
     int x_max = x1 < x2 ? x2 : x1;
     x_min = x_min < clip_rectangle.x_start ? clip_rectangle.x_start : x_min;
     x_max = x_max >= clip_rectangle.x_end ? clip_rectangle.x_end - 1 : x_max;
-    color_t *pixel = graphics_get_pixel(x_min, y);
-    color_t *end_pixel = pixel + (x_max - x_min);
+    uint32_t *pixel = graphics_get_pixel(x_min, y);
+    uint32_t *end_pixel = pixel + (x_max - x_min);
     while (pixel <= end_pixel) {
         *pixel = color;
         ++pixel;
     }
 }
 
-static void graphics_fill_rect(int x, int y, int width, int height, color_t color)
+static void graphics_fill_rect(int x, int y, int width, int height, uint32_t color)
 {
     for (int yy = y; yy < height + y; yy++) {
         graphics_draw_horizontal_line(x, x + width - 1, yy, color);
@@ -7753,11 +7437,11 @@ static void show_saved_notice(char *filename)
     city_warning_show_custom(notice_text);
 }
 
-static void pixel(color_t input, uint8_t *r, uint8_t *g, uint8_t *b)
+static void pixel(uint32_t input, uint8_t *r, uint8_t *g, uint8_t *b)
 {
-    color_t rr = (input & 0xff0000) >> 16;
-    color_t gg = (input & 0x00ff00) >> 8;
-    color_t bb = (input & 0x0000ff) >> 0;
+    uint32_t rr = (input & 0xff0000) >> 16;
+    uint32_t gg = (input & 0x00ff00) >> 8;
+    uint32_t bb = (input & 0x0000ff) >> 0;
     *r = (uint8_t) rr;
     *g = (uint8_t) gg;
     *b = (uint8_t) bb;
@@ -7944,18 +7628,14 @@ static void screen_set_resolution(int width, int height)
     screen_data.height = height;
     screen_data.dialog_offset.x = (width - 640) / 2;
     screen_data.dialog_offset.y = (height - 480) / 2;
-
-    canvas.pixels = (color_t *) malloc((size_t) width * height * sizeof(color_t));
+    canvas.pixels = (uint32_t *) malloc((size_t) width * height * sizeof(uint32_t));
     if (!canvas.pixels) {
         return;
     }
-
-    memset(canvas.pixels, 0, (size_t) width * height * sizeof(color_t));
+    memset(canvas.pixels, 0, (size_t) width * height * sizeof(uint32_t));
     canvas.width = width;
     canvas.height = height;
-
     graphics_set_clip_rectangle(0, 0, width, height);
-
     view_data.screen_width = width;
     view_data.screen_height = height;
     if (view_data.sidebar_collapsed) {
@@ -8198,7 +7878,7 @@ static uint8_t buffer_read_u8(struct buffer_t *buf)
     }
 }
 
-static color_t to_32_bit(uint16_t c)
+static uint32_t to_32_bit(uint16_t c)
 {
     return ((c & 0x7c00) << 9) | ((c & 0x7000) << 4) |
         ((c & 0x3e0) << 6) | ((c & 0x380) << 1) |
@@ -8216,7 +7896,7 @@ static uint16_t buffer_read_u16(struct buffer_t *buf)
     }
 }
 
-static int convert_compressed(struct buffer_t *buf, int buf_length, color_t *dst)
+static int convert_compressed(struct buffer_t *buf, int buf_length, uint32_t *dst)
 {
     int dst_length = 0;
     while (buf_length > 0) {
@@ -8240,7 +7920,7 @@ static int convert_compressed(struct buffer_t *buf, int buf_length, color_t *dst
     return dst_length;
 }
 
-static int convert_uncompressed(struct buffer_t *buf, int buf_length, color_t *dst)
+static int convert_uncompressed(struct buffer_t *buf, int buf_length, uint32_t *dst)
 {
     for (int i = 0; i < buf_length; i += 2) {
         *dst = to_32_bit(buffer_read_u16(buf));
@@ -8264,7 +7944,7 @@ static void file_change_extension(char *filename, const char *new_extension)
     }
 }
 
-static color_t *image_data(int id)
+static uint32_t *image_data(int id)
 {
     if (id < 0 || id >= MAIN_ENTRIES) {
         return 0;
@@ -8295,7 +7975,7 @@ static color_t *image_data(int id)
         }
         struct buffer_t buf;
         buffer_init(&buf, image_data_s.tmp_data, size);
-        color_t *dst = (color_t *) &image_data_s.tmp_data[4000000];
+        uint32_t *dst = (uint32_t *) &image_data_s.tmp_data[4000000];
         // NB: isometric images are never external
         if (img->draw.is_fully_compressed) {
             convert_compressed(&buf, img->draw.data_length, dst);
@@ -8306,7 +7986,7 @@ static color_t *image_data(int id)
     }
 }
 
-static void draw_footprint_tile(color_t *data, int x_offset, int y_offset, color_t color_mask)
+static void draw_footprint_tile(uint32_t *data, int x_offset, int y_offset, uint32_t color_mask)
 {
     if (!color_mask) {
         color_mask = COLOR_MASK_NONE;
@@ -8317,41 +7997,41 @@ static void draw_footprint_tile(color_t *data, int x_offset, int y_offset, color
     }
     // If the current tile neither clipped nor color masked, just draw it normally
     if (clip->clip_y == CLIP_NONE && clip->clip_x == CLIP_NONE && color_mask == COLOR_MASK_NONE) {
-        memcpy(graphics_get_pixel(x_offset + 28, y_offset + 0), &data[0], 2 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 26, y_offset + 1), &data[2], 6 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 24, y_offset + 2), &data[8], 10 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 22, y_offset + 3), &data[18], 14 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 20, y_offset + 4), &data[32], 18 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 18, y_offset + 5), &data[50], 22 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 16, y_offset + 6), &data[72], 26 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 14, y_offset + 7), &data[98], 30 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 12, y_offset + 8), &data[128], 34 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 10, y_offset + 9), &data[162], 38 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 8, y_offset + 10), &data[200], 42 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 6, y_offset + 11), &data[242], 46 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 4, y_offset + 12), &data[288], 50 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 2, y_offset + 13), &data[338], 54 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 0, y_offset + 14), &data[392], 58 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 0, y_offset + 15), &data[450], 58 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 2, y_offset + 16), &data[508], 54 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 4, y_offset + 17), &data[562], 50 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 6, y_offset + 18), &data[612], 46 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 8, y_offset + 19), &data[658], 42 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 10, y_offset + 20), &data[700], 38 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 12, y_offset + 21), &data[738], 34 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 14, y_offset + 22), &data[772], 30 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 16, y_offset + 23), &data[802], 26 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 18, y_offset + 24), &data[828], 22 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 20, y_offset + 25), &data[850], 18 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 22, y_offset + 26), &data[868], 14 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 24, y_offset + 27), &data[882], 10 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 26, y_offset + 28), &data[892], 6 * sizeof(color_t));
-        memcpy(graphics_get_pixel(x_offset + 28, y_offset + 29), &data[898], 2 * sizeof(color_t));
+        memcpy(graphics_get_pixel(x_offset + 28, y_offset + 0), &data[0], 2 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 26, y_offset + 1), &data[2], 6 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 24, y_offset + 2), &data[8], 10 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 22, y_offset + 3), &data[18], 14 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 20, y_offset + 4), &data[32], 18 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 18, y_offset + 5), &data[50], 22 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 16, y_offset + 6), &data[72], 26 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 14, y_offset + 7), &data[98], 30 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 12, y_offset + 8), &data[128], 34 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 10, y_offset + 9), &data[162], 38 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 8, y_offset + 10), &data[200], 42 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 6, y_offset + 11), &data[242], 46 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 4, y_offset + 12), &data[288], 50 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 2, y_offset + 13), &data[338], 54 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 0, y_offset + 14), &data[392], 58 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 0, y_offset + 15), &data[450], 58 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 2, y_offset + 16), &data[508], 54 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 4, y_offset + 17), &data[562], 50 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 6, y_offset + 18), &data[612], 46 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 8, y_offset + 19), &data[658], 42 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 10, y_offset + 20), &data[700], 38 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 12, y_offset + 21), &data[738], 34 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 14, y_offset + 22), &data[772], 30 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 16, y_offset + 23), &data[802], 26 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 18, y_offset + 24), &data[828], 22 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 20, y_offset + 25), &data[850], 18 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 22, y_offset + 26), &data[868], 14 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 24, y_offset + 27), &data[882], 10 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 26, y_offset + 28), &data[892], 6 * sizeof(uint32_t));
+        memcpy(graphics_get_pixel(x_offset + 28, y_offset + 29), &data[898], 2 * sizeof(uint32_t));
         return;
     }
     int clip_left = clip->clip_x == CLIP_LEFT || clip->clip_x == CLIP_BOTH;
     int clip_right = clip->clip_x == CLIP_RIGHT || clip->clip_x == CLIP_BOTH;
-    color_t *src = &data[FOOTPRINT_OFFSET_PER_HEIGHT[clip->clipped_pixels_top]];
+    uint32_t *src = &data[FOOTPRINT_OFFSET_PER_HEIGHT[clip->clipped_pixels_top]];
     for (int y = clip->clipped_pixels_top; y < clip->clipped_pixels_top + clip->visible_pixels_y; y++) {
         int x_start = FOOTPRINT_X_START_PER_HEIGHT[y];
         int x_max = 58 - x_start * 2;
@@ -8384,9 +8064,9 @@ static void draw_footprint_tile(color_t *data, int x_offset, int y_offset, color
                 x_max = temp_x_max;
             }
         }
-        color_t *buffer = graphics_get_pixel(x_offset + x_start, y_offset + y);
+        uint32_t *buffer = graphics_get_pixel(x_offset + x_start, y_offset + y);
         if (color_mask == COLOR_MASK_NONE) {
-            memcpy(buffer, src, x_max * sizeof(color_t));
+            memcpy(buffer, src, x_max * sizeof(uint32_t));
             src += x_max + x_pixel_advance;
         } else {
             for (int x = 0; x < x_max; x++, buffer++, src++) {
@@ -8397,20 +8077,20 @@ static void draw_footprint_tile(color_t *data, int x_offset, int y_offset, color
     }
 }
 
-static   color_t *tile_data(color_t *data, int index)
+static   uint32_t *tile_data(uint32_t *data, int index)
 {
     return &data[900 * index];
 }
 
-static void draw_footprint_size1(int image_id, int x, int y, color_t color_mask)
+static void draw_footprint_size1(int image_id, int x, int y, uint32_t color_mask)
 {
-    color_t *data = image_data(image_id);
+    uint32_t *data = image_data(image_id);
     draw_footprint_tile(tile_data(data, 0), x, y, color_mask);
 }
 
-static void draw_footprint_size2(int image_id, int x, int y, color_t color_mask)
+static void draw_footprint_size2(int image_id, int x, int y, uint32_t color_mask)
 {
-    color_t *data = image_data(image_id);
+    uint32_t *data = image_data(image_id);
     int index = 0;
     draw_footprint_tile(tile_data(data, index++), x, y, color_mask);
     draw_footprint_tile(tile_data(data, index++), x - 30, y + 15, color_mask);
@@ -8418,9 +8098,9 @@ static void draw_footprint_size2(int image_id, int x, int y, color_t color_mask)
     draw_footprint_tile(tile_data(data, index++), x, y + 30, color_mask);
 }
 
-static void draw_footprint_size3(int image_id, int x, int y, color_t color_mask)
+static void draw_footprint_size3(int image_id, int x, int y, uint32_t color_mask)
 {
-    color_t *data = image_data(image_id);
+    uint32_t *data = image_data(image_id);
     int index = 0;
     draw_footprint_tile(tile_data(data, index++), x, y, color_mask);
     draw_footprint_tile(tile_data(data, index++), x - 30, y + 15, color_mask);
@@ -8433,9 +8113,9 @@ static void draw_footprint_size3(int image_id, int x, int y, color_t color_mask)
     draw_footprint_tile(tile_data(data, index++), x, y + 60, color_mask);
 }
 
-static void draw_footprint_size4(int image_id, int x, int y, color_t color_mask)
+static void draw_footprint_size4(int image_id, int x, int y, uint32_t color_mask)
 {
-    color_t *data = image_data(image_id);
+    uint32_t *data = image_data(image_id);
     int index = 0;
     draw_footprint_tile(tile_data(data, index++), x, y, color_mask);
     draw_footprint_tile(tile_data(data, index++), x - 30, y + 15, color_mask);
@@ -8455,9 +8135,9 @@ static void draw_footprint_size4(int image_id, int x, int y, color_t color_mask)
     draw_footprint_tile(tile_data(data, index++), x, y + 90, color_mask);
 }
 
-static void draw_footprint_size5(int image_id, int x, int y, color_t color_mask)
+static void draw_footprint_size5(int image_id, int x, int y, uint32_t color_mask)
 {
-    color_t *data = image_data(image_id);
+    uint32_t *data = image_data(image_id);
     int index = 0;
     draw_footprint_tile(tile_data(data, index++), x, y, color_mask);
     draw_footprint_tile(tile_data(data, index++), x - 30, y + 15, color_mask);
@@ -8495,7 +8175,7 @@ static struct image_t *image_get(int id)
     }
 }
 
-static void image_draw_isometric_footprint_from_draw_tile(int image_id, int x, int y, color_t color_mask)
+static void image_draw_isometric_footprint_from_draw_tile(int image_id, int x, int y, uint32_t color_mask)
 {
     struct image_t *img = image_get(image_id);
     if (img->draw.type != IMAGE_TYPE_ISOMETRIC) {
@@ -8573,7 +8253,7 @@ static void draw_footprint_without_overlay(int x, int y, int grid_offset)
     } else if (edge_grid.items[grid_offset] & EDGE_LEFTMOST_TILE) {
         // Valid grid_offset and leftmost tile -> draw
         int building_id = map_building_at(grid_offset);
-        color_t color_mask = 0;
+        uint32_t color_mask = 0;
         if (building_id || map_terrain_is(grid_offset, TERRAIN_GARDEN) || map_terrain_is(grid_offset, TERRAIN_AQUEDUCT)) {
             int view_x, view_y, view_width, view_height;
             city_view_get_viewport(&view_x, &view_y, &view_width, &view_height);
@@ -8712,7 +8392,7 @@ static int is_multi_tile_terrain(int grid_offset)
     return !map_building_at(grid_offset) && map_property_multi_tile_size(grid_offset) > 1;
 }
 
-static void draw_compressed_and(struct image_t *img, color_t *data, int x_offset, int y_offset, int height, color_t color)
+static void draw_compressed_and(struct image_t *img, uint32_t *data, int x_offset, int y_offset, int height, uint32_t color)
 {
     struct clip_info_t *clip = graphics_get_clip_info(x_offset, y_offset, img->width, height);
     if (!clip || !clip->is_visible) {
@@ -8723,7 +8403,7 @@ static void draw_compressed_and(struct image_t *img, color_t *data, int x_offset
     for (int y = 0; y < height - clip->clipped_pixels_bottom; y++) {
         int x = 0;
         while (x < img->width) {
-            color_t b = *data;
+            uint32_t b = *data;
             data++;
             if (b == 255) {
                 // transparent pixels to skip
@@ -8734,9 +8414,9 @@ static void draw_compressed_and(struct image_t *img, color_t *data, int x_offset
                 x += b;
             } else {
                 // number of concrete pixels
-                color_t *pixels = data;
+                uint32_t *pixels = data;
                 data += b;
-                color_t *dst = graphics_get_pixel(x_offset + x, y_offset + y);
+                uint32_t *dst = graphics_get_pixel(x_offset + x, y_offset + y);
                 if (unclipped) {
                     x += b;
                     while (b) {
@@ -8761,7 +8441,7 @@ static void draw_compressed_and(struct image_t *img, color_t *data, int x_offset
     }
 }
 
-static void image_draw_isometric_top_from_draw_tile(int image_id, int x, int y, color_t color_mask)
+static void image_draw_isometric_top_from_draw_tile(int image_id, int x, int y, uint32_t color_mask)
 {
     struct image_t *img = image_get(image_id);
     if (img->draw.type != IMAGE_TYPE_ISOMETRIC) {
@@ -8770,7 +8450,7 @@ static void image_draw_isometric_top_from_draw_tile(int image_id, int x, int y, 
     if (!img->draw.has_compressed_part) {
         return;
     }
-    color_t *data = &image_data(image_id)[img->draw.uncompressed_length];
+    uint32_t *data = &image_data(image_id)[img->draw.uncompressed_length];
 
     int height = img->height;
     switch (img->width) {
@@ -8802,10 +8482,10 @@ static void image_draw_isometric_top_from_draw_tile(int image_id, int x, int y, 
     }
 }
 
-static void image_draw_masked(int image_id, int x, int y, color_t color_mask)
+static void image_draw_masked(int image_id, int x, int y, uint32_t color_mask)
 {
     struct image_t *img = image_get(image_id);
-    color_t *data = image_data(image_id);
+    uint32_t *data = image_data(image_id);
     if (!data) {
         return;
     }
@@ -8834,7 +8514,7 @@ static void draw_top_without_overlay(int x, int y, int grid_offset)
     }
     struct building_t *b = &all_buildings[map_building_at(grid_offset)];
     int image_id = images.items[grid_offset];
-    color_t color_mask = 0;
+    uint32_t color_mask = 0;
     if (draw_building_as_deleted_2(b) || (bitfields_grid.items[grid_offset] & BIT_DELETED && !is_multi_tile_terrain(grid_offset))) {
         color_mask = COLOR_MASK_RED;
     }
@@ -9047,7 +8727,7 @@ static void adjust_pixel_offset(struct figure_t *f, int *pixel_x, int *pixel_y)
 static void image_draw(int image_id, int x, int y)
 {
     struct image_t *img = image_get(image_id);
-    color_t *data = image_data(image_id);
+    uint32_t *data = image_data(image_id);
     if (!data) {
         return;
     }
@@ -9059,10 +8739,10 @@ static void image_draw(int image_id, int x, int y)
     }
 }
 
-static void image_draw_blend_alpha(int image_id, int x, int y, color_t color)
+static void image_draw_blend_alpha(int image_id, int x, int y, uint32_t color)
 {
     struct image_t *img = image_get(image_id);
-    color_t *data = image_data(image_id);
+    uint32_t *data = image_data(image_id);
     if (!data) {
         return;
     }
@@ -9076,7 +8756,7 @@ static void image_draw_blend_alpha(int image_id, int x, int y, color_t color)
         if (!clip || !clip->is_visible) {
             return;
         }
-        color_t alpha = COMPONENT(color, 24);
+        uint32_t alpha = COMPONENT(color, 24);
         if (!alpha) {
             return;
         }
@@ -9084,15 +8764,15 @@ static void image_draw_blend_alpha(int image_id, int x, int y, color_t color)
             draw_compressed_set(img, data, x, y, img->height, color);
             return;
         }
-        color_t alpha_dst = 256 - alpha;
-        color_t src_rb = (color & 0xff00ff) * alpha;
-        color_t src_g = (color & 0x00ff00) * alpha;
+        uint32_t alpha_dst = 256 - alpha;
+        uint32_t src_rb = (color & 0xff00ff) * alpha;
+        uint32_t src_g = (color & 0x00ff00) * alpha;
         int unclipped = clip->clip_x == CLIP_NONE;
         for (int yy = 0; yy < img->height - clip->clipped_pixels_bottom; yy++) {
             int xx = 0;
-            color_t *dst = graphics_get_pixel(x, y + yy);
+            uint32_t *dst = graphics_get_pixel(x, y + yy);
             while (xx < img->width) {
-                color_t b = *data;
+                uint32_t b = *data;
                 data++;
                 if (b == 255) {
                     // transparent pixels to skip
@@ -9108,7 +8788,7 @@ static void image_draw_blend_alpha(int image_id, int x, int y, color_t color)
                     if (unclipped) {
                         xx += b;
                         while (b) {
-                            color_t d = *dst;
+                            uint32_t d = *dst;
                             *dst = (((src_rb + (d & 0xff00ff) * alpha_dst) & 0xff00ff00) |
                                     ((src_g + (d & 0x00ff00) * alpha_dst) & 0x00ff0000)) >> 8;
                             b--;
@@ -9117,7 +8797,7 @@ static void image_draw_blend_alpha(int image_id, int x, int y, color_t color)
                     } else {
                         while (b) {
                             if (xx >= clip->clipped_pixels_left && xx < img->width - clip->clipped_pixels_right) {
-                                color_t d = *dst;
+                                uint32_t d = *dst;
                                 *dst = (((src_rb + (d & 0xff00ff) * alpha_dst) & 0xff00ff00) |
                                        ((src_g + (d & 0x00ff00) * alpha_dst) & 0x00ff0000)) >> 8;
                             }
@@ -9279,7 +8959,7 @@ static void draw_figure_city(struct figure_t *f, int x, int y, int highlight)
         if (figure_properties[f->type].is_native_unit || figure_properties[f->type].is_enemy_unit) {
             if (f->image_id > 0 && f->image_id < 801) {
                 struct image_t *img = image_get_enemy(f);
-                color_t *data = 0;
+                uint32_t *data = 0;
                 int offset = image_data_s.enemy[f->enemy_image_group][f->image_id].draw.offset;
                 if (offset > 0) {
                     data = &image_data_s.enemy_data[f->enemy_image_group][offset];
@@ -9455,7 +9135,7 @@ static int building_animation_offset(struct building_t *b, int image_id, int gri
     return new_sprite;
 }
 
-static void city_draw_bridge_tile(int x, int y, int bridge_sprite_id, color_t color_mask)
+static void city_draw_bridge_tile(int x, int y, int bridge_sprite_id, uint32_t color_mask)
 {
     int image_id = image_data_s.group_image_ids[GROUP_BUILDING_BRIDGE];
     switch (bridge_sprite_id) {
@@ -9514,7 +9194,7 @@ static void city_draw_bridge(int x, int y, int grid_offset)
     if (map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
         return;
     }
-    color_t color_mask = 0;
+    uint32_t color_mask = 0;
     if (bitfields_grid.items[grid_offset] & BIT_DELETED) {
         color_mask = COLOR_MASK_RED;
     }
@@ -9670,10 +9350,10 @@ static int city_finance_can_afford(int cost)
     return -cost + city_data.finance.treasury >= -5000;
 }
 
-static void image_draw_blend(int image_id, int x, int y, color_t color)
+static void image_draw_blend(int image_id, int x, int y, uint32_t color)
 {
     struct image_t *img = image_get(image_id);
-    color_t *data = image_data(image_id);
+    uint32_t *data = image_data(image_id);
     if (!data) {
         return;
     }
@@ -9692,7 +9372,7 @@ static void image_draw_blend(int image_id, int x, int y, color_t color)
         for (int yy = 0; yy < img->height - clip->clipped_pixels_bottom; yy++) {
             int xx = 0;
             while (xx < img->width) {
-                color_t b = *data;
+                uint32_t b = *data;
                 data++;
                 if (b == 255) {
                     // transparent pixels to skip
@@ -9703,7 +9383,7 @@ static void image_draw_blend(int image_id, int x, int y, color_t color)
                     xx += b;
                 } else {
                     data += b;
-                    color_t *dst = graphics_get_pixel(x + xx, y + yy);
+                    uint32_t *dst = graphics_get_pixel(x + xx, y + yy);
                     if (unclipped) {
                         xx += b;
                         while (b) {
@@ -10019,7 +9699,7 @@ static int map_orientation_for_triumphal_arch(int x, int y)
     return 0;
 }
 
-static void image_draw_isometric_footprint(int image_id, int x, int y, color_t color_mask)
+static void image_draw_isometric_footprint(int image_id, int x, int y, uint32_t color_mask)
 {
     struct image_t *img = image_get(image_id);
     if (img->draw.type != IMAGE_TYPE_ISOMETRIC) {
@@ -10044,7 +9724,7 @@ static void image_draw_isometric_footprint(int image_id, int x, int y, color_t c
     }
 }
 
-static void image_draw_isometric_top(int image_id, int x, int y, color_t color_mask)
+static void image_draw_isometric_top(int image_id, int x, int y, uint32_t color_mask)
 {
     struct image_t *img = image_get(image_id);
     if (img->draw.type != IMAGE_TYPE_ISOMETRIC) {
@@ -10053,7 +9733,7 @@ static void image_draw_isometric_top(int image_id, int x, int y, color_t color_m
     if (!img->draw.has_compressed_part) {
         return;
     }
-    color_t *data = &image_data(image_id)[img->draw.uncompressed_length];
+    uint32_t *data = &image_data(image_id)[img->draw.uncompressed_length];
 
     int height = img->height;
     switch (img->width) {
@@ -11237,9 +10917,8 @@ static void city_without_overlay_draw(int selected_figure_id, struct pixel_coord
     }
     draw_context.advance_water_animation = 0;
     if (!selected_figure_id) {
-        uint32_t now = current_time;
-        if (now - draw_context.last_water_animation_time > 60) {
-            draw_context.last_water_animation_time = now;
+        if (current_time - draw_context.last_water_animation_time > 60) {
+            draw_context.last_water_animation_time = current_time;
             draw_context.advance_water_animation = 1;
         }
     }
@@ -11385,7 +11064,7 @@ static void update_button_state(struct mouse_button_t *button)
 
 static int text_get_width(char *str, int font)
 {
-    struct font_definition_t *def = &font_data.font_definitions[font];
+    struct font_definition_t *def = &DEFINITIONS_DEFAULT[font];
     int maxlen = 10000;
     int width = 0;
     while (*str && maxlen > 0) {
@@ -11420,19 +11099,13 @@ static void label_draw(int x, int y, int width_blocks, int type)
     }
 }
 
-static void text_draw_centered(char *str, int x, int y, int box_width, int font, color_t color)
+static void text_draw_centered(char *str, int x, int y, int box_width, int font, uint32_t color)
 {
     int offset = (box_width - text_get_width(str, font)) / 2;
     if (offset < 0) {
         offset = 0;
     }
     text_draw(str, offset + x, y, font, color);
-}
-
-static void set_cursor(int cursor_id)
-{
-    cursor_data.current_shape = cursor_id;
-    SDL_SetCursor(cursor_data.cursors[cursor_id]);
 }
 
 static Mix_Chunk *load_chunk(char *filename)
@@ -11454,8 +11127,8 @@ static int load_channel(struct sound_channel_t *channel)
 
 static void set_channel_volume(int channel, int volume_pct)
 {
-    if (data_channels.channels[channel].chunk) {
-        Mix_VolumeChunk(data_channels.channels[channel].chunk, volume_pct * SDL_MIX_MAXVOLUME / 100);
+    if (sound_channels[channel].chunk) {
+        Mix_VolumeChunk(sound_channels[channel].chunk, volume_pct * SDL_MIX_MAXVOLUME / 100);
     }
 }
 
@@ -11514,19 +11187,21 @@ static void game_draw(void)
     }
     mouse_data.scrolled = SCROLL_NONE;
     if (window_data.current_window->id == WINDOW_CITY_MILITARY) {
-        set_cursor(CURSOR_SWORD);
+        cursor_data.current_shape = CURSOR_SWORD;
+        SDL_SetCursor(cursor_data.cursors[CURSOR_SWORD]);
     } else if (window_data.current_window->id == WINDOW_CITY && construction_data.type == BUILDING_CLEAR_LAND) {
-        set_cursor(CURSOR_SHOVEL);
+        cursor_data.current_shape = CURSOR_SHOVEL;
+        SDL_SetCursor(cursor_data.cursors[CURSOR_SHOVEL]);
     } else {
-        set_cursor(CURSOR_ARROW);
+        cursor_data.current_shape = CURSOR_ARROW;
+        SDL_SetCursor(cursor_data.cursors[CURSOR_ARROW]);
     }
-    uint32_t now = current_time;
     for (int i = 1; i < MAX_CITY_SOUNDS_CHANNELS; i++) {
         channels[i].should_play = 0;
         if (channels[i].available) {
             channels[i].available = 0;
             if (channels[i].total_views >= channels[i].views_threshold) {
-                if (now - channels[i].last_played_time >= channels[i].delay_millis) {
+                if (current_time - channels[i].last_played_time >= channels[i].delay_millis) {
                     channels[i].should_play = 1;
                 }
             }
@@ -11537,7 +11212,7 @@ static void game_draw(void)
             }
         }
     }
-    if (now - last_update_time < 10000) {
+    if (current_time - last_update_time < 10000) {
         // Only play 1 sound every 10 seconds
         return;
     }
@@ -11545,8 +11220,8 @@ static void game_draw(void)
     int max_sound_id = 0;
     for (int i = 1; i < MAX_CITY_SOUNDS_CHANNELS; i++) {
         if (channels[i].should_play) {
-            if (now - channels[i].last_played_time > max_delay) {
-                max_delay = now - channels[i].last_played_time;
+            if (current_time - channels[i].last_played_time > max_delay) {
+                max_delay = current_time - channels[i].last_played_time;
                 max_sound_id = i;
             }
         }
@@ -11592,7 +11267,7 @@ static void game_draw(void)
         default:
             break;
     }
-    if (settings[SETTINGS_CITY_SOUNDS_ENABLED].config_value && !(data_channels.channels[channel].chunk && Mix_Playing(channel))) {
+    if (settings[SETTINGS_CITY_SOUNDS_ENABLED].config_value && !(sound_channels[channel].chunk && Mix_Playing(channel))) {
         int left_pan;
         int right_pan;
         switch (direction) {
@@ -11611,22 +11286,20 @@ static void game_draw(void)
                 left_pan = right_pan = 0;
                 break;
         }
-        if (data_channels.initialized) {
-            int random_factor = 0;
-            if (sound_variety_index) {
-                random_factor = rand() % sound_variety_index;
-                channel = channel + random_factor;
-            }
-            struct sound_channel_t *ch = &data_channels.channels[channel];
-            if (load_channel(ch)) {
-                Mix_SetPanning(channel, left_pan * 255 / 100, right_pan * 255 / 100);
-                set_channel_volume(channel, settings[SETTINGS_CITY_SOUNDS_VOLUME].config_value);
-                Mix_PlayChannel(channel, ch->chunk, 0);
-            }
+        int random_factor = 0;
+        if (sound_variety_index) {
+            random_factor = rand() % sound_variety_index;
+            channel = channel + random_factor;
+        }
+        struct sound_channel_t *ch = &sound_channels[channel];
+        if (load_channel(ch)) {
+            Mix_SetPanning(channel, left_pan * 255 / 100, right_pan * 255 / 100);
+            set_channel_volume(channel, settings[SETTINGS_CITY_SOUNDS_VOLUME].config_value);
+            Mix_PlayChannel(channel, ch->chunk, 0);
         }
     }
-    last_update_time = now;
-    channels[max_sound_id].last_played_time = now;
+    last_update_time = current_time;
+    channels[max_sound_id].last_played_time = current_time;
     channels[max_sound_id].total_views = 0;
     for (int d = 0; d < 5; d++) {
         channels[max_sound_id].direction_views[d] = 0;
@@ -14049,15 +13722,13 @@ static void play_sound_effect(int effect)
     if (!settings[SETTINGS_SOUND_EFFECTS_ENABLED].config_value) {
         return;
     }
-    if (data_channels.channels[effect].chunk && Mix_Playing(effect)) {
+    if (sound_channels[effect].chunk && Mix_Playing(effect)) {
         return;
     }
-    if (data_channels.initialized) {
-        struct sound_channel_t *ch = &data_channels.channels[effect];
-        if (load_channel(ch)) {
-            set_channel_volume(effect, settings[SETTINGS_SOUND_EFFECTS_VOLUME].config_value);
-            Mix_PlayChannel(effect, ch->chunk, 0);
-        }
+    struct sound_channel_t *ch = &sound_channels[effect];
+    if (load_channel(ch)) {
+        set_channel_volume(effect, settings[SETTINGS_SOUND_EFFECTS_VOLUME].config_value);
+        Mix_PlayChannel(effect, ch->chunk, 0);
     }
 }
 
@@ -14142,8 +13813,8 @@ static void set_translation(int x, int y)
 
 static void rich_text_set_fonts(int normal_font, int link_font, int line_spacing)
 {
-    rich_text_data.normal_font = &font_data.font_definitions[normal_font];
-    rich_text_data.link_font = &font_data.font_definitions[link_font];
+    rich_text_data.normal_font = &DEFINITIONS_DEFAULT[normal_font];
+    rich_text_data.link_font = &DEFINITIONS_DEFAULT[link_font];
     rich_text_data.line_height = rich_text_data.normal_font->line_height + line_spacing;
     rich_text_data.paragraph_indent = 50;
 }
@@ -14202,7 +13873,7 @@ static void on_scroll(void)
 
 static struct scrollbar_type_t scrollbar = { 0, 0, 0, on_scroll, 0, 0, 0, 0, 0, 0 };
 
-static int draw_text(char *text, int x_offset, int y_offset, int box_width, int height_lines, color_t color, int measure_only)
+static int draw_text(char *text, int x_offset, int y_offset, int box_width, int height_lines, uint32_t color, int measure_only)
 {
     int image_height_lines = 0;
     int image_id = 0;
@@ -14407,7 +14078,7 @@ static void outer_panel_draw(int x, int y, int width_blocks, int height_blocks)
     }
 }
 
-static void graphics_draw_vertical_line(int x, int y1, int y2, color_t color)
+static void graphics_draw_vertical_line(int x, int y1, int y2, uint32_t color)
 {
     if (x < clip_rectangle.x_start || x >= clip_rectangle.x_end) {
         return;
@@ -14416,15 +14087,15 @@ static void graphics_draw_vertical_line(int x, int y1, int y2, color_t color)
     int y_max = y1 < y2 ? y2 : y1;
     y_min = y_min < clip_rectangle.y_start ? clip_rectangle.y_start : y_min;
     y_max = y_max >= clip_rectangle.y_end ? clip_rectangle.y_end - 1 : y_max;
-    color_t *pixel = graphics_get_pixel(x, y_min);
-    color_t *end_pixel = pixel + ((y_max - y_min) * canvas.width);
+    uint32_t *pixel = graphics_get_pixel(x, y_min);
+    uint32_t *end_pixel = pixel + ((y_max - y_min) * canvas.width);
     while (pixel <= end_pixel) {
         *pixel = color;
         pixel += canvas.width;
     }
 }
 
-static void graphics_draw_rect(int x, int y, int width, int height, color_t color)
+static void graphics_draw_rect(int x, int y, int width, int height, uint32_t color)
 {
     graphics_draw_horizontal_line(x, x + width - 1, y, color);
     graphics_draw_horizontal_line(x, x + width - 1, y + height - 1, color);
@@ -14675,7 +14346,7 @@ static int decode_frame(smacker s)
     if (frame_type & 0x01) {
         int palette_size = frame_data[0] * 4;
         uint8_t *data = &frame_data[1];
-        color_t new_palette[MAX_PALETTE];
+        uint32_t new_palette[MAX_PALETTE];
         int index = 0;
         int color_index = 0;
         while (index < palette_size - 1 && color_index < MAX_PALETTE) {
@@ -14712,7 +14383,7 @@ static int decode_frame(smacker s)
                 index += 3;
             }
         }
-        memcpy(s->frame_data.palette, new_palette, sizeof(color_t) * MAX_PALETTE);
+        memcpy(s->frame_data.palette, new_palette, sizeof(uint32_t) * MAX_PALETTE);
         data_index += palette_size;
     }
     for (int i = 0; i < MAX_TRACKS; i++) {
@@ -14920,12 +14591,10 @@ static int city_figures_total_invading_enemies(void)
 
 static void stop_music(void)
 {
-    if (data_channels.initialized) {
-        if (data_channels.music) {
-            Mix_HaltMusic();
-            Mix_FreeMusic(data_channels.music);
-            data_channels.music = 0;
-        }
+    if (music_channel) {
+        Mix_HaltMusic();
+        Mix_FreeMusic(music_channel);
+        music_channel = 0;
     }
     sound_data.current_track = TRACK_NONE;
     sound_data.next_check = 0;
@@ -14933,27 +14602,24 @@ static void stop_music(void)
 
 static int play_music(char *filename, int volume_pct)
 {
-    if (data_channels.initialized) {
-        stop_music();
-        if (!filename) {
-            return 0;
-        }
-        data_channels.music = Mix_LoadMUS(filename);
-        if (!data_channels.music) {
-            SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
-                "Error opening music file '%s'. Reason: %s", filename, Mix_GetError());
-        } else {
-            if (Mix_PlayMusic(data_channels.music, -1) == -1) {
-                data_channels.music = 0;
-                SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
-                    "Error playing music file '%s'. Reason: %s", filename, Mix_GetError());
-            } else {
-                Mix_VolumeMusic(volume_pct * SDL_MIX_MAXVOLUME / 100);
-            }
-        }
-        return data_channels.music ? 1 : 0;
+    stop_music();
+    if (!filename) {
+        return 0;
     }
-    return 0;
+    music_channel = Mix_LoadMUS(filename);
+    if (!music_channel) {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
+            "Error opening music file '%s'. Reason: %s", filename, Mix_GetError());
+    } else {
+        if (Mix_PlayMusic(music_channel, -1) == -1) {
+            music_channel = 0;
+            SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
+                "Error playing music file '%s'. Reason: %s", filename, Mix_GetError());
+        } else {
+            Mix_VolumeMusic(volume_pct * SDL_MIX_MAXVOLUME / 100);
+        }
+    }
+    return music_channel ? 1 : 0;
 }
 
 static void play_track(int track)
@@ -15118,7 +14784,7 @@ static void image_draw_fullscreen_background(int image_id)
     } else {
         int x_offset = (int) ((s_width - img->width * scale) / 2);
         int y_offset = (int) ((s_height - img->height * scale) / 2);
-        color_t *data = image_data(image_id);
+        uint32_t *data = image_data(image_id);
         if (!data || img->draw.type == IMAGE_TYPE_ISOMETRIC || img->draw.is_fully_compressed || !scale) {
             return;
         }
@@ -15129,11 +14795,11 @@ static void image_draw_fullscreen_background(int image_id)
             return;
         }
         for (int y = clip->clipped_pixels_top; y < height - clip->clipped_pixels_bottom; y++) {
-            color_t *dst = graphics_get_pixel(x_offset + clip->clipped_pixels_left, y_offset + y);
+            uint32_t *dst = graphics_get_pixel(x_offset + clip->clipped_pixels_left, y_offset + y);
             int x_max = width - clip->clipped_pixels_right;
             int image_y_offset = (int) (y / scale) * img->width;
             for (int x = clip->clipped_pixels_left; x < x_max; x++, dst++) {
-                color_t pixel = data[(int) (image_y_offset + x / scale)];
+                uint32_t pixel = data[(int) (image_y_offset + x / scale)];
                 if (pixel != COLOR_SG2_TRANSPARENT) {
                     *dst = pixel;
                 }
@@ -15222,11 +14888,6 @@ static void clear_scroll_speed(void)
     scroll_data.y_align_direction = SPEED_DIRECTION_STOPPED;
 }
 
-static int scale_logical_to_pixels(int logical_value)
-{
-    return logical_value * scale_percentage / 100;
-}
-
 static void mouse_set_position(int x, int y)
 {
     if (x != mouse_data.x || y != mouse_data.y) {
@@ -15252,7 +14913,7 @@ static void set_relative_mouse_mode(int enabled)
         SDL_SetRelativeMouseMode(SDL_FALSE);
         cursor_mouse_data.x = calc_bound(cursor_mouse_data.x, 0, screen_data.width - 1);
         cursor_mouse_data.y = calc_bound(cursor_mouse_data.y, 0, screen_data.height - 1);
-        SDL_WarpMouseInWindow(SDL.window, scale_logical_to_pixels(cursor_mouse_data.x), scale_logical_to_pixels(cursor_mouse_data.y));
+        SDL_WarpMouseInWindow(SDL.window, cursor_mouse_data.x, cursor_mouse_data.y);
         mouse_set_position(cursor_mouse_data.x, cursor_mouse_data.y);
     }
     cursor_mouse_data.enabled = enabled;
@@ -15712,7 +15373,7 @@ static void city_with_overlay_draw_building_top(int x, int y, int grid_offset)
         }
     }
     if (overlay->show_building(b)) {
-        color_t color_mask = draw_building_as_deleted_1(b) ? COLOR_MASK_RED : 0;
+        uint32_t color_mask = draw_building_as_deleted_1(b) ? COLOR_MASK_RED : 0;
         if (building_is_farm(b->type)) {
             if (is_drawable_farmhouse(grid_offset, view_data.orientation)) {
                 image_draw_isometric_top_from_draw_tile(images.items[grid_offset], x, y, color_mask);
@@ -15780,7 +15441,7 @@ static void draw_top_native(int x, int y, int grid_offset)
     }
     if (map_terrain_is(grid_offset, terrain_on_native_overlay())) {
         if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
-            color_t color_mask = 0;
+            uint32_t color_mask = 0;
             if (bitfields_grid.items[grid_offset] & BIT_DELETED && map_property_multi_tile_size(grid_offset) == 1) {
                 color_mask = COLOR_MASK_RED;
             }
@@ -16410,7 +16071,7 @@ static void draw_top_water(int x, int y, int grid_offset)
     }
     if (map_terrain_is(grid_offset, terrain_on_water_overlay())) {
         if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
-            color_t color_mask = 0;
+            uint32_t color_mask = 0;
             if (bitfields_grid.items[grid_offset] & BIT_DELETED && map_property_multi_tile_size(grid_offset) == 1) {
                 color_mask = COLOR_MASK_RED;
             }
@@ -16485,7 +16146,7 @@ static int get_desirability_image_offset(int desirability)
 
 static void draw_footprint_desirability(int x, int y, int grid_offset)
 {
-    color_t color_mask = bitfields_grid.items[grid_offset] & BIT_DELETED ? COLOR_MASK_RED : 0;
+    uint32_t color_mask = bitfields_grid.items[grid_offset] & BIT_DELETED ? COLOR_MASK_RED : 0;
     if (map_terrain_is(grid_offset, terrain_on_desirability_overlay())
         && !map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
         // display normal tile
@@ -16510,7 +16171,7 @@ static void draw_footprint_desirability(int x, int y, int grid_offset)
 
 static void draw_top_desirability(int x, int y, int grid_offset)
 {
-    color_t color_mask = bitfields_grid.items[grid_offset] & BIT_DELETED ? COLOR_MASK_RED : 0;
+    uint32_t color_mask = bitfields_grid.items[grid_offset] & BIT_DELETED ? COLOR_MASK_RED : 0;
     if (map_terrain_is(grid_offset, terrain_on_desirability_overlay())
         && !map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
         // display normal tile
@@ -16675,7 +16336,7 @@ static void draw_top_with_overlay(int x, int y, int grid_offset)
             if (map_terrain_is(grid_offset, TERRAIN_BUILDING) && map_building_at(grid_offset)) {
                 city_with_overlay_draw_building_top(x, y, grid_offset);
             } else if (!map_terrain_is(grid_offset, TERRAIN_BUILDING)) {
-                color_t color_mask = 0;
+                uint32_t color_mask = 0;
                 if (bitfields_grid.items[grid_offset] & BIT_DELETED && !is_multi_tile_terrain(grid_offset)) {
                     color_mask = COLOR_MASK_RED;
                 }
@@ -16991,7 +16652,7 @@ static void window_build_menu_hide(void)
 static int lang_text_get_width(int group, int number, int font)
 {
     char *str = lang_get_string(group, number);
-    return text_get_width(str, font) + font_data.font_definitions[font].space_width;
+    return text_get_width(str, font) + DEFINITIONS_DEFAULT[font].space_width;
 }
 
 static void menu_bar_draw(struct menu_bar_item_t *items, int num_items, int max_width)
@@ -17014,7 +16675,7 @@ static void menu_bar_draw(struct menu_bar_item_t *items, int num_items, int max_
     }
 }
 
-static int lang_text_draw_colored(int group, int number, int x_offset, int y_offset, int font, color_t color)
+static int lang_text_draw_colored(int group, int number, int x_offset, int y_offset, int font, uint32_t color)
 {
     char *str = lang_get_string(group, number);
     return text_draw(str, x_offset, y_offset, font, color);
@@ -17189,7 +16850,6 @@ static void random_generate_next(void)
     random_data.random1_7bit = random_data.iv1 & 0x7f;
     random_data.random1_15bit = random_data.iv1 & 0x7fff;
     random_data.random2_7bit = random_data.iv2 & 0x7f;
-    random_data.random2_15bit = random_data.iv2 & 0x7fff;
 }
 
 static void game_state_init(void)
@@ -19285,7 +18945,7 @@ static void city_military_determine_distant_battle_city(void)
     }
 }
 
-static int read_file_into_buffer(char *filepath, void *buffer, int max_size, int is_binary)
+static int read_file_into_buffer(char *filepath, void *buffer, int is_binary)
 {
     FILE *fp;
     if (is_binary) {
@@ -19293,18 +18953,15 @@ static int read_file_into_buffer(char *filepath, void *buffer, int max_size, int
     } else {
         fp = fopen(filepath, "r");
     }
-    if (!fp) {
-        return 0;
+    if (fp) {
+        fseek(fp, 0, SEEK_END);
+        long size = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+        int bytes_read = (int) fread(buffer, 1, (size_t) size, fp);
+        fclose(fp);
+        return bytes_read;
     }
-    fseek(fp, 0, SEEK_END);
-    long size = ftell(fp);
-    if (size > max_size) {
-        size = max_size;
-    }
-    fseek(fp, 0, SEEK_SET);
-    int bytes_read = (int) fread(buffer, 1, (size_t) size, fp);
-    fclose(fp);
-    return bytes_read;
+    return 0;
 }
 
 static int8_t buffer_read_i8(struct buffer_t *buf)
@@ -19357,9 +19014,9 @@ static void read_index(struct buffer_t *buf, struct image_t *images, int size)
     }
 }
 
-static void convert_images(struct image_t *images, int size, struct buffer_t *buf, color_t *dst)
+static void convert_images(struct image_t *images, int size, struct buffer_t *buf, uint32_t *dst)
 {
-    color_t *start_dst = dst;
+    uint32_t *start_dst = dst;
     dst++; // make sure img->offset > 0
     for (int i = 0; i < size; i++) {
         struct image_t *img = &images[i];
@@ -19381,40 +19038,37 @@ static void convert_images(struct image_t *images, int size, struct buffer_t *bu
     }
 }
 
-static int image_load_climate(int climate_id, int is_editor, int force_reload)
+static int load_main_graphics(int climate_id, int is_editor)
 {
-    if (climate_id == image_data_s.current_climate && is_editor == image_data_s.is_editor && !force_reload) {
+    if (climate_id == image_data_s.current_climate && is_editor == image_data_s.is_editor) {
         return 1;
     }
     char *filename_bmp = is_editor ? EDITOR_GRAPHICS_555[climate_id] : MAIN_GRAPHICS_555[climate_id];
     char *filename_idx = is_editor ? EDITOR_GRAPHICS_SG2[climate_id] : MAIN_GRAPHICS_SG2[climate_id];
-    if (MAIN_INDEX_SIZE != read_file_into_buffer(filename_idx, image_data_s.tmp_data, MAIN_INDEX_SIZE, 1)) {
+    if (read_file_into_buffer(filename_idx, image_data_s.tmp_data, 1) != 660680) {
         return 0;
     }
     struct buffer_t buf;
-    buffer_init(&buf, image_data_s.tmp_data, HEADER_SIZE_EMPIRE);
+    buffer_init(&buf, image_data_s.tmp_data, HEADER_SIZE_ENEMY_FILES);
     buf.index += 80; // header integers
     for (int i = 0; i < 300; i++) {
         image_data_s.group_image_ids[i] = buffer_read_u16(&buf);
     }
     buffer_read_raw(&buf, image_data_s.bitmaps, 20000);
-    buffer_init(&buf, &image_data_s.tmp_data[HEADER_SIZE_EMPIRE], ENTRY_SIZE * MAIN_ENTRIES);
+    buffer_init(&buf, &image_data_s.tmp_data[HEADER_SIZE_ENEMY_FILES], ENTRY_SIZE * MAIN_ENTRIES);
     read_index(&buf, image_data_s.main, MAIN_ENTRIES);
-    int data_size = read_file_into_buffer(filename_bmp, image_data_s.tmp_data, SCRATCH_DATA_SIZE, 1);
+    int data_size = read_file_into_buffer(filename_bmp, image_data_s.tmp_data, 1);
     if (!data_size) {
         return 0;
+    }
+    image_data_s.main_data = (uint32_t *) malloc(30000000);
+    if (!image_data_s.main_data) {
+        exit(2);
     }
     buffer_init(&buf, image_data_s.tmp_data, data_size);
     convert_images(image_data_s.main, MAIN_ENTRIES, &buf, image_data_s.main_data);
     image_data_s.current_climate = climate_id;
     image_data_s.is_editor = is_editor;
-    int size = read_file_into_buffer(EMPIRE_555, image_data_s.tmp_data, EMPIRE_IMAGE_DATA_SIZE, 1);
-    if (size != EMPIRE_IMAGE_DATA_SIZE / 2) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("unable to load empire data", EMPIRE_555, 0));
-        return 0;
-    }
-    buffer_init(&buf, image_data_s.tmp_data, size);
-    convert_uncompressed(&buf, size, image_data_s.empire_data);
     return 1;
 }
 
@@ -19735,7 +19389,7 @@ static int game_file_start_scenario(char *scenario_selected)
     empire_data.viewport_height = EMPIRE_HEIGHT;
     memset(&figure_trader_data, 0, sizeof(figure_trader_data));
     city_military_determine_distant_battle_city();
-    image_load_climate(scenario.climate, 0, 0);
+    load_main_graphics(scenario.climate, 0);
     city_data_init_scenario();
     state_data.paused = 0;
     string_copy(configs_player_name, scenario_settings.player_name, MAX_PLAYER_NAME_LENGTH);
@@ -19763,7 +19417,7 @@ static void lang_text_draw_centered(int group, int number, int x_offset, int y_o
 
 static int text_draw_multiline(char *str, int x_offset, int y_offset, int box_width, int font, uint32_t color)
 {
-    int line_height = font_data.font_definitions[font].line_height;
+    int line_height = DEFINITIONS_DEFAULT[font].line_height;
     if (line_height < 11) {
         line_height = 11;
     }
@@ -19782,7 +19436,7 @@ static int text_draw_multiline(char *str, int x_offset, int y_offset, int box_wi
         int line_index = 0;
         while (has_more_characters && current_width < box_width) {
             int word_num_chars;
-            struct font_definition_t *def = &font_data.font_definitions[font];
+            struct font_definition_t *def = &DEFINITIONS_DEFAULT[font];
             int width = 0;
             int guard2 = 0;
             int word_char_seen = 0;
@@ -20058,7 +19712,7 @@ static struct scrollbar_type_t scrollbar_file_dialog = { 464, 120, 206, on_scrol
 static void text_ellipsize(char *str, int font, int requested_width)
 {
     char *orig_str = str;
-    struct font_definition_t *def = &font_data.font_definitions[font];
+    struct font_definition_t *def = &DEFINITIONS_DEFAULT[font];
     int ellipsis_width = 0;
     if (!ellipsis.width[font]) {
         ellipsis.width[font] = text_get_width(ellipsis.string, font);
@@ -21819,7 +21473,7 @@ static   struct dir_listing *dir_list_files(char *extension)
 
 static void graphics_clear_screen(void)
 {
-    memset(canvas.pixels, 0, sizeof(color_t) * canvas.width * canvas.height);
+    memset(canvas.pixels, 0, sizeof(uint32_t) * canvas.width * canvas.height);
 }
 
 static void city_view_get_camera(int *x, int *y)
@@ -21915,7 +21569,7 @@ static void draw_minimap_tile(int x_view, int y_view, int grid_offset)
         }
     }
     if (color_type) {
-        color_t color = COLOR_MINIMAP_WOLF;
+        uint32_t color = COLOR_BLACK;
         if (color_type == FIGURE_COLOR_SOLDIER) {
             color = COLOR_MINIMAP_SOLDIER;
         } else if (color_type == FIGURE_COLOR_SELECTED_SOLDIER) {
@@ -21976,7 +21630,7 @@ static void draw_minimap_tile(int x_view, int y_view, int grid_offset)
     }
 }
 
-static void graphics_save_to_buffer(int x, int y, int width, int height, color_t *buffer)
+static void graphics_save_to_buffer(int x, int y, int width, int height, uint32_t *buffer)
 {
     struct clip_info_t *current_clip = graphics_get_clip_info(x, y, width, height);
     if (!current_clip->is_visible) {
@@ -21987,7 +21641,7 @@ static void graphics_save_to_buffer(int x, int y, int width, int height, color_t
     int max_dy = height - current_clip->clipped_pixels_bottom;
     for (int dy = min_dy; dy < max_dy; dy++) {
         memcpy(&buffer[dy * width], graphics_get_pixel(min_x, y + dy),
-            sizeof(color_t) * current_clip->visible_pixels_x);
+            sizeof(uint32_t) * current_clip->visible_pixels_x);
     }
 }
 
@@ -22031,13 +21685,13 @@ static void draw_uncached(int x_offset, int y_offset, int width, int height)
     minimap_data.enemy_color = ENEMY_COLOR_BY_CLIMATE[scenario.climate];
     if (width != minimap_data.width || height != minimap_data.height) {
         free(minimap_data.cache);
-        minimap_data.cache = (color_t *) malloc(sizeof(color_t) * width * height);
+        minimap_data.cache = (uint32_t *) malloc(sizeof(uint32_t) * width * height);
     }
     set_bounds_minimap(x_offset, y_offset, width, height);
     draw_minimap();
 }
 
-static void graphics_draw_from_buffer(int x, int y, int width, int height, color_t *buffer)
+static void graphics_draw_from_buffer(int x, int y, int width, int height, uint32_t *buffer)
 {
     struct clip_info_t *current_clip = graphics_get_clip_info(x, y, width, height);
     if (!current_clip->is_visible) {
@@ -22048,7 +21702,7 @@ static void graphics_draw_from_buffer(int x, int y, int width, int height, color
     int max_dy = height - current_clip->clipped_pixels_bottom;
     for (int dy = min_dy; dy < max_dy; dy++) {
         memcpy(graphics_get_pixel(min_x, y + dy), &buffer[dy * width],
-            sizeof(color_t) * current_clip->visible_pixels_x);
+            sizeof(uint32_t) * current_clip->visible_pixels_x);
     }
 }
 
@@ -22425,7 +22079,7 @@ static struct generic_button_t buttons_numeric_input[] = {
 
 static void draw_number_button(int x, int y, int number, int is_selected)
 {
-    color_t color = is_selected ? COLOR_FONT_BLUE : COLOR_BLACK;
+    uint32_t color = is_selected ? COLOR_FONT_BLUE : COLOR_BLACK;
     graphics_draw_rect(x, y, 25, 25, color);
     char number_string[2];
     number_string[0] = '0' + number;
@@ -22433,14 +22087,14 @@ static void draw_number_button(int x, int y, int number, int is_selected)
     text_draw_centered(number_string, x, y, 25, FONT_LARGE_PLAIN, color);
 }
 
-static void text_draw_number_centered_colored(int value, int x_offset, int y_offset, int box_width, int font, color_t color)
+static void text_draw_number_centered_colored(int value, int x_offset, int y_offset, int box_width, int font, uint32_t color)
 {
     char str[NUMBER_BUFFER_LENGTH];
     number_to_string(str, value, '@', " ");
     text_draw_centered(str, x_offset, y_offset, box_width, font, color);
 }
 
-static void lang_text_draw_centered_colored(int group, int number, int x_offset, int y_offset, int box_width, int font, color_t color)
+static void lang_text_draw_centered_colored(int group, int number, int x_offset, int y_offset, int box_width, int font, uint32_t color)
 {
     char *str = lang_get_string(group, number);
     text_draw_centered(str, x_offset, y_offset, box_width, font, color);
@@ -22590,7 +22244,7 @@ static void draw_background_editor_empire(void)
     graphics_reset_clip_rectangle();
 }
 
-static void draw_shadowed_number(int value, int x, int y, color_t color)
+static void draw_shadowed_number(int value, int x, int y, uint32_t color)
 {
     text_draw_number_colored(value, '@', " ", x + 1, y - 1, FONT_SMALL_PLAIN, COLOR_BLACK);
     text_draw_number_colored(value, '@', " ", x, y, FONT_SMALL_PLAIN, color);
@@ -23250,7 +22904,7 @@ static void draw_footprint(int x, int y, int grid_offset)
         image_draw_isometric_footprint_from_draw_tile(image_data_s.group_image_ids[GROUP_TERRAIN_BLACK], x, y, 0);
     } else if (edge_grid.items[grid_offset] & EDGE_LEFTMOST_TILE) {
         // Valid grid_offset and leftmost tile -> draw
-        color_t color_mask = 0;
+        uint32_t color_mask = 0;
         int image_id = images.items[grid_offset];
         if (draw_context_water.advance_water_animation &&
             image_id >= draw_context_water.image_id_water_first &&
@@ -23283,7 +22937,7 @@ static void draw_top(int x, int y, int grid_offset)
         return;
     }
     int image_id = images.items[grid_offset];
-    color_t color_mask = 0;
+    uint32_t color_mask = 0;
     image_draw_isometric_top_from_draw_tile(image_id, x, y, color_mask);
 }
 
@@ -23302,7 +22956,7 @@ static int can_place_building_editor(struct map_tile_t *tile, int num_tiles, int
     return !blocked;
 }
 
-static void draw_flat_tile(int x, int y, color_t color_mask)
+static void draw_flat_tile(int x, int y, uint32_t color_mask)
 {
     if (color_mask == COLOR_MASK_GREEN && scenario.climate != CLIMATE_DESERT) {
         image_draw_blend_alpha(image_data_s.group_image_ids[GROUP_TERRAIN_FLAT_TILE], x, y, ALPHA_MASK_SEMI_TRANSPARENT | color_mask);
@@ -23454,9 +23108,8 @@ static void draw_editor_map(void)
     graphics_set_clip_rectangle(x, y, width, height);
 
     draw_context_water.advance_water_animation = 0;
-    uint32_t now = current_time;
-    if (now - draw_context_water.last_water_animation_time > 60) {
-        draw_context_water.last_water_animation_time = now;
+    if (current_time - draw_context_water.last_water_animation_time > 60) {
+        draw_context_water.last_water_animation_time = current_time;
         draw_context_water.advance_water_animation = 1;
     }
     draw_context_water.image_id_water_first = image_data_s.group_image_ids[GROUP_TERRAIN_WATER];
@@ -23734,15 +23387,38 @@ static void sidebar_common_draw_relief(int x_offset, int y_offset, int image, in
     }
 }
 
+static void toggle_fullscreen(void)
+{
+    if (settings[SETTINGS_FULLSCREEN].config_value) {
+        SDL_SetWindowSize(SDL.window, settings[SETTINGS_WINDOW_WIDTH].config_value, settings[SETTINGS_WINDOW_HEIGHT].config_value);
+        SDL_SetWindowFullscreen(SDL.window, 0);
+        settings[SETTINGS_FULLSCREEN].config_value = 0;
+    } else {
+        SDL_SetWindowFullscreen(SDL.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        SDL_SetWindowDisplayMode(SDL.window, 0);
+        settings[SETTINGS_FULLSCREEN].config_value = 1;
+    }
+}
+
 static void button_fullscreen(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    post_event(settings[SETTINGS_FULLSCREEN].config_value ? USER_EVENT_WINDOWED : USER_EVENT_FULLSCREEN);
+    toggle_fullscreen();
+}
+
+static void reset_screen(void)
+{
+    if (SDL_GetWindowFlags(SDL.window) & SDL_WINDOW_MAXIMIZED) {
+        SDL_RestoreWindow(SDL.window);
+    }
+    SDL_SetWindowFullscreen(SDL.window, 0);
+    SDL_SetWindowSize(SDL.window, 1280, 800);
+    SDL_SetWindowPosition(SDL.window, SDL_WINDOWPOS_CENTERED_DISPLAY(0), SDL_WINDOWPOS_CENTERED_DISPLAY(0));
+    settings[SETTINGS_FULLSCREEN].config_value = 0;
 }
 
 static void button_reset_window(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
-    system_resize(1280, 800);
-    post_event(USER_EVENT_CENTER_WINDOW);
+    reset_screen();
 }
 
 static struct generic_button_t display_top_menu_buttons[] = {
@@ -23810,13 +23486,11 @@ static void menu_options_display_editor(__attribute__((unused)) int param)
 
 static void stop_sound_channel(int channel)
 {
-    if (data_channels.initialized) {
-        struct sound_channel_t *ch = &data_channels.channels[channel];
-        if (ch->chunk) {
-            Mix_HaltChannel(channel);
-            Mix_FreeChunk(ch->chunk);
-            ch->chunk = 0;
-        }
+    struct sound_channel_t *ch = &sound_channels[channel];
+    if (ch->chunk) {
+        Mix_HaltChannel(channel);
+        Mix_FreeChunk(ch->chunk);
+        ch->chunk = 0;
     }
 }
 
@@ -24019,7 +23693,7 @@ static void clear_map_data(void)
 
 static void prepare_map_for_editing(int map_is_new)
 {
-    image_load_climate(scenario.climate, 1, 0);
+    load_main_graphics(scenario.climate, 1);
     if (map_is_new) {
         empire_load(0);
         empire_object_our_city_set_resources_sell();
@@ -24112,6 +23786,7 @@ static void button_ok_cancel(int is_ok, __attribute__((unused)) int param2)
             game_file_io_write_saved_game(SAVES_DIR_PATH, filename);
             window_city_show();
         } else if (file_dialog_data.dialog_type == FILE_DIALOG_LOAD) {
+            game_state_init();
             init_savegame_data();
             SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Loading saved game", filename, 0));
             static char dir_prepended_filepath[DIR_PATH_MAX];
@@ -24971,7 +24646,7 @@ static void button_ok_cancel(int is_ok, __attribute__((unused)) int param2)
             building_construction_clear_type();
             undo_data.available = 0;
             game_state_reset_overlay();
-            image_load_climate(scenario.climate, 0, 0);
+            load_main_graphics(scenario.climate, 0);
             city_military_determine_distant_battle_city();
             for (int y = 0, grid_offset = map_data.start_offset; y < map_data.height; y++, grid_offset += map_data.border_size) {
                 for (int x = 0; x < map_data.width; x++, grid_offset++) {
@@ -25121,7 +24796,7 @@ static int get_letter_width(char *str, struct font_definition_t *def, int *num_b
 
 static unsigned int text_get_max_length_for_width(char *str, int length, int font, unsigned int requested_width, int invert)
 {
-    struct font_definition_t *def = &font_data.font_definitions[font];
+    struct font_definition_t *def = &DEFINITIONS_DEFAULT[font];
     if (!length) {
         length = string_length(str);
     }
@@ -25609,11 +25284,11 @@ static void top_menu_help_warnings(__attribute__((unused)) int param)
     menu_update_text(&top_menu[INDEX_HELP], 1, settings[SETTINGS_WARNINGS_ENABLED].config_value ? 6 : 5);
 }
 
-static void lang_text_draw_month_year_max_width(int month, int year, int x_offset, int y_offset, int box_width, int font, color_t color)
+static void lang_text_draw_month_year_max_width(int month, int year, int x_offset, int y_offset, int box_width, int font, uint32_t color)
 {
     int month_width = lang_text_get_width(25, month, font);
     int ad_bc_width = lang_text_get_width(20, year >= 0 ? 1 : 0, font);
-    int space_width = font_data.font_definitions[font].space_width;
+    int space_width = DEFINITIONS_DEFAULT[font].space_width;
     int negative_padding = 0;
     // assume 3 digits in the year times 11 pixels plus letter spacing = approx 35px
     int total_width = month_width + ad_bc_width + 35 + 2 * space_width;
@@ -25661,7 +25336,7 @@ static void widget_top_menu_draw(int force)
         image_draw(image_base + 14, 840, 0);
     }
     menu_bar_draw(top_menu, sizeof(top_menu) / sizeof(struct menu_bar_item_t), s_width < 1024 ? 338 : 493);
-    color_t treasure_color = COLOR_WHITE;
+    uint32_t treasure_color = COLOR_WHITE;
     if (city_data.finance.treasury < 0) {
         treasure_color = COLOR_FONT_RED;
     }
@@ -25939,7 +25614,7 @@ static void draw_foreground_city(void)
             set_city_clip_rectangle();
             int x, y;
             city_view_get_selected_tile_pixels(&x, &y);
-            color_t color;
+            uint32_t color;
             if (cost <= city_data.finance.treasury) {
                 // Color blind friendly
                 color = scenario.climate == CLIMATE_DESERT ? COLOR_FONT_ORANGE : COLOR_FONT_ORANGE_LIGHT;
@@ -26340,11 +26015,10 @@ static void city_view_go_to_grid_offset(int grid_offset)
 static void button_go_to_problem(__attribute__((unused)) int param1, __attribute__((unused)) int param2)
 {
     window_build_menu_hide();
-    uint32_t now = current_time;
-    if (now - message_data.problem_last_click_time > 3000) {
+    if (current_time - message_data.problem_last_click_time > 3000) {
         message_data.problem_index = 0;
     }
-    message_data.problem_last_click_time = now;
+    message_data.problem_last_click_time = current_time;
     city_message_sort_and_compact();
     message_data.problem_count = 0;
     for (int i = 0; i < 999; i++) {
@@ -27674,13 +27348,11 @@ static void play_speech_file(char *filename)
     }
     stop_sound_channel(SOUND_CHANNEL_SPEECH);
     if (filename) {
-        if (data_channels.initialized) {
-            stop_sound_channel(SOUND_CHANNEL_SPEECH);
-            data_channels.channels[SOUND_CHANNEL_SPEECH].chunk = load_chunk(filename);
-            if (data_channels.channels[SOUND_CHANNEL_SPEECH].chunk) {
-                set_channel_volume(SOUND_CHANNEL_SPEECH, settings[SETTINGS_SPEECH_VOLUME].config_value);
-                Mix_PlayChannel(SOUND_CHANNEL_SPEECH, data_channels.channels[SOUND_CHANNEL_SPEECH].chunk, 0);
-            }
+        stop_sound_channel(SOUND_CHANNEL_SPEECH);
+        sound_channels[SOUND_CHANNEL_SPEECH].chunk = load_chunk(filename);
+        if (sound_channels[SOUND_CHANNEL_SPEECH].chunk) {
+            set_channel_volume(SOUND_CHANNEL_SPEECH, settings[SETTINGS_SPEECH_VOLUME].config_value);
+            Mix_PlayChannel(SOUND_CHANNEL_SPEECH, sound_channels[SOUND_CHANNEL_SPEECH].chunk, 0);
         }
     }
 }
@@ -28157,14 +27829,16 @@ static char *get_message_text(int32_t offset)
 
 static int load_files(char *text_filename, char *message_filename)
 {
-    uint8_t *buffer = (uint8_t *) malloc(BUFFER_SIZE);
+    int buffer_size = 400000;
+    uint8_t *buffer = (uint8_t *) malloc(buffer_size);
     if (!buffer) {
         return 0;
     }
     int success;
     struct buffer_t buf;
-    int filesize = read_file_into_buffer(text_filename, buffer, BUFFER_SIZE, 1);
-    if (filesize < MIN_TEXT_SIZE || filesize > MAX_TEXT_SIZE) {
+    int min_text_size = (28 + MAX_TEXT_ENTRIES * 8);
+    int filesize = read_file_into_buffer(text_filename, buffer, 1);
+    if (filesize < min_text_size || filesize > min_text_size + MAX_TEXT_DATA) {
         success = 0;
     } else {
         buffer_init(&buf, buffer, filesize);
@@ -28176,8 +27850,8 @@ static int load_files(char *text_filename, char *message_filename)
         buffer_read_raw(&buf, lang_data.text_data, MAX_TEXT_DATA);
         success = 1;
     }
-    filesize = read_file_into_buffer(message_filename, buffer, BUFFER_SIZE, 1);
-    if (filesize < MIN_MESSAGE_SIZE || filesize > MAX_MESSAGE_SIZE) {
+    filesize = read_file_into_buffer(message_filename, buffer, 1);
+    if (filesize < 32024 || filesize > 32024 + MAX_MESSAGE_DATA) {
         success = 0;
     } else {
         buffer_init(&buf, buffer, filesize);
@@ -28217,39 +27891,10 @@ static int load_files(char *text_filename, char *message_filename)
     return success;
 }
 
-static int lang_load(int is_editor)
-{
-    if (is_editor) {
-        return load_files(FILE_EDITOR_TEXT_ENG, FILE_EDITOR_MM_ENG);
-    }
-    return
-        load_files(FILE_TEXT_ENG, FILE_MM_ENG) ||
-        load_files(FILE_TEXT_ENG, FILE_MM_ENG);
-}
-
-static int reload_language(int is_editor, int reload_images)
-{
-    if (!lang_load(is_editor)) {
-        if (is_editor) {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("'c3_map.eng' or 'c3_map_mm.eng' files not found or too large.", 0, 0));
-        } else {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("'c3.eng' or 'c3_mm.eng' files not found or too large.", 0, 0));
-        }
-        return 0;
-    }
-
-    if (!image_load_climate(scenario.climate, is_editor, reload_images)) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("unable to load main graphics", 0, 0));
-        return 0;
-    }
-    return 1;
-}
-
 static void exit_editor_to_main_menu(void)
 {
-    if (!reload_language(0, 0)) {
-        return;
-    }
+    load_files(FILE_TEXT_ENG, FILE_MM_ENG);
+    load_main_graphics(scenario.climate, 0);
     editor_active = 0;
     window_main_menu_show(1);
 }
@@ -30623,12 +30268,12 @@ static void graphics_shade_rect(int x, int y, int width, int height, int darknes
     }
     for (int yy = y + cur_clip->clipped_pixels_top; yy < y + height - cur_clip->clipped_pixels_bottom; yy++) {
         for (int xx = x + cur_clip->clipped_pixels_left; xx < x + width - cur_clip->clipped_pixels_right; xx++) {
-            color_t *pixel = graphics_get_pixel(xx, yy);
+            uint32_t *pixel = graphics_get_pixel(xx, yy);
             int r = (*pixel & 0xff0000) >> 16;
             int g = (*pixel & 0xff00) >> 8;
             int b = (*pixel & 0xff);
             int grey = (r + g + b) / 3 >> darkness;
-            color_t new_pixel = (color_t) (grey << 16 | grey << 8 | grey);
+            uint32_t new_pixel = (uint32_t) (grey << 16 | grey << 8 | grey);
             *pixel = new_pixel;
         }
     }
@@ -35229,7 +34874,7 @@ static void draw_foreground_video(void)
             uint32_t *pal = data_video.s->frame_data.palette;
             if (frame && pal) {
                 for (int y = clip->clipped_pixels_top; y < clip->visible_pixels_y; y++) {
-                    color_t *pixel = graphics_get_pixel(
+                    uint32_t *pixel = graphics_get_pixel(
                         message_dialog_data.x + 8 + clip->clipped_pixels_left, y + message_dialog_data.y + 8 + clip->clipped_pixels_top);
                     int video_y = data_video.video.y_scale == SMACKER_Y_SCALE_NONE ? y : y / 2;
                     unsigned char *line = frame + (video_y * data_video.video.width);
@@ -36117,11 +35762,10 @@ static void show_message_popup(int message_id)
 
 static void city_message_apply_sound_interval(int category)
 {
-    uint32_t now = current_time;
-    if (now - message_data.last_sound_time[category] <= 15000) {
+    if (current_time - message_data.last_sound_time[category] <= 15000) {
         should_play_sound = 0;
     } else {
-        message_data.last_sound_time[category] = now;
+        message_data.last_sound_time[category] = current_time;
     }
 }
 
@@ -39508,7 +39152,7 @@ static void video_draw_fullscreen(void)
             return;
         }
         for (int y = clip->clipped_pixels_top; y < video_height - clip->clipped_pixels_bottom; y++) {
-            color_t *pixel = graphics_get_pixel(x_offset + clip->clipped_pixels_left, y_offset + y);
+            uint32_t *pixel = graphics_get_pixel(x_offset + clip->clipped_pixels_left, y_offset + y);
             int x_max = video_width - clip->clipped_pixels_right;
             int video_y = (int) ((data_video.video.y_scale == SMACKER_Y_SCALE_NONE ? y : y / 2) / scale);
             unsigned char *line = frame + (video_y * data_video.video.width);
@@ -39623,15 +39267,15 @@ static void handle_input_victory_dialog(struct mouse_t *m)
 
 static void game_run(void)
 {
-    uint32_t now_millis = current_time;
+    current_time = SDL_GetTicks64();
     for (int i = 0; i < MAX_ANIM_TIMERS; i++) {
         timers[i].should_update = 0;
     }
     unsigned int delay_millis = 0;
     for (int i = 0; i < MAX_ANIM_TIMERS; i++) {
-        if (now_millis - timers[i].last_update >= delay_millis) {
+        if (current_time - timers[i].last_update >= delay_millis) {
             timers[i].should_update = 1;
-            timers[i].last_update = now_millis;
+            timers[i].last_update = current_time;
         }
         delay_millis += 20;
     }
@@ -39667,8 +39311,7 @@ static void game_run(void)
             millis_per_tick = MILLIS_PER_TICK_PER_SPEED[7]; // 70%, nice speed for flag animations
             break;
     }
-    uint32_t now = current_time;
-    uint32_t diff = now - speed_data.last_update;
+    uint32_t diff = current_time - speed_data.last_update;
     speed_data.last_check_was_valid = 1;
     int num_ticks;
     if (last_check_was_valid) {
@@ -39676,15 +39319,15 @@ static void game_run(void)
         if (!ticks) {
             return;
         } else if (ticks <= MAX_TICKS_PER_FRAME) {
-            speed_data.last_update = now - (diff % millis_per_tick); // account for left-over millis in this frame
+            speed_data.last_update = current_time - (diff % millis_per_tick); // account for left-over millis in this frame
             num_ticks = ticks;
         } else {
-            speed_data.last_update = now;
+            speed_data.last_update = current_time;
             num_ticks = MAX_TICKS_PER_FRAME;
         }
     } else {
         // returning to map from another window or pause: always force a tick
-        speed_data.last_update = now;
+        speed_data.last_update = current_time;
         num_ticks = 1;
     }
     for (int i = 0; i < num_ticks; i++) {
@@ -48549,52 +48192,44 @@ static void update_screen(void)
     SDL_RenderClear(SDL.renderer);
     SDL_UpdateTexture(SDL.texture, 0, canvas.pixels, screen_data.width * 4);
     SDL_RenderCopy(SDL.renderer, SDL.texture, 0, 0);
+    SDL_RenderPresent(SDL.renderer);
 }
 
 #if 0
 static struct {
     int frame_count;
     int last_fps;
-    Uint32 last_update_time;
+    uint32_t last_update_time;
 } fps;
 static void run_and_draw(void)
 {
     uint32_t time_before_run = SDL_GetTicks();
     current_time = time_before_run;
-
     game_run();
-    Uint32 time_between_run_and_draw = SDL_GetTicks();
+    uint32_t time_between_run_and_draw = SDL_GetTicks();
     game_draw();
-    Uint32 time_after_draw = SDL_GetTicks();
-
+    uint32_t time_after_draw = SDL_GetTicks();
     fps.frame_count++;
     if (time_after_draw - fps.last_update_time > 1000) {
         fps.last_fps = fps.frame_count;
         fps.last_update_time = time_after_draw;
         fps.frame_count = 0;
     }
-    if (window_data.current_window->id == WINDOW_CITY || window_data.current_window->id WINDOW_CITY_MILITARY || window_data.current_window->id == WINDOW_SLIDING_SIDEBAR) {
-        int y_offset = 24;
-        int y_offset_text = y_offset + 5;
-        graphics_fill_rect(0, y_offset, 100, 20, COLOR_WHITE);
-        text_draw_number_colored(fps.last_fps,
-            'f', "", 5, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
-        text_draw_number_colored(time_between_run_and_draw - time_before_run,
-            'g', "", 40, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
-        text_draw_number_colored(time_after_draw - time_between_run_and_draw,
-            'd', "", 70, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
-}
+    int y_offset = 24;
+    int y_offset_text = y_offset + 5;
+    graphics_fill_rect(0, y_offset, 100, 20, COLOR_WHITE);
+    text_draw_number_colored(fps.last_fps, 'f', "", 5, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
+    text_draw_number_colored(time_between_run_and_draw - time_before_run, 'g', "", 40, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
+    text_draw_number_colored(time_after_draw - time_between_run_and_draw, 'd', "", 70, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
     update_screen();
     SDL_RenderPresent(SDL.renderer);
 }
 #else
 static void run_and_draw(void)
 {
-    current_time = SDL_GetTicks();
     game_run();
     game_draw();
     update_screen();
-    SDL_RenderPresent(SDL.renderer);
 }
 #endif
 
@@ -48607,10 +48242,9 @@ static void handle_mouse_button(SDL_MouseButtonEvent *event, int is_down)
         mouse_data.left.system_change |= is_down ? SYSTEM_DOWN : SYSTEM_UP;
         mouse_data.is_inside_window = 1;
         if (!is_down) {
-            uint32_t now = current_time;
-            int is_double_click = (last_click < now) && ((now - last_click) <= DOUBLE_CLICK_TIME);
+            int is_double_click = (last_click < current_time) && ((current_time - last_click) <= DOUBLE_CLICK_TIME);
             mouse_data.left.system_change |= is_double_click ? SYSTEM_DOUBLE_CLICK : SYSTEM_NONE;
-            last_click = now;
+            last_click = current_time;
         }
     } else if (event->button == SDL_BUTTON_RIGHT) {
         mouse_data.right.system_change |= is_down ? SYSTEM_DOWN : SYSTEM_UP;
@@ -48619,115 +48253,11 @@ static void handle_mouse_button(SDL_MouseButtonEvent *event, int is_down)
     }
 }
 
-static int scale_pixels_to_logical(int pixel_value)
+static void resize_screen(int pixel_width, int pixel_height)
 {
-    return pixel_value * 100 / scale_percentage;
-}
-
-static void destroy_screen_texture(void)
-{
-    SDL_DestroyTexture(SDL.texture);
-    SDL.texture = 0;
-}
-
-static void setting_set_display(int fullscreen, int width, int height)
-{
-    settings[SETTINGS_FULLSCREEN].config_value = fullscreen;
-    if (!fullscreen) {
-        settings[SETTINGS_WINDOW_WIDTH].config_value = width;
-        settings[SETTINGS_WINDOW_HEIGHT].config_value = height;
-    }
-}
-
-static int resize_screen(int pixel_width, int pixel_height)
-{
-    int logical_width = scale_pixels_to_logical(pixel_width);
-    int logical_height = scale_pixels_to_logical(pixel_height);
-
+    SDL.texture = SDL_CreateTexture(SDL.renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, pixel_width, pixel_height);
     if (SDL.texture) {
-        if (logical_width == screen_data.width && logical_height == screen_data.height) {
-            return 1;
-        }
-        destroy_screen_texture();
-    }
-
-    SDL_RenderSetLogicalSize(SDL.renderer, logical_width, logical_height);
-
-    setting_set_display(settings[SETTINGS_FULLSCREEN].config_value, logical_width, logical_height);
-    SDL.texture = SDL_CreateTexture(SDL.renderer,
-        SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-        logical_width, logical_height);
-
-    if (SDL.texture) {
-        SDL_Log("Texture created: %d x %d", logical_width, logical_height);
-        screen_set_resolution(logical_width, logical_height);
-        return 1;
-    } else {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to create texture: %s", SDL_GetError());
-        return 0;
-    }
-}
-
-static void handle_window_event(SDL_WindowEvent *event, int *window_active)
-{
-    switch (event->event) {
-        case SDL_WINDOWEVENT_ENTER:
-            mouse_data.is_inside_window = 1;
-            break;
-        case SDL_WINDOWEVENT_LEAVE:
-            mouse_data.is_inside_window = 0;
-            break;
-        case SDL_WINDOWEVENT_SIZE_CHANGED:
-            SDL_Log("Window resized to %d x %d", (int) event->data1, (int) event->data2);
-            resize_screen(event->data1, event->data2);
-            break;
-        case SDL_WINDOWEVENT_RESIZED:
-            SDL_Log("System resize to %d x %d", (int) event->data1, (int) event->data2);
-            break;
-        case SDL_WINDOWEVENT_MOVED:
-            SDL_Log("Window move to coordinates x: %d y: %d\n", (int) event->data1, (int) event->data2);
-            if (!settings[SETTINGS_FULLSCREEN].config_value) {
-                window_pos.x = event->data1;
-                window_pos.y = event->data2;
-                window_pos.centered = 0;
-            }
-            break;
-        case SDL_WINDOWEVENT_SHOWN:
-            SDL_Log("Window %u shown", event->windowID);
-            *window_active = 1;
-            break;
-        case SDL_WINDOWEVENT_HIDDEN:
-            SDL_Log("Window %u hidden", event->windowID);
-            *window_active = 0;
-            break;
-    }
-}
-
-static void center_window(void)
-{
-    int display = SDL_GetWindowDisplayIndex(SDL.window);
-    SDL_SetWindowPosition(SDL.window,
-        SDL_WINDOWPOS_CENTERED_DISPLAY(display), SDL_WINDOWPOS_CENTERED_DISPLAY(display));
-    window_pos.centered = 1;
-}
-
-static void keyboard_right(void)
-{
-    if (keyboard_data.capture) {
-        if (keyboard_data.cursor_position < keyboard_data.length) {
-            keyboard_data.cursor_position += 1;
-            update_viewport(0);
-        }
-    }
-}
-
-static void keyboard_left(void)
-{
-    if (keyboard_data.capture) {
-        if (keyboard_data.cursor_position > 0) {
-            keyboard_data.cursor_position--;
-            update_viewport(0);
-        }
+        screen_set_resolution(pixel_width, pixel_height);
     }
 }
 
@@ -48739,12 +48269,6 @@ static void remove_current_char(void)
     }
     keyboard_data.text[keyboard_data.cursor_position] = 0;
     keyboard_data.length -= 1;
-}
-
-static void setting_window(int *width, int *height)
-{
-    *width = settings[SETTINGS_WINDOW_WIDTH].config_value;
-    *height = settings[SETTINGS_WINDOW_HEIGHT].config_value;
 }
 
 static void button_hotkeys(__attribute__((unused)) int param1, __attribute__((unused)) int param2);
@@ -49099,6 +48623,23 @@ static void scroll_map_arrow_keys(void)
     return;
 }
 
+static void scroll_empire_arrow_keys(void)
+{
+    if (is_scrolling_up) {
+        empire_data.scroll_y -= 2;
+    }
+    if (is_scrolling_down) {
+        empire_data.scroll_y += 2;
+    }
+    if (is_scrolling_left) {
+        empire_data.scroll_x -= 2;
+    }
+    if (is_scrolling_right) {
+        empire_data.scroll_x += 2;
+    }
+    check_scroll_boundaries();
+}
+
 static void stop_intro_video(void)
 {
     video_stop();
@@ -49121,1091 +48662,6 @@ static void close_mission_briefing_window(void)
     update_music(1);
     window_city_show();
 }
-
-static void handle_event(SDL_Event *event)
-{
-    switch (event->type) {
-        case SDL_WINDOWEVENT:
-            handle_window_event(&event->window, &data.active);
-            break;
-        case SDL_KEYDOWN:
-        {
-            // clear unused mods such as numpad, capslock, etc.
-            int key_mod = KMOD_NONE;
-            if (event->key.keysym.mod & KMOD_SHIFT) {
-                key_mod |= KMOD_SHIFT;
-            }
-            if (event->key.keysym.mod & KMOD_CTRL) {
-                key_mod |= KMOD_CTRL;
-            }
-            if (event->key.keysym.mod & KMOD_ALT) {
-                key_mod |= KMOD_ALT;
-            }
-            if (event->key.keysym.mod & KMOD_GUI) {
-                key_mod |= KMOD_GUI;
-            }
-            // handle text cursor position keys and enter/exit
-            switch (event->key.keysym.sym) {
-                case SDLK_BACKSPACE:
-                    if (keyboard_data.capture && keyboard_data.cursor_position > 0) {
-                        keyboard_data.cursor_position--;
-                        remove_current_char();
-                        update_viewport(1);
-                    }
-                    break;
-                case SDLK_DELETE:
-                    if (keyboard_data.capture && keyboard_data.cursor_position < keyboard_data.length) {
-                        remove_current_char();
-                        update_viewport(1);
-                    }
-                    break;
-                case SDLK_LEFT:
-                    if (keyboard_data.capture && keyboard_data.cursor_position) {
-                        keyboard_left();
-                    }
-                    break;
-                case SDLK_RIGHT:
-                    if (keyboard_data.capture && keyboard_data.cursor_position < keyboard_data.length) {
-                        keyboard_right();
-                    }
-                    break;
-                case SDLK_HOME:
-                    if (keyboard_data.capture) {
-                        keyboard_data.cursor_position = 0;
-                        update_viewport(0);
-                    }
-                    break;
-                case SDLK_END:
-                    if (keyboard_data.capture) {
-                        keyboard_data.cursor_position = keyboard_data.length;
-                        update_viewport(0);
-                    }
-                    break;
-                case SDLK_RETURN:
-                case SDLK_KP_ENTER:
-                    // use as "confirm" without modifiers -> can use as hotkey with modifiers
-                    if (key_mod == KMOD_NONE) {
-                        switch (window_data.current_window->id) {
-                            case WINDOW_LOGO:
-                                window_main_menu_show(0);
-                                break;
-                            case WINDOW_INTRO_VIDEO:
-                                stop_intro_video();
-                                break;
-                            case WINDOW_HOTKEY_EDITOR:
-                                button_close_hotkey_editor_window(1, 0);
-                                break;
-                            case WINDOW_POPUP_DIALOG:
-                                confirm_popup_dialog();
-                                break;
-                            case WINDOW_NUMERIC_INPUT:
-                                input_accept_numeric_input();
-                                break;
-                            case WINDOW_PLAIN_MESSAGE_DIALOG:
-                                close_plain_message_dialog();
-                                break;
-                            case WINDOW_MISSION_BRIEFING:
-                                close_mission_briefing_window();
-                                break;
-                            case WINDOW_CCK_SELECTION:
-                                button_start_scenario(0, 0);
-                                break;
-                        }
-                        keyboard_data.accepted = 1;
-                    }
-                    break;
-                case SDLK_ESCAPE:
-                    switch (window_data.current_window->id) {
-                        case WINDOW_LOGO:
-                        case WINDOW_MAIN_MENU:
-                            post_event(USER_EVENT_QUIT);
-                            break;
-                        case WINDOW_EDITOR_STARTING_CONDITIONS:
-                        case WINDOW_EDITOR_WIN_CRITERIA:
-                        case WINDOW_EDITOR_SPECIAL_EVENTS:
-                        case WINDOW_EDITOR_REQUESTS:
-                        case WINDOW_EDITOR_CUSTOM_MESSAGES:
-                        case WINDOW_EDITOR_EARTHQUAKES:
-                        case WINDOW_EDITOR_INVASIONS:
-                        case WINDOW_EDITOR_PRICE_CHANGES:
-                        case WINDOW_EDITOR_DEMAND_CHANGES:
-                            show_editor_attributes();
-                            break;
-                        case WINDOW_LABOR_PRIORITY:
-                        case WINDOW_TRADE_PRICES:
-                        case WINDOW_RESOURCE_SETTINGS:
-                        case WINDOW_SELECT_LIST:
-                            window_go_back();
-                            break;
-                        case WINDOW_POPUP_DIALOG:
-                            button_cancel_popup_dialog(0, 0);
-                            break;
-                        case WINDOW_NUMERIC_INPUT:
-                            close_numeric_input();
-                            break;
-                        case WINDOW_EDITOR_EMPIRE:
-                            if (selected_empire_object_editor && selected_empire_object_editor->type == EMPIRE_OBJECT_CITY) {
-                                selected_empire_object_editor = 0;
-                                window_invalidate();
-                            } else {
-                                show_editor_map();
-                            }
-                            break;
-                        case WINDOW_EDITOR_BUILD_MENU:
-                            selected_submenu_build_menu = MENU_NONE;
-                            show_editor_map();
-                            break;
-                        case WINDOW_DISPLAY_OPTIONS:
-                            display_options_data.close_callback();
-                            break;
-                        case WINDOW_FILE_DIALOG:
-                            input_box_stop(&file_name_input);
-                            window_go_back();
-                            break;
-                        case WINDOW_SOUND_OPTIONS:
-                            if (sound_options_data.from_editor) {
-                                show_editor_map();
-                            } else {
-                                window_city_return();
-                            }
-                            break;
-                        case WINDOW_TOP_MENU:
-                            if (top_menu_data.open_sub_menu) {
-                                clear_state_top_menu();
-                                window_go_back();
-                            }
-                            break;
-                        case WINDOW_CITY_MILITARY:
-                            widget_city_data.capture_input = 0;
-                            city_warning_clear_all();
-                            window_city_show();
-                            break;
-                        case WINDOW_SPEED_OPTIONS:
-                            if (speed_options_data.from_editor) {
-                                show_editor_map();
-                            } else {
-                                window_city_return();
-                            }
-                            break;
-                        case WINDOW_EDITOR_TOP_MENU:
-                            if (open_sub_menu_top_menu_editor) {
-                                clear_state();
-                                window_go_back();
-                            }
-                            break;
-                        case WINDOW_EDITOR_MAP:
-                            if (tool_data.active) {
-                                editor_tool_deactivate();
-                                end_editor_tool_use(&current_tile);
-                            } else {
-                                request_exit_editor();
-                            }
-                            break;
-                        case WINDOW_OVERLAY_MENU:
-                            if (overlay_menu_data.keep_submenu_open) {
-                                close_submenu();
-                            } else {
-                                window_city_show();
-                            }
-                            break;
-                        case WINDOW_HOLD_FESTIVAL:
-                            window_advisors_show(ADVISOR_ENTERTAINMENT);
-                            break;
-                        case WINDOW_DONATE_TO_CITY:
-                            window_advisors_show(ADVISOR_IMPERIAL);
-                            break;
-                        case WINDOW_SET_SALARY:
-                            window_advisors_show(ADVISOR_IMPERIAL);
-                            break;
-                        case WINDOW_GIFT_TO_EMPEROR:
-                            window_advisors_show(ADVISOR_IMPERIAL);
-                            break;
-                        case WINDOW_TRADE_OPENED:
-                            window_empire_show();
-                            break;
-                        case WINDOW_EMPIRE:
-                            if (empire_window_data.selected_object) {
-                                switch (empire_window_data.selected_object->type) {
-                                    case EMPIRE_OBJECT_CITY:
-                                        empire_window_data.selected_object = 0;
-                                        window_invalidate();
-                                        break;
-                                    case EMPIRE_OBJECT_ROMAN_ARMY:
-                                        if (city_military_distant_battle_roman_army_is_traveling()) {
-                                            if (city_data.distant_battle.roman_months_traveled == empire_window_data.selected_object->distant_battle_travel_months) {
-                                                empire_window_data.selected_object = 0;
-                                                window_invalidate();
-                                                break;
-                                            }
-                                        }
-                                        /* fall through */
-                                    case EMPIRE_OBJECT_ENEMY_ARMY:
-                                        if (city_data.distant_battle.months_until_battle) {
-                                            if (city_data.distant_battle.enemy_months_traveled == empire_window_data.selected_object->distant_battle_travel_months) {
-                                                empire_window_data.selected_object = 0;
-                                                window_invalidate();
-                                                break;
-                                            }
-                                        }
-                                        /* fall through */
-                                    default:
-                                        window_go_back();
-                                }
-                            } else {
-                                window_go_back();
-                                if (window_data.current_window->id == WINDOW_TRADE_OPENED) {
-                                    window_city_show();
-                                }
-                            }
-                            break;
-                        case WINDOW_MESSAGE_DIALOG:
-                            button_close_message_dialog(0, 0);
-                            break;
-                        case WINDOW_MISSION_END:
-                            close_mission_end_window();
-                            break;
-                        case WINDOW_PLAIN_MESSAGE_DIALOG:
-                            close_plain_message_dialog();
-                            break;
-                        case WINDOW_ADVISORS:
-                            window_city_show();
-                            break;
-                        case WINDOW_MISSION_BRIEFING:
-                            close_mission_briefing_window();
-                            break;
-                        case WINDOW_BUILDING_INFO:
-                            window_city_show();
-                            break;
-                        case WINDOW_CCK_SELECTION:
-                            window_main_menu_show(0);
-                            break;
-                        case WINDOW_EDITOR_BRIEFING:
-                            stop_briefing_box_input();
-                            rich_text_reset(0);
-                            show_editor_attributes();
-                            break;
-                        case WINDOW_HOTKEY_CONFIG:
-                            save_hotkey_configs();
-                            window_config_show();
-                            break;
-                        case WINDOW_HOTKEY_EDITOR:
-                            button_close_hotkey_editor_window(0, 0);
-                            break;
-                        case WINDOW_CONFIG:
-                            save_configs();
-                            window_main_menu_show(0);
-                            break;
-                        case WINDOW_EDITOR_START_YEAR:
-                            show_editor_starting_conditions();
-                            break;
-                        case WINDOW_EDITOR_ALLOWED_BUILDINGS:
-                            empire_object_our_city_set_resources_sell();
-                            show_editor_attributes();
-                            break;
-                        case WINDOW_EDITOR_EDIT_REQUEST:
-                            sort_editor_requests();
-                            show_editor_requests();
-                            break;
-                        case WINDOW_EDITOR_EDIT_CUSTOM_MESSAGE:
-                            if (custom_message_category == CUSTOM_MESSAGE_ATTRIBUTES) {
-                                input_box_stop(&editor_custom_message_input_video_file);
-                                if (!string_equals(scenario.editor_custom_messages[custom_message_id].video_file, editor_custom_message_video_file)) {
-                                    string_copy(editor_custom_message_video_file, scenario.editor_custom_messages[custom_message_id].video_file, MAX_CUSTOM_MESSAGE_VIDEO_TEXT);
-                                }
-                            } else if (custom_message_category == CUSTOM_MESSAGE_TITLE) {
-                                input_box_stop(&editor_custom_message_input_title);
-                                if (!string_equals(scenario.editor_custom_messages[custom_message_id].title, editor_custom_message_title)) {
-                                    string_copy(editor_custom_message_title, scenario.editor_custom_messages[custom_message_id].title, MAX_CUSTOM_MESSAGE_TITLE);
-                                }
-                            } else if (custom_message_category == CUSTOM_MESSAGE_TEXT) {
-                                input_box_stop(&editor_custom_message_input_text);
-                                if (!string_equals(scenario.editor_custom_messages[custom_message_id].text, editor_custom_message_text)) {
-                                    string_copy(editor_custom_message_text, scenario.editor_custom_messages[custom_message_id].text, MAX_CUSTOM_MESSAGE_TEXT);
-                                }
-                                rich_text_reset(0);
-                            }
-                            scenario_editor_sort_custom_messages();
-                            show_editor_custom_messages();
-                            break;
-                        case WINDOW_EDITOR_EDIT_EARTHQUAKE:
-                            scenario_editor_sort_earthquakes();
-                            show_editor_earthquakes();
-                            break;
-                        case WINDOW_EDITOR_EDIT_INVASION:
-                            sort_editor_invasions();
-                            show_editor_invasions();
-                            break;
-                        case WINDOW_EDITOR_EDIT_PRICE_CHANGE:
-                            sort_editor_price_changes();
-                            show_editor_price_changes();
-                            break;
-                        case WINDOW_EDITOR_EDIT_DEMAND_CHANGE:
-                            sort_editor_demand_changes();
-                            show_editor_demand_changes();
-                            break;
-                        case WINDOW_EDITOR_ATTRIBUTES:
-                            stop_brief_description_box_input();
-                            show_editor_map();
-                            break;
-                        case WINDOW_CITY:
-                            if (construction_data.type) {
-                                building_construction_cancel();
-                                window_data.refresh_on_draw = 1;
-                            } else {
-                                window_popup_dialog_show(POPUP_DIALOG_QUIT, confirm_exit_to_main_menu, 1);
-                            }
-                            break;
-                        case WINDOW_BUILD_MENU:
-                            build_menu_data.selected_menu = MENU_NONE;
-                            build_menu_data.selected_submenu = MENU_NONE;
-                            window_city_show();
-                            break;
-                        case WINDOW_MESSAGE_LIST:
-                            button_close_message_list(0, 0);
-                            break;
-                    }
-                    break;
-            }
-            // save mods and key for hotkey assignment drawing purposes
-            if (window_data.current_window->id == WINDOW_HOTKEY_EDITOR) {
-                if (key_mod) {
-                    hotkey_button_modifiers |= key_mod;
-                } else { // prevent assigning mod to key
-                    hotkey_button_key = event->key.keysym.sym;
-                }
-            } else { // prevent hotkey from activating during assignment
-                // handle hotkey actions
-                for (int i = 0; i < HOTKEY_MAX_ITEMS; i++) {
-                    if (event->key.keysym.sym == hotkey_mappings[i].sdl_key
-                    && key_mod == hotkey_mappings[i].sdl_mods) {
-                        // action found, fulfill
-                        switch (i) {
-                            case HOTKEY_ARROW_UP:
-                                is_scrolling_up = 1;
-                                break;
-                            case HOTKEY_ARROW_DOWN:
-                                is_scrolling_down = 1;
-                                break;
-                            case HOTKEY_ARROW_LEFT:
-                                is_scrolling_left = 1;
-                                break;
-                            case HOTKEY_ARROW_RIGHT:
-                                is_scrolling_right = 1;
-                                break;
-                            case HOTKEY_TOGGLE_FULLSCREEN:
-                                post_event(settings[SETTINGS_FULLSCREEN].config_value ? USER_EVENT_WINDOWED : USER_EVENT_FULLSCREEN);
-                                break;
-                            case HOTKEY_RESET_WINDOW:
-                                system_resize(1280, 800);
-                                post_event(USER_EVENT_CENTER_WINDOW);
-                                break;
-                            case HOTKEY_SAVE_SCREENSHOT:
-                                graphics_save_screenshot(0);
-                                break;
-                            case HOTKEY_SAVE_CITY_SCREENSHOT:
-                                if (window_data.current_window->id == WINDOW_CITY || window_data.current_window->id == WINDOW_CITY_MILITARY) {
-                                    graphics_save_screenshot(1);
-                                }
-                                break;
-                            case HOTKEY_LOAD_FILE:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_MAIN_MENU:
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_LOAD);
-                                        break;
-                                    case WINDOW_EDITOR_MAP:
-                                        window_file_dialog_show(FILE_TYPE_SCENARIO, FILE_DIALOG_LOAD);
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_SAVE_FILE:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_MAIN_MENU:
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_SAVE);
-                                        break;
-                                    case WINDOW_EDITOR_MAP:
-                                        window_file_dialog_show(FILE_TYPE_SCENARIO, FILE_DIALOG_SAVE);
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_DECREASE_GAME_SPEED:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        setting_decrease_game_speed();
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_INCREASE_GAME_SPEED:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        setting_increase_game_speed();
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_TOGGLE_PAUSE:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        state_data.paused = state_data.paused ? 0 : 1;
-                                        city_warning_clear_all();
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_ROTATE_MAP_LEFT:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        game_orientation_rotate_left();
-                                        window_invalidate();
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_ROTATE_MAP_RIGHT:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        game_orientation_rotate_right();
-                                        window_invalidate();
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_REPLAY_MAP:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        replay_map();
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_CYCLE_LEGION:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        if (city_data.military.total_legions) {
-                                            int selectable_legions_count = 0;
-                                            for (int i = 0; i < MAX_LEGIONS; i++) {
-                                                struct formation_t *m = &legion_formations[i];
-                                                if (m->in_use && !m->in_distant_battle && m->num_figures && m->morale > ROUT_MORALE_THRESHOLD) {
-                                                    selectable_legions_count++;
-                                                }
-                                            }
-                                            // handle wrap around and index mismatches caused by fort delete/recreate, formation rout/destruction, allocation to distant battle
-                                            if (current_selected_legion_index >= selectable_legions_count) {
-                                                current_selected_legion_index = 0;
-                                            }
-                                            int next_available_legion_index = 0;
-                                            for (int i = 0; i < MAX_LEGIONS; i++) {
-                                                struct formation_t *m = &legion_formations[i];
-                                                if (m->in_use && !m->in_distant_battle && m->num_figures && m->morale > ROUT_MORALE_THRESHOLD) {
-                                                    if (next_available_legion_index == current_selected_legion_index) {
-                                                        window_city_military_show(m->id);
-                                                        current_selected_legion_index++;
-                                                        return;
-                                                    }
-                                                    next_available_legion_index++;
-                                                }
-                                            }
-                                        }
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_RETURN_LEGIONS_TO_FORT:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        for (int i = 0; i < MAX_LEGIONS; i++) {
-                                            if (legion_formations[i].in_use && !legion_formations[i].in_distant_battle) {
-                                                return_legion_formation_home(&legion_formations[i]);
-                                            }
-                                        }
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_SHOW_LAST_ADVISOR:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                    case WINDOW_EMPIRE:
-                                        window_advisors_show(settings[SETTINGS_LAST_ADVISOR].config_value);
-                                        break;
-                                    case WINDOW_ADVISORS:
-                                        window_city_show();
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_SHOW_EMPIRE_MAP:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        window_empire_show();
-                                        break;
-                                    case WINDOW_EMPIRE:
-                                        window_city_show();
-                                        break;
-                                    case WINDOW_EDITOR_MAP:
-                                        show_editor_empire(0, 0);
-                                        break;
-                                    case WINDOW_EDITOR_EMPIRE:
-                                        show_editor_map();
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_SHOW_MESSAGES:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        window_message_list_show();
-                                        break;
-                                    case WINDOW_MESSAGE_LIST:
-                                        window_city_show();
-                                }
-                                break;
-                            case HOTKEY_GO_TO_PROBLEM:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        button_go_to_problem(0, 0);
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_SHOW_OVERLAY_WATER:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        handle_overlay_hotkey(OVERLAY_WATER);
-                                }
-                                break;
-                            case HOTKEY_SHOW_OVERLAY_FIRE:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        handle_overlay_hotkey(OVERLAY_FIRE);
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_SHOW_OVERLAY_DAMAGE:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        handle_overlay_hotkey(OVERLAY_DAMAGE);
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_SHOW_OVERLAY_CRIME:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        handle_overlay_hotkey(OVERLAY_CRIME);
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_SHOW_OVERLAY_PROBLEMS:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        handle_overlay_hotkey(OVERLAY_PROBLEMS);
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_GO_TO_BOOKMARK_1:
-                            case HOTKEY_GO_TO_BOOKMARK_2:
-                            case HOTKEY_GO_TO_BOOKMARK_3:
-                            case HOTKEY_GO_TO_BOOKMARK_4:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        handle_go_to_bookmark_hotkey(i - HOTKEY_GO_TO_BOOKMARK_1 + 1);
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_SET_BOOKMARK_1:
-                            case HOTKEY_SET_BOOKMARK_2:
-                            case HOTKEY_SET_BOOKMARK_3:
-                            case HOTKEY_SET_BOOKMARK_4:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        handle_set_bookmark_hotkey(i - HOTKEY_SET_BOOKMARK_1 + 1);
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_EDITOR_TOGGLE_BATTLE_INFO:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_EDITOR_EMPIRE:
-                                        empire_editor_show_battle_objects = !empire_editor_show_battle_objects;
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_CHEAT_MONEY:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        if (city_data.finance.treasury < 50000) {
-                                            city_data.finance.treasury += 1000;
-                                            city_data.finance.cheated_money += 1000;
-                                        }
-                                        window_invalidate();
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_CHEAT_INVASION:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        city_message_post(1, MESSAGE_ENEMY_ARMY_ATTACK, 0, start_invasion(rand() % (ENEMY_TYPE_MAX_COUNT + 1), 160, MAX_INVASION_POINTS, FORMATION_ATTACK_RANDOM));
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_CHEAT_VICTORY:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        victory_data.force_win = 1;
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_BUILD_CLONE:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_BUILDING) {
-                                            int building_id = map_building_at(widget_city_data.current_tile.grid_offset);
-                                            if (building_id) {
-                                                struct building_t *b = building_main(&all_buildings[building_id]);
-                                                if (building_is_house(b->type)) {
-                                                    set_construction_building_type(BUILDING_HOUSE_VACANT_LOT);
-                                                } else {
-                                                    set_construction_building_type(b->type);
-                                                }
-                                            }
-                                        } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_AQUEDUCT) {
-                                            set_construction_building_type(BUILDING_AQUEDUCT);
-                                        } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_WALL) {
-                                            set_construction_building_type(BUILDING_WALL);
-                                        } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_GARDEN) {
-                                            set_construction_building_type(BUILDING_GARDENS);
-                                        } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_ROAD) {
-                                            if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_WATER) {
-                                                if (sprite.items[widget_city_data.current_tile.grid_offset] > 6) {
-                                                    set_construction_building_type(BUILDING_SHIP_BRIDGE);
-                                                } else {
-                                                    set_construction_building_type(BUILDING_LOW_BRIDGE);
-                                                }
-                                            } else if (bitfields_grid.items[widget_city_data.current_tile.grid_offset] & BIT_PLAZA_OR_EARTHQUAKE) {
-                                                set_construction_building_type(BUILDING_PLAZA);
-                                            } else {
-                                                set_construction_building_type(BUILDING_ROAD);
-                                            }
-                                        }
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_CYCLE_BUILDINGS:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                    {
-                                        int last_building_type_selected = construction_data.type;
-                                        if (last_building_type_selected < BUILDING_RESERVOIR) {
-                                            last_building_type_selected = BUILDING_RESERVOIR;
-                                        } else {
-                                            last_building_type_selected++;
-                                        }
-                                        while (last_building_type_selected <= BUILDING_WAREHOUSE) {
-                                            if (last_building_type_selected == BUILDING_TRIUMPHAL_ARCH) {
-                                                if (!city_data.building.triumphal_arches_available) {
-                                                    last_building_type_selected++;
-                                                }
-                                            }
-                                            if (scenario.allowed_buildings[last_building_type_selected]) {
-                                                set_construction_building_type(last_building_type_selected);
-                                                break;
-                                            }
-                                            last_building_type_selected++;
-                                        }
-                                        break;
-                                    }
-                                }
-                                break;
-                            case HOTKEY_CYCLE_BUILDINGS_REVERSE:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                    {
-                                        int last_building_type_selected = construction_data.type;
-                                        if (last_building_type_selected < BUILDING_RESERVOIR) {
-                                            last_building_type_selected = BUILDING_WAREHOUSE;
-                                        } else {
-                                            last_building_type_selected--;
-                                        }
-                                        while (last_building_type_selected >= BUILDING_RESERVOIR) {
-                                            if (last_building_type_selected == BUILDING_TRIUMPHAL_ARCH) {
-                                                if (!city_data.building.triumphal_arches_available) {
-                                                    last_building_type_selected--;
-                                                }
-                                            }
-                                            if (scenario.allowed_buildings[last_building_type_selected]) {
-                                                set_construction_building_type(last_building_type_selected);
-                                                break;
-                                            }
-                                            last_building_type_selected--;
-                                        }
-                                        break;
-                                    }
-                                }
-                                break;
-                            case HOTKEY_UNDO:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        game_undo_perform();
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_BUILD_VACANT_HOUSE:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        handle_set_building_hotkey(BUILDING_HOUSE_VACANT_LOT);
-                                        break;
-                                }
-                                break;
-                            case HOTKEY_BUILD_CLEAR_LAND:
-                            case HOTKEY_BUILD_ROAD:
-                            case HOTKEY_BUILD_RESERVOIR:
-                            case HOTKEY_BUILD_AQUEDUCT:
-                            case HOTKEY_BUILD_FOUNTAIN:
-                            case HOTKEY_BUILD_WELL:
-                            case HOTKEY_BUILD_DOCTOR:
-                            case HOTKEY_BUILD_BATHHOUSE:
-                            case HOTKEY_BUILD_BARBER:
-                            case HOTKEY_BUILD_HOSPITAL:
-                            case HOTKEY_BUILD_SMALL_TEMPLE_CERES:
-                            case HOTKEY_BUILD_SMALL_TEMPLE_NEPTUNE:
-                            case HOTKEY_BUILD_SMALL_TEMPLE_MERCURY:
-                            case HOTKEY_BUILD_SMALL_TEMPLE_MARS:
-                            case HOTKEY_BUILD_SMALL_TEMPLE_VENUS:
-                            case HOTKEY_BUILD_LARGE_TEMPLE_CERES:
-                            case HOTKEY_BUILD_LARGE_TEMPLE_NEPTUNE:
-                            case HOTKEY_BUILD_LARGE_TEMPLE_MERCURY:
-                            case HOTKEY_BUILD_LARGE_TEMPLE_MARS:
-                            case HOTKEY_BUILD_LARGE_TEMPLE_VENUS:
-                            case HOTKEY_BUILD_ORACLE:
-                            case HOTKEY_BUILD_SCHOOL:
-                            case HOTKEY_BUILD_LIBRARY:
-                            case HOTKEY_BUILD_ACADEMY:
-                            case HOTKEY_BUILD_MISSION_POST:
-                            case HOTKEY_BUILD_THEATER:
-                            case HOTKEY_BUILD_ACTOR_COLONY:
-                            case HOTKEY_BUILD_AMPHITHEATER:
-                            case HOTKEY_BUILD_GLADIATOR_SCHOOL:
-                            case HOTKEY_BUILD_LION_HOUSE:
-                            case HOTKEY_BUILD_COLOSSEUM:
-                            case HOTKEY_BUILD_CHARIOT_MAKER:
-                            case HOTKEY_BUILD_HIPPODROME:
-                            case HOTKEY_BUILD_GARDENS:
-                            case HOTKEY_BUILD_PLAZA:
-                            case HOTKEY_BUILD_SMALL_STATUE:
-                            case HOTKEY_BUILD_MEDIUM_STATUE:
-                            case HOTKEY_BUILD_LARGE_STATUE:
-                            case HOTKEY_BUILD_GOVERNORS_HOUSE:
-                            case HOTKEY_BUILD_GOVERNORS_VILLA:
-                            case HOTKEY_BUILD_GOVERNORS_PALACE:
-                            case HOTKEY_BUILD_FORUM:
-                            case HOTKEY_BUILD_SENATE:
-                            case HOTKEY_BUILD_TRIUMPHAL_ARCH:
-                            case HOTKEY_BUILD_ENGINEERS_POST:
-                            case HOTKEY_BUILD_LOW_BRIDGE:
-                            case HOTKEY_BUILD_SHIP_BRIDGE:
-                            case HOTKEY_BUILD_SHIPYARD:
-                            case HOTKEY_BUILD_WHARF:
-                            case HOTKEY_BUILD_DOCK:
-                            case HOTKEY_BUILD_PREFECTURE:
-                            case HOTKEY_BUILD_WALL:
-                            case HOTKEY_BUILD_TOWER:
-                            case HOTKEY_BUILD_GATEHOUSE:
-                            case HOTKEY_BUILD_FORT_LEGIONARIES:
-                            case HOTKEY_BUILD_FORT_JAVELIN:
-                            case HOTKEY_BUILD_FORT_MOUNTED:
-                            case HOTKEY_BUILD_BARRACKS:
-                            case HOTKEY_BUILD_MILITARY_ACADEMY:
-                            case HOTKEY_BUILD_WHEAT_FARM:
-                            case HOTKEY_BUILD_VEGETABLE_FARM:
-                            case HOTKEY_BUILD_FRUIT_FARM:
-                            case HOTKEY_BUILD_PIG_FARM:
-                            case HOTKEY_BUILD_OLIVE_FARM:
-                            case HOTKEY_BUILD_VINES_FARM:
-                            case HOTKEY_BUILD_CLAY_PIT:
-                            case HOTKEY_BUILD_TIMBER_YARD:
-                            case HOTKEY_BUILD_MARBLE_QUARRY:
-                            case HOTKEY_BUILD_IRON_MINE:
-                            case HOTKEY_BUILD_OIL_WORKSHOP:
-                            case HOTKEY_BUILD_WINE_WORKSHOP:
-                            case HOTKEY_BUILD_POTTERY_WORKSHOP:
-                            case HOTKEY_BUILD_FURNITURE_WORKSHOP:
-                            case HOTKEY_BUILD_WEAPONS_WORKSHOP:
-                            case HOTKEY_BUILD_MARKET:
-                            case HOTKEY_BUILD_GRANARY:
-                            case HOTKEY_BUILD_WAREHOUSE:
-                                switch (window_data.current_window->id) {
-                                    case WINDOW_CITY:
-                                    case WINDOW_CITY_MILITARY:
-                                        handle_set_building_hotkey(i - BUILDING_CLEAR_LAND);
-                                        break;
-                                }
-                                break;
-                        }
-                        break;
-                    }
-                }
-            }
-            break;
-        }
-        case SDL_KEYUP:
-            if (event->key.keysym.sym == SDLK_UP) {
-                is_scrolling_up = 0;
-            }
-            if (event->key.keysym.sym == SDLK_DOWN) {
-                is_scrolling_down = 0;
-            }
-            if (event->key.keysym.sym == SDLK_LEFT) {
-                is_scrolling_left = 0;
-            }
-            if (event->key.keysym.sym == SDLK_RIGHT) {
-                is_scrolling_right = 0;
-            }
-            break;
-        case SDL_TEXTINPUT:
-            if (keyboard_data.capture_numeric) {
-                char c = event->text.text[0];
-                if (c >= '0' && c <= '9') {
-                    keyboard_data.capture_numeric_callback(c - '0');
-                }
-            } else {
-                if (keyboard_data.capture) {
-                    int index = 0;
-                    while (event->text.text[index]) {
-                        char c = event->text.text[0];
-                        int add = 0;
-                        if (c == ' ' || c == '-') {
-                            add = 1;
-                        } else if (c >= '0' && c <= '9') {
-                            add = 1;
-                        } else if (c >= 'a' && c <= 'z') {
-                            add = 1;
-                        } else if (c >= 'A' && c <= 'Z') {
-                            add = 1;
-                        } else if (c == ',' || c == '.' || c == '?' || c == '!' || c == '@' || c == '%' || c == '\'' || c == '/' || c == '_') {
-                            add = keyboard_data.allow_punctuation;
-                        }
-                        if (add) {
-                            if (keyboard_data.length + 1 < keyboard_data.max_length) {
-                                keyboard_data.text[keyboard_data.length] = 0;
-                                while (keyboard_data.text[keyboard_data.length] > keyboard_data.text[keyboard_data.cursor_position]) {
-                                    keyboard_data.text[keyboard_data.length]--;
-                                    keyboard_data.text[keyboard_data.length] = keyboard_data.text[keyboard_data.length];
-                                }
-                                keyboard_data.text[keyboard_data.cursor_position] = event->text.text[0];
-                                keyboard_data.cursor_position++;
-                                keyboard_data.length += 1;
-                                update_viewport(1);
-                            }
-                        }
-                        index++;
-                    }
-                }
-            }
-            break;
-        case SDL_MOUSEMOTION:
-            if (event->motion.which != SDL_TOUCH_MOUSEID && !SDL_GetRelativeMouseMode()) {
-                mouse_set_position(event->motion.x, event->motion.y);
-            }
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-            if (event->button.which != SDL_TOUCH_MOUSEID) {
-                handle_mouse_button(&event->button, 1);
-            }
-            break;
-        case SDL_MOUSEBUTTONUP:
-            if (event->button.which != SDL_TOUCH_MOUSEID) {
-                handle_mouse_button(&event->button, 0);
-            }
-            break;
-        case SDL_MOUSEWHEEL:
-            if (event->wheel.which != SDL_TOUCH_MOUSEID) {
-                mouse_data.scrolled = event->wheel.y > 0 ? SCROLL_UP : event->wheel.y < 0 ? SCROLL_DOWN : SCROLL_NONE;
-                mouse_data.is_inside_window = 1;
-            }
-            break;
-        case SDL_QUIT:
-            data.quit = 1;
-            break;
-        case SDL_USEREVENT:
-            if (event->user.code == USER_EVENT_QUIT) {
-                data.quit = 1;
-            } else if (event->user.code == USER_EVENT_RESIZE) {
-                int pixel_width = scale_logical_to_pixels(INTPTR(event->user.data1));
-                int pixel_height = scale_logical_to_pixels(INTPTR(event->user.data2));
-                int display = SDL_GetWindowDisplayIndex(SDL.window);
-                if (settings[SETTINGS_FULLSCREEN].config_value) {
-                    SDL_SetWindowFullscreen(SDL.window, 0);
-                } else {
-                    SDL_GetWindowPosition(SDL.window, &window_pos.x, &window_pos.y);
-                }
-                if (SDL_GetWindowFlags(SDL.window) & SDL_WINDOW_MAXIMIZED) {
-                    SDL_RestoreWindow(SDL.window);
-                }
-                SDL_SetWindowSize(SDL.window, pixel_width, pixel_height);
-                if (window_pos.centered) {
-                    center_window();
-                }
-                SDL_Log("User resize to %d x %d on display %d", pixel_width, pixel_height, display);
-                if (SDL_GetWindowGrab(SDL.window) == SDL_TRUE) {
-                    SDL_SetWindowGrab(SDL.window, SDL_FALSE);
-                }
-                setting_set_display(0, pixel_width, pixel_height);
-            } else if (event->user.code == USER_EVENT_FULLSCREEN) {
-                SDL_GetWindowPosition(SDL.window, &window_pos.x, &window_pos.y);
-                int display = SDL_GetWindowDisplayIndex(SDL.window);
-                SDL_DisplayMode mode;
-                SDL_GetDesktopDisplayMode(display, &mode);
-                SDL_Log("User to fullscreen %d x %d on display %d", mode.w, mode.h, display);
-                if (0 != SDL_SetWindowFullscreen(SDL.window, SDL_WINDOW_FULLSCREEN_DESKTOP)) {
-                    SDL_Log("Unable to enter fullscreen: %s", SDL_GetError());
-                    return;
-                }
-                SDL_SetWindowDisplayMode(SDL.window, &mode);
-
-                if (SDL_GetNumVideoDisplays() > 1) {
-                    SDL_SetWindowGrab(SDL.window, SDL_TRUE);
-                }
-                setting_set_display(1, mode.w, mode.h);
-            } else if (event->user.code == USER_EVENT_WINDOWED) {
-                int logical_width, logical_height;
-                setting_window(&logical_width, &logical_height);
-                int pixel_width = scale_logical_to_pixels(logical_width);
-                int pixel_height = scale_logical_to_pixels(logical_height);
-                int display = SDL_GetWindowDisplayIndex(SDL.window);
-                SDL_Log("User to windowed %d x %d on display %d", pixel_width, pixel_height, display);
-                SDL_SetWindowFullscreen(SDL.window, 0);
-                SDL_SetWindowSize(SDL.window, pixel_width, pixel_height);
-                if (window_pos.centered) {
-                    center_window();
-                }
-                if (SDL_GetWindowGrab(SDL.window) == SDL_TRUE) {
-                    SDL_SetWindowGrab(SDL.window, SDL_FALSE);
-                }
-                setting_set_display(0, pixel_width, pixel_height);
-            } else if (event->user.code == USER_EVENT_CENTER_WINDOW) {
-                center_window();
-            }
-            break;
-        default:
-            break;
-    }
-}
-
-static void destroy_screen(void)
-{
-    if (SDL.texture) {
-        destroy_screen_texture();
-    }
-    if (SDL.renderer) {
-        SDL_DestroyRenderer(SDL.renderer);
-        SDL.renderer = 0;
-    }
-    if (SDL.window) {
-        SDL_DestroyWindow(SDL.window);
-        SDL.window = 0;
-    }
-}
-
-static void main_loop(void)
-{
-    SDL_Event event;
-    // On Windows, if ctrl + alt + del is pressed during fullscreen, the rendering context may be lost for a few frames
-    // after restoring the window, preventing the texture from being recreated. This forces an attempt to recreate the
-    // texture every frame to bypass that issue.
-    if (!SDL.texture && SDL.renderer && settings[SETTINGS_FULLSCREEN].config_value) {
-        SDL_DisplayMode mode;
-        SDL_GetWindowDisplayMode(SDL.window, &mode);
-        screen_set_resolution(scale_pixels_to_logical(mode.w), scale_pixels_to_logical(mode.h));
-        SDL.texture = SDL_CreateTexture(SDL.renderer,
-            SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-            screen_data.width, screen_data.height);
-    }
-    /* Process event queue */
-    while (SDL_PollEvent(&event)) {
-        handle_event(&event);
-    }
-    scroll_map_arrow_keys();
-    if (data.quit) {
-        SDL_Log("Exiting game");
-        if (data_video.is_playing) {
-            close_smk();
-            data_video.is_playing = 0;
-        }
-        // save settings
-        FILE *fp_settings = fopen(SETTINGS_FILE_PATH, "wt");
-        if (fp_settings) {
-            for (int i = 0; i < SETTINGS_MAX_ENTRIES; i++) {
-                fprintf(fp_settings, "%s=%d\n", settings[i].config_string, settings[i].config_value);
-            }
-            fclose(fp_settings);
-        } else {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Unable to write settings file", SETTINGS_FILE_PATH, 0));
-        }
-        save_configs();
-        if (data_channels.initialized) {
-            for (int i = 0; i < MAX_DEVICE_CHANNELS; i++) {
-                stop_sound_channel(i);
-            }
-            Mix_CloseAudio();
-            data_channels.initialized = 0;
-        }
-        destroy_screen();
-        SDL_Quit();
-        if (log_file) {
-            fclose(log_file);
-        }
-        return;
-    }
-    if (data.active) {
-        run_and_draw();
-    } else {
-        SDL_WaitEvent(0);
-    }
-}
-
-static int image_y_offset_default(uint8_t c, int image_height, int line_height)
-{
-    int offset = image_height - line_height;
-    if (offset < 0) {
-        offset = 0;
-    }
-    if (c < 0x80 || c == 0xE7) {
-        offset = 0;
-    }
-    return offset;
-}
-
-static   struct font_definition_t DEFINITIONS_DEFAULT[] = {
-    {FONT_NORMAL_PLAIN, 0, 6, 1, 11, image_y_offset_default},
-    {FONT_NORMAL_BLACK, 134, 6, 0, 11, image_y_offset_default},
-    {FONT_NORMAL_WHITE, 268, 6, 0, 11, image_y_offset_default},
-    {FONT_NORMAL_RED, 402, 6, 0, 11, image_y_offset_default},
-    {FONT_LARGE_PLAIN, 536, 8, 1, 23, image_y_offset_default},
-    {FONT_LARGE_BLACK, 670, 8, 0, 23, image_y_offset_default},
-    {FONT_LARGE_BROWN, 804, 8, 0, 24, image_y_offset_default},
-    {FONT_SMALL_PLAIN, 938, 4, 1, 9, image_y_offset_default},
-    {FONT_NORMAL_GREEN, 1072, 6, 0, 11, image_y_offset_default},
-    {FONT_NORMAL_BROWN, 1206, 6, 0, 11, image_y_offset_default}
-};
 
 static char *get_first_char_occurrence_in_string(char *str, char c)
 {
@@ -50316,101 +48772,6 @@ static void set_default_hotkeys(void)
     set_mapping(HOTKEY_BUILD_WAREHOUSE, KMOD_ALT, SDLK_v);
 }
 
-static int get_max_scale_percentage(int pixel_width, int pixel_height)
-{
-    int width_scale_pct = pixel_width * 100 / MINIMUM.WIDTH;
-    int height_scale_pct = pixel_height * 100 / MINIMUM.HEIGHT;
-    return SDL_min(width_scale_pct, height_scale_pct);
-}
-
-static void set_scale_percentage(int new_scale, int pixel_width, int pixel_height)
-{
-    scale_percentage = calc_bound(new_scale, 50, 500);
-
-    if (!pixel_width || !pixel_height) {
-        return;
-    }
-
-    int max_scale_pct = get_max_scale_percentage(pixel_width, pixel_height);
-    if (max_scale_pct < scale_percentage) {
-        scale_percentage = max_scale_pct;
-        SDL_Log("Maximum scale of %i applied", scale_percentage);
-    }
-
-    SDL_SetWindowMinimumSize(SDL.window,
-        scale_logical_to_pixels(MINIMUM.WIDTH), scale_logical_to_pixels(MINIMUM.HEIGHT));
-
-    char *scale_quality = "linear";
-    // Scale using nearest neighbour when we scale a multiple of 100%: makes it look sharper.
-    if (scale_percentage % 100 == 0) {
-        scale_quality = "nearest";
-    }
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, scale_quality);
-}
-
-static int create_screen(char *title, int display_scale_percentage)
-{
-    set_scale_percentage(display_scale_percentage, 0, 0);
-
-    int width, height;
-    if (settings[SETTINGS_FULLSCREEN].config_value) {
-        SDL_DisplayMode mode;
-        SDL_GetDesktopDisplayMode(0, &mode);
-        width = mode.w;
-        height = mode.h;
-    } else {
-        setting_window(&width, &height);
-        width = scale_logical_to_pixels(width);
-        height = scale_logical_to_pixels(height);
-    }
-
-    destroy_screen();
-
-    SDL_Log("Creating screen %d x %d, %s, driver: %s", width, height,
-        settings[SETTINGS_FULLSCREEN].config_value ? "fullscreen" : "windowed", SDL_GetCurrentVideoDriver());
-    Uint32 flags = SDL_WINDOW_RESIZABLE;
-
-    flags |= SDL_WINDOW_ALLOW_HIGHDPI;
-
-    if (settings[SETTINGS_FULLSCREEN].config_value) {
-        flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-    }
-    SDL.window = SDL_CreateWindow(title,
-        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        width, height, flags);
-
-    if (!SDL.window) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to create window: %s", SDL_GetError());
-        return 0;
-    }
-
-    SDL_Log("Creating renderer");
-    SDL.renderer = SDL_CreateRenderer(SDL.window, -1, SDL_RENDERER_PRESENTVSYNC);
-    if (!SDL.renderer) {
-        SDL_Log("Unable to create renderer, trying software renderer: %s", SDL_GetError());
-        SDL.renderer = SDL_CreateRenderer(SDL.window, -1, SDL_RENDERER_SOFTWARE);
-        if (!SDL.renderer) {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to create renderer: %s", SDL_GetError());
-            return 0;
-        }
-    }
-
-    if (settings[SETTINGS_FULLSCREEN].config_value && SDL_GetNumVideoDisplays() > 1) {
-        SDL_SetWindowGrab(SDL.window, SDL_TRUE);
-    }
-
-    set_scale_percentage(display_scale_percentage, width, height);
-    return resize_screen(width, height);
-}
-
-static void init_channels(void)
-{
-    data_channels.initialized = 1;
-    for (int i = 0; i < MAX_DEVICE_CHANNELS; i++) {
-        data_channels.channels[i].chunk = 0;
-    }
-}
-
 static void draw_background_logo(void)
 {
     graphics_clear_screen();
@@ -50509,55 +48870,6 @@ static void window_logo_show(int show_patch_message)
     }
 }
 
-static void init_cursors(int scale_percentage)
-{
-    if (scale_percentage <= 100) {
-        cursor_data.current_scale = CURSOR_SCALE_1;
-    } else if (scale_percentage <= 150) {
-        cursor_data.current_scale = CURSOR_SCALE_1_5;
-    } else {
-        cursor_data.current_scale = CURSOR_SCALE_2;
-    }
-    for (int i = 0; i < CURSOR_MAX; i++) {
-        struct cursor_t *c;
-        switch (i) {
-            case CURSOR_ARROW:
-                c = &ARROW[cursor_data.current_scale];
-                break;
-            case CURSOR_SHOVEL:
-                c = &SHOVEL[cursor_data.current_scale];
-                break;
-            case CURSOR_SWORD:
-                c = &SWORD[cursor_data.current_scale];
-                break;
-            default:
-                c = 0;
-                break;
-        }
-        if (cursor_data.surfaces[i]) {
-            SDL_FreeSurface(cursor_data.surfaces[i]);
-        }
-        if (cursor_data.cursors[i]) {
-            SDL_FreeCursor(cursor_data.cursors[i]);
-        }
-        int size = 32;
-        while (size <= c->width || size <= c->height) {
-            size *= 2;
-        }
-        SDL_Surface *cursor_surface = SDL_CreateRGBSurface(0, size, size, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
-        color_t *pixels = cursor_surface->pixels;
-        SDL_memset(pixels, 0, sizeof(color_t) * size * size);
-        for (int y = 0; y < c->height; y++) {
-            for (int x = 0; x < c->width; x++) {
-                pixels[y * size + x] = mouse_colors[c->data[y * c->width + x] - 32];
-            }
-        }
-        cursor_data.surfaces[i] = cursor_surface;
-        cursor_data.cursors[i] = SDL_CreateColorCursor(cursor_data.surfaces[i], c->hotspot_x, c->hotspot_y);
-    }
-    set_cursor(cursor_data.current_shape);
-}
-
 static void remove_newline_from_string(char *str)
 {
     size_t size = string_length(str);
@@ -50566,14 +48878,35 @@ static void remove_newline_from_string(char *str)
     }
 }
 
+static void quit_game(void)
+{
+    SDL_Log("Exiting game");
+    // save settings
+    FILE *fp_settings = fopen(SETTINGS_FILE_PATH, "wt");
+    if (fp_settings) {
+        for (int i = 0; i < SETTINGS_MAX_ENTRIES; i++) {
+            fprintf(fp_settings, "%s=%d\n", settings[i].config_string, settings[i].config_value);
+        }
+        fclose(fp_settings);
+    } else {
+        SDL_Log("Failed to write settings file %s", SETTINGS_FILE_PATH);
+    }
+    save_configs();
+    if (log_file) {
+        fclose(log_file);
+    }
+    SDL_Quit();
+    exit(0);
+}
+
 int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) // actually SDL_main
 {
     signal(SIGSEGV, handler);
+    state_data.paused = 0;
     log_file = fopen("brutus_log.txt", "wt");
     SDL_LogSetOutputFunction(write_log, 0);
     if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) != 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize SDL: %s", SDL_GetError());
-        SDL_Log("Exiting: SDL init failed");
         exit(-1);
     }
     SDL_Log("SDL initialized");
@@ -50653,7 +48986,7 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
         }
         fclose(fp_settings);
     }
-    // load configs from file if available (if not, use pre-loaded defaults)
+    // load configs from file if available
     FILE *fp_configs = fopen(CONFIGS_FILE_PATH, "rt");
     if (fp_configs) {
         line_counter = 0;
@@ -50666,13 +48999,13 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
                 if (string_equals(configs_player_name_string, line)) {
                     char *value = &equals[1];
                     string_copy(value, configs_player_name, MAX_PLAYER_NAME_LENGTH);
-                    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message(configs_player_name_string, value, 0));
+                    SDL_Log("%s: %s", configs_player_name_string, value);
                     continue;
                 }
                 if (string_equals(configs[line_counter].config_string, line)) {
                     int value = atoi(&equals[1]);
                     configs[line_counter].config_value = value;
-                    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Config key", configs[line_counter].config_string, value));
+                    SDL_Log("%s: %i", configs[line_counter].config_string, value);
                     line_counter++;
                 }
             }
@@ -50719,115 +49052,145 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
     } else {
         set_default_hotkeys();
     }
-
-    state_data.paused = 0;
-    if (!lang_load(0)) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("'c3.eng' or 'c3_mm.eng' files not found or too large.", 0, 0));
-        SDL_Log("Exiting: game pre-init failed");
-        exit(1);
-    }
-    font_data.font_mapping = CHAR_TO_FONT_IMAGE_DEFAULT;
-    font_data.font_definitions = DEFINITIONS_DEFAULT;
-    memset(&data, 0, sizeof(data));
+    // init random
     random_data.iv1 = 0x54657687;
     random_data.iv2 = 0x72641663;
     srand(time(0));
-
-    if (!create_screen("Caesar III", 100)) {
-        SDL_Log("Exiting: SDL create window failed");
+    // load text
+    if (!load_files(FILE_TEXT_ENG, FILE_MM_ENG)) {
+        SDL_Log("'c3.eng' or 'c3_mm.eng' files not found or too large.");
+        exit(1);
+    }
+    // create screen
+    int width, height;
+    if (settings[SETTINGS_FULLSCREEN].config_value) {
+        SDL_DisplayMode mode;
+        SDL_GetDesktopDisplayMode(0, &mode);
+        width = mode.w;
+        height = mode.h;
+    } else {
+        width = settings[SETTINGS_WINDOW_WIDTH].config_value;
+        height = settings[SETTINGS_WINDOW_HEIGHT].config_value;
+    }
+    SDL_Log("Creating screen %d x %d, %s, driver: %s", width, height, settings[SETTINGS_FULLSCREEN].config_value ? "fullscreen" : "windowed", SDL_GetCurrentVideoDriver());
+    uint32_t flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
+    if (settings[SETTINGS_FULLSCREEN].config_value) {
+        flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+    }
+    SDL.window = SDL_CreateWindow("Caesar III", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+    if (!SDL.window) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to create window: %s", SDL_GetError());
         exit(-2);
     }
-    init_cursors(100);
-    current_time = SDL_GetTicks();
-    for (int i = 0; i < ENEMY_FILES_COUNT; i++) {
-        image_data_s.enemy_data[i] = (color_t *) malloc(ENEMY_DATA_SIZE);
+    SDL_Log("Creating renderer");
+    SDL.renderer = SDL_CreateRenderer(SDL.window, -1, SDL_RENDERER_PRESENTVSYNC);
+    if (!SDL.renderer) {
+        SDL_Log("Unable to create renderer, trying software renderer: %s", SDL_GetError());
+        SDL.renderer = SDL_CreateRenderer(SDL.window, -1, SDL_RENDERER_SOFTWARE);
+        if (!SDL.renderer) {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to create renderer: %s", SDL_GetError());
+            exit(-2);
+        }
     }
-    image_data_s.main_data = (color_t *) malloc(MAIN_DATA_SIZE);
-    image_data_s.empire_data = (color_t *) malloc(EMPIRE_IMAGE_DATA_SIZE);
-    image_data_s.tmp_data = (uint8_t *) malloc(SCRATCH_DATA_SIZE);
-    if (!image_data_s.main_data || !image_data_s.empire_data || !image_data_s.enemy_data[0] || !image_data_s.tmp_data) {
-        free(image_data_s.main_data);
-        free(image_data_s.empire_data);
-        free(image_data_s.enemy_data[0]);
-        free(image_data_s.tmp_data);
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("unable to init graphics", 0, 0));
-        SDL_Log("Exiting: game init failed");
+    if (settings[SETTINGS_FULLSCREEN].config_value && SDL_GetNumVideoDisplays() > 1) {
+        SDL_SetWindowGrab(SDL.window, SDL_TRUE);
+    }
+    resize_screen(width, height);
+    // init cursors
+    for (int i = 0; i < CURSOR_MAX; i++) {
+        struct cursor_t *c;
+        switch (i) {
+            case CURSOR_ARROW:
+                c = &ARROW[0];
+                break;
+            case CURSOR_SHOVEL:
+                c = &SHOVEL[0];
+                break;
+            case CURSOR_SWORD:
+                c = &SWORD[0];
+                break;
+            default:
+                c = 0;
+                break;
+        }
+        if (cursor_data.surfaces[i]) {
+            SDL_FreeSurface(cursor_data.surfaces[i]);
+        }
+        if (cursor_data.cursors[i]) {
+            SDL_FreeCursor(cursor_data.cursors[i]);
+        }
+        int size = 32;
+        while (size <= c->width || size <= c->height) {
+            size *= 2;
+        }
+        SDL_Surface *cursor_surface = SDL_CreateRGBSurface(0, size, size, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+        uint32_t *pixels = cursor_surface->pixels;
+        SDL_memset(pixels, 0, sizeof(uint32_t) * size * size);
+        for (int y = 0; y < c->height; y++) {
+            for (int x = 0; x < c->width; x++) {
+                pixels[y * size + x] = mouse_colors[c->data[y * c->width + x] - 32];
+            }
+        }
+        cursor_data.surfaces[i] = cursor_surface;
+        cursor_data.cursors[i] = SDL_CreateColorCursor(cursor_data.surfaces[i], c->hotspot_x, c->hotspot_y);
+    }
+    // load image data
+    image_data_s.tmp_data = (uint8_t *) malloc(12100000);
+    if (!image_data_s.tmp_data) {
         exit(2);
     }
-    if (!image_load_climate(CLIMATE_NORTHERN, 0, 1)) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("unable to load main graphics", 0, 0));
-        SDL_Log("Exiting: game init failed");
+    // load main image data
+    if (!load_main_graphics(CLIMATE_NORTHERN, 0)) {
+        SDL_Log("unable to load main graphics");
         exit(2);
+    }
+    // load empire image data
+    image_data_s.empire_data = (uint32_t *) malloc(EMPIRE_IMAGE_DATA_SIZE);
+    if (!image_data_s.empire_data) {
+        exit(2);
+    }
+    int size = read_file_into_buffer("The_empire.555", image_data_s.tmp_data, 1);
+    if (size != EMPIRE_IMAGE_DATA_SIZE / 2) {
+        SDL_Log("unable to load empire data");
+        return 0;
     }
     struct buffer_t buf;
+    buffer_init(&buf, image_data_s.tmp_data, size);
+    convert_uncompressed(&buf, size, image_data_s.empire_data);
+    // load enemies image data
     for (int i = 0; i < ENEMY_FILES_COUNT; i++) {
-        char *filename_idx = ENEMY_GRAPHICS_SG2[i];
-
+        image_data_s.enemy_data[i] = (uint32_t *) malloc(2400000);
+        if (!image_data_s.enemy_data[i]) {
+            exit(2);
+        }
+    }
+    for (int i = 0; i < ENEMY_FILES_COUNT; i++) {
         if (ENEMY_INDEX_SIZE != io_read_file_part_into_buffer(
-            filename_idx, image_data_s.tmp_data, ENEMY_INDEX_SIZE, ENEMY_INDEX_OFFSET)) {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("unable to load enemy graphics", 0, 0));
-            SDL_Log("Exiting: game init failed");
+            ENEMY_GRAPHICS_SG2[i], image_data_s.tmp_data, ENEMY_INDEX_SIZE, HEADER_SIZE_ENEMY_FILES)) {
+            SDL_Log("unable to load enemy graphics");
             exit(2);
         }
         buffer_init(&buf, image_data_s.tmp_data, ENEMY_INDEX_SIZE);
         read_index(&buf, image_data_s.enemy[i], ENEMY_ENTRIES);
-
-        char *filename_bmp = ENEMY_GRAPHICS_555[i];
-        int data_size = read_file_into_buffer(filename_bmp, image_data_s.tmp_data, SCRATCH_DATA_SIZE, 1);
+        int data_size = read_file_into_buffer(ENEMY_GRAPHICS_555[i], image_data_s.tmp_data, 1);
         if (!data_size) {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("unable to load enemy graphics", 0, 0));
-            SDL_Log("Exiting: game init failed");
+            SDL_Log("unable to load enemy graphics");
             exit(2);
         }
         buffer_init(&buf, image_data_s.tmp_data, data_size);
         convert_images(image_data_s.enemy[i], ENEMY_ENTRIES, &buf, image_data_s.enemy_data[i]);
     }
     // initialize sound
-    if (Mix_OpenAudio(AUDIO_RATE, AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_BUFFERS) == 0) {
-        init_channels();
+    if (Mix_OpenAudio(AUDIO_RATE, AUDIO_S16, 2, 1024) == 0) {
+        Mix_AllocateChannels(SOUND_CHANNEL_MAX);
     } else {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Sound failed to initialize using default driver: %s", Mix_GetError());
-        // Try to work around SDL choosing the wrong driver on Windows sometimes
-        for (int i = 0; i < SDL_GetNumAudioDrivers(); i++) {
-            char *driver_name = SDL_GetAudioDriver(i);
-            if (SDL_strcmp(driver_name, "disk") == 0 || SDL_strcmp(driver_name, "dummy") == 0) {
-                // Skip "write-to-disk" and dummy drivers
-                continue;
-            }
-            if (0 == SDL_AudioInit(driver_name) && Mix_OpenAudio(AUDIO_RATE, AUDIO_FORMAT, AUDIO_CHANNELS, AUDIO_BUFFERS) == 0) {
-                SDL_Log("Using audio driver: %s", driver_name);
-                init_channels();
-                break;
-            } else {
-                SDL_Log("Not using audio driver %s, reason: %s", driver_name, SDL_GetError());
-            }
-        }
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Sound failed to initialize: %s", Mix_GetError());
-        int max = SDL_GetNumAudioDevices(0);
-        SDL_Log("Number of audio devices: %d", max);
-        for (int i = 0; i < max; i++) {
-            SDL_Log("Audio device: %s", SDL_GetAudioDeviceName(i, 0));
-        }
+        exit(2);
     }
-    if (data_channels.initialized) {
-        Mix_AllocateChannels(SOUND_CHANNEL_MAX);
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%s", build_message("Loading audio files", 0, 0));
-        for (int i = 0; i < SOUND_CHANNEL_MAX; i++) {
-            data_channels.channels[i].chunk = 0;
-            data_channels.channels[i].filename = sound_channel_filenames[i][0] ? sound_channel_filenames[i] : 0;
-        }
-    }
-    for (int i = SOUND_CHANNEL_CITY_MIN; i <= SOUND_CHANNEL_CITY_MAX; i++) {
-        set_channel_volume(i, settings[SETTINGS_CITY_SOUNDS_VOLUME].config_value);
-    }
-    for (int i = SOUND_CHANNEL_EFFECTS_MIN; i <= SOUND_CHANNEL_EFFECTS_MAX; i++) {
-        set_channel_volume(i, settings[SETTINGS_SOUND_EFFECTS_VOLUME].config_value);
-    }
-    Mix_VolumeMusic(settings[SETTINGS_MUSIC_VOLUME].config_value * SDL_MIX_MAXVOLUME / 100);
-    set_channel_volume(SOUND_CHANNEL_SPEECH, settings[SETTINGS_SPEECH_VOLUME].config_value);
-    game_state_init();
-    // Without patch, the difficulty option string does not exist and
-    // getting it "falls through" to the next text group
+    /* Check for patch:
+    * without patch, the difficulty option string does not exist and
+    * getting it "falls through" to the next text group
+    */
     char *difficulty_option = lang_get_string(2, 6);
     char *help_menu = lang_get_string(3, 0);
     if (difficulty_option == help_menu) {
@@ -50835,12 +49198,998 @@ int main(__attribute__((unused)) int argc, __attribute__((unused)) char **argv) 
     } else {
         window_logo_show(MESSAGE_NONE);
     }
-    data.quit = 0;
-    data.active = 1;
-    mouse_data.is_inside_window = 1;
-    run_and_draw();
-    while (!data.quit) {
-        main_loop();
+    while (1) {
+        SDL_Event event;
+        /* Process event queue */
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_WINDOWEVENT:
+                    switch (event.window.event) {
+                        case SDL_WINDOWEVENT_ENTER:
+                            mouse_data.is_inside_window = 1;
+                            break;
+                        case SDL_WINDOWEVENT_LEAVE:
+                            mouse_data.is_inside_window = 0;
+                            break;
+                        case SDL_WINDOWEVENT_SIZE_CHANGED:
+                            resize_screen(event.window.data1, event.window.data2);
+                            if (!settings[SETTINGS_FULLSCREEN].config_value) {
+                                settings[SETTINGS_WINDOW_WIDTH].config_value = event.window.data1;
+                                settings[SETTINGS_WINDOW_HEIGHT].config_value = event.window.data2;
+                            }
+                            break;
+                        case SDL_WINDOWEVENT_SHOWN:
+                            SDL_Log("Window %u shown", event.window.windowID);
+                            game_active = 1;
+                            break;
+                        case SDL_WINDOWEVENT_HIDDEN:
+                            SDL_Log("Window %u hidden", event.window.windowID);
+                            game_active = 0;
+                            break;
+                        case SDL_WINDOWEVENT_CLOSE:
+                            quit_game();
+                            break;
+                    }
+                    break;
+                case SDL_KEYDOWN:
+                {
+                    // clear unused mods such as numpad, capslock, etc.; combine ctrls, shifts, alts
+                    int key_mod = KMOD_NONE;
+                    if (event.key.keysym.mod & KMOD_SHIFT) {
+                        key_mod |= KMOD_SHIFT;
+                    }
+                    if (event.key.keysym.mod & KMOD_CTRL) {
+                        key_mod |= KMOD_CTRL;
+                    }
+                    if (event.key.keysym.mod & KMOD_ALT) {
+                        key_mod |= KMOD_ALT;
+                    }
+                    if (event.key.keysym.mod & KMOD_GUI) {
+                        key_mod |= KMOD_GUI;
+                    }
+                    // handle text cursor position keys and enter/exit
+                    switch (event.key.keysym.sym) {
+                        case SDLK_BACKSPACE:
+                            if (keyboard_data.capture && keyboard_data.cursor_position > 0) {
+                                keyboard_data.cursor_position--;
+                                remove_current_char();
+                                update_viewport(1);
+                            }
+                            break;
+                        case SDLK_DELETE:
+                            if (keyboard_data.capture && keyboard_data.cursor_position < keyboard_data.length) {
+                                remove_current_char();
+                                update_viewport(1);
+                            }
+                            break;
+                        case SDLK_LEFT:
+                            if (keyboard_data.capture && keyboard_data.cursor_position) {
+                                if (keyboard_data.capture) {
+                                    if (keyboard_data.cursor_position > 0) {
+                                        keyboard_data.cursor_position--;
+                                        update_viewport(0);
+                                    }
+                                }
+                            }
+                            break;
+                        case SDLK_RIGHT:
+                            if (keyboard_data.capture && keyboard_data.cursor_position < keyboard_data.length) {
+                                if (keyboard_data.capture) {
+                                    if (keyboard_data.cursor_position < keyboard_data.length) {
+                                        keyboard_data.cursor_position += 1;
+                                        update_viewport(0);
+                                    }
+                                }
+                            }
+                            break;
+                        case SDLK_HOME:
+                            if (keyboard_data.capture) {
+                                keyboard_data.cursor_position = 0;
+                                update_viewport(0);
+                            }
+                            break;
+                        case SDLK_END:
+                            if (keyboard_data.capture) {
+                                keyboard_data.cursor_position = keyboard_data.length;
+                                update_viewport(0);
+                            }
+                            break;
+                        case SDLK_RETURN:
+                        case SDLK_KP_ENTER:
+                            // use as "confirm" without modifiers -> can use as hotkey with modifiers
+                            if (key_mod == KMOD_NONE) {
+                                switch (window_data.current_window->id) {
+                                    case WINDOW_LOGO:
+                                        window_main_menu_show(0);
+                                        break;
+                                    case WINDOW_INTRO_VIDEO:
+                                        stop_intro_video();
+                                        break;
+                                    case WINDOW_HOTKEY_EDITOR:
+                                        button_close_hotkey_editor_window(1, 0);
+                                        break;
+                                    case WINDOW_POPUP_DIALOG:
+                                        confirm_popup_dialog();
+                                        break;
+                                    case WINDOW_NUMERIC_INPUT:
+                                        input_accept_numeric_input();
+                                        break;
+                                    case WINDOW_PLAIN_MESSAGE_DIALOG:
+                                        close_plain_message_dialog();
+                                        break;
+                                    case WINDOW_MISSION_BRIEFING:
+                                        close_mission_briefing_window();
+                                        break;
+                                    case WINDOW_CCK_SELECTION:
+                                        button_start_scenario(0, 0);
+                                        break;
+                                }
+                                keyboard_data.accepted = 1;
+                            }
+                            break;
+                        case SDLK_ESCAPE:
+                            switch (window_data.current_window->id) {
+                                case WINDOW_LOGO:
+                                case WINDOW_MAIN_MENU:
+                                    quit_game();
+                                    break;
+                                case WINDOW_EDITOR_STARTING_CONDITIONS:
+                                case WINDOW_EDITOR_WIN_CRITERIA:
+                                case WINDOW_EDITOR_SPECIAL_EVENTS:
+                                case WINDOW_EDITOR_REQUESTS:
+                                case WINDOW_EDITOR_CUSTOM_MESSAGES:
+                                case WINDOW_EDITOR_EARTHQUAKES:
+                                case WINDOW_EDITOR_INVASIONS:
+                                case WINDOW_EDITOR_PRICE_CHANGES:
+                                case WINDOW_EDITOR_DEMAND_CHANGES:
+                                    show_editor_attributes();
+                                    break;
+                                case WINDOW_LABOR_PRIORITY:
+                                case WINDOW_TRADE_PRICES:
+                                case WINDOW_RESOURCE_SETTINGS:
+                                case WINDOW_SELECT_LIST:
+                                    window_go_back();
+                                    break;
+                                case WINDOW_POPUP_DIALOG:
+                                    button_cancel_popup_dialog(0, 0);
+                                    break;
+                                case WINDOW_NUMERIC_INPUT:
+                                    close_numeric_input();
+                                    break;
+                                case WINDOW_EDITOR_EMPIRE:
+                                    if (selected_empire_object_editor && selected_empire_object_editor->type == EMPIRE_OBJECT_CITY) {
+                                        selected_empire_object_editor = 0;
+                                        window_invalidate();
+                                    } else {
+                                        show_editor_map();
+                                    }
+                                    break;
+                                case WINDOW_EDITOR_BUILD_MENU:
+                                    selected_submenu_build_menu = MENU_NONE;
+                                    show_editor_map();
+                                    break;
+                                case WINDOW_DISPLAY_OPTIONS:
+                                    display_options_data.close_callback();
+                                    break;
+                                case WINDOW_FILE_DIALOG:
+                                    input_box_stop(&file_name_input);
+                                    window_go_back();
+                                    break;
+                                case WINDOW_SOUND_OPTIONS:
+                                    if (sound_options_data.from_editor) {
+                                        show_editor_map();
+                                    } else {
+                                        window_city_return();
+                                    }
+                                    break;
+                                case WINDOW_TOP_MENU:
+                                    if (top_menu_data.open_sub_menu) {
+                                        clear_state_top_menu();
+                                        window_go_back();
+                                    }
+                                    break;
+                                case WINDOW_CITY_MILITARY:
+                                    widget_city_data.capture_input = 0;
+                                    city_warning_clear_all();
+                                    window_city_show();
+                                    break;
+                                case WINDOW_SPEED_OPTIONS:
+                                    if (speed_options_data.from_editor) {
+                                        show_editor_map();
+                                    } else {
+                                        window_city_return();
+                                    }
+                                    break;
+                                case WINDOW_EDITOR_TOP_MENU:
+                                    if (open_sub_menu_top_menu_editor) {
+                                        clear_state();
+                                        window_go_back();
+                                    }
+                                    break;
+                                case WINDOW_EDITOR_MAP:
+                                    if (tool_data.active) {
+                                        editor_tool_deactivate();
+                                        end_editor_tool_use(&current_tile);
+                                    } else {
+                                        request_exit_editor();
+                                    }
+                                    break;
+                                case WINDOW_OVERLAY_MENU:
+                                    if (overlay_menu_data.keep_submenu_open) {
+                                        close_submenu();
+                                    } else {
+                                        window_city_show();
+                                    }
+                                    break;
+                                case WINDOW_HOLD_FESTIVAL:
+                                    window_advisors_show(ADVISOR_ENTERTAINMENT);
+                                    break;
+                                case WINDOW_DONATE_TO_CITY:
+                                    window_advisors_show(ADVISOR_IMPERIAL);
+                                    break;
+                                case WINDOW_SET_SALARY:
+                                    window_advisors_show(ADVISOR_IMPERIAL);
+                                    break;
+                                case WINDOW_GIFT_TO_EMPEROR:
+                                    window_advisors_show(ADVISOR_IMPERIAL);
+                                    break;
+                                case WINDOW_TRADE_OPENED:
+                                    window_empire_show();
+                                    break;
+                                case WINDOW_EMPIRE:
+                                    if (empire_window_data.selected_object) {
+                                        switch (empire_window_data.selected_object->type) {
+                                            case EMPIRE_OBJECT_CITY:
+                                                empire_window_data.selected_object = 0;
+                                                window_invalidate();
+                                                break;
+                                            case EMPIRE_OBJECT_ROMAN_ARMY:
+                                                if (city_military_distant_battle_roman_army_is_traveling()) {
+                                                    if (city_data.distant_battle.roman_months_traveled == empire_window_data.selected_object->distant_battle_travel_months) {
+                                                        empire_window_data.selected_object = 0;
+                                                        window_invalidate();
+                                                        break;
+                                                    }
+                                                }
+                                                /* fall through */
+                                            case EMPIRE_OBJECT_ENEMY_ARMY:
+                                                if (city_data.distant_battle.months_until_battle) {
+                                                    if (city_data.distant_battle.enemy_months_traveled == empire_window_data.selected_object->distant_battle_travel_months) {
+                                                        empire_window_data.selected_object = 0;
+                                                        window_invalidate();
+                                                        break;
+                                                    }
+                                                }
+                                                /* fall through */
+                                            default:
+                                                window_go_back();
+                                        }
+                                    } else {
+                                        window_go_back();
+                                        if (window_data.current_window->id == WINDOW_TRADE_OPENED) {
+                                            window_city_show();
+                                        }
+                                    }
+                                    break;
+                                case WINDOW_MESSAGE_DIALOG:
+                                    button_close_message_dialog(0, 0);
+                                    break;
+                                case WINDOW_MISSION_END:
+                                    close_mission_end_window();
+                                    break;
+                                case WINDOW_PLAIN_MESSAGE_DIALOG:
+                                    close_plain_message_dialog();
+                                    break;
+                                case WINDOW_ADVISORS:
+                                    window_city_show();
+                                    break;
+                                case WINDOW_MISSION_BRIEFING:
+                                    close_mission_briefing_window();
+                                    break;
+                                case WINDOW_BUILDING_INFO:
+                                    window_city_show();
+                                    break;
+                                case WINDOW_CCK_SELECTION:
+                                    window_main_menu_show(0);
+                                    break;
+                                case WINDOW_EDITOR_BRIEFING:
+                                    stop_briefing_box_input();
+                                    rich_text_reset(0);
+                                    show_editor_attributes();
+                                    break;
+                                case WINDOW_HOTKEY_CONFIG:
+                                    save_hotkey_configs();
+                                    window_config_show();
+                                    break;
+                                case WINDOW_HOTKEY_EDITOR:
+                                    button_close_hotkey_editor_window(0, 0);
+                                    break;
+                                case WINDOW_CONFIG:
+                                    save_configs();
+                                    window_main_menu_show(0);
+                                    break;
+                                case WINDOW_EDITOR_START_YEAR:
+                                    show_editor_starting_conditions();
+                                    break;
+                                case WINDOW_EDITOR_ALLOWED_BUILDINGS:
+                                    empire_object_our_city_set_resources_sell();
+                                    show_editor_attributes();
+                                    break;
+                                case WINDOW_EDITOR_EDIT_REQUEST:
+                                    sort_editor_requests();
+                                    show_editor_requests();
+                                    break;
+                                case WINDOW_EDITOR_EDIT_CUSTOM_MESSAGE:
+                                    if (custom_message_category == CUSTOM_MESSAGE_ATTRIBUTES) {
+                                        input_box_stop(&editor_custom_message_input_video_file);
+                                        if (!string_equals(scenario.editor_custom_messages[custom_message_id].video_file, editor_custom_message_video_file)) {
+                                            string_copy(editor_custom_message_video_file, scenario.editor_custom_messages[custom_message_id].video_file, MAX_CUSTOM_MESSAGE_VIDEO_TEXT);
+                                        }
+                                    } else if (custom_message_category == CUSTOM_MESSAGE_TITLE) {
+                                        input_box_stop(&editor_custom_message_input_title);
+                                        if (!string_equals(scenario.editor_custom_messages[custom_message_id].title, editor_custom_message_title)) {
+                                            string_copy(editor_custom_message_title, scenario.editor_custom_messages[custom_message_id].title, MAX_CUSTOM_MESSAGE_TITLE);
+                                        }
+                                    } else if (custom_message_category == CUSTOM_MESSAGE_TEXT) {
+                                        input_box_stop(&editor_custom_message_input_text);
+                                        if (!string_equals(scenario.editor_custom_messages[custom_message_id].text, editor_custom_message_text)) {
+                                            string_copy(editor_custom_message_text, scenario.editor_custom_messages[custom_message_id].text, MAX_CUSTOM_MESSAGE_TEXT);
+                                        }
+                                        rich_text_reset(0);
+                                    }
+                                    scenario_editor_sort_custom_messages();
+                                    show_editor_custom_messages();
+                                    break;
+                                case WINDOW_EDITOR_EDIT_EARTHQUAKE:
+                                    scenario_editor_sort_earthquakes();
+                                    show_editor_earthquakes();
+                                    break;
+                                case WINDOW_EDITOR_EDIT_INVASION:
+                                    sort_editor_invasions();
+                                    show_editor_invasions();
+                                    break;
+                                case WINDOW_EDITOR_EDIT_PRICE_CHANGE:
+                                    sort_editor_price_changes();
+                                    show_editor_price_changes();
+                                    break;
+                                case WINDOW_EDITOR_EDIT_DEMAND_CHANGE:
+                                    sort_editor_demand_changes();
+                                    show_editor_demand_changes();
+                                    break;
+                                case WINDOW_EDITOR_ATTRIBUTES:
+                                    stop_brief_description_box_input();
+                                    show_editor_map();
+                                    break;
+                                case WINDOW_CITY:
+                                    if (construction_data.type) {
+                                        building_construction_cancel();
+                                        window_data.refresh_on_draw = 1;
+                                    } else {
+                                        window_popup_dialog_show(POPUP_DIALOG_QUIT, confirm_exit_to_main_menu, 1);
+                                    }
+                                    break;
+                                case WINDOW_BUILD_MENU:
+                                    build_menu_data.selected_menu = MENU_NONE;
+                                    build_menu_data.selected_submenu = MENU_NONE;
+                                    window_city_show();
+                                    break;
+                                case WINDOW_MESSAGE_LIST:
+                                    button_close_message_list(0, 0);
+                                    break;
+                            }
+                            break;
+                    }
+                    // save mods and key for hotkey assignment drawing purposes
+                    if (window_data.current_window->id == WINDOW_HOTKEY_EDITOR) {
+                        if (key_mod) {
+                            hotkey_button_modifiers |= key_mod;
+                        }
+                        hotkey_button_key = event.key.keysym.sym;
+                        // prevent showing mod as key
+                        if (hotkey_button_key == SDLK_LCTRL) {
+                            hotkey_button_key -= SDLK_LCTRL;
+                        }
+                        if (hotkey_button_key == SDLK_LSHIFT) {
+                            hotkey_button_key -= SDLK_LSHIFT;
+                        }
+                        if (hotkey_button_key == SDLK_LALT) {
+                            hotkey_button_key -= SDLK_LALT;
+                        }
+                        if (hotkey_button_key == SDLK_LGUI) {
+                            hotkey_button_key -= SDLK_LGUI;
+                        }
+                        if (hotkey_button_key == SDLK_RCTRL) {
+                            hotkey_button_key -= SDLK_RCTRL;
+                        }
+                        if (hotkey_button_key == SDLK_RSHIFT) {
+                            hotkey_button_key -= SDLK_RSHIFT;
+                        }
+                        if (hotkey_button_key == SDLK_RALT) {
+                            hotkey_button_key -= SDLK_RALT;
+                        }
+                        if (hotkey_button_key == SDLK_RGUI) {
+                            hotkey_button_key -= SDLK_RGUI;
+                        }
+                    } else { // prevent hotkey from activating during assignment
+                        // handle hotkey actions
+                        for (int i = 0; i < HOTKEY_MAX_ITEMS; i++) {
+                            if (event.key.keysym.sym == hotkey_mappings[i].sdl_key
+                            && key_mod == hotkey_mappings[i].sdl_mods) {
+                                // action found, fulfill
+                                switch (i) {
+                                    case HOTKEY_ARROW_UP:
+                                        is_scrolling_up = 1;
+                                        break;
+                                    case HOTKEY_ARROW_DOWN:
+                                        is_scrolling_down = 1;
+                                        break;
+                                    case HOTKEY_ARROW_LEFT:
+                                        is_scrolling_left = 1;
+                                        break;
+                                    case HOTKEY_ARROW_RIGHT:
+                                        is_scrolling_right = 1;
+                                        break;
+                                    case HOTKEY_TOGGLE_FULLSCREEN:
+                                        toggle_fullscreen();
+                                        break;
+                                    case HOTKEY_RESET_WINDOW:
+                                        reset_screen();
+                                        break;
+                                    case HOTKEY_SAVE_SCREENSHOT:
+                                        graphics_save_screenshot(0);
+                                        break;
+                                    case HOTKEY_SAVE_CITY_SCREENSHOT:
+                                        if (window_data.current_window->id == WINDOW_CITY || window_data.current_window->id == WINDOW_CITY_MILITARY) {
+                                            graphics_save_screenshot(1);
+                                        }
+                                        break;
+                                    case HOTKEY_LOAD_FILE:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_MAIN_MENU:
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_LOAD);
+                                                break;
+                                            case WINDOW_EDITOR_MAP:
+                                                window_file_dialog_show(FILE_TYPE_SCENARIO, FILE_DIALOG_LOAD);
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_SAVE_FILE:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_MAIN_MENU:
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                window_file_dialog_show(FILE_TYPE_SAVED_GAME, FILE_DIALOG_SAVE);
+                                                break;
+                                            case WINDOW_EDITOR_MAP:
+                                                window_file_dialog_show(FILE_TYPE_SCENARIO, FILE_DIALOG_SAVE);
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_DECREASE_GAME_SPEED:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                setting_decrease_game_speed();
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_INCREASE_GAME_SPEED:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                setting_increase_game_speed();
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_TOGGLE_PAUSE:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                state_data.paused = state_data.paused ? 0 : 1;
+                                                city_warning_clear_all();
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_ROTATE_MAP_LEFT:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                game_orientation_rotate_left();
+                                                window_invalidate();
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_ROTATE_MAP_RIGHT:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                game_orientation_rotate_right();
+                                                window_invalidate();
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_REPLAY_MAP:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                replay_map();
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_CYCLE_LEGION:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                if (city_data.military.total_legions) {
+                                                    int selectable_legions_count = 0;
+                                                    for (int i = 0; i < MAX_LEGIONS; i++) {
+                                                        struct formation_t *m = &legion_formations[i];
+                                                        if (m->in_use && !m->in_distant_battle && m->num_figures && m->morale > ROUT_MORALE_THRESHOLD) {
+                                                            selectable_legions_count++;
+                                                        }
+                                                    }
+                                                    // handle wrap around and index mismatches caused by fort delete/recreate, formation rout/destruction, allocation to distant battle
+                                                    if (current_selected_legion_index >= selectable_legions_count) {
+                                                        current_selected_legion_index = 0;
+                                                    }
+                                                    int next_available_legion_index = 0;
+                                                    for (int i = 0; i < MAX_LEGIONS; i++) {
+                                                        struct formation_t *m = &legion_formations[i];
+                                                        if (m->in_use && !m->in_distant_battle && m->num_figures && m->morale > ROUT_MORALE_THRESHOLD) {
+                                                            if (next_available_legion_index == current_selected_legion_index) {
+                                                                window_city_military_show(m->id);
+                                                                current_selected_legion_index++;
+                                                                break;
+                                                            }
+                                                            next_available_legion_index++;
+                                                        }
+                                                    }
+                                                }
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_RETURN_LEGIONS_TO_FORT:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                for (int i = 0; i < MAX_LEGIONS; i++) {
+                                                    if (legion_formations[i].in_use && !legion_formations[i].in_distant_battle) {
+                                                        return_legion_formation_home(&legion_formations[i]);
+                                                    }
+                                                }
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_SHOW_LAST_ADVISOR:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                            case WINDOW_EMPIRE:
+                                                window_advisors_show(settings[SETTINGS_LAST_ADVISOR].config_value);
+                                                break;
+                                            case WINDOW_ADVISORS:
+                                                window_city_show();
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_SHOW_EMPIRE_MAP:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                window_empire_show();
+                                                break;
+                                            case WINDOW_EMPIRE:
+                                                window_city_show();
+                                                break;
+                                            case WINDOW_EDITOR_MAP:
+                                                show_editor_empire(0, 0);
+                                                break;
+                                            case WINDOW_EDITOR_EMPIRE:
+                                                show_editor_map();
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_SHOW_MESSAGES:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                window_message_list_show();
+                                                break;
+                                            case WINDOW_MESSAGE_LIST:
+                                                window_city_show();
+                                        }
+                                        break;
+                                    case HOTKEY_GO_TO_PROBLEM:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                button_go_to_problem(0, 0);
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_SHOW_OVERLAY_WATER:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                handle_overlay_hotkey(OVERLAY_WATER);
+                                        }
+                                        break;
+                                    case HOTKEY_SHOW_OVERLAY_FIRE:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                handle_overlay_hotkey(OVERLAY_FIRE);
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_SHOW_OVERLAY_DAMAGE:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                handle_overlay_hotkey(OVERLAY_DAMAGE);
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_SHOW_OVERLAY_CRIME:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                handle_overlay_hotkey(OVERLAY_CRIME);
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_SHOW_OVERLAY_PROBLEMS:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                handle_overlay_hotkey(OVERLAY_PROBLEMS);
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_GO_TO_BOOKMARK_1:
+                                    case HOTKEY_GO_TO_BOOKMARK_2:
+                                    case HOTKEY_GO_TO_BOOKMARK_3:
+                                    case HOTKEY_GO_TO_BOOKMARK_4:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                handle_go_to_bookmark_hotkey(i - HOTKEY_GO_TO_BOOKMARK_1 + 1);
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_SET_BOOKMARK_1:
+                                    case HOTKEY_SET_BOOKMARK_2:
+                                    case HOTKEY_SET_BOOKMARK_3:
+                                    case HOTKEY_SET_BOOKMARK_4:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                handle_set_bookmark_hotkey(i - HOTKEY_SET_BOOKMARK_1 + 1);
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_EDITOR_TOGGLE_BATTLE_INFO:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_EDITOR_EMPIRE:
+                                                empire_editor_show_battle_objects = !empire_editor_show_battle_objects;
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_CHEAT_MONEY:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                if (city_data.finance.treasury < 50000) {
+                                                    city_data.finance.treasury += 1000;
+                                                    city_data.finance.cheated_money += 1000;
+                                                }
+                                                window_invalidate();
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_CHEAT_INVASION:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                city_message_post(1, MESSAGE_ENEMY_ARMY_ATTACK, 0, start_invasion(rand() % (ENEMY_TYPE_MAX_COUNT + 1), 160, MAX_INVASION_POINTS, FORMATION_ATTACK_RANDOM));
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_CHEAT_VICTORY:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                victory_data.force_win = 1;
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_BUILD_CLONE:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_BUILDING) {
+                                                    int building_id = map_building_at(widget_city_data.current_tile.grid_offset);
+                                                    if (building_id) {
+                                                        struct building_t *b = building_main(&all_buildings[building_id]);
+                                                        if (building_is_house(b->type)) {
+                                                            set_construction_building_type(BUILDING_HOUSE_VACANT_LOT);
+                                                        } else {
+                                                            set_construction_building_type(b->type);
+                                                        }
+                                                    }
+                                                } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_AQUEDUCT) {
+                                                    set_construction_building_type(BUILDING_AQUEDUCT);
+                                                } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_WALL) {
+                                                    set_construction_building_type(BUILDING_WALL);
+                                                } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_GARDEN) {
+                                                    set_construction_building_type(BUILDING_GARDENS);
+                                                } else if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_ROAD) {
+                                                    if (terrain_grid.items[widget_city_data.current_tile.grid_offset] & TERRAIN_WATER) {
+                                                        if (sprite.items[widget_city_data.current_tile.grid_offset] > 6) {
+                                                            set_construction_building_type(BUILDING_SHIP_BRIDGE);
+                                                        } else {
+                                                            set_construction_building_type(BUILDING_LOW_BRIDGE);
+                                                        }
+                                                    } else if (bitfields_grid.items[widget_city_data.current_tile.grid_offset] & BIT_PLAZA_OR_EARTHQUAKE) {
+                                                        set_construction_building_type(BUILDING_PLAZA);
+                                                    } else {
+                                                        set_construction_building_type(BUILDING_ROAD);
+                                                    }
+                                                }
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_CYCLE_BUILDINGS:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                            {
+                                                int last_building_type_selected = construction_data.type;
+                                                if (last_building_type_selected < BUILDING_RESERVOIR) {
+                                                    last_building_type_selected = BUILDING_RESERVOIR;
+                                                } else {
+                                                    last_building_type_selected++;
+                                                }
+                                                while (last_building_type_selected <= BUILDING_WAREHOUSE) {
+                                                    if (last_building_type_selected == BUILDING_TRIUMPHAL_ARCH) {
+                                                        if (!city_data.building.triumphal_arches_available) {
+                                                            last_building_type_selected++;
+                                                        }
+                                                    }
+                                                    if (scenario.allowed_buildings[last_building_type_selected]) {
+                                                        set_construction_building_type(last_building_type_selected);
+                                                        break;
+                                                    }
+                                                    last_building_type_selected++;
+                                                }
+                                                break;
+                                            }
+                                        }
+                                        break;
+                                    case HOTKEY_CYCLE_BUILDINGS_REVERSE:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                            {
+                                                int last_building_type_selected = construction_data.type;
+                                                if (last_building_type_selected < BUILDING_RESERVOIR) {
+                                                    last_building_type_selected = BUILDING_WAREHOUSE;
+                                                } else {
+                                                    last_building_type_selected--;
+                                                }
+                                                while (last_building_type_selected >= BUILDING_RESERVOIR) {
+                                                    if (last_building_type_selected == BUILDING_TRIUMPHAL_ARCH) {
+                                                        if (!city_data.building.triumphal_arches_available) {
+                                                            last_building_type_selected--;
+                                                        }
+                                                    }
+                                                    if (scenario.allowed_buildings[last_building_type_selected]) {
+                                                        set_construction_building_type(last_building_type_selected);
+                                                        break;
+                                                    }
+                                                    last_building_type_selected--;
+                                                }
+                                                break;
+                                            }
+                                        }
+                                        break;
+                                    case HOTKEY_UNDO:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                game_undo_perform();
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_BUILD_VACANT_HOUSE:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                handle_set_building_hotkey(BUILDING_HOUSE_VACANT_LOT);
+                                                break;
+                                        }
+                                        break;
+                                    case HOTKEY_BUILD_CLEAR_LAND:
+                                    case HOTKEY_BUILD_ROAD:
+                                    case HOTKEY_BUILD_RESERVOIR:
+                                    case HOTKEY_BUILD_AQUEDUCT:
+                                    case HOTKEY_BUILD_FOUNTAIN:
+                                    case HOTKEY_BUILD_WELL:
+                                    case HOTKEY_BUILD_DOCTOR:
+                                    case HOTKEY_BUILD_BATHHOUSE:
+                                    case HOTKEY_BUILD_BARBER:
+                                    case HOTKEY_BUILD_HOSPITAL:
+                                    case HOTKEY_BUILD_SMALL_TEMPLE_CERES:
+                                    case HOTKEY_BUILD_SMALL_TEMPLE_NEPTUNE:
+                                    case HOTKEY_BUILD_SMALL_TEMPLE_MERCURY:
+                                    case HOTKEY_BUILD_SMALL_TEMPLE_MARS:
+                                    case HOTKEY_BUILD_SMALL_TEMPLE_VENUS:
+                                    case HOTKEY_BUILD_LARGE_TEMPLE_CERES:
+                                    case HOTKEY_BUILD_LARGE_TEMPLE_NEPTUNE:
+                                    case HOTKEY_BUILD_LARGE_TEMPLE_MERCURY:
+                                    case HOTKEY_BUILD_LARGE_TEMPLE_MARS:
+                                    case HOTKEY_BUILD_LARGE_TEMPLE_VENUS:
+                                    case HOTKEY_BUILD_ORACLE:
+                                    case HOTKEY_BUILD_SCHOOL:
+                                    case HOTKEY_BUILD_LIBRARY:
+                                    case HOTKEY_BUILD_ACADEMY:
+                                    case HOTKEY_BUILD_MISSION_POST:
+                                    case HOTKEY_BUILD_THEATER:
+                                    case HOTKEY_BUILD_ACTOR_COLONY:
+                                    case HOTKEY_BUILD_AMPHITHEATER:
+                                    case HOTKEY_BUILD_GLADIATOR_SCHOOL:
+                                    case HOTKEY_BUILD_LION_HOUSE:
+                                    case HOTKEY_BUILD_COLOSSEUM:
+                                    case HOTKEY_BUILD_CHARIOT_MAKER:
+                                    case HOTKEY_BUILD_HIPPODROME:
+                                    case HOTKEY_BUILD_GARDENS:
+                                    case HOTKEY_BUILD_PLAZA:
+                                    case HOTKEY_BUILD_SMALL_STATUE:
+                                    case HOTKEY_BUILD_MEDIUM_STATUE:
+                                    case HOTKEY_BUILD_LARGE_STATUE:
+                                    case HOTKEY_BUILD_GOVERNORS_HOUSE:
+                                    case HOTKEY_BUILD_GOVERNORS_VILLA:
+                                    case HOTKEY_BUILD_GOVERNORS_PALACE:
+                                    case HOTKEY_BUILD_FORUM:
+                                    case HOTKEY_BUILD_SENATE:
+                                    case HOTKEY_BUILD_TRIUMPHAL_ARCH:
+                                    case HOTKEY_BUILD_ENGINEERS_POST:
+                                    case HOTKEY_BUILD_LOW_BRIDGE:
+                                    case HOTKEY_BUILD_SHIP_BRIDGE:
+                                    case HOTKEY_BUILD_SHIPYARD:
+                                    case HOTKEY_BUILD_WHARF:
+                                    case HOTKEY_BUILD_DOCK:
+                                    case HOTKEY_BUILD_PREFECTURE:
+                                    case HOTKEY_BUILD_WALL:
+                                    case HOTKEY_BUILD_TOWER:
+                                    case HOTKEY_BUILD_GATEHOUSE:
+                                    case HOTKEY_BUILD_FORT_LEGIONARIES:
+                                    case HOTKEY_BUILD_FORT_JAVELIN:
+                                    case HOTKEY_BUILD_FORT_MOUNTED:
+                                    case HOTKEY_BUILD_BARRACKS:
+                                    case HOTKEY_BUILD_MILITARY_ACADEMY:
+                                    case HOTKEY_BUILD_WHEAT_FARM:
+                                    case HOTKEY_BUILD_VEGETABLE_FARM:
+                                    case HOTKEY_BUILD_FRUIT_FARM:
+                                    case HOTKEY_BUILD_PIG_FARM:
+                                    case HOTKEY_BUILD_OLIVE_FARM:
+                                    case HOTKEY_BUILD_VINES_FARM:
+                                    case HOTKEY_BUILD_CLAY_PIT:
+                                    case HOTKEY_BUILD_TIMBER_YARD:
+                                    case HOTKEY_BUILD_MARBLE_QUARRY:
+                                    case HOTKEY_BUILD_IRON_MINE:
+                                    case HOTKEY_BUILD_OIL_WORKSHOP:
+                                    case HOTKEY_BUILD_WINE_WORKSHOP:
+                                    case HOTKEY_BUILD_POTTERY_WORKSHOP:
+                                    case HOTKEY_BUILD_FURNITURE_WORKSHOP:
+                                    case HOTKEY_BUILD_WEAPONS_WORKSHOP:
+                                    case HOTKEY_BUILD_MARKET:
+                                    case HOTKEY_BUILD_GRANARY:
+                                    case HOTKEY_BUILD_WAREHOUSE:
+                                        switch (window_data.current_window->id) {
+                                            case WINDOW_CITY:
+                                            case WINDOW_CITY_MILITARY:
+                                                handle_set_building_hotkey(i - BUILDING_CLEAR_LAND);
+                                                break;
+                                        }
+                                        break;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+                case SDL_KEYUP:
+                    if (event.key.keysym.sym == SDLK_UP) {
+                        is_scrolling_up = 0;
+                    }
+                    if (event.key.keysym.sym == SDLK_DOWN) {
+                        is_scrolling_down = 0;
+                    }
+                    if (event.key.keysym.sym == SDLK_LEFT) {
+                        is_scrolling_left = 0;
+                    }
+                    if (event.key.keysym.sym == SDLK_RIGHT) {
+                        is_scrolling_right = 0;
+                    }
+                    break;
+                case SDL_TEXTINPUT:
+                    if (keyboard_data.capture_numeric) {
+                        char c = event.text.text[0];
+                        if (c >= '0' && c <= '9') {
+                            keyboard_data.capture_numeric_callback(c - '0');
+                        }
+                    } else {
+                        if (keyboard_data.capture) {
+                            int index = 0;
+                            while (event.text.text[index]) {
+                                char c = event.text.text[0];
+                                int add = 0;
+                                if (c == ' ' || c == '-') {
+                                    add = 1;
+                                } else if (c >= '0' && c <= '9') {
+                                    add = 1;
+                                } else if (c >= 'a' && c <= 'z') {
+                                    add = 1;
+                                } else if (c >= 'A' && c <= 'Z') {
+                                    add = 1;
+                                } else if (c == ',' || c == '.' || c == '?' || c == '!' || c == '@' || c == '%' || c == '\'' || c == '/' || c == '_') {
+                                    add = keyboard_data.allow_punctuation;
+                                }
+                                if (add) {
+                                    if (keyboard_data.length + 1 < keyboard_data.max_length) {
+                                        keyboard_data.text[keyboard_data.length] = 0;
+                                        while (keyboard_data.text[keyboard_data.length] > keyboard_data.text[keyboard_data.cursor_position]) {
+                                            keyboard_data.text[keyboard_data.length]--;
+                                            keyboard_data.text[keyboard_data.length] = keyboard_data.text[keyboard_data.length];
+                                        }
+                                        keyboard_data.text[keyboard_data.cursor_position] = event.text.text[0];
+                                        keyboard_data.cursor_position++;
+                                        keyboard_data.length += 1;
+                                        update_viewport(1);
+                                    }
+                                }
+                                index++;
+                            }
+                        }
+                    }
+                    break;
+                case SDL_MOUSEMOTION:
+                    if (event.motion.which != SDL_TOUCH_MOUSEID && !SDL_GetRelativeMouseMode()) {
+                        mouse_set_position(event.motion.x, event.motion.y);
+                    }
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    if (event.button.which != SDL_TOUCH_MOUSEID) {
+                        handle_mouse_button(&event.button, 1);
+                    }
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    if (event.button.which != SDL_TOUCH_MOUSEID) {
+                        handle_mouse_button(&event.button, 0);
+                    }
+                    break;
+                case SDL_MOUSEWHEEL:
+                    if (event.wheel.which != SDL_TOUCH_MOUSEID) {
+                        mouse_data.scrolled = event.wheel.y > 0 ? SCROLL_UP : event.wheel.y < 0 ? SCROLL_DOWN : SCROLL_NONE;
+                        mouse_data.is_inside_window = 1;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        if (window_data.current_window->id == WINDOW_CITY || window_data.current_window->id == WINDOW_CITY_MILITARY) {
+            scroll_map_arrow_keys();
+        } else if (window_data.current_window->id == WINDOW_EMPIRE || window_data.current_window->id == WINDOW_EDITOR_EMPIRE) {
+            scroll_empire_arrow_keys();
+        }
+        if (game_active) {
+            run_and_draw();
+        }
     }
     return 0;
 }
@@ -55060,13 +54409,13 @@ static void button_click_main_menu(int type, __attribute__((unused)) int param2)
         if (!editor_present) {
             window_plain_message_dialog_show("Editor not installed", "Your Caesar 3 installation does not contain the editor files.\n\
                 You can download them from: https://github.com/bvschaik/julius/wiki/Editor");
-        } else if (reload_language(1, 0)) {
+        } else {
+            load_files(FILE_EDITOR_TEXT_ENG, FILE_EDITOR_MM_ENG);
             city_victory_reset();
             building_construction_clear_type();
             city_data_init();
             city_data_init_scenario();
             city_message_init_scenario();
-            game_state_init();
             game_animation_init();
             initialize_city_sounds();
             building_clear_all();
@@ -55088,7 +54437,7 @@ static void button_click_main_menu(int type, __attribute__((unused)) int param2)
     } else if (type == 4) {
         window_config_show();
     } else if (type == 5) {
-        post_event(USER_EVENT_QUIT);
+        quit_game();
     }
 }
 
@@ -55265,7 +54614,7 @@ static struct generic_button_t buttons_list2[MAX_ITEMS_PER_LIST] = {
 
 static void draw_item(int item_id, int x, int y, int selected)
 {
-    color_t color = selected ? COLOR_FONT_BLUE : COLOR_BLACK;
+    uint32_t color = selected ? COLOR_FONT_BLUE : COLOR_BLACK;
     if (select_list_data.mode == MODE_GROUP) {
         lang_text_draw_centered_colored(select_list_data.group, item_id, select_list_data.x + x, select_list_data.y + y, 190, FONT_NORMAL_PLAIN, color);
     } else {
@@ -55764,7 +55113,7 @@ static void change_climate(__attribute__((unused)) int param1, __attribute__((un
         scenario.climate = 0;
     }
     scenario.is_saved = 0;
-    image_load_climate(scenario.climate, 1, 0);
+    load_main_graphics(scenario.climate, 1);
     minimap_data.refresh_requested = 1;
     window_data.refresh_on_draw = 1;
 }
