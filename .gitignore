@@ -1,12 +1,11 @@
 # IDE data
 .kdev4
-*.kdev4
 .vs
 .vscode
 
 # Build output and data directories
-/build/
+build/
 out/
-ext/SDL2/*/
+ext/
 
 debug_build.bat
